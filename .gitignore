@@ -1,0 +1,50 @@
+# Local environment files and secrets; keep example files available to developers.
+.env
+.env.*
+*.env
+*.env.*
+!.env.example
+!*.env.example
+
+# Local database files and backups.
+*.[mM][dD][fF]
+*.[nN][dD][fF]
+*.[lL][dD][fF]
+*.[bB][aA][kK]
+*.[bB][kK][pP]
+*.[tT][rR][nN]
+*.bacpac
+*.db
+*.sqlite
+*.sqlite3
+*.db-shm
+*.db-wal
+
+# Local Docker configuration and bind-mounted database data.
+.docker/
+.docker-data/
+docker-data/
+mssql-data/
+sqlserver-data/
+sql-data/
+/database/data/
+/database/backups/
+/database/logs/
+/database/volumes/
+
+# Generated .NET output.
+[Bb]in/
+[Oo]bj/
+
+# IDE and operating system generated files.
+.vs/
+.vscode/
+.idea/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+*.iml
+*.swp
+*.swo
+.DS_Store

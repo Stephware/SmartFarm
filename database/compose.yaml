@@ -1,0 +1,18 @@
+# Developer-only SQL Server; test on an x86-64 host first.
+# Apple Silicon (ARM64) with x86 emulation is not officially supported.
+services:
+  sqlserver:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    platform: linux/amd64
+    container_name: smartfarm-sqlserver
+    restart: unless-stopped
+    environment:
+      ACCEPT_EULA: "Y"
+      MSSQL_PID: "Developer"
+      MSSQL_SA_PASSWORD: ${MSSQL_SA_PASSWORD:?Set MSSQL_SA_PASSWORD in your local .env file}
+    ports:
+      - "127.0.0.1:14333:1433"
+    volumes:
+      - smartfarm_sql_data:/var/opt/mssql
+volumes:
+  smartfarm_sql_data:
