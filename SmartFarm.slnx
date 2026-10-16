@@ -1,0 +1,8 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/SmartFarm.Core/SmartFarm.Core.csproj" />
+    <Project Path="src/SmartFarm.Infrastructure/SmartFarm.Infrastructure.csproj" />
+    <Project Path="src/SmartFarm.Web/SmartFarm.Web.csproj" />
+    <Project Path="src/SmartFarm.Worker/SmartFarm.Worker.csproj" />
+  </Folder>
+</Solution>

@@ -2,7 +2,7 @@
 
 SmartFarm is an **in-development farm-management platform** planned for a web application and an Android app. The goal is to help farm owners and field teams manage farms, plots, crop cycles, daily work, supply inventory, harvest records, and weather-related reminders. Android will support selected offline operations with synchronization when connectivity returns.
 
-> **Project status:** Initial repository folders, SQL Server setup scripts, and database documentation are present. The application projects, API endpoints, Android app, Hangfire jobs, and automated CI builds **have not been initialized yet**. Features below describe the planned scope, not completed functionality.
+> **Project status:** The .NET 10 solution and four backend project shells are initialized, alongside SQL Server setup scripts and database documentation. The MVC home page is a smoke test only. Domain features, database integration, API endpoints, Hangfire jobs, Android app, and CI checks are **not implemented yet**.
 
 ## Planned technology stack
 
@@ -61,7 +61,7 @@ SmartFarm/
 └── .github/workflows/
 ```
 
-Currently, many folders contain only `.gitkeep` placeholders. The proposed .NET solution, project files, Android Gradle build, and tests must be created in later initialization steps.
+Many folders still contain only `.gitkeep` placeholders. The .NET 10 solution and four backend project shells exist; Android Gradle files and automated test projects have not been created yet.
 
 ## Database setup
 
@@ -178,7 +178,27 @@ If merging is blocked, read GitHub's displayed requirement instead of bypassing 
 
 ## Build, run, and testing status
 
-The repository **does not yet contain executable .NET or Android application projects**. Therefore, commands such as `dotnet build`, `dotnet test`, or `./gradlew test` are **not available yet**. Do not interpret placeholder folders as finished projects.
+The backend contains an initial **.NET 10 solution** with four projects. Install the .NET 10 SDK and run from the repository root:
+
+```bash
+dotnet --version
+dotnet sln SmartFarm.slnx list
+dotnet restore SmartFarm.slnx
+dotnet build SmartFarm.slnx
+dotnet run --project src/SmartFarm.Web/SmartFarm.Web.csproj
+```
+
+Open the URL shown by the web app (or `http://localhost:5080` using its HTTP launch profile) to check the placeholder SmartFarm home page. Stop with **Ctrl+C**.
+
+To start the background host independently, run:
+
+```bash
+dotnet run --project src/SmartFarm.Worker/SmartFarm.Worker.csproj
+```
+
+The Worker is currently idle; Hangfire jobs and SQL Server connections are **not configured**. Stop with **Ctrl+C**.
+
+**Not yet available:** application tests (`dotnet test` has no test projects), Android Gradle builds (`./gradlew` does not exist), working API features, and CI. These come in later milestones.
 
 **Checks that work today:**
 
@@ -199,7 +219,7 @@ The repository **does not yet contain executable .NET or Android application pro
 ## Next milestones
 
 1. Finish and verify the repository's protected-branch and PR workflow.
-2. Initialize the **.NET 10** solution (Core, Infrastructure, Web, Worker).
+2. ~~Initialize the **.NET 10** solution (Core, Infrastructure, Web, Worker).~~ Completed as scaffolding; add tests and CI next.
 3. Connect the .NET backend to SQL Server and reconcile EF Core with the existing SQL schema.
 4. Initialize the **Kotlin / Compose** Android project.
 5. Add **GitHub Actions** build/test workflows, then begin domain features and integrations.
