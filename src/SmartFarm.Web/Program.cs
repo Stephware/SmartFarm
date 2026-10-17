@@ -27,7 +27,15 @@ var app = builder.Build();
 
 if (!app.Environment.IsDevelopment())
 {
-    app.UseExceptionHandler("/Home/Error");
+    app.UseExceptionHandler(handler =>
+    {
+        handler.Run(async context =>
+        {
+            context.Response.StatusCode = StatusCodes.Status500InternalServerError;
+            context.Response.ContentType = "text/plain";
+            await context.Response.WriteAsync("An unexpected error occurred.");
+        });
+    });
     app.UseHsts();
     app.UseHttpsRedirection();
 }

@@ -2,7 +2,7 @@
 
 SmartFarm is an **in-development farm-management platform** planned for a web application and an Android app. The goal is to help farm owners and field teams manage farms, plots, crop cycles, daily work, supply inventory, harvest records, and weather-related reminders. Android will support selected offline operations with synchronization when connectivity returns.
 
-> **Project status:** The backend includes SQL Server/EF Core mappings, a development health check, an opt-in Hangfire Worker, and a provider-independent weather client. Android has a runnable Kotlin/Compose welcome screen with Room, Retrofit/OkHttp, and WorkManager infrastructure. Business features and CI are **not implemented yet**. Hangfire processing requires approved jobs database setup; the weather provider remains unselected.
+> **Project status:** The backend now includes SQL Server/EF Core mappings, Identity-based web/API authentication, a development health check, an opt-in Hangfire Worker, and weather client foundations. Android has Compose login/registration screens and a Retrofit auth client, plus Room and WorkManager infrastructure. Farm workflows, email confirmation, offline sync, and CI remain **unimplemented**. Hangfire still requires separate approved storage; the weather provider is unselected.
 
 ## Planned technology stack
 
@@ -195,7 +195,7 @@ dotnet test SmartFarm.slnx
 dotnet run --project src/SmartFarm.Web/SmartFarm.Web.csproj
 ```
 
-Open the URL shown by the web app (or `http://localhost:5080` using its HTTP launch profile) to check the placeholder SmartFarm home page. Stop with **Ctrl+C**.
+Open `http://localhost:5080` to try account registration, login and logout using your configured development database. See the [authentication guide](docs/authentication.md) for API, Android and permission testing. Stop with **Ctrl+C**.
 
 To start the background host independently, run:
 
@@ -232,4 +232,4 @@ For Android build, emulator tests, and local setup, see [Android initialization]
 2. ~~Initialize the **.NET 10** solution (Core, Infrastructure, Web, Worker).~~ Completed; offline schema tests are available and CI remains planned.
 3. ~~Connect the .NET backend to SQL Server and reconcile EF Core with the existing SQL schema.~~ Implemented and verified; baseline history adoption requires approval.
 4. ~~Initialize the **Kotlin / Compose** Android project.~~ Foundation build and emulator checks are available.
-5. Add **GitHub Actions** build/test workflows, then begin domain features and integrations.
+5. Implement farm and plot management after validating Phase 1 authentication. GitHub Actions may be added later.
