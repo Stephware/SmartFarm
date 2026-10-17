@@ -1,0 +1,5 @@
+<resources>
+    <string name="app_name">SmartFarm</string>
+    <string name="welcome">Welcome to SmartFarm</string>
+    <string name="welcome_description">Your farming companion.</string>
+</resources>
