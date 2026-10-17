@@ -1,0 +1,18 @@
+@model SmartFarm.Core.Contracts.Farms.FarmInput
+@{
+    ViewData["Title"] = "Create farm";
+}
+<section class="panel narrow">
+    <h1>Create farm</h1>
+    <form asp-action="Create" method="post">
+        <div asp-validation-summary="All" class="error"></div>
+        <label asp-for="Name"></label><input asp-for="Name" required maxlength="120" />
+        <label asp-for="LocationText">Location</label><input asp-for="LocationText" required maxlength="250" />
+        <label asp-for="TimeZoneId">Time zone</label><input asp-for="TimeZoneId" required maxlength="64" />
+        <label asp-for="Latitude">Latitude (optional)</label><input asp-for="Latitude" type="number" step="0.000001" />
+        <label asp-for="Longitude">Longitude (optional)</label><input asp-for="Longitude" type="number" step="0.000001" />
+        <p class="hint">If supplying coordinates, provide both latitude and longitude.</p>
+        <button type="submit">Create</button> <a asp-action="Index">Cancel</a>
+    </form>
+</section>
+

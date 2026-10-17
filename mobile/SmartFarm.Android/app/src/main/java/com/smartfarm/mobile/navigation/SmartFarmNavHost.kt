@@ -2,6 +2,7 @@ package com.smartfarm.mobile.navigation
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.LaunchedEffect
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -11,9 +12,12 @@ import com.smartfarm.mobile.features.auth.AuthViewModel
 import com.smartfarm.mobile.features.auth.LoginScreen
 import com.smartfarm.mobile.features.auth.RegisterScreen
 import com.smartfarm.mobile.ui.components.WelcomeScreen
+import com.smartfarm.mobile.features.farms.FarmViewModel
+import com.smartfarm.mobile.features.farms.FarmListScreen
+import com.smartfarm.mobile.features.farms.FarmDetailScreen
 
 @Composable
-fun SmartFarmNavHost(auth: AuthViewModel) {
+fun SmartFarmNavHost(auth: AuthViewModel, farms: FarmViewModel) {
     val navController = rememberNavController()
     val state by auth.state.collectAsStateWithLifecycle()
     NavHost(navController = navController, startDestination = "welcome") {
@@ -43,9 +47,39 @@ fun SmartFarmNavHost(auth: AuthViewModel) {
         composable("account") {
             AccountScreen(state, onLogout = {
                 auth.logout()
+                farms.clear()
                 navController.navigate("welcome") { popUpTo("welcome") { inclusive = true } }
-            })
+            }, onFarms = { navController.navigate("farms") })
+        }
+        composable("farms") {
+            val farmState by farms.state.collectAsStateWithLifecycle()
+            LaunchedEffect(Unit) { farms.load() }
+            FarmListScreen(farmState,
+                onOpen = { navController.navigate("farm/$it") },
+                onCreate = { name, location -> farms.create(name, location) {
+                    navController.navigate("farm/$it")
+                } },
+                onAccept = { token -> farms.acceptInvitation(token) {
+                    navController.navigate("farm/$it")
+                } },
+                onBack = { navController.popBackStack() })
+        }
+        composable("farm/{farmId}") { entry ->
+            val farmId = entry.arguments?.getString("farmId").orEmpty()
+            val farmState by farms.state.collectAsStateWithLifecycle()
+            LaunchedEffect(farmId) { farms.loadDetail(farmId) }
+            FarmDetailScreen(farmState,
+                onBack = { navController.popBackStack() },
+                onSaveFarm = { name, location -> farms.saveFarm(name, location) {} },
+                onArchiveFarm = { farms.archiveFarm { navController.popBackStack() } },
+                onAddPlot = { name, area -> farms.addPlot(name, area) },
+                onSavePlot = { plot, name, area -> farms.savePlot(plot, name, area) },
+                onArchivePlot = { plot -> farms.archivePlot(plot) },
+                onInvite = { email, role -> farms.invite(email, role) },
+                onChangeRole = { member, role -> farms.changeRole(member, role) },
+                onRemoveMember = { farms.remove(it) })
         }
     }
 }
+
 

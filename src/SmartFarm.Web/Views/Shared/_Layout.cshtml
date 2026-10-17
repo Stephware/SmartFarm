@@ -12,6 +12,7 @@
         <nav aria-label="Main navigation">
             @if (User.Identity?.IsAuthenticated == true)
             {
+                <a href="@Url.Action("Index", "Farms")">My farms</a>
                 <a href="@Url.Action("Profile", "Account")">My account</a>
                 <form method="post" asp-controller="Account" asp-action="Logout" class="inline">
                     <button type="submit" class="link-button">Log out</button>
@@ -27,4 +28,5 @@
     <main class="page">@RenderBody()</main>
 </body>
 </html>
+
 

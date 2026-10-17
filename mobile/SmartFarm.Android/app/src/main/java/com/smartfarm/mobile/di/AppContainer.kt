@@ -8,6 +8,8 @@ import com.smartfarm.mobile.data.local.SmartFarmDatabase
 import com.smartfarm.mobile.data.remote.api.ApiClientFactory
 import com.smartfarm.mobile.data.remote.api.AuthApi
 import com.smartfarm.mobile.data.repository.AuthRepository
+import com.smartfarm.mobile.data.repository.FarmRepository
+import com.smartfarm.mobile.data.remote.api.FarmApi
 
 class AppContainer(context: Context) {
     private val appContext = context.applicationContext
@@ -16,12 +18,16 @@ class AppContainer(context: Context) {
     }
     val workManager: WorkManager by lazy { WorkManager.getInstance(appContext) }
 
+    private val retrofit by lazy {
+        ApiClientFactory.create(BuildConfig.API_BASE_URL, allowLocalHttpForDebug = BuildConfig.DEBUG)
+    }
+    val farmRepository: FarmRepository by lazy {
+        FarmRepository(authRepository) { retrofit.create(FarmApi::class.java) }
+    }
+
     val authRepository: AuthRepository by lazy {
-        AuthRepository {
-            ApiClientFactory.create(
-                BuildConfig.API_BASE_URL, allowLocalHttpForDebug = BuildConfig.DEBUG
-            ).create(AuthApi::class.java)
-        }
+        AuthRepository { retrofit.create(AuthApi::class.java) }
     }
 }
+
 

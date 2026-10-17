@@ -74,11 +74,11 @@ fun RegisterScreen(
 }
 
 @Composable
-fun AccountScreen(state: AuthUiState, onLogout: () -> Unit) {
+fun AccountScreen(state: AuthUiState, onLogout: () -> Unit, onFarms: () -> Unit) {
     AuthScaffold("My account") {
         Text("Welcome, ${state.account?.fullName.orEmpty()}")
         Text(state.account?.email.orEmpty())
-        Text("Farm management will be available in the next phase.")
+        Button(onClick = onFarms) { Text("My farms") }
         OutlinedButton(onClick = onLogout) { Text("Log out") }
     }
 }
@@ -102,4 +102,5 @@ private fun AuthScaffold(title: String, content: @Composable () -> Unit) {
         }
     }
 }
+
 

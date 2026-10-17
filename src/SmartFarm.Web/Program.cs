@@ -1,9 +1,11 @@
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
+using SmartFarm.Core.Interfaces.Farms;
 using SmartFarm.Core.Interfaces.Security;
 using SmartFarm.Infrastructure;
 using SmartFarm.Infrastructure.Identity;
 using SmartFarm.Infrastructure.Integrations.Weather;
 using SmartFarm.Infrastructure.Security;
+using SmartFarm.Infrastructure.Services.Farms;
 using SmartFarm.Web.Authentication;
 using SmartFarm.Web.HealthChecks;
 
@@ -16,6 +18,8 @@ builder.Services.AddSmartFarmWeather(builder.Configuration);
 builder.Services.AddSmartFarmIdentity(builder.Environment);
 builder.Services.AddScoped<AccountRegistrationService>();
 builder.Services.AddScoped<IFarmAccessService, FarmAccessService>();
+builder.Services.AddScoped<IFarmManagementService, FarmManagementService>();
+builder.Services.AddDataProtection();
 
 if (builder.Environment.IsDevelopment())
 {

@@ -1,0 +1,109 @@
+@model SmartFarm.Web.ViewModels.Farms.FarmWorkspaceViewModel
+@{
+    ViewData["Title"] = Model.Farm.Name;
+    var canManage = Model.Farm.Role == "Owner" || Model.Farm.Role == "Manager";
+    var isOwner = Model.Farm.Role == "Owner";
+}
+<section class="panel">
+    <p><a asp-action="Index">← My farms</a></p>
+    <h1>@Model.Farm.Name</h1>
+    <p>@Model.Farm.LocationText · @Model.Farm.Role</p>
+    @if (TempData["Error"] is string error) { <p class="error" role="alert">@error</p> }
+    @if (canManage)
+    {
+        <a asp-action="Edit" asp-route-id="@Model.Farm.Id">Edit farm</a>
+    }
+    @if (isOwner)
+    {
+        <form asp-action="Archive" asp-route-id="@Model.Farm.Id" method="post" class="inline">
+            <input type="hidden" name="rowVersion" value="@Model.Farm.RowVersion" />
+            <button type="submit" onclick="return confirm('Archive this farm?')">Archive farm</button>
+        </form>
+    }
+</section>
+<section class="panel">
+    <h2>Plots</h2>
+    @if (Model.Plots.Count == 0) { <p>No active plots.</p> }
+    else
+    {
+        <ul class="farm-list">
+        @foreach (var plot in Model.Plots)
+        {
+            <li>
+                <strong>@plot.Name</strong> — @plot.AreaSqMeters m²
+                @if (canManage)
+                {
+                    <a asp-action="EditPlot" asp-route-id="@Model.Farm.Id" asp-route-plotId="@plot.Id">Edit</a>
+                    <form asp-action="ArchivePlot" asp-route-id="@Model.Farm.Id" asp-route-plotId="@plot.Id" method="post" class="inline">
+                        <input type="hidden" name="rowVersion" value="@plot.RowVersion" />
+                        <button type="submit" onclick="return confirm('Archive plot?')">Archive</button>
+                    </form>
+                }
+            </li>
+        }
+        </ul>
+    }
+    @if (canManage)
+    {
+        <h3>Add plot</h3>
+        <form asp-action="CreatePlot" asp-route-id="@Model.Farm.Id" method="post" class="narrow">
+            <label for="plotName">Name</label><input id="plotName" name="Name" required maxlength="100" minlength="2" />
+            <label for="plotArea">Area (m²)</label><input id="plotArea" name="AreaSqMeters" type="number" min="0.01" step="0.01" required />
+            <button type="submit">Add plot</button>
+        </form>
+    }
+</section>
+<section class="panel">
+    <h2>Members</h2>
+    <ul class="farm-list">
+        <li>Owner — the account that created this farm</li>
+        @foreach (var member in Model.Members)
+        {
+            <li>
+                <strong>@member.FullName</strong> — @member.Role
+                @if (isOwner)
+                {
+                    <form asp-action="ChangeRole" asp-route-id="@Model.Farm.Id" asp-route-memberId="@member.Id" method="post" class="inline">
+                        <select name="Role">
+                            @if (member.Role == "Manager")
+                            {
+                                <option value="1" selected>Manager</option>
+                                <option value="2">Field Worker</option>
+                            }
+                            else
+                            {
+                                <option value="1">Manager</option>
+                                <option value="2" selected>Field Worker</option>
+                            }
+                        </select>
+                        <button type="submit">Update role</button>
+                    </form>
+                    <form asp-action="RemoveMember" asp-route-id="@Model.Farm.Id" asp-route-memberId="@member.Id" method="post" class="inline">
+                        <button type="submit" onclick="return confirm('Remove this member?')">Remove</button>
+                    </form>
+                }
+            </li>
+        }
+    </ul>
+    @if (isOwner)
+    {
+        <h3>Invite a registered user</h3>
+        <p>Invitation links expire after 24 hours and work only for the selected account.</p>
+        <form asp-action="Invite" asp-route-id="@Model.Farm.Id" method="post" class="narrow">
+            <label for="inviteEmail">Registered email</label>
+            <input id="inviteEmail" name="Email" type="email" required />
+            <label for="inviteRole">Role</label>
+            <select id="inviteRole" name="Role">
+                <option value="1">Manager</option>
+                <option value="2">Field Worker</option>
+            </select>
+            <button type="submit">Create invitation</button>
+        </form>
+        @if (TempData["InvitationUrl"] is string invitationUrl)
+        {
+            <p>Share this link privately with @TempData["InvitationEmail"]:</p>
+            <input readonly value="@invitationUrl" aria-label="Invitation link" />
+        }
+    }
+</section>
+
