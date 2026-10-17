@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using SmartFarm.Infrastructure;
+using SmartFarm.Infrastructure.Integrations.Weather;
 using SmartFarm.Web.HealthChecks;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -7,6 +8,7 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllersWithViews();
 builder.Services.AddSmartFarmPersistence(
     builder.Configuration.GetConnectionString("SmartFarm"));
+builder.Services.AddSmartFarmWeather(builder.Configuration);
 
 if (builder.Environment.IsDevelopment())
 {
