@@ -2,7 +2,7 @@
 
 SmartFarm is an **in-development farm-management platform** planned for a web application and an Android app. The goal is to help farm owners and field teams manage farms, plots, crop cycles, daily work, supply inventory, harvest records, and weather-related reminders. Android will support selected offline operations with synchronization when connectivity returns.
 
-> **Project status:** The .NET 10 solution and four backend project shells are initialized, alongside SQL Server setup scripts and database documentation. The MVC home page is a smoke test only. Domain features, database integration, API endpoints, Hangfire jobs, Android app, and CI checks are **not implemented yet**.
+> **Project status:** The .NET 10 solution and four backend project shells are initialized, alongside SQL Server setup scripts and database documentation. The Web host has EF Core SQL Server connection infrastructure and a development-only database health check. The MVC home page is a smoke test only. Domain mappings, business features, API endpoints, Hangfire jobs, Android app, and CI checks are **not implemented yet**.
 
 ## Planned technology stack
 
@@ -76,6 +76,8 @@ Run the database creation, schema creation, and verification scripts in order as
 **Important:** The schema was created manually; `__EFMigrationsHistory` is not initialized by these SQL scripts. Before using EF Core Code First migrations, create a carefully verified baseline matching the actual schema. Never run a normal generated `InitialCreate` migration over tables that already exist.
 
 Keep `.env`, database passwords, actual database files, and backups out of Git.
+
+For Web connection strings and the development connectivity check, see [Backend database connection](docs/backend-database-connection.md).
 
 ## Git and pull request workflow
 
