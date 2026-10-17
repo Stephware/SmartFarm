@@ -20,8 +20,8 @@ class AuthViewModel(private val repository: AuthRepository) : ViewModel() {
     private val mutableState = MutableStateFlow(AuthUiState())
     val state = mutableState.asStateFlow()
 
-    fun login(email: String, password: String, onSuccess: () -> Unit) = run {
-        if (mutableState.value.busy) return@run
+    fun login(email: String, password: String, onSuccess: () -> Unit) {
+        if (mutableState.value.busy) return
         mutableState.value = AuthUiState(busy = true)
         viewModelScope.launch {
             try {
@@ -34,8 +34,8 @@ class AuthViewModel(private val repository: AuthRepository) : ViewModel() {
         }
     }
 
-    fun register(fullName: String, email: String, password: String, confirmation: String, onSuccess: () -> Unit) = run {
-        if (mutableState.value.busy) return@run
+    fun register(fullName: String, email: String, password: String, confirmation: String, onSuccess: () -> Unit) {
+        if (mutableState.value.busy) return
         mutableState.value = AuthUiState(busy = true)
         viewModelScope.launch {
             try {
