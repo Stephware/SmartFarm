@@ -36,17 +36,32 @@ class FarmViewModel(private val repo: FarmRepository) : ViewModel() {
         }
     }
 
-    fun load() = perform {
-        val list = repo.list()
-        mutable.value = mutable.value.copy(farms = list, invitation = null)
+
+    fun clear() {
+        mutable.value = FarmUiState()
     }
 
-    fun loadDetail(farmId: String) = perform {
-        val farm = repo.farm(farmId)
-        val plots = repo.plots(farmId)
-        val members = repo.members(farmId)
-        mutable.value = mutable.value.copy(selected = farm, plots = plots,
-            members = members, invitation = null)
+    fun load() = perform {
+        val list = repo.list()
+        mutable.value = mutable.value.copy(farms = list, selected = null,
+            plots = emptyList(), members = emptyList(), invitation = null)
+    }
+
+    fun loadDetail(farmId: String) {
+        mutable.value = FarmUiState(loading = true)
+        viewModelScope.launch {
+            try {
+                val farm = repo.farm(farmId)
+                val plots = repo.plots(farmId)
+                val members = repo.members(farmId)
+                mutable.value = mutable.value.copy(selected = farm, plots = plots, members = members)
+            } catch (_: Exception) {
+                mutable.value = mutable.value.copy(error =
+                    "Could not load this farm. Check permissions and connection.")
+            } finally {
+                mutable.value = mutable.value.copy(loading = false)
+            }
+        }
     }
 
     fun create(name: String, location: String, onSuccess: (String) -> Unit) = perform {

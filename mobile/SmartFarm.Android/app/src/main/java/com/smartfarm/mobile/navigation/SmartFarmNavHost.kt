@@ -47,6 +47,7 @@ fun SmartFarmNavHost(auth: AuthViewModel, farms: FarmViewModel) {
         composable("account") {
             AccountScreen(state, onLogout = {
                 auth.logout()
+                farms.clear()
                 navController.navigate("welcome") { popUpTo("welcome") { inclusive = true } }
             }, onFarms = { navController.navigate("farms") })
         }
