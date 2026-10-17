@@ -7,5 +7,7 @@
   </Folder>
   <Folder Name="/tests/">
     <Project Path="tests/SmartFarm.SchemaVerification/SmartFarm.SchemaVerification.csproj" />
+    <Project Path="tests/SmartFarm.Weather.Tests/SmartFarm.Weather.Tests.csproj" />
+    <Project Path="tests/SmartFarm.Worker.Tests/SmartFarm.Worker.Tests.csproj" />
   </Folder>
 </Solution>

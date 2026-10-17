@@ -2,7 +2,7 @@
 
 SmartFarm is an **in-development farm-management platform** planned for a web application and an Android app. The goal is to help farm owners and field teams manage farms, plots, crop cycles, daily work, supply inventory, harvest records, and weather-related reminders. Android will support selected offline operations with synchronization when connectivity returns.
 
-> **Project status:** The .NET 10 solution and four backend project shells are initialized, alongside SQL Server setup scripts and database documentation. The Web host has EF Core SQL Server connection infrastructure and a development-only database health check. All 23 existing SQL tables have EF Core mappings and a verified migration baseline prepared for approved adoption, with offline schema regression tests. The MVC home page is a smoke test only. Business features, API endpoints, Hangfire jobs, Android app, and CI checks are **not implemented yet**.
+> **Project status:** The backend includes SQL Server/EF Core mappings, a development health check, an opt-in Hangfire Worker, and a provider-independent weather client. Android has a runnable Kotlin/Compose welcome screen with Room, Retrofit/OkHttp, and WorkManager infrastructure. Business features and CI are **not implemented yet**. Hangfire processing requires approved jobs database setup; the weather provider remains unselected.
 
 ## Planned technology stack
 
@@ -47,6 +47,8 @@ SmartFarm/
 │   └── SmartFarm.Android/        # Kotlin / Compose / Room application
 ├── tests/
 │   ├── SmartFarm.SchemaVerification/ # Offline EF model and baseline regression tests
+│   ├── SmartFarm.Weather.Tests/ # Provider-independent HTTP client tests
+│   ├── SmartFarm.Worker.Tests/  # Background processing configuration tests
 │   ├── SmartFarm.Core.Tests/
 │   └── SmartFarm.IntegrationTests/
 ├── database/
@@ -62,7 +64,7 @@ SmartFarm/
 └── .github/workflows/
 ```
 
-Many folders still contain only `.gitkeep` placeholders. The .NET 10 solution includes four backend projects and an offline schema verification test project; Android Gradle files have not been created yet.
+Feature folders still contain `.gitkeep` placeholders. The .NET 10 solution includes four backend projects and foundation tests; Android includes its own Gradle project.
 
 ## Database setup
 
@@ -181,7 +183,7 @@ If merging is blocked, read GitHub's displayed requirement instead of bypassing 
 
 ## Build, run, and testing status
 
-The backend contains a **.NET 10 solution** with four application projects and an offline schema verification test project. Install the .NET 10 SDK and run from the repository root:
+The backend contains a **.NET 10 solution** with four application projects and foundation test projects. Install the .NET 10 SDK and run from the repository root:
 
 ```bash
 dotnet --version
@@ -201,17 +203,20 @@ To start the background host independently, run:
 dotnet run --project src/SmartFarm.Worker/SmartFarm.Worker.csproj
 ```
 
-The Worker is currently idle; Hangfire jobs and SQL Server connections are **not configured**. Stop with **Ctrl+C**.
+The Worker starts idle by default. Enable processing only after approved jobs database and Hangfire schema provisioning. Stop with **Ctrl+C**. See the [worker setup](docs/background-worker.md) and [weather configuration](docs/weather-integration.md) guides.
 
-**Not yet available:** business feature tests, Android Gradle builds (`./gradlew` does not exist), working API features, and CI. These come in later milestones.
+For Android build, emulator tests, and local setup, see [Android initialization](docs/android-initialization.md).
+
+**Not yet available:** business features and their tests, a confirmed weather provider adapter, farm background jobs, and CI.
 
 **Checks that work today:**
 
 - Follow the [database guides](database/README.md) to start or connect to SQL Server, then execute `03_VerifySchema.sql` in DBeaver/SSMS to check the database schema.
 - Validate Docker Compose configuration on the macOS setup with `cd database && docker compose config --quiet` after creating your local `.env`.
 - Test the GitHub branch/PR workflow using the documentation-only steps above.
+- Build and test the Android foundation using the [Android guide](docs/android-initialization.md).
 
-**Planned after project initialization:** business feature tests; Android Gradle build/tests; GitHub Actions CI for pull requests targeting `dev` and `main`. CI should become a required branch check **only after workflows exist and pass**.
+**Planned after project initialization:** business features and tests; GitHub Actions CI for pull requests targeting `dev` and `main`. CI should become a required branch check **only after workflows exist and pass**.
 
 ## Collaboration rules
 
@@ -226,5 +231,5 @@ The Worker is currently idle; Hangfire jobs and SQL Server connections are **not
 1. Finish and verify the repository's protected-branch and PR workflow.
 2. ~~Initialize the **.NET 10** solution (Core, Infrastructure, Web, Worker).~~ Completed; offline schema tests are available and CI remains planned.
 3. ~~Connect the .NET backend to SQL Server and reconcile EF Core with the existing SQL schema.~~ Implemented and verified; baseline history adoption requires approval.
-4. Initialize the **Kotlin / Compose** Android project.
+4. ~~Initialize the **Kotlin / Compose** Android project.~~ Foundation build and emulator checks are available.
 5. Add **GitHub Actions** build/test workflows, then begin domain features and integrations.
