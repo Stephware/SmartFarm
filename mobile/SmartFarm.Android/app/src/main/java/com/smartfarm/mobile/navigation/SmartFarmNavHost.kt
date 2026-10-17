@@ -13,11 +13,13 @@ import com.smartfarm.mobile.features.auth.LoginScreen
 import com.smartfarm.mobile.features.auth.RegisterScreen
 import com.smartfarm.mobile.ui.components.WelcomeScreen
 import com.smartfarm.mobile.features.farms.FarmViewModel
+import com.smartfarm.mobile.features.crops.CropViewModel
+import com.smartfarm.mobile.features.crops.CropScreen
 import com.smartfarm.mobile.features.farms.FarmListScreen
 import com.smartfarm.mobile.features.farms.FarmDetailScreen
 
 @Composable
-fun SmartFarmNavHost(auth: AuthViewModel, farms: FarmViewModel) {
+fun SmartFarmNavHost(auth: AuthViewModel, farms: FarmViewModel, crops: CropViewModel) {
     val navController = rememberNavController()
     val state by auth.state.collectAsStateWithLifecycle()
     NavHost(navController = navController, startDestination = "welcome") {
@@ -48,6 +50,7 @@ fun SmartFarmNavHost(auth: AuthViewModel, farms: FarmViewModel) {
             AccountScreen(state, onLogout = {
                 auth.logout()
                 farms.clear()
+                crops.clear()
                 navController.navigate("welcome") { popUpTo("welcome") { inclusive = true } }
             }, onFarms = { navController.navigate("farms") })
         }
@@ -75,11 +78,33 @@ fun SmartFarmNavHost(auth: AuthViewModel, farms: FarmViewModel) {
                 onAddPlot = { name, area -> farms.addPlot(name, area) },
                 onSavePlot = { plot, name, area -> farms.savePlot(plot, name, area) },
                 onArchivePlot = { plot -> farms.archivePlot(plot) },
+                onCrops = { navController.navigate("crops/$farmId") },
                 onInvite = { email, role -> farms.invite(email, role) },
                 onChangeRole = { member, role -> farms.changeRole(member, role) },
                 onRemoveMember = { farms.remove(it) })
         }
+        composable("crops/{farmId}") { entry ->
+            val farmId = entry.arguments?.getString("farmId").orEmpty()
+            val cropState by crops.state.collectAsStateWithLifecycle()
+            val farmState by farms.state.collectAsStateWithLifecycle()
+            LaunchedEffect(farmId) { crops.load(farmId) }
+            CropScreen(cropState,
+                canManage = farmState.selected?.id == farmId &&
+                    farmState.selected?.role in listOf("Owner", "Manager"),
+                onBack = { navController.popBackStack() },
+                onCreateType = { name, unit, growth, watering ->
+                    crops.createType(name, unit, growth, watering)
+                },
+                onPlan = { plotId, typeId, date, expected ->
+                    crops.plan(plotId, typeId, date, expected)
+                },
+                onUpdatePlan = { cycle, date, expected -> crops.updatePlan(cycle, date, expected) },
+                onTransition = { cycle, status, planted, reason ->
+                    crops.transition(cycle, status, planted, reason)
+                })
+        }
     }
 }
+
 
 

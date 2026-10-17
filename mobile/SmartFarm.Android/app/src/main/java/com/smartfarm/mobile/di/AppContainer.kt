@@ -9,6 +9,8 @@ import com.smartfarm.mobile.data.remote.api.ApiClientFactory
 import com.smartfarm.mobile.data.remote.api.AuthApi
 import com.smartfarm.mobile.data.repository.AuthRepository
 import com.smartfarm.mobile.data.repository.FarmRepository
+import com.smartfarm.mobile.data.repository.CropRepository
+import com.smartfarm.mobile.data.remote.api.CropApi
 import com.smartfarm.mobile.data.remote.api.FarmApi
 
 class AppContainer(context: Context) {
@@ -25,9 +27,14 @@ class AppContainer(context: Context) {
         FarmRepository(authRepository) { retrofit.create(FarmApi::class.java) }
     }
 
+    val cropRepository: CropRepository by lazy {
+        CropRepository(authRepository) { retrofit.create(CropApi::class.java) }
+    }
+
     val authRepository: AuthRepository by lazy {
         AuthRepository { retrofit.create(AuthApi::class.java) }
     }
 }
+
 
 
