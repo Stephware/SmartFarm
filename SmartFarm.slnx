@@ -5,4 +5,7 @@
     <Project Path="src/SmartFarm.Web/SmartFarm.Web.csproj" />
     <Project Path="src/SmartFarm.Worker/SmartFarm.Worker.csproj" />
   </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/SmartFarm.SchemaVerification/SmartFarm.SchemaVerification.csproj" />
+  </Folder>
 </Solution>

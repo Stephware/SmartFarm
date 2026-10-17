@@ -1,6 +1,6 @@
 # Backend database connection
 
-The Web host registers EF Core 10's SQL Server provider and a scoped `SmartFarmDbContext` from Infrastructure. The context is intentionally empty until its mappings have been reconciled with the existing schema. Startup and the development health check never create databases or tables, apply migrations, or change migration history.
+The Web host registers EF Core 10's SQL Server provider and a scoped `SmartFarmDbContext` from Infrastructure. The context maps the existing 23-table SQL-first schema; see [schema alignment and migration adoption](efcore-schema-alignment.md). Startup and the development health check never create databases or tables, apply migrations, or change migration history.
 
 ## Configure your existing database
 
@@ -54,4 +54,4 @@ In Development, the endpoint returns `200 Healthy` only when EF Core can open th
 
 The endpoint and its database health-check registration are absent outside Development. For example, run with `dotnet run --no-launch-profile --project src/SmartFarm.Web -- --environment Production --urls http://localhost:5080` and verify `/health/database` returns `404`.
 
-Schema alignment and a verified migration baseline are separate work. Do not run `EnsureCreated()`, `EnsureDeleted()`, or an initial migration against the existing database.
+Migration baseline adoption requires a separate approved database operation. Do not run `EnsureCreated()`, `EnsureDeleted()`, or an initial migration against the existing database.
