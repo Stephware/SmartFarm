@@ -48,3 +48,13 @@ sql-data/
 *.swp
 *.swo
 .DS_Store
+
+# Android local settings and generated output.
+.gradle/
+.kotlin/
+**/build/
+local.properties
+*.jks
+*.keystore
+.cxx/
+.externalNativeBuild/
