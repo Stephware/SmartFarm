@@ -34,9 +34,9 @@ public sealed class FarmsController(
         Ok(await farms.UpdateAsync(farmId, ActorId, input, ct)));
 
     [HttpDelete("{farmId:guid}")]
-    public Task<IActionResult> Archive(Guid farmId, [FromBody] FarmInput input, CancellationToken ct) => Result(async () =>
+    public Task<IActionResult> Archive(Guid farmId, [FromBody] RowVersionInput input, CancellationToken ct) => Result(async () =>
     {
-        await farms.ArchiveAsync(farmId, ActorId, input.RowVersion ?? "", ct);
+        await farms.ArchiveAsync(farmId, ActorId, input.RowVersion, ct);
         return NoContent();
     });
 
@@ -60,9 +60,9 @@ public sealed class FarmsController(
         Result(async () => Ok(await farms.UpdatePlotAsync(farmId, plotId, ActorId, input, ct)));
 
     [HttpDelete("{farmId:guid}/plots/{plotId:guid}")]
-    public Task<IActionResult> ArchivePlot(Guid farmId, Guid plotId, [FromBody] PlotInput input, CancellationToken ct) => Result(async () =>
+    public Task<IActionResult> ArchivePlot(Guid farmId, Guid plotId, [FromBody] RowVersionInput input, CancellationToken ct) => Result(async () =>
     {
-        await farms.ArchivePlotAsync(farmId, plotId, ActorId, input.RowVersion ?? "", ct);
+        await farms.ArchivePlotAsync(farmId, plotId, ActorId, input.RowVersion, ct);
         return NoContent();
     });
 }

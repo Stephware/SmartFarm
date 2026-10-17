@@ -15,7 +15,7 @@ class FarmRepository(
         authentication.authorized { api().farm(it, farmId) }
     suspend fun updateFarm(farmId: String, input: FarmInputDto): FarmDto =
         authentication.authorized { api().updateFarm(it, farmId, input) }
-    suspend fun archiveFarm(farmId: String, input: FarmInputDto) =
+    suspend fun archiveFarm(farmId: String, input: RowVersionDto) =
         authentication.authorized { api().archiveFarm(it, farmId, input) }
 
     suspend fun plots(farmId: String): List<PlotDto> =
@@ -24,7 +24,7 @@ class FarmRepository(
         authentication.authorized { api().createPlot(it, farmId, input) }
     suspend fun updatePlot(farmId: String, plotId: String, input: PlotInputDto): PlotDto =
         authentication.authorized { api().updatePlot(it, farmId, plotId, input) }
-    suspend fun archivePlot(farmId: String, plotId: String, input: PlotInputDto) =
+    suspend fun archivePlot(farmId: String, plotId: String, input: RowVersionDto) =
         authentication.authorized { api().archivePlot(it, farmId, plotId, input) }
 
     suspend fun members(farmId: String): List<FarmMemberDto> =

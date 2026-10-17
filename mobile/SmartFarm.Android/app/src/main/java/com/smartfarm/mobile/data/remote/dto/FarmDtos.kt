@@ -47,3 +47,5 @@ data class UpdateMemberDto(val role: Int)
 data class AcceptInvitationDto(val token: String)
 data class InvitationAcceptedDto(val farmId: String)
 
+
+data class RowVersionDto(val rowVersion: String)

@@ -28,7 +28,7 @@ interface FarmApi {
 
     @HTTP(method = "DELETE", path = "api/farms/{farmId}", hasBody = true)
     suspend fun archiveFarm(@Header("Authorization") auth: String,
-        @Path("farmId") farmId: String, @Body input: FarmInputDto)
+        @Path("farmId") farmId: String, @Body input: RowVersionDto)
 
     @GET("api/farms/{farmId}/plots")
     suspend fun plots(@Header("Authorization") auth: String,
@@ -46,7 +46,7 @@ interface FarmApi {
     @HTTP(method = "DELETE", path = "api/farms/{farmId}/plots/{plotId}", hasBody = true)
     suspend fun archivePlot(@Header("Authorization") auth: String,
         @Path("farmId") farmId: String, @Path("plotId") plotId: String,
-        @Body input: PlotInputDto)
+        @Body input: RowVersionDto)
 
     @GET("api/farms/{farmId}/members")
     suspend fun members(@Header("Authorization") auth: String,

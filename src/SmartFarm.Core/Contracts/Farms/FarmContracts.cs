@@ -31,6 +31,12 @@ public sealed class PlotInput
     public string? RowVersion { get; set; }
 }
 
+public sealed class RowVersionInput
+{
+    [Required]
+    public string RowVersion { get; set; } = "";
+}
+
 public sealed class InviteMemberInput
 {
     [Required, EmailAddress, StringLength(256)]

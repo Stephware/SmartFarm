@@ -80,8 +80,7 @@ class FarmViewModel(private val repo: FarmRepository) : ViewModel() {
 
     fun archiveFarm(onSuccess: () -> Unit) = perform {
         val farm = requireNotNull(mutable.value.selected)
-        repo.archiveFarm(farm.id, FarmInputDto(farm.name, farm.locationText,
-            farm.timeZoneId, farm.latitude, farm.longitude, requireNotNull(farm.rowVersion)))
+        repo.archiveFarm(farm.id, RowVersionDto(requireNotNull(farm.rowVersion)))
         mutable.value = mutable.value.copy(selected = null, plots = emptyList(), members = emptyList())
         onSuccess()
     }
@@ -100,7 +99,7 @@ class FarmViewModel(private val repo: FarmRepository) : ViewModel() {
 
     fun archivePlot(plot: PlotDto) = perform {
         val farmId = requireNotNull(mutable.value.selected).id
-        repo.archivePlot(farmId, plot.id, PlotInputDto(plot.name, plot.areaSqMeters, plot.rowVersion))
+        repo.archivePlot(farmId, plot.id, RowVersionDto(plot.rowVersion))
         mutable.value = mutable.value.copy(plots = repo.plots(farmId))
     }
 
