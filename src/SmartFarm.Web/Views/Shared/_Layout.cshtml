@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>@ViewData["Title"] - SmartFarm</title>
+    <link rel="stylesheet" href="~/css/site.css" />
+</head>
+<body>
+    <header class="site-header">
+        <a class="brand" href="@Url.Action("Index", "Home")">SmartFarm</a>
+        <nav aria-label="Main navigation">
+            @if (User.Identity?.IsAuthenticated == true)
+            {
+                <a href="@Url.Action("Profile", "Account")">My account</a>
+                <form method="post" asp-controller="Account" asp-action="Logout" class="inline">
+                    @Html.AntiForgeryToken()
+                    <button type="submit" class="link-button">Log out</button>
+                </form>
+            }
+            else
+            {
+                <a href="@Url.Action("Login", "Account")">Log in</a>
+                <a href="@Url.Action("Register", "Account")">Create account</a>
+            }
+        </nav>
+    </header>
+    <main class="page">@RenderBody()</main>
+</body>
+</html>
+

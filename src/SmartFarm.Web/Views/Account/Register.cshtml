@@ -1,0 +1,23 @@
+@model SmartFarm.Web.ViewModels.Auth.RegisterInput
+@{
+    ViewData["Title"] = "Register";
+}
+<section class="panel narrow">
+    <h1>Create an account</h1>
+    <form method="post" asp-action="Register" asp-controller="Account">
+        @Html.AntiForgeryToken()
+        <div asp-validation-summary="All" class="error" role="alert"></div>
+        <label asp-for="FullName">Full name</label>
+        <input asp-for="FullName" autocomplete="name" />
+        <label asp-for="Email"></label>
+        <input asp-for="Email" type="email" autocomplete="email" />
+        <label asp-for="Password"></label>
+        <input asp-for="Password" type="password" autocomplete="new-password" />
+        <label asp-for="ConfirmPassword">Confirm password</label>
+        <input asp-for="ConfirmPassword" type="password" autocomplete="new-password" />
+        <p class="hint">Use at least 10 characters, including uppercase, lowercase, and a number.</p>
+        <button type="submit">Create account</button>
+    </form>
+    <p>Already registered? <a asp-controller="Account" asp-action="Login">Log in</a>.</p>
+</section>
+

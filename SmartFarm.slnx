@@ -6,8 +6,10 @@
     <Project Path="src/SmartFarm.Worker/SmartFarm.Worker.csproj" />
   </Folder>
   <Folder Name="/tests/">
+    <Project Path="tests/SmartFarm.Auth.Tests/SmartFarm.Auth.Tests.csproj" />
     <Project Path="tests/SmartFarm.SchemaVerification/SmartFarm.SchemaVerification.csproj" />
     <Project Path="tests/SmartFarm.Weather.Tests/SmartFarm.Weather.Tests.csproj" />
     <Project Path="tests/SmartFarm.Worker.Tests/SmartFarm.Worker.Tests.csproj" />
   </Folder>
 </Solution>
+

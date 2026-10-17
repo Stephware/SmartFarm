@@ -1,6 +1,10 @@
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
+using SmartFarm.Core.Interfaces.Security;
 using SmartFarm.Infrastructure;
+using SmartFarm.Infrastructure.Identity;
 using SmartFarm.Infrastructure.Integrations.Weather;
+using SmartFarm.Infrastructure.Security;
+using SmartFarm.Web.Authentication;
 using SmartFarm.Web.HealthChecks;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -9,6 +13,9 @@ builder.Services.AddControllersWithViews();
 builder.Services.AddSmartFarmPersistence(
     builder.Configuration.GetConnectionString("SmartFarm"));
 builder.Services.AddSmartFarmWeather(builder.Configuration);
+builder.Services.AddSmartFarmIdentity(builder.Environment);
+builder.Services.AddScoped<AccountRegistrationService>();
+builder.Services.AddScoped<IFarmAccessService, FarmAccessService>();
 
 if (builder.Environment.IsDevelopment())
 {
@@ -18,7 +25,17 @@ if (builder.Environment.IsDevelopment())
 
 var app = builder.Build();
 
+if (!app.Environment.IsDevelopment())
+{
+    app.UseExceptionHandler("/Home/Error");
+    app.UseHsts();
+    app.UseHttpsRedirection();
+}
+
 app.UseStaticFiles();
+app.UseRouting();
+app.UseAuthentication();
+app.UseAuthorization();
 
 if (app.Environment.IsDevelopment())
 {
@@ -34,3 +51,6 @@ app.MapControllerRoute(
     pattern: "{controller=Home}/{action=Index}/{id?}");
 
 app.Run();
+
+public partial class Program { }
+
