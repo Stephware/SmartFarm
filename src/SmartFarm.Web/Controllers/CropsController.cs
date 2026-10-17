@@ -69,9 +69,10 @@ public sealed class CropsController(
     public async Task<IActionResult> EditPlan(Guid farmId, Guid cycleId, CancellationToken ct)
     {
         var farm = await farms.GetAsync(farmId, Actor, ct);
+        if (farm?.Role is not ("Owner" or "Manager")) return NotFound();
+
         var cycle = await crops.GetCycleAsync(farmId, cycleId, Actor, ct);
-        if (farm?.Role is not ("Owner" or "Manager") || cycle?.Status != CropCycleStatus.Planned)
-            return NotFound();
+        if (cycle?.Status != CropCycleStatus.Planned) return NotFound();
 
         return View(new CropPlanEditViewModel(farm, cycle, new CropCyclePlanInput
         {
