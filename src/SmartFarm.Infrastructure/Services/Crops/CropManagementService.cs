@@ -48,8 +48,7 @@ public sealed class CropManagementService(
         if (input.ExpectedHarvestDate is { } harvest && harvest < input.PlannedPlantingDate)
             throw Invalid("Expected harvest cannot precede planned planting.");
         if (input.WateringIntervalDays is <= 0 ||
-            input.HarvestUnit is { Length: > 20 } ||
-            input.HarvestUnit is not null && string.IsNullOrWhiteSpace(input.HarvestUnit))
+            input.HarvestUnit?.Trim().Length > 20)
             throw Invalid("Invalid watering interval or harvest unit.");
     }
 
@@ -175,7 +174,7 @@ public sealed class CropManagementService(
             PlotId = plotId, CropTypeId = type.Id,
             PlannedPlantingDate = input.PlannedPlantingDate,
             ExpectedHarvestDate = input.ExpectedHarvestDate,
-            HarvestUnit = input.HarvestUnit?.Trim() ?? type.DefaultHarvestUnit,
+            HarvestUnit = string.IsNullOrWhiteSpace(input.HarvestUnit) ? type.DefaultHarvestUnit : input.HarvestUnit.Trim(),
             WateringIntervalDays = input.WateringIntervalDays ?? type.DefaultWateringIntervalDays,
             Status = (byte)CropCycleStatus.Planned
         };
@@ -201,7 +200,7 @@ public sealed class CropManagementService(
         cycle.CropTypeId = type.Id;
         cycle.PlannedPlantingDate = input.PlannedPlantingDate;
         cycle.ExpectedHarvestDate = input.ExpectedHarvestDate;
-        cycle.HarvestUnit = input.HarvestUnit?.Trim() ?? type.DefaultHarvestUnit;
+        cycle.HarvestUnit = string.IsNullOrWhiteSpace(input.HarvestUnit) ? type.DefaultHarvestUnit : input.HarvestUnit.Trim();
         cycle.WateringIntervalDays = input.WateringIntervalDays ?? type.DefaultWateringIntervalDays;
         await Save(db, ct);
         return await MapLoaded(cycle, farmId, ct);

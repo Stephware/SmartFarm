@@ -3,7 +3,6 @@
 @{
     ViewData["Title"] = "Crops";
     var canManage = Model.Farm.Role is "Owner" or "Manager";
-    var activePlots = Model.Plots;
 }
 <section class="panel">
     <p><a asp-controller="Farms" asp-action="Details" asp-route-id="@Model.Farm.Id">← @Model.Farm.Name</a></p>

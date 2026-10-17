@@ -123,10 +123,10 @@ private fun CycleCard(
     onUpdatePlan: (CropCycleDto, String, String) -> Unit,
     onTransition: (CropCycleDto, Int, String, String) -> Unit
 ) {
-    var editDate by rememberSaveable(cycle.id) { mutableStateOf(cycle.plannedPlantingDate) }
-    var editHarvest by rememberSaveable(cycle.id) { mutableStateOf(cycle.expectedHarvestDate.orEmpty()) }
-    var plantedDate by rememberSaveable(cycle.id) { mutableStateOf("") }
-    var reason by rememberSaveable(cycle.id) { mutableStateOf("") }
+    var editDate by rememberSaveable(cycle.id, cycle.rowVersion) { mutableStateOf(cycle.plannedPlantingDate) }
+    var editHarvest by rememberSaveable(cycle.id, cycle.rowVersion) { mutableStateOf(cycle.expectedHarvestDate.orEmpty()) }
+    var plantedDate by rememberSaveable(cycle.id, cycle.rowVersion) { mutableStateOf("") }
+    var reason by rememberSaveable(cycle.id, cycle.rowVersion) { mutableStateOf("") }
     var confirmation by rememberSaveable { mutableStateOf<Int?>(null) }
 
     Text("${cycle.cropTypeName} · ${cycle.plotName}", style = MaterialTheme.typography.titleMedium)
