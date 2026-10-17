@@ -40,8 +40,23 @@ class AuthRepository(private val api: () -> AuthApi) {
         }
     }
 
+    suspend fun <T> authorized(block: suspend (String) -> T): T {
+        var active = checkNotNull(session) { "Please log in." }
+        return try {
+            block("Bearer ${active.accessToken}")
+        } catch (error: HttpException) {
+            if (error.code() != 401) throw error
+            val client = api()
+            active = client.refresh(RefreshRequest(active.refreshToken))
+            val result = block("Bearer ${active.accessToken}")
+            session = active
+            result
+        }
+    }
+
     fun logout() {
         session = null
     }
 }
+
 
