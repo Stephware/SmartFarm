@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Authentication;
+using System.Security.Cryptography;
 using Microsoft.AspNetCore.Authentication.BearerToken;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
@@ -53,7 +54,7 @@ public sealed class AuthController(
             ticket = tokenOptions.Get(IdentityConstants.BearerScheme)
                 .RefreshTokenProtector.Unprotect(input.RefreshToken);
         }
-        catch (Exception exception) when (exception is FormatException or ArgumentException)
+        catch (Exception exception) when (exception is FormatException or ArgumentException or CryptographicException)
         {
             return Unauthorized();
         }

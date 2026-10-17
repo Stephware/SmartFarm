@@ -15,6 +15,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
@@ -26,7 +27,7 @@ import androidx.compose.ui.unit.dp
 @Composable
 fun LoginScreen(state: AuthUiState, onSubmit: (String, String) -> Unit, onRegister: () -> Unit) {
     var email by rememberSaveable { mutableStateOf("") }
-    var password by rememberSaveable { mutableStateOf("") }
+    var password by remember { mutableStateOf("") }
     AuthScaffold("Log in") {
         OutlinedTextField(email, { email = it }, label = { Text("Email") },
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
@@ -49,8 +50,8 @@ fun RegisterScreen(
 ) {
     var name by rememberSaveable { mutableStateOf("") }
     var email by rememberSaveable { mutableStateOf("") }
-    var password by rememberSaveable { mutableStateOf("") }
-    var confirm by rememberSaveable { mutableStateOf("") }
+    var password by remember { mutableStateOf("") }
+    var confirm by remember { mutableStateOf("") }
     AuthScaffold("Create an account") {
         OutlinedTextField(name, { name = it }, label = { Text("Full name") },
             modifier = Modifier.fillMaxWidth(), singleLine = true)
