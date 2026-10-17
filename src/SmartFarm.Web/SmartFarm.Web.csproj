@@ -1,4 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk.Web">
+  <PropertyGroup>
+    <UserSecretsId>SmartFarm.Web.Development</UserSecretsId>
+  </PropertyGroup>
   <ItemGroup>
     <ProjectReference Include="../SmartFarm.Core/SmartFarm.Core.csproj" />
     <ProjectReference Include="../SmartFarm.Infrastructure/SmartFarm.Infrastructure.csproj" />
