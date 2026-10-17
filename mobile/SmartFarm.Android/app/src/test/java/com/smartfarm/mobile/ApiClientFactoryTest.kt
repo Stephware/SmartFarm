@@ -11,6 +11,18 @@ class ApiClientFactoryTest {
         assertEquals("https://api.example.test/v1/", retrofit.baseUrl().toString())
     }
 
+    @Test fun permitsOnlyLocalHttpForDebug() {
+        val retrofit = ApiClientFactory.create(
+            "http://10.0.2.2:5080/", allowLocalHttpForDebug = true)
+        assertEquals("http://10.0.2.2:5080/", retrofit.baseUrl().toString())
+        assertThrows(IllegalArgumentException::class.java) {
+            ApiClientFactory.create("http://10.0.2.2:5080/")
+        }
+        assertThrows(IllegalArgumentException::class.java) {
+            ApiClientFactory.create("http://external.example.test/", allowLocalHttpForDebug = true)
+        }
+    }
+
     @Test fun rejectsInvalidAndUnsafeEndpoints() {
         listOf("", "http://api.example.test/", "https://user:password@api.example.test/",
             "https://api.example.test/v1", "https://api.example.test/?token=value",
@@ -19,3 +31,4 @@ class ApiClientFactoryTest {
         }
     }
 }
+

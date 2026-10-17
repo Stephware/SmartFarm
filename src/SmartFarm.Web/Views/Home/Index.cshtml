@@ -1,18 +1,12 @@
 @{
-    ViewData["Title"] = "SmartFarm";
+    ViewData["Title"] = "Home";
 }
+<section class="panel">
+    <h1>SmartFarm</h1>
+    <p>Manage farm operations from the web and Android. Account access is available; farm features are coming next.</p>
+    @if (User.Identity?.IsAuthenticated != true)
+    {
+        <p><a class="button" href="@Url.Action("Register", "Account")">Get started</a></p>
+    }
+</section>
 
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>@ViewData["Title"]</title>
-</head>
-<body>
-    <main>
-        <h1>SmartFarm</h1>
-        <p>ASP.NET Core MVC is running. Application features will be added later.</p>
-    </main>
-</body>
-</html>

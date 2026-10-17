@@ -1,0 +1,20 @@
+:root { font-family: system-ui, -apple-system, Segoe UI, sans-serif; color: #163224; background: #f3f8f3; }
+* { box-sizing: border-box; }
+body { margin: 0; }
+a { color: #1b663d; }
+.site-header { background: #fff; padding: 18px max(20px, calc((100% - 940px)/2)); display: flex; align-items: center; justify-content: space-between; gap: 20px; border-bottom: 1px solid #dce9df; }
+.brand { font-size: 1.2rem; font-weight: 700; text-decoration: none; }
+nav { display: flex; gap: 14px; align-items: center; flex-wrap: wrap; }
+.page { max-width: 940px; margin: 38px auto; padding: 0 18px; }
+.panel { background: white; padding: 28px; border: 1px solid #e0e8e1; border-radius: 12px; }
+.narrow { max-width: 480px; }
+label { display: block; font-weight: 600; margin: 17px 0 6px; }
+input:not([type=checkbox]) { display: block; width: 100%; padding: 11px; border: 1px solid #afc5b5; border-radius: 6px; font: inherit; }
+.check { font-weight: normal; display: flex; gap: 9px; align-items: center; }
+button, .button { background: #1d6b3d; color: white; padding: 10px 16px; border: 0; border-radius: 6px; font: inherit; text-decoration: none; cursor: pointer; }
+button:hover, .button:hover { background: #13522d; }
+.link-button { background: none; color: #1b663d; padding: 0; text-decoration: underline; }
+.inline { display: inline; }
+.error { color: #a10b22; }
+.hint { font-size: .85rem; color: #5d7161; }
+

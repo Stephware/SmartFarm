@@ -1,0 +1,47 @@
+package com.smartfarm.mobile.data.repository
+
+import com.smartfarm.mobile.data.remote.api.AuthApi
+import com.smartfarm.mobile.data.remote.dto.AccountResponse
+import com.smartfarm.mobile.data.remote.dto.AuthTokens
+import com.smartfarm.mobile.data.remote.dto.LoginRequest
+import com.smartfarm.mobile.data.remote.dto.RefreshRequest
+import com.smartfarm.mobile.data.remote.dto.RegisterRequest
+import retrofit2.HttpException
+
+// Tokens deliberately remain in memory until secure persisted storage is designed.
+// Restarting the app requires signing in again; never save tokens in Room/plain preferences.
+class AuthRepository(private val api: () -> AuthApi) {
+    private var session: AuthTokens? = null
+
+    suspend fun register(name: String, email: String, password: String, confirm: String) {
+        val response = api().register(RegisterRequest(name.trim(), email.trim(), password, confirm))
+        if (!response.isSuccessful) throw HttpException(response)
+    }
+
+    suspend fun login(email: String, password: String): AccountResponse {
+        val client = api()
+        val tokens = client.login(LoginRequest(email.trim(), password))
+        val account = client.account("Bearer ${tokens.accessToken}")
+        session = tokens
+        return account
+    }
+
+    suspend fun account(): AccountResponse {
+        val client = api()
+        var tokens = checkNotNull(session) { "Please sign in." }
+        return try {
+            client.account("Bearer ${tokens.accessToken}")
+        } catch (exception: HttpException) {
+            if (exception.code() != 401) throw exception
+            tokens = client.refresh(RefreshRequest(tokens.refreshToken))
+            val result = client.account("Bearer ${tokens.accessToken}")
+            session = tokens
+            result
+        }
+    }
+
+    fun logout() {
+        session = null
+    }
+}
+
