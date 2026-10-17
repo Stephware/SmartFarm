@@ -1,0 +1,30 @@
+@model SmartFarm.Web.ViewModels.Crops.CropPlanEditViewModel
+@{
+    ViewData["Title"] = "Edit planting plan";
+}
+<section class="panel narrow">
+    <h1>Edit planting plan</h1>
+    <p>@Model.Cycle.PlotName · @Model.Cycle.CropTypeName</p>
+    <form asp-action="EditPlan" asp-route-farmId="@Model.Farm.Id"
+          asp-route-cycleId="@Model.Cycle.Id" method="post">
+        <div asp-validation-summary="All" class="error"></div>
+        <input type="hidden" asp-for="Input.RowVersion" />
+        <label asp-for="Input.CropTypeId">Crop type</label>
+        <select asp-for="Input.CropTypeId">
+            @foreach (var type in Model.CropTypes)
+            {
+                <option value="@type.Id">@type.Name</option>
+            }
+        </select>
+        <label asp-for="Input.PlannedPlantingDate">Planned planting date</label>
+        <input asp-for="Input.PlannedPlantingDate" type="date" required />
+        <label asp-for="Input.ExpectedHarvestDate">Expected harvest</label>
+        <input asp-for="Input.ExpectedHarvestDate" type="date" />
+        <label asp-for="Input.HarvestUnit">Harvest unit</label><input asp-for="Input.HarvestUnit" maxlength="20" />
+        <label asp-for="Input.WateringIntervalDays">Watering interval days</label>
+        <input asp-for="Input.WateringIntervalDays" type="number" min="1" max="32767" />
+        <button type="submit">Save plan</button>
+    </form>
+    <a asp-action="Index" asp-route-farmId="@Model.Farm.Id">Cancel</a>
+</section>
+
