@@ -162,6 +162,9 @@ public sealed class FarmManagementService(
             throw Missing();
         var farm = await db.Farms.SingleOrDefaultAsync(f => f.Id == farmId && f.ArchivedAtUtc == null, ct)
             ?? throw Missing();
+        if (await db.CropCycles.AnyAsync(c => c.Status == 1 &&
+            db.Plots.Any(p => p.Id == c.PlotId && p.FarmId == farmId), ct))
+            throw Conflict("End active crop cycles before archiving this farm.");
         db.Entry(farm).Property(f => f.RowVersion).OriginalValue = ParseVersion(rowVersion);
         farm.ArchivedAtUtc = DateTime.UtcNow;
         await Save(db, ct);
@@ -217,6 +220,8 @@ public sealed class FarmManagementService(
         await RequireAccess(farmId, actor, FarmAction.Manage, ct);
         var plot = await db.Plots.SingleOrDefaultAsync(
             p => p.Id == plotId && p.FarmId == farmId && p.ArchivedAtUtc == null, ct) ?? throw Missing();
+        if (await db.CropCycles.AnyAsync(c => c.PlotId == plotId && c.Status == 1, ct))
+            throw Conflict("End the active crop cycle before archiving this plot.");
         db.Entry(plot).Property(p => p.RowVersion).OriginalValue = ParseVersion(rowVersion);
         plot.ArchivedAtUtc = DateTime.UtcNow;
         await Save(db, ct);
