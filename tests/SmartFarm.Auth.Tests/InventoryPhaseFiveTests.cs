@@ -16,13 +16,13 @@ public sealed class InventoryPhaseFiveTests
         Assert.Equal(valid, StockRules.IsValidQuantity(decimal.Parse(quantity, System.Globalization.CultureInfo.InvariantCulture)));
 
     [Theory]
-    [InlineData(StockTransactionType.Receipt, 2.000, true)]
-    [InlineData(StockTransactionType.Receipt, -2.000, false)]
-    [InlineData(StockTransactionType.Adjustment, -2.000, true)]
-    [InlineData(StockTransactionType.Adjustment, 0.000, false)]
-    [InlineData(StockTransactionType.Consumption, -1.000, false)]
-    [InlineData(StockTransactionType.Opening, 1.000, false)]
-    [InlineData(StockTransactionType.Reversal, -1.000, false)]
+    [InlineData(StockTransactionType.Receipt, "2.000", true)]
+    [InlineData(StockTransactionType.Receipt, "-2.000", false)]
+    [InlineData(StockTransactionType.Adjustment, "-2.000", true)]
+    [InlineData(StockTransactionType.Adjustment, "0.000", false)]
+    [InlineData(StockTransactionType.Consumption, "-1.000", false)]
+    [InlineData(StockTransactionType.Opening, "1.000", false)]
+    [InlineData(StockTransactionType.Reversal, "-1.000", false)]
     public void AllowedMovementsFollowLedgerRules(
         StockTransactionType type, string amount, bool allowed) =>
         Assert.Equal(allowed, StockRules.CanPost(type, decimal.Parse(amount, System.Globalization.CultureInfo.InvariantCulture), null));
