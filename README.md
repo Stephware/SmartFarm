@@ -2,7 +2,7 @@
 
 SmartFarm is an **in-development farm-management platform** planned for a web application and an Android app. The goal is to help farm owners and field teams manage farms, plots, crop cycles, daily work, supply inventory, harvest records, and weather-related reminders. Android will support selected offline operations with synchronization when connectivity returns.
 
-> **Project status:** Identity, farm/plot management, crop planning, and online crop activity/observation monitoring have backend, MVC, and Android implementations. Photo storage is private and local to the Web host. The original SQL-first tables and EF Core baseline remain unchanged. Inventory, harvesting, task scheduling, production photo storage, Android offline sync, and CI/CD are not implemented yet.
+> **Project status:** Identity, farm/plot management, crop planning, activity/observation monitoring, and online inventory management now have ASP.NET Core API, MVC, and Android implementations. Inventory uses the existing SQL-first item and transaction tables with audit history, stock concurrency checks and low-stock indicators. SQL schema/migrations, CI/CD, production photo storage, harvesting and offline synchronization remain unchanged or unimplemented.
 
 ## Planned technology stack
 
@@ -80,7 +80,7 @@ Run the database creation, schema creation, and verification scripts in order as
 
 Keep `.env`, database passwords, actual database files, and backups out of Git.
 
-For Phase 3 development and testing, see [crop management](docs/crop-management.md). For Phase 2 development, see [farm and plot management](docs/farm-plot-management.md). For Web connection strings and the development connectivity check, see [Backend database connection](docs/backend-database-connection.md). For mapping verification and the approval required before adopting migration history, see [EF Core schema alignment](docs/efcore-schema-alignment.md).
+For Phase 5 inventory instructions, see [inventory management](docs/inventory-management.md). For Phase 3, see [crop management](docs/crop-management.md). For Phase 2 development, see [farm and plot management](docs/farm-plot-management.md). For Web connection strings and the development connectivity check, see [Backend database connection](docs/backend-database-connection.md). For mapping verification and the approval required before adopting migration history, see [EF Core schema alignment](docs/efcore-schema-alignment.md).
 
 ## Git and pull request workflow
 
@@ -232,4 +232,4 @@ For Android build, emulator tests, and local setup, see [Android initialization]
 2. ~~Initialize the **.NET 10** solution (Core, Infrastructure, Web, Worker).~~ Completed; offline schema tests are available and CI remains planned.
 3. ~~Connect the .NET backend to SQL Server and reconcile EF Core with the existing SQL schema.~~ Implemented and verified; baseline history adoption requires approval.
 4. ~~Initialize the **Kotlin / Compose** Android project.~~ Foundation build and emulator checks are available.
-5. Verify Phase 4 monitoring locally, then implement inventory management. CI/CD remains deferred.
+5. Verify Phase 5 inventory locally, then implement harvest management. CI/CD remains deferred.

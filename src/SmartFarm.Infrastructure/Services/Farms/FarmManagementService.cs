@@ -165,6 +165,9 @@ public sealed class FarmManagementService(
         if (await db.CropCycles.AnyAsync(c => c.Status == 1 &&
             db.Plots.Any(p => p.Id == c.PlotId && p.FarmId == farmId), ct))
             throw Conflict("End active crop cycles before archiving this farm.");
+        if (await db.InventoryItems.AnyAsync(i =>
+            i.FarmId == farmId && i.ArchivedAtUtc == null && i.QuantityOnHand > 0, ct))
+            throw Conflict("Reduce or transfer stock before archiving this farm.");
         db.Entry(farm).Property(f => f.RowVersion).OriginalValue = ParseVersion(rowVersion);
         farm.ArchivedAtUtc = DateTime.UtcNow;
         await Save(db, ct);
