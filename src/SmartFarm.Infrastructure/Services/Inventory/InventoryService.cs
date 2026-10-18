@@ -44,8 +44,8 @@ public sealed class InventoryService(
 
     private static void ValidateItem(InventoryItemInput input, bool creating)
     {
-        if (input.Name?.Trim().Length is not >= 2 and <= 120 ||
-            input.Unit?.Trim().Length is not >= 1 and <= 20 ||
+        if (input.Name?.Trim().Length is not (>= 2 and <= 120) ||
+            input.Unit?.Trim().Length is not (>= 1 and <= 20) ||
             !Enum.IsDefined(input.Category) ||
             input.Description?.Length > 500 ||
             input.ReorderLevel is { } reorder && !StockRules.IsValidQuantity(reorder, allowZero: true) ||
@@ -252,7 +252,7 @@ public sealed class InventoryService(
         InventoryReversalInput input, CancellationToken ct = default)
     {
         await Require(farmId, actor, FarmAction.Manage, ct);
-        if (input.Reason?.Trim().Length is not >= 3 and <= 300)
+        if (input.Reason?.Trim().Length is not (>= 3 and <= 300))
             throw Invalid("Provide a reversal reason of 3–300 characters.");
 
         var item = await ActiveItem(farmId, itemId, ct);
