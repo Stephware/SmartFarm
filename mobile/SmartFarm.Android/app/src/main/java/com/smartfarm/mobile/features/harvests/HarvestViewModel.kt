@@ -59,8 +59,9 @@ class HarvestViewModel(private val repository: HarvestRepository) : ViewModel() 
 
     fun record(quantity: String, notes: String) {
         val value = quantity.toBigDecimalOrNull()
-        if (value == null || value <= BigDecimal.ZERO || value.scale() > 3 ||
-            value > BigDecimal("999999999999999.999")) {
+        if (value == null || value <= BigDecimal.ZERO ||
+            value.stripTrailingZeros().scale() > 3 ||
+            value > BigDecimal("999999999999999.999") || notes.length > 1000) {
             mutable.value = mutable.value.copy(error = "Enter a positive quantity with up to 3 decimals.")
             return
         }

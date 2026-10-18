@@ -46,12 +46,12 @@ public sealed class HarvestService(
     {
         await Require(farmId, actor, FarmAction.View, ct);
         var cycle = await FindCycle(farmId, cycleId, false, ct) ?? throw Missing();
-        var details = await (
-            from plot in db.Plots.AsNoTracking()
-            join type in db.CropTypes.AsNoTracking() on cycle.CropTypeId equals type.Id
-            where plot.Id == cycle.PlotId && plot.FarmId == farmId
-            select new { PlotName = plot.Name, CropName = type.Name }
-        ).SingleAsync(ct);
+        var plotName = await db.Plots.AsNoTracking()
+            .Where(p => p.Id == cycle.PlotId && p.FarmId == farmId)
+            .Select(p => p.Name).SingleAsync(ct);
+        var cropName = await db.CropTypes.AsNoTracking()
+            .Where(t => t.Id == cycle.CropTypeId)
+            .Select(t => t.Name).SingleAsync(ct);
         var records = (await db.Harvests.AsNoTracking()
             .Where(h => h.CropCycleId == cycleId)
             .OrderByDescending(h => h.HarvestedAtUtc)
@@ -62,7 +62,7 @@ public sealed class HarvestService(
         var permission = await access.GetAccessLevelAsync(farmId, actor, ct);
         var activePlot = await db.Plots.AsNoTracking().AnyAsync(
             p => p.Id == cycle.PlotId && p.FarmId == farmId && p.ArchivedAtUtc == null, ct);
-        return new HarvestOverview(farmId, cycleId, details.CropName, details.PlotName,
+        return new HarvestOverview(farmId, cycleId, cropName, plotName,
             cycle.HarvestUnit, cycle.Status,
             activePlot && HarvestRules.CanHarvest(cycle.Status),
             permission is FarmAccessLevel.Owner or FarmAccessLevel.Manager,
@@ -100,6 +100,10 @@ public sealed class HarvestService(
         catch (DbUpdateException ex) when (ex.InnerException is SqlException sql && sql.Number == 547)
         {
             throw Invalid("The harvest violates the existing SQL schema constraints.");
+        }
+        catch (DbUpdateException ex) when (ex.InnerException is SqlException sql && sql.Number == 1205)
+        {
+            throw Conflict("Harvest was not saved due to a concurrent update. Refresh before retrying.");
         }
         catch (SqlException ex) when (ex.Number == 1205)
         {
