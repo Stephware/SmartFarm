@@ -78,6 +78,8 @@
     {
         <div class="crop-cycle">
             <h3>@cycle.CropTypeName · @cycle.PlotName</h3>
+            <p><a asp-controller="Monitoring" asp-action="Index"
+                  asp-route-farmId="@Model.Farm.Id" asp-route-cycleId="@cycle.Id">Activities, inspections and photos →</a></p>
             <p><strong>@cycle.Status</strong> · Planned: @cycle.PlannedPlantingDate.ToString("yyyy-MM-dd")
                 @if (cycle.PlantedDate is not null) { <span> · Planted: @cycle.PlantedDate.Value.ToString("yyyy-MM-dd")</span> }
             </p>
@@ -128,4 +130,5 @@
         </div>
     }
 </section>
+
 

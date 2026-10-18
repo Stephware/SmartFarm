@@ -58,3 +58,7 @@ local.properties
 *.keystore
 .cxx/
 .externalNativeBuild/
+
+# Local observation images stay outside the public wwwroot tree.
+**/App_Data/observation-photos/
+
