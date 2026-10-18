@@ -20,12 +20,14 @@ import com.smartfarm.mobile.features.monitoring.MonitoringScreen
 import com.smartfarm.mobile.features.inventory.InventoryViewModel
 import com.smartfarm.mobile.features.inventory.InventoryListScreen
 import com.smartfarm.mobile.features.inventory.InventoryItemScreen
+import com.smartfarm.mobile.features.harvests.HarvestViewModel
+import com.smartfarm.mobile.features.harvests.HarvestScreen
 import androidx.compose.ui.platform.LocalContext
 import com.smartfarm.mobile.features.farms.FarmListScreen
 import com.smartfarm.mobile.features.farms.FarmDetailScreen
 
 @Composable
-fun SmartFarmNavHost(auth: AuthViewModel, farms: FarmViewModel, crops: CropViewModel, monitoring: MonitoringViewModel, inventory: InventoryViewModel) {
+fun SmartFarmNavHost(auth: AuthViewModel, farms: FarmViewModel, crops: CropViewModel, monitoring: MonitoringViewModel, inventory: InventoryViewModel, harvests: HarvestViewModel) {
     val navController = rememberNavController()
     val resolver = LocalContext.current.contentResolver
     val state by auth.state.collectAsStateWithLifecycle()
@@ -60,6 +62,7 @@ fun SmartFarmNavHost(auth: AuthViewModel, farms: FarmViewModel, crops: CropViewM
                 crops.clear()
                 monitoring.clear()
                 inventory.clear()
+                harvests.clear()
                 navController.navigate("welcome") { popUpTo("welcome") { inclusive = true } }
             }, onFarms = { navController.navigate("farms") })
         }
@@ -110,6 +113,7 @@ fun SmartFarmNavHost(auth: AuthViewModel, farms: FarmViewModel, crops: CropViewM
                 },
                 onUpdatePlan = { cycle, date, expected -> crops.updatePlan(cycle, date, expected) },
                 onMonitoring = { cycle -> navController.navigate("monitor/$farmId/${cycle.id}") },
+                onHarvests = { cycle -> navController.navigate("harvests/$farmId/${cycle.id}") },
                 onTransition = { cycle, status, planted, reason ->
                     crops.transition(cycle, status, planted, reason)
                 })
@@ -163,8 +167,21 @@ fun SmartFarmNavHost(auth: AuthViewModel, farms: FarmViewModel, crops: CropViewM
                 },
                 onReverse = { transactionId, reason -> inventory.reverse(transactionId, reason) })
         }
+        composable("harvests/{farmId}/{cycleId}") { entry ->
+            val farmId = entry.arguments?.getString("farmId").orEmpty()
+            val cycleId = entry.arguments?.getString("cycleId").orEmpty()
+            val harvestState by harvests.state.collectAsStateWithLifecycle()
+            LaunchedEffect(farmId, cycleId) { harvests.load(farmId, cycleId) }
+            HarvestScreen(
+                state = harvestState,
+                onBack = { navController.popBackStack() },
+                onRecord = { quantity, notes -> harvests.record(quantity, notes) },
+                onVoid = { harvestId, reason -> harvests.void(harvestId, reason) }
+            )
+        }
     }
 }
+
 
 
 

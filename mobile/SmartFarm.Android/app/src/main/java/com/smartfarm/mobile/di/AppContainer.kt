@@ -13,6 +13,8 @@ import com.smartfarm.mobile.data.repository.CropRepository
 import com.smartfarm.mobile.data.remote.api.CropApi
 import com.smartfarm.mobile.data.remote.api.InventoryApi
 import com.smartfarm.mobile.data.repository.InventoryRepository
+import com.smartfarm.mobile.data.remote.api.HarvestApi
+import com.smartfarm.mobile.data.repository.HarvestRepository
 import com.smartfarm.mobile.data.remote.api.MonitoringApi
 import com.smartfarm.mobile.data.repository.MonitoringRepository
 import com.smartfarm.mobile.data.remote.api.FarmApi
@@ -43,10 +45,15 @@ class AppContainer(context: Context) {
         InventoryRepository(authRepository) { retrofit.create(InventoryApi::class.java) }
     }
 
+    val harvestRepository: HarvestRepository by lazy {
+        HarvestRepository(authRepository) { retrofit.create(HarvestApi::class.java) }
+    }
+
     val authRepository: AuthRepository by lazy {
         AuthRepository { retrofit.create(AuthApi::class.java) }
     }
 }
+
 
 
 

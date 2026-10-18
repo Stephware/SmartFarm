@@ -9,6 +9,7 @@ import com.smartfarm.mobile.features.auth.AuthViewModel
 import com.smartfarm.mobile.features.farms.FarmViewModel
 import com.smartfarm.mobile.features.crops.CropViewModel
 import com.smartfarm.mobile.features.inventory.InventoryViewModel
+import com.smartfarm.mobile.features.harvests.HarvestViewModel
 import com.smartfarm.mobile.features.monitoring.MonitoringViewModel
 import com.smartfarm.mobile.navigation.SmartFarmNavHost
 import com.smartfarm.mobile.ui.theme.SmartFarmTheme
@@ -35,12 +36,17 @@ class MainActivity : ComponentActivity() {
         InventoryViewModel.Factory((application as SmartFarmApplication).container.inventoryRepository)
     }
 
+    private val harvests: HarvestViewModel by viewModels {
+        HarvestViewModel.Factory((application as SmartFarmApplication).container.harvestRepository)
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
-        setContent { SmartFarmTheme { SmartFarmNavHost(authentication, farms, crops, monitoring, inventory) } }
+        setContent { SmartFarmTheme { SmartFarmNavHost(authentication, farms, crops, monitoring, inventory, harvests) } }
     }
 }
+
 
 
 

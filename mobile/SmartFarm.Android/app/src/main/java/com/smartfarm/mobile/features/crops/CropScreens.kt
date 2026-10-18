@@ -37,6 +37,7 @@ fun CropScreen(
     onPlan: (String, String, String, String) -> Unit,
     onUpdatePlan: (CropCycleDto, String, String) -> Unit,
     onMonitoring: (CropCycleDto) -> Unit,
+    onHarvests: (CropCycleDto) -> Unit,
     onTransition: (CropCycleDto, Int, String, String) -> Unit
 ) {
     var typeName by rememberSaveable { mutableStateOf("") }
@@ -109,7 +110,7 @@ fun CropScreen(
             Text("Crop cycles and history", style = MaterialTheme.typography.titleLarge)
             if (state.cycles.isEmpty()) Text("No crop cycles yet.")
             state.cycles.forEach { cycle ->
-                CycleCard(cycle, canManage, state.busy, onUpdatePlan, onTransition, onMonitoring)
+                CycleCard(cycle, canManage, state.busy, onUpdatePlan, onTransition, onMonitoring, onHarvests)
                 HorizontalDivider()
             }
         }
@@ -123,7 +124,8 @@ private fun CycleCard(
     busy: Boolean,
     onUpdatePlan: (CropCycleDto, String, String) -> Unit,
     onTransition: (CropCycleDto, Int, String, String) -> Unit,
-    onMonitoring: (CropCycleDto) -> Unit
+    onMonitoring: (CropCycleDto) -> Unit,
+    onHarvests: (CropCycleDto) -> Unit
 ) {
     var editDate by rememberSaveable(cycle.id, cycle.rowVersion) { mutableStateOf(cycle.plannedPlantingDate) }
     var editHarvest by rememberSaveable(cycle.id, cycle.rowVersion) { mutableStateOf(cycle.expectedHarvestDate.orEmpty()) }
@@ -134,6 +136,7 @@ private fun CycleCard(
     Text("${cycle.cropTypeName} · ${cycle.plotName}", style = MaterialTheme.typography.titleMedium)
     Text("${cycle.statusName} · Planned: ${cycle.plannedPlantingDate}")
     OutlinedButton(onClick = { onMonitoring(cycle) }) { Text("Activities, inspections & photos") }
+    OutlinedButton(onClick = { onHarvests(cycle) }) { Text("Harvest records") }
     cycle.plantedDate?.let { Text("Planted: $it") }
     cycle.expectedHarvestDate?.let { Text("Expected harvest: $it") }
     cycle.terminationReason?.let { Text("Reason: $it") }
@@ -181,4 +184,5 @@ private fun CycleCard(
         )
     }
 }
+
 
