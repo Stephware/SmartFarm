@@ -8,6 +8,8 @@ using Microsoft.Extensions.Options;
 using SmartFarm.Infrastructure.Identity;
 using SmartFarm.Web.ViewModels.Auth;
 
+using SmartFarm.Web.Authentication;
+
 namespace SmartFarm.Web.Api.Controllers;
 
 [ApiController]
@@ -70,7 +72,7 @@ public sealed class AuthController(
         return new EmptyResult();
     }
 
-    [Authorize(AuthenticationSchemes = IdentityConstants.BearerScheme), HttpGet("me")]
+    [Authorize(AuthenticationSchemes = SmartFarmAuthSchemes.Bearer), HttpGet("me")]
     public async Task<IActionResult> Me()
     {
         var user = await users.GetUserAsync(User);

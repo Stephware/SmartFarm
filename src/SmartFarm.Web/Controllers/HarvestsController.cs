@@ -8,9 +8,11 @@ using SmartFarm.Core.Interfaces.Harvests;
 using SmartFarm.Infrastructure.Identity;
 using SmartFarm.Web.ViewModels.Harvests;
 
+using SmartFarm.Web.Authentication;
+
 namespace SmartFarm.Web.Controllers;
 
-[Authorize(AuthenticationSchemes = IdentityConstants.ApplicationScheme)]
+[Authorize(AuthenticationSchemes = SmartFarmAuthSchemes.Application)]
 public sealed class HarvestsController(
     UserManager<SmartFarmUser> users,
     ICropManagementService crops,

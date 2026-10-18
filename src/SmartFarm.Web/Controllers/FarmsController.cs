@@ -6,9 +6,11 @@ using SmartFarm.Core.Interfaces.Farms;
 using SmartFarm.Infrastructure.Identity;
 using SmartFarm.Web.ViewModels.Farms;
 
+using SmartFarm.Web.Authentication;
+
 namespace SmartFarm.Web.Controllers;
 
-[Authorize(AuthenticationSchemes = IdentityConstants.ApplicationScheme)]
+[Authorize(AuthenticationSchemes = SmartFarmAuthSchemes.Application)]
 public sealed class FarmsController(
     UserManager<SmartFarmUser> users,
     IFarmManagementService farms) : Controller

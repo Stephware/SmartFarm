@@ -6,10 +6,12 @@ using SmartFarm.Core.Contracts.Inventory;
 using SmartFarm.Core.Interfaces.Inventory;
 using SmartFarm.Infrastructure.Identity;
 
+using SmartFarm.Web.Authentication;
+
 namespace SmartFarm.Web.Api.Controllers;
 
 [ApiController]
-[Authorize(AuthenticationSchemes = IdentityConstants.BearerScheme)]
+[Authorize(AuthenticationSchemes = SmartFarmAuthSchemes.Bearer)]
 [Route("api/farms/{farmId:guid}/inventory")]
 public sealed class InventoryApiController(
     UserManager<SmartFarmUser> users, IInventoryService inventory) : FarmApiControllerBase(users)

@@ -6,6 +6,8 @@ import androidx.work.WorkManager
 import com.smartfarm.mobile.BuildConfig
 import com.smartfarm.mobile.data.local.SmartFarmDatabase
 import com.smartfarm.mobile.data.remote.api.ApiClientFactory
+import com.smartfarm.mobile.data.remote.api.StatusApi
+import com.smartfarm.mobile.data.repository.StatusRepository
 import com.smartfarm.mobile.data.remote.api.AuthApi
 import com.smartfarm.mobile.data.repository.AuthRepository
 import com.smartfarm.mobile.data.repository.FarmRepository
@@ -49,10 +51,15 @@ class AppContainer(context: Context) {
         HarvestRepository(authRepository) { retrofit.create(HarvestApi::class.java) }
     }
 
+    val statusRepository: StatusRepository by lazy {
+        StatusRepository { retrofit.create(StatusApi::class.java) }
+    }
+
     val authRepository: AuthRepository by lazy {
         AuthRepository { retrofit.create(AuthApi::class.java) }
     }
 }
+
 
 
 

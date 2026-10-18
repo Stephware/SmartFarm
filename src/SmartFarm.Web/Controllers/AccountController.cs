@@ -4,6 +4,8 @@ using Microsoft.AspNetCore.Mvc;
 using SmartFarm.Infrastructure.Identity;
 using SmartFarm.Web.ViewModels.Auth;
 
+using SmartFarm.Web.Authentication;
+
 namespace SmartFarm.Web.Controllers;
 
 public sealed class AccountController(
@@ -60,7 +62,7 @@ public sealed class AccountController(
         return RedirectToAction(nameof(Login));
     }
 
-    [Authorize(AuthenticationSchemes = IdentityConstants.ApplicationScheme), HttpGet]
+    [Authorize(AuthenticationSchemes = SmartFarmAuthSchemes.Application), HttpGet]
     public async Task<IActionResult> Profile()
     {
         var user = await users.GetUserAsync(User);
@@ -68,7 +70,7 @@ public sealed class AccountController(
         return View(user);
     }
 
-    [Authorize(AuthenticationSchemes = IdentityConstants.ApplicationScheme), HttpPost, ValidateAntiForgeryToken]
+    [Authorize(AuthenticationSchemes = SmartFarmAuthSchemes.Application), HttpPost, ValidateAntiForgeryToken]
     public async Task<IActionResult> Logout()
     {
         await signIn.SignOutAsync();

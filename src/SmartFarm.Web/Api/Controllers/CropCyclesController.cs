@@ -5,10 +5,12 @@ using SmartFarm.Core.Contracts.Crops;
 using SmartFarm.Core.Interfaces.Crops;
 using SmartFarm.Infrastructure.Identity;
 
+using SmartFarm.Web.Authentication;
+
 namespace SmartFarm.Web.Api.Controllers;
 
 [ApiController]
-[Authorize(AuthenticationSchemes = IdentityConstants.BearerScheme)]
+[Authorize(AuthenticationSchemes = SmartFarmAuthSchemes.Bearer)]
 [Route("api/farms/{farmId:guid}")]
 public sealed class CropCyclesController(
     UserManager<SmartFarmUser> users,
