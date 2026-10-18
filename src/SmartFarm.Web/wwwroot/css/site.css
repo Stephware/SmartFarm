@@ -26,3 +26,8 @@ section.panel + section.panel { margin-top: 20px; }
 .farm-list li span { display: block; color: #536f5b; margin-top: 4px; }
 .narrow { max-width: 480px; }
 
+
+textarea { display: block; width: 100%; max-width: 650px; font: inherit; padding: 10px; border: 1px solid #afc5b5; border-radius: 6px; margin-bottom: 12px; }
+.crop-cycle { border-bottom: 1px solid #e5eee6; padding: 16px 0; }
+.observation-photo { max-width: 240px; max-height: 180px; object-fit: contain; display: inline-block; margin: 8px; border-radius: 6px; border: 1px solid #d7e6da; }
+

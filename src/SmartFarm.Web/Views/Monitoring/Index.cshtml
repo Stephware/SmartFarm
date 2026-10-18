@@ -1,0 +1,112 @@
+@model SmartFarm.Web.ViewModels.Monitoring.MonitoringWorkspaceViewModel
+@{
+    ViewData["Title"] = "Crop monitoring";
+    var cycle = Model.Cycle;
+    var monitoring = Model.Monitoring;
+}
+<section class="panel">
+    <p><a asp-controller="Crops" asp-action="Index"
+          asp-route-farmId="@cycle.FarmId">← Crop management</a></p>
+    <h1>@cycle.CropTypeName — @cycle.PlotName</h1>
+    <p>Status: <strong>@cycle.Status</strong></p>
+    <p>Log watering, fertilization, pesticide use, weeding, or other activities.
+       Inspections are saved as crop observations.</p>
+    @if (TempData["Error"] is string error)
+    { <p class="error" role="alert">@error</p> }
+</section>
+@if (monitoring.CanRecord)
+{
+    <section class="panel">
+        <h2>Record activity</h2>
+        <form asp-action="Activity" asp-route-farmId="@cycle.FarmId"
+              asp-route-cycleId="@cycle.Id" method="post">
+            <label for="activityType">Type</label>
+            <select id="activityType" name="ActivityType" required>
+                <option value="1">Watering</option>
+                <option value="2">Fertilizing</option>
+                <option value="3">Pesticide</option>
+                <option value="4">Weeding</option>
+                <option value="5">Other</option>
+            </select>
+            <label for="activityNotes">Notes (optional)</label>
+            <textarea id="activityNotes" name="Notes" maxlength="1000" rows="3"></textarea>
+            <button type="submit">Save activity</button>
+        </form>
+        <p class="hint">Recorded at the server's current UTC time.</p>
+    </section>
+    <section class="panel">
+        <h2>Record crop observation / inspection</h2>
+        <form asp-action="Observation" asp-route-farmId="@cycle.FarmId"
+              asp-route-cycleId="@cycle.Id" method="post">
+            <label for="health">Crop health</label>
+            <select name="HealthStatus" id="health" required>
+                <option value="0">Not assessed</option>
+                <option value="1">Healthy</option>
+                <option value="2">Needs attention</option>
+                <option value="3">Critical</option>
+            </select>
+            <label for="stage">Growth stage (optional)</label>
+            <input id="stage" name="GrowthStage" maxlength="40" />
+            <label for="notes">Observation notes (optional)</label>
+            <textarea id="notes" name="Notes" rows="3" maxlength="1000"></textarea>
+            <button type="submit">Save observation</button>
+        </form>
+    </section>
+}
+<section class="panel">
+    <h2>Activity history</h2>
+    @if (monitoring.Activities.Count == 0)
+    { <p>No activities recorded.</p> }
+    <ul class="farm-list">
+        @foreach (var activity in monitoring.Activities)
+        {
+            var label = activity.ActivityType switch {
+                1 => "Watering", 2 => "Fertilizing", 3 => "Pesticide",
+                4 => "Weeding", _ => "Other"
+            };
+            <li>
+                <strong>@label</strong> · @activity.OccurredAtUtc.ToString("yyyy-MM-dd HH:mm") UTC
+                @if (activity.Notes is not null) { <p>@activity.Notes</p> }
+            </li>
+        }
+    </ul>
+</section>
+<section class="panel">
+    <h2>Observations and photos</h2>
+    @if (monitoring.Observations.Count == 0)
+    { <p>No observations recorded.</p> }
+    @foreach (var observation in monitoring.Observations)
+    {
+        var health = observation.HealthStatus switch {
+            0 => "Not assessed", 1 => "Healthy", 2 => "Needs attention",
+            _ => "Critical"
+        };
+        <div class="crop-cycle">
+            <strong>@health</strong> · @observation.ObservedAtUtc.ToString("yyyy-MM-dd HH:mm") UTC
+            @if (observation.GrowthStage is not null) { <p>Stage: @observation.GrowthStage</p> }
+            @if (observation.Notes is not null) { <p>@observation.Notes</p> }
+            @foreach (var photo in observation.Photos)
+            {
+                <a asp-controller="Monitoring" asp-action="Photo"
+                   asp-route-farmId="@cycle.FarmId"
+                   asp-route-cycleId="@cycle.Id"
+                   asp-route-photoId="@photo.Id" target="_blank" rel="noopener">
+                    <img class="observation-photo"
+                         src="@Url.Action("Photo", "Monitoring", new { farmId = cycle.FarmId, cycleId = cycle.Id, photoId = photo.Id })"
+                         alt="Observation photo" loading="lazy" />
+                </a>
+            }
+            @if (monitoring.CanRecord)
+            {
+                <form asp-action="Upload" asp-route-farmId="@cycle.FarmId"
+                      asp-route-cycleId="@cycle.Id" asp-route-observationId="@observation.Id"
+                      method="post" enctype="multipart/form-data">
+                    <label>Attach photo (JPEG, PNG or WebP, maximum 5 MB)</label>
+                    <input type="file" name="photo" accept="image/jpeg,image/png,image/webp" required />
+                    <button type="submit">Upload photo</button>
+                </form>
+            }
+        </div>
+    }
+</section>
+
