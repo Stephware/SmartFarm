@@ -1,0 +1,92 @@
+@using SmartFarm.Core.Enums
+@model SmartFarm.Web.ViewModels.Inventory.InventoryItemPage
+@{
+    ViewData["Title"] = Model.Item.Name;
+    var item = Model.Item;
+    var canManage = Model.Farm.Role is "Owner" or "Manager";
+    var active = item.ArchivedAtUtc is null;
+    var canConsume = active;
+    var reversedIds = Model.Transactions.Where(x => x.ReversesTransactionId is not null)
+        .Select(x => x.ReversesTransactionId!.Value).ToHashSet();
+}
+<section class="panel">
+    <p><a asp-action="Index" asp-route-farmId="@Model.Farm.Id">← Inventory</a></p>
+    <h1>@item.Name</h1>
+    <p>@item.Category · @item.Unit</p>
+    <h2>@item.QuantityOnHand @item.Unit</h2>
+    @if (item.IsLowStock) { <p class="error">Low-stock threshold reached</p> }
+    @if (!active) { <p>Archived item — transaction history remains available.</p> }
+    @if (item.Description is not null) { <p>@item.Description</p> }
+    @if (TempData["Error"] is string error) { <p class="error" role="alert">@error</p> }
+    @if (canManage && active)
+    {
+        <a asp-action="Edit" asp-route-farmId="@Model.Farm.Id" asp-route-itemId="@item.Id">Edit item</a>
+        @if (item.QuantityOnHand == 0)
+        {
+            <form asp-action="Archive" asp-route-farmId="@Model.Farm.Id" asp-route-itemId="@item.Id" method="post">
+                <input type="hidden" name="rowVersion" value="@item.RowVersion" />
+                <button type="submit" onclick="return confirm('Archive this zero-stock item?')">Archive item</button>
+            </form>
+        }
+    }
+</section>
+@if (active)
+{
+    <section class="panel">
+        <h2>Stock movement</h2>
+        <p>Receipts add stock. Consumption subtracts stock and must reference a crop activity.
+           Adjustments may add or remove stock with a reason.</p>
+        <form asp-action="Post" asp-route-farmId="@Model.Farm.Id" asp-route-itemId="@item.Id" method="post">
+            <input type="hidden" name="RowVersion" value="@item.RowVersion" />
+            <label for="kind">Movement type</label>
+            <select id="kind" name="TransactionType">
+                @if (canManage)
+                {
+                    <option value="2">Receipt (+)</option>
+                    <option value="4">Adjustment (+/-)</option>
+                }
+                <option value="3">Consumption (-)</option>
+            </select>
+            <label for="quantity">Signed quantity (e.g., 5 or -2.5)</label>
+            <input id="quantity" name="QuantityChange" type="number" step="0.001" required />
+            <label for="cropActivity">Crop activity for consumption</label>
+            <select id="cropActivity" name="CropActivityId">
+                <option value="">Not applicable</option>
+                @foreach (var activity in Model.ActivityOptions)
+                {
+                    <option value="@activity.Id">@activity.Label</option>
+                }
+            </select>
+            <label for="reason">Reason (required for adjustments)</label>
+            <input id="reason" name="Reason" maxlength="300" />
+            <button type="submit">Save stock movement</button>
+        </form>
+    </section>
+}
+<section class="panel">
+    <h2>Transaction history</h2>
+    @if (Model.Transactions.Count == 0) { <p>No stock movements recorded.</p> }
+    <ul class="farm-list">
+        @foreach (var transaction in Model.Transactions)
+        {
+            <li>
+                <strong>@transaction.TransactionType</strong> · @transaction.QuantityChange @item.Unit
+                <span>@transaction.OccurredAtUtc.ToString("yyyy-MM-dd HH:mm") UTC</span>
+                @if (transaction.Reason is not null) { <p>@transaction.Reason</p> }
+                @if (transaction.ReversesTransactionId is not null) { <small>Reversal of @transaction.ReversesTransactionId</small> }
+                @if (canManage && active && transaction.TransactionType != StockTransactionType.Reversal &&
+                      !reversedIds.Contains(transaction.Id))
+                {
+                    <form asp-action="Reverse" asp-route-farmId="@Model.Farm.Id"
+                          asp-route-itemId="@item.Id" asp-route-transactionId="@transaction.Id" method="post">
+                        <input type="hidden" name="RowVersion" value="@item.RowVersion" />
+                        <label>Reversal reason</label>
+                        <input name="Reason" minlength="3" maxlength="300" required />
+                        <button type="submit">Reverse transaction</button>
+                    </form>
+                }
+            </li>
+        }
+    </ul>
+</section>
+

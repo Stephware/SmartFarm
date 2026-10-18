@@ -65,6 +65,9 @@ public sealed record InventoryTransactionDetails(
     decimal QuantityChange, DateTime OccurredAtUtc,
     DateTime RecordedAtUtc, Guid RecordedByUserId, string? Reason);
 
+public sealed record InventoryActivityOption(Guid Id, string Label);
+
 public sealed record InventoryWorkspace(
     IReadOnlyList<InventoryItemDetails> Items, int LowStockCount);
+
 

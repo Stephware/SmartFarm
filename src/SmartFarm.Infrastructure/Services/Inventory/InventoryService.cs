@@ -93,6 +93,25 @@ public sealed class InventoryService(
         await db.InventoryItems.SingleOrDefaultAsync(x =>
             x.Id == itemId && x.FarmId == farmId && x.ArchivedAtUtc == null, ct) ?? throw Missing();
 
+
+    public async Task<IReadOnlyList<InventoryActivityOption>> ActivityOptionsAsync(
+        Guid farmId, Guid actor, CancellationToken ct = default)
+    {
+        await Require(farmId, actor, FarmAction.View, ct);
+        var activities = await (
+            from activity in db.CropActivities.AsNoTracking()
+            join cycle in db.CropCycles.AsNoTracking() on activity.CropCycleId equals cycle.Id
+            join plot in db.Plots.AsNoTracking() on cycle.PlotId equals plot.Id
+            where plot.FarmId == farmId && plot.ArchivedAtUtc == null && cycle.Status == 1
+            orderby activity.OccurredAtUtc descending
+            select new { activity.Id, activity.ActivityType, activity.OccurredAtUtc, PlotName = plot.Name }
+        ).Take(100).ToListAsync(ct);
+
+        return activities.Select(a => new InventoryActivityOption(a.Id,
+            a.PlotName + " · Activity " + a.ActivityType + " · " +
+            a.OccurredAtUtc.ToString("yyyy-MM-dd HH:mm") + " UTC")).ToList();
+    }
+
     public async Task<InventoryWorkspace> ListAsync(
         Guid farmId, Guid actor, CancellationToken ct = default)
     {
@@ -260,4 +279,5 @@ public sealed class InventoryService(
         return Map(item);
     }
 }
+
 
