@@ -6,13 +6,15 @@ using SmartFarm.Core.Interfaces.Security;
 using SmartFarm.Core.Services.Security;
 using SmartFarm.Infrastructure.Identity;
 
+using SmartFarm.Web.Authentication;
+
 namespace SmartFarm.Web.Api.Controllers;
 
 // A protected permission check, not farm CRUD. Future farm endpoints must
 // perform the same server-side, per-farm authorization before reading or writing.
 [ApiController]
 [Route("api/farms/{farmId:guid}/access")]
-[Authorize(AuthenticationSchemes = IdentityConstants.BearerScheme)]
+[Authorize(AuthenticationSchemes = SmartFarmAuthSchemes.Bearer)]
 public sealed class FarmAccessController(
     UserManager<SmartFarmUser> users,
     IFarmAccessService farmAccess) : ControllerBase

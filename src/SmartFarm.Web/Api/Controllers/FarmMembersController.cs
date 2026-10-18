@@ -5,10 +5,12 @@ using SmartFarm.Core.Contracts.Farms;
 using SmartFarm.Core.Interfaces.Farms;
 using SmartFarm.Infrastructure.Identity;
 
+using SmartFarm.Web.Authentication;
+
 namespace SmartFarm.Web.Api.Controllers;
 
 [ApiController]
-[Authorize(AuthenticationSchemes = IdentityConstants.BearerScheme)]
+[Authorize(AuthenticationSchemes = SmartFarmAuthSchemes.Bearer)]
 [Route("api/farms/{farmId:guid}/members")]
 public sealed class FarmMembersController(
     UserManager<SmartFarmUser> users, IFarmManagementService farms)
@@ -39,7 +41,7 @@ public sealed class FarmMembersController(
 }
 
 [ApiController]
-[Authorize(AuthenticationSchemes = IdentityConstants.BearerScheme)]
+[Authorize(AuthenticationSchemes = SmartFarmAuthSchemes.Bearer)]
 [Route("api/farm-invitations")]
 public sealed class FarmInvitationsController(
     UserManager<SmartFarmUser> users, IFarmManagementService farms)

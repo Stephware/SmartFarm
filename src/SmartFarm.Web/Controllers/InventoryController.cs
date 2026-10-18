@@ -8,9 +8,11 @@ using SmartFarm.Core.Interfaces.Inventory;
 using SmartFarm.Infrastructure.Identity;
 using SmartFarm.Web.ViewModels.Inventory;
 
+using SmartFarm.Web.Authentication;
+
 namespace SmartFarm.Web.Controllers;
 
-[Authorize(AuthenticationSchemes = IdentityConstants.ApplicationScheme)]
+[Authorize(AuthenticationSchemes = SmartFarmAuthSchemes.Application)]
 public sealed class InventoryController(
     UserManager<SmartFarmUser> users,
     IFarmManagementService farms,

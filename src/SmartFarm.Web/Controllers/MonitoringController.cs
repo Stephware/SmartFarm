@@ -8,9 +8,11 @@ using SmartFarm.Core.Interfaces.Monitoring;
 using SmartFarm.Infrastructure.Identity;
 using SmartFarm.Web.ViewModels.Monitoring;
 
+using SmartFarm.Web.Authentication;
+
 namespace SmartFarm.Web.Controllers;
 
-[Authorize(AuthenticationSchemes = IdentityConstants.ApplicationScheme)]
+[Authorize(AuthenticationSchemes = SmartFarmAuthSchemes.Application)]
 public sealed class MonitoringController(
     UserManager<SmartFarmUser> users,
     ICropManagementService crops,

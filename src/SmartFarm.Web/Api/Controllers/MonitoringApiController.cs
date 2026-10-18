@@ -5,10 +5,12 @@ using SmartFarm.Core.Contracts.Monitoring;
 using SmartFarm.Core.Interfaces.Monitoring;
 using SmartFarm.Infrastructure.Identity;
 
+using SmartFarm.Web.Authentication;
+
 namespace SmartFarm.Web.Api.Controllers;
 
 [ApiController]
-[Authorize(AuthenticationSchemes = IdentityConstants.BearerScheme)]
+[Authorize(AuthenticationSchemes = SmartFarmAuthSchemes.Bearer)]
 [Route("api/farms/{farmId:guid}/crop-cycles/{cycleId:guid}/monitoring")]
 public sealed class MonitoringApiController(
     UserManager<SmartFarmUser> users,

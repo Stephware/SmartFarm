@@ -5,10 +5,12 @@ using SmartFarm.Core.Contracts.Harvests;
 using SmartFarm.Core.Interfaces.Harvests;
 using SmartFarm.Infrastructure.Identity;
 
+using SmartFarm.Web.Authentication;
+
 namespace SmartFarm.Web.Api.Controllers;
 
 [ApiController]
-[Authorize(AuthenticationSchemes = IdentityConstants.BearerScheme)]
+[Authorize(AuthenticationSchemes = SmartFarmAuthSchemes.Bearer)]
 [Route("api/farms/{farmId:guid}/crop-cycles/{cycleId:guid}/harvests")]
 public sealed class HarvestsApiController(
     UserManager<SmartFarmUser> users,
