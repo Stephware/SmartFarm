@@ -37,8 +37,7 @@ fun CropScreen(
     onPlan: (String, String, String, String) -> Unit,
     onUpdatePlan: (CropCycleDto, String, String) -> Unit,
     onMonitoring: (CropCycleDto) -> Unit,
-    onTransition: (CropCycleDto, Int, String, String) -> Unit,
-    onMonitoring: (CropCycleDto) -> Unit
+    onTransition: (CropCycleDto, Int, String, String) -> Unit
 ) {
     var typeName by rememberSaveable { mutableStateOf("") }
     var unit by rememberSaveable { mutableStateOf("kg") }
@@ -123,7 +122,8 @@ private fun CycleCard(
     canManage: Boolean,
     busy: Boolean,
     onUpdatePlan: (CropCycleDto, String, String) -> Unit,
-    onTransition: (CropCycleDto, Int, String, String) -> Unit
+    onTransition: (CropCycleDto, Int, String, String) -> Unit,
+    onMonitoring: (CropCycleDto) -> Unit
 ) {
     var editDate by rememberSaveable(cycle.id, cycle.rowVersion) { mutableStateOf(cycle.plannedPlantingDate) }
     var editHarvest by rememberSaveable(cycle.id, cycle.rowVersion) { mutableStateOf(cycle.expectedHarvestDate.orEmpty()) }
