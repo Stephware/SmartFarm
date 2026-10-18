@@ -22,10 +22,10 @@ public sealed class MonitoringController(
     [HttpGet]
     public async Task<IActionResult> Index(Guid farmId, Guid cycleId, CancellationToken ct)
     {
-        var cycle = await crops.GetCycleAsync(farmId, cycleId, Actor, ct);
-        if (cycle is null) return NotFound();
         try
         {
+            var cycle = await crops.GetCycleAsync(farmId, cycleId, Actor, ct);
+            if (cycle is null) return NotFound();
             return View(new MonitoringWorkspaceViewModel(cycle,
                 await monitoring.GetAsync(farmId, cycleId, Actor, ct)));
         }

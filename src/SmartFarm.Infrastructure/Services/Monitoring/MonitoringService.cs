@@ -63,7 +63,7 @@ public sealed class MonitoringService(
             .OrderByDescending(o => o.ObservedAtUtc).ToListAsync(ct);
 
         var observationIds = observations.Select(o => o.Id).ToArray();
-        var photos = observationIds.Length == 0 ? [] :
+        List<ObservationPhoto> photos = observationIds.Length == 0 ? [] :
             await db.ObservationPhotos.AsNoTracking()
                 .Where(p => observationIds.Contains(p.CropObservationId))
                 .OrderBy(p => p.UploadedAtUtc).ToListAsync(ct);
@@ -128,8 +128,16 @@ public sealed class MonitoringService(
             throw Invalid("Photo must be 5 MB or smaller.");
 
         using var buffer = new MemoryStream();
-        await stream.CopyToAsync(buffer, ct);
-        if (buffer.Length != length || buffer.Length > MonitoringRules.MaxPhotoBytes)
+        var block = new byte[81920];
+        while (true)
+        {
+            var read = await stream.ReadAsync(block.AsMemory(), ct);
+            if (read == 0) break;
+            if (buffer.Length + read > MonitoringRules.MaxPhotoBytes || buffer.Length + read > length)
+                throw Invalid("Invalid photo size.");
+            await buffer.WriteAsync(block.AsMemory(0, read), ct);
+        }
+        if (buffer.Length != length)
             throw Invalid("Invalid photo size.");
         var bytes = buffer.ToArray();
         var ext = MonitoringRules.PhotoExtension(bytes, claimedContentType);
