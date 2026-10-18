@@ -4,6 +4,14 @@ SmartFarm is an **in-development farm-management platform** planned for a web ap
 
 > **Project status:** Identity, farm/plot management, crop planning, activity/observation monitoring, inventory, and partial harvest recording/voiding now have ASP.NET Core API, MVC, and online-only Android implementations. Harvest totals and audit history use the existing SQL-first Harvest table; crop completion remains a separate operation. Tasks, production-ready media storage, automation, offline synchronization and CI/CD are still future work.
 
+## Start the minimal web and Android preview
+
+Follow the [local smoke test guide](docs/local-smoke-test.md) to launch the
+web server, verify `/api/status`, run the Android emulator, and optionally
+connect to the existing SQL Server database. See the [reference alignment
+review](docs/reference-alignment.md) for verified architectural similarities
+and important differences.
+
 ## Planned technology stack
 
 | Layer | Technology | Purpose |
@@ -233,4 +241,5 @@ For Android build, emulator tests, and local setup, see [Android initialization]
 3. ~~Connect the .NET backend to SQL Server and reconcile EF Core with the existing SQL schema.~~ Implemented and verified; baseline history adoption requires approval.
 4. ~~Initialize the **Kotlin / Compose** Android project.~~ Foundation build and emulator checks are available.
 5. Verify Phase 6 harvest management locally. Task automation and Android offline sync are deferred; CI/CD remains deferred.
+
 
