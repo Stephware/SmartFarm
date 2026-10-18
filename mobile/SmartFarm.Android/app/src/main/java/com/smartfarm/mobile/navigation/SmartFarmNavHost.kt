@@ -9,6 +9,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.smartfarm.mobile.features.auth.AccountScreen
 import com.smartfarm.mobile.features.auth.AuthViewModel
+import com.smartfarm.mobile.features.status.StatusViewModel
 import com.smartfarm.mobile.features.auth.LoginScreen
 import com.smartfarm.mobile.features.auth.RegisterScreen
 import com.smartfarm.mobile.ui.components.WelcomeScreen
@@ -27,13 +28,16 @@ import com.smartfarm.mobile.features.farms.FarmListScreen
 import com.smartfarm.mobile.features.farms.FarmDetailScreen
 
 @Composable
-fun SmartFarmNavHost(auth: AuthViewModel, farms: FarmViewModel, crops: CropViewModel, monitoring: MonitoringViewModel, inventory: InventoryViewModel, harvests: HarvestViewModel) {
+fun SmartFarmNavHost(auth: AuthViewModel, farms: FarmViewModel, crops: CropViewModel, monitoring: MonitoringViewModel, inventory: InventoryViewModel, harvests: HarvestViewModel, status: StatusViewModel) {
     val navController = rememberNavController()
     val resolver = LocalContext.current.contentResolver
     val state by auth.state.collectAsStateWithLifecycle()
     NavHost(navController = navController, startDestination = "welcome") {
         composable("welcome") {
+            val statusState by status.state.collectAsStateWithLifecycle()
             WelcomeScreen(
+                status = statusState,
+                onCheckBackend = { status.check() },
                 onLogin = { navController.navigate("login") },
                 onRegister = { navController.navigate("register") })
         }
@@ -181,6 +185,7 @@ fun SmartFarmNavHost(auth: AuthViewModel, farms: FarmViewModel, crops: CropViewM
         }
     }
 }
+
 
 
 

@@ -11,5 +11,7 @@ class WelcomeScreenTest {
 
     @Test fun welcomeScreenIsDisplayed() {
         compose.onNodeWithText("Welcome to SmartFarm").assertIsDisplayed()
+        compose.onNodeWithText("Check backend").assertIsDisplayed()
     }
 }
+

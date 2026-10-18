@@ -6,6 +6,7 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
 import com.smartfarm.mobile.features.auth.AuthViewModel
+import com.smartfarm.mobile.features.status.StatusViewModel
 import com.smartfarm.mobile.features.farms.FarmViewModel
 import com.smartfarm.mobile.features.crops.CropViewModel
 import com.smartfarm.mobile.features.inventory.InventoryViewModel
@@ -40,12 +41,17 @@ class MainActivity : ComponentActivity() {
         HarvestViewModel.Factory((application as SmartFarmApplication).container.harvestRepository)
     }
 
+    private val status: StatusViewModel by viewModels {
+        StatusViewModel.Factory((application as SmartFarmApplication).container.statusRepository)
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
-        setContent { SmartFarmTheme { SmartFarmNavHost(authentication, farms, crops, monitoring, inventory, harvests) } }
+        setContent { SmartFarmTheme { SmartFarmNavHost(authentication, farms, crops, monitoring, inventory, harvests, status) } }
     }
 }
+
 
 
 
