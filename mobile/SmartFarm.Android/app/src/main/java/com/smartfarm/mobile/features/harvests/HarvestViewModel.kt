@@ -46,11 +46,21 @@ class HarvestViewModel(private val repository: HarvestRepository) : ViewModel() 
         viewModelScope.launch {
             try {
                 operation(snapshot.farmId, snapshot.cycleId)
-                val refreshed = repository.list(snapshot.farmId, snapshot.cycleId)
-                mutable.value = mutable.value.copy(overview = refreshed, notice = message)
+            } catch (_: Exception) {
+                // A lost response does not prove the server rejected the write.
+                // Never encourage blindly retrying a non-idempotent harvest POST.
+                mutable.value = mutable.value.copy(
+                    error = "Could not confirm the save. Refresh harvest history before trying again.",
+                    busy = false)
+                return@launch
+            }
+            try {
+                mutable.value = mutable.value.copy(
+                    overview = repository.list(snapshot.farmId, snapshot.cycleId),
+                    notice = message)
             } catch (_: Exception) {
                 mutable.value = mutable.value.copy(
-                    error = "Request not completed. Check permissions, quantity and connection; refresh the history.")
+                    notice = "The server confirmed the change, but history could not refresh. Reopen to check it.")
             } finally {
                 mutable.value = mutable.value.copy(busy = false)
             }
