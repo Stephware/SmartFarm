@@ -82,6 +82,7 @@ fun FarmDetailScreen(state: FarmUiState, onBack: () -> Unit,
     onAddPlot: (String, String) -> Unit, onSavePlot: (PlotDto, String, String) -> Unit,
     onArchivePlot: (PlotDto) -> Unit,
     onCrops: () -> Unit,
+    onInventory: () -> Unit,
     onInvite: (String, Int) -> Unit,
     onChangeRole: (FarmMemberDto, Int) -> Unit, onRemoveMember: (FarmMemberDto) -> Unit) {
     val farm = state.selected
@@ -100,6 +101,7 @@ fun FarmDetailScreen(state: FarmUiState, onBack: () -> Unit,
         if (farm != null) {
             Text("${farm.locationText} · ${farm.role}")
             Button(onClick = onCrops) { Text("Crop management") }
+            Button(onClick = onInventory) { Text("Inventory") }
             if (canManage) {
                 Text("Edit farm", style = MaterialTheme.typography.titleMedium)
                 OutlinedTextField(name, { name = it }, label = { Text("Name") },
@@ -177,5 +179,6 @@ fun FarmDetailScreen(state: FarmUiState, onBack: () -> Unit,
         }
     }
 }
+
 
 
