@@ -7,13 +7,13 @@ namespace SmartFarm.Auth.Tests;
 public sealed class InventoryPhaseFiveTests
 {
     [Theory]
-    [InlineData(0.000, false)]
-    [InlineData(0.001, true)]
-    [InlineData(12.345, true)]
-    [InlineData(1.0001, false)]
-    [InlineData(-1.000, false)]
-    public void StockQuantityMustMatchSqlPrecision(decimal quantity, bool valid) =>
-        Assert.Equal(valid, StockRules.IsValidQuantity(quantity));
+    [InlineData("0.000", false)]
+    [InlineData("0.001", true)]
+    [InlineData("12.345", true)]
+    [InlineData("1.0001", false)]
+    [InlineData("-1.000", false)]
+    public void StockQuantityMustMatchSqlPrecision(string quantity, bool valid) =>
+        Assert.Equal(valid, StockRules.IsValidQuantity(decimal.Parse(quantity, System.Globalization.CultureInfo.InvariantCulture)));
 
     [Theory]
     [InlineData(StockTransactionType.Receipt, 2.000, true)]
@@ -24,8 +24,8 @@ public sealed class InventoryPhaseFiveTests
     [InlineData(StockTransactionType.Opening, 1.000, false)]
     [InlineData(StockTransactionType.Reversal, -1.000, false)]
     public void AllowedMovementsFollowLedgerRules(
-        StockTransactionType type, decimal amount, bool allowed) =>
-        Assert.Equal(allowed, StockRules.CanPost(type, amount, null));
+        StockTransactionType type, string amount, bool allowed) =>
+        Assert.Equal(allowed, StockRules.CanPost(type, decimal.Parse(amount, System.Globalization.CultureInfo.InvariantCulture), null));
 
     [Fact]
     public void ConsumptionRequiresAnActivityAndNegativeChange()

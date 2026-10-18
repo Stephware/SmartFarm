@@ -110,7 +110,6 @@ fun InventoryItemScreen(
     var amount by rememberSaveable { mutableStateOf("") }
     var reason by rememberSaveable { mutableStateOf("") }
     var selectedActivity by rememberSaveable { mutableStateOf<String?>(null) }
-    var reversalReason by rememberSaveable { mutableStateOf("") }
 
     InventoryPage(item?.name ?: "Inventory item") {
         OutlinedButton(onClick = onBack) { Text("Inventory list") }
@@ -175,6 +174,7 @@ fun InventoryItemScreen(
             Text("Transaction history", style = MaterialTheme.typography.titleLarge)
             val reversedIds = state.transactions.mapNotNull { it.reversesTransactionId }.toSet()
             state.transactions.forEach { transaction ->
+                var reversalReason by rememberSaveable(transaction.id) { mutableStateOf("") }
                 val type = when (transaction.transactionType) {
                     1 -> "Opening"; 2 -> "Receipt"; 3 -> "Consumption"
                     4 -> "Adjustment"; else -> "Reversal"

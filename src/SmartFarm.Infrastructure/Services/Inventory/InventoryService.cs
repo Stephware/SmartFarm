@@ -168,6 +168,9 @@ public sealed class InventoryService(
         await Require(farmId, actor, FarmAction.Manage, ct);
         ValidateItem(input, creating: false);
         var item = await ActiveItem(farmId, itemId, ct);
+        if (!string.Equals(item.Unit, input.Unit.Trim(), StringComparison.OrdinalIgnoreCase) &&
+            await db.InventoryTransactions.AnyAsync(t => t.InventoryItemId == itemId, ct))
+            throw Conflict("Units cannot be changed once stock transactions exist.");
         db.Entry(item).Property(i => i.RowVersion).OriginalValue = Version(input.RowVersion);
         item.Name = input.Name.Trim();
         item.Category = (byte)input.Category;
