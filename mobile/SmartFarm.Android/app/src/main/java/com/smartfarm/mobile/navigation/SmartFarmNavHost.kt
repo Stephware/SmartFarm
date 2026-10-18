@@ -15,12 +15,16 @@ import com.smartfarm.mobile.ui.components.WelcomeScreen
 import com.smartfarm.mobile.features.farms.FarmViewModel
 import com.smartfarm.mobile.features.crops.CropViewModel
 import com.smartfarm.mobile.features.crops.CropScreen
+import com.smartfarm.mobile.features.monitoring.MonitoringViewModel
+import com.smartfarm.mobile.features.monitoring.MonitoringScreen
+import androidx.compose.ui.platform.LocalContext
 import com.smartfarm.mobile.features.farms.FarmListScreen
 import com.smartfarm.mobile.features.farms.FarmDetailScreen
 
 @Composable
-fun SmartFarmNavHost(auth: AuthViewModel, farms: FarmViewModel, crops: CropViewModel) {
+fun SmartFarmNavHost(auth: AuthViewModel, farms: FarmViewModel, crops: CropViewModel, monitoring: MonitoringViewModel) {
     val navController = rememberNavController()
+    val resolver = LocalContext.current.contentResolver
     val state by auth.state.collectAsStateWithLifecycle()
     NavHost(navController = navController, startDestination = "welcome") {
         composable("welcome") {
@@ -51,6 +55,7 @@ fun SmartFarmNavHost(auth: AuthViewModel, farms: FarmViewModel, crops: CropViewM
                 auth.logout()
                 farms.clear()
                 crops.clear()
+                monitoring.clear()
                 navController.navigate("welcome") { popUpTo("welcome") { inclusive = true } }
             }, onFarms = { navController.navigate("farms") })
         }
@@ -99,9 +104,26 @@ fun SmartFarmNavHost(auth: AuthViewModel, farms: FarmViewModel, crops: CropViewM
                     crops.plan(plotId, typeId, date, expected)
                 },
                 onUpdatePlan = { cycle, date, expected -> crops.updatePlan(cycle, date, expected) },
+                onMonitoring = { cycle -> navController.navigate("monitor/$farmId/${cycle.id}") },
                 onTransition = { cycle, status, planted, reason ->
                     crops.transition(cycle, status, planted, reason)
                 })
+        }
+        composable("monitor/{farmId}/{cycleId}") { entry ->
+            val farmId = entry.arguments?.getString("farmId").orEmpty()
+            val cycleId = entry.arguments?.getString("cycleId").orEmpty()
+            val monitoringState by monitoring.state.collectAsStateWithLifecycle()
+            LaunchedEffect(farmId, cycleId) { monitoring.load(farmId, cycleId) }
+            MonitoringScreen(monitoringState,
+                onBack = { navController.popBackStack() },
+                onActivity = { kind, notes -> monitoring.logActivity(kind, notes) },
+                onObservation = { health, growth, notes ->
+                    monitoring.observe(health, growth, notes)
+                },
+                onUpload = { observationId, uri ->
+                    monitoring.uploadPhoto(observationId, uri, resolver)
+                },
+                onPreview = { monitoring.preview(it) })
         }
     }
 }

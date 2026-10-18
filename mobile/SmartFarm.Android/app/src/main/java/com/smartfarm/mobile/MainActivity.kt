@@ -8,6 +8,7 @@ import androidx.activity.viewModels
 import com.smartfarm.mobile.features.auth.AuthViewModel
 import com.smartfarm.mobile.features.farms.FarmViewModel
 import com.smartfarm.mobile.features.crops.CropViewModel
+import com.smartfarm.mobile.features.monitoring.MonitoringViewModel
 import com.smartfarm.mobile.navigation.SmartFarmNavHost
 import com.smartfarm.mobile.ui.theme.SmartFarmTheme
 
@@ -25,10 +26,14 @@ class MainActivity : ComponentActivity() {
         CropViewModel.Factory(container.cropRepository, container.farmRepository)
     }
 
+    private val monitoring: MonitoringViewModel by viewModels {
+        MonitoringViewModel.Factory((application as SmartFarmApplication).container.monitoringRepository)
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
-        setContent { SmartFarmTheme { SmartFarmNavHost(authentication, farms, crops) } }
+        setContent { SmartFarmTheme { SmartFarmNavHost(authentication, farms, crops, monitoring) } }
     }
 }
 
