@@ -22,4 +22,10 @@ public Task<Plot?> GetActiveAsync(Guid farmId, Guid plotId, CancellationToken ct
 
     public void SetOriginalRowVersion(Plot plot, byte[] rowVersion) =>
         db.Entry(plot).Property(p => p.RowVersion).OriginalValue = rowVersion;
+    public Task<string> GetNameAsync(Guid plotId, CancellationToken ct = default) =>
+        db.Plots.AsNoTracking().Where(p => p.Id == plotId).Select(p => p.Name).SingleAsync(ct);
+
+    public Task<bool> IsActiveAsync(Guid farmId, Guid plotId, CancellationToken ct = default) =>
+        db.Plots.AsNoTracking().AnyAsync(p => p.Id == plotId && p.FarmId == farmId && p.ArchivedAtUtc == null, ct);
+
 }

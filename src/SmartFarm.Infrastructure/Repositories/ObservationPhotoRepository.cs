@@ -18,4 +18,15 @@ public Task<ObservationPhoto?> GetByIdAsync(Guid observationId, Guid photoId, Ca
             .OrderBy(p => p.UploadedAtUtc).ToListAsync(ct);
 
     public void Add(ObservationPhoto photo) => db.ObservationPhotos.Add(photo);
+    public async Task<IReadOnlyList<ObservationPhoto>> ListForObservationsAsync(Guid[] observationIds,
+        CancellationToken ct = default) =>
+        await db.ObservationPhotos.AsNoTracking()
+            .Where(p => observationIds.Contains(p.CropObservationId))
+            .OrderBy(p => p.UploadedAtUtc).ToListAsync(ct);
+
+    public Task<ObservationPhoto?> GetForCycleAsync(Guid cycleId, Guid photoId, CancellationToken ct = default) =>
+        db.ObservationPhotos.AsNoTracking().SingleOrDefaultAsync(p =>
+            p.Id == photoId && db.CropObservations.Any(o =>
+                o.Id == p.CropObservationId && o.CropCycleId == cycleId), ct);
+
 }
