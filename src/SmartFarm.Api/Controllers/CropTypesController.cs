@@ -5,9 +5,9 @@ using SmartFarm.Core.Contracts.Crops;
 using SmartFarm.Core.Interfaces.Crops;
 using SmartFarm.Infrastructure.Identity;
 
-using SmartFarm.Web.Authentication;
+using SmartFarm.Api.Authentication;
 
-namespace SmartFarm.Web.Api.Controllers;
+namespace SmartFarm.Api.Controllers;
 
 [ApiController]
 [Authorize(AuthenticationSchemes = SmartFarmAuthSchemes.Bearer)]
@@ -28,4 +28,3 @@ public sealed class CropTypesController(
             return StatusCode(StatusCodes.Status201Created, created);
         });
 }
-

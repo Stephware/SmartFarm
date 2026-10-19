@@ -6,11 +6,11 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 using SmartFarm.Infrastructure.Identity;
-using SmartFarm.Web.ViewModels.Auth;
+using SmartFarm.Api.Models.Auth;
 
-using SmartFarm.Web.Authentication;
+using SmartFarm.Api.Authentication;
 
-namespace SmartFarm.Web.Api.Controllers;
+namespace SmartFarm.Api.Controllers;
 
 [ApiController]
 [Route("api/auth")]
@@ -80,4 +80,3 @@ public sealed class AuthController(
         return Ok(new { id = user.Id, fullName = user.FullName, email = user.Email });
     }
 }
-

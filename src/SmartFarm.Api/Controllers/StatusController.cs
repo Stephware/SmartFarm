@@ -1,7 +1,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
-namespace SmartFarm.Web.Api.Controllers;
+namespace SmartFarm.Api.Controllers;
 
 // An anonymous, database-independent smoke test. No private environment
 // information is included in the response.
@@ -13,4 +13,3 @@ public sealed class StatusController : ControllerBase
     [HttpGet]
     public IActionResult Get() => Ok(new { app = "SmartFarm", status = "ok" });
 }
-

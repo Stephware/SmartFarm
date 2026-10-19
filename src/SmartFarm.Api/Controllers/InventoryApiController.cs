@@ -6,9 +6,9 @@ using SmartFarm.Core.Contracts.Inventory;
 using SmartFarm.Core.Interfaces.Inventory;
 using SmartFarm.Infrastructure.Identity;
 
-using SmartFarm.Web.Authentication;
+using SmartFarm.Api.Authentication;
 
-namespace SmartFarm.Web.Api.Controllers;
+namespace SmartFarm.Api.Controllers;
 
 [ApiController]
 [Authorize(AuthenticationSchemes = SmartFarmAuthSchemes.Bearer)]
@@ -66,4 +66,3 @@ public sealed class InventoryApiController(
     public Task<IActionResult> Activities(Guid farmId, CancellationToken ct) =>
         Result(async () => Ok(await inventory.ActivityOptionsAsync(farmId, ActorId, ct)));
 }
-
