@@ -10,4 +10,6 @@ Task<CropCycle?> GetForFarmAsync(Guid farmId, Guid cycleId, bool requireActivePl
     Task<bool> HasStatusOnPlotAsync(Guid plotId, byte status, CancellationToken ct = default);
     void Add(CropCycle cycle);
     void SetOriginalRowVersion(CropCycle cycle, byte[] rowVersion);
+    Task<bool> HasActiveForFarmAsync(Guid farmId, CancellationToken ct = default);
+
 }

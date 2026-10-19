@@ -21,4 +21,20 @@ public Task<Farm?> GetActiveAsync(Guid farmId, CancellationToken ct = default) =
 
     public void SetOriginalRowVersion(Farm farm, byte[] rowVersion) =>
         db.Entry(farm).Property(f => f.RowVersion).OriginalValue = rowVersion;
+    public async Task<IReadOnlyList<SmartFarm.Core.Contracts.Farms.FarmSummary>> ListSummariesAsync(Guid actor,
+        CancellationToken ct = default) =>
+        await db.Farms.AsNoTracking().Where(f => f.ArchivedAtUtc == null &&
+            (f.OwnerUserId == actor || db.FarmMembers.Any(m =>
+                m.FarmId == f.Id && m.UserId == actor && m.RemovedAtUtc == null)))
+            .OrderBy(f => f.Name).Select(f => new SmartFarm.Core.Contracts.Farms.FarmSummary(
+                f.Id, f.Name, f.LocationText,
+                f.OwnerUserId == actor ? "Owner" :
+                db.FarmMembers.Where(m => m.FarmId == f.Id && m.UserId == actor && m.RemovedAtUtc == null)
+                    .Select(m => m.Role).FirstOrDefault() == 1 ? "Manager" : "FieldWorker",
+                f.TimeZoneId)).ToListAsync(ct);
+
+    public Task<Guid?> GetOwnerIdAsync(Guid farmId, CancellationToken ct = default) =>
+        db.Farms.AsNoTracking().Where(f => f.Id == farmId && f.ArchivedAtUtc == null)
+            .Select(f => (Guid?)f.OwnerUserId).SingleOrDefaultAsync(ct);
+
 }

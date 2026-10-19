@@ -25,4 +25,8 @@ public Task<CropCycle?> GetForFarmAsync(Guid farmId, Guid cycleId, bool requireA
 
     public void SetOriginalRowVersion(CropCycle cycle, byte[] rowVersion) =>
         db.Entry(cycle).Property(c => c.RowVersion).OriginalValue = rowVersion;
+    public Task<bool> HasActiveForFarmAsync(Guid farmId, CancellationToken ct = default) =>
+        db.CropCycles.AnyAsync(c => c.Status == 1 && db.Plots.Any(p =>
+            p.Id == c.PlotId && p.FarmId == farmId), ct);
+
 }

@@ -23,6 +23,7 @@ public static class DependencyInjection
     public static IServiceCollection AddSmartFarmRepositories(this IServiceCollection services)
     {
         services.AddScoped<IFarmRepository, FarmRepository>();
+        services.AddScoped<IUserRepository, UserRepository>();
         services.AddScoped<IPlotRepository, PlotRepository>();
         services.AddScoped<IFarmMemberRepository, FarmMemberRepository>();
         services.AddScoped<ICropTypeRepository, CropTypeRepository>();
