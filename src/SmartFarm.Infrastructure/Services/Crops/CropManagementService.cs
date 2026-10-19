@@ -5,14 +5,18 @@ using SmartFarm.Core.Contracts.Farms;
 using SmartFarm.Core.Entities;
 using SmartFarm.Core.Enums;
 using SmartFarm.Core.Interfaces.Crops;
+using SmartFarm.Core.Interfaces.Repositories;
+using SmartFarm.Core.Interfaces.Persistence;
 using SmartFarm.Core.Interfaces.Security;
 using SmartFarm.Core.Services.Crops;
-using SmartFarm.Infrastructure.Persistence;
 
 namespace SmartFarm.Infrastructure.Services.Crops;
 
 public sealed class CropManagementService(
-    SmartFarmDbContext db,
+    ICropTypeRepository cropTypes,
+    ICropCycleRepository cycles,
+    IPlotRepository plots,
+    IUnitOfWork unit,
     IFarmAccessService access) : ICropManagementService
 {
     private static FarmOperationException NotFound() =>
@@ -52,11 +56,11 @@ public sealed class CropManagementService(
             throw Invalid("Invalid watering interval or harvest unit.");
     }
 
-    private static async Task Save(SmartFarmDbContext db, CancellationToken ct)
+    private async Task Save(CancellationToken ct)
     {
         try
         {
-            await db.SaveChangesAsync(ct);
+            await unit.SaveChangesAsync(ct);
         }
         catch (DbUpdateConcurrencyException)
         {
@@ -88,10 +92,8 @@ public sealed class CropManagementService(
 
     private async Task<CropCycleDetails> MapLoaded(CropCycle cycle, Guid farmId, CancellationToken ct)
     {
-        var plotName = await db.Plots.AsNoTracking()
-            .Where(p => p.Id == cycle.PlotId).Select(p => p.Name).SingleAsync(ct);
-        var typeName = await db.CropTypes.AsNoTracking()
-            .Where(t => t.Id == cycle.CropTypeId).Select(t => t.Name).SingleAsync(ct);
+        var plotName = await plots.GetNameAsync(cycle.PlotId, ct);
+        var typeName = await cropTypes.GetNameAsync(cycle.CropTypeId, ct);
         return Map(cycle, plotName, typeName, farmId);
     }
 
@@ -99,8 +101,7 @@ public sealed class CropManagementService(
         Guid farmId, Guid actor, CancellationToken ct = default)
     {
         await Require(farmId, actor, FarmAction.View, ct);
-        var catalog = await db.CropTypes.AsNoTracking().Where(t => t.IsActive)
-            .OrderBy(t => t.Name).ToListAsync(ct);
+        var catalog = await cropTypes.ListActiveAsync(ct);
         return catalog.Select(Map).ToList();
     }
 
@@ -123,8 +124,8 @@ public sealed class CropManagementService(
             DefaultWateringIntervalDays = input.DefaultWateringIntervalDays,
             IsActive = true
         };
-        db.CropTypes.Add(type);
-        await Save(db, ct);
+        cropTypes.Add(type);
+        await Save(ct);
         return Map(type);
     }
 
@@ -135,25 +136,15 @@ public sealed class CropManagementService(
 
         // History includes completed, failed, cancelled and planned cycles;
         // exclude data from archived plots only when creating new cycles.
-        var cycles = await (
-            from cycle in db.CropCycles.AsNoTracking()
-            join plot in db.Plots.AsNoTracking() on cycle.PlotId equals plot.Id
-            join type in db.CropTypes.AsNoTracking() on cycle.CropTypeId equals type.Id
-            where plot.FarmId == farmId
-            orderby cycle.CreatedAtUtc descending, cycle.Id
-            select new { Cycle = cycle, PlotName = plot.Name, TypeName = type.Name }
-        ).ToListAsync(ct);
-
-        return cycles.Select(c => Map(c.Cycle, c.PlotName, c.TypeName, farmId)).ToList();
+        var listed = await cycles.ListWithNamesForFarmAsync(farmId, ct);
+        return listed.Select(c => Map(c.Cycle, c.PlotName, c.TypeName, farmId)).ToList();
     }
 
     public async Task<CropCycleDetails?> GetCycleAsync(
         Guid farmId, Guid cycleId, Guid actor, CancellationToken ct = default)
     {
         await Require(farmId, actor, FarmAction.View, ct);
-        var cycle = await db.CropCycles.AsNoTracking()
-            .Where(c => c.Id == cycleId && db.Plots.Any(p => p.Id == c.PlotId && p.FarmId == farmId))
-            .SingleOrDefaultAsync(ct);
+        var cycle = await cycles.GetForFarmAsync(farmId, cycleId, false, ct);
         return cycle is null ? null : await MapLoaded(cycle, farmId, ct);
     }
 
@@ -162,12 +153,10 @@ public sealed class CropManagementService(
     {
         await Require(farmId, actor, FarmAction.Manage, ct);
         ValidatePlan(input);
-        if (!await db.Plots.AnyAsync(p =>
-            p.Id == plotId && p.FarmId == farmId && p.ArchivedAtUtc == null, ct))
+        if (!await plots.IsActiveAsync(farmId, plotId, ct))
             throw NotFound();
 
-        var type = await db.CropTypes.AsNoTracking()
-            .SingleOrDefaultAsync(t => t.Id == input.CropTypeId && t.IsActive, ct) ?? throw Invalid("Choose an active crop type.");
+        var type = await cropTypes.GetActiveAsync(input.CropTypeId, ct) ?? throw Invalid("Choose an active crop type.");
 
         var cycle = new CropCycle
         {
@@ -178,8 +167,8 @@ public sealed class CropManagementService(
             WateringIntervalDays = input.WateringIntervalDays ?? type.DefaultWateringIntervalDays,
             Status = (byte)CropCycleStatus.Planned
         };
-        db.CropCycles.Add(cycle);
-        await Save(db, ct);
+        cycles.Add(cycle);
+        await Save(ct);
         return await MapLoaded(cycle, farmId, ct);
     }
 
@@ -188,21 +177,18 @@ public sealed class CropManagementService(
     {
         await Require(farmId, actor, FarmAction.Manage, ct);
         ValidatePlan(input);
-        var cycle = await db.CropCycles.SingleOrDefaultAsync(c =>
-            c.Id == cycleId && db.Plots.Any(p =>
-                p.Id == c.PlotId && p.FarmId == farmId && p.ArchivedAtUtc == null), ct) ?? throw NotFound();
+        var cycle = await cycles.GetForFarmAsync(farmId, cycleId, true, ct) ?? throw NotFound();
         if (cycle.Status != (byte)CropCycleStatus.Planned)
             throw Conflict("Only planned crops can be edited.");
 
-        var type = await db.CropTypes.AsNoTracking()
-            .SingleOrDefaultAsync(t => t.Id == input.CropTypeId && t.IsActive, ct) ?? throw Invalid("Choose an active crop type.");
-        db.Entry(cycle).Property(c => c.RowVersion).OriginalValue = ParseVersion(input.RowVersion);
+        var type = await cropTypes.GetActiveAsync(input.CropTypeId, ct) ?? throw Invalid("Choose an active crop type.");
+        cycles.SetOriginalRowVersion(cycle, ParseVersion(input.RowVersion));
         cycle.CropTypeId = type.Id;
         cycle.PlannedPlantingDate = input.PlannedPlantingDate;
         cycle.ExpectedHarvestDate = input.ExpectedHarvestDate;
         cycle.HarvestUnit = string.IsNullOrWhiteSpace(input.HarvestUnit) ? type.DefaultHarvestUnit : input.HarvestUnit.Trim();
         cycle.WateringIntervalDays = input.WateringIntervalDays ?? type.DefaultWateringIntervalDays;
-        await Save(db, ct);
+        await Save(ct);
         return await MapLoaded(cycle, farmId, ct);
     }
 
@@ -210,9 +196,7 @@ public sealed class CropManagementService(
         Guid farmId, Guid cycleId, Guid actor, CropCycleTransitionInput input, CancellationToken ct = default)
     {
         await Require(farmId, actor, FarmAction.Manage, ct);
-        var cycle = await db.CropCycles.SingleOrDefaultAsync(c =>
-            c.Id == cycleId && db.Plots.Any(p =>
-                p.Id == c.PlotId && p.FarmId == farmId && p.ArchivedAtUtc == null), ct) ?? throw NotFound();
+        var cycle = await cycles.GetForFarmAsync(farmId, cycleId, true, ct) ?? throw NotFound();
 
         var before = (CropCycleStatus)cycle.Status;
         var after = input.Status;
@@ -237,7 +221,7 @@ public sealed class CropManagementService(
             !string.IsNullOrEmpty(reason))
             throw Invalid("A reason is only used for failed or cancelled crops.");
 
-        db.Entry(cycle).Property(c => c.RowVersion).OriginalValue = ParseVersion(input.RowVersion);
+        cycles.SetOriginalRowVersion(cycle, ParseVersion(input.RowVersion));
         cycle.Status = (byte)after;
         cycle.TerminationReason = CropCycleRules.IsTerminal(after) ? reason : null;
         if (after == CropCycleStatus.Completed)
@@ -245,7 +229,7 @@ public sealed class CropManagementService(
 
         // SQL has UX_CropCycle_OneActivePerPlot (filtered Status=1).
         // A second activation is rejected by the unique index, even under races.
-        await Save(db, ct);
+        await Save(ct);
         return await MapLoaded(cycle, farmId, ct);
     }
 }

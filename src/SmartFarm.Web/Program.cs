@@ -22,6 +22,7 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllersWithViews();
 builder.Services.AddSmartFarmPersistence(
     builder.Configuration.GetConnectionString("SmartFarm"));
+builder.Services.AddSmartFarmRepositories();
 builder.Services.AddSmartFarmWeather(builder.Configuration);
 builder.Services.AddSmartFarmIdentity(builder.Environment);
 builder.Services.AddScoped<AccountRegistrationService>();
@@ -81,8 +82,3 @@ app.MapControllerRoute(
 app.Run();
 
 public partial class Program { }
-
-
-
-
-

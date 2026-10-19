@@ -1,17 +1,21 @@
-using Microsoft.EntityFrameworkCore;
 using SmartFarm.Core.Contracts.Farms;
 using SmartFarm.Core.Contracts.Monitoring;
 using SmartFarm.Core.Entities;
 using SmartFarm.Core.Enums;
 using SmartFarm.Core.Interfaces.Monitoring;
+using SmartFarm.Core.Interfaces.Persistence;
+using SmartFarm.Core.Interfaces.Repositories;
 using SmartFarm.Core.Interfaces.Security;
 using SmartFarm.Core.Services.Monitoring;
-using SmartFarm.Infrastructure.Persistence;
 
 namespace SmartFarm.Infrastructure.Services.Monitoring;
 
 public sealed class MonitoringService(
-    SmartFarmDbContext db,
+    ICropCycleRepository cycles,
+    ICropActivityRepository activities,
+    ICropObservationRepository observations,
+    IObservationPhotoRepository photos,
+    IUnitOfWork unit,
     IFarmAccessService access,
     IObservationPhotoStore photoStore) : IMonitoringService
 {
@@ -40,10 +44,7 @@ public sealed class MonitoringService(
         if (!await access.CanAsync(farmId, actor, FarmAction.View, ct))
             throw Missing();
 
-        var cycle = await db.CropCycles.AsNoTracking().SingleOrDefaultAsync(c =>
-            c.Id == cycleId && db.Plots.Any(p =>
-                p.Id == c.PlotId && p.FarmId == farmId &&
-                (!recording || p.ArchivedAtUtc == null)), ct)
+        var cycle = await cycles.GetForFarmAsync(farmId, cycleId, recording, ct)
             ?? throw Missing();
 
         if (recording && !MonitoringRules.CanRecord(cycle.Status))
@@ -55,24 +56,17 @@ public sealed class MonitoringService(
         Guid farmId, Guid cycleId, Guid actor, CancellationToken ct = default)
     {
         var cycle = await RequireCycle(farmId, cycleId, actor, false, ct);
-        var activities = await db.CropActivities.AsNoTracking()
-            .Where(a => a.CropCycleId == cycleId)
-            .OrderByDescending(a => a.OccurredAtUtc).ToListAsync(ct);
-        var observations = await db.CropObservations.AsNoTracking()
-            .Where(o => o.CropCycleId == cycleId)
-            .OrderByDescending(o => o.ObservedAtUtc).ToListAsync(ct);
+        var activityRows = await activities.ListForCycleAsync(cycleId, ct);
+        var observationRows = await observations.ListForCycleAsync(cycleId, ct);
 
-        var observationIds = observations.Select(o => o.Id).ToArray();
-        List<ObservationPhoto> photos = observationIds.Length == 0 ? [] :
-            await db.ObservationPhotos.AsNoTracking()
-                .Where(p => observationIds.Contains(p.CropObservationId))
-                .OrderBy(p => p.UploadedAtUtc).ToListAsync(ct);
+        var observationIds = observationRows.Select(o => o.Id).ToArray();
+        var photoRows = await photos.ListForObservationsAsync(observationIds, ct);
 
-        var mappedPhotos = photos.GroupBy(MapObservationId)
+        var mappedPhotos = photoRows.GroupBy(MapObservationId)
             .ToDictionary(g => g.Key, g => (IReadOnlyList<PhotoDetails>)g.Select(Map).ToList());
         return new MonitoringDetails(farmId, cycleId, MonitoringRules.CanRecord(cycle.Status),
-            activities.Select(Map).ToList(),
-            observations.Select(o => Map(o,
+            activityRows.Select(Map).ToList(),
+            observationRows.Select(o => Map(o,
                 mappedPhotos.GetValueOrDefault(o.Id) ?? [])).ToList());
     }
 
@@ -91,8 +85,8 @@ public sealed class MonitoringService(
             RecordedByUserId = actor,
             Notes = string.IsNullOrWhiteSpace(input.Notes) ? null : input.Notes.Trim()
         };
-        db.CropActivities.Add(activity);
-        await db.SaveChangesAsync(ct);
+        activities.Add(activity);
+        await unit.SaveChangesAsync(ct);
         return Map(activity);
     }
 
@@ -111,8 +105,8 @@ public sealed class MonitoringService(
             RecordedByUserId = actor,
             Notes = string.IsNullOrWhiteSpace(input.Notes) ? null : input.Notes.Trim()
         };
-        db.CropObservations.Add(observation);
-        await db.SaveChangesAsync(ct);
+        observations.Add(observation);
+        await unit.SaveChangesAsync(ct);
         return Map(observation, []);
     }
 
@@ -121,8 +115,7 @@ public sealed class MonitoringService(
         string? claimedContentType, CancellationToken ct = default)
     {
         await RequireCycle(farmId, cycleId, actor, true, ct);
-        if (!await db.CropObservations.AsNoTracking().AnyAsync(o =>
-            o.Id == observationId && o.CropCycleId == cycleId, ct))
+        if (await observations.GetByIdAsync(cycleId, observationId, ct) is null)
             throw Missing();
         if (length is <= 0 or > MonitoringRules.MaxPhotoBytes)
             throw Invalid("Photo must be 5 MB or smaller.");
@@ -157,8 +150,8 @@ public sealed class MonitoringService(
         };
         try
         {
-            db.ObservationPhotos.Add(photo);
-            await db.SaveChangesAsync(ct);
+            photos.Add(photo);
+            await unit.SaveChangesAsync(ct);
         }
         catch
         {
@@ -172,11 +165,7 @@ public sealed class MonitoringService(
         Guid farmId, Guid cycleId, Guid photoId, Guid actor, CancellationToken ct = default)
     {
         await RequireCycle(farmId, cycleId, actor, false, ct);
-        var photo = await db.ObservationPhotos.AsNoTracking()
-            .SingleOrDefaultAsync(p => p.Id == photoId &&
-                db.CropObservations.Any(o =>
-                    o.Id == p.CropObservationId && o.CropCycleId == cycleId), ct)
-            ?? throw Missing();
+        var photo = await photos.GetForCycleAsync(cycleId, photoId, ct) ?? throw Missing();
         try
         {
             return (await photoStore.OpenAsync(photo.StorageKey, ct), photo.ContentType);

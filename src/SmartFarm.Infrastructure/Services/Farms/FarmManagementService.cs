@@ -8,15 +8,22 @@ using SmartFarm.Core.Contracts.Farms;
 using SmartFarm.Core.Entities;
 using SmartFarm.Core.Enums;
 using SmartFarm.Core.Interfaces.Farms;
+using SmartFarm.Core.Interfaces.Repositories;
+using SmartFarm.Core.Interfaces.Persistence;
 using SmartFarm.Core.Interfaces.Security;
 using SmartFarm.Core.Services.Security;
 using SmartFarm.Infrastructure.Identity;
-using SmartFarm.Infrastructure.Persistence;
 
 namespace SmartFarm.Infrastructure.Services.Farms;
 
 public sealed class FarmManagementService(
-    SmartFarmDbContext db,
+    IFarmRepository farms,
+    IPlotRepository plots,
+    IFarmMemberRepository members,
+    ICropCycleRepository cycles,
+    IInventoryItemRepository stock,
+    IUserRepository people,
+    IUnitOfWork unit,
     IFarmAccessService access,
     UserManager<SmartFarmUser> users,
     IDataProtectionProvider protection) : IFarmManagementService
@@ -83,11 +90,11 @@ public sealed class FarmManagementService(
     private static PlotDetails Map(Plot plot) =>
         new(plot.Id, plot.FarmId, plot.Name, plot.AreaSqMeters, Convert.ToBase64String(plot.RowVersion));
 
-    private static async Task Save(SmartFarmDbContext db, CancellationToken ct)
+    private async Task Save(CancellationToken ct)
     {
         try
         {
-            await db.SaveChangesAsync(ct);
+            await unit.SaveChangesAsync(ct);
         }
         catch (DbUpdateConcurrencyException)
         {
@@ -102,41 +109,31 @@ public sealed class FarmManagementService(
 
     public async Task<IReadOnlyList<FarmSummary>> ListAsync(Guid actor, CancellationToken ct = default)
     {
-        if (!await db.Users.AsNoTracking().AnyAsync(u => u.Id == actor && u.DisabledAtUtc == null, ct))
+        if (!await people.IsActiveAsync(actor, ct))
             return [];
-        return await db.Farms.AsNoTracking()
-            .Where(f => f.ArchivedAtUtc == null &&
-                (f.OwnerUserId == actor || db.FarmMembers.Any(m =>
-                    m.FarmId == f.Id && m.UserId == actor && m.RemovedAtUtc == null)))
-            .OrderBy(f => f.Name).Select(f => new FarmSummary(
-                f.Id, f.Name, f.LocationText,
-                f.OwnerUserId == actor ? "Owner" :
-                db.FarmMembers.Where(m => m.FarmId == f.Id && m.UserId == actor && m.RemovedAtUtc == null)
-                    .Select(m => m.Role).FirstOrDefault() == 1 ? "Manager" : "FieldWorker",
-                f.TimeZoneId)).ToListAsync(ct);
+        return await farms.ListSummariesAsync(actor, ct);
     }
 
     public async Task<FarmDetails?> GetAsync(Guid farmId, Guid actor, CancellationToken ct = default)
     {
         var level = await access.GetAccessLevelAsync(farmId, actor, ct);
         if (!FarmAccessRules.Allows(level, FarmAction.View)) return null;
-        var farm = await db.Farms.AsNoTracking()
-            .SingleOrDefaultAsync(f => f.Id == farmId && f.ArchivedAtUtc == null, ct);
+        var farm = await farms.GetActiveAsync(farmId, ct);
         return farm is null ? null : Map(farm, level);
     }
 
     public async Task<FarmDetails> CreateAsync(Guid actor, FarmInput input, CancellationToken ct = default)
     {
         ValidateFarm(input);
-        if (!await db.Users.AnyAsync(u => u.Id == actor && u.DisabledAtUtc == null, ct))
+        if (!await people.IsActiveAsync(actor, ct))
             throw Missing();
         var farm = new Farm
         {
             OwnerUserId = actor, Name = input.Name.Trim(), LocationText = input.LocationText.Trim(),
             TimeZoneId = input.TimeZoneId.Trim(), Latitude = input.Latitude, Longitude = input.Longitude
         };
-        db.Farms.Add(farm);
-        await Save(db, ct);
+        farms.Add(farm);
+        await Save(ct);
         return Map(farm, FarmAccessLevel.Owner);
     }
 
@@ -144,15 +141,14 @@ public sealed class FarmManagementService(
     {
         ValidateFarm(input);
         await RequireAccess(farmId, actor, FarmAction.Manage, ct);
-        var farm = await db.Farms.SingleOrDefaultAsync(f => f.Id == farmId && f.ArchivedAtUtc == null, ct)
-            ?? throw Missing();
-        db.Entry(farm).Property(f => f.RowVersion).OriginalValue = ParseVersion(input.RowVersion);
+        var farm = await farms.GetActiveAsync(farmId, ct) ?? throw Missing();
+        farms.SetOriginalRowVersion(farm, ParseVersion(input.RowVersion));
         farm.Name = input.Name.Trim();
         farm.LocationText = input.LocationText.Trim();
         farm.TimeZoneId = input.TimeZoneId.Trim();
         farm.Latitude = input.Latitude;
         farm.Longitude = input.Longitude;
-        await Save(db, ct);
+        await Save(ct);
         return Map(farm, await access.GetAccessLevelAsync(farmId, actor, ct));
     }
 
@@ -160,35 +156,29 @@ public sealed class FarmManagementService(
     {
         if (await access.GetAccessLevelAsync(farmId, actor, ct) != FarmAccessLevel.Owner)
             throw Missing();
-        var farm = await db.Farms.SingleOrDefaultAsync(f => f.Id == farmId && f.ArchivedAtUtc == null, ct)
-            ?? throw Missing();
-        if (await db.CropCycles.AnyAsync(c => c.Status == 1 &&
-            db.Plots.Any(p => p.Id == c.PlotId && p.FarmId == farmId), ct))
+        var farm = await farms.GetActiveAsync(farmId, ct) ?? throw Missing();
+        if (await cycles.HasActiveForFarmAsync(farmId, ct))
             throw Conflict("End active crop cycles before archiving this farm.");
-        if (await db.InventoryItems.AnyAsync(i =>
-            i.FarmId == farmId && i.ArchivedAtUtc == null && i.QuantityOnHand > 0, ct))
+        if (await stock.HasPositiveStockAsync(farmId, ct))
             throw Conflict("Reduce or transfer stock before archiving this farm.");
-        db.Entry(farm).Property(f => f.RowVersion).OriginalValue = ParseVersion(rowVersion);
+        farms.SetOriginalRowVersion(farm, ParseVersion(rowVersion));
         farm.ArchivedAtUtc = DateTime.UtcNow;
-        await Save(db, ct);
+        await Save(ct);
     }
 
     public async Task<IReadOnlyList<PlotDetails>> ListPlotsAsync(
         Guid farmId, Guid actor, CancellationToken ct = default)
     {
         await RequireAccess(farmId, actor, FarmAction.View, ct);
-        return await db.Plots.AsNoTracking().Where(p => p.FarmId == farmId && p.ArchivedAtUtc == null)
-            .OrderBy(p => p.Name)
-            .Select(p => new PlotDetails(p.Id, p.FarmId, p.Name, p.AreaSqMeters,
-                Convert.ToBase64String(p.RowVersion))).ToListAsync(ct);
+        var listed = await plots.ListActiveAsync(farmId, ct);
+        return listed.Select(Map).ToList();
     }
 
     public async Task<PlotDetails?> GetPlotAsync(
         Guid farmId, Guid plotId, Guid actor, CancellationToken ct = default)
     {
         await RequireAccess(farmId, actor, FarmAction.View, ct);
-        var plot = await db.Plots.AsNoTracking()
-            .SingleOrDefaultAsync(p => p.Id == plotId && p.FarmId == farmId && p.ArchivedAtUtc == null, ct);
+        var plot = await plots.GetActiveAsync(farmId, plotId, ct);
         return plot is null ? null : Map(plot);
     }
 
@@ -198,8 +188,8 @@ public sealed class FarmManagementService(
         ValidatePlot(input);
         await RequireAccess(farmId, actor, FarmAction.Manage, ct);
         var plot = new Plot { FarmId = farmId, Name = input.Name.Trim(), AreaSqMeters = input.AreaSqMeters };
-        db.Plots.Add(plot);
-        await Save(db, ct);
+        plots.Add(plot);
+        await Save(ct);
         return Map(plot);
     }
 
@@ -208,12 +198,11 @@ public sealed class FarmManagementService(
     {
         ValidatePlot(input);
         await RequireAccess(farmId, actor, FarmAction.Manage, ct);
-        var plot = await db.Plots.SingleOrDefaultAsync(
-            p => p.Id == plotId && p.FarmId == farmId && p.ArchivedAtUtc == null, ct) ?? throw Missing();
-        db.Entry(plot).Property(p => p.RowVersion).OriginalValue = ParseVersion(input.RowVersion);
+        var plot = await plots.GetActiveAsync(farmId, plotId, ct) ?? throw Missing();
+        plots.SetOriginalRowVersion(plot, ParseVersion(input.RowVersion));
         plot.Name = input.Name.Trim();
         plot.AreaSqMeters = input.AreaSqMeters;
-        await Save(db, ct);
+        await Save(ct);
         return Map(plot);
     }
 
@@ -221,25 +210,19 @@ public sealed class FarmManagementService(
         Guid farmId, Guid plotId, Guid actor, string rowVersion, CancellationToken ct = default)
     {
         await RequireAccess(farmId, actor, FarmAction.Manage, ct);
-        var plot = await db.Plots.SingleOrDefaultAsync(
-            p => p.Id == plotId && p.FarmId == farmId && p.ArchivedAtUtc == null, ct) ?? throw Missing();
-        if (await db.CropCycles.AnyAsync(c => c.PlotId == plotId && c.Status == 1, ct))
+        var plot = await plots.GetActiveAsync(farmId, plotId, ct) ?? throw Missing();
+        if (await cycles.HasStatusOnPlotAsync(plotId, 1, ct))
             throw Conflict("End the active crop cycle before archiving this plot.");
-        db.Entry(plot).Property(p => p.RowVersion).OriginalValue = ParseVersion(rowVersion);
+        plots.SetOriginalRowVersion(plot, ParseVersion(rowVersion));
         plot.ArchivedAtUtc = DateTime.UtcNow;
-        await Save(db, ct);
+        await Save(ct);
     }
 
     public async Task<IReadOnlyList<FarmMemberDetails>> MembersAsync(
         Guid farmId, Guid actor, CancellationToken ct = default)
     {
         await RequireAccess(farmId, actor, FarmAction.View, ct);
-        return await db.FarmMembers.AsNoTracking()
-            .Where(m => m.FarmId == farmId && m.RemovedAtUtc == null)
-            .Join(db.Users, m => m.UserId, u => u.Id, (m, u) =>
-                new FarmMemberDetails(m.Id, m.UserId, u.FullName, u.Email ?? "",
-                    m.Role == 1 ? "Manager" : "FieldWorker"))
-            .OrderBy(m => m.FullName).ToListAsync(ct);
+        return await members.ListDetailsAsync(farmId, ct);
     }
 
     private sealed record InvitationPayload(Guid FarmId, Guid OwnerId,
@@ -255,8 +238,7 @@ public sealed class FarmManagementService(
         var target = await users.FindByEmailAsync(input.Email.Trim());
         if (target is null || target.DisabledAtUtc is not null || target.Id == actor)
             throw Invalid("An eligible registered account is required.");
-        if (await db.FarmMembers.AnyAsync(m =>
-            m.FarmId == farmId && m.UserId == target.Id && m.RemovedAtUtc == null, ct))
+        if (await members.GetActiveAsync(farmId, target.Id, ct) is not null)
             throw Conflict("This user already belongs to the farm.");
 
         var issued = DateTimeOffset.UtcNow;
@@ -279,28 +261,25 @@ public sealed class FarmManagementService(
         if (payload is null || payload.TargetUserId != actor || payload.Role is not (1 or 2))
             throw Invalid("The invitation does not belong to this account.");
 
-        var farm = await db.Farms.AsNoTracking()
-            .SingleOrDefaultAsync(f => f.Id == payload.FarmId && f.ArchivedAtUtc == null, ct);
+        var farm = await farms.GetActiveAsync(payload.FarmId, ct);
         if (farm is null || farm.OwnerUserId != payload.OwnerId ||
-            !await db.Users.AnyAsync(u => u.Id == actor && u.DisabledAtUtc == null, ct))
+            !await people.IsActiveAsync(actor, ct))
             throw Missing();
 
         // No invitation table exists in the SQL-first schema. Prior removal invalidates
         // a previously issued invitation to prevent an old link from restoring access.
-        var oldMemberships = await db.FarmMembers
-            .Where(m => m.FarmId == payload.FarmId && m.UserId == actor)
-            .ToListAsync(ct);
+        var oldMemberships = await members.ListForUserAsync(payload.FarmId, actor, ct);
         if (oldMemberships.Any(m => m.RemovedAtUtc is null))
             throw Conflict("Already a farm member.");
         if (oldMemberships.Any(m => m.RemovedAtUtc.HasValue &&
             new DateTimeOffset(DateTime.SpecifyKind(m.RemovedAtUtc.Value, DateTimeKind.Utc)) >= payload.IssuedAtUtc))
             throw Conflict("Invitation was revoked by a membership removal.");
 
-        db.FarmMembers.Add(new FarmMember
+        members.Add(new FarmMember
         {
             FarmId = payload.FarmId, UserId = actor, Role = payload.Role
         });
-        await Save(db, ct);
+        await Save(ct);
         return payload.FarmId;
     }
 
@@ -310,10 +289,9 @@ public sealed class FarmManagementService(
         if (role is not (1 or 2)) throw Invalid("Role must be Manager or Field Worker.");
         if (await access.GetAccessLevelAsync(farmId, actor, ct) != FarmAccessLevel.Owner)
             throw Missing();
-        var member = await db.FarmMembers.SingleOrDefaultAsync(
-            m => m.Id == memberId && m.FarmId == farmId && m.RemovedAtUtc == null, ct) ?? throw Missing();
+        var member = await members.GetByMemberIdAsync(farmId, memberId, ct) ?? throw Missing();
         member.Role = role;
-        await Save(db, ct);
+        await Save(ct);
     }
 
     public async Task RemoveMemberAsync(
@@ -321,10 +299,9 @@ public sealed class FarmManagementService(
     {
         if (await access.GetAccessLevelAsync(farmId, actor, ct) != FarmAccessLevel.Owner)
             throw Missing();
-        var member = await db.FarmMembers.SingleOrDefaultAsync(
-            m => m.Id == memberId && m.FarmId == farmId && m.RemovedAtUtc == null, ct) ?? throw Missing();
+        var member = await members.GetByMemberIdAsync(farmId, memberId, ct) ?? throw Missing();
         member.RemovedAtUtc = DateTime.UtcNow;
-        await Save(db, ct);
+        await Save(ct);
     }
 }
 

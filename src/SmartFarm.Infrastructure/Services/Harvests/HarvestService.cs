@@ -6,14 +6,19 @@ using SmartFarm.Core.Contracts.Harvests;
 using SmartFarm.Core.Entities;
 using SmartFarm.Core.Enums;
 using SmartFarm.Core.Interfaces.Harvests;
+using SmartFarm.Core.Interfaces.Repositories;
+using SmartFarm.Core.Interfaces.Persistence;
 using SmartFarm.Core.Interfaces.Security;
 using SmartFarm.Core.Services.Harvests;
-using SmartFarm.Infrastructure.Persistence;
 
 namespace SmartFarm.Infrastructure.Services.Harvests;
 
 public sealed class HarvestService(
-    SmartFarmDbContext db,
+    ICropCycleRepository cycles,
+    IPlotRepository plots,
+    ICropTypeRepository cropTypes,
+    IHarvestRepository harvests,
+    IUnitOfWork unit,
     IFarmAccessService access) : IHarvestService
 {
     private static FarmOperationException Missing() =>
@@ -30,10 +35,7 @@ public sealed class HarvestService(
     }
 
     private Task<CropCycle?> FindCycle(Guid farmId, Guid cycleId, bool activePlot, CancellationToken ct) =>
-        db.CropCycles.AsNoTracking().SingleOrDefaultAsync(c =>
-            c.Id == cycleId && db.Plots.Any(p =>
-                p.Id == c.PlotId && p.FarmId == farmId &&
-                (!activePlot || p.ArchivedAtUtc == null)), ct);
+        cycles.GetForFarmAsync(farmId, cycleId, activePlot, ct);
 
     private static HarvestEntry Map(Harvest h) =>
         new(h.Id, h.CropCycleId, h.Quantity, h.Unit, h.HarvestedAtUtc,
@@ -46,22 +48,13 @@ public sealed class HarvestService(
     {
         await Require(farmId, actor, FarmAction.View, ct);
         var cycle = await FindCycle(farmId, cycleId, false, ct) ?? throw Missing();
-        var plotName = await db.Plots.AsNoTracking()
-            .Where(p => p.Id == cycle.PlotId && p.FarmId == farmId)
-            .Select(p => p.Name).SingleAsync(ct);
-        var cropName = await db.CropTypes.AsNoTracking()
-            .Where(t => t.Id == cycle.CropTypeId)
-            .Select(t => t.Name).SingleAsync(ct);
-        var records = (await db.Harvests.AsNoTracking()
-            .Where(h => h.CropCycleId == cycleId)
-            .OrderByDescending(h => h.HarvestedAtUtc)
-            .ThenByDescending(h => h.Id)
-            .ToListAsync(ct)).Select(Map).ToList();
+        var plotName = await plots.GetNameAsync(cycle.PlotId, ct);
+        var cropName = await cropTypes.GetNameAsync(cycle.CropTypeId, ct);
+        var records = (await harvests.ListForCycleAsync(cycleId, ct)).Select(Map).ToList();
 
         var valid = records.Where(h => !h.IsVoided).ToList();
         var permission = await access.GetAccessLevelAsync(farmId, actor, ct);
-        var activePlot = await db.Plots.AsNoTracking().AnyAsync(
-            p => p.Id == cycle.PlotId && p.FarmId == farmId && p.ArchivedAtUtc == null, ct);
+        var activePlot = await plots.IsActiveAsync(farmId, cycle.PlotId, ct);
         return new HarvestOverview(farmId, cycleId, cropName, plotName,
             cycle.HarvestUnit, cycle.Status,
             activePlot && HarvestRules.CanHarvest(cycle.Status),
@@ -78,7 +71,7 @@ public sealed class HarvestService(
 
         // Hold the crop cycle read lock until the harvest insert commits. A
         // concurrent completion must not slip between checking Active and saving.
-        await using var transaction = await db.Database.BeginTransactionAsync(IsolationLevel.Serializable, ct);
+        await using var transaction = await unit.BeginTransactionAsync(IsolationLevel.Serializable, ct);
         try
         {
             var cycle = await FindCycle(farmId, cycleId, true, ct) ?? throw Missing();
@@ -92,8 +85,8 @@ public sealed class HarvestService(
                 RecordedByUserId = actor,
                 Notes = string.IsNullOrWhiteSpace(input.Notes) ? null : input.Notes.Trim()
             };
-            db.Harvests.Add(entry);
-            await db.SaveChangesAsync(ct);
+            harvests.Add(entry);
+            await unit.SaveChangesAsync(ct);
             await transaction.CommitAsync(ct);
             return Map(entry);
         }
@@ -122,18 +115,12 @@ public sealed class HarvestService(
         // Read-only verification; the database UPDATE condition below ensures
         // two void requests cannot both succeed on the same harvest.
         if (await FindCycle(farmId, cycleId, false, ct) is null) throw Missing();
-        var original = await db.Harvests.AsNoTracking().SingleOrDefaultAsync(
-            h => h.Id == harvestId && h.CropCycleId == cycleId, ct) ?? throw Missing();
+        var original = await harvests.GetByIdAsync(cycleId, harvestId, ct) ?? throw Missing();
         if (original.VoidedAtUtc is not null) throw Conflict("This harvest is already voided.");
 
         var when = DateTime.UtcNow;
-        var affected = await db.Harvests
-            .Where(h => h.Id == harvestId && h.CropCycleId == cycleId && h.VoidedAtUtc == null)
-            .ExecuteUpdateAsync(setters => setters
-                .SetProperty(h => h.VoidedAtUtc, when)
-                .SetProperty(h => h.VoidedByUserId, actor)
-                .SetProperty(h => h.VoidReason, input.Reason.Trim()), ct);
-        if (affected != 1) throw Conflict("This harvest was already voided. Refresh the history.");
+        var voided = await harvests.TryVoidAsync(cycleId, harvestId, actor, when, input.Reason.Trim(), ct);
+        if (!voided) throw Conflict("This harvest was already voided. Refresh the history.");
 
         return Map(new Harvest
         {
