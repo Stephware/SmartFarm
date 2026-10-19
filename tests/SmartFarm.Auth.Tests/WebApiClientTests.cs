@@ -1,0 +1,113 @@
+using System.Net;
+using System.Net.Http.Headers;
+using System.Security.Claims;
+using Microsoft.AspNetCore.Authentication.BearerToken;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc.Testing;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Options;
+using SmartFarm.Core.Contracts.Farms;
+using SmartFarm.Core.Interfaces.Crops;
+using SmartFarm.Core.Interfaces.Farms;
+using SmartFarm.Core.Interfaces.Harvests;
+using SmartFarm.Core.Interfaces.Inventory;
+using SmartFarm.Core.Interfaces.Monitoring;
+using SmartFarm.Core.Interfaces.Security;
+using SmartFarm.Web.Clients;
+using Xunit;
+
+namespace SmartFarm.Auth.Tests;
+
+public sealed class WebApiClientTests
+{
+    [Fact]
+    public void MvcServicesUseApiClients()
+    {
+        using var app = new WebApplicationFactory<Program>();
+        using var scope = app.Services.CreateScope();
+        var services = scope.ServiceProvider;
+
+        Assert.IsType<FarmApiService>(services.GetRequiredService<IFarmManagementService>());
+        Assert.IsType<CropApiService>(services.GetRequiredService<ICropManagementService>());
+        Assert.IsType<InventoryApiService>(services.GetRequiredService<IInventoryService>());
+        Assert.IsType<MonitoringApiService>(services.GetRequiredService<IMonitoringService>());
+        Assert.IsType<HarvestApiService>(services.GetRequiredService<IHarvestService>());
+        Assert.IsType<FarmAccessApiService>(services.GetRequiredService<IFarmAccessService>());
+    }
+
+    [Fact]
+    public async Task ApiCallsCarryShortLivedBearerTokenForCurrentUser()
+    {
+        using var app = new WebApplicationFactory<Program>();
+        var userId = Guid.NewGuid();
+        var identity = new ClaimsIdentity(
+            [new Claim(ClaimTypes.NameIdentifier, userId.ToString())],
+            IdentityConstants.ApplicationScheme);
+        var context = new DefaultHttpContext { User = new ClaimsPrincipal(identity) };
+        var accessor = new HttpContextAccessor { HttpContext = context };
+        var handler = new RecordingHandler();
+        using var client = new HttpClient(handler) { BaseAddress = new Uri("https://api.example.test/") };
+        var options = app.Services.GetRequiredService<IOptionsMonitor<BearerTokenOptions>>();
+        var gateway = new SmartFarmApiClient(client, accessor, options);
+
+        var farms = await gateway.ReadAsync<List<FarmSummary>>("api/farms", userId, default);
+
+        Assert.Empty(farms);
+        Assert.Equal(1, handler.RequestCount);
+        Assert.Equal("https://api.example.test/api/farms", handler.LastUrl);
+        Assert.Equal("Bearer", handler.LastAuthorization?.Scheme);
+        Assert.NotNull(handler.LastAuthorization?.Parameter);
+        var ticket = options.Get(IdentityConstants.BearerScheme)
+            .BearerTokenProtector.Unprotect(handler.LastAuthorization!.Parameter!);
+        Assert.NotNull(ticket);
+        Assert.Equal(userId.ToString(),
+            ticket.Principal.FindFirst(ClaimTypes.NameIdentifier)?.Value);
+        Assert.True(ticket.Properties.ExpiresUtc > DateTimeOffset.UtcNow);
+        Assert.True(ticket.Properties.ExpiresUtc <= DateTimeOffset.UtcNow.AddMinutes(3));
+    }
+
+    [Fact]
+    public async Task ApiCallsCannotImpersonateAnotherUser()
+    {
+        using var app = new WebApplicationFactory<Program>();
+        var userId = Guid.NewGuid();
+        var accessor = new HttpContextAccessor
+        {
+            HttpContext = new DefaultHttpContext
+            {
+                User = new ClaimsPrincipal(new ClaimsIdentity(
+                    [new Claim(ClaimTypes.NameIdentifier, userId.ToString())],
+                    IdentityConstants.ApplicationScheme))
+            }
+        };
+        var handler = new RecordingHandler();
+        using var client = new HttpClient(handler) { BaseAddress = new Uri("https://api.example.test/") };
+        var gateway = new SmartFarmApiClient(client, accessor,
+            app.Services.GetRequiredService<IOptionsMonitor<BearerTokenOptions>>());
+
+        var error = await Assert.ThrowsAsync<FarmOperationException>(() =>
+            gateway.ReadAsync<List<FarmSummary>>("api/farms", Guid.NewGuid(), default));
+        Assert.Equal(FarmError.NotFound, error.Error);
+        Assert.Equal(0, handler.RequestCount);
+    }
+
+    private sealed class RecordingHandler : HttpMessageHandler
+    {
+        public int RequestCount { get; private set; }
+        public string? LastUrl { get; private set; }
+        public AuthenticationHeaderValue? LastAuthorization { get; private set; }
+
+        protected override Task<HttpResponseMessage> SendAsync(
+            HttpRequestMessage request, CancellationToken cancellationToken)
+        {
+            RequestCount++;
+            LastUrl = request.RequestUri?.ToString();
+            LastAuthorization = request.Headers.Authorization;
+            return Task.FromResult(new HttpResponseMessage(HttpStatusCode.OK)
+            {
+                Content = new StringContent("[]", System.Text.Encoding.UTF8, "application/json")
+            });
+        }
+    }
+}
