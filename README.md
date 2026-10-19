@@ -4,10 +4,6 @@ SmartFarm is an **in-development farm-management platform** planned for a web ap
 
 > **Project status:** Identity, farm/plot management, crop planning, activity/observation monitoring, inventory, and partial harvest recording/voiding now have ASP.NET Core API, MVC, and online-only Android implementations. Harvest totals and audit history use the existing SQL-first Harvest table; crop completion remains a separate operation. Tasks, production-ready media storage, automation, offline synchronization and CI/CD are still future work.
 
-## Phase 1 integration baseline
-
-See [Phase 1 stabilization](docs/phase1-stabilization.md) for the Mac/Windows build scripts, branch consolidation and manual database checks.
-
 ## Start the minimal web and Android preview
 
 Follow the [local smoke test guide](docs/local-smoke-test.md) to launch the

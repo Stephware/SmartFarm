@@ -32,6 +32,5 @@ references, not identical architecture or guaranteed runtime correctness.
 execution, and SQL Server integration must be checked locally.
 
 Git integration note: PR #14 consolidates the missing later feature work
-into `dev`, pending .NET/Android/SQL verification. See
-[Phase 1 stabilization](phase1-stabilization.md).
+into `dev`, pending .NET/Android/SQL verification.
 

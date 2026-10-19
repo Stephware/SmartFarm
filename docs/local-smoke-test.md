@@ -17,8 +17,7 @@ git switch feature/phase1-stabilization
 **Important:** PR #14 proposes the missing Phase 4–6 features and the
 smoke-test changes for `dev`. Until that PR passes local verification and
 is merged, test `feature/phase1-stabilization`. After merging, switch to
-`dev` and pull the verified merge commit. See
-[Phase 1 stabilization](phase1-stabilization.md).
+`dev` and pull the verified merge commit.
 
 ## 2. First test: .NET web (database NOT required)
 
