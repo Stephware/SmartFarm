@@ -3,6 +3,12 @@ using Microsoft.Extensions.DependencyInjection;
 using SmartFarm.Core.Entities;
 using SmartFarm.Core.Interfaces.Persistence;
 using SmartFarm.Core.Interfaces.Repositories;
+using SmartFarm.Infrastructure.Services.Farms;
+using SmartFarm.Infrastructure.Services.Crops;
+using SmartFarm.Infrastructure.Services.Monitoring;
+using SmartFarm.Infrastructure.Services.Inventory;
+using SmartFarm.Infrastructure.Services.Harvests;
+using SmartFarm.Infrastructure.Security;
 using SmartFarm.Infrastructure;
 using SmartFarm.Infrastructure.Persistence;
 using SmartFarm.Infrastructure.Repositories;
@@ -30,6 +36,7 @@ public sealed class RepositoryRegistrationTests
         var services = scope.ServiceProvider;
 
         Assert.IsType<FarmRepository>(services.GetRequiredService<IFarmRepository>());
+        Assert.IsType<UserRepository>(services.GetRequiredService<IUserRepository>());
         Assert.IsType<PlotRepository>(services.GetRequiredService<IPlotRepository>());
         Assert.IsType<FarmMemberRepository>(services.GetRequiredService<IFarmMemberRepository>());
         Assert.IsType<CropTypeRepository>(services.GetRequiredService<ICropTypeRepository>());
@@ -70,4 +77,28 @@ public sealed class RepositoryRegistrationTests
         Assert.NotSame(first.ServiceProvider.GetRequiredService<SmartFarmDbContext>(),
             second.ServiceProvider.GetRequiredService<SmartFarmDbContext>());
     }
+    [Fact]
+    public void ServicesDependOnRepositoryContractsInsteadOfDbContext()
+    {
+        Type[] serviceTypes =
+        [
+            typeof(FarmManagementService),
+            typeof(CropManagementService),
+            typeof(MonitoringService),
+            typeof(InventoryService),
+            typeof(HarvestService),
+            typeof(FarmAccessService)
+        ];
+        foreach (var serviceType in serviceTypes)
+        {
+            var constructor = Assert.Single(serviceType.GetConstructors());
+            Assert.DoesNotContain(constructor.GetParameters(), parameter =>
+                parameter.ParameterType == typeof(SmartFarmDbContext));
+
+            Assert.Contains(constructor.GetParameters(), parameter =>
+                parameter.ParameterType.IsInterface &&
+                parameter.ParameterType.Namespace == typeof(IFarmRepository).Namespace);
+        }
+    }
+
 }
