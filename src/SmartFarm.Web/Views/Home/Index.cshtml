@@ -1,12 +1,24 @@
 @{
     ViewData["Title"] = "Home";
 }
+
 <section class="panel">
+    <p class="hint">Farm management · Development preview</p>
     <h1>SmartFarm</h1>
-    <p>Manage farm operations from the web and Android. Account access is available; farm features are coming next.</p>
-    @if (User.Identity?.IsAuthenticated != true)
+    <p>Web application is running. Use the links below to test the system.</p>
+    @if (User.Identity?.IsAuthenticated == true)
     {
-        <p><a class="button" href="@Url.Action("Register", "Account")">Get started</a></p>
+        <p>You're signed in. Start by creating a farm or opening an existing one.</p>
+        <p><a class="button" asp-controller="Farms" asp-action="Index">Open my farms</a></p>
     }
+    else
+    {
+        <p>Sign in to manage farms, or create a test account using your local SmartFarm database.</p>
+        <p><a class="button" asp-controller="Account" asp-action="Login">Log in</a>
+           <a asp-controller="Account" asp-action="Register">Create account</a></p>
+    }
+    <hr />
+    <p><strong>Backend check:</strong> <a href="/api/status" target="_blank" rel="noopener">Open /api/status</a></p>
+    <p class="hint">The backend check does not require a database. Accounts and farm records do.</p>
 </section>
 

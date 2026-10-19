@@ -23,6 +23,8 @@
 </section>
 <section class="panel">
     <h2>Plots</h2>
+    <p><a asp-controller="Inventory" asp-action="Index"
+          asp-route-farmId="@Model.Farm.Id">Manage inventory and stock →</a></p>
     <p><a asp-controller="Crops" asp-action="Index"
           asp-route-farmId="@Model.Farm.Id">View planting plans and crop history →</a></p>
     @if (Model.Plots.Count == 0) { <p>No active plots.</p> }
@@ -108,5 +110,6 @@
         }
     }
 </section>
+
 
 

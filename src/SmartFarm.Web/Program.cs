@@ -1,13 +1,19 @@
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using SmartFarm.Core.Interfaces.Crops;
+using SmartFarm.Core.Interfaces.Monitoring;
 using SmartFarm.Core.Interfaces.Farms;
+using SmartFarm.Core.Interfaces.Inventory;
+using SmartFarm.Core.Interfaces.Harvests;
 using SmartFarm.Core.Interfaces.Security;
 using SmartFarm.Infrastructure;
 using SmartFarm.Infrastructure.Identity;
 using SmartFarm.Infrastructure.Integrations.Weather;
 using SmartFarm.Infrastructure.Security;
 using SmartFarm.Infrastructure.Services.Crops;
+using SmartFarm.Infrastructure.Services.Monitoring;
 using SmartFarm.Infrastructure.Services.Farms;
+using SmartFarm.Infrastructure.Services.Inventory;
+using SmartFarm.Infrastructure.Services.Harvests;
 using SmartFarm.Web.Authentication;
 using SmartFarm.Web.HealthChecks;
 
@@ -22,6 +28,13 @@ builder.Services.AddScoped<AccountRegistrationService>();
 builder.Services.AddScoped<IFarmAccessService, FarmAccessService>();
 builder.Services.AddScoped<IFarmManagementService, FarmManagementService>();
 builder.Services.AddScoped<ICropManagementService, CropManagementService>();
+builder.Services.AddScoped<IMonitoringService, MonitoringService>();
+builder.Services.AddScoped<IInventoryService, InventoryService>();
+builder.Services.AddScoped<IHarvestService, HarvestService>();
+builder.Services.AddSingleton<IObservationPhotoStore>(_ =>
+    new LocalObservationPhotoStore(
+        builder.Configuration["ObservationPhotos:StoragePath"] ??
+        Path.Combine(builder.Environment.ContentRootPath, "App_Data", "observation-photos")));
 builder.Services.AddDataProtection();
 
 if (builder.Environment.IsDevelopment())
@@ -68,5 +81,8 @@ app.MapControllerRoute(
 app.Run();
 
 public partial class Program { }
+
+
+
 
 

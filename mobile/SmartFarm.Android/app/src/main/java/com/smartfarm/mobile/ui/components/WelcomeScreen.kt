@@ -17,9 +17,15 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.smartfarm.mobile.R
 import com.smartfarm.mobile.ui.theme.SmartFarmTheme
+import com.smartfarm.mobile.features.status.StatusUiState
 
 @Composable
-fun WelcomeScreen(onLogin: () -> Unit = {}, onRegister: () -> Unit = {}) {
+fun WelcomeScreen(
+    status: StatusUiState = StatusUiState(),
+    onCheckBackend: () -> Unit = {},
+    onLogin: () -> Unit = {},
+    onRegister: () -> Unit = {}
+) {
     Scaffold { innerPadding ->
         Column(
             modifier = Modifier.fillMaxSize().padding(innerPadding).padding(24.dp),
@@ -28,6 +34,10 @@ fun WelcomeScreen(onLogin: () -> Unit = {}, onRegister: () -> Unit = {}) {
         ) {
             Text(stringResource(R.string.welcome), style = MaterialTheme.typography.headlineMedium)
             Text(stringResource(R.string.welcome_description), style = MaterialTheme.typography.bodyLarge)
+            Text(status.message, style = MaterialTheme.typography.bodyMedium)
+            OutlinedButton(onClick = onCheckBackend, enabled = !status.checking) {
+                Text(if (status.checking) "Checking..." else "Check backend")
+            }
             Button(onClick = onLogin) { Text("Log in") }
             OutlinedButton(onClick = onRegister) { Text("Create account") }
         }
@@ -37,4 +47,5 @@ fun WelcomeScreen(onLogin: () -> Unit = {}, onRegister: () -> Unit = {}) {
 @Preview(showBackground = true)
 @Composable
 private fun WelcomePreview() { SmartFarmTheme { WelcomeScreen() } }
+
 

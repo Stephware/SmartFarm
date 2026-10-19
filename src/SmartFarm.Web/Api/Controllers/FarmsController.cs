@@ -5,10 +5,12 @@ using SmartFarm.Core.Contracts.Farms;
 using SmartFarm.Core.Interfaces.Farms;
 using SmartFarm.Infrastructure.Identity;
 
+using SmartFarm.Web.Authentication;
+
 namespace SmartFarm.Web.Api.Controllers;
 
 [ApiController]
-[Authorize(AuthenticationSchemes = IdentityConstants.BearerScheme)]
+[Authorize(AuthenticationSchemes = SmartFarmAuthSchemes.Bearer)]
 [Route("api/farms")]
 public sealed class FarmsController(
     UserManager<SmartFarmUser> users, IFarmManagementService farms)

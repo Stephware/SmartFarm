@@ -6,11 +6,19 @@ import androidx.work.WorkManager
 import com.smartfarm.mobile.BuildConfig
 import com.smartfarm.mobile.data.local.SmartFarmDatabase
 import com.smartfarm.mobile.data.remote.api.ApiClientFactory
+import com.smartfarm.mobile.data.remote.api.StatusApi
+import com.smartfarm.mobile.data.repository.StatusRepository
 import com.smartfarm.mobile.data.remote.api.AuthApi
 import com.smartfarm.mobile.data.repository.AuthRepository
 import com.smartfarm.mobile.data.repository.FarmRepository
 import com.smartfarm.mobile.data.repository.CropRepository
 import com.smartfarm.mobile.data.remote.api.CropApi
+import com.smartfarm.mobile.data.remote.api.InventoryApi
+import com.smartfarm.mobile.data.repository.InventoryRepository
+import com.smartfarm.mobile.data.remote.api.HarvestApi
+import com.smartfarm.mobile.data.repository.HarvestRepository
+import com.smartfarm.mobile.data.remote.api.MonitoringApi
+import com.smartfarm.mobile.data.repository.MonitoringRepository
 import com.smartfarm.mobile.data.remote.api.FarmApi
 
 class AppContainer(context: Context) {
@@ -31,10 +39,29 @@ class AppContainer(context: Context) {
         CropRepository(authRepository) { retrofit.create(CropApi::class.java) }
     }
 
+    val monitoringRepository: MonitoringRepository by lazy {
+        MonitoringRepository(authRepository) { retrofit.create(MonitoringApi::class.java) }
+    }
+
+    val inventoryRepository: InventoryRepository by lazy {
+        InventoryRepository(authRepository) { retrofit.create(InventoryApi::class.java) }
+    }
+
+    val harvestRepository: HarvestRepository by lazy {
+        HarvestRepository(authRepository) { retrofit.create(HarvestApi::class.java) }
+    }
+
+    val statusRepository: StatusRepository by lazy {
+        StatusRepository { retrofit.create(StatusApi::class.java) }
+    }
+
     val authRepository: AuthRepository by lazy {
         AuthRepository { retrofit.create(AuthApi::class.java) }
     }
 }
+
+
+
 
 
 
