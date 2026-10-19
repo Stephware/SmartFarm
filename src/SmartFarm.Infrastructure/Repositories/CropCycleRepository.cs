@@ -29,4 +29,13 @@ public Task<CropCycle?> GetForFarmAsync(Guid farmId, Guid cycleId, bool requireA
         db.CropCycles.AnyAsync(c => c.Status == 1 && db.Plots.Any(p =>
             p.Id == c.PlotId && p.FarmId == farmId), ct);
 
+    public async Task<IReadOnlyList<CropCycleWithNames>> ListWithNamesForFarmAsync(Guid farmId,
+        CancellationToken ct = default) =>
+        await (from c in db.CropCycles.AsNoTracking()
+            join p in db.Plots.AsNoTracking() on c.PlotId equals p.Id
+            join t in db.CropTypes.AsNoTracking() on c.CropTypeId equals t.Id
+            where p.FarmId == farmId
+            orderby c.CreatedAtUtc descending, c.Id
+            select new CropCycleWithNames(c, p.Name, t.Name)).ToListAsync(ct);
+
 }
