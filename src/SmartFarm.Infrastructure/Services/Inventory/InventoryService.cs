@@ -5,14 +5,18 @@ using SmartFarm.Core.Contracts.Inventory;
 using SmartFarm.Core.Entities;
 using SmartFarm.Core.Enums;
 using SmartFarm.Core.Interfaces.Inventory;
+using SmartFarm.Core.Interfaces.Persistence;
+using SmartFarm.Core.Interfaces.Repositories;
 using SmartFarm.Core.Interfaces.Security;
 using SmartFarm.Core.Services.Inventory;
-using SmartFarm.Infrastructure.Persistence;
 
 namespace SmartFarm.Infrastructure.Services.Inventory;
 
 public sealed class InventoryService(
-    SmartFarmDbContext db,
+    IInventoryItemRepository items,
+    IInventoryTransactionRepository transactions,
+    ICropActivityRepository activities,
+    IUnitOfWork unit,
     IFarmAccessService access) : IInventoryService
 {
     private static FarmOperationException Missing() =>
@@ -70,9 +74,9 @@ public sealed class InventoryService(
         item.QuantityChange, item.OccurredAtUtc, item.RecordedAtUtc,
         item.RecordedByUserId, item.Reason);
 
-    private static async Task Save(CancellationToken ct, SmartFarmDbContext db)
+    private async Task Save(CancellationToken ct)
     {
-        try { await db.SaveChangesAsync(ct); }
+        try { await unit.SaveChangesAsync(ct); }
         catch (DbUpdateConcurrencyException)
         {
             throw Conflict("Inventory changed. Reload and retry with the latest rowVersion.");
@@ -90,24 +94,16 @@ public sealed class InventoryService(
     }
 
     private async Task<InventoryItem> ActiveItem(Guid farmId, Guid itemId, CancellationToken ct) =>
-        await db.InventoryItems.SingleOrDefaultAsync(x =>
-            x.Id == itemId && x.FarmId == farmId && x.ArchivedAtUtc == null, ct) ?? throw Missing();
+        await items.GetActiveAsync(farmId, itemId, ct) ?? throw Missing();
 
 
     public async Task<IReadOnlyList<InventoryActivityOption>> ActivityOptionsAsync(
         Guid farmId, Guid actor, CancellationToken ct = default)
     {
         await Require(farmId, actor, FarmAction.View, ct);
-        var activities = await (
-            from activity in db.CropActivities.AsNoTracking()
-            join cycle in db.CropCycles.AsNoTracking() on activity.CropCycleId equals cycle.Id
-            join plot in db.Plots.AsNoTracking() on cycle.PlotId equals plot.Id
-            where plot.FarmId == farmId && plot.ArchivedAtUtc == null && cycle.Status == 1
-            orderby activity.OccurredAtUtc descending
-            select new { activity.Id, activity.ActivityType, activity.OccurredAtUtc, PlotName = plot.Name }
-        ).Take(100).ToListAsync(ct);
+        var available = await activities.ListActiveFarmOptionsAsync(farmId, ct);
 
-        return activities.Select(a => new InventoryActivityOption(a.Id,
+        return available.Select(a => new InventoryActivityOption(a.Id,
             a.PlotName + " · Activity " + a.ActivityType + " · " +
             a.OccurredAtUtc.ToString("yyyy-MM-dd HH:mm") + " UTC")).ToList();
     }
@@ -116,10 +112,8 @@ public sealed class InventoryService(
         Guid farmId, Guid actor, CancellationToken ct = default)
     {
         await Require(farmId, actor, FarmAction.View, ct);
-        var items = await db.InventoryItems.AsNoTracking().Where(i =>
-            i.FarmId == farmId && i.ArchivedAtUtc == null)
-            .OrderBy(i => i.Name).ToListAsync(ct);
-        var mapped = items.Select(Map).ToList();
+        var listed = await items.ListActiveAsync(farmId, ct);
+        var mapped = listed.Select(Map).ToList();
         return new InventoryWorkspace(mapped, mapped.Count(x => x.IsLowStock));
     }
 
@@ -127,8 +121,7 @@ public sealed class InventoryService(
         Guid farmId, Guid itemId, Guid actor, CancellationToken ct = default)
     {
         await Require(farmId, actor, FarmAction.View, ct);
-        var item = await db.InventoryItems.AsNoTracking().SingleOrDefaultAsync(x =>
-            x.Id == itemId && x.FarmId == farmId, ct);
+        var item = await items.GetByIdAsync(farmId, itemId, ct);
         return item is null ? null : Map(item);
     }
 
@@ -145,10 +138,10 @@ public sealed class InventoryService(
             ReorderLevel = input.ReorderLevel, QuantityOnHand = input.InitialQuantity,
             MetadataVersion = Guid.NewGuid()
         };
-        db.InventoryItems.Add(item);
+        items.Add(item);
         if (input.InitialQuantity > 0)
         {
-            db.InventoryTransactions.Add(new InventoryTransaction
+            transactions.Add(new InventoryTransaction
             {
                 InventoryItemId = item.Id,
                 RecordedByUserId = actor, OccurredAtUtc = DateTime.UtcNow,
@@ -158,7 +151,7 @@ public sealed class InventoryService(
             });
         }
         // EF Core SaveChanges is transactional for the item and opening entry.
-        await Save(ct, db);
+        await Save(ct);
         return Map(item);
     }
 
@@ -169,16 +162,16 @@ public sealed class InventoryService(
         ValidateItem(input, creating: false);
         var item = await ActiveItem(farmId, itemId, ct);
         if (!string.Equals(item.Unit, input.Unit.Trim(), StringComparison.OrdinalIgnoreCase) &&
-            await db.InventoryTransactions.AnyAsync(t => t.InventoryItemId == itemId, ct))
+            await transactions.AnyForItemAsync(itemId, ct))
             throw Conflict("Units cannot be changed once stock transactions exist.");
-        db.Entry(item).Property(i => i.RowVersion).OriginalValue = Version(input.RowVersion);
+        items.SetOriginalRowVersion(item, Version(input.RowVersion));
         item.Name = input.Name.Trim();
         item.Category = (byte)input.Category;
         item.Unit = input.Unit.Trim();
         item.Description = Optional(input.Description);
         item.ReorderLevel = input.ReorderLevel;
         item.MetadataVersion = Guid.NewGuid();
-        await Save(ct, db);
+        await Save(ct);
         return Map(item);
     }
 
@@ -189,22 +182,19 @@ public sealed class InventoryService(
         var item = await ActiveItem(farmId, itemId, ct);
         if (item.QuantityOnHand != 0)
             throw Conflict("Reduce stock to zero before archiving an inventory item.");
-        db.Entry(item).Property(i => i.RowVersion).OriginalValue = Version(rowVersion);
+        items.SetOriginalRowVersion(item, Version(rowVersion));
         item.ArchivedAtUtc = DateTime.UtcNow;
         item.MetadataVersion = Guid.NewGuid();
-        await Save(ct, db);
+        await Save(ct);
     }
 
     public async Task<IReadOnlyList<InventoryTransactionDetails>> HistoryAsync(
         Guid farmId, Guid itemId, Guid actor, CancellationToken ct = default)
     {
         await Require(farmId, actor, FarmAction.View, ct);
-        if (!await db.InventoryItems.AnyAsync(i => i.Id == itemId && i.FarmId == farmId, ct))
+        if (await items.GetByIdAsync(farmId, itemId, ct) is null)
             throw Missing();
-        return (await db.InventoryTransactions.AsNoTracking()
-            .Where(t => t.InventoryItemId == itemId)
-            .OrderByDescending(t => t.OccurredAtUtc).ThenByDescending(t => t.Id)
-            .ToListAsync(ct)).Select(Map).ToList();
+        return (await transactions.ListForItemAsync(itemId, ct)).Select(Map).ToList();
     }
 
     public async Task<InventoryItemDetails> PostAsync(
@@ -223,11 +213,7 @@ public sealed class InventoryService(
         if (type == StockTransactionType.Consumption)
         {
             var activityId = input.CropActivityId!.Value;
-            var isOwnActivity = await db.CropActivities.AsNoTracking().AnyAsync(a =>
-                a.Id == activityId && db.CropCycles.Any(c =>
-                    c.Id == a.CropCycleId && c.Status == 1 &&
-                    db.Plots.Any(p => p.Id == c.PlotId &&
-                        p.FarmId == farmId && p.ArchivedAtUtc == null)), ct);
+            var isOwnActivity = await activities.BelongsToActiveFarmCycleAsync(farmId, activityId, ct);
             if (!isOwnActivity) throw Invalid("Consumption must refer to an active-crop activity from this farm.");
         }
         else if (type == StockTransactionType.Adjustment &&
@@ -237,16 +223,16 @@ public sealed class InventoryService(
         if (!StockRules.TryBalance(item.QuantityOnHand, input.QuantityChange, out var next))
             throw Conflict("Insufficient stock or quantity exceeds SQL precision.");
 
-        db.Entry(item).Property(i => i.RowVersion).OriginalValue = Version(input.RowVersion);
+        items.SetOriginalRowVersion(item, Version(input.RowVersion));
         item.QuantityOnHand = next;
-        db.InventoryTransactions.Add(new InventoryTransaction
+        transactions.Add(new InventoryTransaction
         {
             InventoryItemId = itemId, CropActivityId = input.CropActivityId,
             RecordedByUserId = actor, TransactionType = (byte)type,
             QuantityChange = input.QuantityChange, OccurredAtUtc = DateTime.UtcNow,
             Reason = Optional(input.Reason)
         });
-        await Save(ct, db);
+        await Save(ct);
         return Map(item);
     }
 
@@ -259,26 +245,24 @@ public sealed class InventoryService(
             throw Invalid("Provide a reversal reason of 3–300 characters.");
 
         var item = await ActiveItem(farmId, itemId, ct);
-        var original = await db.InventoryTransactions.AsNoTracking()
-            .SingleOrDefaultAsync(t => t.Id == transactionId &&
-                t.InventoryItemId == itemId, ct) ?? throw Missing();
+        var original = await transactions.GetByIdAsync(itemId, transactionId, ct) ?? throw Missing();
         if (original.TransactionType == (byte)StockTransactionType.Reversal)
             throw Conflict("Cannot reverse a reversal.");
-        if (await db.InventoryTransactions.AnyAsync(t => t.ReversesTransactionId == transactionId, ct))
+        if (await transactions.HasReversalAsync(transactionId, ct))
             throw Conflict("This transaction has already been reversed.");
         if (!StockRules.TryBalance(item.QuantityOnHand, -original.QuantityChange, out var next))
             throw Conflict("Reversal would produce invalid or insufficient stock.");
 
-        db.Entry(item).Property(i => i.RowVersion).OriginalValue = Version(input.RowVersion);
+        items.SetOriginalRowVersion(item, Version(input.RowVersion));
         item.QuantityOnHand = next;
-        db.InventoryTransactions.Add(new InventoryTransaction
+        transactions.Add(new InventoryTransaction
         {
             InventoryItemId = itemId, TransactionType = (byte)StockTransactionType.Reversal,
             ReversesTransactionId = original.Id, QuantityChange = -original.QuantityChange,
             RecordedByUserId = actor, OccurredAtUtc = DateTime.UtcNow,
             Reason = input.Reason.Trim()
         });
-        await Save(ct, db);
+        await Save(ct);
         return Map(item);
     }
 }

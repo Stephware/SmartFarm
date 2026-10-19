@@ -11,7 +11,7 @@ public async Task<IReadOnlyList<InventoryTransaction>> ListForItemAsync(Guid ite
         CancellationToken ct = default) =>
         await db.InventoryTransactions.AsNoTracking()
             .Where(t => t.InventoryItemId == itemId)
-            .OrderByDescending(t => t.OccurredAtUtc).ToListAsync(ct);
+            .OrderByDescending(t => t.OccurredAtUtc).ThenByDescending(t => t.Id).ToListAsync(ct);
 
     public Task<InventoryTransaction?> GetByIdAsync(Guid itemId, Guid transactionId,
         CancellationToken ct = default) =>
