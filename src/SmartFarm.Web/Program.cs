@@ -36,7 +36,7 @@ builder.Services.AddSingleton<IObservationPhotoStore>(_ =>
     new LocalObservationPhotoStore(
         builder.Configuration["ObservationPhotos:StoragePath"] ??
         Path.Combine(builder.Environment.ContentRootPath, "App_Data", "observation-photos")));
-builder.Services.AddDataProtection().SetApplicationName("SmartFarm.SharedIdentity");
+builder.Services.AddDataProtection().SetApplicationName($"SmartFarm.SharedIdentity.{builder.Environment.EnvironmentName}");
 
 if (builder.Environment.IsDevelopment())
 {
