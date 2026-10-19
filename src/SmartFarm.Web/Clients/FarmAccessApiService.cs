@@ -4,12 +4,19 @@ using SmartFarm.Core.Services.Security;
 
 namespace SmartFarm.Web.Clients;
 
-public sealed class FarmAccessApiService(SmartFarmApiClient api) : IFarmAccessService
+public sealed class FarmAccessApiService : IFarmAccessService
 {
+    private readonly SmartFarmApiClient _api;
+
+    public FarmAccessApiService(SmartFarmApiClient api)
+    {
+        _api = api;
+    }
+
     public async Task<FarmAccessLevel> GetAccessLevelAsync(Guid farmId, Guid userId,
         CancellationToken cancellationToken = default)
     {
-        var access = await api.ReadOptionalAsync<FarmAccessResult>(
+        var access = await _api.ReadOptionalAsync<FarmAccessResult>(
             $"api/farms/{farmId}/access", userId, cancellationToken);
         return Enum.TryParse<FarmAccessLevel>(access?.Role, out var role)
             ? role : FarmAccessLevel.None;

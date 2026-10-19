@@ -12,14 +12,23 @@ using SmartFarm.Core.Contracts.Farms;
 namespace SmartFarm.Web.Clients;
 
 // Server-side MVC requests call the same API used by Android.
-public sealed class SmartFarmApiClient(
-    HttpClient client,
-    IHttpContextAccessor contextAccessor,
-    IOptionsMonitor<BearerTokenOptions> bearerOptions)
+public sealed class SmartFarmApiClient
 {
+    private readonly HttpClient _client;
+    private readonly IHttpContextAccessor _contextAccessor;
+    private readonly IOptionsMonitor<BearerTokenOptions> _bearerOptions;
+
+    public SmartFarmApiClient(HttpClient client, IHttpContextAccessor contextAccessor,
+        IOptionsMonitor<BearerTokenOptions> bearerOptions)
+    {
+        _client = client;
+        _contextAccessor = contextAccessor;
+        _bearerOptions = bearerOptions;
+    }
+
     private HttpRequestMessage NewRequest(HttpMethod method, string path, Guid actor, object? body = null)
     {
-        var user = contextAccessor.HttpContext?.User;
+        var user = _contextAccessor.HttpContext?.User;
         var userId = user?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 
         if (user?.Identity?.IsAuthenticated != true ||
@@ -30,7 +39,7 @@ public sealed class SmartFarmApiClient(
         var ticket = new AuthenticationTicket(user,
             new AuthenticationProperties { IssuedUtc = now, ExpiresUtc = now.AddMinutes(2) },
             IdentityConstants.BearerScheme);
-        var token = bearerOptions.Get(IdentityConstants.BearerScheme)
+        var token = _bearerOptions.Get(IdentityConstants.BearerScheme)
             .BearerTokenProtector.Protect(ticket);
 
         var request = new HttpRequestMessage(method, path);
@@ -43,7 +52,7 @@ public sealed class SmartFarmApiClient(
     {
         try
         {
-            var response = await client.SendAsync(request,
+            var response = await _client.SendAsync(request,
                 HttpCompletionOption.ResponseHeadersRead, ct);
             if (response.IsSuccessStatusCode) return response;
 
