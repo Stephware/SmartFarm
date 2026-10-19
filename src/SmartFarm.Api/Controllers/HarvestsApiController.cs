@@ -5,9 +5,9 @@ using SmartFarm.Core.Contracts.Harvests;
 using SmartFarm.Core.Interfaces.Harvests;
 using SmartFarm.Infrastructure.Identity;
 
-using SmartFarm.Web.Authentication;
+using SmartFarm.Api.Authentication;
 
-namespace SmartFarm.Web.Api.Controllers;
+namespace SmartFarm.Api.Controllers;
 
 [ApiController]
 [Authorize(AuthenticationSchemes = SmartFarmAuthSchemes.Bearer)]
@@ -35,4 +35,3 @@ public sealed class HarvestsApiController(
         Result(async () => Ok(await harvests.VoidAsync(
             farmId, cycleId, harvestId, ActorId, input, ct)));
 }
-

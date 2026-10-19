@@ -6,9 +6,9 @@ using SmartFarm.Core.Interfaces.Security;
 using SmartFarm.Core.Services.Security;
 using SmartFarm.Infrastructure.Identity;
 
-using SmartFarm.Web.Authentication;
+using SmartFarm.Api.Authentication;
 
-namespace SmartFarm.Web.Api.Controllers;
+namespace SmartFarm.Api.Controllers;
 
 // A protected permission check, not farm CRUD. Future farm endpoints must
 // perform the same server-side, per-farm authorization before reading or writing.
@@ -36,4 +36,3 @@ public sealed class FarmAccessController(
         });
     }
 }
-

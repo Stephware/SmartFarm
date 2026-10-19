@@ -5,9 +5,9 @@ using SmartFarm.Core.Contracts.Monitoring;
 using SmartFarm.Core.Interfaces.Monitoring;
 using SmartFarm.Infrastructure.Identity;
 
-using SmartFarm.Web.Authentication;
+using SmartFarm.Api.Authentication;
 
-namespace SmartFarm.Web.Api.Controllers;
+namespace SmartFarm.Api.Controllers;
 
 [ApiController]
 [Authorize(AuthenticationSchemes = SmartFarmAuthSchemes.Bearer)]
@@ -64,4 +64,3 @@ public sealed class MonitoringApiController(
             return File(stream, contentType);
         });
 }
-

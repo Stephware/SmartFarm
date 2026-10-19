@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using SmartFarm.Core.Contracts.Farms;
 using SmartFarm.Infrastructure.Identity;
 
-namespace SmartFarm.Web.Api.Controllers;
+namespace SmartFarm.Api.Controllers;
 
 public abstract class FarmApiControllerBase(UserManager<SmartFarmUser> users) : ControllerBase
 {
@@ -24,4 +24,3 @@ public abstract class FarmApiControllerBase(UserManager<SmartFarmUser> users) : 
         }
     }
 }
-

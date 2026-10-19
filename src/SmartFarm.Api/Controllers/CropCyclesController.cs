@@ -5,9 +5,9 @@ using SmartFarm.Core.Contracts.Crops;
 using SmartFarm.Core.Interfaces.Crops;
 using SmartFarm.Infrastructure.Identity;
 
-using SmartFarm.Web.Authentication;
+using SmartFarm.Api.Authentication;
 
-namespace SmartFarm.Web.Api.Controllers;
+namespace SmartFarm.Api.Controllers;
 
 [ApiController]
 [Authorize(AuthenticationSchemes = SmartFarmAuthSchemes.Bearer)]
@@ -44,4 +44,3 @@ public sealed class CropCyclesController(
         [FromBody] CropCycleTransitionInput input, CancellationToken ct) =>
         Result(async () => Ok(await crops.TransitionAsync(farmId, cycleId, ActorId, input, ct)));
 }
-

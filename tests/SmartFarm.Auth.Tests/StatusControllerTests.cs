@@ -1,5 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
-using SmartFarm.Web.Api.Controllers;
+using SmartFarm.Api.Controllers;
 using Xunit;
 
 namespace SmartFarm.Auth.Tests;
@@ -14,4 +14,3 @@ public sealed class StatusControllerTests
         Assert.NotNull(ok.Value);
     }
 }
-

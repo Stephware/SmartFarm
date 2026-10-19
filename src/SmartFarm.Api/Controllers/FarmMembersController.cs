@@ -5,9 +5,9 @@ using SmartFarm.Core.Contracts.Farms;
 using SmartFarm.Core.Interfaces.Farms;
 using SmartFarm.Infrastructure.Identity;
 
-using SmartFarm.Web.Authentication;
+using SmartFarm.Api.Authentication;
 
-namespace SmartFarm.Web.Api.Controllers;
+namespace SmartFarm.Api.Controllers;
 
 [ApiController]
 [Authorize(AuthenticationSchemes = SmartFarmAuthSchemes.Bearer)]
@@ -51,4 +51,3 @@ public sealed class FarmInvitationsController(
     public Task<IActionResult> Accept([FromBody] InvitationAcceptance input, CancellationToken ct) =>
         Result(async () => Ok(new { farmId = await farms.AcceptInvitationAsync(ActorId, input.Token, ct) }));
 }
-
