@@ -38,7 +38,15 @@ builder.Services.AddSingleton<IObservationPhotoStore>(_ =>
             ? Path.GetFullPath(Path.Combine(builder.Environment.ContentRootPath, "..", "SmartFarm.Web",
                 "App_Data", "observation-photos"))
             : Path.Combine(builder.Environment.ContentRootPath, "App_Data", "observation-photos"))));
-builder.Services.AddDataProtection().SetApplicationName($"SmartFarm.SharedIdentity.{builder.Environment.EnvironmentName}");
+// Web and API must use the same protected key ring when hosted on different machines.
+var dataProtection = builder.Services.AddDataProtection()
+    .SetApplicationName($"SmartFarm.SharedIdentity.{builder.Environment.EnvironmentName}");
+if (builder.Configuration["DataProtection:KeyRingPath"] is { Length: > 0 } keyRingPath)
+{
+    if (!Path.IsPathFullyQualified(keyRingPath))
+        throw new InvalidOperationException("DataProtection:KeyRingPath must be an absolute path.");
+    dataProtection.PersistKeysToFileSystem(new DirectoryInfo(keyRingPath));
+}
 
 var app = builder.Build();
 

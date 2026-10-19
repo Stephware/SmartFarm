@@ -46,7 +46,15 @@ builder.Services.AddScoped<IMonitoringService, MonitoringApiService>();
 builder.Services.AddScoped<IInventoryService, InventoryApiService>();
 builder.Services.AddScoped<IHarvestService, HarvestApiService>();
 builder.Services.AddScoped<IFarmAccessService, FarmAccessApiService>();
-builder.Services.AddDataProtection().SetApplicationName($"SmartFarm.SharedIdentity.{builder.Environment.EnvironmentName}");
+// Web and API must use the same protected key ring when hosted on different machines.
+var dataProtection = builder.Services.AddDataProtection()
+    .SetApplicationName($"SmartFarm.SharedIdentity.{builder.Environment.EnvironmentName}");
+if (builder.Configuration["DataProtection:KeyRingPath"] is { Length: > 0 } keyRingPath)
+{
+    if (!Path.IsPathFullyQualified(keyRingPath))
+        throw new InvalidOperationException("DataProtection:KeyRingPath must be an absolute path.");
+    dataProtection.PersistKeysToFileSystem(new DirectoryInfo(keyRingPath));
+}
 
 if (builder.Environment.IsDevelopment())
 {

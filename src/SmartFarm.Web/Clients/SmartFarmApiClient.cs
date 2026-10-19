@@ -54,7 +54,8 @@ public sealed class SmartFarmApiClient(
                 {
                     await using var data = await response.Content.ReadAsStreamAsync(ct);
                     using var document = await JsonDocument.ParseAsync(data, cancellationToken: ct);
-                    if (document.RootElement.TryGetProperty("message", out var value) &&
+                    if (document.RootElement.ValueKind == JsonValueKind.Object &&
+                        document.RootElement.TryGetProperty("message", out var value) &&
                         value.ValueKind == JsonValueKind.String &&
                         value.GetString() is { Length: > 0 and <= 300 } reason)
                         message = reason;
@@ -121,7 +122,8 @@ public sealed class SmartFarmApiClient(
         using var form = new MultipartFormDataContent();
         using var file = new StreamContent(stream);
         file.Headers.ContentType = new MediaTypeHeaderValue(
-            string.IsNullOrWhiteSpace(contentType) ? "application/octet-stream" : contentType);
+            contentType is "image/jpeg" or "image/png" or "image/webp"
+                ? contentType : "application/octet-stream");
         file.Headers.ContentLength = length;
         form.Add(file, "photo", "inspection-photo");
         request.Content = form;
