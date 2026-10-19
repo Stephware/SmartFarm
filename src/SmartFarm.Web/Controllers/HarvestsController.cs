@@ -13,12 +13,23 @@ using SmartFarm.Web.Authentication;
 namespace SmartFarm.Web.Controllers;
 
 [Authorize(AuthenticationSchemes = SmartFarmAuthSchemes.Application)]
-public sealed class HarvestsController(
-    UserManager<SmartFarmUser> users,
-    ICropManagementService crops,
-    IHarvestService harvests) : Controller
+public sealed class HarvestsController : Controller
 {
-    private Guid Actor => Guid.TryParse(users.GetUserId(User), out var id)
+    private readonly UserManager<SmartFarmUser> _users;
+    private readonly ICropManagementService _crops;
+    private readonly IHarvestService _harvests;
+
+    public HarvestsController(
+        UserManager<SmartFarmUser> users,
+        ICropManagementService crops,
+        IHarvestService harvests)
+    {
+        _users = users;
+        _crops = crops;
+        _harvests = harvests;
+    }
+
+    private Guid Actor => Guid.TryParse(_users.GetUserId(User), out var id)
         ? id : Guid.Empty;
 
     [HttpGet]
@@ -26,9 +37,9 @@ public sealed class HarvestsController(
     {
         try
         {
-            var crop = await crops.GetCycleAsync(farmId, cycleId, Actor, ct);
+            var crop = await _crops.GetCycleAsync(farmId, cycleId, Actor, ct);
             if (crop is null) return NotFound();
-            var overview = await harvests.GetAsync(farmId, cycleId, Actor, ct);
+            var overview = await _harvests.GetAsync(farmId, cycleId, Actor, ct);
             return View(new HarvestPage(crop, overview));
         }
         catch (FarmOperationException e) when (e.Error == FarmError.NotFound)
@@ -48,7 +59,7 @@ public sealed class HarvestsController(
         }
         try
         {
-            await harvests.RecordAsync(farmId, cycleId, Actor, input, ct);
+            await _harvests.RecordAsync(farmId, cycleId, Actor, input, ct);
             TempData["HarvestNotice"] = "Partial harvest recorded.";
         }
         catch (FarmOperationException e)
@@ -70,7 +81,7 @@ public sealed class HarvestsController(
         }
         try
         {
-            await harvests.VoidAsync(farmId, cycleId, harvestId, Actor, input, ct);
+            await _harvests.VoidAsync(farmId, cycleId, harvestId, Actor, input, ct);
             TempData["HarvestNotice"] = "Harvest entry voided; its audit record is preserved.";
         }
         catch (FarmOperationException e)

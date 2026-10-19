@@ -13,31 +13,42 @@ using SmartFarm.Web.Authentication;
 namespace SmartFarm.Web.Controllers;
 
 [Authorize(AuthenticationSchemes = SmartFarmAuthSchemes.Application)]
-public sealed class InventoryController(
-    UserManager<SmartFarmUser> users,
-    IFarmManagementService farms,
-    IInventoryService inventory) : Controller
+public sealed class InventoryController : Controller
 {
-    private Guid Actor => Guid.TryParse(users.GetUserId(User), out var id) ? id : Guid.Empty;
+    private readonly UserManager<SmartFarmUser> _users;
+    private readonly IFarmManagementService _farms;
+    private readonly IInventoryService _inventory;
+
+    public InventoryController(
+        UserManager<SmartFarmUser> users,
+        IFarmManagementService farms,
+        IInventoryService inventory)
+    {
+        _users = users;
+        _farms = farms;
+        _inventory = inventory;
+    }
+
+    private Guid Actor => Guid.TryParse(_users.GetUserId(User), out var id) ? id : Guid.Empty;
 
     [HttpGet]
     public async Task<IActionResult> Index(Guid farmId, CancellationToken ct)
     {
-        var farm = await farms.GetAsync(farmId, Actor, ct);
+        var farm = await _farms.GetAsync(farmId, Actor, ct);
         if (farm is null) return NotFound();
-        return View(new InventoryPage(farm, await inventory.ListAsync(farmId, Actor, ct)));
+        return View(new InventoryPage(farm, await _inventory.ListAsync(farmId, Actor, ct)));
     }
 
     [HttpGet]
     public async Task<IActionResult> Details(Guid farmId, Guid itemId, CancellationToken ct)
     {
-        var farm = await farms.GetAsync(farmId, Actor, ct);
+        var farm = await _farms.GetAsync(farmId, Actor, ct);
         if (farm is null) return NotFound();
-        var item = await inventory.GetAsync(farmId, itemId, Actor, ct);
+        var item = await _inventory.GetAsync(farmId, itemId, Actor, ct);
         if (item is null) return NotFound();
         return View(new InventoryItemPage(farm, item,
-            await inventory.HistoryAsync(farmId, itemId, Actor, ct),
-            await inventory.ActivityOptionsAsync(farmId, Actor, ct)));
+            await _inventory.HistoryAsync(farmId, itemId, Actor, ct),
+            await _inventory.ActivityOptionsAsync(farmId, Actor, ct)));
     }
 
     [HttpPost, ValidateAntiForgeryToken]
@@ -48,7 +59,7 @@ public sealed class InventoryController(
             TempData["Error"] = "Enter a valid inventory item, unit and opening stock.";
             return RedirectToAction(nameof(Index), new { farmId });
         }
-        try { await inventory.CreateAsync(farmId, Actor, input, ct); }
+        try { await _inventory.CreateAsync(farmId, Actor, input, ct); }
         catch (FarmOperationException e)
         {
             if (e.Error == FarmError.NotFound) return NotFound();
@@ -60,9 +71,9 @@ public sealed class InventoryController(
     [HttpGet]
     public async Task<IActionResult> Edit(Guid farmId, Guid itemId, CancellationToken ct)
     {
-        var farm = await farms.GetAsync(farmId, Actor, ct);
+        var farm = await _farms.GetAsync(farmId, Actor, ct);
         if (farm?.Role is not ("Owner" or "Manager")) return NotFound();
-        var item = await inventory.GetAsync(farmId, itemId, Actor, ct);
+        var item = await _inventory.GetAsync(farmId, itemId, Actor, ct);
         if (item is null || item.ArchivedAtUtc is not null) return NotFound();
         return View(new InventoryEditPage(farm, itemId, new InventoryItemInput
         {
@@ -81,7 +92,7 @@ public sealed class InventoryController(
             TempData["Error"] = "Check item name, category, unit and reorder level.";
             return RedirectToAction(nameof(Details), new { farmId, itemId });
         }
-        try { await inventory.UpdateAsync(farmId, itemId, Actor, input, ct); }
+        try { await _inventory.UpdateAsync(farmId, itemId, Actor, input, ct); }
         catch (FarmOperationException e)
         {
             if (e.Error == FarmError.NotFound) return NotFound();
@@ -94,7 +105,7 @@ public sealed class InventoryController(
     public async Task<IActionResult> Archive(Guid farmId, Guid itemId,
         string rowVersion, CancellationToken ct)
     {
-        try { await inventory.ArchiveAsync(farmId, itemId, Actor, rowVersion, ct); }
+        try { await _inventory.ArchiveAsync(farmId, itemId, Actor, rowVersion, ct); }
         catch (FarmOperationException e)
         {
             if (e.Error == FarmError.NotFound) return NotFound();
@@ -113,7 +124,7 @@ public sealed class InventoryController(
             TempData["Error"] = "Enter a valid quantity, type and row version.";
             return RedirectToAction(nameof(Details), new { farmId, itemId });
         }
-        try { await inventory.PostAsync(farmId, itemId, Actor, input, ct); }
+        try { await _inventory.PostAsync(farmId, itemId, Actor, input, ct); }
         catch (FarmOperationException e)
         {
             if (e.Error == FarmError.NotFound) return NotFound();
@@ -131,7 +142,7 @@ public sealed class InventoryController(
             TempData["Error"] = "Provide a reversal reason and current item version.";
             return RedirectToAction(nameof(Details), new { farmId, itemId });
         }
-        try { await inventory.ReverseAsync(farmId, itemId, transactionId, Actor, input, ct); }
+        try { await _inventory.ReverseAsync(farmId, itemId, transactionId, Actor, input, ct); }
         catch (FarmOperationException e)
         {
             if (e.Error == FarmError.NotFound) return NotFound();
