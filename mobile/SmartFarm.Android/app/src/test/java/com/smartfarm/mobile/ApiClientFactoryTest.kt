@@ -13,10 +13,10 @@ class ApiClientFactoryTest {
 
     @Test fun permitsOnlyLocalHttpForDebug() {
         val retrofit = ApiClientFactory.create(
-            "http://10.0.2.2:5080/", allowLocalHttpForDebug = true)
-        assertEquals("http://10.0.2.2:5080/", retrofit.baseUrl().toString())
+            "http://10.0.2.2:5081/", allowLocalHttpForDebug = true)
+        assertEquals("http://10.0.2.2:5081/", retrofit.baseUrl().toString())
         assertThrows(IllegalArgumentException::class.java) {
-            ApiClientFactory.create("http://10.0.2.2:5080/")
+            ApiClientFactory.create("http://10.0.2.2:5081/")
         }
         assertThrows(IllegalArgumentException::class.java) {
             ApiClientFactory.create("http://external.example.test/", allowLocalHttpForDebug = true)

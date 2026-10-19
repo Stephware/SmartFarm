@@ -5,6 +5,14 @@ plugins {
     id("androidx.room")
 }
 
+// The emulator uses SmartFarm.Api; other hosts can be supplied at build time.
+val debugApiUrl = providers.gradleProperty("smartfarmDebugApiUrl").orNull
+    ?: "http://10.0.2.2:5081/"
+val releaseApiUrl = providers.gradleProperty("smartfarmReleaseApiUrl").orNull ?: ""
+
+fun apiUrlLiteral(url: String): String =
+    "\"" + url.replace("\\", "\\\\").replace("\"", "\\\"") + "\""
+
 android {
     namespace = "com.smartfarm.mobile"
     compileSdk = 36
@@ -23,11 +31,14 @@ android {
     }
     buildTypes {
         getByName("debug") {
-            buildConfigField("String", "API_BASE_URL", "\"http://10.0.2.2:5080/\"")
+            buildConfigField("String", "API_BASE_URL", apiUrlLiteral(debugApiUrl))
         }
         getByName("release") {
-            // Supply a deployed HTTPS URL before distributing the release app.
-            buildConfigField("String", "API_BASE_URL", "\"\"")
+            // Set -PsmartfarmReleaseApiUrl=https://your-api/ when building a release.
+            require(releaseApiUrl.isBlank() || releaseApiUrl.startsWith("https://")) {
+                "Release API URL must use HTTPS."
+            }
+            buildConfigField("String", "API_BASE_URL", apiUrlLiteral(releaseApiUrl))
         }
     }
     compileOptions {
@@ -58,6 +69,7 @@ dependencies {
     implementation("com.squareup.okhttp3:okhttp:4.12.0")
     implementation("androidx.work:work-runtime-ktx:2.11.0")
     testImplementation("junit:junit:4.13.2")
+    testImplementation("com.squareup.okhttp3:mockwebserver:4.12.0")
     androidTestImplementation("androidx.test.ext:junit:1.3.0")
     androidTestImplementation("androidx.test:runner:1.7.0")
     androidTestImplementation("androidx.test.espresso:espresso-core:3.7.0")

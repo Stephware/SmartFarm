@@ -32,10 +32,10 @@ public sealed class WebLoginTests : IClassFixture<WebApplicationFactory<Program>
     }
 
     [Fact]
-    public async Task TemporaryApiRoutesStillRequireBearerTokens()
+    public async Task WebNoLongerExposesApiRoutes()
     {
         using var response = await _client.GetAsync("/api/farms");
-        Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
+        Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
         Assert.Null(response.Headers.Location);
     }
 }
