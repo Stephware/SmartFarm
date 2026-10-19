@@ -92,8 +92,65 @@ public sealed class WebApiClientTests
         Assert.Equal(0, handler.RequestCount);
     }
 
+    [Fact]
+    public async Task MissingFarmReturnsNullWithoutShowingPrivateData()
+    {
+        using var app = new WebApplicationFactory<Program>();
+        var userId = Guid.NewGuid();
+        using var client = new HttpClient(new RecordingHandler(_ =>
+            new HttpResponseMessage(HttpStatusCode.NotFound)))
+        {
+            BaseAddress = new Uri("https://api.example.test/")
+        };
+        var gateway = new SmartFarmApiClient(client, UserContext(userId),
+            app.Services.GetRequiredService<IOptionsMonitor<BearerTokenOptions>>());
+        var service = new FarmApiService(gateway);
+
+        Assert.Null(await service.GetAsync(Guid.NewGuid(), userId));
+    }
+
+    [Fact]
+    public async Task ConflictsFromApiRemainConflictsInMvc()
+    {
+        using var app = new WebApplicationFactory<Program>();
+        var userId = Guid.NewGuid();
+        using var client = new HttpClient(new RecordingHandler(_ =>
+            new HttpResponseMessage(HttpStatusCode.Conflict)
+            {
+                Content = new StringContent(
+                    "{\"message\":\"The record changed.\"}",
+                    System.Text.Encoding.UTF8, "application/json")
+            }))
+        {
+            BaseAddress = new Uri("https://api.example.test/")
+        };
+        var gateway = new SmartFarmApiClient(client, UserContext(userId),
+            app.Services.GetRequiredService<IOptionsMonitor<BearerTokenOptions>>());
+
+        var error = await Assert.ThrowsAsync<FarmOperationException>(() =>
+            gateway.WriteAsync(HttpMethod.Put, "api/farms/" + Guid.NewGuid(),
+                userId, new { Name = "A farm" }, default));
+        Assert.Equal(FarmError.Conflict, error.Error);
+        Assert.Equal("The record changed.", error.Message);
+    }
+
+    private static HttpContextAccessor UserContext(Guid userId) => new()
+    {
+        HttpContext = new DefaultHttpContext
+        {
+            User = new ClaimsPrincipal(new ClaimsIdentity(
+                [new Claim(ClaimTypes.NameIdentifier, userId.ToString())],
+                IdentityConstants.ApplicationScheme))
+        }
+    };
+
     private sealed class RecordingHandler : HttpMessageHandler
     {
+        private readonly Func<HttpRequestMessage, HttpResponseMessage>? _reply;
+
+        public RecordingHandler(Func<HttpRequestMessage, HttpResponseMessage>? reply = null) =>
+            _reply = reply;
+
         public int RequestCount { get; private set; }
         public string? LastUrl { get; private set; }
         public AuthenticationHeaderValue? LastAuthorization { get; private set; }
@@ -104,7 +161,7 @@ public sealed class WebApiClientTests
             RequestCount++;
             LastUrl = request.RequestUri?.ToString();
             LastAuthorization = request.Headers.Authorization;
-            return Task.FromResult(new HttpResponseMessage(HttpStatusCode.OK)
+            return Task.FromResult(_reply?.Invoke(request) ?? new HttpResponseMessage(HttpStatusCode.OK)
             {
                 Content = new StringContent("[]", System.Text.Encoding.UTF8, "application/json")
             });
