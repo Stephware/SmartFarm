@@ -1,4 +1,3 @@
-using Microsoft.EntityFrameworkCore;
 using SmartFarm.Core.Contracts.Farms;
 using SmartFarm.Core.Contracts.Monitoring;
 using SmartFarm.Core.Entities;

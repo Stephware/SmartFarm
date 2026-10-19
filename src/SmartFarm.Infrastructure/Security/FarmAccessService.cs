@@ -1,4 +1,3 @@
-using Microsoft.EntityFrameworkCore;
 using SmartFarm.Core.Enums;
 using SmartFarm.Core.Interfaces.Security;
 using SmartFarm.Core.Interfaces.Repositories;
