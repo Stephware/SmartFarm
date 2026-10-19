@@ -31,8 +31,7 @@ references, not identical architecture or guaranteed runtime correctness.
 `dotnet build`, `dotnet test`, `./gradlew assembleDebug`, Android device
 execution, and SQL Server integration must be checked locally.
 
-Separate Git concern: later feature PRs were merged into other feature
-branches, so `dev` currently lacks some of that code. Consolidate and
-test the branch chain separately before declaring `dev` the complete
-integration branch.
+Git integration note: PR #14 consolidates the missing later feature work
+into `dev`, pending .NET/Android/SQL verification. See
+[Phase 1 stabilization](phase1-stabilization.md).
 

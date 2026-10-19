@@ -11,14 +11,14 @@ From a terminal in the SmartFarm repository:
 
 ```bash
 git fetch origin
-git switch feature/minimal-ui-smoke-test
+git switch feature/phase1-stabilization
 ```
 
-**Important:** `dev` currently contains Phase 3, but Phase 4–6 pull
-requests were merged into feature branches, not into `dev`. This testing
-branch is based on the Phase 6 code so you can inspect all existing features.
-Do not test `dev` expecting Inventory or Harvests until the branch history
-has been properly consolidated and verified.
+**Important:** PR #14 proposes the missing Phase 4–6 features and the
+smoke-test changes for `dev`. Until that PR passes local verification and
+is merged, test `feature/phase1-stabilization`. After merging, switch to
+`dev` and pull the verified merge commit. See
+[Phase 1 stabilization](phase1-stabilization.md).
 
 ## 2. First test: .NET web (database NOT required)
 
