@@ -14,7 +14,6 @@ using SmartFarm.Infrastructure.Services.Monitoring;
 using SmartFarm.Infrastructure.Services.Farms;
 using SmartFarm.Infrastructure.Services.Inventory;
 using SmartFarm.Infrastructure.Services.Harvests;
-using SmartFarm.Web.Authentication;
 using SmartFarm.Web.HealthChecks;
 
 var builder = WebApplication.CreateBuilder(args);

@@ -6,4 +6,10 @@
     <ProjectReference Include="../SmartFarm.Core/SmartFarm.Core.csproj" />
     <ProjectReference Include="../SmartFarm.Infrastructure/SmartFarm.Infrastructure.csproj" />
   </ItemGroup>
+  <!-- Keep old Android API routes working until the mobile app switches hosts. -->
+  <ItemGroup>
+    <Compile Include="../SmartFarm.Api/Controllers/**/*.cs" Link="Api/Controllers/%(RecursiveDir)%(Filename)%(Extension)" />
+    <Compile Include="../SmartFarm.Api/Models/Auth/*.cs" Link="Api/Models/Auth/%(Filename)%(Extension)" />
+    <Compile Include="../SmartFarm.Api/Authentication/SmartFarmAuthSchemes.cs" Link="Api/Authentication/SmartFarmAuthSchemes.cs" />
+  </ItemGroup>
 </Project>

@@ -33,7 +33,10 @@ builder.Services.AddScoped<IHarvestService, HarvestService>();
 builder.Services.AddSingleton<IObservationPhotoStore>(_ =>
     new LocalObservationPhotoStore(
         builder.Configuration["ObservationPhotos:StoragePath"] ??
-        Path.Combine(builder.Environment.ContentRootPath, "App_Data", "observation-photos")));
+        builder.Environment.IsDevelopment()
+            ? Path.GetFullPath(Path.Combine(builder.Environment.ContentRootPath, "..", "SmartFarm.Web",
+                "App_Data", "observation-photos"))
+            : Path.Combine(builder.Environment.ContentRootPath, "App_Data", "observation-photos")));
 builder.Services.AddDataProtection();
 
 var app = builder.Build();

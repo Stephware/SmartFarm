@@ -1,5 +1,6 @@
 <Solution>
   <Folder Name="/src/">
+    <Project Path="src/SmartFarm.Api/SmartFarm.Api.csproj" />
     <Project Path="src/SmartFarm.Core/SmartFarm.Core.csproj" />
     <Project Path="src/SmartFarm.Infrastructure/SmartFarm.Infrastructure.csproj" />
     <Project Path="src/SmartFarm.Web/SmartFarm.Web.csproj" />
@@ -12,4 +13,3 @@
     <Project Path="tests/SmartFarm.Worker.Tests/SmartFarm.Worker.Tests.csproj" />
   </Folder>
 </Solution>
-

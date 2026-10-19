@@ -1,10 +1,13 @@
 using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Hosting;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using SmartFarm.Infrastructure.Identity;
 using SmartFarm.Infrastructure.Persistence;
 
-namespace SmartFarm.Web.Authentication;
+namespace SmartFarm.Infrastructure.Identity;
 
 public static class IdentitySetup
 {
@@ -66,4 +69,3 @@ public static class IdentitySetup
         return services;
     }
 }
-
