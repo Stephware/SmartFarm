@@ -7,8 +7,8 @@
     <form asp-action="EditPlot" asp-route-id="@Model.FarmId" asp-route-plotId="@Model.PlotId" method="post">
         <div asp-validation-summary="All" class="error"></div>
         <input asp-for="Input.RowVersion" type="hidden" />
-        <label asp-for="Input.Name">Plot name</label><input asp-for="Input.Name" required />
-        <label asp-for="Input.AreaSqMeters">Area (m²)</label><input asp-for="Input.AreaSqMeters" type="number" min="0.01" step="0.01" required />
+        <label asp-for="Input.Name">Plot name</label><input asp-for="Input.Name" required /><span asp-validation-for="Input.Name" class="error"></span>
+        <label asp-for="Input.AreaSqMeters">Area (m²)</label><input asp-for="Input.AreaSqMeters" type="number" min="0.01" step="0.01" required /><span asp-validation-for="Input.AreaSqMeters" class="error"></span>
         <button type="submit">Save changes</button>
         <a asp-action="Details" asp-route-id="@Model.FarmId">Cancel</a>
     </form>

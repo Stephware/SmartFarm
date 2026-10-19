@@ -8,9 +8,9 @@
     <form method="post" asp-action="Login" asp-controller="Account" asp-route-returnUrl="@ViewData["ReturnUrl"]">
         <div asp-validation-summary="All" class="error" role="alert"></div>
         <label asp-for="Email"></label>
-        <input asp-for="Email" autocomplete="username" />
+        <input asp-for="Email" autocomplete="username" /><span asp-validation-for="Email" class="error"></span>
         <label asp-for="Password"></label>
-        <input asp-for="Password" type="password" autocomplete="current-password" />
+        <input asp-for="Password" type="password" autocomplete="current-password" /><span asp-validation-for="Password" class="error"></span>
         <label class="check"><input asp-for="RememberMe" /> Remember me</label>
         <button type="submit">Log in</button>
     </form>

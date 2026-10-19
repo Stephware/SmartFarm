@@ -7,13 +7,13 @@
     <form method="post" asp-action="Register" asp-controller="Account">
         <div asp-validation-summary="All" class="error" role="alert"></div>
         <label asp-for="FullName">Full name</label>
-        <input asp-for="FullName" autocomplete="name" />
+        <input asp-for="FullName" autocomplete="name" /><span asp-validation-for="FullName" class="error"></span>
         <label asp-for="Email"></label>
-        <input asp-for="Email" type="email" autocomplete="email" />
+        <input asp-for="Email" type="email" autocomplete="email" /><span asp-validation-for="Email" class="error"></span>
         <label asp-for="Password"></label>
-        <input asp-for="Password" type="password" autocomplete="new-password" />
+        <input asp-for="Password" type="password" autocomplete="new-password" /><span asp-validation-for="Password" class="error"></span>
         <label asp-for="ConfirmPassword">Confirm password</label>
-        <input asp-for="ConfirmPassword" type="password" autocomplete="new-password" />
+        <input asp-for="ConfirmPassword" type="password" autocomplete="new-password" /><span asp-validation-for="ConfirmPassword" class="error"></span>
         <p class="hint">Use at least 10 characters, including uppercase, lowercase, and a number.</p>
         <button type="submit">Create account</button>
     </form>
