@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using SmartFarm.Core.Interfaces.Crops;
 using SmartFarm.Core.Interfaces.Monitoring;
@@ -23,7 +24,7 @@ builder.Services.AddSmartFarmPersistence(
     builder.Configuration.GetConnectionString("SmartFarm"));
 builder.Services.AddSmartFarmRepositories();
 builder.Services.AddSmartFarmWeather(builder.Configuration);
-builder.Services.AddSmartFarmIdentity(builder.Environment);
+builder.Services.AddSmartFarmWebIdentity(builder.Environment);
 builder.Services.AddScoped<AccountRegistrationService>();
 builder.Services.AddScoped<IFarmAccessService, FarmAccessService>();
 builder.Services.AddScoped<IFarmManagementService, FarmManagementService>();
@@ -35,7 +36,7 @@ builder.Services.AddSingleton<IObservationPhotoStore>(_ =>
     new LocalObservationPhotoStore(
         builder.Configuration["ObservationPhotos:StoragePath"] ??
         Path.Combine(builder.Environment.ContentRootPath, "App_Data", "observation-photos")));
-builder.Services.AddDataProtection();
+builder.Services.AddDataProtection().SetApplicationName($"SmartFarm.SharedIdentity.{builder.Environment.EnvironmentName}");
 
 if (builder.Environment.IsDevelopment())
 {
