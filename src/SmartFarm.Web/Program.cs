@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using SmartFarm.Core.Interfaces.Crops;
 using SmartFarm.Core.Interfaces.Monitoring;
