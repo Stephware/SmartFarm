@@ -138,6 +138,9 @@ public sealed class FarmAutomationTests
         Assert.True(WeatherRules.IsPlausible(day));
         Assert.False(WeatherRules.IsPlausible(day with { MaxPrecipitationProbability = 101 }));
         Assert.False(WeatherRules.IsPlausible(day with { MaxWindKph = -1 }));
+        Assert.True(WeatherRules.HasSignal(day, 2));
+        Assert.False(WeatherRules.HasSignal(day with { MaxWindKph = null }, 2));
+        Assert.False(WeatherRules.HasSignal(day with { RainfallMm = null }, 1));
         Assert.Equal((byte)3,
             Assert.Single(WeatherRules.Evaluate(day with { MaxWindKph = 85 })).Severity);
     }
