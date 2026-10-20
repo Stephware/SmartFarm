@@ -29,6 +29,11 @@ public sealed class OpenMeteoAdapter : IWeatherProviderAdapter
         var lows = daily.GetProperty("temperature_2m_min");
         var highs = daily.GetProperty("temperature_2m_max");
         var rain = daily.GetProperty("precipitation_sum");
+        if (dates.ValueKind != JsonValueKind.Array ||
+            lows.ValueKind != JsonValueKind.Array ||
+            highs.ValueKind != JsonValueKind.Array ||
+            rain.ValueKind != JsonValueKind.Array)
+            throw new JsonException("Daily weather fields must be arrays.");
         var probability = daily.TryGetProperty("precipitation_probability_max", out var rainChance)
             ? rainChance : (JsonElement?)null;
         var wind = daily.TryGetProperty("wind_speed_10m_max", out var windSpeed)
@@ -59,6 +64,10 @@ public sealed class OpenMeteoAdapter : IWeatherProviderAdapter
         return new WeatherForecastResult("Open-Meteo", DateTimeOffset.UtcNow, days);
     }
 
-    private static decimal? Number(JsonElement value) =>
-        value.ValueKind == JsonValueKind.Null ? null : value.GetDecimal();
+    private static decimal? Number(JsonElement value) => value.ValueKind switch
+    {
+        JsonValueKind.Null => null,
+        JsonValueKind.Number => value.GetDecimal(),
+        _ => throw new JsonException("Invalid numeric weather value.")
+    };
 }
