@@ -1,6 +1,10 @@
 package com.smartfarm.mobile
 
 import androidx.room.Room
+import android.net.Uri
+import com.smartfarm.mobile.data.sync.LocalPhotoFiles
+import java.io.File
+import java.util.UUID
 import androidx.test.platform.app.InstrumentationRegistry
 import com.smartfarm.mobile.data.local.SmartFarmDatabase
 import com.smartfarm.mobile.data.local.entity.PendingOperation
@@ -43,6 +47,26 @@ class OfflinePhotoQueueTest {
             assertEquals(1, ops.pending("farmer-a").size)
         } finally {
             database.close()
+        }
+    }
+
+    @Test fun photoBytesAreCopiedIntoPrivateStorageBeforeSync() = runBlocking {
+        val context = InstrumentationRegistry.getInstrumentation().targetContext
+        val staging = File(context.cacheDir, "photo-test-${UUID.randomUUID()}.jpg")
+        val files = LocalPhotoFiles(context)
+        val id = UUID.randomUUID().toString()
+        val sample = byteArrayOf(0xff.toByte(), 0xd8.toByte(), 0xff.toByte(), 1, 2, 3)
+        try {
+            staging.writeBytes(sample)
+            assertEquals("image/jpeg",
+                files.copyFrom(context.contentResolver, Uri.fromFile(staging), id))
+            assertTrue(files.file(id).isFile)
+            assertTrue(files.file(id).readBytes().contentEquals(sample))
+            files.delete(id)
+            assertTrue(!files.file(id).exists())
+        } finally {
+            staging.delete()
+            files.file(id).delete()
         }
     }
 
