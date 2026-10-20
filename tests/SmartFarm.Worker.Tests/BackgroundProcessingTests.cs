@@ -107,6 +107,14 @@ public sealed class BackgroundProcessingTests
         Assert.IsType<Microsoft.Data.SqlClient.SqlClientFactory>(options.SqlClientFactory);
     }
 
+    [Fact]
+    public void SchemaInitializationRequiresExplicitOptIn()
+    {
+        Assert.False(BackgroundProcessingRegistration.CreateStorageOptions().PrepareSchemaIfNecessary);
+        Assert.True(BackgroundProcessingRegistration.CreateStorageOptions(true).PrepareSchemaIfNecessary);
+        Assert.False(BackgroundProcessingRegistration.CreateStorageOptions(true).EnableHeavyMigrations);
+    }
+
     private static IConfigurationRoot Configuration(string? connectionString) =>
         new ConfigurationBuilder().AddInMemoryCollection(new Dictionary<string, string?>
         {
