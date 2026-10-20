@@ -20,7 +20,9 @@ data class InventoryUiState(
     val workspace: InventoryWorkspaceDto = InventoryWorkspaceDto(emptyList(), 0),
     val item: InventoryItemDto? = null,
     val transactions: List<InventoryTransactionDto> = emptyList(),
-    val activities: List<InventoryActivityOptionDto> = emptyList()
+    val activities: List<InventoryActivityOptionDto> = emptyList(),
+    val offline: Boolean = false,
+    val cachedAtUtcMillis: Long? = null
 )
 
 class InventoryViewModel(private val repo: InventoryRepository,
@@ -34,7 +36,10 @@ class InventoryViewModel(private val repo: InventoryRepository,
         mutable.value = InventoryUiState(farmId = farmId, busy = true)
         viewModelScope.launch {
             try {
-                mutable.value = mutable.value.copy(workspace = repo.list(farmId))
+                val snapshot = repo.listSnapshot(farmId)
+                mutable.value = mutable.value.copy(workspace = snapshot.value,
+                    offline = snapshot.offline,
+                    cachedAtUtcMillis = snapshot.savedAtUtcMillis.takeIf { snapshot.offline })
             } catch (_: Exception) {
                 mutable.value = mutable.value.copy(error = "Could not load inventory.")
             } finally { mutable.value = mutable.value.copy(busy = false) }
@@ -45,11 +50,18 @@ class InventoryViewModel(private val repo: InventoryRepository,
         mutable.value = InventoryUiState(farmId = farmId, itemId = itemId, busy = true)
         viewModelScope.launch {
             try {
-                val item = repo.item(farmId, itemId)
-                val history = repo.history(farmId, itemId)
-                val activities = if (item.archivedAtUtc == null) repo.activities(farmId) else emptyList()
+                val item = repo.itemSnapshot(farmId, itemId)
+                val history = repo.historySnapshot(farmId, itemId)
+                val activityResult = if (item.value.archivedAtUtc == null)
+                    repo.activitiesSnapshot(farmId) else null
+                val snapshots = listOfNotNull(item, history, activityResult)
+                val cached = snapshots.any { it.offline }
                 mutable.value = mutable.value.copy(
-                    item = item, transactions = history, activities = activities)
+                    item = item.value, transactions = history.value,
+                    activities = activityResult?.value ?: emptyList(),
+                    offline = cached,
+                    cachedAtUtcMillis = snapshots.filter { it.offline }
+                        .minOfOrNull { it.savedAtUtcMillis })
             } catch (_: Exception) {
                 mutable.value = mutable.value.copy(error = "Could not load inventory item.")
             } finally { mutable.value = mutable.value.copy(busy = false) }
