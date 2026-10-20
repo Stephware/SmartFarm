@@ -23,8 +23,7 @@ public static class TaskRules
     public static IEnumerable<(byte Type, DateOnly Due)> ScheduledTasks(
         CropCycle crop, DateOnly today, DateOnly lastDay)
     {
-        if (crop.Status == 0 && crop.PlannedPlantingDate >= today &&
-            crop.PlannedPlantingDate <= lastDay)
+        if (crop.Status == 0 && crop.PlannedPlantingDate <= lastDay)
             yield return (1, crop.PlannedPlantingDate);
 
         if (crop.Status != 1) yield break;
@@ -40,7 +39,7 @@ public static class TaskRules
             }
         }
 
-        if (crop.ExpectedHarvestDate is { } harvest && harvest >= today && harvest <= lastDay)
+        if (crop.ExpectedHarvestDate is { } harvest && harvest <= lastDay)
             yield return (5, harvest);
     }
 
