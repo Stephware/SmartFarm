@@ -1,0 +1,86 @@
+@model SmartFarm.Core.Contracts.Reports.FarmDashboard
+@{
+    ViewData["Title"] = "Farm dashboard";
+}
+<section class="panel">
+    <p><a asp-controller="Farms" asp-action="Details" asp-route-id="@Model.FarmId">← Back to farm</a></p>
+    <div class="page-heading">
+        <div>
+            <p class="hint">Farm overview · @Model.FarmToday.ToString("MMMM d, yyyy")</p>
+            <h1>@Model.FarmName</h1>
+            <p class="hint">Live information from your farm records</p>
+        </div>
+        <a class="button" asp-controller="Reports" asp-action="Harvests"
+           asp-route-farmId="@Model.FarmId">Harvest reports</a>
+    </div>
+    <div class="stat-grid">
+        <div class="stat"><span>Active plots</span><strong>@Model.ActivePlots</strong></div>
+        <div class="stat"><span>Active crops</span><strong>@Model.ActiveCrops</strong></div>
+        <div class="stat"><span>Planned crops</span><strong>@Model.PlannedCrops</strong></div>
+        <div class="stat"><span>Completed crops</span><strong>@Model.CompletedCrops</strong></div>
+        <div class="stat"><span>Open tasks</span><strong>@Model.OpenTasks</strong></div>
+        <div class="stat"><span>Overdue tasks</span><strong>@Model.OverdueTasks</strong></div>
+        <div class="stat"><span>Low-stock items</span><strong>@Model.LowStockItems</strong></div>
+        <div class="stat"><span>Observations needing attention</span><strong>@Model.ConcerningObservations</strong></div>
+    </div>
+</section>
+<section class="panel">
+    <h2>Crop progress</h2>
+    @{
+        var total = Model.PlannedCrops + Model.ActiveCrops + Model.CompletedCrops;
+        var completedPercent = total == 0 ? 0 : Math.Round(Model.CompletedCrops * 100m / total);
+        var activePercent = total == 0 ? 0 : Math.Round(Model.ActiveCrops * 100m / total);
+    }
+    <p>@total planned, active or completed cycles · @completedPercent% completed</p>
+    <div class="progress-track" role="img"
+         aria-label="@Model.CompletedCrops completed crops, @Model.ActiveCrops active crops and @Model.PlannedCrops planned crops">
+        <div class="progress-completed" style="width:@(completedPercent.ToString(System.Globalization.CultureInfo.InvariantCulture))%"></div>
+        <div class="progress-active" style="width:@(activePercent.ToString(System.Globalization.CultureInfo.InvariantCulture))%"></div>
+    </div>
+    <p class="hint">Failed or cancelled cycles are excluded from this progress percentage.</p>
+    <p><a asp-controller="Crops" asp-action="Index" asp-route-farmId="@Model.FarmId">Manage crop cycles →</a></p>
+</section>
+<section class="panel">
+    <h2>Harvests in the last 30 farm days</h2>
+    @if (Model.HarvestLast30Days.Count == 0)
+    {
+        <p>No valid harvests have been recorded in this period.</p>
+    }
+    else
+    {
+        <div class="stat-grid">
+        @foreach (var unit in Model.HarvestLast30Days)
+        {
+            <div class="stat">
+                <span>@unit.HarvestCount valid harvests</span>
+                <strong>@unit.Quantity.ToString("N3") @unit.Unit</strong>
+            </div>
+        }
+        </div>
+    }
+    <h3>Most recent harvests</h3>
+    @if (Model.RecentHarvests.Count == 0) { <p>No recent harvests.</p> }
+    else
+    {
+        <ul class="farm-list">
+        @foreach (var entry in Model.RecentHarvests)
+        {
+            <li>
+                <strong>@entry.CropTypeName · @entry.PlotName</strong>
+                <span>@entry.Quantity.ToString("N3") @entry.Unit · @entry.FarmDate.ToString("MMM d, yyyy")</span>
+                <a asp-controller="Harvests" asp-action="Index" asp-route-farmId="@Model.FarmId"
+                   asp-route-cycleId="@entry.CycleId">View harvest →</a>
+            </li>
+        }
+        </ul>
+    }
+</section>
+<section class="panel">
+    <h2>Quick actions</h2>
+    <div class="action-links">
+        <a asp-controller="Tasks" asp-action="Index" asp-route-farmId="@Model.FarmId">Review tasks</a>
+        <a asp-controller="Inventory" asp-action="Index" asp-route-farmId="@Model.FarmId">Check inventory</a>
+        <a asp-controller="Weather" asp-action="Index" asp-route-farmId="@Model.FarmId">Weather advisories</a>
+        <a asp-controller="Reports" asp-action="Harvests" asp-route-farmId="@Model.FarmId">Harvest history</a>
+    </div>
+</section>
