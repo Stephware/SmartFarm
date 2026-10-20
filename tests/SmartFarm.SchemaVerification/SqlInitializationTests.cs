@@ -70,6 +70,9 @@ public sealed class SqlInitializationTests
         Assert.Contains("UX_Notification_User_Dedupe", script);
         Assert.Contains("UX_CropCycle_OneActivePerPlot", script);
         Assert.Contains("THROW 50017", script);
+        Assert.Contains("fk.is_not_trusted = 1", script);
+        Assert.Contains("ck.is_not_trusted = 1", script);
+        Assert.Contains("i.is_disabled = 1", script);
         Assert.False(Regex.IsMatch(script,
             @"(?mi)^\s*(CREATE|ALTER|DROP|TRUNCATE|INSERT|UPDATE|DELETE|MERGE|EXEC)\b"),
             "Schema verification must be read-only.");
