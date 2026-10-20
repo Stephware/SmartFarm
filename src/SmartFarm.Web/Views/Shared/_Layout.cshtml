@@ -13,6 +13,7 @@
             @if (User.Identity?.IsAuthenticated == true)
             {
                 <a href="@Url.Action("Index", "Farms")">My farms</a>
+                <a href="@Url.Action("Index", "Notifications")">Notifications</a>
                 <a href="@Url.Action("Profile", "Account")">My account</a>
                 <form method="post" asp-controller="Account" asp-action="Logout" class="inline">
                     <button type="submit" class="link-button">Log out</button>
