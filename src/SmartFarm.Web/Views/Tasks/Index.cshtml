@@ -2,6 +2,8 @@
 @{
     ViewData["Title"] = "Farm tasks";
     var canManage = Model.Farm.Role is "Owner" or "Manager";
+    var actorId = Guid.TryParse(User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value, out var userId)
+        ? userId : Guid.Empty;
     var taskNames = new[] { "", "Planting", "Watering", "Fertilizing", "Inspection", "Harvest", "Other" };
     var statuses = new[] { "Pending", "Completed", "Skipped", "Cancelled" };
 }
@@ -25,7 +27,7 @@
                 {
                     <p>@task.Description</p>
                 }
-                @if (task.Status == 0)
+                @if (task.Status == 0 && (canManage || task.AssignedToUserId == actorId))
                 {
                     <form asp-action="Close" asp-route-farmId="@Model.Farm.Id" asp-route-taskId="@task.Id" method="post">
                         <input type="hidden" name="RowVersion" value="@task.RowVersion" />
