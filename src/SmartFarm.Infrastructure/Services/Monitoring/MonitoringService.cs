@@ -170,11 +170,29 @@ public sealed class MonitoringService(
         return Map(observation, []);
     }
 
-    public async Task<PhotoDetails> AddPhotoAsync(Guid farmId, Guid cycleId,
+    public Task<PhotoDetails> AddPhotoAsync(Guid farmId, Guid cycleId,
         Guid observationId, Guid actor, Stream stream, long length,
+        string? claimedContentType, CancellationToken ct = default) =>
+        SavePhotoAsync(farmId, cycleId, observationId, null, actor,
+            stream, length, claimedContentType, ct);
+
+    public Task<PhotoDetails> AddPhotoWithIdAsync(Guid farmId, Guid cycleId,
+        Guid observationId, Guid photoId, Guid actor, Stream stream, long length,
         string? claimedContentType, CancellationToken ct = default)
     {
-        await RequireCycle(farmId, cycleId, actor, true, ct);
+        if (photoId == Guid.Empty)
+            throw Invalid("A valid photo ID is required.");
+        return SavePhotoAsync(farmId, cycleId, observationId, photoId, actor,
+            stream, length, claimedContentType, ct);
+    }
+
+    private async Task<PhotoDetails> SavePhotoAsync(Guid farmId, Guid cycleId,
+        Guid observationId, Guid? photoId, Guid actor, Stream stream, long length,
+        string? claimedContentType, CancellationToken ct)
+    {
+        // A completed crop can replay a photo that the server already saved.
+        // A genuinely new photo still requires an active crop.
+        await RequireCycle(farmId, cycleId, actor, false, ct);
         if (await observations.GetByIdAsync(cycleId, observationId, ct) is null)
             throw Missing();
         if (length is <= 0 or > MonitoringRules.MaxPhotoBytes)
@@ -190,20 +208,40 @@ public sealed class MonitoringService(
                 throw Invalid("Invalid photo size.");
             await buffer.WriteAsync(block.AsMemory(0, read), ct);
         }
-        if (buffer.Length != length)
-            throw Invalid("Invalid photo size.");
+        if (buffer.Length != length) throw Invalid("Invalid photo size.");
         var bytes = buffer.ToArray();
         var ext = MonitoringRules.PhotoExtension(bytes, claimedContentType);
         if (ext is null)
             throw Invalid("Only genuine JPEG, PNG, and WebP photos are accepted.");
-
-        var key = await photoStore.SaveAsync(bytes, ext, ct);
         var mediaType = ext switch
         {
             ".jpg" => "image/jpeg", ".png" => "image/png", _ => "image/webp"
         };
+
+        async Task<PhotoDetails> CheckReplay(ObservationPhoto existing)
+        {
+            if (existing.UploadedByUserId != actor || existing.ContentType != mediaType ||
+                existing.FileSizeBytes != bytes.LongLength)
+                throw new FarmOperationException(FarmError.Conflict,
+                    "Photo ID already belongs to another upload.");
+            await using var source = await photoStore.OpenAsync(existing.StorageKey, ct);
+            using var saved = new MemoryStream();
+            await source.CopyToAsync(saved, ct);
+            if (!saved.ToArray().AsSpan().SequenceEqual(bytes))
+                throw new FarmOperationException(FarmError.Conflict,
+                    "Photo ID already belongs to different photo content.");
+            return Map(existing);
+        }
+
+        if (photoId is { } stableId &&
+            await photos.GetByIdAsync(observationId, stableId, ct) is { } alreadySaved)
+            return await CheckReplay(alreadySaved);
+
+        await RequireCycle(farmId, cycleId, actor, true, ct);
+        var key = await photoStore.SaveAsync(bytes, ext, ct);
         var photo = new ObservationPhoto
         {
+            Id = photoId ?? Guid.NewGuid(),
             CropObservationId = observationId, StorageKey = key,
             ContentType = mediaType, FileSizeBytes = bytes.LongLength,
             UploadedByUserId = actor
@@ -212,6 +250,15 @@ public sealed class MonitoringService(
         {
             photos.Add(photo);
             await unit.SaveChangesAsync(ct);
+        }
+        catch (DbUpdateException ex) when (photoId is not null &&
+            ex.InnerException is SqlException { Number: 2601 or 2627 })
+        {
+            await photoStore.DeleteAsync(key);
+            var prior = await photos.GetByIdAsync(observationId, photo.Id, ct);
+            if (prior is null)
+                throw new FarmOperationException(FarmError.Conflict, "Photo ID is already in use.");
+            return await CheckReplay(prior);
         }
         catch
         {
