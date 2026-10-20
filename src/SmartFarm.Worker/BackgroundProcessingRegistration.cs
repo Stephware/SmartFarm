@@ -5,6 +5,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using SmartFarm.Worker.Jobs;
 using SmartFarm.Worker.Scheduling;
+using SmartFarm.Worker.Services;
 
 namespace SmartFarm.Worker;
 
@@ -37,6 +38,7 @@ public static class BackgroundProcessingRegistration
             server.WorkerCount = options.WorkerCount;
             server.Queues = ["default"];
         });
+        services.AddScoped<IWorkerHealthService, WorkerHealthService>();
         services.AddScoped<WorkerHeartbeatJob>();
         services.AddHostedService<WorkerJobScheduler>();
 
