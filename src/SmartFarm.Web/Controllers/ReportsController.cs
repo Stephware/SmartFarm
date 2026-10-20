@@ -9,6 +9,7 @@ using SmartFarm.Core.Interfaces.Farms;
 using SmartFarm.Core.Interfaces.Reports;
 using SmartFarm.Infrastructure.Identity;
 using SmartFarm.Web.Authentication;
+using SmartFarm.Web.Clients;
 using SmartFarm.Web.ViewModels.Reports;
 
 namespace SmartFarm.Web.Controllers;
