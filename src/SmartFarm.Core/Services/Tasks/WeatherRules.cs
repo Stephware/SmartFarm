@@ -16,6 +16,15 @@ public static class WeatherRules
         (day.MaxPrecipitationProbability is null or >= 0m and <= 100m) &&
         (day.MaxWindKph is null or >= 0m and <= 300m);
 
+    // Missing provider readings are not evidence that an existing warning has cleared.
+    public static bool HasSignal(DailyWeatherForecast day, byte warningType) => warningType switch
+    {
+        1 => day.RainfallMm.HasValue,
+        2 => day.MaxWindKph.HasValue,
+        3 => day.MaximumTemperatureC.HasValue,
+        _ => false
+    };
+
     public static IReadOnlyList<WeatherWarning> Evaluate(DailyWeatherForecast day)
     {
         var results = new List<WeatherWarning>();
