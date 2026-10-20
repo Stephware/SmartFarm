@@ -7,6 +7,7 @@ namespace SmartFarm.Infrastructure.Persistence;
 
 public sealed class EfUnitOfWork(SmartFarmDbContext db) : IUnitOfWork
 {
+    public bool HasActiveTransaction => db.Database.CurrentTransaction is not null;
     public Task<int> SaveChangesAsync(CancellationToken ct = default) =>
         db.SaveChangesAsync(ct);
 
