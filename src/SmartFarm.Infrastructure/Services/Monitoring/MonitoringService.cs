@@ -103,7 +103,7 @@ public sealed class MonitoringService(
             linked = await tasks.FindAsync(farmId, selectedId, ct);
             if (linked is null || taskType is null || linked.CropCycleId != cycleId ||
                 linked.TaskType != taskType.Value ||
-                (!mayManage && linked.AssignedToUserId != actor))
+                !TaskRules.CanFulfillFromRecord(linked, actor, mayManage))
                 throw Invalid("The selected task does not match this crop activity.");
             if (linked.Status != 0) throw Conflict();
         }
