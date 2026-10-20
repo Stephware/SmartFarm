@@ -178,13 +178,24 @@ public sealed class FarmAutomationService(
                 };
                 db.WeatherForecasts.Add(snapshot);
 
-                var created = new List<WeatherAdvisory>();
+                var advisories = new List<WeatherAdvisory>();
+                var addedNew = false;
                 foreach (var warning in warnings)
                 {
-                    var exists = await db.WeatherAdvisories.AnyAsync(a =>
+                    var existing = await db.WeatherAdvisories.SingleOrDefaultAsync(a =>
                         a.FarmId == farm.Id && a.AdvisoryDate == day.Date &&
                         a.AdvisoryType == warning.Type, ct);
-                    if (exists) continue;
+
+                    if (existing is not null)
+                    {
+                        if (warning.Severity > existing.Severity)
+                        {
+                            existing.Severity = warning.Severity;
+                            existing.Message = warning.Message;
+                        }
+                        advisories.Add(existing);
+                        continue;
+                    }
 
                     var advisory = new WeatherAdvisory
                     {
@@ -198,17 +209,15 @@ public sealed class FarmAutomationService(
                         CreatedAtUtc = utcNow
                     };
                     db.WeatherAdvisories.Add(advisory);
-                    created.Add(advisory);
+                    advisories.Add(advisory);
+                    addedNew = true;
                 }
 
-                // Do not keep repeated snapshots when there are no new advisories.
-                if (created.Count == 0)
-                {
+                // A retry must also send any notifications missed after an advisory was saved.
+                if (!addedNew)
                     db.WeatherForecasts.Remove(snapshot);
-                    continue;
-                }
-
-                await db.SaveChangesAsync(ct);
+                else
+                    await db.SaveChangesAsync(ct);
                 var memberIds = await db.FarmMembers.AsNoTracking()
                     .Where(m => m.FarmId == farm.Id && m.RemovedAtUtc == null)
                     .Select(m => m.UserId).ToListAsync(ct);
@@ -217,10 +226,10 @@ public sealed class FarmAutomationService(
                     .Where(u => memberIds.Contains(u.Id) && u.DisabledAtUtc == null)
                     .Select(u => u.Id).ToListAsync(ct);
 
-                foreach (var advisory in created)
+                foreach (var advisory in advisories)
                 foreach (var userId in recipients)
                 {
-                    var key = $"weather:{advisory.Id:N}";
+                    var key = $"weather:{advisory.Id:N}:severity:{advisory.Severity}";
                     if (await db.Notifications.AnyAsync(n =>
                         n.UserId == userId && n.DeduplicationKey == key, ct)) continue;
 
