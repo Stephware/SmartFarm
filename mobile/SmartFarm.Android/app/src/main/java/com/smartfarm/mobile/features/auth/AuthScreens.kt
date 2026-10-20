@@ -74,11 +74,13 @@ fun RegisterScreen(
 }
 
 @Composable
-fun AccountScreen(state: AuthUiState, onLogout: () -> Unit, onFarms: () -> Unit) {
+fun AccountScreen(state: AuthUiState, onLogout: () -> Unit, onFarms: () -> Unit,
+    onSync: () -> Unit) {
     AuthScaffold("My account") {
         Text("Welcome, ${state.account?.fullName.orEmpty()}")
         Text(state.account?.email.orEmpty())
         Button(onClick = onFarms) { Text("My farms") }
+        OutlinedButton(onClick = onSync) { Text("Offline sync status") }
         OutlinedButton(onClick = onLogout) { Text("Log out") }
     }
 }
