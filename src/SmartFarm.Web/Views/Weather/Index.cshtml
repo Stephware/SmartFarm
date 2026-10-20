@@ -22,7 +22,9 @@
         {
             <li><strong>@day.Date.ToString("yyyy-MM-dd")</strong> —
                 @(day.MinTemperatureC?.ToString("0.#") ?? "—")–@(day.MaxTemperatureC?.ToString("0.#") ?? "—") °C,
-                @(day.RainfallMm?.ToString("0.#") ?? "—") mm rainfall
+                @(day.RainfallMm?.ToString("0.#") ?? "—") mm rainfall,
+                @(day.MaxPrecipitationProbability?.ToString("0.#") ?? "—")% rain chance,
+                @(day.MaxWindKph?.ToString("0.#") ?? "—") km/h wind
                 <small>· @day.Provider · checked @day.RetrievedAtUtc.ToString("yyyy-MM-dd HH:mm") UTC</small>
             </li>
         }
