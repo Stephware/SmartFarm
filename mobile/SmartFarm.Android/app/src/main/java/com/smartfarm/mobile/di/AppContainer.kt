@@ -7,6 +7,7 @@ import com.smartfarm.mobile.BuildConfig
 import com.smartfarm.mobile.data.local.SmartFarmDatabase
 import com.smartfarm.mobile.data.local.OfflineReadCache
 import com.smartfarm.mobile.data.sync.SyncRepository
+import com.smartfarm.mobile.data.sync.LocalPhotoFiles
 import com.smartfarm.mobile.data.remote.api.SyncApi
 import com.smartfarm.mobile.data.remote.api.ApiClientFactory
 import com.smartfarm.mobile.data.remote.api.StatusApi
@@ -28,7 +29,8 @@ class AppContainer(context: Context) {
     private val appContext = context.applicationContext
     val database: SmartFarmDatabase by lazy {
         Room.databaseBuilder(appContext, SmartFarmDatabase::class.java, "smartfarm.db")
-            .addMigrations(SmartFarmDatabase.MIGRATION_1_2, SmartFarmDatabase.MIGRATION_2_3).build()
+            .addMigrations(SmartFarmDatabase.MIGRATION_1_2, SmartFarmDatabase.MIGRATION_2_3,
+                SmartFarmDatabase.MIGRATION_3_4).build()
     }
     val offlineCache: OfflineReadCache by lazy {
         OfflineReadCache(authRepository, database.cachedResponseDao())
@@ -65,7 +67,10 @@ class AppContainer(context: Context) {
 
     val syncRepository: SyncRepository by lazy {
         SyncRepository(authRepository, database.pendingOperationDao(),
-            { retrofit.create(SyncApi::class.java) }, workManager)
+            database.pendingPhotoDao(), LocalPhotoFiles(appContext),
+            { retrofit.create(SyncApi::class.java) },
+            { retrofit.create(MonitoringApi::class.java) },
+            { retrofit.create(InventoryApi::class.java) }, workManager)
     }
 
     val authRepository: AuthRepository by lazy {
