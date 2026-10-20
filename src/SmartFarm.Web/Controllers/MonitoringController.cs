@@ -5,6 +5,7 @@ using SmartFarm.Core.Contracts.Farms;
 using SmartFarm.Core.Contracts.Monitoring;
 using SmartFarm.Core.Interfaces.Crops;
 using SmartFarm.Core.Interfaces.Monitoring;
+using SmartFarm.Core.Interfaces.Tasks;
 using SmartFarm.Infrastructure.Identity;
 using SmartFarm.Web.ViewModels.Monitoring;
 
@@ -18,15 +19,18 @@ public sealed class MonitoringController : Controller
     private readonly UserManager<SmartFarmUser> _users;
     private readonly ICropManagementService _crops;
     private readonly IMonitoringService _monitoring;
+    private readonly IFarmTaskService _tasks;
 
     public MonitoringController(
         UserManager<SmartFarmUser> users,
         ICropManagementService crops,
-        IMonitoringService monitoring)
+        IMonitoringService monitoring,
+        IFarmTaskService tasks)
     {
         _users = users;
         _crops = crops;
         _monitoring = monitoring;
+        _tasks = tasks;
     }
 
     private Guid Actor => Guid.TryParse(_users.GetUserId(User), out var id)
@@ -40,7 +44,8 @@ public sealed class MonitoringController : Controller
             var cycle = await _crops.GetCycleAsync(farmId, cycleId, Actor, ct);
             if (cycle is null) return NotFound();
             return View(new MonitoringWorkspaceViewModel(cycle,
-                await _monitoring.GetAsync(farmId, cycleId, Actor, ct)));
+                await _monitoring.GetAsync(farmId, cycleId, Actor, ct),
+                await _tasks.ListAsync(farmId, Actor, ct)));
         }
         catch (FarmOperationException) { return NotFound(); }
     }
