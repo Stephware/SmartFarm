@@ -116,6 +116,18 @@ public sealed class FarmAutomationTests
     }
 
     [Fact]
+    public void BadWeatherReadingsAreRejectedBeforeDatabaseWrites()
+    {
+        var date = new DateOnly(2026, 10, 20);
+        Assert.True(WeatherRules.IsPlausible(new DailyWeatherForecast(date, 18, 32, 4)));
+        Assert.True(WeatherRules.IsPlausible(new DailyWeatherForecast(date, null, null, null)));
+        Assert.False(WeatherRules.IsPlausible(new DailyWeatherForecast(date, 35, 20, 3)));
+        Assert.False(WeatherRules.IsPlausible(new DailyWeatherForecast(date, 20, 28, -1)));
+        Assert.False(WeatherRules.IsPlausible(new DailyWeatherForecast(date, -120, 28, 1)));
+        Assert.False(WeatherRules.IsPlausible(new DailyWeatherForecast(date, 20, 120, 1)));
+    }
+
+    [Fact]
     public async Task JobsCallTheAutomationService()
     {
         var service = new FakeAutomationService();
