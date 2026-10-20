@@ -18,7 +18,6 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import java.io.ByteArrayOutputStream
 
 data class MonitoringUiState(
     val farmId: String = "",
@@ -82,30 +81,18 @@ class MonitoringViewModel(private val repository: MonitoringRepository,
         sync.queueActivity(farmId, cycleId, ActivityInputDto(kind, notes.trim().ifBlank { null }))
     }
 
-    fun observe(health: Int, growth: String, notes: String) = submit { farmId, cycleId ->
-        sync.queueObservation(farmId, cycleId, ObservationInputDto(health,
-            growth.trim().ifBlank { null }, notes.trim().ifBlank { null }))
+    fun observe(health: Int, growth: String, notes: String,
+        uri: Uri?, resolver: ContentResolver) = submit { farmId, cycleId ->
+        val input = ObservationInputDto(health,
+            growth.trim().ifBlank { null }, notes.trim().ifBlank { null })
+        if (uri is null) sync.queueObservation(farmId, cycleId, input)
+        else sync.queueObservationWithPhoto(farmId, cycleId, input, uri, resolver)
     }
 
+    // Attach to an existing observation even without a connection.
     fun uploadPhoto(observationId: String, uri: Uri, resolver: ContentResolver) =
-        submit(queued = false) { farmId, cycleId ->
-            val mime = requireNotNull(resolver.getType(uri))
-            require(mime in setOf("image/jpeg", "image/png", "image/webp"))
-            val bytes = withContext(Dispatchers.IO) {
-                resolver.openInputStream(uri)?.use { input ->
-                    val bytes = ByteArrayOutputStream()
-                    val block = ByteArray(8192)
-                    while (true) {
-                        val read = input.read(block)
-                        if (read < 0) break
-                        bytes.write(block, 0, read)
-                        require(bytes.size() <= 5 * 1024 * 1024) { "Photo too large" }
-                    }
-                    bytes.toByteArray()
-                } ?: error("Cannot open photo")
-            }
-            require(bytes.isNotEmpty())
-            repository.upload(farmId, cycleId, observationId, bytes, mime)
+        submit { farmId, cycleId ->
+            sync.queuePhoto(farmId, cycleId, observationId, uri, resolver)
         }
 
     fun preview(photoId: String) {
