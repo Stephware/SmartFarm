@@ -1,3 +1,4 @@
+using System.Data;
 using Microsoft.EntityFrameworkCore;
 using SmartFarm.Core.Contracts.Farms;
 using SmartFarm.Core.Contracts.Monitoring;
@@ -80,6 +81,13 @@ public sealed class MonitoringService(
     public async Task<ActivityDetails> RecordActivityAsync(
         Guid farmId, Guid cycleId, Guid actor, RecordActivityInput input, CancellationToken ct = default)
     {
+        // Keep the active-crop check, task completion and activity insert together.
+        // Offline sync already provides its own transaction and must not nest another.
+        var transaction = !unit.HasActiveTransaction
+            ? await unit.BeginTransactionAsync(IsolationLevel.Serializable, ct)
+            : null;
+        try
+        {
         await RequireCycle(farmId, cycleId, actor, true, ct);
         if (!MonitoringRules.ValidActivity(input.ActivityType) || input.Notes?.Length > 1000 ||
             input.FarmTaskId == Guid.Empty)
@@ -126,7 +134,15 @@ public sealed class MonitoringService(
             await tasks.DismissRemindersAsync(linked.Id, now, ct);
         try { await unit.SaveChangesAsync(ct); }
         catch (DbUpdateConcurrencyException) { throw Conflict(); }
+        if (transaction is not null)
+            await transaction.CommitAsync(ct);
         return Map(activity);
+        }
+        finally
+        {
+            if (transaction is not null)
+                await transaction.DisposeAsync();
+        }
     }
 
     public async Task<ObservationDetails> RecordObservationAsync(
