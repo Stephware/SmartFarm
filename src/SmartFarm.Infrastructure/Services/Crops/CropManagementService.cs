@@ -9,6 +9,7 @@ using SmartFarm.Core.Interfaces.Repositories;
 using SmartFarm.Core.Interfaces.Persistence;
 using SmartFarm.Core.Interfaces.Security;
 using SmartFarm.Core.Services.Crops;
+using SmartFarm.Core.Services.Tasks;
 
 namespace SmartFarm.Infrastructure.Services.Crops;
 
@@ -16,6 +17,7 @@ public sealed class CropManagementService(
     ICropTypeRepository cropTypes,
     ICropCycleRepository cycles,
     IPlotRepository plots,
+    IFarmTaskRepository tasks,
     IUnitOfWork unit,
     IFarmAccessService access) : ICropManagementService
 {
@@ -188,6 +190,16 @@ public sealed class CropManagementService(
         cycle.ExpectedHarvestDate = input.ExpectedHarvestDate;
         cycle.HarvestUnit = string.IsNullOrWhiteSpace(input.HarvestUnit) ? type.DefaultHarvestUnit : input.HarvestUnit.Trim();
         cycle.WateringIntervalDays = input.WateringIntervalDays ?? type.DefaultWateringIntervalDays;
+        // Keep existing generated planting assignments aligned when the plan date moves.
+        var changedTasks = await tasks.ListPendingForCycleAsync(cycleId, ct);
+        var changedAt = DateTime.UtcNow;
+        foreach (var task in changedTasks.Where(t => t.TaskType == 1 && t.DedupeKey is not null))
+        {
+            if (task.DueDate == cycle.PlannedPlantingDate) continue;
+            task.DueDate = cycle.PlannedPlantingDate;
+            task.DedupeKey = TaskRules.ScheduleKey(cycleId, 1, cycle.PlannedPlantingDate);
+            await tasks.DismissRemindersAsync(task.Id, changedAt, ct);
+        }
         await Save(ct);
         return await MapLoaded(cycle, farmId, ct);
     }
@@ -226,6 +238,20 @@ public sealed class CropManagementService(
         cycle.TerminationReason = CropCycleRules.IsTerminal(after) ? reason : null;
         if (after == CropCycleStatus.Completed)
             cycle.CompletedAtUtc = DateTime.UtcNow;
+
+        // Crop status and related task changes are saved in one transaction.
+        if (after == CropCycleStatus.Active || CropCycleRules.IsTerminal(after))
+        {
+            var now = DateTime.UtcNow;
+            var openTasks = await tasks.ListPendingForCycleAsync(cycleId, ct);
+            foreach (var task in openTasks)
+            {
+                if (after == CropCycleStatus.Active && task.TaskType != 1) continue;
+                var nextStatus = after == CropCycleStatus.Active ? (byte)1 : (byte)3;
+                if (TaskRules.Close(task, nextStatus, actor, now))
+                    await tasks.DismissRemindersAsync(task.Id, now, ct);
+            }
+        }
 
         // SQL has UX_CropCycle_OneActivePerPlot (filtered Status=1).
         // A second activation is rejected by the unique index, even under races.
