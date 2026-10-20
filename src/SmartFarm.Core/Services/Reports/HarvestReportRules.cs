@@ -22,7 +22,7 @@ public static class HarvestReportRules
             .OrderBy(g => g.CropTypeName).ThenBy(g => g.PlotName)
             .ThenBy(g => g.Unit).ToList();
         var monthly = valid.GroupBy(h => new
-            { Month = h.HarvestedAtUtc.ToString("yyyy-MM"), h.Unit })
+            { Month = h.FarmDate.ToString("yyyy-MM"), h.Unit })
             .Select(g => new HarvestMonthlyTotal(g.Key.Month, g.Key.Unit,
                 g.Sum(h => h.Quantity), g.Count()))
             .OrderByDescending(g => g.Month).ThenBy(g => g.Unit).ToList();
