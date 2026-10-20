@@ -11,7 +11,8 @@ public static class HarvestCsv
     public static string Cell(string? value)
     {
         var text = value ?? "";
-        if (text.Length > 0 && (text[0] is '=' or '+' or '-' or '@' or '\t' or '\r' or '\n'))
+        if (text.TrimStart().FirstOrDefault() is '=' or '+' or '-' or '@' ||
+            text.Length > 0 && text[0] is '\t' or '\r' or '\n')
             text = "'" + text;
         return "\"" + text.Replace("\"", "\"\"") + "\"";
     }
