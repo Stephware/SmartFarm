@@ -1,11 +1,71 @@
-/* Run in DBeaver with SmartFarmDB selected. */
-SELECT DB_NAME() AS ConnectedDatabase;
-SELECT COUNT(*) AS TotalTables FROM sys.tables WHERE schema_id = SCHEMA_ID(N'dbo');
--- Expected TotalTables = 23
+/* Read-only SmartFarmDB verification. Optional EF baseline history is ignored. */
+SET NOCOUNT ON;
+
+IF DB_NAME() <> N'SmartFarmDB'
+    THROW 50010, 'Select SmartFarmDB before checking its schema.', 1;
+
+-- Check all SmartFarm and Identity objects without editing existing data.
+IF EXISTS (
+    SELECT 1 FROM sys.tables
+    WHERE is_ms_shipped = 0 AND schema_id <> SCHEMA_ID(N'dbo')
+)
+    THROW 50011, 'Unexpected user tables outside dbo.', 1;
+
+IF (SELECT COUNT(*) FROM sys.tables
+    WHERE schema_id = SCHEMA_ID(N'dbo') AND name <> N'__EFMigrationsHistory') <> 23
+    THROW 50012, 'Expected 23 SmartFarm and Identity tables.', 1;
+
+IF (SELECT COUNT(*) FROM sys.indexes AS i
+    JOIN sys.tables AS t ON t.object_id = i.object_id
+    WHERE t.schema_id = SCHEMA_ID(N'dbo') AND t.name <> N'__EFMigrationsHistory'
+        AND i.is_primary_key = 0 AND i.name IS NOT NULL) <> 45
+    THROW 50013, 'Expected 45 application indexes.', 1;
+
+IF (SELECT COUNT(*) FROM sys.foreign_keys AS fk
+    JOIN sys.tables AS t ON t.object_id = fk.parent_object_id
+    WHERE t.schema_id = SCHEMA_ID(N'dbo') AND t.name <> N'__EFMigrationsHistory') <> 39
+    THROW 50014, 'Expected 39 foreign keys.', 1;
+
+IF (SELECT COUNT(*) FROM sys.check_constraints AS ck
+    JOIN sys.tables AS t ON t.object_id = ck.parent_object_id
+    WHERE t.schema_id = SCHEMA_ID(N'dbo') AND t.name <> N'__EFMigrationsHistory') <> 36
+    THROW 50015, 'Expected 36 check constraints.', 1;
+
+IF (SELECT COUNT(*) FROM sys.columns AS c
+    JOIN sys.tables AS t ON t.object_id = c.object_id
+    WHERE t.schema_id = SCHEMA_ID(N'dbo') AND t.name <> N'__EFMigrationsHistory'
+        AND c.system_type_id = TYPE_ID(N'timestamp')) <> 5
+    THROW 50016, 'Expected five SQL rowversion columns.', 1;
+
+-- These unique indexes protect important business rules and retry safety.
+IF EXISTS (
+    SELECT 1
+    FROM (VALUES
+        (N'FarmMember', N'UX_FarmMember_Active', 1),
+        (N'CropCycle', N'UX_CropCycle_OneActivePerPlot', 1),
+        (N'FarmTask', N'UX_FarmTask_Dedupe', 1),
+        (N'InventoryTransaction', N'UX_InventoryTransaction_Reverses', 1),
+        (N'Notification', N'UX_Notification_User_Dedupe', 0),
+        (N'WeatherAdvisory', N'UX_WeatherAdvisory_Daily', 0)
+    ) AS expected(TableName, IndexName, MustBeFiltered)
+    LEFT JOIN sys.tables AS t ON t.schema_id = SCHEMA_ID(N'dbo')
+        AND t.name = expected.TableName
+    LEFT JOIN sys.indexes AS i ON i.object_id = t.object_id
+        AND i.name = expected.IndexName
+    WHERE i.index_id IS NULL OR i.is_unique <> 1
+        OR (expected.MustBeFiltered = 1 AND i.has_filter <> 1)
+)
+    THROW 50017, 'A required unique business index is missing or incorrectly configured.', 1;
+
+SELECT N'PASS' AS SchemaCheck, DB_NAME() AS ConnectedDatabase,
+       23 AS AppAndIdentityTables, 45 AS AppIndexes,
+       39 AS ForeignKeys, 36 AS CheckConstraints, 5 AS RowVersionColumns;
+
 SELECT name AS TableName
 FROM sys.tables
 WHERE schema_id = SCHEMA_ID(N'dbo')
 ORDER BY name;
+
 SELECT fk.name AS ForeignKeyName,
        OBJECT_NAME(fk.parent_object_id) AS ChildTable,
        OBJECT_NAME(fk.referenced_object_id) AS ParentTable
