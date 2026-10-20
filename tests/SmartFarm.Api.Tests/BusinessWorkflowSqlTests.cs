@@ -1,0 +1,185 @@
+using System.Net;
+using System.Net.Http.Headers;
+using System.Net.Http.Json;
+using System.Text.Json;
+using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Mvc.Testing;
+using Microsoft.Extensions.Configuration;
+using SmartFarm.Core.Contracts.Crops;
+using SmartFarm.Core.Contracts.Farms;
+using SmartFarm.Core.Contracts.Harvests;
+using SmartFarm.Core.Contracts.Inventory;
+using SmartFarm.Core.Contracts.Monitoring;
+using SmartFarm.Core.Enums;
+using Xunit;
+
+namespace SmartFarm.Api.Tests;
+
+// Set SMARTFARM_TEST_CONNECTION only for a separate, disposable SQL Server
+// database initialized with SmartFarm's existing SQL scripts.
+public sealed class BusinessWorkflowSqlTests
+{
+    [Fact]
+    public async Task OwnerCanManageFarmToHarvestWorkflow_WhenTestDatabaseIsConfigured()
+    {
+        var connection = Environment.GetEnvironmentVariable("SMARTFARM_TEST_CONNECTION");
+        if (string.IsNullOrWhiteSpace(connection))
+            return; // Offline test runs do not require a SQL Server instance.
+
+        using var factory = new WebApplicationFactory<Program>().WithWebHostBuilder(builder =>
+            builder.ConfigureAppConfiguration((_, config) =>
+                config.AddInMemoryCollection(new Dictionary<string, string?>
+                {
+                    ["ConnectionStrings:SmartFarm"] = connection
+                })));
+        using var client = factory.CreateClient();
+        var suffix = Guid.NewGuid().ToString("N")[..10];
+        var password = "SmartFarmTest2026!";
+        var email = $"phase8-{suffix}@example.test";
+
+        await RegisterAsync(client, email, password);
+        await LoginAsync(client, email, password);
+
+        var createdFarm = await PostAsync<FarmDetails>(client, "/api/farms", new FarmInput
+        {
+            Name = "Phase 8 Farm " + suffix,
+            LocationText = "Test location",
+            TimeZoneId = "Asia/Manila"
+        });
+        var farm = $"/api/farms/{createdFarm.Id}";
+        Assert.Equal("Owner", createdFarm.Role);
+
+        var plot = await PostAsync<PlotDetails>(client, farm + "/plots", new PlotInput
+        {
+            Name = "Test Plot", AreaSqMeters = 100.00m
+        });
+        Assert.Equal(createdFarm.Id, plot.FarmId);
+
+        var type = await PostAsync<CropTypeDetails>(client, farm + "/crop-types", new CropTypeInput
+        {
+            Name = "Phase 8 Crop " + suffix,
+            DefaultHarvestUnit = "kg",
+            DefaultGrowthDays = 60,
+            DefaultWateringIntervalDays = 3
+        });
+        var planting = DateOnly.FromDateTime(DateTime.UtcNow);
+        var planned = await PostAsync<CropCycleDetails>(
+            client, farm + $"/plots/{plot.Id}/crop-cycles", new CropCyclePlanInput
+            {
+                CropTypeId = type.Id,
+                PlannedPlantingDate = planting,
+                ExpectedHarvestDate = planting.AddDays(60),
+                WateringIntervalDays = 3
+            });
+        var cycle = farm + $"/crop-cycles/{planned.Id}";
+        var active = await PostAsync<CropCycleDetails>(client, cycle + "/transitions",
+            new CropCycleTransitionInput
+            {
+                RowVersion = planned.RowVersion,
+                Status = CropCycleStatus.Active,
+                PlantedDate = planting
+            });
+        Assert.Equal(CropCycleStatus.Active, active.Status);
+
+        var monitoring = cycle + "/monitoring";
+        var activity = await PostAsync<ActivityDetails>(client, monitoring + "/activities",
+            new RecordActivityInput { ActivityType = 1, Notes = "Watered" });
+        await PostAsync<ObservationDetails>(client, monitoring + "/observations",
+            new RecordObservationInput { HealthStatus = 1, GrowthStage = "Growing" });
+        var observations = await GetAsync<MonitoringDetails>(client, monitoring);
+        Assert.Single(observations.Activities);
+        Assert.Single(observations.Observations);
+
+        var inventory = farm + "/inventory";
+        var item = await PostAsync<InventoryItemDetails>(client, inventory, new InventoryItemInput
+        {
+            Name = "Test Fertilizer", Category = InventoryCategory.Fertilizers,
+            Unit = "kg", InitialQuantity = 5m, ReorderLevel = 2m
+        });
+        var itemPath = inventory + $"/{item.Id}";
+        item = await PostAsync<InventoryItemDetails>(client, itemPath + "/transactions",
+            new InventoryMovementInput
+            {
+                TransactionType = StockTransactionType.Receipt,
+                QuantityChange = 2m,
+                RowVersion = item.RowVersion
+            });
+        item = await PostAsync<InventoryItemDetails>(client, itemPath + "/transactions",
+            new InventoryMovementInput
+            {
+                TransactionType = StockTransactionType.Consumption,
+                QuantityChange = -1m,
+                CropActivityId = activity.Id,
+                RowVersion = item.RowVersion
+            });
+        Assert.Equal(6m, item.QuantityOnHand);
+        var movements = await GetAsync<List<InventoryTransactionDetails>>(
+            client, itemPath + "/transactions");
+        Assert.Equal(3, movements.Count); // Opening + receipt + consumption.
+
+        var harvests = cycle + "/harvests";
+        var first = await PostAsync<HarvestEntry>(client, harvests,
+            new RecordHarvestInput { Quantity = 2m });
+        await PostAsync<HarvestEntry>(client, harvests,
+            new RecordHarvestInput { Quantity = 1m });
+        var beforeVoid = await GetAsync<HarvestOverview>(client, harvests);
+        Assert.Equal(3m, beforeVoid.TotalQuantity);
+        Assert.Equal(2, beforeVoid.ValidHarvestCount);
+
+        await PostAsync<HarvestEntry>(client, harvests + $"/{first.Id}/void",
+            new VoidHarvestInput { Reason = "Duplicate entry" });
+        var afterVoid = await GetAsync<HarvestOverview>(client, harvests);
+        Assert.Equal(1m, afterVoid.TotalQuantity);
+        Assert.Equal(1, afterVoid.ValidHarvestCount);
+        Assert.Equal(1, afterVoid.VoidedHarvestCount);
+
+        // A second account must not access another owner's farm or harvest.
+        using var other = factory.CreateClient();
+        var otherEmail = $"phase8-other-{suffix}@example.test";
+        await RegisterAsync(other, otherEmail, password);
+        await LoginAsync(other, otherEmail, password);
+        using var restrictedFarm = await other.GetAsync(farm);
+        using var restrictedHarvest = await other.GetAsync(harvests);
+        Assert.Equal(HttpStatusCode.NotFound, restrictedFarm.StatusCode);
+        Assert.Equal(HttpStatusCode.NotFound, restrictedHarvest.StatusCode);
+    }
+
+    private static async Task RegisterAsync(HttpClient client, string email, string password)
+    {
+        using var response = await client.PostAsJsonAsync("/api/auth/register", new
+        {
+            FullName = "Phase 8 Tester",
+            Email = email,
+            Password = password,
+            ConfirmPassword = password
+        });
+        Assert.Equal(HttpStatusCode.Created, response.StatusCode);
+    }
+
+    private static async Task LoginAsync(HttpClient client, string email, string password)
+    {
+        using var response = await client.PostAsJsonAsync("/api/auth/login",
+            new { Email = email, Password = password });
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        using var json = JsonDocument.Parse(await response.Content.ReadAsStringAsync());
+        var token = json.RootElement.GetProperty("accessToken").GetString();
+        Assert.False(string.IsNullOrWhiteSpace(token));
+        client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
+    }
+
+    private static async Task<T> PostAsync<T>(HttpClient client, string path, object body)
+    {
+        using var response = await client.PostAsJsonAsync(path, body);
+        Assert.True(response.IsSuccessStatusCode,
+            $"{path}: {(int)response.StatusCode} {await response.Content.ReadAsStringAsync()}");
+        return (await response.Content.ReadFromJsonAsync<T>())!;
+    }
+
+    private static async Task<T> GetAsync<T>(HttpClient client, string path)
+    {
+        using var response = await client.GetAsync(path);
+        Assert.True(response.IsSuccessStatusCode,
+            $"{path}: {(int)response.StatusCode} {await response.Content.ReadAsStringAsync()}");
+        return (await response.Content.ReadFromJsonAsync<T>())!;
+    }
+}
