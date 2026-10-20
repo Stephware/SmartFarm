@@ -20,12 +20,23 @@ namespace SmartFarm.Auth.Tests;
 // Check MVC-to-API paths without needing a running SQL Server.
 public sealed class BusinessClientRouteTests : IClassFixture<WebApplicationFactory<Program>>
 {
-    private static readonly Guid FarmId = Guid.Parse("11111111-1111-1111-1111-111111111111");
-    private static readonly Guid PlotId = Guid.Parse("22222222-2222-2222-2222-222222222222");
-    private static readonly Guid CycleId = Guid.Parse("33333333-3333-3333-3333-333333333333");
-    private static readonly Guid ItemId = Guid.Parse("44444444-4444-4444-4444-444444444444");
-    private static readonly Guid TransactionId = Guid.Parse("55555555-5555-5555-5555-555555555555");
-    private static readonly Guid HarvestId = Guid.Parse("66666666-6666-6666-6666-666666666666");
+    private static readonly Guid FarmId = Guid.NewGuid();
+    private static readonly Guid PlotId = Guid.NewGuid();
+    private static readonly Guid MemberId = Guid.NewGuid();
+    private static readonly Guid CycleId = Guid.NewGuid();
+    private static readonly Guid ObservationId = Guid.NewGuid();
+    private static readonly Guid ItemId = Guid.NewGuid();
+    private static readonly Guid TransactionId = Guid.NewGuid();
+    private static readonly Guid HarvestId = Guid.NewGuid();
+
+    private static string FarmRoute => $"api/farms/{FarmId}";
+    private static string PlotRoute => $"{FarmRoute}/plots/{PlotId}";
+    private static string CropRoute => $"{FarmRoute}/crop-cycles/{CycleId}";
+    private static string MonitoringRoute => $"{CropRoute}/monitoring";
+    private static string InventoryRoute => $"{FarmRoute}/inventory";
+    private static string ItemRoute => $"{InventoryRoute}/{ItemId}";
+    private static string HarvestRoute => $"{CropRoute}/harvests";
+
     private readonly WebApplicationFactory<Program> _factory;
 
     public BusinessClientRouteTests(WebApplicationFactory<Program> factory) => _factory = factory;
@@ -58,102 +69,97 @@ public sealed class BusinessClientRouteTests : IClassFixture<WebApplicationFacto
     [Fact]
     public async Task FarmPlotAndMembershipRequestsUseExpectedRoutes()
     {
-        var farm = $"api/farms/{FarmId}";
         await VerifyAsync(HttpMethod.Get, "api/farms",
             (api, actor) => new FarmApiService(api).ListAsync(actor));
         await VerifyAsync(HttpMethod.Post, "api/farms",
             (api, actor) => new FarmApiService(api).CreateAsync(actor, new FarmInput()));
-        await VerifyAsync(HttpMethod.Put, farm,
+        await VerifyAsync(HttpMethod.Put, FarmRoute,
             (api, actor) => new FarmApiService(api).UpdateAsync(FarmId, actor, new FarmInput()));
-        await VerifyAsync(HttpMethod.Delete, farm,
+        await VerifyAsync(HttpMethod.Delete, FarmRoute,
             (api, actor) => new FarmApiService(api).ArchiveAsync(FarmId, actor, "version"));
-        await VerifyAsync(HttpMethod.Get, farm + "/plots",
+        await VerifyAsync(HttpMethod.Get, FarmRoute + "/plots",
             (api, actor) => new FarmApiService(api).ListPlotsAsync(FarmId, actor));
-        await VerifyAsync(HttpMethod.Post, farm + "/plots",
+        await VerifyAsync(HttpMethod.Post, FarmRoute + "/plots",
             (api, actor) => new FarmApiService(api).CreatePlotAsync(FarmId, actor, new PlotInput()));
-        await VerifyAsync(HttpMethod.Put, farm + $"/plots/{PlotId}",
+        await VerifyAsync(HttpMethod.Put, PlotRoute,
             (api, actor) => new FarmApiService(api).UpdatePlotAsync(FarmId, PlotId, actor, new PlotInput()));
-        await VerifyAsync(HttpMethod.Delete, farm + $"/plots/{PlotId}",
+        await VerifyAsync(HttpMethod.Delete, PlotRoute,
             (api, actor) => new FarmApiService(api).ArchivePlotAsync(FarmId, PlotId, actor, "version"));
-        await VerifyAsync(HttpMethod.Get, farm + "/members",
+        await VerifyAsync(HttpMethod.Get, FarmRoute + "/members",
             (api, actor) => new FarmApiService(api).MembersAsync(FarmId, actor));
-        await VerifyAsync(HttpMethod.Post, farm + "/members/invitations",
+        await VerifyAsync(HttpMethod.Post, FarmRoute + "/members/invitations",
             (api, actor) => new FarmApiService(api).CreateInvitationAsync(FarmId, actor, new InviteMemberInput()));
         await VerifyAsync(HttpMethod.Post, "api/farm-invitations/accept",
             (api, actor) => new FarmApiService(api).AcceptInvitationAsync(actor, "token"));
-        await VerifyAsync(HttpMethod.Put, farm + $"/members/{PlotId}",
-            (api, actor) => new FarmApiService(api).ChangeMemberRoleAsync(FarmId, PlotId, actor, 1));
-        await VerifyAsync(HttpMethod.Delete, farm + $"/members/{PlotId}",
-            (api, actor) => new FarmApiService(api).RemoveMemberAsync(FarmId, PlotId, actor));
+        await VerifyAsync(HttpMethod.Put, FarmRoute + $"/members/{MemberId}",
+            (api, actor) => new FarmApiService(api).ChangeMemberRoleAsync(FarmId, MemberId, actor, 1));
+        await VerifyAsync(HttpMethod.Delete, FarmRoute + $"/members/{MemberId}",
+            (api, actor) => new FarmApiService(api).RemoveMemberAsync(FarmId, MemberId, actor));
     }
 
     [Fact]
     public async Task CropRequestsUseExpectedRoutes()
     {
-        var farm = $"api/farms/{FarmId}";
-        await VerifyAsync(HttpMethod.Get, farm + "/crop-types",
+        await VerifyAsync(HttpMethod.Get, FarmRoute + "/crop-types",
             (api, actor) => new CropApiService(api).ListCropTypesAsync(FarmId, actor));
-        await VerifyAsync(HttpMethod.Post, farm + "/crop-types",
+        await VerifyAsync(HttpMethod.Post, FarmRoute + "/crop-types",
             (api, actor) => new CropApiService(api).CreateCropTypeAsync(FarmId, actor, new CropTypeInput()));
-        await VerifyAsync(HttpMethod.Get, farm + "/crop-cycles",
+        await VerifyAsync(HttpMethod.Get, FarmRoute + "/crop-cycles",
             (api, actor) => new CropApiService(api).ListCyclesAsync(FarmId, actor));
-        await VerifyAsync(HttpMethod.Post, farm + $"/plots/{PlotId}/crop-cycles",
+        await VerifyAsync(HttpMethod.Post, PlotRoute + "/crop-cycles",
             (api, actor) => new CropApiService(api).PlanAsync(FarmId, PlotId, actor, new CropCyclePlanInput()));
-        await VerifyAsync(HttpMethod.Put, farm + $"/crop-cycles/{CycleId}",
+        await VerifyAsync(HttpMethod.Put, CropRoute,
             (api, actor) => new CropApiService(api).UpdatePlanAsync(FarmId, CycleId, actor, new CropCyclePlanInput()));
-        await VerifyAsync(HttpMethod.Post, farm + $"/crop-cycles/{CycleId}/transitions",
+        await VerifyAsync(HttpMethod.Post, CropRoute + "/transitions",
             (api, actor) => new CropApiService(api).TransitionAsync(FarmId, CycleId, actor, new CropCycleTransitionInput()));
     }
 
     [Fact]
     public async Task MonitoringRequestsUseExpectedRoutes()
     {
-        var path = $"api/farms/{FarmId}/crop-cycles/{CycleId}/monitoring";
-        await VerifyAsync(HttpMethod.Get, path,
+        await VerifyAsync(HttpMethod.Get, MonitoringRoute,
             (api, actor) => new MonitoringApiService(api).GetAsync(FarmId, CycleId, actor));
-        await VerifyAsync(HttpMethod.Post, path + "/activities",
+        await VerifyAsync(HttpMethod.Post, MonitoringRoute + "/activities",
             (api, actor) => new MonitoringApiService(api).RecordActivityAsync(FarmId, CycleId, actor, new RecordActivityInput()));
-        await VerifyAsync(HttpMethod.Post, path + "/observations",
+        await VerifyAsync(HttpMethod.Post, MonitoringRoute + "/observations",
             (api, actor) => new MonitoringApiService(api).RecordObservationAsync(FarmId, CycleId, actor, new RecordObservationInput()));
         using var photo = new MemoryStream(new byte[] { 1, 2, 3 });
-        await VerifyAsync(HttpMethod.Post, path + $"/observations/{PlotId}/photos",
+        await VerifyAsync(HttpMethod.Post, MonitoringRoute + $"/observations/{ObservationId}/photos",
             (api, actor) => new MonitoringApiService(api).AddPhotoAsync(
-                FarmId, CycleId, PlotId, actor, photo, photo.Length, "image/png"));
-        await VerifyAsync(HttpMethod.Get, path + $"/photos/{PlotId}",
-            (api, actor) => new MonitoringApiService(api).OpenPhotoAsync(FarmId, CycleId, PlotId, actor));
+                FarmId, CycleId, ObservationId, actor, photo, photo.Length, "image/png"));
+        await VerifyAsync(HttpMethod.Get, MonitoringRoute + $"/photos/{ObservationId}",
+            (api, actor) => new MonitoringApiService(api).OpenPhotoAsync(FarmId, CycleId, ObservationId, actor));
     }
 
     [Fact]
     public async Task InventoryRequestsUseExpectedRoutes()
     {
-        var path = $"api/farms/{FarmId}/inventory";
-        await VerifyAsync(HttpMethod.Get, path,
+        await VerifyAsync(HttpMethod.Get, InventoryRoute,
             (api, actor) => new InventoryApiService(api).ListAsync(FarmId, actor));
-        await VerifyAsync(HttpMethod.Post, path,
+        await VerifyAsync(HttpMethod.Post, InventoryRoute,
             (api, actor) => new InventoryApiService(api).CreateAsync(FarmId, actor, new InventoryItemInput()));
-        await VerifyAsync(HttpMethod.Put, path + $"/{ItemId}",
+        await VerifyAsync(HttpMethod.Put, ItemRoute,
             (api, actor) => new InventoryApiService(api).UpdateAsync(FarmId, ItemId, actor, new InventoryItemInput()));
-        await VerifyAsync(HttpMethod.Delete, path + $"/{ItemId}",
+        await VerifyAsync(HttpMethod.Delete, ItemRoute,
             (api, actor) => new InventoryApiService(api).ArchiveAsync(FarmId, ItemId, actor, "version"));
-        await VerifyAsync(HttpMethod.Get, path + $"/{ItemId}/transactions",
+        await VerifyAsync(HttpMethod.Get, ItemRoute + "/transactions",
             (api, actor) => new InventoryApiService(api).HistoryAsync(FarmId, ItemId, actor));
-        await VerifyAsync(HttpMethod.Post, path + $"/{ItemId}/transactions",
+        await VerifyAsync(HttpMethod.Post, ItemRoute + "/transactions",
             (api, actor) => new InventoryApiService(api).PostAsync(FarmId, ItemId, actor, new InventoryMovementInput()));
-        await VerifyAsync(HttpMethod.Post, path + $"/{ItemId}/transactions/{TransactionId}/reverse",
+        await VerifyAsync(HttpMethod.Post, ItemRoute + $"/transactions/{TransactionId}/reverse",
             (api, actor) => new InventoryApiService(api).ReverseAsync(FarmId, ItemId, TransactionId, actor, new InventoryReversalInput()));
-        await VerifyAsync(HttpMethod.Get, path + "/activities",
+        await VerifyAsync(HttpMethod.Get, InventoryRoute + "/activities",
             (api, actor) => new InventoryApiService(api).ActivityOptionsAsync(FarmId, actor));
     }
 
     [Fact]
     public async Task HarvestRequestsUseExpectedRoutes()
     {
-        var path = $"api/farms/{FarmId}/crop-cycles/{CycleId}/harvests";
-        await VerifyAsync(HttpMethod.Get, path,
+        await VerifyAsync(HttpMethod.Get, HarvestRoute,
             (api, actor) => new HarvestApiService(api).GetAsync(FarmId, CycleId, actor));
-        await VerifyAsync(HttpMethod.Post, path,
+        await VerifyAsync(HttpMethod.Post, HarvestRoute,
             (api, actor) => new HarvestApiService(api).RecordAsync(FarmId, CycleId, actor, new RecordHarvestInput()));
-        await VerifyAsync(HttpMethod.Post, path + $"/{HarvestId}/void",
+        await VerifyAsync(HttpMethod.Post, HarvestRoute + $"/{HarvestId}/void",
             (api, actor) => new HarvestApiService(api).VoidAsync(FarmId, CycleId, HarvestId, actor, new VoidHarvestInput()));
     }
 
