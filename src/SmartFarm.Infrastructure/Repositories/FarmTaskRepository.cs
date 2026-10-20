@@ -17,13 +17,38 @@ public sealed class FarmTaskRepository(SmartFarmDbContext db) : IFarmTaskReposit
 
     public Task<bool> CropBelongsToFarmAsync(Guid farmId, Guid cycleId, CancellationToken ct = default) =>
         db.CropCycles.AsNoTracking().AnyAsync(c => c.Id == cycleId &&
-            db.Plots.Any(p => p.Id == c.PlotId && p.FarmId == farmId && p.ArchivedAtUtc == null), ct);
+            db.Plots.Any(p => p.Id == c.PlotId && p.FarmId == farmId && p.ArchivedAtUtc == null) && (c.Status == 0 || c.Status == 1), ct);
 
     public Task<bool> IsAssignableAsync(Guid farmId, Guid userId, CancellationToken ct = default) =>
         db.Farms.AsNoTracking().AnyAsync(f => f.Id == farmId && f.ArchivedAtUtc == null &&
             ((f.OwnerUserId == userId && db.Users.Any(u => u.Id == userId && u.DisabledAtUtc == null)) ||
              db.FarmMembers.Any(m => m.FarmId == farmId && m.UserId == userId &&
                  m.RemovedAtUtc == null && db.Users.Any(u => u.Id == userId && u.DisabledAtUtc == null))), ct);
+
+    public async Task<IReadOnlyList<FarmTask>> ListPendingForCycleAsync(
+        Guid cycleId, CancellationToken ct = default) =>
+        await db.FarmTasks.Where(t => t.CropCycleId == cycleId && t.Status == 0)
+            .ToListAsync(ct);
+
+    public Task<FarmTask?> FindDueAsync(Guid farmId, Guid cycleId, byte taskType,
+        DateOnly today, Guid actor, bool mayManage, CancellationToken ct = default) =>
+        db.FarmTasks.Where(t => t.FarmId == farmId && t.CropCycleId == cycleId &&
+            t.TaskType == taskType && t.Status == 0 && t.DueDate <= today &&
+            (mayManage || t.AssignedToUserId == actor))
+            .OrderBy(t => t.DueDate).ThenBy(t => t.CreatedAtUtc)
+            .FirstOrDefaultAsync(ct);
+
+    public Task<string?> GetFarmTimeZoneAsync(Guid farmId, CancellationToken ct = default) =>
+        db.Farms.AsNoTracking().Where(f => f.Id == farmId && f.ArchivedAtUtc == null)
+            .Select(f => f.TimeZoneId).FirstOrDefaultAsync(ct);
+
+    public async Task DismissRemindersAsync(Guid taskId, DateTime when, CancellationToken ct = default)
+    {
+        var unread = await db.Notifications.Where(n => n.FarmTaskId == taskId &&
+            n.ReadAtUtc == null).ToListAsync(ct);
+        foreach (var notice in unread)
+            notice.ReadAtUtc = when;
+    }
 
     public void Add(FarmTask task) => db.FarmTasks.Add(task);
 
