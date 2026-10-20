@@ -49,10 +49,14 @@ private fun Progress(state: FarmUiState) {
 }
 
 @Composable
-fun FarmListScreen(state: FarmUiState, onOpen: (String) -> Unit, onCreate: (String, String) -> Unit,
+fun FarmListScreen(state: FarmUiState, onOpen: (String) -> Unit,
+    onCreate: (String, String, String, String, String) -> Unit,
     onAccept: (String) -> Unit, onBack: () -> Unit) {
     var name by rememberSaveable { mutableStateOf("") }
     var location by rememberSaveable { mutableStateOf("") }
+    var zone by rememberSaveable { mutableStateOf("Asia/Manila") }
+    var latitude by rememberSaveable { mutableStateOf("") }
+    var longitude by rememberSaveable { mutableStateOf("") }
     var invitation by remember { mutableStateOf("") }
     FarmPage("My farms") {
         OutlinedButton(onClick = onBack) { Text("My account") }
@@ -67,8 +71,19 @@ fun FarmListScreen(state: FarmUiState, onOpen: (String) -> Unit, onCreate: (Stri
         Text("Create farm", style = MaterialTheme.typography.titleMedium)
         OutlinedTextField(name, { name = it }, label = { Text("Name") }, modifier = Modifier.fillMaxWidth())
         OutlinedTextField(location, { location = it }, label = { Text("Location") }, modifier = Modifier.fillMaxWidth())
-        Button(onClick = { onCreate(name, location) },
-            enabled = !state.loading && !state.offline && name.isNotBlank() && location.isNotBlank()) { Text("Create") }
+        Text("Coordinates are optional, but required for weather advisories.")
+        OutlinedTextField(zone, { zone = it }, label = { Text("Time zone (e.g., Asia/Manila)") },
+            modifier = Modifier.fillMaxWidth())
+        OutlinedTextField(latitude, { latitude = it }, label = { Text("Latitude") },
+            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
+            modifier = Modifier.fillMaxWidth())
+        OutlinedTextField(longitude, { longitude = it }, label = { Text("Longitude") },
+            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
+            modifier = Modifier.fillMaxWidth())
+        Button(onClick = { onCreate(name, location, zone, latitude, longitude) },
+            enabled = !state.loading && !state.offline && name.isNotBlank() &&
+                location.isNotBlank() && zone.isNotBlank() &&
+                (latitude.isBlank() == longitude.isBlank())) { Text("Create") }
         HorizontalDivider()
         Text("Accept an invitation", style = MaterialTheme.typography.titleMedium)
         OutlinedTextField(invitation, { invitation = it }, label = { Text("Invitation token") },
@@ -80,7 +95,7 @@ fun FarmListScreen(state: FarmUiState, onOpen: (String) -> Unit, onCreate: (Stri
 
 @Composable
 fun FarmDetailScreen(state: FarmUiState, onBack: () -> Unit,
-    onSaveFarm: (String, String) -> Unit, onArchiveFarm: () -> Unit,
+    onSaveFarm: (String, String, String, String, String) -> Unit, onArchiveFarm: () -> Unit,
     onAddPlot: (String, String) -> Unit, onSavePlot: (PlotDto, String, String) -> Unit,
     onArchivePlot: (PlotDto) -> Unit,
     onCrops: () -> Unit,
@@ -92,6 +107,9 @@ fun FarmDetailScreen(state: FarmUiState, onBack: () -> Unit,
     val isOwner = !state.offline && farm?.role == "Owner"
     var name by rememberSaveable(farm?.id) { mutableStateOf(farm?.name.orEmpty()) }
     var location by rememberSaveable(farm?.id) { mutableStateOf(farm?.locationText.orEmpty()) }
+    var zone by rememberSaveable(farm?.id) { mutableStateOf(farm?.timeZoneId ?: "Asia/Manila") }
+    var latitude by rememberSaveable(farm?.id) { mutableStateOf(farm?.latitude?.toPlainString().orEmpty()) }
+    var longitude by rememberSaveable(farm?.id) { mutableStateOf(farm?.longitude?.toPlainString().orEmpty()) }
     var plotName by rememberSaveable { mutableStateOf("") }
     var plotArea by rememberSaveable { mutableStateOf("") }
     var inviteEmail by rememberSaveable { mutableStateOf("") }
@@ -110,7 +128,18 @@ fun FarmDetailScreen(state: FarmUiState, onBack: () -> Unit,
                     modifier = Modifier.fillMaxWidth())
                 OutlinedTextField(location, { location = it }, label = { Text("Location") },
                     modifier = Modifier.fillMaxWidth())
-                Button(onClick = { onSaveFarm(name, location) }, enabled = !state.loading) { Text("Save farm") }
+                Text("Weather checks need both coordinates and a valid time zone.")
+                OutlinedTextField(zone, { zone = it }, label = { Text("Time zone") },
+                    modifier = Modifier.fillMaxWidth())
+                OutlinedTextField(latitude, { latitude = it }, label = { Text("Latitude") },
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
+                    modifier = Modifier.fillMaxWidth())
+                OutlinedTextField(longitude, { longitude = it }, label = { Text("Longitude") },
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
+                    modifier = Modifier.fillMaxWidth())
+                Button(onClick = { onSaveFarm(name, location, zone, latitude, longitude) },
+                    enabled = !state.loading && zone.isNotBlank() &&
+                        (latitude.isBlank() == longitude.isBlank())) { Text("Save farm") }
                 if (isOwner) OutlinedButton(onClick = onArchiveFarm, enabled = !state.loading) {
                     Text("Archive farm")
                 }
