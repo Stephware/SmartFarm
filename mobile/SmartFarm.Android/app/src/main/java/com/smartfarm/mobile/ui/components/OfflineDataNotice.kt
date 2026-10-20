@@ -3,7 +3,6 @@ package com.smartfarm.mobile.ui.components
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.graphics.Color
 import java.time.Instant
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
