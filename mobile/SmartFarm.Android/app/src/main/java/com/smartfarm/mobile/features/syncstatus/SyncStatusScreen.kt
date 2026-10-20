@@ -22,6 +22,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.google.gson.JsonParser
 import com.smartfarm.mobile.data.local.entity.PendingOperation
+import com.smartfarm.mobile.data.local.entity.PendingPhoto
+import com.smartfarm.mobile.data.sync.StockRetryPreview
 
 private fun details(operation: PendingOperation): String = try {
     val json = JsonParser.parseString(operation.payloadJson).asJsonObject
@@ -46,36 +48,116 @@ private fun details(operation: PendingOperation): String = try {
 }
 
 @Composable
-fun SyncStatusScreen(operations: List<PendingOperation>, onBack: () -> Unit,
-    onRetry: (String) -> Unit, onDiscard: (String) -> Unit, onSyncNow: () -> Unit) {
+fun SyncStatusScreen(
+    operations: List<PendingOperation>,
+    photos: List<PendingPhoto>,
+    stockPreview: StockRetryPreview?,
+    error: String?,
+    onBack: () -> Unit,
+    onRetry: (String) -> Unit,
+    onDiscard: (String) -> Unit,
+    onRetryPhoto: (String) -> Unit,
+    onDiscardPhoto: (String) -> Unit,
+    onReviewStock: (String) -> Unit,
+    onApproveStock: () -> Unit,
+    onCancelStock: () -> Unit,
+    onSyncNow: () -> Unit
+) {
     var discard by remember { mutableStateOf<PendingOperation?>(null) }
+    var discardPhoto by remember { mutableStateOf<PendingPhoto?>(null) }
 
     Scaffold { padding ->
         Column(Modifier.fillMaxSize().padding(padding).verticalScroll(rememberScrollState())
             .padding(20.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
             OutlinedButton(onClick = onBack) { Text("Back to account") }
             Text("Offline sync", style = MaterialTheme.typography.headlineMedium)
-            Text("Pending: " + operations.count { it.status == "pending" } +
-                " · Needs review: " + operations.count { it.status == "review" })
+            Text("Pending: " + (operations.count { it.status == "pending" } +
+                photos.count { it.status == "pending" }) +
+                " · Needs review: " + (operations.count { it.status == "review" } +
+                photos.count { it.status == "review" }))
+            error?.let { Text(it, color = MaterialTheme.colorScheme.error) }
             Text("Changes stay on this device until the server confirms them. " +
                 "Check rejected records before retrying; stock may need a newer version.")
             Button(onClick = onSyncNow) { Text("Sync now") }
-            if (operations.isEmpty()) Text("All local changes are synced.")
+            if (operations.isEmpty() && photos.isEmpty()) Text("All local changes are synced.")
             operations.forEach { operation ->
                 Text(operation.operationType.replaceFirstChar { it.uppercase() } +
                     " · " + operation.status, style = MaterialTheme.typography.titleMedium)
                 Text(details(operation))
                 operation.errorMessage?.let { Text(it, color = MaterialTheme.colorScheme.error) }
                 if (operation.status == "review") {
-                    OutlinedButton(onClick = { onRetry(operation.operationId) }) {
-                        Text("Retry this change")
+                    if (operation.operationType == "inventory") {
+                        OutlinedButton(onClick = { onReviewStock(operation.operationId) }) {
+                            Text("Check latest stock")
+                        }
+                    } else {
+                        OutlinedButton(onClick = { onRetry(operation.operationId) }) {
+                            Text("Retry this change")
+                        }
                     }
                     OutlinedButton(onClick = { discard = operation }) {
                         Text("Discard and re-enter")
                     }
                 }
             }
+            if (photos.isNotEmpty()) {
+                Text("Crop photos", style = MaterialTheme.typography.titleLarge)
+                photos.forEach { photo ->
+                    Text("Photo · " + photo.status,
+                        style = MaterialTheme.typography.titleMedium)
+                    if (photo.observationId == null) {
+                        Text("Waiting for its observation to sync first.")
+                    }
+                    photo.errorMessage?.let {
+                        Text(it, color = MaterialTheme.colorScheme.error)
+                    }
+                    if (photo.status == "review") {
+                        OutlinedButton(onClick = { onRetryPhoto(photo.photoId) }) {
+                            Text("Retry photo")
+                        }
+                    }
+                    OutlinedButton(onClick = { discardPhoto = photo }) {
+                        Text("Discard local photo")
+                    }
+                }
+            }
         }
+    }
+
+    stockPreview?.let { preview ->
+        AlertDialog(
+            onDismissRequest = onCancelStock,
+            title = { Text("Confirm stock retry") },
+            text = {
+                Text("${preview.itemName}\nCurrent stock: ${preview.currentBalance}\n" +
+                    "Queued change: ${preview.change}\n" +
+                    "Stock after change: ${preview.expectedBalance}\n" +
+                    "Only retry if this movement still reflects actual farm work.")
+            },
+            confirmButton = {
+                TextButton(onClick = onApproveStock) { Text("Approve and retry") }
+            },
+            dismissButton = {
+                TextButton(onClick = onCancelStock) { Text("Cancel") }
+            }
+        )
+    }
+
+    discardPhoto?.let { photo ->
+        AlertDialog(
+            onDismissRequest = { discardPhoto = null },
+            title = { Text("Discard offline photo?") },
+            text = { Text("The saved picture will be permanently deleted from this device.") },
+            confirmButton = {
+                TextButton(onClick = {
+                    onDiscardPhoto(photo.photoId)
+                    discardPhoto = null
+                }) { Text("Discard photo") }
+            },
+            dismissButton = {
+                TextButton(onClick = { discardPhoto = null }) { Text("Cancel") }
+            }
+        )
     }
 
     discard?.let { operation ->

@@ -53,6 +53,22 @@ public sealed class MonitoringApiController(
             return StatusCode(StatusCodes.Status201Created, saved);
         });
 
+    // Client chooses this ID once and retries the exact same photo safely.
+    [HttpPut("observations/{observationId:guid}/photos/{photoId:guid}")]
+    [RequestSizeLimit(6 * 1024 * 1024)]
+    [RequestFormLimits(MultipartBodyLengthLimit = 6 * 1024 * 1024)]
+    public Task<IActionResult> UploadWithId(Guid farmId, Guid cycleId, Guid observationId,
+        Guid photoId, [FromForm] IFormFile? photo, CancellationToken ct) =>
+        Result(async () =>
+        {
+            if (photo is null) return BadRequest(new { message = "Select a photo." });
+            await using var input = photo.OpenReadStream();
+            var saved = await monitoring.AddPhotoWithIdAsync(
+                farmId, cycleId, observationId, photoId, ActorId,
+                input, photo.Length, photo.ContentType, ct);
+            return Ok(saved);
+        });
+
     [HttpGet("photos/{photoId:guid}")]
     public Task<IActionResult> Photo(Guid farmId, Guid cycleId, Guid photoId, CancellationToken ct) =>
         Result(async () =>

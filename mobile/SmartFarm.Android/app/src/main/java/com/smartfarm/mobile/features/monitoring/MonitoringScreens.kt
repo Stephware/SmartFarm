@@ -1,6 +1,10 @@
 package com.smartfarm.mobile.features.monitoring
 
 import android.net.Uri
+import androidx.core.content.FileProvider
+import androidx.compose.ui.platform.LocalContext
+import java.io.File
+import java.util.UUID
 import com.smartfarm.mobile.ui.components.OfflineDataNotice
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -36,7 +40,7 @@ fun MonitoringScreen(
     state: MonitoringUiState,
     onBack: () -> Unit,
     onActivity: (Int, String) -> Unit,
-    onObservation: (Int, String, String) -> Unit,
+    onObservation: (Int, String, String, Uri?) -> Unit,
     onUpload: (String, Uri) -> Unit,
     onPreview: (String) -> Unit
 ) {
@@ -46,9 +50,36 @@ fun MonitoringScreen(
     var stage by rememberSaveable { mutableStateOf("") }
     var observationNotes by rememberSaveable { mutableStateOf("") }
     var targetObservation by remember { mutableStateOf<String?>(null) }
+    var newPhoto by remember { mutableStateOf<Uri?>(null) }
+    var cameraUri by remember { mutableStateOf<Uri?>(null) }
+    var cameraFile by remember { mutableStateOf<File?>(null) }
+    val context = LocalContext.current
     val picker = rememberLauncherForActivityResult(ActivityResultContracts.GetContent()) { uri ->
-        if (uri != null) targetObservation?.let { onUpload(it, uri) }
+        if (uri != null) {
+            val target = targetObservation
+            if (target != null) onUpload(target, uri) else newPhoto = uri
+        }
         targetObservation = null
+    }
+    val camera = rememberLauncherForActivityResult(ActivityResultContracts.TakePicture()) { saved ->
+        val uri = cameraUri
+        if (saved && uri != null) {
+            val target = targetObservation
+            if (target != null) onUpload(target, uri) else newPhoto = uri
+        } else {
+            cameraFile?.delete()
+        }
+        targetObservation = null
+        cameraUri = null
+    }
+    fun capture(target: String?) {
+        val folder = File(context.filesDir, "camera").apply { mkdirs() }
+        val file = File(folder, "capture-${UUID.randomUUID()}.jpg")
+        val uri = FileProvider.getUriForFile(context, "${context.packageName}.photos", file)
+        cameraFile = file
+        cameraUri = uri
+        targetObservation = target
+        camera.launch(uri)
     }
 
     Scaffold { padding ->
@@ -87,8 +118,21 @@ fun MonitoringScreen(
                     label = { Text("Growth stage") }, modifier = Modifier.fillMaxWidth())
                 OutlinedTextField(observationNotes, { observationNotes = it },
                     label = { Text("Observation notes") }, modifier = Modifier.fillMaxWidth())
-                Button(onClick = { onObservation(health, stage, observationNotes) },
-                    enabled = !state.busy) { Text("Save observation") }
+                Text("Optional photo — saved locally with this observation.")
+                OutlinedButton(onClick = {
+                    targetObservation = null
+                    picker.launch("image/*")
+                }, enabled = !state.busy) { Text("Select photo") }
+                OutlinedButton(onClick = { capture(null) },
+                    enabled = !state.busy) { Text("Take photo") }
+                if (newPhoto != null) {
+                    Text("Photo selected for offline upload")
+                    OutlinedButton(onClick = { newPhoto = null }) { Text("Remove selected photo") }
+                }
+                Button(onClick = {
+                    onObservation(health, stage, observationNotes, newPhoto)
+                    newPhoto = null
+                }, enabled = !state.busy) { Text("Save observation") }
             }
 
             HorizontalDivider()
@@ -118,11 +162,13 @@ fun MonitoringScreen(
                         Text("View photo · ${photo.uploadedAtUtc}")
                     }
                 }
-                if (state.canRecord && !state.offline) {
+                if (state.canRecord) {
                     Button(onClick = {
                         targetObservation = observation.id
                         picker.launch("image/*")
-                    }, enabled = !state.busy) { Text("Attach photo (max 5 MB)") }
+                    }, enabled = !state.busy) { Text("Attach photo offline (max 5 MB)") }
+                    OutlinedButton(onClick = { capture(observation.id) },
+                        enabled = !state.busy) { Text("Take photo for observation") }
                 }
                 HorizontalDivider()
             }

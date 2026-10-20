@@ -76,11 +76,19 @@ fun SmartFarmNavHost(auth: AuthViewModel, farms: FarmViewModel, crops: CropViewM
         }
         composable("sync") {
             val pending by sync.operations.collectAsStateWithLifecycle()
+            val photos by sync.photos.collectAsStateWithLifecycle()
+            val preview by sync.stockPreview.collectAsStateWithLifecycle()
+            val syncError by sync.error.collectAsStateWithLifecycle()
             LaunchedEffect(Unit) { sync.load() }
-            SyncStatusScreen(pending,
+            SyncStatusScreen(pending, photos, preview, syncError,
                 onBack = { navController.popBackStack() },
                 onRetry = { sync.retry(it) },
                 onDiscard = { sync.discard(it) },
+                onRetryPhoto = { sync.retryPhoto(it) },
+                onDiscardPhoto = { sync.discardPhoto(it) },
+                onReviewStock = { sync.reviewStock(it) },
+                onApproveStock = { sync.approveStockRetry() },
+                onCancelStock = { sync.cancelReview() },
                 onSyncNow = { sync.syncNow() })
         }
         composable("farms") {
@@ -143,8 +151,8 @@ fun SmartFarmNavHost(auth: AuthViewModel, farms: FarmViewModel, crops: CropViewM
             MonitoringScreen(monitoringState,
                 onBack = { navController.popBackStack() },
                 onActivity = { kind, notes -> monitoring.logActivity(kind, notes) },
-                onObservation = { health, growth, notes ->
-                    monitoring.observe(health, growth, notes)
+                onObservation = { health, growth, notes, photo ->
+                    monitoring.observe(health, growth, notes, photo, resolver)
                 },
                 onUpload = { observationId, uri ->
                     monitoring.uploadPhoto(observationId, uri, resolver)
