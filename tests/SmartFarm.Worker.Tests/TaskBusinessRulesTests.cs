@@ -21,6 +21,19 @@ public sealed class TaskBusinessRulesTests
         Assert.Null(TaskRules.ForActivity(activity));
 
     [Fact]
+    public void FarmWorkersMayFulfillGeneratedTasksButNotOthersManualAssignments()
+    {
+        var worker = Guid.NewGuid();
+        var assigned = new FarmTask { AssignedToUserId = Guid.NewGuid() };
+        Assert.False(TaskRules.CanFulfillFromRecord(assigned, worker, false));
+        assigned.DedupeKey = "cycle:scheduled";
+        Assert.True(TaskRules.CanFulfillFromRecord(assigned, worker, false));
+        assigned.DedupeKey = null;
+        assigned.AssignedToUserId = worker;
+        Assert.True(TaskRules.CanFulfillFromRecord(assigned, worker, false));
+    }
+
+    [Fact]
     public void TaskCanOnlyBeClosedOnceAndPreservesActor()
     {
         var task = new FarmTask { Status = 0 };
