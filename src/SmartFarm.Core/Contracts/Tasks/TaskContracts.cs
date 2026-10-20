@@ -7,6 +7,12 @@ public sealed record FarmTaskInput(
     Guid? CropCycleId,
     Guid? AssignedToUserId);
 
+public sealed record FarmTaskUpdateInput(
+    DateOnly DueDate,
+    string? Description,
+    Guid? AssignedToUserId,
+    string RowVersion);
+
 public sealed record FarmTaskCloseInput(byte Status, string RowVersion);
 
 public sealed record FarmTaskDetails(
