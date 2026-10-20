@@ -11,7 +11,7 @@ public sealed class TaskBusinessRulesTests
     [InlineData(1, 2)]
     [InlineData(2, 3)]
     public void CropActivitiesMatchTheRightTaskType(byte activity, byte taskType) =>
-        Assert.Equal(taskType, TaskRules.ForActivity(activity));
+        Assert.Equal((byte?)taskType, TaskRules.ForActivity(activity));
 
     [Theory]
     [InlineData(3)]
