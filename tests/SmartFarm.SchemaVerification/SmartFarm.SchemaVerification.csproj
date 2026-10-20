@@ -1,0 +1,15 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <IsTestProject>true</IsTestProject>
+    <IsPackable>false</IsPackable>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.14.1" />
+    <PackageReference Include="xunit" Version="2.9.3" />
+    <PackageReference Include="xunit.runner.visualstudio" Version="3.1.4" PrivateAssets="all" />
+    <ProjectReference Include="../../src/SmartFarm.Infrastructure/SmartFarm.Infrastructure.csproj" />
+    <None Include="../../database/01_CreateDatabase.sql" Link="Database/01_CreateDatabase.sql" CopyToOutputDirectory="PreserveNewest" />
+    <None Include="../../database/02_CreateSchema.sql" Link="Database/02_CreateSchema.sql" CopyToOutputDirectory="PreserveNewest" />
+    <None Include="../../database/03_VerifySchema.sql" Link="Database/03_VerifySchema.sql" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+</Project>

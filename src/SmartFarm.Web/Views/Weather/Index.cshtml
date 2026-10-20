@@ -1,0 +1,49 @@
+@model SmartFarm.Core.Contracts.Weather.WeatherOverview
+@{
+    ViewData["Title"] = "Farm weather";
+}
+<section class="panel">
+    <p><a asp-controller="Farms" asp-action="Details" asp-route-id="@Model.FarmId">← Back to farm</a></p>
+    <h1>Farm weather</h1>
+    <p>Forecast dates use @Model.TimeZoneId. Information is saved by the weather worker, not updated live on this page.</p>
+    @if (!Model.HasCoordinates)
+    {
+        <p class="hint">Weather is not enabled for this farm. An owner or manager must add its latitude and longitude in Edit farm.</p>
+    }
+    else if (Model.Days.Count == 0)
+    {
+        <p>No recent forecast has been saved. Check that the Hangfire worker and weather provider are enabled.</p>
+    }
+    else
+    {
+        <h2>Latest saved forecast</h2>
+        <ul class="farm-list">
+        @foreach (var day in Model.Days)
+        {
+            <li><strong>@day.Date.ToString("yyyy-MM-dd")</strong> —
+                @(day.MinTemperatureC?.ToString("0.#") ?? "—")–@(day.MaxTemperatureC?.ToString("0.#") ?? "—") °C,
+                @(day.RainfallMm?.ToString("0.#") ?? "—") mm rainfall,
+                @(day.MaxPrecipitationProbability?.ToString("0.#") ?? "—")% rain chance,
+                @(day.MaxWindKph?.ToString("0.#") ?? "—") km/h wind
+                <small>· @day.Provider · checked @day.RetrievedAtUtc.ToString("yyyy-MM-dd HH:mm") UTC</small>
+            </li>
+        }
+        </ul>
+    }
+    <h2>Weather advisories</h2>
+    @if (Model.Advisories.All(a => a.Status != 0))
+    {
+        <p>No active rain or heat warnings in the saved forecast.</p>
+    }
+    else
+    {
+        <ul class="farm-list">
+        @foreach (var advisory in Model.Advisories.Where(a => a.Status == 0))
+        {
+            <li><strong>@advisory.Date.ToString("yyyy-MM-dd") — severity @advisory.Severity</strong>
+                <p>@advisory.Message</p>
+            </li>
+        }
+        </ul>
+    }
+</section>

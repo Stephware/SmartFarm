@@ -1,0 +1,48 @@
+@using SmartFarm.Core.Enums
+@model SmartFarm.Web.ViewModels.Inventory.InventoryPage
+@{
+    ViewData["Title"] = "Inventory";
+    var canManage = Model.Farm.Role is "Owner" or "Manager";
+}
+<section class="panel">
+    <p><a asp-controller="Farms" asp-action="Details" asp-route-id="@Model.Farm.Id">← @Model.Farm.Name</a></p>
+    <h1>Inventory</h1>
+    <p>Active supplies: @Model.Workspace.Items.Count · Low stock: @Model.Workspace.LowStockCount</p>
+    @if (TempData["Error"] is string error) { <p role="alert" class="error">@error</p> }
+    @if (Model.Workspace.Items.Count == 0) { <p>No inventory items yet.</p> }
+    <ul class="farm-list">
+        @foreach (var item in Model.Workspace.Items)
+        {
+            <li>
+                <a asp-action="Details" asp-route-farmId="@Model.Farm.Id" asp-route-itemId="@item.Id">
+                    <strong>@item.Name</strong>
+                </a>
+                <span>@item.Category · @item.QuantityOnHand @item.Unit</span>
+                @if (item.IsLowStock) { <strong class="error">Low stock</strong> }
+            </li>
+        }
+    </ul>
+</section>
+@if (canManage)
+{
+    <section class="panel">
+        <h2>Add inventory item</h2>
+        <form asp-action="Create" asp-route-farmId="@Model.Farm.Id" method="post">
+            <label for="name">Item name</label><input name="Name" id="name" minlength="2" maxlength="120" required />
+            <label for="category">Category</label>
+            <select name="Category" id="category">
+                <option value="1">Seeds</option><option value="2">Fertilizers</option>
+                <option value="3">Pesticides</option><option value="4">Other</option>
+            </select>
+            <label for="unit">Unit</label><input name="Unit" id="unit" maxlength="20" required placeholder="kg, L, pcs" />
+            <label for="description">Description (optional)</label>
+            <textarea name="Description" id="description" maxlength="500"></textarea>
+            <label for="initial">Opening quantity</label>
+            <input id="initial" name="InitialQuantity" type="number" step="0.001" min="0" value="0" required />
+            <label for="reorder">Low-stock threshold (optional)</label>
+            <input id="reorder" name="ReorderLevel" type="number" step="0.001" min="0" />
+            <button type="submit">Create item</button>
+        </form>
+    </section>
+}
+

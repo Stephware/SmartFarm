@@ -1,0 +1,19 @@
+@model SmartFarm.Web.ViewModels.Farms.FarmEditViewModel
+@{
+    ViewData["Title"] = "Edit farm";
+}
+<section class="panel narrow">
+    <h1>Edit farm</h1>
+    <form asp-action="Edit" asp-route-id="@Model.FarmId" method="post">
+        <div asp-validation-summary="All" class="error"></div>
+        <input asp-for="Input.RowVersion" type="hidden" />
+        <label asp-for="Input.Name">Farm name</label><input asp-for="Input.Name" required /><span asp-validation-for="Input.Name" class="error"></span>
+        <label asp-for="Input.LocationText">Location</label><input asp-for="Input.LocationText" required /><span asp-validation-for="Input.LocationText" class="error"></span>
+        <label asp-for="Input.TimeZoneId">Time zone</label><input asp-for="Input.TimeZoneId" required /><span asp-validation-for="Input.TimeZoneId" class="error"></span>
+        <label asp-for="Input.Latitude"></label><input asp-for="Input.Latitude" type="number" step="0.000001" /><span asp-validation-for="Input.Latitude" class="error"></span>
+        <label asp-for="Input.Longitude"></label><input asp-for="Input.Longitude" type="number" step="0.000001" /><span asp-validation-for="Input.Longitude" class="error"></span>
+        <button type="submit">Save changes</button>
+        <a asp-action="Details" asp-route-id="@Model.FarmId">Cancel</a>
+    </form>
+</section>
+

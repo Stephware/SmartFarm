@@ -1,0 +1,35 @@
+@{
+    ViewData["Title"] = "Smart farm management";
+}
+<section class="panel landing-hero">
+    <p class="hint">Farm planning · Field monitoring · Harvest reporting</p>
+    <h1>Keep your farm organized, from planting to harvest.</h1>
+    <p>Track plots and crops, record field observations, monitor stock, and review
+       harvest results in one place.</p>
+    <div class="action-links">
+    @if (User.Identity?.IsAuthenticated == true)
+    {
+        <a class="button" asp-controller="Farms" asp-action="Index">Open my farms</a>
+        <a asp-controller="Notifications" asp-action="Index">Review reminders</a>
+    }
+    else
+    {
+        <a class="button" asp-controller="Account" asp-action="Login">Log in</a>
+        <a asp-controller="Account" asp-action="Register">Create account</a>
+    }
+    </div>
+</section>
+<section class="feature-grid">
+    <div class="panel">
+        <h2>Plan your crops</h2>
+        <p>Organize your farms and plots, set planting dates, and follow each crop cycle.</p>
+    </div>
+    <div class="panel">
+        <h2>Record fieldwork</h2>
+        <p>Log crop activities, inspections, harvests, and inventory movements.</p>
+    </div>
+    <div class="panel">
+        <h2>Review results</h2>
+        <p>Check tasks and weather advisories, then compare harvests by crop, plot, month, and unit.</p>
+    </div>
+</section>

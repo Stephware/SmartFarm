@@ -16,13 +16,22 @@
   decimal(18,3) for recorded quantities, restricted FK deletion.
 */
 
+-- Filtered indexes require these SET options, regardless of the SQL client.
+SET ANSI_NULLS ON;
+SET ANSI_PADDING ON;
+SET ANSI_WARNINGS ON;
+SET ARITHABORT ON;
+SET CONCAT_NULL_YIELDS_NULL ON;
+SET QUOTED_IDENTIFIER ON;
+SET NUMERIC_ROUNDABORT OFF;
 SET NOCOUNT ON;
 SET XACT_ABORT ON;
 
 IF DB_NAME() <> N'SmartFarmDB'
     THROW 50001, 'Connect to SmartFarmDB before executing 02_CreateSchema.sql.', 1;
 
-IF EXISTS (SELECT 1 FROM sys.tables WHERE schema_id = SCHEMA_ID('dbo'))
+-- Refuse to initialize any database that already has user tables, in any schema.
+IF EXISTS (SELECT 1 FROM sys.tables WHERE is_ms_shipped = 0)
     THROW 50002, 'This schema script is intended for a fresh database. Existing tables found; no changes made.', 1;
 
 BEGIN TRY

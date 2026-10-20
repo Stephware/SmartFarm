@@ -1,0 +1,75 @@
+:root { font-family: system-ui, -apple-system, Segoe UI, sans-serif; color: #163224; background: #f3f8f3; }
+* { box-sizing: border-box; }
+body { margin: 0; }
+a { color: #1b663d; }
+.site-header { background: #fff; padding: 18px max(20px, calc((100% - 940px)/2)); display: flex; align-items: center; justify-content: space-between; gap: 20px; border-bottom: 1px solid #dce9df; }
+.brand { font-size: 1.2rem; font-weight: 700; text-decoration: none; }
+nav { display: flex; gap: 14px; align-items: center; flex-wrap: wrap; }
+.page { max-width: 940px; margin: 38px auto; padding: 0 18px; }
+.panel { background: white; padding: 28px; border: 1px solid #e0e8e1; border-radius: 12px; }
+.narrow { max-width: 480px; }
+label { display: block; font-weight: 600; margin: 17px 0 6px; }
+input:not([type=checkbox]) { display: block; width: 100%; padding: 11px; border: 1px solid #afc5b5; border-radius: 6px; font: inherit; }
+.check { font-weight: normal; display: flex; gap: 9px; align-items: center; }
+button, .button { background: #1d6b3d; color: white; padding: 10px 16px; border: 0; border-radius: 6px; font: inherit; text-decoration: none; cursor: pointer; }
+button:hover, .button:hover { background: #13522d; }
+.link-button { background: none; color: #1b663d; padding: 0; text-decoration: underline; }
+.inline { display: inline; }
+.error { color: #a10b22; }
+.hint { font-size: .85rem; color: #5d7161; }
+
+
+select { font: inherit; padding: 9px; margin: 0 8px; border: 1px solid #afc5b5; border-radius: 6px; background: white; }
+section.panel + section.panel { margin-top: 20px; }
+.farm-list { padding: 0; list-style: none; }
+.farm-list li { border-bottom: 1px solid #e5eee6; padding: 12px 0; }
+.farm-list li span { display: block; color: #536f5b; margin-top: 4px; }
+.narrow { max-width: 480px; }
+
+
+textarea { display: block; width: 100%; max-width: 650px; font: inherit; padding: 10px; border: 1px solid #afc5b5; border-radius: 6px; margin-bottom: 12px; }
+.crop-cycle { border-bottom: 1px solid #e5eee6; padding: 16px 0; }
+.observation-photo { max-width: 240px; max-height: 180px; object-fit: contain; display: inline-block; margin: 8px; border-radius: 6px; border: 1px solid #d7e6da; }
+
+
+
+/* Farm dashboard, harvest reports and small screens. */
+.landing-hero { padding: 44px 32px; }
+.landing-hero h1 { max-width: 660px; line-height: 1.15; font-size: clamp(1.7rem, 3vw, 2.5rem); }
+.landing-hero > p { max-width: 690px; line-height: 1.65; }
+.feature-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; margin-top: 20px; }
+.feature-grid > .panel { padding: 22px; }
+.feature-grid h2 { font-size: 1.15rem; }
+.feature-grid p { line-height: 1.5; }
+.page-heading { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px; }
+.page-heading h1 { margin: 5px 0; }
+.action-links { display: flex; flex-wrap: wrap; align-items: center; gap: 12px 18px; margin: 16px 0; }
+.stat-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(175px, 1fr)); gap: 14px; margin-top: 20px; }
+.stat { border: 1px solid #d8e7dc; background: #f8fbf8; border-radius: 10px; padding: 16px; min-width: 0; }
+.stat span { display: block; color: #536f5b; font-size: .9rem; }
+.stat strong { display: block; font-size: clamp(1.3rem, 2vw, 1.75rem); margin-top: 6px; overflow-wrap: anywhere; }
+.progress-track { display: flex; width: 100%; height: 14px; border-radius: 999px; background: #e4ece6; overflow: hidden; }
+.progress-completed { background: #226844; height: 100%; }
+.progress-active { background: #80b893; height: 100%; }
+.report-filters { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 8px 14px; align-items: end; }
+.report-filters label { margin-top: 0; }
+.report-filters select { width: 100%; margin: 0; min-height: 44px; }
+.report-filters button { min-height: 44px; }
+.table-scroll { width: 100%; overflow-x: auto; }
+.data-table { width: 100%; border-collapse: collapse; min-width: 520px; text-align: left; }
+.data-table th, .data-table td { padding: 12px 10px; border-bottom: 1px solid #e3ece5; vertical-align: top; }
+.data-table th { color: #3e5a47; font-size: .9rem; }
+.data-table tbody tr:hover { background: #f8fbf8; }
+:focus-visible { outline: 3px solid #65a87c; outline-offset: 2px; }
+@media (max-width: 690px) {
+    .site-header { align-items: flex-start; padding: 16px; flex-direction: column; gap: 10px; }
+    .page { margin: 22px auto; }
+    .panel { padding: 20px; }
+    .feature-grid { grid-template-columns: 1fr; }
+    .landing-hero { padding: 28px 22px; }
+    .report-filters { grid-template-columns: 1fr 1fr; }
+}
+@media (max-width: 410px) {
+    .report-filters { grid-template-columns: 1fr; }
+    .page-heading .button { width: 100%; text-align: center; }
+}

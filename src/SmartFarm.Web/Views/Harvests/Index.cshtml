@@ -1,0 +1,74 @@
+@model SmartFarm.Web.ViewModels.Harvests.HarvestPage
+@{
+    ViewData["Title"] = "Harvests";
+    var cycle = Model.CropCycle;
+    var overview = Model.Overview;
+}
+<section class="panel">
+    <p><a asp-controller="Crops" asp-action="Index"
+          asp-route-farmId="@cycle.FarmId">← Crop management</a>
+       · <a asp-controller="Reports" asp-action="Harvests"
+          asp-route-farmId="@cycle.FarmId">Farm-wide harvest report</a></p>
+    <h1>Harvests · @cycle.CropTypeName</h1>
+    <p>@cycle.PlotName · Crop status: <strong>@cycle.Status</strong></p>
+    <h2>@overview.TotalQuantity.ToString("N3") @overview.Unit</h2>
+    <p>Valid harvests: @overview.ValidHarvestCount · Voided: @overview.VoidedHarvestCount</p>
+    <p class="hint">Multiple partial harvests are allowed. Recording a harvest does not complete the crop cycle.</p>
+    @if (TempData["HarvestError"] is string error) { <p class="error" role="alert">@error</p> }
+    @if (TempData["HarvestNotice"] is string notice) { <p role="status">@notice</p> }
+</section>
+@if (overview.CanRecord)
+{
+    <section class="panel">
+        <h2>Record partial harvest</h2>
+        <form asp-action="Record" asp-route-farmId="@cycle.FarmId"
+              asp-route-cycleId="@cycle.Id" method="post">
+            <label for="quantity">Harvested quantity (@overview.Unit)</label>
+            <input id="quantity" name="Quantity" type="number" step="0.001"
+                   min="0.001" required />
+            <label for="notes">Notes (optional)</label>
+            <textarea id="notes" name="Notes" rows="3" maxlength="1000"></textarea>
+            <button type="submit">Record harvest</button>
+        </form>
+    </section>
+}
+else
+{
+    <section class="panel">
+        <p>New harvests can only be recorded while the crop cycle is active.</p>
+    </section>
+}
+<section class="panel">
+    <h2>Harvest history</h2>
+    @if (overview.Entries.Count == 0) { <p>No harvests recorded yet.</p> }
+    <ul class="farm-list">
+        @foreach (var entry in overview.Entries)
+        {
+            <li>
+                <strong>
+                    @entry.Quantity.ToString("N3") @entry.Unit
+                    @if (entry.IsVoided) { <span class="error">(Voided)</span> }
+                </strong>
+                <span>@entry.HarvestedAtUtc.ToString("yyyy-MM-dd HH:mm") UTC</span>
+                @if (entry.Notes is not null) { <p>@entry.Notes</p> }
+                @if (entry.IsVoided)
+                {
+                    <p>Voided: @entry.VoidReason</p>
+                }
+                else if (overview.CanVoid)
+                {
+                    <form asp-action="Void" asp-route-farmId="@cycle.FarmId"
+                          asp-route-cycleId="@cycle.Id" asp-route-harvestId="@entry.Id" method="post">
+                        <label>Reason for voiding (required)</label>
+                        <input name="Reason" minlength="3" maxlength="300" required />
+                        <button type="submit"
+                                onclick="return confirm('Void this harvest? Its record will remain in history.')">
+                            Void entry
+                        </button>
+                    </form>
+                }
+            </li>
+        }
+    </ul>
+</section>
+

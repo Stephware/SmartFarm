@@ -1,0 +1,137 @@
+@using SmartFarm.Core.Enums
+@model SmartFarm.Web.ViewModels.Crops.CropWorkspaceViewModel
+@{
+    ViewData["Title"] = "Crops";
+    var canManage = Model.Farm.Role is "Owner" or "Manager";
+}
+<section class="panel">
+    <p><a asp-controller="Farms" asp-action="Details" asp-route-id="@Model.Farm.Id">← @Model.Farm.Name</a></p>
+    <h1>Crop management</h1>
+    <p>Plan planting, track active crops, and review crop history.</p>
+    @if (TempData["Error"] is string error) { <p class="error" role="alert">@error</p> }
+</section>
+<section class="panel">
+    <h2>Crop types</h2>
+    @if (Model.CropTypes.Count == 0) { <p>No crop types available yet.</p> }
+    else
+    {
+        <ul class="farm-list">
+        @foreach (var type in Model.CropTypes)
+        {
+            <li><strong>@type.Name</strong> · @type.DefaultHarvestUnit
+                @if (type.DefaultGrowthDays is not null) { <span>Growth: @type.DefaultGrowthDays days</span> }
+            </li>
+        }
+        </ul>
+    }
+    @if (canManage)
+    {
+        <h3>Add a crop type</h3>
+        <p class="hint">Crop types are shared across farms. Existing types cannot be renamed here.</p>
+        <form asp-action="CreateCropType" asp-route-farmId="@Model.Farm.Id" method="post">
+            <label for="cropName">Crop name</label><input id="cropName" name="Name" maxlength="100" required />
+            <label for="harvestUnit">Harvest unit</label><input id="harvestUnit" name="DefaultHarvestUnit" value="kg" maxlength="20" required />
+            <label for="growthDays">Typical growth days (optional)</label>
+            <input id="growthDays" name="DefaultGrowthDays" type="number" min="1" max="32767" />
+            <label for="wateringDays">Watering interval (optional)</label>
+            <input id="wateringDays" name="DefaultWateringIntervalDays" type="number" min="1" max="32767" />
+            <button type="submit">Add crop type</button>
+        </form>
+    }
+</section>
+<section class="panel">
+    <h2>Planting plans</h2>
+    @if (canManage && Model.Plots.Count > 0 && Model.CropTypes.Count > 0)
+    {
+        <form asp-action="Plan" asp-route-farmId="@Model.Farm.Id" method="post">
+            <label for="planPlot">Plot</label>
+            <select id="planPlot" name="plotId" required>
+                @foreach (var plot in Model.Plots)
+                {
+                    <option value="@plot.Id">@plot.Name</option>
+                }
+            </select>
+            <label for="planCrop">Crop</label>
+            <select id="planCrop" name="CropTypeId" required>
+                @foreach (var type in Model.CropTypes)
+                {
+                    <option value="@type.Id">@type.Name</option>
+                }
+            </select>
+            <label for="planDate">Planned planting</label><input id="planDate" name="PlannedPlantingDate" type="date" required />
+            <label for="planHarvest">Expected harvest (optional)</label><input id="planHarvest" name="ExpectedHarvestDate" type="date" />
+            <label for="planUnit">Harvest unit (leave empty to use crop default)</label>
+            <input id="planUnit" name="HarvestUnit" maxlength="20" />
+            <label for="planWater">Watering interval days (leave empty for default)</label>
+            <input id="planWater" name="WateringIntervalDays" type="number" min="1" max="32767" />
+            <button type="submit">Create planting plan</button>
+        </form>
+    }
+    else if (Model.Plots.Count == 0) { <p>Add an active plot before planning a crop.</p> }
+    else if (Model.CropTypes.Count == 0) { <p>Add a crop type before planning a crop.</p> }
+    else { <p>You have read-only access to planting plans.</p> }
+</section>
+<section class="panel">
+    <h2>Crop cycles and history</h2>
+    @if (Model.Cycles.Count == 0) { <p>No crop cycles have been planned yet.</p> }
+    @foreach (var cycle in Model.Cycles)
+    {
+        <div class="crop-cycle">
+            <h3>@cycle.CropTypeName · @cycle.PlotName</h3>
+            <p><a asp-controller="Harvests" asp-action="Index"
+                  asp-route-farmId="@Model.Farm.Id" asp-route-cycleId="@cycle.Id">Harvest records →</a></p>
+            <p><a asp-controller="Monitoring" asp-action="Index"
+                  asp-route-farmId="@Model.Farm.Id" asp-route-cycleId="@cycle.Id">Activities, inspections and photos →</a></p>
+            <p><strong>@cycle.Status</strong> · Planned: @cycle.PlannedPlantingDate.ToString("yyyy-MM-dd")
+                @if (cycle.PlantedDate is not null) { <span> · Planted: @cycle.PlantedDate.Value.ToString("yyyy-MM-dd")</span> }
+            </p>
+            @if (cycle.ExpectedHarvestDate is not null)
+            { <p>Expected harvest: @cycle.ExpectedHarvestDate.Value.ToString("yyyy-MM-dd")</p> }
+            @if (cycle.TerminationReason is not null)
+            { <p>Reason: @cycle.TerminationReason</p> }
+            @if (canManage && cycle.Status == CropCycleStatus.Planned)
+            {
+                <a asp-action="EditPlan" asp-route-farmId="@Model.Farm.Id" asp-route-cycleId="@cycle.Id">Edit plan</a>
+                <form asp-action="Transition" asp-route-farmId="@Model.Farm.Id"
+                      asp-route-cycleId="@cycle.Id" method="post">
+                    <input type="hidden" name="RowVersion" value="@cycle.RowVersion" />
+                    <input type="hidden" name="Status" value="Active" />
+                    <label>Actual planting date</label><input type="date" name="PlantedDate" required />
+                    <button type="submit">Mark as planted</button>
+                </form>
+            }
+            @if (canManage && cycle.Status == CropCycleStatus.Active)
+            {
+                <form asp-action="Transition" asp-route-farmId="@Model.Farm.Id"
+                      asp-route-cycleId="@cycle.Id" method="post">
+                    <input type="hidden" name="RowVersion" value="@cycle.RowVersion" />
+                    <input type="hidden" name="Status" value="Completed" />
+                    <button type="submit">Complete crop cycle</button>
+                </form>
+            }
+            @if (canManage && cycle.Status is CropCycleStatus.Active or CropCycleStatus.Planned)
+            {
+                <form asp-action="Transition" asp-route-farmId="@Model.Farm.Id"
+                      asp-route-cycleId="@cycle.Id" method="post">
+                    <input type="hidden" name="RowVersion" value="@cycle.RowVersion" />
+                    <input type="hidden" name="Status" value="Cancelled" />
+                    <label>Cancellation reason</label><input name="TerminationReason" maxlength="300" required />
+                    <button type="submit">Cancel cycle</button>
+                </form>
+            }
+            @if (canManage && cycle.Status == CropCycleStatus.Active)
+            {
+                <form asp-action="Transition" asp-route-farmId="@Model.Farm.Id"
+                      asp-route-cycleId="@cycle.Id" method="post">
+                    <input type="hidden" name="RowVersion" value="@cycle.RowVersion" />
+                    <input type="hidden" name="Status" value="Failed" />
+                    <label>Failure reason</label><input name="TerminationReason" maxlength="300" required />
+                    <button type="submit">Mark failed</button>
+                </form>
+            }
+        </div>
+    }
+</section>
+
+
+

@@ -1,0 +1,16 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/SmartFarm.Api/SmartFarm.Api.csproj" />
+    <Project Path="src/SmartFarm.Core/SmartFarm.Core.csproj" />
+    <Project Path="src/SmartFarm.Infrastructure/SmartFarm.Infrastructure.csproj" />
+    <Project Path="src/SmartFarm.Web/SmartFarm.Web.csproj" />
+    <Project Path="src/SmartFarm.Worker/SmartFarm.Worker.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/SmartFarm.Api.Tests/SmartFarm.Api.Tests.csproj" />
+    <Project Path="tests/SmartFarm.Auth.Tests/SmartFarm.Auth.Tests.csproj" />
+    <Project Path="tests/SmartFarm.SchemaVerification/SmartFarm.SchemaVerification.csproj" />
+    <Project Path="tests/SmartFarm.Weather.Tests/SmartFarm.Weather.Tests.csproj" />
+    <Project Path="tests/SmartFarm.Worker.Tests/SmartFarm.Worker.Tests.csproj" />
+  </Folder>
+</Solution>
