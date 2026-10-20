@@ -73,16 +73,33 @@ class FarmViewModel(private val repo: FarmRepository) : ViewModel() {
         }
     }
 
-    fun create(name: String, location: String, onSuccess: (String) -> Unit) = perform {
-        val farm = repo.create(FarmInputDto(name.trim(), location.trim()))
+    private fun coordinates(latitude: String, longitude: String): Pair<BigDecimal?, BigDecimal?> {
+        val lat = latitude.trim().takeIf { it.isNotEmpty() }
+        val lon = longitude.trim().takeIf { it.isNotEmpty() }
+        require((lat == null) == (lon == null)) { "Both coordinates are required." }
+        val a = lat?.toBigDecimalOrNull()
+        val b = lon?.toBigDecimalOrNull()
+        require((lat == null || a != null) && (lon == null || b != null))
+        require(a == null || (a >= BigDecimal("-90") && a <= BigDecimal("90") && a.scale() <= 6))
+        require(b == null || (b >= BigDecimal("-180") && b <= BigDecimal("180") && b.scale() <= 6))
+        return a to b
+    }
+
+    fun create(name: String, location: String, timeZone: String,
+        latitude: String, longitude: String, onSuccess: (String) -> Unit) = perform {
+        val (lat, lon) = coordinates(latitude, longitude)
+        val farm = repo.create(FarmInputDto(name.trim(), location.trim(),
+            timeZone.trim(), lat, lon))
         onSuccess(farm.id)
     }
 
-    fun saveFarm(name: String, location: String, onSuccess: () -> Unit) = perform {
+    fun saveFarm(name: String, location: String, timeZone: String,
+        latitude: String, longitude: String, onSuccess: () -> Unit) = perform {
         val current = requireNotNull(mutable.value.selected)
+        val (lat, lon) = coordinates(latitude, longitude)
         val updated = repo.updateFarm(current.id, FarmInputDto(
-            name.trim(), location.trim(), current.timeZoneId, current.latitude,
-            current.longitude, requireNotNull(current.rowVersion)))
+            name.trim(), location.trim(), timeZone.trim(), lat, lon,
+            requireNotNull(current.rowVersion)))
         mutable.value = mutable.value.copy(selected = updated)
         onSuccess()
     }
