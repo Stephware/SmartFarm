@@ -24,6 +24,25 @@ using SmartFarm.Infrastructure.Services.Tasks;
 
 var builder = WebApplication.CreateBuilder(args);
 
+// In local Development, Web and API share SmartFarmDB. If only Web's user
+// secrets were configured, reuse just its database connection (no other secrets).
+// An explicit API connection setting always wins. Production is unaffected.
+if (builder.Environment.IsDevelopment() &&
+    string.IsNullOrWhiteSpace(builder.Configuration.GetConnectionString("SmartFarm")))
+{
+    var webDatabase = new ConfigurationBuilder()
+        .AddUserSecrets("SmartFarm.Web.Development")
+        .Build()
+        .GetConnectionString("SmartFarm");
+    if (!string.IsNullOrWhiteSpace(webDatabase))
+    {
+        builder.Configuration.AddInMemoryCollection(new Dictionary<string, string?>
+        {
+            ["ConnectionStrings:SmartFarm"] = webDatabase
+        });
+    }
+}
+
 builder.Services.AddControllers();
 builder.Services.AddSmartFarmPersistence(builder.Configuration.GetConnectionString("SmartFarm"));
 builder.Services.AddSmartFarmRepositories();
