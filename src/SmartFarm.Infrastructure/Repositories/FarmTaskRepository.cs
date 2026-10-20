@@ -34,7 +34,7 @@ public sealed class FarmTaskRepository(SmartFarmDbContext db) : IFarmTaskReposit
         DateOnly today, Guid actor, bool mayManage, CancellationToken ct = default) =>
         db.FarmTasks.Where(t => t.FarmId == farmId && t.CropCycleId == cycleId &&
             t.TaskType == taskType && t.Status == 0 && t.DueDate <= today &&
-            (mayManage || t.AssignedToUserId == actor))
+            (t.AssignedToUserId == actor || (mayManage && t.AssignedToUserId == null)))
             .OrderBy(t => t.DueDate).ThenBy(t => t.CreatedAtUtc)
             .FirstOrDefaultAsync(ct);
 
