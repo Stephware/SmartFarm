@@ -80,6 +80,7 @@ fun SmartFarmNavHost(auth: AuthViewModel, farms: FarmViewModel, crops: CropViewM
             SyncStatusScreen(pending,
                 onBack = { navController.popBackStack() },
                 onRetry = { sync.retry(it) },
+                onDiscard = { sync.discard(it) },
                 onSyncNow = { sync.syncNow() })
         }
         composable("farms") {
