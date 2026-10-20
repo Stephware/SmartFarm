@@ -17,6 +17,10 @@
             <li>
                 <a asp-action="Details" asp-route-id="@farm.Id"><strong>@farm.Name</strong></a>
                 <span>@farm.LocationText · @farm.Role</span>
+                <div class="action-links">
+                    <a asp-controller="Dashboard" asp-action="Index" asp-route-farmId="@farm.Id">Dashboard</a>
+                    <a asp-controller="Reports" asp-action="Harvests" asp-route-farmId="@farm.Id">Harvest reports</a>
+                </div>
             </li>
         }
         </ul>
