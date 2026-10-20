@@ -17,7 +17,9 @@ data class FarmUiState(
     val selected: FarmDto? = null,
     val plots: List<PlotDto> = emptyList(),
     val members: List<FarmMemberDto> = emptyList(),
-    val invitation: InvitationDto? = null
+    val invitation: InvitationDto? = null,
+    val offline: Boolean = false,
+    val cachedAtUtcMillis: Long? = null
 )
 
 class FarmViewModel(private val repo: FarmRepository) : ViewModel() {
@@ -42,19 +44,26 @@ class FarmViewModel(private val repo: FarmRepository) : ViewModel() {
     }
 
     fun load() = perform {
-        val list = repo.list()
-        mutable.value = mutable.value.copy(farms = list, selected = null,
-            plots = emptyList(), members = emptyList(), invitation = null)
+        val snapshot = repo.listSnapshot()
+        mutable.value = mutable.value.copy(farms = snapshot.value, selected = null,
+            plots = emptyList(), members = emptyList(), invitation = null,
+            offline = snapshot.offline,
+            cachedAtUtcMillis = snapshot.savedAtUtcMillis.takeIf { snapshot.offline })
     }
 
     fun loadDetail(farmId: String) {
         mutable.value = FarmUiState(loading = true)
         viewModelScope.launch {
             try {
-                val farm = repo.farm(farmId)
-                val plots = repo.plots(farmId)
-                val members = repo.members(farmId)
-                mutable.value = mutable.value.copy(selected = farm, plots = plots, members = members)
+                val farm = repo.farmSnapshot(farmId)
+                val plots = repo.plotsSnapshot(farmId)
+                val members = repo.membersSnapshot(farmId)
+                val cached = farm.offline || plots.offline || members.offline
+                mutable.value = mutable.value.copy(
+                    selected = farm.value, plots = plots.value, members = members.value,
+                    offline = cached,
+                    cachedAtUtcMillis = listOf(farm, plots, members)
+                        .filter { it.offline }.minOfOrNull { it.savedAtUtcMillis })
             } catch (_: Exception) {
                 mutable.value = mutable.value.copy(error =
                     "Could not load this farm. Check permissions and connection.")
