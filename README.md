@@ -2,7 +2,15 @@
 
 SmartFarm is an **in-development farm-management platform** planned for a web application and an Android app. The goal is to help farm owners and field teams manage farms, plots, crop cycles, daily work, supply inventory, harvest records, and weather-related reminders. Android will support selected offline operations with synchronization when connectivity returns.
 
-> **Project status:** Initial repository folders, SQL Server setup scripts, and database documentation are present. The application projects, API endpoints, Android app, Hangfire jobs, and automated CI builds **have not been initialized yet**. Features below describe the planned scope, not completed functionality.
+> **Project status:** Identity, farm/plot management, crop planning, activity/observation monitoring, inventory, and partial harvest recording/voiding now have ASP.NET Core API, MVC, and online-only Android implementations. Harvest totals and audit history use the existing SQL-first Harvest table; crop completion remains a separate operation. Tasks, production-ready media storage, automation, offline synchronization and CI/CD are still future work.
+
+## Start the minimal web and Android preview
+
+Follow the [local smoke test guide](docs/local-smoke-test.md) to launch the
+web server, verify `/api/status`, run the Android emulator, and optionally
+connect to the existing SQL Server database. See the [reference alignment
+review](docs/reference-alignment.md) for verified architectural similarities
+and important differences.
 
 ## Planned technology stack
 
@@ -46,6 +54,9 @@ SmartFarm/
 ├── mobile/
 │   └── SmartFarm.Android/        # Kotlin / Compose / Room application
 ├── tests/
+│   ├── SmartFarm.SchemaVerification/ # Offline EF model and baseline regression tests
+│   ├── SmartFarm.Weather.Tests/ # Provider-independent HTTP client tests
+│   ├── SmartFarm.Worker.Tests/  # Background processing configuration tests
 │   ├── SmartFarm.Core.Tests/
 │   └── SmartFarm.IntegrationTests/
 ├── database/
@@ -61,7 +72,7 @@ SmartFarm/
 └── .github/workflows/
 ```
 
-Currently, many folders contain only `.gitkeep` placeholders. The proposed .NET solution, project files, Android Gradle build, and tests must be created in later initialization steps.
+Feature folders still contain `.gitkeep` placeholders. The .NET 10 solution includes four backend projects and foundation tests; Android includes its own Gradle project.
 
 ## Database setup
 
@@ -76,6 +87,8 @@ Run the database creation, schema creation, and verification scripts in order as
 **Important:** The schema was created manually; `__EFMigrationsHistory` is not initialized by these SQL scripts. Before using EF Core Code First migrations, create a carefully verified baseline matching the actual schema. Never run a normal generated `InitialCreate` migration over tables that already exist.
 
 Keep `.env`, database passwords, actual database files, and backups out of Git.
+
+For Phase 6 instructions, see [harvest management](docs/harvest-management.md). For Phase 5 inventory instructions, see [inventory management](docs/inventory-management.md). For Phase 3, see [crop management](docs/crop-management.md). For Phase 2 development, see [farm and plot management](docs/farm-plot-management.md). For Web connection strings and the development connectivity check, see [Backend database connection](docs/backend-database-connection.md). For mapping verification and the approval required before adopting migration history, see [EF Core schema alignment](docs/efcore-schema-alignment.md).
 
 ## Git and pull request workflow
 
@@ -178,15 +191,40 @@ If merging is blocked, read GitHub's displayed requirement instead of bypassing 
 
 ## Build, run, and testing status
 
-The repository **does not yet contain executable .NET or Android application projects**. Therefore, commands such as `dotnet build`, `dotnet test`, or `./gradlew test` are **not available yet**. Do not interpret placeholder folders as finished projects.
+The backend contains a **.NET 10 solution** with four application projects and foundation test projects. Install the .NET 10 SDK and run from the repository root:
+
+```bash
+dotnet --version
+dotnet sln SmartFarm.slnx list
+dotnet tool restore
+dotnet restore SmartFarm.slnx
+dotnet build SmartFarm.slnx
+dotnet test SmartFarm.slnx
+dotnet run --project src/SmartFarm.Web/SmartFarm.Web.csproj
+```
+
+Open `http://localhost:5080` to try account registration, login and logout using your configured development database. See the [authentication guide](docs/authentication.md) for API, Android and permission testing. Stop with **Ctrl+C**.
+
+To start the background host independently, run:
+
+```bash
+dotnet run --project src/SmartFarm.Worker/SmartFarm.Worker.csproj
+```
+
+The Worker starts idle by default. Enable processing only after approved jobs database and Hangfire schema provisioning. Stop with **Ctrl+C**. See the [worker setup](docs/background-worker.md) and [weather configuration](docs/weather-integration.md) guides.
+
+For Android build, emulator tests, and local setup, see [Android initialization](docs/android-initialization.md).
+
+**Not yet available:** business features and their tests, a confirmed weather provider adapter, farm background jobs, and CI.
 
 **Checks that work today:**
 
 - Follow the [database guides](database/README.md) to start or connect to SQL Server, then execute `03_VerifySchema.sql` in DBeaver/SSMS to check the database schema.
 - Validate Docker Compose configuration on the macOS setup with `cd database && docker compose config --quiet` after creating your local `.env`.
 - Test the GitHub branch/PR workflow using the documentation-only steps above.
+- Build and test the Android foundation using the [Android guide](docs/android-initialization.md).
 
-**Planned after project initialization:** .NET restore/build/tests; Android Gradle build/tests; GitHub Actions CI for pull requests targeting `dev` and `main`. CI should become a required branch check **only after workflows exist and pass**.
+**Planned after project initialization:** business features and tests; GitHub Actions CI for pull requests targeting `dev` and `main`. CI should become a required branch check **only after workflows exist and pass**.
 
 ## Collaboration rules
 
@@ -199,7 +237,10 @@ The repository **does not yet contain executable .NET or Android application pro
 ## Next milestones
 
 1. Finish and verify the repository's protected-branch and PR workflow.
-2. Initialize the **.NET 10** solution (Core, Infrastructure, Web, Worker).
-3. Connect the .NET backend to SQL Server and reconcile EF Core with the existing SQL schema.
-4. Initialize the **Kotlin / Compose** Android project.
-5. Add **GitHub Actions** build/test workflows, then begin domain features and integrations.
+2. ~~Initialize the **.NET 10** solution (Core, Infrastructure, Web, Worker).~~ Completed; offline schema tests are available and CI remains planned.
+3. ~~Connect the .NET backend to SQL Server and reconcile EF Core with the existing SQL schema.~~ Implemented and verified; baseline history adoption requires approval.
+4. ~~Initialize the **Kotlin / Compose** Android project.~~ Foundation build and emulator checks are available.
+5. Verify Phase 6 harvest management locally. Task automation and Android offline sync are deferred; CI/CD remains deferred.
+
+
+
