@@ -12,7 +12,9 @@ public static class WeatherRules
         (day.MaximumTemperatureC is null or >= -100m and <= 100m) &&
         (day.MinimumTemperatureC is null || day.MaximumTemperatureC is null ||
             day.MinimumTemperatureC <= day.MaximumTemperatureC) &&
-        (day.RainfallMm is null or >= 0m and <= 10000m);
+        (day.RainfallMm is null or >= 0m and <= 10000m) &&
+        (day.MaxPrecipitationProbability is null or >= 0m and <= 100m) &&
+        (day.MaxWindKph is null or >= 0m and <= 300m);
 
     public static IReadOnlyList<WeatherWarning> Evaluate(DailyWeatherForecast day)
     {
@@ -20,6 +22,9 @@ public static class WeatherRules
         if (day.RainfallMm is >= 20m)
             results.Add(new WeatherWarning(1, day.RainfallMm >= 50m ? (byte)3 : (byte)2,
                 $"Heavy rain is forecast ({day.RainfallMm:0.#} mm). Check drainage and outdoor farm work."));
+        if (day.MaxWindKph is >= 50m)
+            results.Add(new WeatherWarning(2, day.MaxWindKph >= 80m ? (byte)3 : (byte)2,
+                $"Strong wind is forecast ({day.MaxWindKph:0.#} km/h). Secure equipment and assess outdoor work."));
         if (day.MaximumTemperatureC is >= 35m)
             results.Add(new WeatherWarning(3, day.MaximumTemperatureC >= 40m ? (byte)3 : (byte)2,
                 $"High temperature is forecast ({day.MaximumTemperatureC:0.#}°C). Monitor crop heat stress."));
