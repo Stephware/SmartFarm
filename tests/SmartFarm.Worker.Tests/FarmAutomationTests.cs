@@ -1,5 +1,6 @@
 using SmartFarm.Core.Contracts.Tasks;
 using SmartFarm.Core.Contracts.Weather;
+using SmartFarm.Core.Entities;
 using SmartFarm.Core.Services.Tasks;
 using SmartFarm.Worker.Jobs;
 using SmartFarm.Worker.Services;
@@ -39,6 +40,46 @@ public sealed class FarmAutomationTests
             TaskRules.ScheduleKey(cropId, 2, date.AddDays(1)));
         Assert.NotEqual(TaskRules.ScheduleKey(cropId, 2, date),
             TaskRules.ScheduleKey(cropId, 5, date));
+    }
+
+    [Fact]
+    public void ActiveCropsGenerateRegularWateringAndHarvestDates()
+    {
+        var start = new DateOnly(2026, 10, 20);
+        var crop = new CropCycle
+        {
+            Status = 1,
+            PlantedDate = start,
+            WateringIntervalDays = 2,
+            ExpectedHarvestDate = start.AddDays(5)
+        };
+
+        var tasks = TaskRules.ScheduledTasks(crop, start, start.AddDays(6)).ToList();
+
+        Assert.Contains(tasks, t => t.Type == 2 && t.Due == start.AddDays(2));
+        Assert.Contains(tasks, t => t.Type == 2 && t.Due == start.AddDays(4));
+        Assert.Contains(tasks, t => t.Type == 2 && t.Due == start.AddDays(6));
+        Assert.Contains(tasks, t => t.Type == 5 && t.Due == start.AddDays(5));
+        Assert.DoesNotContain(tasks, t => t.Type == 1);
+    }
+
+    [Fact]
+    public void PlannedCropsOnlyGeneratePlantingTasks()
+    {
+        var day = new DateOnly(2026, 10, 20);
+        var crop = new CropCycle
+        {
+            Status = 0,
+            PlannedPlantingDate = day.AddDays(3),
+            WateringIntervalDays = 2,
+            ExpectedHarvestDate = day.AddDays(5)
+        };
+
+        var tasks = TaskRules.ScheduledTasks(crop, day, day.AddDays(7)).ToList();
+
+        var planting = Assert.Single(tasks);
+        Assert.Equal((byte)1, planting.Type);
+        Assert.Equal(day.AddDays(3), planting.Due);
     }
 
     [Theory]
