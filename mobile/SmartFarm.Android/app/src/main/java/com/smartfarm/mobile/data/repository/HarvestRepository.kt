@@ -25,8 +25,9 @@ class HarvestRepository(private val auth: AuthRepository,
         return result
     }
 
-    suspend fun void(farmId: String, cycleId: String, harvestId: String, reason: String) {
-        auth.authorized { api().void(it, farmId, cycleId, harvestId, VoidHarvestDto(reason)) }
+    suspend fun void(farmId: String, cycleId: String, harvestId: String, reason: String): HarvestEntryDto {
+        val result = auth.authorized { api().void(it, farmId, cycleId, harvestId, VoidHarvestDto(reason)) }
         cache?.invalidate("farm/$farmId/cycle/$cycleId/harvests")
+        return result
     }
 }
