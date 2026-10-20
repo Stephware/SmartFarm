@@ -28,6 +28,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.foundation.text.selection.SelectionContainer
 import com.smartfarm.mobile.data.remote.dto.FarmMemberDto
 import com.smartfarm.mobile.data.remote.dto.PlotDto
+import com.smartfarm.mobile.ui.components.OfflineDataNotice
 
 @Composable
 private fun FarmPage(title: String, content: @Composable () -> Unit) {
@@ -44,6 +45,7 @@ private fun FarmPage(title: String, content: @Composable () -> Unit) {
 private fun Progress(state: FarmUiState) {
     if (state.loading) CircularProgressIndicator()
     state.error?.let { Text(it, color = MaterialTheme.colorScheme.error) }
+    OfflineDataNotice(state.offline, state.cachedAtUtcMillis)
 }
 
 @Composable
@@ -66,13 +68,13 @@ fun FarmListScreen(state: FarmUiState, onOpen: (String) -> Unit, onCreate: (Stri
         OutlinedTextField(name, { name = it }, label = { Text("Name") }, modifier = Modifier.fillMaxWidth())
         OutlinedTextField(location, { location = it }, label = { Text("Location") }, modifier = Modifier.fillMaxWidth())
         Button(onClick = { onCreate(name, location) },
-            enabled = !state.loading && name.isNotBlank() && location.isNotBlank()) { Text("Create") }
+            enabled = !state.loading && !state.offline && name.isNotBlank() && location.isNotBlank()) { Text("Create") }
         HorizontalDivider()
         Text("Accept an invitation", style = MaterialTheme.typography.titleMedium)
         OutlinedTextField(invitation, { invitation = it }, label = { Text("Invitation token") },
             modifier = Modifier.fillMaxWidth())
         Button(onClick = { onAccept(invitation) },
-            enabled = !state.loading && invitation.isNotBlank()) { Text("Join farm") }
+            enabled = !state.loading && !state.offline && invitation.isNotBlank()) { Text("Join farm") }
     }
 }
 
@@ -86,8 +88,8 @@ fun FarmDetailScreen(state: FarmUiState, onBack: () -> Unit,
     onInvite: (String, Int) -> Unit,
     onChangeRole: (FarmMemberDto, Int) -> Unit, onRemoveMember: (FarmMemberDto) -> Unit) {
     val farm = state.selected
-    val canManage = farm?.role in listOf("Owner", "Manager")
-    val isOwner = farm?.role == "Owner"
+    val canManage = !state.offline && farm?.role in listOf("Owner", "Manager")
+    val isOwner = !state.offline && farm?.role == "Owner"
     var name by rememberSaveable(farm?.id) { mutableStateOf(farm?.name.orEmpty()) }
     var location by rememberSaveable(farm?.id) { mutableStateOf(farm?.locationText.orEmpty()) }
     var plotName by rememberSaveable { mutableStateOf("") }

@@ -5,17 +5,34 @@ import androidx.room.RoomDatabase
 import androidx.room.migration.Migration
 import androidx.sqlite.SQLiteConnection
 import androidx.sqlite.execSQL
+import com.smartfarm.mobile.data.local.dao.CachedResponseDao
+import com.smartfarm.mobile.data.local.entity.CachedResponse
 import com.smartfarm.mobile.data.local.dao.LocalMetadataDao
 import com.smartfarm.mobile.data.local.dao.PendingOperationDao
 import com.smartfarm.mobile.data.local.entity.LocalMetadata
 import com.smartfarm.mobile.data.local.entity.PendingOperation
 
-@Database(entities = [LocalMetadata::class, PendingOperation::class], version = 2, exportSchema = true)
+@Database(entities = [LocalMetadata::class, PendingOperation::class, CachedResponse::class], version = 3, exportSchema = true)
 abstract class SmartFarmDatabase : RoomDatabase() {
     abstract fun metadataDao(): LocalMetadataDao
     abstract fun pendingOperationDao(): PendingOperationDao
+    abstract fun cachedResponseDao(): CachedResponseDao
 
     companion object {
+        val MIGRATION_2_3 = object : Migration(2, 3) {
+            override fun migrate(db: SQLiteConnection) {
+                db.execSQL("""
+                    CREATE TABLE IF NOT EXISTS `cached_responses` (
+                        `userId` TEXT NOT NULL,
+                        `resourceKey` TEXT NOT NULL,
+                        `json` TEXT NOT NULL,
+                        `savedAtUtcMillis` INTEGER NOT NULL,
+                        PRIMARY KEY(`userId`, `resourceKey`)
+                    )
+                """.trimIndent())
+            }
+        }
+
         val MIGRATION_1_2 = object : Migration(1, 2) {
             override fun migrate(db: SQLiteConnection) {
                 db.execSQL("""

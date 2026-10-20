@@ -1,5 +1,7 @@
 package com.smartfarm.mobile.data.repository
 
+import com.smartfarm.mobile.data.local.CachedRead
+import com.smartfarm.mobile.data.local.OfflineReadCache
 import com.smartfarm.mobile.data.remote.api.MonitoringApi
 import com.smartfarm.mobile.data.remote.dto.ActivityInputDto
 import com.smartfarm.mobile.data.remote.dto.MonitoringDto
@@ -10,10 +12,17 @@ import okhttp3.RequestBody.Companion.toRequestBody
 
 class MonitoringRepository(
     private val authentication: AuthRepository,
+    private val cache: OfflineReadCache? = null,
     private val api: () -> MonitoringApi
 ) {
+    suspend fun listSnapshot(farmId: String, cycleId: String): CachedRead<MonitoringDto> =
+        cache?.read("farm/$farmId/cycle/$cycleId/monitoring", MonitoringDto::class.java) {
+            authentication.authorized { api().list(it, farmId, cycleId) }
+        } ?: CachedRead(authentication.authorized { api().list(it, farmId, cycleId) },
+            false, System.currentTimeMillis())
+
     suspend fun list(farmId: String, cycleId: String): MonitoringDto =
-        authentication.authorized { api().list(it, farmId, cycleId) }
+        listSnapshot(farmId, cycleId).value
 
     suspend fun activity(farmId: String, cycleId: String, kind: Int, notes: String?) =
         authentication.authorized {

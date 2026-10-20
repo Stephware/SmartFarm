@@ -22,7 +22,9 @@ data class CropUiState(
     val error: String? = null,
     val types: List<CropTypeDto> = emptyList(),
     val plots: List<PlotDto> = emptyList(),
-    val cycles: List<CropCycleDto> = emptyList()
+    val cycles: List<CropCycleDto> = emptyList(),
+    val offline: Boolean = false,
+    val cachedAtUtcMillis: Long? = null
 )
 
 class CropViewModel(
@@ -39,10 +41,14 @@ class CropViewModel(
         mutable.value = CropUiState(farmId = farmId, busy = true)
         viewModelScope.launch {
             try {
-                val types = crops.types(farmId)
-                val plots = farms.plots(farmId)
-                val cycles = crops.cycles(farmId)
-                mutable.value = CropUiState(farmId, types = types, plots = plots, cycles = cycles)
+                val types = crops.typesSnapshot(farmId)
+                val plots = farms.plotsSnapshot(farmId)
+                val cycles = crops.cyclesSnapshot(farmId)
+                val cached = types.offline || plots.offline || cycles.offline
+                mutable.value = CropUiState(farmId, types = types.value,
+                    plots = plots.value, cycles = cycles.value, offline = cached,
+                    cachedAtUtcMillis = listOf(types, plots, cycles)
+                        .filter { it.offline }.minOfOrNull { it.savedAtUtcMillis })
             } catch (_: Exception) {
                 mutable.value = CropUiState(farmId, error = "Could not load crops. Check farm access and connection.")
             }

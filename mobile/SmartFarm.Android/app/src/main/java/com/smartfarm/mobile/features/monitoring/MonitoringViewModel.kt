@@ -29,7 +29,9 @@ data class MonitoringUiState(
     val canRecord: Boolean = false,
     val activities: List<ActivityDto> = emptyList(),
     val observations: List<ObservationDto> = emptyList(),
-    val preview: Bitmap? = null
+    val preview: Bitmap? = null,
+    val offline: Boolean = false,
+    val cachedAtUtcMillis: Long? = null
 )
 
 class MonitoringViewModel(private val repository: MonitoringRepository,
@@ -49,10 +51,12 @@ class MonitoringViewModel(private val repository: MonitoringRepository,
     }
 
     private suspend fun refresh(farmId: String, cycleId: String) {
-        val data = repository.list(farmId, cycleId)
+        val snapshot = repository.listSnapshot(farmId, cycleId)
+        val data = snapshot.value
         mutable.value = mutable.value.copy(
             canRecord = data.canRecord, activities = data.activities,
-            observations = data.observations)
+            observations = data.observations, offline = snapshot.offline,
+            cachedAtUtcMillis = snapshot.savedAtUtcMillis.takeIf { snapshot.offline })
     }
 
     private fun submit(queued: Boolean = true, action: suspend (String, String) -> Unit) {

@@ -25,6 +25,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import com.smartfarm.mobile.data.remote.dto.InventoryTransactionDto
+import com.smartfarm.mobile.ui.components.OfflineDataNotice
 
 @Composable
 private fun InventoryPage(title: String, content: @Composable () -> Unit) {
@@ -41,6 +42,7 @@ private fun InventoryPage(title: String, content: @Composable () -> Unit) {
 private fun Feedback(state: InventoryUiState) {
     if (state.busy) CircularProgressIndicator()
     state.error?.let { Text(it, color = MaterialTheme.colorScheme.error) }
+    OfflineDataNotice(state.offline, state.cachedAtUtcMillis)
             state.notice?.let { Text(it, color = MaterialTheme.colorScheme.primary) }
 }
 
@@ -69,7 +71,7 @@ fun InventoryListScreen(
                     if (item.isLowStock) " · Low stock" else "")
             }
         }
-        if (canManage) {
+        if (canManage && !state.offline) {
             HorizontalDivider()
             Text("Create stock item", style = MaterialTheme.typography.titleLarge)
             OutlinedTextField(name, { name = it }, label = { Text("Name") }, modifier = Modifier.fillMaxWidth())
@@ -119,7 +121,7 @@ fun InventoryItemScreen(
             Text("${item.quantityOnHand} ${item.unit}", style = MaterialTheme.typography.headlineSmall)
             if (item.isLowStock) Text("Low stock", color = MaterialTheme.colorScheme.error)
             if (item.archivedAtUtc != null) Text("Archived — read only")
-            if (item.archivedAtUtc == null && canManage) {
+            if (item.archivedAtUtc == null && canManage && !state.offline) {
                 HorizontalDivider()
                 Text("Item details", style = MaterialTheme.typography.titleMedium)
                 OutlinedTextField(name, { name = it }, label = { Text("Name") }, modifier = Modifier.fillMaxWidth())
@@ -182,7 +184,7 @@ fun InventoryItemScreen(
                 }
                 Text("$type · ${transaction.quantityChange} ${item.unit} · ${transaction.occurredAtUtc}")
                 transaction.reason?.let { Text(it) }
-                if (canManage && item.archivedAtUtc == null &&
+                if (canManage && !state.offline && item.archivedAtUtc == null &&
                     transaction.transactionType != 5 && transaction.id !in reversedIds) {
                     OutlinedTextField(reversalReason, { reversalReason = it },
                         label = { Text("Reversal reason") })

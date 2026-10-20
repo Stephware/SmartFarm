@@ -1,6 +1,7 @@
 package com.smartfarm.mobile.features.monitoring
 
 import android.net.Uri
+import com.smartfarm.mobile.ui.components.OfflineDataNotice
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
@@ -59,6 +60,7 @@ fun MonitoringScreen(
             if (state.busy) CircularProgressIndicator()
             state.error?.let { Text(it, color = MaterialTheme.colorScheme.error) }
             state.notice?.let { Text(it, color = MaterialTheme.colorScheme.primary) }
+            OfflineDataNotice(state.offline, state.cachedAtUtcMillis)
 
             if (state.canRecord) {
                 Text("Record farm activity", style = MaterialTheme.typography.titleLarge)
@@ -116,7 +118,7 @@ fun MonitoringScreen(
                         Text("View photo · ${photo.uploadedAtUtc}")
                     }
                 }
-                if (state.canRecord) {
+                if (state.canRecord && !state.offline) {
                     Button(onClick = {
                         targetObservation = observation.id
                         picker.launch("image/*")

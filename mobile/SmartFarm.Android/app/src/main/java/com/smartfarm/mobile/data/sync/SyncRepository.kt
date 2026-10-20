@@ -98,6 +98,8 @@ class SyncRepository(
                 val input = gson.fromJson(operation.payloadJson, SyncWriteRequest::class.java)
                 try {
                     auth.authorized { bearer -> api().submit(bearer, operation.operationId, input) }
+                    // Keep previously viewed field data for the next offline session.
+                    // A future successful API read refreshes the snapshot.
                     dao.remove(operation.operationId, userId)
                 } catch (cancelled: CancellationException) {
                     throw cancelled

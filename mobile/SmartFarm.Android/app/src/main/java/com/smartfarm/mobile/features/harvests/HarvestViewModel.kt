@@ -18,7 +18,9 @@ data class HarvestUiState(
     val busy: Boolean = false,
     val error: String? = null,
     val notice: String? = null,
-    val overview: HarvestOverviewDto? = null
+    val overview: HarvestOverviewDto? = null,
+    val offline: Boolean = false,
+    val cachedAtUtcMillis: Long? = null
 )
 
 class HarvestViewModel(private val repository: HarvestRepository,
@@ -32,7 +34,10 @@ class HarvestViewModel(private val repository: HarvestRepository,
         mutable.value = HarvestUiState(farmId = farmId, cycleId = cycleId, busy = true)
         viewModelScope.launch {
             try {
-                mutable.value = mutable.value.copy(overview = repository.list(farmId, cycleId))
+                val snapshot = repository.listSnapshot(farmId, cycleId)
+                mutable.value = mutable.value.copy(overview = snapshot.value,
+                    offline = snapshot.offline,
+                    cachedAtUtcMillis = snapshot.savedAtUtcMillis.takeIf { snapshot.offline })
             } catch (_: Exception) {
                 mutable.value = mutable.value.copy(error = "Could not load harvest history.")
             } finally {
