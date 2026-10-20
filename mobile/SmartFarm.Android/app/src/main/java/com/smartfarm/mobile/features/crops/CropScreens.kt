@@ -27,6 +27,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import com.smartfarm.mobile.data.remote.dto.CropCycleDto
+import com.smartfarm.mobile.ui.components.OfflineDataNotice
 
 @Composable
 fun CropScreen(
@@ -56,12 +57,13 @@ fun CropScreen(
             OutlinedButton(onClick = onBack) { Text("Back to farm") }
             if (state.busy) CircularProgressIndicator()
             state.error?.let { Text(it, color = MaterialTheme.colorScheme.error) }
+            OfflineDataNotice(state.offline, state.cachedAtUtcMillis)
 
             Text("Available crop types", style = MaterialTheme.typography.titleLarge)
             if (state.types.isEmpty()) Text("No crop types yet.")
             state.types.forEach { type -> Text("${type.name} · ${type.defaultHarvestUnit}") }
 
-            if (canManage) {
+            if (canManage && !state.offline) {
                 HorizontalDivider()
                 Text("Add crop type", style = MaterialTheme.typography.titleMedium)
                 OutlinedTextField(typeName, { typeName = it }, label = { Text("Crop name") },
@@ -110,7 +112,7 @@ fun CropScreen(
             Text("Crop cycles and history", style = MaterialTheme.typography.titleLarge)
             if (state.cycles.isEmpty()) Text("No crop cycles yet.")
             state.cycles.forEach { cycle ->
-                CycleCard(cycle, canManage, state.busy, onUpdatePlan, onTransition, onMonitoring, onHarvests)
+                CycleCard(cycle, canManage && !state.offline, state.busy, onUpdatePlan, onTransition, onMonitoring, onHarvests)
                 HorizontalDivider()
             }
         }
