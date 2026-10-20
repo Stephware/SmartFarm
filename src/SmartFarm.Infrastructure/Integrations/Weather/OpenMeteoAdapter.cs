@@ -24,11 +24,14 @@ public sealed class OpenMeteoAdapter : IWeatherProviderAdapter
     {
         await using var stream = await response.Content.ReadAsStreamAsync(cancellationToken);
         using var json = await JsonDocument.ParseAsync(stream, cancellationToken: cancellationToken);
-        var daily = json.RootElement.GetProperty("daily");
-        var dates = daily.GetProperty("time");
-        var lows = daily.GetProperty("temperature_2m_min");
-        var highs = daily.GetProperty("temperature_2m_max");
-        var rain = daily.GetProperty("precipitation_sum");
+        if (json.RootElement.ValueKind != JsonValueKind.Object ||
+            !json.RootElement.TryGetProperty("daily", out var daily) ||
+            daily.ValueKind != JsonValueKind.Object ||
+            !daily.TryGetProperty("time", out var dates) ||
+            !daily.TryGetProperty("temperature_2m_min", out var lows) ||
+            !daily.TryGetProperty("temperature_2m_max", out var highs) ||
+            !daily.TryGetProperty("precipitation_sum", out var rain))
+            throw new JsonException("Missing required daily weather data.");
         if (dates.ValueKind != JsonValueKind.Array ||
             lows.ValueKind != JsonValueKind.Array ||
             highs.ValueKind != JsonValueKind.Array ||
@@ -55,6 +58,8 @@ public sealed class OpenMeteoAdapter : IWeatherProviderAdapter
         var days = new List<DailyWeatherForecast>();
         for (var i = 0; i < dates.GetArrayLength(); i++)
         {
+            if (dates[i].ValueKind != JsonValueKind.String)
+                throw new JsonException("Invalid daily date.");
             var date = DateOnly.ParseExact(dates[i].GetString()!, "yyyy-MM-dd", CultureInfo.InvariantCulture);
             days.Add(new DailyWeatherForecast(
                 date, Number(lows[i]), Number(highs[i]), Number(rain[i]),
