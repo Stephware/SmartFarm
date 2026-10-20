@@ -97,7 +97,7 @@ public sealed class BackgroundProcessingTests
     }
 
     [Fact]
-    public void StorageNeverInstallsOrUpgradesSchema()
+    public void StorageDoesNotChangeSchemaByDefault()
     {
         var options = BackgroundProcessingRegistration.CreateStorageOptions();
 
