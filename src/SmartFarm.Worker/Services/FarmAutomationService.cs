@@ -17,30 +17,6 @@ public sealed class FarmAutomationService(
         DateOnly.FromDateTime(TimeZoneInfo.ConvertTimeFromUtc(
             utcNow, TimeZoneInfo.FindSystemTimeZoneById(farm.TimeZoneId)));
 
-    private static IEnumerable<(byte Type, DateOnly Due)> ScheduledTasks(CropCycle crop,
-        DateOnly today, DateOnly lastDay)
-    {
-        if (crop.Status == 0 && crop.PlannedPlantingDate >= today &&
-            crop.PlannedPlantingDate <= lastDay)
-            yield return (1, crop.PlannedPlantingDate);
-
-        if (crop.Status != 1) yield break;
-
-        if (crop.PlantedDate is { } planted && crop.WateringIntervalDays is > 0)
-        {
-            var interval = crop.WateringIntervalDays.Value;
-            var days = today.DayNumber - planted.DayNumber;
-            var next = Math.Max(1, (days + interval - 1) / interval);
-            for (var due = planted.AddDays(next * interval); due <= lastDay; due = due.AddDays(interval))
-            {
-                if (due >= today) yield return (2, due);
-            }
-        }
-
-        if (crop.ExpectedHarvestDate is { } harvest && harvest >= today && harvest <= lastDay)
-            yield return (5, harvest);
-    }
-
     public async Task GenerateTasksAndRemindersAsync(CancellationToken ct = default)
     {
         var utcNow = DateTime.UtcNow;
@@ -70,7 +46,7 @@ public sealed class FarmAutomationService(
 
             foreach (var crop in cycles)
             {
-                foreach (var (type, due) in ScheduledTasks(crop, today, horizon))
+                foreach (var (type, due) in TaskRules.ScheduledTasks(crop, today, horizon))
                 {
                     var key = TaskRules.ScheduleKey(crop.Id, type, due);
                     if (!keys.Add(key)) continue;
