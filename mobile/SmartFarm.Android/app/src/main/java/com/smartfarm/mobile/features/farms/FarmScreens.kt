@@ -122,6 +122,31 @@ fun FarmDetailScreen(state: FarmUiState, onBack: () -> Unit,
             Text("${farm.locationText} · ${farm.role}")
             Button(onClick = onCrops) { Text("Crop management") }
             Button(onClick = onInventory) { Text("Inventory") }
+            HorizontalDivider()
+            Text("Weather forecast and advisories", style = MaterialTheme.typography.titleLarge)
+            val weather = state.weather
+            if (weather == null) {
+                Text(state.weatherMessage ?: "Weather information has not been loaded.")
+            } else if (!weather.hasCoordinates) {
+                Text("Add both farm coordinates in Edit farm to enable weather checks.")
+            } else {
+                Text("Forecast time zone: ${weather.timeZoneId}. Saved by the weather worker.")
+                if (weather.days.isEmpty()) {
+                    Text("No saved forecast yet. Check the worker and weather provider.")
+                } else {
+                    weather.days.forEach { day ->
+                        Text("${day.date}: ${day.minTemperatureC ?: "—"}–${day.maxTemperatureC ?: "—"} °C, " +
+                            "${day.rainfallMm ?: "—"} mm rain",
+                            style = MaterialTheme.typography.bodyMedium)
+                    }
+                }
+                val active = weather.advisories.filter { it.status == 0 }
+                if (active.isEmpty()) Text("No active weather warnings.")
+                active.forEach { advisory ->
+                    Text("${advisory.date} · Severity ${advisory.severity}: ${advisory.message}",
+                        color = MaterialTheme.colorScheme.error)
+                }
+            }
             if (canManage) {
                 Text("Edit farm", style = MaterialTheme.typography.titleMedium)
                 OutlinedTextField(name, { name = it }, label = { Text("Name") },
