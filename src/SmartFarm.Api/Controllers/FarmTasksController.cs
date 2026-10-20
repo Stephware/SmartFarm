@@ -27,6 +27,11 @@ public sealed class FarmTasksController(
             return Ok(created);
         });
 
+    [HttpPut("{taskId:guid}")]
+    public Task<IActionResult> Update(Guid farmId, Guid taskId, [FromBody] FarmTaskUpdateInput input,
+        CancellationToken ct) =>
+        Result(async () => Ok(await tasks.UpdateAsync(farmId, taskId, ActorId, input, ct)));
+
     [HttpPut("{taskId:guid}/close")]
     public Task<IActionResult> Close(Guid farmId, Guid taskId, [FromBody] FarmTaskCloseInput input, CancellationToken ct) =>
         Result(async () => Ok(await tasks.CloseAsync(farmId, taskId, ActorId, input, ct)));
