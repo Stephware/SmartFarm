@@ -10,7 +10,6 @@ import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkManager
 import com.google.gson.Gson
 import com.smartfarm.mobile.data.local.dao.PendingOperationDao
-import com.smartfarm.mobile.data.local.OfflineReadCache
 import com.smartfarm.mobile.data.local.entity.PendingOperation
 import com.smartfarm.mobile.data.remote.api.SyncApi
 import com.smartfarm.mobile.data.remote.dto.*
@@ -26,8 +25,7 @@ class SyncRepository(
     private val auth: AuthRepository,
     private val dao: PendingOperationDao,
     private val api: () -> SyncApi,
-    private val work: WorkManager,
-    private val cache: OfflineReadCache? = null
+    private val work: WorkManager
 ) {
     private val gson = Gson()
 
@@ -100,14 +98,8 @@ class SyncRepository(
                 val input = gson.fromJson(operation.payloadJson, SyncWriteRequest::class.java)
                 try {
                     auth.authorized { bearer -> api().submit(bearer, operation.operationId, input) }
-                    // Discard stale read snapshots after the server confirms this write.
-                    when (operation.operationType) {
-                        "activity", "observation" ->
-                            cache?.invalidate("farm/${input.farmId}/cycle/${input.targetId}/monitoring")
-                        "inventory" -> cache?.invalidatePrefix("farm/${input.farmId}/inventory")
-                        "harvest" ->
-                            cache?.invalidate("farm/${input.farmId}/cycle/${input.targetId}/harvests")
-                    }
+                    // Keep previously viewed field data for the next offline session.
+                    // A future successful API read refreshes the snapshot.
                     dao.remove(operation.operationId, userId)
                 } catch (cancelled: CancellationException) {
                     throw cancelled
