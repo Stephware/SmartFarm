@@ -12,6 +12,7 @@ public sealed class HarvestCsvTests
     [InlineData("=SUM(1,2)", "\"'=SUM(1,2)\"")]
     [InlineData("+cmd", "\"'+cmd\"")]
     [InlineData("@formula", "\"'@formula\"")]
+    [InlineData("  =SUM(1,2)", "\"'  =SUM(1,2)\"")]
     public void CsvEscapesCellsAndPreventsFormulas(string input, string expected) =>
         Assert.Equal(expected, HarvestCsv.Cell(input));
 
