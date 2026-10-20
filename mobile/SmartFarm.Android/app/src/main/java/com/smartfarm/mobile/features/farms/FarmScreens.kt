@@ -140,6 +140,8 @@ fun FarmDetailScreen(state: FarmUiState, onBack: () -> Unit,
                             "${day.maxPrecipitationProbability ?: "—"}% rain chance, " +
                             "${day.maxWindKph ?: "—"} km/h wind",
                             style = MaterialTheme.typography.bodyMedium)
+                        Text("Checked ${day.retrievedAtUtc} (UTC)",
+                            style = MaterialTheme.typography.bodySmall)
                     }
                 }
                 val active = weather.advisories.filter { it.status == 0 }
