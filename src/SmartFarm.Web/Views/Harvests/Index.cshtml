@@ -6,7 +6,9 @@
 }
 <section class="panel">
     <p><a asp-controller="Crops" asp-action="Index"
-          asp-route-farmId="@cycle.FarmId">← Crop management</a></p>
+          asp-route-farmId="@cycle.FarmId">← Crop management</a>
+       · <a asp-controller="Reports" asp-action="Harvests"
+          asp-route-farmId="@cycle.FarmId">Farm-wide harvest report</a></p>
     <h1>Harvests · @cycle.CropTypeName</h1>
     <p>@cycle.PlotName · Crop status: <strong>@cycle.Status</strong></p>
     <h2>@overview.TotalQuantity.ToString("N3") @overview.Unit</h2>
