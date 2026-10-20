@@ -82,7 +82,9 @@ public sealed class SmartFarmApiClient
                     new FarmOperationException(FarmError.Conflict, message),
                 HttpStatusCode.BadRequest =>
                     new FarmOperationException(FarmError.InvalidInput, message),
-                _ => new HttpRequestException("SmartFarm API is unavailable.", null, status)
+                _ => new HttpRequestException(
+                    $"SmartFarm API returned HTTP {(int)status} ({status}). Check the API server logs.",
+                    null, status)
             };
         }
         catch (HttpRequestException error) when (error.StatusCode is null)
