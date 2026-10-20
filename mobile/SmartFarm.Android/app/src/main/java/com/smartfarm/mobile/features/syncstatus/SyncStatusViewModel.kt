@@ -29,6 +29,7 @@ class SyncStatusViewModel(private val repository: SyncRepository) : ViewModel() 
     }
 
     fun retry(id: String) = viewModelScope.launch { repository.retry(id) }
+    fun discard(id: String) = viewModelScope.launch { repository.discard(id) }
     fun syncNow() = repository.schedule()
 
     class Factory(private val repository: SyncRepository) : ViewModelProvider.Factory {
