@@ -37,6 +37,31 @@ IF (SELECT COUNT(*) FROM sys.columns AS c
         AND c.system_type_id = TYPE_ID(N'timestamp')) <> 5
     THROW 50016, 'Expected five SQL rowversion columns.', 1;
 
+-- Disabled or untrusted constraints can look present while not protecting data.
+IF EXISTS (
+    SELECT 1 FROM sys.foreign_keys AS fk
+    JOIN sys.tables AS t ON t.object_id = fk.parent_object_id
+    WHERE t.schema_id = SCHEMA_ID(N'dbo')
+        AND (fk.is_disabled = 1 OR fk.is_not_trusted = 1)
+)
+    THROW 50018, 'Foreign key checks are disabled or untrusted.', 1;
+
+IF EXISTS (
+    SELECT 1 FROM sys.check_constraints AS ck
+    JOIN sys.tables AS t ON t.object_id = ck.parent_object_id
+    WHERE t.schema_id = SCHEMA_ID(N'dbo')
+        AND (ck.is_disabled = 1 OR ck.is_not_trusted = 1)
+)
+    THROW 50019, 'Check constraints are disabled or untrusted.', 1;
+
+IF EXISTS (
+    SELECT 1 FROM sys.indexes AS i
+    JOIN sys.tables AS t ON t.object_id = i.object_id
+    WHERE t.schema_id = SCHEMA_ID(N'dbo')
+        AND i.name IS NOT NULL AND i.is_disabled = 1
+)
+    THROW 50020, 'An application index is disabled.', 1;
+
 -- These unique indexes protect important business rules and retry safety.
 IF EXISTS (
     SELECT 1
