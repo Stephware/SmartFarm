@@ -11,6 +11,7 @@ using SmartFarm.Core.Contracts.Farms;
 using SmartFarm.Core.Contracts.Harvests;
 using SmartFarm.Core.Contracts.Inventory;
 using SmartFarm.Core.Contracts.Monitoring;
+using SmartFarm.Core.Contracts.Reports;
 using SmartFarm.Core.Contracts.Tasks;
 using SmartFarm.Core.Enums;
 using Xunit;
@@ -223,6 +224,25 @@ public sealed class BusinessWorkflowSqlTests
         Assert.Equal(1, afterVoid.ValidHarvestCount);
         Assert.Equal(1, afterVoid.VoidedHarvestCount);
 
+        // Farm-wide dashboard and reports use exactly the same harvest records.
+        var farmReport = await GetAsync<HarvestReport>(client, farm + "/reports/harvests");
+        Assert.Equal(1, farmReport.ValidHarvestCount);
+        Assert.Equal(1, farmReport.VoidedHarvestCount);
+        Assert.Equal(2, farmReport.Entries.Count);
+        Assert.Equal(1m, farmReport.UnitTotals.Single().Quantity);
+        Assert.Equal("kg", farmReport.UnitTotals.Single().Unit);
+        Assert.Single(farmReport.CropPlotTotals);
+        var filteredReport = await GetAsync<HarvestReport>(client,
+            farm + $"/reports/harvests?plotId={plot.Id}&cropTypeId={type.Id}");
+        Assert.Equal(1m, filteredReport.UnitTotals.Single().Quantity);
+        using (var invalidReport = await client.GetAsync(
+            farm + "/reports/harvests?from=2026-11-10&to=2026-01-01"))
+            Assert.Equal(HttpStatusCode.BadRequest, invalidReport.StatusCode);
+        var dashboard = await GetAsync<FarmDashboard>(client, farm + "/dashboard");
+        Assert.Equal(1, dashboard.ActivePlots);
+        Assert.Equal(1, dashboard.ActiveCrops);
+        Assert.Equal(1m, dashboard.HarvestLast30Days.Single().Quantity);
+
         // Lost-response retries must not create extra inventory movements or harvests.
         var inventorySyncId = Guid.NewGuid();
         var inventorySync = new SyncWriteInput
@@ -268,6 +288,9 @@ public sealed class BusinessWorkflowSqlTests
         var finalHarvest = await GetAsync<HarvestOverview>(client, harvests);
         Assert.Equal(3m, finalHarvest.TotalQuantity);
         Assert.Equal(2, finalHarvest.ValidHarvestCount);
+        var updatedReport = await GetAsync<HarvestReport>(client, farm + "/reports/harvests");
+        Assert.Equal(3m, updatedReport.UnitTotals.Single().Quantity);
+        Assert.Equal(1, updatedReport.VoidedHarvestCount);
 
         var pendingOnCompletion = await PostAsync<FarmTaskDetails>(client, taskPath,
             new FarmTaskInput(4, planting, "Inspect before closure", planned.Id, null));
@@ -287,12 +310,16 @@ public sealed class BusinessWorkflowSqlTests
         using var restrictedHarvest = await other.GetAsync(harvests);
         using var restrictedTasks = await other.GetAsync(taskPath);
         using var restrictedWeather = await other.GetAsync(farm + "/weather");
+        using var restrictedDashboard = await other.GetAsync(farm + "/dashboard");
+        using var restrictedReport = await other.GetAsync(farm + "/reports/harvests");
         using var restrictedSync = await other.PostAsJsonAsync(syncRoute, inventorySync);
         Assert.Equal(HttpStatusCode.NotFound, restrictedSync.StatusCode);
         Assert.Equal(HttpStatusCode.NotFound, restrictedFarm.StatusCode);
         Assert.Equal(HttpStatusCode.NotFound, restrictedHarvest.StatusCode);
         Assert.Equal(HttpStatusCode.NotFound, restrictedTasks.StatusCode);
         Assert.Equal(HttpStatusCode.NotFound, restrictedWeather.StatusCode);
+        Assert.Equal(HttpStatusCode.NotFound, restrictedDashboard.StatusCode);
+        Assert.Equal(HttpStatusCode.NotFound, restrictedReport.StatusCode);
     }
 
     private static async Task RegisterAsync(HttpClient client, string email, string password)
