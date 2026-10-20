@@ -31,15 +31,18 @@ class MainActivity : ComponentActivity() {
     }
 
     private val monitoring: MonitoringViewModel by viewModels {
-        MonitoringViewModel.Factory((application as SmartFarmApplication).container.monitoringRepository)
+        MonitoringViewModel.Factory((application as SmartFarmApplication).container.monitoringRepository,
+            (application as SmartFarmApplication).container.syncRepository)
     }
 
     private val inventory: InventoryViewModel by viewModels {
-        InventoryViewModel.Factory((application as SmartFarmApplication).container.inventoryRepository)
+        InventoryViewModel.Factory((application as SmartFarmApplication).container.inventoryRepository,
+            (application as SmartFarmApplication).container.syncRepository)
     }
 
     private val harvests: HarvestViewModel by viewModels {
-        HarvestViewModel.Factory((application as SmartFarmApplication).container.harvestRepository)
+        HarvestViewModel.Factory((application as SmartFarmApplication).container.harvestRepository,
+            (application as SmartFarmApplication).container.syncRepository)
     }
 
     private val syncStatus: SyncStatusViewModel by viewModels {
