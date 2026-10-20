@@ -34,6 +34,7 @@ public static class DependencyInjection
         services.AddScoped<IInventoryItemRepository, InventoryItemRepository>();
         services.AddScoped<IInventoryTransactionRepository, InventoryTransactionRepository>();
         services.AddScoped<IHarvestRepository, HarvestRepository>();
+        services.AddScoped<IFarmTaskRepository, FarmTaskRepository>();
         services.AddScoped<IUnitOfWork, EfUnitOfWork>();
         return services;
     }
