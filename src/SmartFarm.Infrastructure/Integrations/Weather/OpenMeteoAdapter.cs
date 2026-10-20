@@ -34,8 +34,12 @@ public sealed class OpenMeteoAdapter : IWeatherProviderAdapter
         var wind = daily.TryGetProperty("wind_speed_10m_max", out var windSpeed)
             ? windSpeed : (JsonElement?)null;
 
-        if (probability is { } chance && chance.GetArrayLength() != dates.GetArrayLength() ||
-            wind is { } gust && gust.GetArrayLength() != dates.GetArrayLength())
+        if (probability is { } chanceArray &&
+                (chanceArray.ValueKind != JsonValueKind.Array ||
+                 chanceArray.GetArrayLength() != dates.GetArrayLength()) ||
+            wind is { } windArray &&
+                (windArray.ValueKind != JsonValueKind.Array ||
+                 windArray.GetArrayLength() != dates.GetArrayLength()))
             throw new JsonException("Inconsistent optional daily weather data.");
 
         if (dates.GetArrayLength() != lows.GetArrayLength() ||
