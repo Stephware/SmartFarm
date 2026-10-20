@@ -58,6 +58,7 @@ fun MonitoringScreen(
             OutlinedButton(onClick = onBack) { Text("Back to crops") }
             if (state.busy) CircularProgressIndicator()
             state.error?.let { Text(it, color = MaterialTheme.colorScheme.error) }
+            state.notice?.let { Text(it, color = MaterialTheme.colorScheme.primary) }
 
             if (state.canRecord) {
                 Text("Record farm activity", style = MaterialTheme.typography.titleLarge)
