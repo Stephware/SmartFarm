@@ -4,9 +4,16 @@ using Xunit;
 
 namespace SmartFarm.Api.Tests;
 
-// Each route must reject anonymous requests before accessing farm data.
+// Anonymous users must not access farm data or business operations.
 public sealed class BusinessEndpointTests : IClassFixture<WebApplicationFactory<Program>>
 {
+    private static readonly Guid FarmId = Guid.NewGuid();
+    private static readonly Guid PlotId = Guid.NewGuid();
+    private static readonly Guid CycleId = Guid.NewGuid();
+    private static readonly Guid ItemId = Guid.NewGuid();
+    private static readonly Guid TransactionId = Guid.NewGuid();
+    private static readonly Guid HarvestId = Guid.NewGuid();
+
     private readonly HttpClient _client;
 
     public BusinessEndpointTests(WebApplicationFactory<Program> factory)
@@ -17,37 +24,53 @@ public sealed class BusinessEndpointTests : IClassFixture<WebApplicationFactory<
         });
     }
 
-    public static TheoryData<string, string> ProtectedRoutes => new()
+    public static TheoryData<string, string> ProtectedRoutes
     {
-        { "GET", "/api/auth/me" },
-        { "GET", "/api/farms" },
-        { "POST", "/api/farms" },
-        { "GET", "/api/farms/11111111-1111-1111-1111-111111111111" },
-        { "PUT", "/api/farms/11111111-1111-1111-1111-111111111111" },
-        { "DELETE", "/api/farms/11111111-1111-1111-1111-111111111111" },
-        { "GET", "/api/farms/11111111-1111-1111-1111-111111111111/plots" },
-        { "POST", "/api/farms/11111111-1111-1111-1111-111111111111/plots" },
-        { "PUT", "/api/farms/11111111-1111-1111-1111-111111111111/plots/22222222-2222-2222-2222-222222222222" },
-        { "GET", "/api/farms/11111111-1111-1111-1111-111111111111/access" },
-        { "GET", "/api/farms/11111111-1111-1111-1111-111111111111/members" },
-        { "POST", "/api/farms/11111111-1111-1111-1111-111111111111/members/invitations" },
-        { "POST", "/api/farm-invitations/accept" },
-        { "GET", "/api/farms/11111111-1111-1111-1111-111111111111/crop-types" },
-        { "POST", "/api/farms/11111111-1111-1111-1111-111111111111/crop-types" },
-        { "GET", "/api/farms/11111111-1111-1111-1111-111111111111/crop-cycles" },
-        { "POST", "/api/farms/11111111-1111-1111-1111-111111111111/plots/22222222-2222-2222-2222-222222222222/crop-cycles" },
-        { "POST", "/api/farms/11111111-1111-1111-1111-111111111111/crop-cycles/33333333-3333-3333-3333-333333333333/transitions" },
-        { "GET", "/api/farms/11111111-1111-1111-1111-111111111111/crop-cycles/33333333-3333-3333-3333-333333333333/monitoring" },
-        { "POST", "/api/farms/11111111-1111-1111-1111-111111111111/crop-cycles/33333333-3333-3333-3333-333333333333/monitoring/activities" },
-        { "POST", "/api/farms/11111111-1111-1111-1111-111111111111/crop-cycles/33333333-3333-3333-3333-333333333333/monitoring/observations" },
-        { "GET", "/api/farms/11111111-1111-1111-1111-111111111111/inventory" },
-        { "POST", "/api/farms/11111111-1111-1111-1111-111111111111/inventory" },
-        { "POST", "/api/farms/11111111-1111-1111-1111-111111111111/inventory/44444444-4444-4444-4444-444444444444/transactions" },
-        { "POST", "/api/farms/11111111-1111-1111-1111-111111111111/inventory/44444444-4444-4444-4444-444444444444/transactions/55555555-5555-5555-5555-555555555555/reverse" },
-        { "GET", "/api/farms/11111111-1111-1111-1111-111111111111/crop-cycles/33333333-3333-3333-3333-333333333333/harvests" },
-        { "POST", "/api/farms/11111111-1111-1111-1111-111111111111/crop-cycles/33333333-3333-3333-3333-333333333333/harvests" },
-        { "POST", "/api/farms/11111111-1111-1111-1111-111111111111/crop-cycles/33333333-3333-3333-3333-333333333333/harvests/66666666-6666-6666-6666-666666666666/void" }
-    };
+        get
+        {
+            const string farms = "/api/farms";
+            var farm = $"{farms}/{FarmId}";
+            var plots = $"{farm}/plots";
+            var cropCycles = $"{farm}/crop-cycles";
+            var crop = $"{cropCycles}/{CycleId}";
+            var monitoring = $"{crop}/monitoring";
+            var inventory = $"{farm}/inventory";
+            var item = $"{inventory}/{ItemId}";
+            var harvests = $"{crop}/harvests";
+
+            return new TheoryData<string, string>
+            {
+                { "GET", "/api/auth/me" },
+                { "GET", farms },
+                { "POST", farms },
+                { "GET", farm },
+                { "PUT", farm },
+                { "DELETE", farm },
+                { "GET", plots },
+                { "POST", plots },
+                { "PUT", $"{plots}/{PlotId}" },
+                { "GET", $"{farm}/access" },
+                { "GET", $"{farm}/members" },
+                { "POST", $"{farm}/members/invitations" },
+                { "POST", "/api/farm-invitations/accept" },
+                { "GET", $"{farm}/crop-types" },
+                { "POST", $"{farm}/crop-types" },
+                { "GET", cropCycles },
+                { "POST", $"{plots}/{PlotId}/crop-cycles" },
+                { "POST", $"{crop}/transitions" },
+                { "GET", monitoring },
+                { "POST", $"{monitoring}/activities" },
+                { "POST", $"{monitoring}/observations" },
+                { "GET", inventory },
+                { "POST", inventory },
+                { "POST", $"{item}/transactions" },
+                { "POST", $"{item}/transactions/{TransactionId}/reverse" },
+                { "GET", harvests },
+                { "POST", harvests },
+                { "POST", $"{harvests}/{HarvestId}/void" }
+            };
+        }
+    }
 
     [Theory]
     [MemberData(nameof(ProtectedRoutes))]
