@@ -40,6 +40,8 @@ public static class BackgroundProcessingRegistration
         });
         services.AddScoped<IWorkerHealthService, WorkerHealthService>();
         services.AddScoped<WorkerHeartbeatJob>();
+        services.AddScoped<TaskReminderJob>();
+        services.AddScoped<WeatherCheckJob>();
         services.AddHostedService<WorkerJobScheduler>();
 
         return services;
