@@ -128,6 +128,21 @@ public sealed class FarmAutomationTests
     }
 
     [Fact]
+    public void StrongWindCreatesAnAdvisoryAndRainChanceIsValidated()
+    {
+        var date = new DateOnly(2026, 10, 20);
+        var day = new DailyWeatherForecast(date, 23, 32, 5, 80, 60);
+        var warning = Assert.Single(WeatherRules.Evaluate(day));
+        Assert.Equal((byte)2, warning.Type);
+        Assert.Equal((byte)2, warning.Severity);
+        Assert.True(WeatherRules.IsPlausible(day));
+        Assert.False(WeatherRules.IsPlausible(day with { MaxPrecipitationProbability = 101 }));
+        Assert.False(WeatherRules.IsPlausible(day with { MaxWindKph = -1 }));
+        Assert.Equal((byte)3,
+            Assert.Single(WeatherRules.Evaluate(day with { MaxWindKph = 85 })).Severity);
+    }
+
+    [Fact]
     public async Task JobsCallTheAutomationService()
     {
         var service = new FakeAutomationService();
