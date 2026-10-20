@@ -133,7 +133,7 @@ if (app.Environment.IsDevelopment())
             logger.LogError(error, "SmartFarm database health check failed");
             return Unhealthy("Database check failed. Read the SmartFarm.Api terminal for the reason.");
         }
-    }););
+    });
 }
 
 app.MapControllers();
