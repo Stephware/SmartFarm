@@ -22,12 +22,8 @@ class OfflineReadCache(
 ) {
     suspend fun <T> read(key: String, type: Type, fetch: suspend () -> T): CachedRead<T> {
         val userId = requireNotNull(authentication.currentUserId) { "Sign in to open cached data." }
-        try {
-            val live = fetch()
-            if (authentication.currentUserId == userId) {
-                dao.save(CachedResponse(userId, key, gson.toJson(live), System.currentTimeMillis()))
-            }
-            return CachedRead(live, false, System.currentTimeMillis())
+        val live = try {
+            fetch()
         } catch (network: IOException) {
             // Do not display snapshots belonging to a different signed-in user.
             if (authentication.currentUserId != userId) throw network
@@ -39,6 +35,11 @@ class OfflineReadCache(
                 throw network
             }
         }
+        val savedAt = System.currentTimeMillis()
+        if (authentication.currentUserId == userId) {
+            dao.save(CachedResponse(userId, key, gson.toJson(live), savedAt))
+        }
+        return CachedRead(live, false, savedAt)
     }
 
     suspend fun invalidate(key: String) {
