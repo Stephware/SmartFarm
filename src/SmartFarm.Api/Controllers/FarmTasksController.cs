@@ -24,7 +24,7 @@ public sealed class FarmTasksController(
         Result(async () =>
         {
             var created = await tasks.CreateAsync(farmId, ActorId, input, ct);
-            return Created($"api/farms/{farmId}/tasks/{created.Id}", created);
+            return Ok(created);
         });
 
     [HttpPut("{taskId:guid}/close")]
