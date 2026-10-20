@@ -155,6 +155,19 @@ public sealed class BusinessClientRouteTests : IClassFixture<WebApplicationFacto
     }
 
     [Fact]
+    public async Task DashboardAndHarvestReportUseTheProtectedApiRoutes()
+    {
+        await VerifyAsync(HttpMethod.Get, FarmRoute + "/dashboard",
+            (api, actor) => new FarmReportApiService(api).DashboardAsync(FarmId, actor));
+        await VerifyAsync(HttpMethod.Get,
+            FarmRoute + "/reports/harvests?from=2026-10-01&to=2026-10-20" +
+            $"&plotId={PlotId}&cropTypeId={CycleId}",
+            (api, actor) => new FarmReportApiService(api).HarvestsAsync(
+                FarmId, actor, new DateOnly(2026, 10, 1),
+                new DateOnly(2026, 10, 20), PlotId, CycleId));
+    }
+
+    [Fact]
     public async Task TaskEditingUsesTheFarmApiRoute()
     {
         await VerifyAsync(HttpMethod.Put, FarmRoute + $"/tasks/{TaskId}",
