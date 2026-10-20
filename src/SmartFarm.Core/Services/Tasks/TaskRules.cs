@@ -1,4 +1,5 @@
 using SmartFarm.Core.Contracts.Tasks;
+using SmartFarm.Core.Entities;
 
 namespace SmartFarm.Core.Services.Tasks;
 
@@ -16,6 +17,31 @@ public static class TaskRules
         if (input.CropCycleId == Guid.Empty || input.AssignedToUserId == Guid.Empty)
             return "Choose a valid crop and assignee.";
         return null;
+    }
+
+    // Create upcoming planting, watering and harvest dates from the crop calendar.
+    public static IEnumerable<(byte Type, DateOnly Due)> ScheduledTasks(
+        CropCycle crop, DateOnly today, DateOnly lastDay)
+    {
+        if (crop.Status == 0 && crop.PlannedPlantingDate >= today &&
+            crop.PlannedPlantingDate <= lastDay)
+            yield return (1, crop.PlannedPlantingDate);
+
+        if (crop.Status != 1) yield break;
+
+        if (crop.PlantedDate is { } planted && crop.WateringIntervalDays is > 0)
+        {
+            var interval = crop.WateringIntervalDays.Value;
+            var days = today.DayNumber - planted.DayNumber;
+            var next = Math.Max(1, (days + interval - 1) / interval);
+            for (var due = planted.AddDays(next * interval); due <= lastDay; due = due.AddDays(interval))
+            {
+                if (due >= today) yield return (2, due);
+            }
+        }
+
+        if (crop.ExpectedHarvestDate is { } harvest && harvest >= today && harvest <= lastDay)
+            yield return (5, harvest);
     }
 
     // Deterministic keys keep recurring jobs safe to rerun.
