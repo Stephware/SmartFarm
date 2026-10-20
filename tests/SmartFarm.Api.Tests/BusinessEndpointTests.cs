@@ -48,6 +48,7 @@ public sealed class BusinessEndpointTests : IClassFixture<WebApplicationFactory<
                 { "PUT", $"/api/notifications/{Guid.NewGuid()}/read" },
                 { "GET", $"{farm}/tasks" },
                 { "POST", $"{farm}/tasks" },
+                { "PUT", $"{farm}/tasks/{Guid.NewGuid()}" },
                 { "PUT", $"{farm}/tasks/{Guid.NewGuid()}/close" },
                 { "GET", farm },
                 { "PUT", farm },
