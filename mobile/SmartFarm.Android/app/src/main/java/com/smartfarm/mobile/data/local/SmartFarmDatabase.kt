@@ -3,7 +3,8 @@ package com.smartfarm.mobile.data.local
 import androidx.room.Database
 import androidx.room.RoomDatabase
 import androidx.room.migration.Migration
-import androidx.sqlite.db.SupportSQLiteDatabase
+import androidx.sqlite.SQLiteConnection
+import androidx.sqlite.execSQL
 import com.smartfarm.mobile.data.local.dao.LocalMetadataDao
 import com.smartfarm.mobile.data.local.dao.PendingOperationDao
 import com.smartfarm.mobile.data.local.entity.LocalMetadata
@@ -16,7 +17,7 @@ abstract class SmartFarmDatabase : RoomDatabase() {
 
     companion object {
         val MIGRATION_1_2 = object : Migration(1, 2) {
-            override fun migrate(db: SupportSQLiteDatabase) {
+            override fun migrate(db: SQLiteConnection) {
                 db.execSQL("""
                     CREATE TABLE IF NOT EXISTS `pending_operations` (
                         `operationId` TEXT NOT NULL PRIMARY KEY,
