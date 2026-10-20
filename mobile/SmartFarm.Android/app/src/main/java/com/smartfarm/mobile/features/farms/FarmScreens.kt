@@ -136,7 +136,9 @@ fun FarmDetailScreen(state: FarmUiState, onBack: () -> Unit,
                 } else {
                     weather.days.forEach { day ->
                         Text("${day.date}: ${day.minTemperatureC ?: "—"}–${day.maxTemperatureC ?: "—"} °C, " +
-                            "${day.rainfallMm ?: "—"} mm rain",
+                            "${day.rainfallMm ?: "—"} mm rain, " +
+                            "${day.maxPrecipitationProbability ?: "—"}% rain chance, " +
+                            "${day.maxWindKph ?: "—"} km/h wind",
                             style = MaterialTheme.typography.bodyMedium)
                     }
                 }
