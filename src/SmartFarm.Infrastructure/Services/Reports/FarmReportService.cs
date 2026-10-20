@@ -50,7 +50,7 @@ public sealed class FarmReportService(SmartFarmDbContext db, IFarmAccessService 
         var latest = new DateOnly(2100, 12, 30);
         if (from is { } start && (start < earliest || start > latest) ||
             to is { } end && (end < earliest || end > latest) ||
-            from is not null && to is not null && from > to ||
+            from is not null && to is not null && from.Value > to.Value ||
             plotId == Guid.Empty || cropTypeId == Guid.Empty)
             throw Invalid("Choose valid report dates between 2000 and 2100, with From before To.");
 
