@@ -13,6 +13,7 @@ import retrofit2.http.GET
 import retrofit2.http.Header
 import retrofit2.http.Multipart
 import retrofit2.http.POST
+import retrofit2.http.PUT
 import retrofit2.http.Part
 import retrofit2.http.Path
 import retrofit2.http.Streaming
@@ -37,6 +38,14 @@ interface MonitoringApi {
     suspend fun upload(@Header("Authorization") auth: String,
         @Path("farmId") farmId: String, @Path("cycleId") cycleId: String,
         @Path("observationId") observationId: String,
+        @Part photo: MultipartBody.Part): ObservationPhotoDto
+
+    // Stable ID prevents duplicates after the upload succeeds but the response is lost.
+    @Multipart
+    @PUT("api/farms/{farmId}/crop-cycles/{cycleId}/monitoring/observations/{observationId}/photos/{photoId}")
+    suspend fun uploadWithId(@Header("Authorization") auth: String,
+        @Path("farmId") farmId: String, @Path("cycleId") cycleId: String,
+        @Path("observationId") observationId: String, @Path("photoId") photoId: String,
         @Part photo: MultipartBody.Part): ObservationPhotoDto
 
     @Streaming
