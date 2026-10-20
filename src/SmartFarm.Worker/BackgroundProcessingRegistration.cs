@@ -3,6 +3,8 @@ using Hangfire.SqlServer;
 using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using SmartFarm.Worker.Jobs;
+using SmartFarm.Worker.Scheduling;
 
 namespace SmartFarm.Worker;
 
@@ -35,6 +37,8 @@ public static class BackgroundProcessingRegistration
             server.WorkerCount = options.WorkerCount;
             server.Queues = ["default"];
         });
+        services.AddScoped<WorkerHeartbeatJob>();
+        services.AddHostedService<WorkerJobScheduler>();
 
         return services;
     }
