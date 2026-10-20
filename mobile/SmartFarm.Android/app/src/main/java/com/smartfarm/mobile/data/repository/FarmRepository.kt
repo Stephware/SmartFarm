@@ -51,6 +51,7 @@ class FarmRepository(
         val result = authentication.authorized { api().updateFarm(it, farmId, input) }
         cache?.invalidate("farms")
         cache?.invalidate("farm/$farmId")
+        cache?.invalidate("farm/$farmId/weather")
         return result
     }
     suspend fun archiveFarm(farmId: String, input: RowVersionDto) {
