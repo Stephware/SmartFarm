@@ -65,7 +65,7 @@ class AppContainer(context: Context) {
 
     val syncRepository: SyncRepository by lazy {
         SyncRepository(authRepository, database.pendingOperationDao(),
-            { retrofit.create(SyncApi::class.java) }, workManager, offlineCache)
+            { retrofit.create(SyncApi::class.java) }, workManager)
     }
 
     val authRepository: AuthRepository by lazy {
