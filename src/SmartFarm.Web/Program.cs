@@ -5,6 +5,7 @@ using SmartFarm.Core.Interfaces.Monitoring;
 using SmartFarm.Core.Interfaces.Farms;
 using SmartFarm.Core.Interfaces.Inventory;
 using SmartFarm.Core.Interfaces.Harvests;
+using SmartFarm.Core.Interfaces.Reports;
 using SmartFarm.Core.Interfaces.Security;
 using SmartFarm.Core.Interfaces.Tasks;
 using SmartFarm.Infrastructure;
@@ -46,6 +47,7 @@ builder.Services.AddScoped<ICropManagementService, CropApiService>();
 builder.Services.AddScoped<IMonitoringService, MonitoringApiService>();
 builder.Services.AddScoped<IInventoryService, InventoryApiService>();
 builder.Services.AddScoped<IHarvestService, HarvestApiService>();
+builder.Services.AddScoped<IFarmReportService, FarmReportApiService>();
 builder.Services.AddScoped<IFarmTaskService, FarmTaskApiService>();
 builder.Services.AddScoped<IFarmAccessService, FarmAccessApiService>();
 // Web and API must use the same protected key ring when hosted on different machines.
