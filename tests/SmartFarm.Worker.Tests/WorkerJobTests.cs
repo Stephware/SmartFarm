@@ -1,10 +1,10 @@
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
 using SmartFarm.Worker;
 using SmartFarm.Worker.Jobs;
 using SmartFarm.Worker.Scheduling;
+using SmartFarm.Worker.Services;
 using Xunit;
 
 namespace SmartFarm.Worker.Tests;
@@ -12,23 +12,36 @@ namespace SmartFarm.Worker.Tests;
 public sealed class WorkerJobTests
 {
     [Fact]
-    public async Task WorkerCheckWritesToTheLog()
+    public async Task WorkerJobRunsItsService()
     {
-        var logger = new RecordingLogger<WorkerHeartbeatJob>();
-        var job = new WorkerHeartbeatJob(logger);
+        var service = new FakeWorkerHealthService();
+        var job = new WorkerHeartbeatJob(service);
 
         await job.ExecuteAsync();
 
-        Assert.Contains(logger.Messages, message =>
-            message.Contains("SmartFarm worker check completed"));
+        Assert.Equal(1, service.CheckCount);
     }
 
     [Fact]
-    public void EnabledWorkerRegistersTheJobAndScheduler()
+    public async Task WorkerJobLetsHangfireHandleServiceFailures()
+    {
+        var service = new FakeWorkerHealthService { ShouldFail = true };
+        var job = new WorkerHeartbeatJob(service);
+
+        await Assert.ThrowsAsync<InvalidOperationException>(() => job.ExecuteAsync());
+        Assert.Equal(1, service.CheckCount);
+    }
+
+    [Fact]
+    public void EnabledWorkerRegistersTheServiceJobAndScheduler()
     {
         var services = new ServiceCollection();
         services.AddSmartFarmBackgroundProcessing(Configuration(enabled: true));
 
+        Assert.Contains(services, service =>
+            service.ServiceType == typeof(IWorkerHealthService) &&
+            service.ImplementationType == typeof(WorkerHealthService) &&
+            service.Lifetime == ServiceLifetime.Scoped);
         Assert.Contains(services, service =>
             service.ServiceType == typeof(WorkerHeartbeatJob) &&
             service.Lifetime == ServiceLifetime.Scoped);
@@ -45,6 +58,8 @@ public sealed class WorkerJobTests
         services.AddSmartFarmBackgroundProcessing(Configuration(enabled: false));
 
         Assert.DoesNotContain(services, service =>
+            service.ServiceType == typeof(IWorkerHealthService));
+        Assert.DoesNotContain(services, service =>
             service.ServiceType == typeof(WorkerHeartbeatJob));
         Assert.DoesNotContain(services, service =>
             service.ImplementationType == typeof(WorkerJobScheduler));
@@ -59,18 +74,17 @@ public sealed class WorkerJobTests
                     "Server=127.0.0.1,1;Database=SmartFarmJobsDB;Integrated Security=true"
             }).Build();
 
-    private sealed class RecordingLogger<T> : ILogger<T>
+    private sealed class FakeWorkerHealthService : IWorkerHealthService
     {
-        public List<string> Messages { get; } = [];
+        public int CheckCount { get; private set; }
+        public bool ShouldFail { get; set; }
 
-        public IDisposable? BeginScope<TState>(TState state) where TState : notnull => null;
-
-        public bool IsEnabled(LogLevel logLevel) => true;
-
-        public void Log<TState>(LogLevel logLevel, EventId eventId, TState state,
-            Exception? exception, Func<TState, Exception?, string> formatter)
+        public Task CheckAsync()
         {
-            Messages.Add(formatter(state, exception));
+            CheckCount++;
+            return ShouldFail
+                ? Task.FromException(new InvalidOperationException("Health check failed."))
+                : Task.CompletedTask;
         }
     }
 }
