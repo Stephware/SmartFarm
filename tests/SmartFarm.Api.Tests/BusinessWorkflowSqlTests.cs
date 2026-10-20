@@ -136,6 +136,35 @@ public sealed class BusinessWorkflowSqlTests
         Assert.Equal(2, observations.Activities.Count);
         Assert.Single(observations.Observations);
 
+        // A lost photo-upload response must not create duplicate photos.
+        var observationId = observations.Observations.Single().Id;
+        var photoId = Guid.NewGuid();
+        var photoRoute = monitoring + $"/observations/{observationId}/photos/{photoId}";
+        var validPhoto = new byte[] { 0xff, 0xd8, 0xff, 0xe0, 0x01, 0x02, 0x03 };
+        async Task<HttpResponseMessage> UploadPhoto(byte[] photoBytes)
+        {
+            using var form = new MultipartFormDataContent();
+            using var image = new ByteArrayContent(photoBytes);
+            image.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue("image/jpeg");
+            form.Add(image, "photo", "field.jpg");
+            return await client.PutAsync(photoRoute, form);
+        }
+        using (var firstUpload = await UploadPhoto(validPhoto))
+        {
+            Assert.Equal(HttpStatusCode.OK, firstUpload.StatusCode);
+            var firstPhoto = await firstUpload.Content.ReadFromJsonAsync<PhotoDetails>();
+            Assert.Equal(photoId, firstPhoto?.Id);
+        }
+        using (var replay = await UploadPhoto(validPhoto))
+        {
+            Assert.Equal(HttpStatusCode.OK, replay.StatusCode);
+            Assert.Equal(photoId, (await replay.Content.ReadFromJsonAsync<PhotoDetails>())?.Id);
+        }
+        var withPhoto = await GetAsync<MonitoringDetails>(client, monitoring);
+        Assert.Single(withPhoto.Observations.Single().Photos);
+        using (var differentPhoto = await UploadPhoto(new byte[] { 0xff, 0xd8, 0xff, 0xe0, 0x09 }))
+            Assert.Equal(HttpStatusCode.Conflict, differentPhoto.StatusCode);
+
         var inventory = farm + "/inventory";
         var item = await PostAsync<InventoryItemDetails>(client, inventory, new InventoryItemInput
         {
