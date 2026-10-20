@@ -82,6 +82,28 @@ public sealed class FarmAutomationTests
         Assert.Equal(day.AddDays(3), planting.Due);
     }
 
+    [Fact]
+    public void OverdueCropDeadlinesAreStillGenerated()
+    {
+        var today = new DateOnly(2026, 10, 20);
+        var planned = new CropCycle
+        {
+            Status = 0,
+            PlannedPlantingDate = today.AddDays(-3)
+        };
+        var active = new CropCycle
+        {
+            Status = 1,
+            PlantedDate = today.AddDays(-10),
+            ExpectedHarvestDate = today.AddDays(-1)
+        };
+
+        Assert.Contains(TaskRules.ScheduledTasks(planned, today, today.AddDays(7)),
+            task => task.Type == 1 && task.Due == today.AddDays(-3));
+        Assert.Contains(TaskRules.ScheduledTasks(active, today, today.AddDays(7)),
+            task => task.Type == 5 && task.Due == today.AddDays(-1));
+    }
+
     [Theory]
     [InlineData(0, 34, 0)]
     [InlineData(20, 30, 1)]
