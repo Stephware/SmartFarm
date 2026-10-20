@@ -48,7 +48,8 @@ public sealed class FarmWeatherController(
             .Select(g => g.OrderByDescending(f => f.RetrievedAtUtc).First())
             .OrderBy(f => f.ForecastDate)
             .Select(f => new WeatherDayDetails(f.ForecastDate, f.MinTemperatureC,
-                f.MaxTemperatureC, f.RainfallMm, f.RetrievedAtUtc, f.Provider))
+                f.MaxTemperatureC, f.RainfallMm, f.RetrievedAtUtc, f.Provider,
+                f.MaxPrecipitationProbability, f.MaxWindKph))
             .ToList();
 
         var alerts = await db.WeatherAdvisories.AsNoTracking()
