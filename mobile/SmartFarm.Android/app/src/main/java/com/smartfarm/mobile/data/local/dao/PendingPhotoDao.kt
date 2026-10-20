@@ -21,6 +21,9 @@ interface PendingPhotoDao {
     @Query("UPDATE pending_photos SET observationId = :observationId WHERE userId = :userId AND parentOperationId = :operationId AND observationId IS NULL")
     suspend fun resolveObservation(userId: String, operationId: String, observationId: String)
 
+    @Query("SELECT * FROM pending_photos WHERE userId = :userId AND parentOperationId = :operationId")
+    suspend fun forObservationOperation(userId: String, operationId: String): List<PendingPhoto>
+
     @Query("SELECT * FROM pending_photos WHERE userId = :userId AND photoId = :photoId LIMIT 1")
     suspend fun find(userId: String, photoId: String): PendingPhoto?
 
