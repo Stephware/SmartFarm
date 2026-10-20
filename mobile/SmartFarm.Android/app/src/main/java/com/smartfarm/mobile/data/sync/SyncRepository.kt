@@ -137,7 +137,8 @@ class SyncRepository(
     fun schedule() {
         val constraints = Constraints.Builder()
             .setRequiredNetworkType(NetworkType.CONNECTED).build()
-        work.enqueueUniqueWork("smartfarm-sync", ExistingWorkPolicy.KEEP,
+        // Ensure a new upload job can follow one that is just finishing.
+        work.enqueueUniqueWork("smartfarm-sync", ExistingWorkPolicy.APPEND_OR_REPLACE,
             OneTimeWorkRequestBuilder<SyncWorker>()
                 .setConstraints(constraints)
                 .setBackoffCriteria(BackoffPolicy.EXPONENTIAL, 30, TimeUnit.SECONDS)
