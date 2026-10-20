@@ -41,6 +41,7 @@ public sealed class BusinessEndpointTests : IClassFixture<WebApplicationFactory<
             return new TheoryData<string, string>
             {
                 { "GET", "/api/auth/me" },
+                { "POST", $"/api/sync/operations/{Guid.NewGuid()}" },
                 { "GET", farms },
                 { "POST", farms },
                 { "GET", "/api/notifications" },
