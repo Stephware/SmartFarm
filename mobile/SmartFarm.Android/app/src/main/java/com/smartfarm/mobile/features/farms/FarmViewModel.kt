@@ -117,7 +117,9 @@ class FarmViewModel(
         val updated = repo.updateFarm(current.id, FarmInputDto(
             name.trim(), location.trim(), timeZone.trim(), lat, lon,
             requireNotNull(current.rowVersion)))
-        mutable.value = mutable.value.copy(selected = updated)
+        mutable.value = mutable.value.copy(
+            selected = updated, weather = null,
+            weatherMessage = "Farm settings saved. Reopen this farm to refresh weather.")
         onSuccess()
     }
 
