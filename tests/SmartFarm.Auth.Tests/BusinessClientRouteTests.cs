@@ -129,6 +129,13 @@ public sealed class BusinessClientRouteTests : IClassFixture<WebApplicationFacto
         await VerifyAsync(HttpMethod.Post, MonitoringRoute + $"/observations/{ObservationId}/photos",
             (api, actor) => new MonitoringApiService(api).AddPhotoAsync(
                 FarmId, CycleId, ObservationId, actor, photo, photo.Length, "image/png"));
+        var retryPhotoId = Guid.NewGuid();
+        using var retryPhoto = new MemoryStream(new byte[] { 1, 2, 3 });
+        await VerifyAsync(HttpMethod.Put,
+            MonitoringRoute + $"/observations/{ObservationId}/photos/{retryPhotoId}",
+            (api, actor) => new MonitoringApiService(api).AddPhotoWithIdAsync(
+                FarmId, CycleId, ObservationId, retryPhotoId, actor,
+                retryPhoto, retryPhoto.Length, "image/png"));
         await VerifyAsync(HttpMethod.Get, MonitoringRoute + $"/photos/{ObservationId}",
             (api, actor) => new MonitoringApiService(api).OpenPhotoAsync(FarmId, CycleId, ObservationId, actor));
     }
