@@ -34,6 +34,11 @@ public static class TaskRules
         return null;
     }
 
+    // Recording actual work may fulfill a generated farm-calendar task.
+    // Manual assignments remain limited to their assignee or farm managers.
+    public static bool CanFulfillFromRecord(FarmTask task, Guid actor, bool mayManage) =>
+        mayManage || task.AssignedToUserId == actor || task.DedupeKey is not null;
+
     public static bool Close(FarmTask task, byte status, Guid actor, DateTime utcNow)
     {
         if (task.Status != 0 || !IsValidCloseStatus(status)) return false;
