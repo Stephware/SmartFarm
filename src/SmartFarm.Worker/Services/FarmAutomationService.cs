@@ -146,7 +146,7 @@ public sealed class FarmAutomationService(
                 forecast = await weather.GetForecastAsync(
                     new WeatherLocation((double)farm.Latitude!.Value, (double)farm.Longitude!.Value), ct);
             }
-            catch (WeatherServiceException error) when (error.Error == WeatherFailure.NotConfigured)
+            catch (WeatherServiceException error) when (error.Failure == WeatherFailure.NotConfigured)
             {
                 logger.LogInformation("Weather checks are disabled until a provider is configured.");
                 return;
