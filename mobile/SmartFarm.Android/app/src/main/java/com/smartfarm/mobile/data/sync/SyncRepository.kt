@@ -82,6 +82,11 @@ class SyncRepository(
         schedule()
     }
 
+    suspend fun discard(id: String) {
+        val userId = auth.currentUserId ?: return
+        dao.remove(id, userId)
+    }
+
     // false means WorkManager should retry later; HTTP conflicts need manual review.
     suspend fun uploadPending(): Boolean {
         val userId = auth.currentUserId ?: return true
@@ -89,26 +94,25 @@ class SyncRepository(
             val pending = dao.pending(userId)
             if (pending.isEmpty()) return true
             for (operation in pending) {
-            if (auth.currentUserId != userId) return true
-            val input = gson.fromJson(operation.payloadJson, SyncWriteRequest::class.java)
-            try {
-                auth.authorized { bearer -> api().submit(bearer, operation.operationId, input) }
-                dao.remove(operation.operationId, userId)
-            } catch (cancelled: CancellationException) {
-                throw cancelled
-            } catch (error: HttpException) {
-                when (error.code()) {
-                    400, 403, 404, 409, 422 -> dao.needsReview(operation.operationId, userId,
-                        "Server rejected this change (" + error.code() + "). Review before retrying.")
-                    401 -> return true // Keep it queued until the account signs in again.
-                    else -> return false
+                if (auth.currentUserId != userId) return true
+                val input = gson.fromJson(operation.payloadJson, SyncWriteRequest::class.java)
+                try {
+                    auth.authorized { bearer -> api().submit(bearer, operation.operationId, input) }
+                    dao.remove(operation.operationId, userId)
+                } catch (cancelled: CancellationException) {
+                    throw cancelled
+                } catch (error: HttpException) {
+                    when (error.code()) {
+                        400, 403, 404, 409, 422 -> dao.needsReview(operation.operationId, userId,
+                            "Server rejected this change (" + error.code() + "). Review before retrying.")
+                        401 -> return true // Keep queued until the account signs in again.
+                        else -> return false
+                    }
+                } catch (_: IOException) {
+                    return false
+                } catch (_: IllegalStateException) {
+                    return true // Logged out before token refresh.
                 }
-            } catch (_: IOException) {
-                return false
-            } catch (_: IllegalStateException) {
-                // Logged out before refreshing the token. Leave the queue intact.
-                return true
-            }
             }
         }
     }
