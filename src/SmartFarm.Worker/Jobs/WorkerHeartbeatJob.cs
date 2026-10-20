@@ -1,19 +1,16 @@
-using Microsoft.Extensions.Logging;
+using SmartFarm.Worker.Services;
 
 namespace SmartFarm.Worker.Jobs;
 
+// Keep jobs small: the service contains the actual operation.
 public sealed class WorkerHeartbeatJob
 {
-    private readonly ILogger<WorkerHeartbeatJob> _logger;
+    private readonly IWorkerHealthService _service;
 
-    public WorkerHeartbeatJob(ILogger<WorkerHeartbeatJob> logger)
+    public WorkerHeartbeatJob(IWorkerHealthService service)
     {
-        _logger = logger;
+        _service = service;
     }
 
-    public Task ExecuteAsync()
-    {
-        _logger.LogInformation("SmartFarm worker check completed at {UtcTime}.", DateTimeOffset.UtcNow);
-        return Task.CompletedTask;
-    }
+    public Task ExecuteAsync() => _service.CheckAsync();
 }
