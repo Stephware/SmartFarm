@@ -183,6 +183,8 @@ public sealed class FarmAutomationService(
                     MinTemperatureC = day.MinimumTemperatureC,
                     MaxTemperatureC = day.MaximumTemperatureC,
                     RainfallMm = day.RainfallMm,
+                    MaxPrecipitationProbability = day.MaxPrecipitationProbability,
+                    MaxWindKph = day.MaxWindKph,
                     Provider = forecast.Provider.Length > 32 ? forecast.Provider[..32] : forecast.Provider
                 };
                 db.WeatherForecasts.Add(snapshot);
