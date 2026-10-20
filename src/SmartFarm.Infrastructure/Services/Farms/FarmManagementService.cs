@@ -68,6 +68,15 @@ public sealed class FarmManagementService(
             || string.IsNullOrWhiteSpace(input.LocationText) || input.LocationText.Trim().Length is < 2 or > 250
             || string.IsNullOrWhiteSpace(input.TimeZoneId) || input.TimeZoneId.Trim().Length > 64)
             throw Invalid("Supply a valid farm name, location and time zone.");
+        // Reject invalid IANA/Windows time zones before storing a farm that jobs cannot process.
+        try
+        {
+            _ = TimeZoneInfo.FindSystemTimeZoneById(input.TimeZoneId.Trim());
+        }
+        catch (Exception error) when (error is TimeZoneNotFoundException or InvalidTimeZoneException)
+        {
+            throw Invalid("Use a recognized time zone, such as Asia/Manila.");
+        }
         if (input.Latitude.HasValue != input.Longitude.HasValue
             || input.Latitude is < -90 or > 90 || input.Longitude is < -180 or > 180
             || input.Latitude is { } latitude && decimal.Round(latitude, 6) != latitude
