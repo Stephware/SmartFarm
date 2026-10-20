@@ -1,12 +1,14 @@
 package com.smartfarm.mobile.data.remote.dto
 
-data class ActivityInputDto(val activityType: Int, val notes: String? = null)
+data class ActivityInputDto(
+    val activityType: Int, val notes: String? = null, val farmTaskId: String? = null)
 data class ObservationInputDto(
     val healthStatus: Int, val growthStage: String? = null, val notes: String? = null)
 
 data class ActivityDto(
     val id: String, val activityType: Int, val occurredAtUtc: String,
-    val recordedAtUtc: String, val recordedByUserId: String, val notes: String?)
+    val recordedAtUtc: String, val recordedByUserId: String, val notes: String?,
+    val farmTaskId: String? = null)
 
 data class ObservationPhotoDto(
     val id: String, val observationId: String,
