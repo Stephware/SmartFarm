@@ -27,7 +27,7 @@ public sealed class FarmAutomationService(
         {
             DateOnly today;
             try { today = LocalDate(farm, utcNow); }
-            catch (TimeZoneNotFoundException)
+            catch (Exception error) when (error is TimeZoneNotFoundException or InvalidTimeZoneException)
             {
                 logger.LogWarning("Skipping tasks for farm {FarmId}: invalid timezone.", farm.Id);
                 continue;
@@ -196,6 +196,7 @@ public sealed class FarmAutomationService(
 
                 // Automatically resolve a warning when a newer forecast no longer predicts it.
                 foreach (var previous in current.Where(a => a.Status == 0 &&
+                    WeatherRules.HasSignal(day, a.AdvisoryType) &&
                     warnings.All(w => w.Type != a.AdvisoryType)))
                 {
                     previous.Status = 1;
