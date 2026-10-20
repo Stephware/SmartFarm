@@ -106,6 +106,41 @@ class SchemaTests(unittest.TestCase):
         with self.assertRaisesRegex(verifier.UnsupportedSql, 'collation'):
             verifier.catalog_schema(catalog)
 
+    def test_optional_ef_history_is_ignored_but_other_tables_are_not(self):
+        base = {
+            'database': [{'collation_name': 'SQL_Latin1_General_CP1_CI_AS'}],
+            'tables': [{'schema': 'dbo', 'table': 'Sample',
+                        'temporal_type': 0, 'is_memory_optimized': False}],
+            'columns': [], 'foreignKeys': [], 'checks': [], 'indexes': [], 'triggers': [],
+        }
+        expected = verifier.catalog_schema(base)
+
+        # EF Core can create its standard history table after adopting the schema.
+        with_history = {key: list(value) for key, value in base.items()}
+        with_history['tables'].append({
+            'schema': 'dbo', 'table': '__EFMigrationsHistory',
+            'temporal_type': 0, 'is_memory_optimized': False,
+        })
+        with_history['columns'].append({
+            'schema': 'dbo', 'table': '__EFMigrationsHistory',
+            'column': 'MigrationId', 'type': 'nvarchar',
+        })
+        with_history['indexes'].append({
+            'schema': 'dbo', 'table': '__EFMigrationsHistory',
+            'name': 'PK___EFMigrationsHistory',
+        })
+        self.assertEqual(expected, verifier.catalog_schema(with_history))
+
+        with_history['tables'].append({
+            'schema': 'dbo', 'table': 'Unexpected',
+            'temporal_type': 0, 'is_memory_optimized': False,
+        })
+        self.assertTrue(verifier.differences(expected, verifier.catalog_schema(with_history)))
+
+        with_history['tables'][-1]['schema'] = 'other'
+        with self.assertRaisesRegex(verifier.UnsupportedSql, 'Unsupported table metadata'):
+            verifier.catalog_schema(with_history)
+
     def test_cli_exit_codes_for_match_drift_and_unsupported(self):
         script = Path(verifier.__file__)
         with tempfile.TemporaryDirectory() as directory:
