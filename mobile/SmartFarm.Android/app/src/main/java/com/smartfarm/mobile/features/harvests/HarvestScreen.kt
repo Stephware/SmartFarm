@@ -26,6 +26,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
+import com.smartfarm.mobile.ui.components.OfflineDataNotice
 
 @Composable
 fun HarvestScreen(
@@ -51,6 +52,7 @@ fun HarvestScreen(
             if (state.busy) CircularProgressIndicator()
             state.error?.let { Text(it, color = MaterialTheme.colorScheme.error) }
             state.notice?.let { Text(it, color = MaterialTheme.colorScheme.primary) }
+            OfflineDataNotice(state.offline, state.cachedAtUtcMillis)
 
             if (overview != null) {
                 Text("${overview.cropName} · ${overview.plotName}",
@@ -85,7 +87,7 @@ fun HarvestScreen(
                     entry.notes?.let { Text(it) }
                     if (entry.isVoided) {
                         Text("Voided: ${entry.voidReason.orEmpty()}")
-                    } else if (overview.canVoid) {
+                    } else if (overview.canVoid && !state.offline) {
                         OutlinedButton(onClick = {
                             voidReason = ""
                             confirmVoidId = entry.id
