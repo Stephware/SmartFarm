@@ -1,3 +1,6 @@
+using System.Data;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Data.SqlClient;
 using SmartFarm.Core.Contracts.Farms;
 using SmartFarm.Core.Contracts.Monitoring;
 using SmartFarm.Core.Entities;
@@ -7,12 +10,14 @@ using SmartFarm.Core.Interfaces.Persistence;
 using SmartFarm.Core.Interfaces.Repositories;
 using SmartFarm.Core.Interfaces.Security;
 using SmartFarm.Core.Services.Monitoring;
+using SmartFarm.Core.Services.Tasks;
 
 namespace SmartFarm.Infrastructure.Services.Monitoring;
 
 public sealed class MonitoringService(
     ICropCycleRepository cycles,
     ICropActivityRepository activities,
+    IFarmTaskRepository tasks,
     ICropObservationRepository observations,
     IObservationPhotoRepository photos,
     IUnitOfWork unit,
@@ -24,10 +29,12 @@ public sealed class MonitoringService(
 
     private static FarmOperationException Invalid(string msg) =>
         new(FarmError.InvalidInput, msg);
+    private static FarmOperationException Conflict() =>
+        new(FarmError.Conflict, "This farm task changed. Reload before recording the activity.");
 
     private static ActivityDetails Map(CropActivity a) =>
         new(a.Id, a.ActivityType, a.OccurredAtUtc, a.RecordedAtUtc,
-            a.RecordedByUserId, a.Notes);
+            a.RecordedByUserId, a.Notes, a.FarmTaskId);
 
     private static PhotoDetails Map(ObservationPhoto p) =>
         new(p.Id, p.CropObservationId, p.ContentType, p.FileSizeBytes, p.UploadedAtUtc);
@@ -75,19 +82,72 @@ public sealed class MonitoringService(
     public async Task<ActivityDetails> RecordActivityAsync(
         Guid farmId, Guid cycleId, Guid actor, RecordActivityInput input, CancellationToken ct = default)
     {
-        await RequireCycle(farmId, cycleId, actor, true, ct);
-        if (!MonitoringRules.ValidActivity(input.ActivityType) || input.Notes?.Length > 1000)
-            throw Invalid("Choose a valid activity and notes up to 1000 characters.");
-        var activity = new CropActivity
+        // Keep the active-crop check, task completion and activity insert together.
+        // Offline sync already provides its own transaction and must not nest another.
+        var transaction = !unit.HasActiveTransaction
+            ? await unit.BeginTransactionAsync(IsolationLevel.Serializable, ct)
+            : null;
+        try
         {
-            CropCycleId = cycleId, ActivityType = input.ActivityType,
-            OccurredAtUtc = DateTime.UtcNow,
-            RecordedByUserId = actor,
-            Notes = string.IsNullOrWhiteSpace(input.Notes) ? null : input.Notes.Trim()
-        };
-        activities.Add(activity);
-        await unit.SaveChangesAsync(ct);
-        return Map(activity);
+            await RequireCycle(farmId, cycleId, actor, true, ct);
+            if (!MonitoringRules.ValidActivity(input.ActivityType) || input.Notes?.Length > 1000 ||
+                input.FarmTaskId == Guid.Empty)
+                throw Invalid("Choose a valid activity, task and notes up to 1000 characters.");
+
+            var now = DateTime.UtcNow;
+            var level = await access.GetAccessLevelAsync(farmId, actor, ct);
+            var mayManage = level is FarmAccessLevel.Owner or FarmAccessLevel.Manager;
+            var taskType = TaskRules.ForActivity(input.ActivityType);
+            FarmTask? linked = null;
+            if (input.FarmTaskId is { } selectedId)
+            {
+                linked = await tasks.FindAsync(farmId, selectedId, ct);
+                if (linked is null || taskType is null || linked.CropCycleId != cycleId ||
+                    linked.TaskType != taskType.Value ||
+                    !TaskRules.CanFulfillFromRecord(linked, actor, mayManage))
+                    throw Invalid("The selected task does not match this crop activity.");
+                if (linked.Status != 0) throw Conflict();
+            }
+            else if (taskType is { } dueType)
+            {
+                var timezone = await tasks.GetFarmTimeZoneAsync(farmId, ct);
+                if (timezone is not null)
+                {
+                    DateOnly today;
+                    try { today = TaskRules.FarmDate(timezone, now); }
+                    catch (TimeZoneNotFoundException)
+                    {
+                        today = DateOnly.FromDateTime(now);
+                    }
+                    linked = await tasks.FindDueAsync(farmId, cycleId, dueType, today, actor, mayManage, ct);
+                }
+            }
+
+            var activity = new CropActivity
+            {
+                CropCycleId = cycleId, FarmTaskId = linked?.Id,
+                ActivityType = input.ActivityType, OccurredAtUtc = now,
+                RecordedByUserId = actor,
+                Notes = string.IsNullOrWhiteSpace(input.Notes) ? null : input.Notes.Trim()
+            };
+            activities.Add(activity);
+            if (linked is not null && TaskRules.Close(linked, 1, actor, now))
+                await tasks.DismissRemindersAsync(linked.Id, now, ct);
+            try { await unit.SaveChangesAsync(ct); }
+            catch (DbUpdateConcurrencyException) { throw Conflict(); }
+            catch (DbUpdateException e) when (e.InnerException is SqlException { Number: 1205 })
+            {
+                throw Conflict();
+            }
+            if (transaction is not null)
+                await transaction.CommitAsync(ct);
+            return Map(activity);
+        }
+        finally
+        {
+            if (transaction is not null)
+                await transaction.DisposeAsync();
+        }
     }
 
     public async Task<ObservationDetails> RecordObservationAsync(

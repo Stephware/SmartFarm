@@ -11,6 +11,9 @@ public sealed class RecordActivityInput
 
     [StringLength(1000)]
     public string? Notes { get; set; }
+
+    // Optional: link a field entry to a specific scheduled watering/fertilizing task.
+    public Guid? FarmTaskId { get; set; }
 }
 
 public sealed class RecordObservationInput
@@ -27,7 +30,8 @@ public sealed class RecordObservationInput
 
 public sealed record ActivityDetails(
     Guid Id, byte ActivityType, DateTime OccurredAtUtc,
-    DateTime RecordedAtUtc, Guid RecordedByUserId, string? Notes);
+    DateTime RecordedAtUtc, Guid RecordedByUserId, string? Notes,
+    Guid? FarmTaskId = null);
 
 public sealed record ObservationDetails(
     Guid Id, byte HealthStatus, string? GrowthStage,

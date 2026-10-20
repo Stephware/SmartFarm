@@ -28,6 +28,17 @@
                 <option value="4">Weeding</option>
                 <option value="5">Other</option>
             </select>
+            <label for="activityTask">Related task (optional)</label>
+            <select id="activityTask" name="FarmTaskId">
+                <option value="">Match my oldest due task automatically</option>
+                @foreach (var task in Model.Tasks.Where(t => t.CropCycleId == cycle.Id &&
+                    t.Status == 0 && (t.TaskType == 2 || t.TaskType == 3)))
+                {
+                    var taskName = task.TaskType == 2 ? "Watering" : "Fertilizing";
+                    <option value="@task.Id">@taskName — @task.DueDate.ToString("yyyy-MM-dd") — @task.Description</option>
+                }
+            </select>
+            <p class="hint">Select a matching watering or fertilizing task to complete it with this activity.</p>
             <label for="activityNotes">Notes (optional)</label>
             <textarea id="activityNotes" name="Notes" maxlength="1000" rows="3"></textarea>
             <button type="submit">Save activity</button>
@@ -67,6 +78,10 @@
             <li>
                 <strong>@label</strong> · @activity.OccurredAtUtc.ToString("yyyy-MM-dd HH:mm") UTC
                 @if (activity.Notes is not null) { <p>@activity.Notes</p> }
+                @if (activity.FarmTaskId is not null)
+                {
+                    <p class="hint">Linked farm task completed</p>
+                }
             </li>
         }
     </ul>

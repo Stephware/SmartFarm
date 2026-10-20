@@ -44,6 +44,19 @@ public sealed class TasksController(
     }
 
     [HttpPost, ValidateAntiForgeryToken]
+    public async Task<IActionResult> Update(Guid farmId, Guid taskId,
+        FarmTaskUpdateInput input, CancellationToken ct)
+    {
+        try { await tasks.UpdateAsync(farmId, taskId, Actor, input, ct); }
+        catch (FarmOperationException e)
+        {
+            if (e.Error == FarmError.NotFound) return NotFound();
+            TempData["Error"] = e.Message;
+        }
+        return RedirectToAction(nameof(Index), new { farmId });
+    }
+
+    [HttpPost, ValidateAntiForgeryToken]
     public async Task<IActionResult> Close(Guid farmId, Guid taskId, FarmTaskCloseInput input, CancellationToken ct)
     {
         try { await tasks.CloseAsync(farmId, taskId, Actor, input, ct); }

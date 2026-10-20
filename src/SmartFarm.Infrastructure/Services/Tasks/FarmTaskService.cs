@@ -76,6 +76,41 @@ public sealed class FarmTaskService(
         return Map(task);
     }
 
+    private static byte[] ParseVersion(string? version)
+    {
+        try
+        {
+            var parsed = Convert.FromBase64String(version ?? "");
+            if (parsed.Length == 8) return parsed;
+        }
+        catch (FormatException) { }
+        throw Invalid("A current row version is required.");
+    }
+
+    public async Task<FarmTaskDetails> UpdateAsync(Guid farmId, Guid taskId, Guid actor,
+        FarmTaskUpdateInput input, CancellationToken ct = default)
+    {
+        await Require(farmId, actor, FarmAction.Manage, ct);
+        if (TaskRules.ValidateUpdate(input) is { } error) throw Invalid(error);
+        var task = await tasks.FindAsync(farmId, taskId, ct) ?? throw NotFound();
+        if (task.Status != 0) throw Conflict();
+        if (task.CropCycleId is { } cycle &&
+            !await tasks.CropBelongsToFarmAsync(farmId, cycle, ct))
+            throw Conflict();
+        if (input.AssignedToUserId is { } assignee &&
+            !await tasks.IsAssignableAsync(farmId, assignee, ct))
+            throw Invalid("Assign the task to an active farm member.");
+
+        tasks.SetOriginalVersion(task, ParseVersion(input.RowVersion));
+        if (task.DueDate != input.DueDate || task.AssignedToUserId != input.AssignedToUserId)
+            await tasks.DismissRemindersAsync(task.Id, DateTime.UtcNow, ct);
+        task.DueDate = input.DueDate;
+        task.AssignedToUserId = input.AssignedToUserId;
+        task.Description = input.Description?.Trim();
+        await Save(ct);
+        return Map(task);
+    }
+
     public async Task<FarmTaskDetails> CloseAsync(Guid farmId, Guid taskId, Guid actor,
         FarmTaskCloseInput input, CancellationToken ct = default)
     {
@@ -88,15 +123,9 @@ public sealed class FarmTaskService(
         if (!TaskRules.IsValidCloseStatus(input.Status))
             throw Invalid("Choose Completed, Skipped, or Cancelled.");
 
-        byte[] version;
-        try { version = Convert.FromBase64String(input.RowVersion ?? ""); }
-        catch (FormatException) { throw Invalid("Invalid row version."); }
-        if (version.Length != 8) throw Invalid("A current row version is required.");
-
-        tasks.SetOriginalVersion(task, version);
-        task.Status = input.Status;
-        task.ClosedAtUtc = DateTime.UtcNow;
-        task.ClosedByUserId = actor;
+        tasks.SetOriginalVersion(task, ParseVersion(input.RowVersion));
+        TaskRules.Close(task, input.Status, actor, DateTime.UtcNow);
+        await tasks.DismissRemindersAsync(task.Id, task.ClosedAtUtc!.Value, ct);
         await Save(ct);
         return Map(task);
     }

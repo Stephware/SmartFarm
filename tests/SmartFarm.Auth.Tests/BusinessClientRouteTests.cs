@@ -11,6 +11,7 @@ using SmartFarm.Core.Contracts.Farms;
 using SmartFarm.Core.Contracts.Harvests;
 using SmartFarm.Core.Contracts.Inventory;
 using SmartFarm.Core.Contracts.Monitoring;
+using SmartFarm.Core.Contracts.Tasks;
 using SmartFarm.Core.Enums;
 using SmartFarm.Web.Clients;
 using Xunit;
@@ -28,6 +29,7 @@ public sealed class BusinessClientRouteTests : IClassFixture<WebApplicationFacto
     private static readonly Guid ItemId = Guid.NewGuid();
     private static readonly Guid TransactionId = Guid.NewGuid();
     private static readonly Guid HarvestId = Guid.NewGuid();
+    private static readonly Guid TaskId = Guid.NewGuid();
 
     private static string FarmRoute => $"api/farms/{FarmId}";
     private static string PlotRoute => $"{FarmRoute}/plots/{PlotId}";
@@ -150,6 +152,15 @@ public sealed class BusinessClientRouteTests : IClassFixture<WebApplicationFacto
             (api, actor) => new InventoryApiService(api).ReverseAsync(FarmId, ItemId, TransactionId, actor, new InventoryReversalInput()));
         await VerifyAsync(HttpMethod.Get, InventoryRoute + "/activities",
             (api, actor) => new InventoryApiService(api).ActivityOptionsAsync(FarmId, actor));
+    }
+
+    [Fact]
+    public async Task TaskEditingUsesTheFarmApiRoute()
+    {
+        await VerifyAsync(HttpMethod.Put, FarmRoute + $"/tasks/{TaskId}",
+            (api, actor) => new FarmTaskApiService(api).UpdateAsync(
+                FarmId, TaskId, actor, new FarmTaskUpdateInput(
+                    new DateOnly(2026, 10, 20), "Water plants", null, "version")));
     }
 
     [Fact]

@@ -76,18 +76,29 @@ public sealed class FarmAutomationService(
             var dueTasks = await db.FarmTasks.AsNoTracking()
                 .Where(t => t.FarmId == farm.Id && t.Status == 0 && t.DueDate <= today)
                 .ToListAsync(ct);
+            var activeCropStatuses = cycles.ToDictionary(c => c.Id, c => c.Status);
 
             foreach (var task in dueTasks)
             {
+                byte? cropStatus = task.CropCycleId is { } cycleId &&
+                    activeCropStatuses.TryGetValue(cycleId, out var state) ? state : null;
+                if (!TaskRules.IsReminderRelevant(task, cropStatus)) continue;
+
                 var recipient = task.AssignedToUserId ?? farm.OwnerUserId;
                 var active = await db.Users.AsNoTracking().AnyAsync(
                     u => u.Id == recipient && u.DisabledAtUtc == null, ct);
                 var stillMember = recipient == farm.OwnerUserId || await db.FarmMembers.AsNoTracking()
                     .AnyAsync(m => m.FarmId == farm.Id && m.UserId == recipient &&
                         m.RemovedAtUtc == null, ct);
-                if (!active || !stillMember) continue;
+                if (!active || !stillMember)
+                {
+                    // Removed assignees must not receive farm information.
+                    recipient = farm.OwnerUserId;
+                    if (!await db.Users.AsNoTracking().AnyAsync(
+                        u => u.Id == recipient && u.DisabledAtUtc == null, ct)) continue;
+                }
 
-                var key = $"task:{task.Id:N}:due";
+                var key = TaskRules.ReminderKey(task.Id, task.DueDate);
                 if (await db.Notifications.AnyAsync(n => n.UserId == recipient &&
                     n.DeduplicationKey == key, ct)) continue;
 

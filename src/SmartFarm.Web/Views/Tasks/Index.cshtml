@@ -27,6 +27,28 @@
                 {
                     <p>@task.Description</p>
                 }
+                @if (task.Status == 0 && canManage)
+                {
+                    <details>
+                        <summary>Edit task and assignment</summary>
+                        <form asp-action="Update" asp-route-farmId="@Model.Farm.Id" asp-route-taskId="@task.Id" method="post" class="narrow">
+                            <input type="hidden" name="RowVersion" value="@task.RowVersion" />
+                            <label for="editDue-@task.Id">Due date</label>
+                            <input type="date" id="editDue-@task.Id" name="DueDate" value="@task.DueDate.ToString("yyyy-MM-dd")" required />
+                            <label for="editAssignee-@task.Id">Assigned member</label>
+                            <select id="editAssignee-@task.Id" name="AssignedToUserId">
+                                <option value="" selected="@(task.AssignedToUserId is null)">Unassigned (farm owner gets the reminder)</option>
+                                @foreach (var member in Model.Members)
+                                {
+                                    <option value="@member.UserId" selected="@(task.AssignedToUserId == member.UserId)">@member.FullName — @member.Role</option>
+                                }
+                            </select>
+                            <label for="editDescription-@task.Id">Description</label>
+                            <textarea id="editDescription-@task.Id" name="Description" maxlength="500">@task.Description</textarea>
+                            <button type="submit">Save task changes</button>
+                        </form>
+                    </details>
+                }
                 @if (task.Status == 0 && (canManage || task.AssignedToUserId == actorId))
                 {
                     <form asp-action="Close" asp-route-farmId="@Model.Farm.Id" asp-route-taskId="@task.Id" method="post">

@@ -19,6 +19,40 @@ public static class TaskRules
         return null;
     }
 
+    public static byte? ForActivity(byte activityType) => activityType switch
+    {
+        1 => (byte)2, // Watering
+        2 => (byte)3, // Fertilizing
+        _ => null
+    };
+
+    public static string? ValidateUpdate(FarmTaskUpdateInput input)
+    {
+        if (input.DueDate == default || input.Description?.Trim().Length > 500 ||
+            input.AssignedToUserId == Guid.Empty)
+            return "Choose a valid due date, assignee, and description up to 500 characters.";
+        return null;
+    }
+
+    // Recording actual work may fulfill a generated farm-calendar task.
+    // Manual assignments remain limited to their assignee or farm managers.
+    public static bool CanFulfillFromRecord(FarmTask task, Guid actor, bool mayManage) =>
+        mayManage || task.AssignedToUserId == actor || task.DedupeKey is not null;
+
+    public static bool Close(FarmTask task, byte status, Guid actor, DateTime utcNow)
+    {
+        if (task.Status != 0 || !IsValidCloseStatus(status)) return false;
+        task.Status = status;
+        task.ClosedAtUtc = utcNow;
+        task.ClosedByUserId = actor;
+        return true;
+    }
+
+    // Farm dates use their configured time zone, not the worker's UTC calendar day.
+    public static DateOnly FarmDate(string timeZoneId, DateTime utcNow) =>
+        DateOnly.FromDateTime(TimeZoneInfo.ConvertTimeFromUtc(
+            utcNow, TimeZoneInfo.FindSystemTimeZoneById(timeZoneId)));
+
     // Create upcoming planting, watering and harvest dates from the crop calendar.
     public static IEnumerable<(byte Type, DateOnly Due)> ScheduledTasks(
         CropCycle crop, DateOnly today, DateOnly lastDay)
@@ -42,6 +76,13 @@ public static class TaskRules
         if (crop.ExpectedHarvestDate is { } harvest && harvest <= lastDay)
             yield return (5, harvest);
     }
+
+    public static string ReminderKey(Guid taskId, DateOnly due) =>
+        $"task:{taskId:N}:due:{due:yyyyMMdd}";
+
+    public static bool IsReminderRelevant(FarmTask task, byte? cropStatus) =>
+        task.Status == 0 && (task.CropCycleId is null ||
+            (cropStatus is 0 or 1 && !(task.TaskType == 1 && cropStatus == 1)));
 
     // Deterministic keys keep recurring jobs safe to rerun.
     public static string ScheduleKey(Guid cropId, byte taskType, DateOnly due) =>

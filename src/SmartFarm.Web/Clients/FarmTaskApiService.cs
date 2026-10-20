@@ -15,6 +15,11 @@ public sealed class FarmTaskApiService(SmartFarmApiClient api) : IFarmTaskServic
         CancellationToken ct = default) =>
         api.WriteAsync<FarmTaskDetails>(HttpMethod.Post, Tasks(farmId), actor, input, ct);
 
+    public Task<FarmTaskDetails> UpdateAsync(Guid farmId, Guid taskId, Guid actor,
+        FarmTaskUpdateInput input, CancellationToken ct = default) =>
+        api.WriteAsync<FarmTaskDetails>(HttpMethod.Put,
+            $"{Tasks(farmId)}/{taskId}", actor, input, ct);
+
     public Task<FarmTaskDetails> CloseAsync(Guid farmId, Guid taskId, Guid actor,
         FarmTaskCloseInput input, CancellationToken ct = default) =>
         api.WriteAsync<FarmTaskDetails>(HttpMethod.Put, $"{Tasks(farmId)}/{taskId}/close", actor, input, ct);

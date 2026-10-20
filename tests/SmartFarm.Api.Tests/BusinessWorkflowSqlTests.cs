@@ -74,6 +74,8 @@ public sealed class BusinessWorkflowSqlTests
                 WateringIntervalDays = 3
             });
         var cycle = farm + $"/crop-cycles/{planned.Id}";
+        var plantingTask = await PostAsync<FarmTaskDetails>(client, farm + "/tasks",
+            new FarmTaskInput(1, planting, "Plant the seedlings", planned.Id, null));
         var active = await PostAsync<CropCycleDetails>(client, cycle + "/transitions",
             new CropCycleTransitionInput
             {
@@ -82,6 +84,8 @@ public sealed class BusinessWorkflowSqlTests
                 PlantedDate = planting
             });
         Assert.Equal(CropCycleStatus.Active, active.Status);
+        Assert.Equal((byte)1, (await GetAsync<List<FarmTaskDetails>>(client, farm + "/tasks"))
+            .Single(t => t.Id == plantingTask.Id).Status);
 
         var taskPath = farm + "/tasks";
         var assignedTask = await PostAsync<FarmTaskDetails>(client, taskPath,
@@ -89,6 +93,21 @@ public sealed class BusinessWorkflowSqlTests
         Assert.Equal((byte)0, assignedTask.Status);
         Assert.Contains(await GetAsync<List<FarmTaskDetails>>(client, taskPath),
             t => t.Id == assignedTask.Id);
+
+        using (var updateResponse = await client.PutAsJsonAsync(
+            taskPath + $"/{assignedTask.Id}", new FarmTaskUpdateInput(
+                planting.AddDays(1), "Water tomorrow", null, assignedTask.RowVersion)))
+        {
+            Assert.Equal(HttpStatusCode.OK, updateResponse.StatusCode);
+            var updated = await updateResponse.Content.ReadFromJsonAsync<FarmTaskDetails>();
+            Assert.NotNull(updated);
+            Assert.Equal(planting.AddDays(1), updated.DueDate);
+            Assert.Equal("Water tomorrow", updated.Description);
+            using var stale = await client.PutAsJsonAsync(taskPath + $"/{assignedTask.Id}",
+                new FarmTaskUpdateInput(planting, "Stale update", null, assignedTask.RowVersion));
+            Assert.Equal(HttpStatusCode.Conflict, stale.StatusCode);
+            assignedTask = updated;
+        }
         using (var closedResponse = await client.PutAsJsonAsync(
             taskPath + $"/{assignedTask.Id}/close",
             new FarmTaskCloseInput(1, assignedTask.RowVersion)))
@@ -98,13 +117,23 @@ public sealed class BusinessWorkflowSqlTests
             Assert.Equal((byte)1, completed?.Status);
         }
 
+        var linkedTask = await PostAsync<FarmTaskDetails>(client, taskPath,
+            new FarmTaskInput(2, planting, "Linked watering", planned.Id, null));
         var monitoring = cycle + "/monitoring";
         var activity = await PostAsync<ActivityDetails>(client, monitoring + "/activities",
-            new RecordActivityInput { ActivityType = 1, Notes = "Watered" });
+            new RecordActivityInput { ActivityType = 1, Notes = "Watered", FarmTaskId = linkedTask.Id });
+        Assert.Equal(linkedTask.Id, activity.FarmTaskId);
+        Assert.Equal((byte)1, (await GetAsync<List<FarmTaskDetails>>(client, taskPath))
+            .Single(t => t.Id == linkedTask.Id).Status);
+        var autoTask = await PostAsync<FarmTaskDetails>(client, taskPath,
+            new FarmTaskInput(2, planting, "Automatic watering", planned.Id, null));
+        var automatic = await PostAsync<ActivityDetails>(client, monitoring + "/activities",
+            new RecordActivityInput { ActivityType = 1, Notes = "Watered again" });
+        Assert.Equal(autoTask.Id, automatic.FarmTaskId);
         await PostAsync<ObservationDetails>(client, monitoring + "/observations",
             new RecordObservationInput { HealthStatus = 1, GrowthStage = "Growing" });
         var observations = await GetAsync<MonitoringDetails>(client, monitoring);
-        Assert.Single(observations.Activities);
+        Assert.Equal(2, observations.Activities.Count);
         Assert.Single(observations.Observations);
 
         var inventory = farm + "/inventory";
@@ -134,9 +163,13 @@ public sealed class BusinessWorkflowSqlTests
             client, itemPath + "/transactions");
         Assert.Equal(3, movements.Count); // Opening + receipt + consumption.
 
+        var harvestTask = await PostAsync<FarmTaskDetails>(client, taskPath,
+            new FarmTaskInput(5, planting.AddDays(60), "Harvest the crop", planned.Id, null));
         var harvests = cycle + "/harvests";
         var first = await PostAsync<HarvestEntry>(client, harvests,
             new RecordHarvestInput { Quantity = 2m });
+        Assert.Equal((byte)1, (await GetAsync<List<FarmTaskDetails>>(client, taskPath))
+            .Single(t => t.Id == harvestTask.Id).Status);
         await PostAsync<HarvestEntry>(client, harvests,
             new RecordHarvestInput { Quantity = 1m });
         var beforeVoid = await GetAsync<HarvestOverview>(client, harvests);
@@ -195,6 +228,15 @@ public sealed class BusinessWorkflowSqlTests
         var finalHarvest = await GetAsync<HarvestOverview>(client, harvests);
         Assert.Equal(3m, finalHarvest.TotalQuantity);
         Assert.Equal(2, finalHarvest.ValidHarvestCount);
+
+        var pendingOnCompletion = await PostAsync<FarmTaskDetails>(client, taskPath,
+            new FarmTaskInput(4, planting, "Inspect before closure", planned.Id, null));
+        var completedCycle = await PostAsync<CropCycleDetails>(client, cycle + "/transitions",
+            new CropCycleTransitionInput { RowVersion = active.RowVersion,
+                Status = CropCycleStatus.Completed });
+        Assert.Equal(CropCycleStatus.Completed, completedCycle.Status);
+        Assert.Equal((byte)3, (await GetAsync<List<FarmTaskDetails>>(client, taskPath))
+            .Single(t => t.Id == pendingOnCompletion.Id).Status);
 
         // A second account must not access another owner's farm or harvest.
         using var other = factory.CreateClient();
