@@ -11,8 +11,27 @@ import kotlinx.coroutines.withContext
 
 // Only app-generated file names are used. Files are not shared or backed up.
 class LocalPhotoFiles(context: Context) {
-    private val directory = File(context.filesDir, "queued-photos")
+    private val appContext = context.applicationContext
+    private val directory = File(appContext.filesDir, "queued-photos")
+    private val cameraDirectory = File(appContext.filesDir, "camera")
     companion object { const val MAX_BYTES = 5 * 1024 * 1024 }
+
+    init {
+        // Clean abandoned camera captures after a day; queued copies remain untouched.
+        cameraDirectory.listFiles()?.forEach { file ->
+            if (file.name.matches(Regex("capture-[0-9a-fA-F-]+\\.jpg")) &&
+                System.currentTimeMillis() - file.lastModified() > 86_400_000L) {
+                file.delete()
+            }
+        }
+    }
+
+    fun deleteTemporaryCameraSource(uri: Uri) {
+        if (uri.authority != "${appContext.packageName}.photos") return
+        val name = uri.lastPathSegment ?: return
+        if (name.matches(Regex("capture-[0-9a-fA-F-]+\\.jpg")))
+            File(cameraDirectory, name).delete()
+    }
 
     fun file(id: String): File {
         val uuid = UUID.fromString(id).toString()
