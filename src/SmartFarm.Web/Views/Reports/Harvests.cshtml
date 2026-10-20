@@ -39,7 +39,7 @@
     <div class="action-links">
         <a asp-action="Harvests" asp-route-farmId="@report.FarmId">Clear filters</a>
         <a asp-action="ExportCsv" asp-route-farmId="@report.FarmId"
-           asp-route-from="@report.FromDate" asp-route-to="@report.ToDate"
+           asp-route-from="@(report.FromDate?.ToString("yyyy-MM-dd"))" asp-route-to="@(report.ToDate?.ToString("yyyy-MM-dd"))"
            asp-route-plotId="@report.PlotId" asp-route-cropTypeId="@report.CropTypeId">
             Export CSV
         </a>
