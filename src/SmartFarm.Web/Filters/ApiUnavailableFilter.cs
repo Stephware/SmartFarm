@@ -15,7 +15,7 @@ public sealed class ApiUnavailableFilter(
         if (context.Exception is not HttpRequestException error) return;
 
         logger.LogError(error, "SmartFarm API request failed (HTTP {Status})",
-            error.StatusCode is { } status ? (int)status : null);
+            error.StatusCode is { } httpStatus ? (int)httpStatus : null);
         var viewData = new ViewDataDictionary(new EmptyModelMetadataProvider(), context.ModelState)
         {
             ["Title"] = "Farm data unavailable",
