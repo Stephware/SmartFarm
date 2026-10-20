@@ -72,6 +72,18 @@ public sealed class OpenMeteoAdapterTests
     }
 
     [Fact]
+    public async Task MissingDailyFieldsAreRejectedAsInvalidWeather()
+    {
+        var adapter = new OpenMeteoAdapter();
+        using var response = new HttpResponseMessage(HttpStatusCode.OK)
+        {
+            Content = new StringContent("""{"daily":{"time":["2026-10-20"]}}""")
+        };
+        await Assert.ThrowsAsync<System.Text.Json.JsonException>(() =>
+            adapter.ReadForecastAsync(response, CancellationToken.None));
+    }
+
+    [Fact]
     public void ProviderRequiresExpectedHttpsOrigin()
     {
         var services = new ServiceCollection();
