@@ -143,8 +143,8 @@ fun SmartFarmNavHost(auth: AuthViewModel, farms: FarmViewModel, crops: CropViewM
             MonitoringScreen(monitoringState,
                 onBack = { navController.popBackStack() },
                 onActivity = { kind, notes -> monitoring.logActivity(kind, notes) },
-                onObservation = { health, growth, notes ->
-                    monitoring.observe(health, growth, notes)
+                onObservation = { health, growth, notes, photo ->
+                    monitoring.observe(health, growth, notes, photo, resolver)
                 },
                 onUpload = { observationId, uri ->
                     monitoring.uploadPhoto(observationId, uri, resolver)
