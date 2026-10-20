@@ -134,6 +134,25 @@ public sealed class WebApiClientTests
         Assert.Equal("The record changed.", error.Message);
     }
 
+    [Fact]
+    public async Task ServerErrorsPreserveTheHttpStatusForDiagnosis()
+    {
+        using var app = new WebApplicationFactory<Program>();
+        var actor = Guid.NewGuid();
+        using var client = new HttpClient(new RecordingHandler(_ =>
+            new HttpResponseMessage(HttpStatusCode.InternalServerError)))
+        {
+            BaseAddress = new Uri("https://api.example.test/")
+        };
+        var api = new SmartFarmApiClient(client, UserContext(actor),
+            app.Services.GetRequiredService<IOptionsMonitor<BearerTokenOptions>>());
+
+        var error = await Assert.ThrowsAsync<HttpRequestException>(() =>
+            api.ReadAsync<List<FarmSummary>>("api/farms", actor, default));
+        Assert.Equal(HttpStatusCode.InternalServerError, error.StatusCode);
+        Assert.Contains("HTTP 500", error.Message);
+    }
+
     private static HttpContextAccessor UserContext(Guid userId) => new()
     {
         HttpContext = new DefaultHttpContext
