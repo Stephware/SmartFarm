@@ -5,6 +5,7 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import com.smartfarm.mobile.data.remote.dto.*
 import com.smartfarm.mobile.data.repository.InventoryRepository
+import com.smartfarm.mobile.data.sync.SyncRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
@@ -15,13 +16,15 @@ data class InventoryUiState(
     val itemId: String = "",
     val busy: Boolean = false,
     val error: String? = null,
+    val notice: String? = null,
     val workspace: InventoryWorkspaceDto = InventoryWorkspaceDto(emptyList(), 0),
     val item: InventoryItemDto? = null,
     val transactions: List<InventoryTransactionDto> = emptyList(),
     val activities: List<InventoryActivityOptionDto> = emptyList()
 )
 
-class InventoryViewModel(private val repo: InventoryRepository) : ViewModel() {
+class InventoryViewModel(private val repo: InventoryRepository,
+    private val sync: SyncRepository) : ViewModel() {
     private val mutable = MutableStateFlow(InventoryUiState())
     val state = mutable.asStateFlow()
 
@@ -93,10 +96,24 @@ class InventoryViewModel(private val repo: InventoryRepository) : ViewModel() {
         repo.archive(it.farmId, it.itemId, current.rowVersion)
     }
 
-    fun movement(type: Int, quantity: String, activity: String?, reason: String) = work {
-        val current = requireNotNull(it.item)
-        repo.post(it.farmId, it.itemId, InventoryMovementDto(type,
-            BigDecimal(quantity), activity, reason.trim().ifBlank { null }, current.rowVersion))
+    fun movement(type: Int, quantity: String, activity: String?, reason: String) {
+        val snapshot = mutable.value
+        val current = snapshot.item ?: return
+        if (snapshot.busy || snapshot.farmId.isBlank()) return
+        mutable.value = snapshot.copy(busy = true, error = null, notice = null)
+        viewModelScope.launch {
+            try {
+                sync.queueInventory(snapshot.farmId, snapshot.itemId, InventoryMovementDto(
+                    type, BigDecimal(quantity), activity, reason.trim().ifBlank { null },
+                    current.rowVersion))
+                mutable.value = mutable.value.copy(notice =
+                    "Stock change queued. Do not record it again; check offline sync status.")
+            } catch (_: Exception) {
+                mutable.value = mutable.value.copy(error = "Could not save the change on this device.")
+            } finally {
+                mutable.value = mutable.value.copy(busy = false)
+            }
+        }
     }
 
     fun reverse(transactionId: String, reason: String) = work {
@@ -105,10 +122,11 @@ class InventoryViewModel(private val repo: InventoryRepository) : ViewModel() {
             InventoryReversalDto(current.rowVersion, reason.trim()))
     }
 
-    class Factory(private val repo: InventoryRepository) : ViewModelProvider.Factory {
+    class Factory(private val repo: InventoryRepository,
+        private val sync: SyncRepository) : ViewModelProvider.Factory {
         @Suppress("UNCHECKED_CAST")
         override fun <T : ViewModel> create(modelClass: Class<T>): T =
-            InventoryViewModel(repo) as T
+            InventoryViewModel(repo, sync) as T
     }
 }
 
