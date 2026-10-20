@@ -72,6 +72,13 @@ public static class TaskRules
             yield return (5, harvest);
     }
 
+    public static string ReminderKey(Guid taskId, DateOnly due) =>
+        $"task:{taskId:N}:due:{due:yyyyMMdd}";
+
+    public static bool IsReminderRelevant(FarmTask task, byte? cropStatus) =>
+        task.Status == 0 && (task.CropCycleId is null ||
+            (cropStatus is 0 or 1 && !(task.TaskType == 1 && cropStatus == 1)));
+
     // Deterministic keys keep recurring jobs safe to rerun.
     public static string ScheduleKey(Guid cropId, byte taskType, DateOnly due) =>
         $"cycle:{cropId:N}:type:{taskType}:date:{due:yyyyMMdd}";
