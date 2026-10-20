@@ -8,7 +8,9 @@ data class WeatherDayDto(
     val maxTemperatureC: BigDecimal?,
     val rainfallMm: BigDecimal?,
     val retrievedAtUtc: String,
-    val provider: String
+    val provider: String,
+    val maxPrecipitationProbability: BigDecimal? = null,
+    val maxWindKph: BigDecimal? = null
 )
 
 data class WeatherAdvisoryDto(
