@@ -10,7 +10,7 @@ import retrofit2.HttpException
 
 // Tokens deliberately remain in memory until secure persisted storage is designed.
 // Restarting the app requires signing in again; never save tokens in Room/plain preferences.
-class AuthRepository(private val api: () -> AuthApi, private val onLogin: () -> Unit = {}) {
+class AuthRepository(private val onLogin: () -> Unit = {}, private val api: () -> AuthApi) {
     @Volatile var currentUserId: String? = null
         private set
     private var session: AuthTokens? = null
