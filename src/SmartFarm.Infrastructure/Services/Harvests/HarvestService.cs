@@ -10,6 +10,7 @@ using SmartFarm.Core.Interfaces.Repositories;
 using SmartFarm.Core.Interfaces.Persistence;
 using SmartFarm.Core.Interfaces.Security;
 using SmartFarm.Core.Services.Harvests;
+using SmartFarm.Core.Services.Tasks;
 
 namespace SmartFarm.Infrastructure.Services.Harvests;
 
@@ -18,6 +19,7 @@ public sealed class HarvestService(
     IPlotRepository plots,
     ICropTypeRepository cropTypes,
     IHarvestRepository harvests,
+    IFarmTaskRepository tasks,
     IUnitOfWork unit,
     IFarmAccessService access) : IHarvestService
 {
@@ -90,10 +92,31 @@ public sealed class HarvestService(
                 Notes = string.IsNullOrWhiteSpace(input.Notes) ? null : input.Notes.Trim()
             };
             harvests.Add(entry);
+
+            // A recorded harvest fulfills the nearest open harvest task for this crop,
+            // including an early harvest before its scheduled due date.
+            var timezone = await tasks.GetFarmTimeZoneAsync(farmId, ct);
+            if (timezone is not null)
+            {
+                DateOnly today;
+                try { today = TaskRules.FarmDate(timezone, entry.HarvestedAtUtc); }
+                catch (TimeZoneNotFoundException) { today = DateOnly.FromDateTime(entry.HarvestedAtUtc); }
+
+                var level = await access.GetAccessLevelAsync(farmId, actor, ct);
+                var mayManage = level is FarmAccessLevel.Owner or FarmAccessLevel.Manager;
+                var task = await tasks.FindDueAsync(farmId, cycleId, 5, today, actor, mayManage, ct);
+                if (task is not null && TaskRules.Close(task, 1, actor, entry.HarvestedAtUtc))
+                    await tasks.DismissRemindersAsync(task.Id, entry.HarvestedAtUtc, ct);
+            }
+
             await unit.SaveChangesAsync(ct);
             if (transaction is not null)
                 await transaction.CommitAsync(ct);
             return Map(entry);
+        }
+        catch (DbUpdateConcurrencyException)
+        {
+            throw Conflict("The related task was changed. Refresh and retry the harvest.");
         }
         catch (DbUpdateException ex) when (ex.InnerException is SqlException sql && sql.Number == 547)
         {
