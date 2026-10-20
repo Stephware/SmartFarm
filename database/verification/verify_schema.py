@@ -308,10 +308,17 @@ def catalog_schema(data):
     require(not data['triggers'], 'Unexpected triggers')
     require(len(data['database']) == 1, 'Exactly one database metadata row required')
     database_collation = data['database'][0]['collation_name']
-    for table in data['tables']:
+
+    # An adopted EF Core baseline may create its standard history table.
+    # Only ignore metadata belonging to that exact dbo table; all other drift remains visible.
+    def app_rows(group):
+        return [row for row in data[group]
+                if not (row['schema'] == 'dbo' and row['table'] == '__EFMigrationsHistory')]
+
+    for table in app_rows('tables'):
         require(table['schema'] == 'dbo' and not table['temporal_type'] and not table['is_memory_optimized'], 'Unsupported table metadata')
         add(schema['tables'], table['table'], True)
-    for column in data['columns']:
+    for column in app_rows('columns'):
         require(column['schema'] == 'dbo' and not column['is_computed'], 'Unsupported column metadata')
         if column.get('collation_name'):
             require(column['collation_name'] == database_collation, 'Column collation differs from database default')
@@ -334,15 +341,15 @@ def catalog_schema(data):
             default = (column['default_name'], default_expression(column['default_sql'], column_type))
         identity = (column['identity_seed'], column['identity_increment']) if column['is_identity'] else None
         add(schema['columns'], (column['table'], column['column']), {'type': column_type, 'nullable': column['is_nullable'], 'identity': identity, 'default': default})
-    for foreign in data['foreignKeys']:
+    for foreign in app_rows('foreignKeys'):
         require(foreign['schema'] == foreign['referenced_schema'] == 'dbo' and not foreign['is_disabled'] and not foreign['is_not_trusted'] and foreign['update_referential_action_desc'] == 'NO_ACTION', 'Unsupported or untrusted FK metadata')
         require(foreign['constraint_column_id'] == 1, 'Composite FK unsupported')
         add(schema['foreign_keys'], (foreign['table'], foreign['name']), (foreign['column'], foreign['referenced_table'], foreign['referenced_column'], foreign['delete_referential_action_desc'].replace('_', ' ')))
-    for check in data['checks']:
+    for check in app_rows('checks'):
         require(check['schema'] == 'dbo' and not check['is_disabled'] and not check['is_not_trusted'], 'Unsupported or untrusted CHECK metadata')
         add(schema['checks'], (check['table'], check['name']), predicate(check['definition']))
     indexes = defaultdict(list)
-    for index in data['indexes']:
+    for index in app_rows('indexes'):
         require(index['schema'] == 'dbo' and not index['is_disabled'] and not index['is_included_column'] and not index['is_descending_key'] and not index['is_unique_constraint'], 'Unsupported index metadata')
         indexes[(index['table'], index['name'])].append(index)
     for key, rows in indexes.items():
