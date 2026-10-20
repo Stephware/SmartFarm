@@ -28,7 +28,7 @@ public sealed class WebLoginTests : IClassFixture<WebApplicationFactory<Program>
     {
         using var response = await _client.GetAsync("/Farms");
         Assert.Equal(HttpStatusCode.Redirect, response.StatusCode);
-        Assert.StartsWith("/Account/Login", response.Headers.Location?.ToString());
+        Assert.Equal("/Account/Login", response.Headers.Location?.AbsolutePath);
     }
 
     [Fact]

@@ -10,7 +10,6 @@ using SmartFarm.Core.Interfaces.Repositories;
 using SmartFarm.Core.Interfaces.Persistence;
 using SmartFarm.Core.Interfaces.Security;
 using SmartFarm.Core.Services.Harvests;
-using SmartFarm.Infrastructure.Persistence;
 
 namespace SmartFarm.Infrastructure.Services.Harvests;
 
@@ -20,8 +19,7 @@ public sealed class HarvestService(
     ICropTypeRepository cropTypes,
     IHarvestRepository harvests,
     IUnitOfWork unit,
-    IFarmAccessService access,
-    SmartFarmDbContext db) : IHarvestService
+    IFarmAccessService access) : IHarvestService
 {
     private static FarmOperationException Missing() =>
         new(FarmError.NotFound, "Harvest resource not found.");
@@ -75,7 +73,7 @@ public sealed class HarvestService(
         // concurrent completion must not slip between checking Active and saving.
         // A sync request already has a serializable transaction that also saves its
         // idempotency record. Do not open a nested transaction inside that request.
-        var transaction = db.Database.CurrentTransaction is null
+        var transaction = !unit.HasActiveTransaction
             ? await unit.BeginTransactionAsync(IsolationLevel.Serializable, ct)
             : null;
         try

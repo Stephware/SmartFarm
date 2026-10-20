@@ -50,6 +50,6 @@ public sealed class BusinessPageAccessTests : IClassFixture<WebApplicationFactor
         using var response = await _client.GetAsync(path);
 
         Assert.Equal(HttpStatusCode.Redirect, response.StatusCode);
-        Assert.StartsWith("/Account/Login", response.Headers.Location?.ToString());
+        Assert.Equal("/Account/Login", response.Headers.Location?.AbsolutePath);
     }
 }
