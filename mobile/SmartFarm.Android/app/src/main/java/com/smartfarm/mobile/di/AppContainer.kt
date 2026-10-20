@@ -64,10 +64,10 @@ class AppContainer(context: Context) {
     }
 
     val authRepository: AuthRepository by lazy {
-        AuthRepository({ retrofit.create(AuthApi::class.java) }) {
+        AuthRepository(onLogin = {
             syncRepository.enablePeriodicChecks()
             syncRepository.schedule()
-        }
+        }) { retrofit.create(AuthApi::class.java) }
     }
 }
 
