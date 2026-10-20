@@ -41,6 +41,7 @@ private fun InventoryPage(title: String, content: @Composable () -> Unit) {
 private fun Feedback(state: InventoryUiState) {
     if (state.busy) CircularProgressIndicator()
     state.error?.let { Text(it, color = MaterialTheme.colorScheme.error) }
+            state.notice?.let { Text(it, color = MaterialTheme.colorScheme.primary) }
 }
 
 @Composable
