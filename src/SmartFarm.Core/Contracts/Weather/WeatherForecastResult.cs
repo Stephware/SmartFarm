@@ -6,7 +6,9 @@ public sealed record DailyWeatherForecast(
     DateOnly Date,
     decimal? MinimumTemperatureC,
     decimal? MaximumTemperatureC,
-    decimal? RainfallMm);
+    decimal? RainfallMm,
+    decimal? MaxPrecipitationProbability = null,
+    decimal? MaxWindKph = null);
 
 public sealed record WeatherForecastResult(
     string Provider,
