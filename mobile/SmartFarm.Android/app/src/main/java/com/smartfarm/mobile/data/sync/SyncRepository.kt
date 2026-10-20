@@ -26,6 +26,8 @@ import java.util.UUID
 import java.util.concurrent.TimeUnit
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.MultipartBody
 import okhttp3.RequestBody.Companion.asRequestBody
@@ -51,6 +53,7 @@ class SyncRepository(
     private val work: WorkManager
 ) {
     private val gson = Gson()
+    private val uploadMutex = Mutex()
 
     fun watch(): Flow<List<PendingOperation>> =
         dao.watch(requireNotNull(auth.currentUserId) { "Sign in to view pending changes." })
@@ -108,6 +111,7 @@ class SyncRepository(
         require(UUID.fromString(observationId).toString() == observationId.lowercase())
         val id = stagePhoto(farmId, cycleId, observationId, null, uri, resolver)
         schedule()
+        files.deleteTemporaryCameraSource(uri)
         return id
     }
 
@@ -126,6 +130,7 @@ class SyncRepository(
             files.delete(photoId)
             throw error
         }
+        files.deleteTemporaryCameraSource(uri)
         return operationId
     }
 
@@ -164,9 +169,11 @@ class SyncRepository(
 
     suspend fun discard(id: String) {
         val user = auth.currentUserId ?: return
+        for (photo in photoDao.forObservationOperation(user, id)) {
+            photoDao.remove(user, photo.photoId)
+            files.delete(photo.photoId)
+        }
         dao.remove(id, user)
-        // Related photos cannot be uploaded after their observation is discarded.
-        // The sync page lets the user discard each orphaned photo separately.
     }
 
     suspend fun discardPhoto(id: String) {
@@ -208,7 +215,9 @@ class SyncRepository(
     }
 
     // false requests WorkManager's exponential network/server retry.
-    suspend fun uploadPending(): Boolean {
+    suspend fun uploadPending(): Boolean = uploadMutex.withLock { uploadPendingOnce() }
+
+    private suspend fun uploadPendingOnce(): Boolean {
         val user = auth.currentUserId ?: return true
         while (true) {
             val pending = dao.pending(user)
