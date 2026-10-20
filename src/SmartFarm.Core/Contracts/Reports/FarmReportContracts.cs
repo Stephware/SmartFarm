@@ -4,7 +4,7 @@ namespace SmartFarm.Core.Contracts.Reports;
 public sealed record HarvestReportEntry(
     Guid Id, Guid CycleId, Guid PlotId, string PlotName,
     Guid CropTypeId, string CropTypeName, decimal Quantity, string Unit,
-    DateTime HarvestedAtUtc, bool IsVoided, string? Notes);
+    DateTime HarvestedAtUtc, DateOnly FarmDate, bool IsVoided, string? Notes);
 
 public sealed record HarvestUnitTotal(string Unit, decimal Quantity, int HarvestCount);
 
