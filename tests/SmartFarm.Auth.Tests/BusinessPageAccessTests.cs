@@ -38,7 +38,10 @@ public sealed class BusinessPageAccessTests : IClassFixture<WebApplicationFactor
                 { $"/Monitoring?{cycleQuery}" },
                 { $"/Inventory?{farmQuery}" },
                 { $"/Inventory/Details?{farmQuery}&itemId={itemId}" },
-                { $"/Harvests?{cycleQuery}" }
+                { $"/Harvests?{cycleQuery}" },
+                { $"/Dashboard?{farmQuery}" },
+                { $"/Reports/Harvests?{farmQuery}" },
+                { $"/Reports/ExportCsv?{farmQuery}" }
             };
         }
     }
