@@ -10,6 +10,9 @@ import androidx.lifecycle.viewModelScope
 import com.smartfarm.mobile.data.remote.dto.ActivityDto
 import com.smartfarm.mobile.data.remote.dto.ObservationDto
 import com.smartfarm.mobile.data.repository.MonitoringRepository
+import com.smartfarm.mobile.data.sync.SyncRepository
+import com.smartfarm.mobile.data.remote.dto.ActivityInputDto
+import com.smartfarm.mobile.data.remote.dto.ObservationInputDto
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -22,13 +25,15 @@ data class MonitoringUiState(
     val cycleId: String = "",
     val busy: Boolean = false,
     val error: String? = null,
+    val notice: String? = null,
     val canRecord: Boolean = false,
     val activities: List<ActivityDto> = emptyList(),
     val observations: List<ObservationDto> = emptyList(),
     val preview: Bitmap? = null
 )
 
-class MonitoringViewModel(private val repository: MonitoringRepository) : ViewModel() {
+class MonitoringViewModel(private val repository: MonitoringRepository,
+    private val sync: SyncRepository) : ViewModel() {
     private val mutable = MutableStateFlow(MonitoringUiState())
     val state = mutable.asStateFlow()
 
@@ -50,31 +55,36 @@ class MonitoringViewModel(private val repository: MonitoringRepository) : ViewMo
             observations = data.observations)
     }
 
-    private fun submit(action: suspend (String, String) -> Unit) {
+    private fun submit(queued: Boolean = true, action: suspend (String, String) -> Unit) {
         val snapshot = mutable.value
         if (snapshot.busy || snapshot.farmId.isBlank() || !snapshot.canRecord) return
-        mutable.value = snapshot.copy(busy = true, error = null)
+        mutable.value = snapshot.copy(busy = true, error = null, notice = null)
         viewModelScope.launch {
             try {
                 action(snapshot.farmId, snapshot.cycleId)
-                refresh(snapshot.farmId, snapshot.cycleId)
+                if (queued) {
+                    mutable.value = mutable.value.copy(
+                        notice = "Saved on this device. It will sync when online.")
+                } else {
+                    refresh(snapshot.farmId, snapshot.cycleId)
+                }
             } catch (_: Exception) {
-                mutable.value = mutable.value.copy(error = "Save failed. Check the photo, crop status and connection.")
+                mutable.value = mutable.value.copy(error = "Save failed. Check the values or device storage.")
             } finally { mutable.value = mutable.value.copy(busy = false) }
         }
     }
 
     fun logActivity(kind: Int, notes: String) = submit { farmId, cycleId ->
-        repository.activity(farmId, cycleId, kind, notes.trim().ifBlank { null })
+        sync.queueActivity(farmId, cycleId, ActivityInputDto(kind, notes.trim().ifBlank { null }))
     }
 
     fun observe(health: Int, growth: String, notes: String) = submit { farmId, cycleId ->
-        repository.observation(farmId, cycleId, health,
-            growth.trim().ifBlank { null }, notes.trim().ifBlank { null })
+        sync.queueObservation(farmId, cycleId, ObservationInputDto(health,
+            growth.trim().ifBlank { null }, notes.trim().ifBlank { null }))
     }
 
     fun uploadPhoto(observationId: String, uri: Uri, resolver: ContentResolver) =
-        submit { farmId, cycleId ->
+        submit(queued = false) { farmId, cycleId ->
             val mime = requireNotNull(resolver.getType(uri))
             require(mime in setOf("image/jpeg", "image/png", "image/webp"))
             val bytes = withContext(Dispatchers.IO) {
@@ -113,10 +123,11 @@ class MonitoringViewModel(private val repository: MonitoringRepository) : ViewMo
         }
     }
 
-    class Factory(private val repository: MonitoringRepository) : ViewModelProvider.Factory {
+    class Factory(private val repository: MonitoringRepository,
+        private val sync: SyncRepository) : ViewModelProvider.Factory {
         @Suppress("UNCHECKED_CAST")
         override fun <T : ViewModel> create(modelClass: Class<T>): T =
-            MonitoringViewModel(repository) as T
+            MonitoringViewModel(repository, sync) as T
     }
 }
 

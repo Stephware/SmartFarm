@@ -23,12 +23,14 @@ import com.smartfarm.mobile.features.inventory.InventoryListScreen
 import com.smartfarm.mobile.features.inventory.InventoryItemScreen
 import com.smartfarm.mobile.features.harvests.HarvestViewModel
 import com.smartfarm.mobile.features.harvests.HarvestScreen
+import com.smartfarm.mobile.features.syncstatus.SyncStatusViewModel
+import com.smartfarm.mobile.features.syncstatus.SyncStatusScreen
 import androidx.compose.ui.platform.LocalContext
 import com.smartfarm.mobile.features.farms.FarmListScreen
 import com.smartfarm.mobile.features.farms.FarmDetailScreen
 
 @Composable
-fun SmartFarmNavHost(auth: AuthViewModel, farms: FarmViewModel, crops: CropViewModel, monitoring: MonitoringViewModel, inventory: InventoryViewModel, harvests: HarvestViewModel, status: StatusViewModel) {
+fun SmartFarmNavHost(auth: AuthViewModel, farms: FarmViewModel, crops: CropViewModel, monitoring: MonitoringViewModel, inventory: InventoryViewModel, harvests: HarvestViewModel, status: StatusViewModel, sync: SyncStatusViewModel) {
     val navController = rememberNavController()
     val resolver = LocalContext.current.contentResolver
     val state by auth.state.collectAsStateWithLifecycle()
@@ -67,8 +69,19 @@ fun SmartFarmNavHost(auth: AuthViewModel, farms: FarmViewModel, crops: CropViewM
                 monitoring.clear()
                 inventory.clear()
                 harvests.clear()
+                sync.clear()
                 navController.navigate("welcome") { popUpTo("welcome") { inclusive = true } }
-            }, onFarms = { navController.navigate("farms") })
+            }, onFarms = { navController.navigate("farms") },
+                onSync = { navController.navigate("sync") })
+        }
+        composable("sync") {
+            val pending by sync.operations.collectAsStateWithLifecycle()
+            LaunchedEffect(Unit) { sync.load() }
+            SyncStatusScreen(pending,
+                onBack = { navController.popBackStack() },
+                onRetry = { sync.retry(it) },
+                onDiscard = { sync.discard(it) },
+                onSyncNow = { sync.syncNow() })
         }
         composable("farms") {
             val farmState by farms.state.collectAsStateWithLifecycle()

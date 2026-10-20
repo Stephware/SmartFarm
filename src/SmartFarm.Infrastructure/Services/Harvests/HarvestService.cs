@@ -10,6 +10,7 @@ using SmartFarm.Core.Interfaces.Repositories;
 using SmartFarm.Core.Interfaces.Persistence;
 using SmartFarm.Core.Interfaces.Security;
 using SmartFarm.Core.Services.Harvests;
+using SmartFarm.Infrastructure.Persistence;
 
 namespace SmartFarm.Infrastructure.Services.Harvests;
 
@@ -19,7 +20,8 @@ public sealed class HarvestService(
     ICropTypeRepository cropTypes,
     IHarvestRepository harvests,
     IUnitOfWork unit,
-    IFarmAccessService access) : IHarvestService
+    IFarmAccessService access,
+    SmartFarmDbContext db) : IHarvestService
 {
     private static FarmOperationException Missing() =>
         new(FarmError.NotFound, "Harvest resource not found.");
@@ -71,7 +73,11 @@ public sealed class HarvestService(
 
         // Hold the crop cycle read lock until the harvest insert commits. A
         // concurrent completion must not slip between checking Active and saving.
-        await using var transaction = await unit.BeginTransactionAsync(IsolationLevel.Serializable, ct);
+        // A sync request already has a serializable transaction that also saves its
+        // idempotency record. Do not open a nested transaction inside that request.
+        var transaction = db.Database.CurrentTransaction is null
+            ? await unit.BeginTransactionAsync(IsolationLevel.Serializable, ct)
+            : null;
         try
         {
             var cycle = await FindCycle(farmId, cycleId, true, ct) ?? throw Missing();
@@ -87,7 +93,8 @@ public sealed class HarvestService(
             };
             harvests.Add(entry);
             await unit.SaveChangesAsync(ct);
-            await transaction.CommitAsync(ct);
+            if (transaction is not null)
+                await transaction.CommitAsync(ct);
             return Map(entry);
         }
         catch (DbUpdateException ex) when (ex.InnerException is SqlException sql && sql.Number == 547)
@@ -101,6 +108,11 @@ public sealed class HarvestService(
         catch (SqlException ex) when (ex.Number == 1205)
         {
             throw Conflict("Harvest was not saved due to a concurrent update. Please retry.");
+        }
+        finally
+        {
+            if (transaction is not null)
+                await transaction.DisposeAsync();
         }
     }
 

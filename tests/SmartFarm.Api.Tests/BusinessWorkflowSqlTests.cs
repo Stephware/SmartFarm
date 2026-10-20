@@ -1,6 +1,7 @@
 using System.Net;
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
+using SmartFarm.Api.Controllers;
 using System.Text.Json;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
@@ -149,6 +150,52 @@ public sealed class BusinessWorkflowSqlTests
         Assert.Equal(1, afterVoid.ValidHarvestCount);
         Assert.Equal(1, afterVoid.VoidedHarvestCount);
 
+        // Lost-response retries must not create extra inventory movements or harvests.
+        var inventorySyncId = Guid.NewGuid();
+        var inventorySync = new SyncWriteInput
+        {
+            FarmId = createdFarm.Id, TargetId = item.Id, OperationType = "inventory",
+            Movement = new InventoryMovementInput
+            {
+                TransactionType = StockTransactionType.Receipt,
+                QuantityChange = 1m, RowVersion = item.RowVersion
+            }
+        };
+        var syncRoute = $"/api/sync/operations/{inventorySyncId}";
+        var firstStockSync = await PostAsync<SyncWriteResult>(client, syncRoute, inventorySync);
+        var secondStockSync = await PostAsync<SyncWriteResult>(client, syncRoute, inventorySync);
+        Assert.False(firstStockSync.Replayed);
+        Assert.True(secondStockSync.Replayed);
+        Assert.Equal(firstStockSync.Result.GetRawText(), secondStockSync.Result.GetRawText());
+        var stockAfterSync = await GetAsync<InventoryItemDetails>(client, itemPath);
+        Assert.Equal(7m, stockAfterSync.QuantityOnHand);
+        Assert.Equal(4, (await GetAsync<List<InventoryTransactionDetails>>(
+            client, itemPath + "/transactions")).Count);
+
+        using (var changedPayload = await client.PostAsJsonAsync(syncRoute, new SyncWriteInput
+        {
+            FarmId = createdFarm.Id, TargetId = item.Id, OperationType = "inventory",
+            Movement = new InventoryMovementInput
+            {
+                TransactionType = StockTransactionType.Receipt,
+                QuantityChange = 2m, RowVersion = item.RowVersion
+            }
+        }))
+            Assert.Equal(HttpStatusCode.Conflict, changedPayload.StatusCode);
+
+        var harvestSyncId = Guid.NewGuid();
+        var harvestSync = new SyncWriteInput
+        {
+            FarmId = createdFarm.Id, TargetId = planned.Id, OperationType = "harvest",
+            Harvest = new RecordHarvestInput { Quantity = 2m, Notes = "Offline harvest" }
+        };
+        var harvestSyncRoute = $"/api/sync/operations/{harvestSyncId}";
+        Assert.False((await PostAsync<SyncWriteResult>(client, harvestSyncRoute, harvestSync)).Replayed);
+        Assert.True((await PostAsync<SyncWriteResult>(client, harvestSyncRoute, harvestSync)).Replayed);
+        var finalHarvest = await GetAsync<HarvestOverview>(client, harvests);
+        Assert.Equal(3m, finalHarvest.TotalQuantity);
+        Assert.Equal(2, finalHarvest.ValidHarvestCount);
+
         // A second account must not access another owner's farm or harvest.
         using var other = factory.CreateClient();
         var otherEmail = $"phase8-other-{suffix}@example.test";
@@ -157,6 +204,8 @@ public sealed class BusinessWorkflowSqlTests
         using var restrictedFarm = await other.GetAsync(farm);
         using var restrictedHarvest = await other.GetAsync(harvests);
         using var restrictedTasks = await other.GetAsync(taskPath);
+        using var restrictedSync = await other.PostAsJsonAsync(syncRoute, inventorySync);
+        Assert.Equal(HttpStatusCode.NotFound, restrictedSync.StatusCode);
         Assert.Equal(HttpStatusCode.NotFound, restrictedFarm.StatusCode);
         Assert.Equal(HttpStatusCode.NotFound, restrictedHarvest.StatusCode);
         Assert.Equal(HttpStatusCode.NotFound, restrictedTasks.StatusCode);

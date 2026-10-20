@@ -6,6 +6,7 @@ import androidx.lifecycle.viewModelScope
 import com.smartfarm.mobile.data.remote.dto.HarvestOverviewDto
 import com.smartfarm.mobile.data.remote.dto.RecordHarvestDto
 import com.smartfarm.mobile.data.repository.HarvestRepository
+import com.smartfarm.mobile.data.sync.SyncRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
@@ -20,7 +21,8 @@ data class HarvestUiState(
     val overview: HarvestOverviewDto? = null
 )
 
-class HarvestViewModel(private val repository: HarvestRepository) : ViewModel() {
+class HarvestViewModel(private val repository: HarvestRepository,
+    private val sync: SyncRepository) : ViewModel() {
     private val mutable = MutableStateFlow(HarvestUiState())
     val state = mutable.asStateFlow()
 
@@ -75,8 +77,20 @@ class HarvestViewModel(private val repository: HarvestRepository) : ViewModel() 
             mutable.value = mutable.value.copy(error = "Enter a positive quantity with up to 3 decimals.")
             return
         }
-        perform("Partial harvest recorded.") { farm, cycle ->
-            repository.record(farm, cycle, RecordHarvestDto(value, notes.trim().ifBlank { null }))
+        val snapshot = mutable.value
+        if (snapshot.busy || snapshot.overview?.canRecord != true) return
+        mutable.value = snapshot.copy(busy = true, error = null, notice = null)
+        viewModelScope.launch {
+            try {
+                sync.queueHarvest(snapshot.farmId, snapshot.cycleId,
+                    RecordHarvestDto(value, notes.trim().ifBlank { null }))
+                mutable.value = mutable.value.copy(notice =
+                    "Harvest saved on this device. Sync status shows when the server confirms it.")
+            } catch (_: Exception) {
+                mutable.value = mutable.value.copy(error = "Could not save harvest on this device.")
+            } finally {
+                mutable.value = mutable.value.copy(busy = false)
+            }
         }
     }
 
@@ -90,10 +104,11 @@ class HarvestViewModel(private val repository: HarvestRepository) : ViewModel() 
         }
     }
 
-    class Factory(private val repository: HarvestRepository) : ViewModelProvider.Factory {
+    class Factory(private val repository: HarvestRepository,
+        private val sync: SyncRepository) : ViewModelProvider.Factory {
         @Suppress("UNCHECKED_CAST")
         override fun <T : ViewModel> create(modelClass: Class<T>): T =
-            HarvestViewModel(repository) as T
+            HarvestViewModel(repository, sync) as T
     }
 }
 

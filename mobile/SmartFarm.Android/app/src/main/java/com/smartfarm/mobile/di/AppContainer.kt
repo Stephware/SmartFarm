@@ -5,6 +5,8 @@ import androidx.room.Room
 import androidx.work.WorkManager
 import com.smartfarm.mobile.BuildConfig
 import com.smartfarm.mobile.data.local.SmartFarmDatabase
+import com.smartfarm.mobile.data.sync.SyncRepository
+import com.smartfarm.mobile.data.remote.api.SyncApi
 import com.smartfarm.mobile.data.remote.api.ApiClientFactory
 import com.smartfarm.mobile.data.remote.api.StatusApi
 import com.smartfarm.mobile.data.repository.StatusRepository
@@ -24,7 +26,8 @@ import com.smartfarm.mobile.data.remote.api.FarmApi
 class AppContainer(context: Context) {
     private val appContext = context.applicationContext
     val database: SmartFarmDatabase by lazy {
-        Room.databaseBuilder(appContext, SmartFarmDatabase::class.java, "smartfarm.db").build()
+        Room.databaseBuilder(appContext, SmartFarmDatabase::class.java, "smartfarm.db")
+            .addMigrations(SmartFarmDatabase.MIGRATION_1_2).build()
     }
     val workManager: WorkManager by lazy { WorkManager.getInstance(appContext) }
 
@@ -55,8 +58,16 @@ class AppContainer(context: Context) {
         StatusRepository { retrofit.create(StatusApi::class.java) }
     }
 
+    val syncRepository: SyncRepository by lazy {
+        SyncRepository(authRepository, database.pendingOperationDao(),
+            { retrofit.create(SyncApi::class.java) }, workManager)
+    }
+
     val authRepository: AuthRepository by lazy {
-        AuthRepository { retrofit.create(AuthApi::class.java) }
+        AuthRepository(onLogin = {
+            syncRepository.enablePeriodicChecks()
+            syncRepository.schedule()
+        }) { retrofit.create(AuthApi::class.java) }
     }
 }
 
