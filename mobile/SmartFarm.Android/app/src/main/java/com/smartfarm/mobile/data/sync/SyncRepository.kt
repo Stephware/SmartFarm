@@ -85,8 +85,10 @@ class SyncRepository(
     // false means WorkManager should retry later; HTTP conflicts need manual review.
     suspend fun uploadPending(): Boolean {
         val userId = auth.currentUserId ?: return true
-        val pending = dao.pending(userId)
-        for (operation in pending) {
+        while (true) {
+            val pending = dao.pending(userId)
+            if (pending.isEmpty()) return true
+            for (operation in pending) {
             if (auth.currentUserId != userId) return true
             val input = gson.fromJson(operation.payloadJson, SyncWriteRequest::class.java)
             try {
@@ -107,7 +109,7 @@ class SyncRepository(
                 // Logged out before refreshing the token. Leave the queue intact.
                 return true
             }
+            }
         }
-        return true
     }
 }
