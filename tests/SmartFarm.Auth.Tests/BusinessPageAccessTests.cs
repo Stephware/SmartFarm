@@ -28,6 +28,8 @@ public sealed class BusinessPageAccessTests : IClassFixture<WebApplicationFactor
 
             return new TheoryData<string>
             {
+                { "/Notifications" },
+                { $"/Tasks?{farmQuery}" },
                 { "/Farms" },
                 { "/Farms/Create" },
                 { $"/Farms/Details/{farmId}" },

@@ -6,6 +6,7 @@ using SmartFarm.Core.Interfaces.Harvests;
 using SmartFarm.Core.Interfaces.Inventory;
 using SmartFarm.Core.Interfaces.Monitoring;
 using SmartFarm.Core.Interfaces.Security;
+using SmartFarm.Core.Interfaces.Tasks;
 using SmartFarm.Infrastructure;
 using SmartFarm.Infrastructure.Identity;
 using SmartFarm.Infrastructure.Integrations.Weather;
@@ -16,6 +17,7 @@ using SmartFarm.Infrastructure.Services.Farms;
 using SmartFarm.Infrastructure.Services.Harvests;
 using SmartFarm.Infrastructure.Services.Inventory;
 using SmartFarm.Infrastructure.Services.Monitoring;
+using SmartFarm.Infrastructure.Services.Tasks;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -31,6 +33,7 @@ builder.Services.AddScoped<ICropManagementService, CropManagementService>();
 builder.Services.AddScoped<IMonitoringService, MonitoringService>();
 builder.Services.AddScoped<IInventoryService, InventoryService>();
 builder.Services.AddScoped<IHarvestService, HarvestService>();
+builder.Services.AddScoped<IFarmTaskService, FarmTaskService>();
 builder.Services.AddSingleton<IObservationPhotoStore>(_ =>
     new LocalObservationPhotoStore(
         builder.Configuration["ObservationPhotos:StoragePath"] ??

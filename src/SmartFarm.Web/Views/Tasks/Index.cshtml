@@ -1,0 +1,81 @@
+@model SmartFarm.Web.ViewModels.Tasks.TaskPage
+@{
+    ViewData["Title"] = "Farm tasks";
+    var canManage = Model.Farm.Role is "Owner" or "Manager";
+    var actorId = Guid.TryParse(User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value, out var userId)
+        ? userId : Guid.Empty;
+    var taskNames = new[] { "", "Planting", "Watering", "Fertilizing", "Inspection", "Harvest", "Other" };
+    var statuses = new[] { "Pending", "Completed", "Skipped", "Cancelled" };
+}
+<section class="panel">
+    <p><a asp-controller="Farms" asp-action="Details" asp-route-id="@Model.Farm.Id">← @Model.Farm.Name</a></p>
+    <h1>Farm tasks</h1>
+    <p>Scheduled planting, watering, and harvest tasks are added automatically when the worker is enabled.</p>
+    @if (TempData["Error"] is string error) { <p class="error" role="alert">@error</p> }
+    @if (Model.Tasks.Count == 0) { <p>No tasks yet.</p> }
+    <ul class="farm-list">
+        @foreach (var task in Model.Tasks)
+        {
+            <li>
+                <strong>@taskNames[task.TaskType]</strong> — @task.DueDate.ToString("yyyy-MM-dd")
+                <span> · @statuses[task.Status]</span>
+                @if (task.AssignedToUserId is { } assigned)
+                {
+                    <span> · Assigned: @(Model.Members.FirstOrDefault(m => m.UserId == assigned)?.FullName ?? "Farm owner")</span>
+                }
+                @if (!string.IsNullOrWhiteSpace(task.Description))
+                {
+                    <p>@task.Description</p>
+                }
+                @if (task.Status == 0 && (canManage || task.AssignedToUserId == actorId))
+                {
+                    <form asp-action="Close" asp-route-farmId="@Model.Farm.Id" asp-route-taskId="@task.Id" method="post">
+                        <input type="hidden" name="RowVersion" value="@task.RowVersion" />
+                        <select name="Status" aria-label="Update task status">
+                            <option value="1">Completed</option>
+                            <option value="2">Skipped</option>
+                            <option value="3">Cancelled</option>
+                        </select>
+                        <button type="submit">Update task</button>
+                    </form>
+                }
+            </li>
+        }
+    </ul>
+</section>
+@if (canManage)
+{
+    <section class="panel">
+        <h2>Add a task</h2>
+        <form asp-action="Create" asp-route-farmId="@Model.Farm.Id" method="post" class="narrow">
+            <label for="taskType">Task type</label>
+            <select name="TaskType" id="taskType">
+                @for (var type = 1; type <= 6; type++)
+                {
+                    <option value="@type">@taskNames[type]</option>
+                }
+            </select>
+            <label for="taskDue">Due date</label>
+            <input type="date" id="taskDue" name="DueDate" required />
+            <label for="taskCrop">Crop cycle (optional)</label>
+            <select name="CropCycleId" id="taskCrop">
+                <option value="">No crop</option>
+                @foreach (var crop in Model.Cycles)
+                {
+                    <option value="@crop.Id">@crop.PlotName — @crop.CropTypeName</option>
+                }
+            </select>
+            <label for="taskAssignee">Assign to (optional)</label>
+            <select name="AssignedToUserId" id="taskAssignee">
+                <option value="">Unassigned (reminder goes to farm owner)</option>
+                @foreach (var member in Model.Members)
+                {
+                    <option value="@member.UserId">@member.FullName — @member.Role</option>
+                }
+            </select>
+            <label for="taskDescription">Description</label>
+            <textarea id="taskDescription" name="Description" maxlength="500"></textarea>
+            <button type="submit">Create task</button>
+        </form>
+    </section>
+}

@@ -8,6 +8,8 @@ namespace SmartFarm.Worker.Scheduling;
 public sealed class WorkerJobScheduler : IHostedService
 {
     public const string HeartbeatJobId = "smartfarm-worker-check";
+    public const string TaskJobId = "smartfarm-tasks-and-reminders";
+    public const string WeatherJobId = "smartfarm-weather-check";
 
     private readonly IRecurringJobManager _recurringJobs;
     private readonly ILogger<WorkerJobScheduler> _logger;
@@ -30,7 +32,19 @@ public sealed class WorkerJobScheduler : IHostedService
             Cron.Hourly(),
             new RecurringJobOptions { TimeZone = TimeZoneInfo.Utc });
 
-        _logger.LogInformation("Scheduled the hourly SmartFarm worker check.");
+        _recurringJobs.AddOrUpdate<TaskReminderJob>(
+            TaskJobId,
+            job => job.ExecuteAsync(),
+            Cron.Hourly(),
+            new RecurringJobOptions { TimeZone = TimeZoneInfo.Utc });
+
+        _recurringJobs.AddOrUpdate<WeatherCheckJob>(
+            WeatherJobId,
+            job => job.ExecuteAsync(),
+            "0 */6 * * *",
+            new RecurringJobOptions { TimeZone = TimeZoneInfo.Utc });
+
+        _logger.LogInformation("Scheduled worker, task, and weather checks.");
         return Task.CompletedTask;
     }
 

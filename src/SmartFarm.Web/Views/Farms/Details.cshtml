@@ -23,6 +23,7 @@
 </section>
 <section class="panel">
     <h2>Plots</h2>
+    <p><a asp-controller="Tasks" asp-action="Index" asp-route-farmId="@Model.Farm.Id">Manage tasks and assignments →</a></p>
     <p><a asp-controller="Inventory" asp-action="Index"
           asp-route-farmId="@Model.Farm.Id">Manage inventory and stock →</a></p>
     <p><a asp-controller="Crops" asp-action="Index"
