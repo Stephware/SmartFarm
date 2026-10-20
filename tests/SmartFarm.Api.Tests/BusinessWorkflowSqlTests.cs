@@ -10,6 +10,7 @@ using SmartFarm.Core.Contracts.Farms;
 using SmartFarm.Core.Contracts.Harvests;
 using SmartFarm.Core.Contracts.Inventory;
 using SmartFarm.Core.Contracts.Monitoring;
+using SmartFarm.Core.Contracts.Tasks;
 using SmartFarm.Core.Enums;
 using Xunit;
 
@@ -81,6 +82,21 @@ public sealed class BusinessWorkflowSqlTests
             });
         Assert.Equal(CropCycleStatus.Active, active.Status);
 
+        var taskPath = farm + "/tasks";
+        var assignedTask = await PostAsync<FarmTaskDetails>(client, taskPath,
+            new FarmTaskInput(2, planting, "Water the new crop", planned.Id, null));
+        Assert.Equal((byte)0, assignedTask.Status);
+        Assert.Contains(await GetAsync<List<FarmTaskDetails>>(client, taskPath),
+            t => t.Id == assignedTask.Id);
+        using (var closedResponse = await client.PutAsJsonAsync(
+            taskPath + $"/{assignedTask.Id}/close",
+            new FarmTaskCloseInput(1, assignedTask.RowVersion)))
+        {
+            Assert.Equal(HttpStatusCode.OK, closedResponse.StatusCode);
+            var completed = await closedResponse.Content.ReadFromJsonAsync<FarmTaskDetails>();
+            Assert.Equal((byte)1, completed?.Status);
+        }
+
         var monitoring = cycle + "/monitoring";
         var activity = await PostAsync<ActivityDetails>(client, monitoring + "/activities",
             new RecordActivityInput { ActivityType = 1, Notes = "Watered" });
@@ -140,8 +156,10 @@ public sealed class BusinessWorkflowSqlTests
         await LoginAsync(other, otherEmail, password);
         using var restrictedFarm = await other.GetAsync(farm);
         using var restrictedHarvest = await other.GetAsync(harvests);
+        using var restrictedTasks = await other.GetAsync(taskPath);
         Assert.Equal(HttpStatusCode.NotFound, restrictedFarm.StatusCode);
         Assert.Equal(HttpStatusCode.NotFound, restrictedHarvest.StatusCode);
+        Assert.Equal(HttpStatusCode.NotFound, restrictedTasks.StatusCode);
     }
 
     private static async Task RegisterAsync(HttpClient client, string email, string password)
