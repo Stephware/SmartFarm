@@ -21,8 +21,8 @@ public static class TaskRules
 
     public static byte? ForActivity(byte activityType) => activityType switch
     {
-        1 => 2, // Watering
-        2 => 3, // Fertilizing
+        1 => (byte)2, // Watering
+        2 => (byte)3, // Fertilizing
         _ => null
     };
 
