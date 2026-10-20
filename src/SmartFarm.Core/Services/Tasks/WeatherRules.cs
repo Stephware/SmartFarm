@@ -6,6 +6,14 @@ public sealed record WeatherWarning(byte Type, byte Severity, string Message);
 
 public static class WeatherRules
 {
+    // Reject implausible provider values before writing decimal SQL columns.
+    public static bool IsPlausible(DailyWeatherForecast day) =>
+        (day.MinimumTemperatureC is null or >= -100m and <= 100m) &&
+        (day.MaximumTemperatureC is null or >= -100m and <= 100m) &&
+        (day.MinimumTemperatureC is null || day.MaximumTemperatureC is null ||
+            day.MinimumTemperatureC <= day.MaximumTemperatureC) &&
+        (day.RainfallMm is null or >= 0m and <= 10000m);
+
     public static IReadOnlyList<WeatherWarning> Evaluate(DailyWeatherForecast day)
     {
         var results = new List<WeatherWarning>();
