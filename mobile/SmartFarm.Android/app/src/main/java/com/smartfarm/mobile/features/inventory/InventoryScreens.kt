@@ -184,7 +184,7 @@ fun InventoryItemScreen(
                 }
                 Text("$type · ${transaction.quantityChange} ${item.unit} · ${transaction.occurredAtUtc}")
                 transaction.reason?.let { Text(it) }
-                if (canManage && item.archivedAtUtc == null &&
+                if (canManage && !state.offline && item.archivedAtUtc == null &&
                     transaction.transactionType != 5 && transaction.id !in reversedIds) {
                     OutlinedTextField(reversalReason, { reversalReason = it },
                         label = { Text("Reversal reason") })
