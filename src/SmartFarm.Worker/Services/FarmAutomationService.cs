@@ -127,6 +127,14 @@ public sealed class FarmAutomationService(
 
         foreach (var farm in farms)
         {
+            DateOnly today;
+            try { today = LocalDate(farm, utcNow); }
+            catch (Exception error) when (error is TimeZoneNotFoundException or InvalidTimeZoneException)
+            {
+                logger.LogWarning("Skipping weather for farm {FarmId}: invalid time zone.", farm.Id);
+                continue;
+            }
+
             WeatherForecastResult forecast;
             try
             {
@@ -140,19 +148,33 @@ public sealed class FarmAutomationService(
             }
             catch (WeatherServiceException error)
             {
-                logger.LogWarning("Weather provider unavailable for farm {FarmId}: {Message}", farm.Id, error.Message);
+                logger.LogWarning("Weather unavailable for farm {FarmId}: {Failure}",
+                    farm.Id, error.Failure);
                 continue;
             }
 
-            DateOnly today;
-            try { today = LocalDate(farm, utcNow); }
-            catch (TimeZoneNotFoundException) { continue; }
-
-            foreach (var day in forecast.Days.Where(d => d.Date >= today && d.Date <= today.AddDays(2)))
+            var validDays = forecast.Days
+                .Where(d => d.Date >= today && d.Date <= today.AddDays(2))
+                .Where(WeatherRules.IsPlausible)
+                .GroupBy(d => d.Date).Select(g => g.First())
+                .OrderBy(d => d.Date).ToList();
+            if (validDays.Count == 0)
             {
-                var warnings = WeatherRules.Evaluate(day);
-                if (warnings.Count == 0) continue;
+                logger.LogWarning("No usable forecast days for farm {FarmId}.", farm.Id);
+                continue;
+            }
 
+            var memberIds = await db.FarmMembers.AsNoTracking()
+                .Where(m => m.FarmId == farm.Id && m.RemovedAtUtc == null)
+                .Select(m => m.UserId).ToListAsync(ct);
+            memberIds.Add(farm.OwnerUserId);
+            var recipients = await db.Users.AsNoTracking()
+                .Where(u => memberIds.Contains(u.Id) && u.DisabledAtUtc == null)
+                .Select(u => u.Id).ToListAsync(ct);
+
+            foreach (var day in validDays)
+            {
+                // Save the forecast even when no warning is generated.
                 var snapshot = new WeatherForecast
                 {
                     FarmId = farm.Id,
@@ -165,73 +187,62 @@ public sealed class FarmAutomationService(
                 };
                 db.WeatherForecasts.Add(snapshot);
 
-                var advisories = new List<WeatherAdvisory>();
-                var addedNew = false;
+                var warnings = WeatherRules.Evaluate(day);
+                var current = await db.WeatherAdvisories
+                    .Where(a => a.FarmId == farm.Id && a.AdvisoryDate == day.Date)
+                    .ToListAsync(ct);
+
+                // Automatically resolve a warning when a newer forecast no longer predicts it.
+                foreach (var previous in current.Where(a => a.Status == 0 &&
+                    warnings.All(w => w.Type != a.AdvisoryType)))
+                {
+                    previous.Status = 1;
+                    previous.ResolvedAtUtc = utcNow;
+                }
+
+                var alertRows = new List<WeatherAdvisory>();
                 foreach (var warning in warnings)
                 {
-                    var existing = await db.WeatherAdvisories.SingleOrDefaultAsync(a =>
-                        a.FarmId == farm.Id && a.AdvisoryDate == day.Date &&
-                        a.AdvisoryType == warning.Type, ct);
-
-                    if (existing is not null)
+                    var existing = current.FirstOrDefault(a => a.AdvisoryType == warning.Type);
+                    if (existing is null)
                     {
-                        if (warning.Severity > existing.Severity)
+                        existing = new WeatherAdvisory
                         {
-                            existing.Severity = warning.Severity;
-                            existing.Message = warning.Message;
-                        }
-                        advisories.Add(existing);
-                        continue;
+                            FarmId = farm.Id, AdvisoryDate = day.Date,
+                            AdvisoryType = warning.Type, CreatedAtUtc = utcNow,
+                            WeatherForecastId = snapshot.Id
+                        };
+                        db.WeatherAdvisories.Add(existing);
                     }
-
-                    var advisory = new WeatherAdvisory
-                    {
-                        FarmId = farm.Id,
-                        WeatherForecastId = snapshot.Id,
-                        AdvisoryDate = day.Date,
-                        AdvisoryType = warning.Type,
-                        Severity = warning.Severity,
-                        Status = 0,
-                        Message = warning.Message,
-                        CreatedAtUtc = utcNow
-                    };
-                    db.WeatherAdvisories.Add(advisory);
-                    advisories.Add(advisory);
-                    addedNew = true;
+                    existing.Severity = warning.Severity;
+                    existing.Message = warning.Message;
+                    existing.WeatherForecastId = snapshot.Id;
+                    existing.Status = 0;
+                    existing.ResolvedAtUtc = null;
+                    alertRows.Add(existing);
                 }
 
-                // A retry must also send any notifications missed after an advisory was saved.
-                if (!addedNew)
-                    db.WeatherForecasts.Remove(snapshot);
-                else
-                    await db.SaveChangesAsync(ct);
-                var memberIds = await db.FarmMembers.AsNoTracking()
-                    .Where(m => m.FarmId == farm.Id && m.RemovedAtUtc == null)
-                    .Select(m => m.UserId).ToListAsync(ct);
-                memberIds.Add(farm.OwnerUserId);
-                var recipients = await db.Users.AsNoTracking()
-                    .Where(u => memberIds.Contains(u.Id) && u.DisabledAtUtc == null)
-                    .Select(u => u.Id).ToListAsync(ct);
-
-                foreach (var advisory in advisories)
-                foreach (var userId in recipients)
+                // Persist the forecast and advisories before creating notification references.
+                await db.SaveChangesAsync(ct);
+                foreach (var advisory in alertRows)
                 {
                     var key = $"weather:{advisory.Id:N}:severity:{advisory.Severity}";
-                    if (await db.Notifications.AnyAsync(n =>
-                        n.UserId == userId && n.DeduplicationKey == key, ct)) continue;
-
-                    db.Notifications.Add(new Notification
+                    foreach (var userId in recipients.Distinct())
                     {
-                        UserId = userId,
-                        WeatherAdvisoryId = advisory.Id,
-                        Type = 2,
-                        DeduplicationKey = key,
-                        Title = "Farm weather advisory",
-                        Message = advisory.Message,
-                        CreatedAtUtc = utcNow
-                    });
+                        if (await db.Notifications.AnyAsync(n => n.UserId == userId &&
+                            n.DeduplicationKey == key, ct)) continue;
+                        db.Notifications.Add(new Notification
+                        {
+                            UserId = userId,
+                            WeatherAdvisoryId = advisory.Id,
+                            Type = 2,
+                            DeduplicationKey = key,
+                            Title = "Farm weather advisory",
+                            Message = advisory.Message,
+                            CreatedAtUtc = utcNow
+                        });
+                    }
                 }
-
                 await db.SaveChangesAsync(ct);
             }
         }
