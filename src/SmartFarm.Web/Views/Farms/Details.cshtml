@@ -8,6 +8,7 @@
     <p><a asp-action="Index">← My farms</a></p>
     <h1>@Model.Farm.Name</h1>
     <p>@Model.Farm.LocationText · @Model.Farm.Role</p>
+    <p><a asp-controller="Weather" asp-action="Index" asp-route-farmId="@Model.Farm.Id">View forecast and advisories →</a></p>
     @if (TempData["Error"] is string error) { <p class="error" role="alert">@error</p> }
     @if (canManage)
     {

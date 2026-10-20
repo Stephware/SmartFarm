@@ -116,6 +116,36 @@ public sealed class FarmAutomationTests
     }
 
     [Fact]
+    public void BadWeatherReadingsAreRejectedBeforeDatabaseWrites()
+    {
+        var date = new DateOnly(2026, 10, 20);
+        Assert.True(WeatherRules.IsPlausible(new DailyWeatherForecast(date, 18, 32, 4)));
+        Assert.True(WeatherRules.IsPlausible(new DailyWeatherForecast(date, null, null, null)));
+        Assert.False(WeatherRules.IsPlausible(new DailyWeatherForecast(date, 35, 20, 3)));
+        Assert.False(WeatherRules.IsPlausible(new DailyWeatherForecast(date, 20, 28, -1)));
+        Assert.False(WeatherRules.IsPlausible(new DailyWeatherForecast(date, -120, 28, 1)));
+        Assert.False(WeatherRules.IsPlausible(new DailyWeatherForecast(date, 20, 120, 1)));
+    }
+
+    [Fact]
+    public void StrongWindCreatesAnAdvisoryAndRainChanceIsValidated()
+    {
+        var date = new DateOnly(2026, 10, 20);
+        var day = new DailyWeatherForecast(date, 23, 32, 5, 80, 60);
+        var warning = Assert.Single(WeatherRules.Evaluate(day));
+        Assert.Equal((byte)2, warning.Type);
+        Assert.Equal((byte)2, warning.Severity);
+        Assert.True(WeatherRules.IsPlausible(day));
+        Assert.False(WeatherRules.IsPlausible(day with { MaxPrecipitationProbability = 101 }));
+        Assert.False(WeatherRules.IsPlausible(day with { MaxWindKph = -1 }));
+        Assert.True(WeatherRules.HasSignal(day, 2));
+        Assert.False(WeatherRules.HasSignal(day with { MaxWindKph = null }, 2));
+        Assert.False(WeatherRules.HasSignal(day with { RainfallMm = null }, 1));
+        Assert.Equal((byte)3,
+            Assert.Single(WeatherRules.Evaluate(day with { MaxWindKph = 85 })).Severity);
+    }
+
+    [Fact]
     public async Task JobsCallTheAutomationService()
     {
         var service = new FakeAutomationService();

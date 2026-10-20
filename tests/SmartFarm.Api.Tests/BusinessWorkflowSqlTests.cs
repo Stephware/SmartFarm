@@ -50,6 +50,17 @@ public sealed class BusinessWorkflowSqlTests
         });
         var farm = $"/api/farms/{createdFarm.Id}";
         Assert.Equal("Owner", createdFarm.Role);
+        // Weather is available only to members and must work before the worker runs.
+        var initialWeather = await GetAsync<SmartFarm.Core.Contracts.Weather.WeatherOverview>(
+            client, $"/api/farms/{createdFarm.Id}/weather");
+        Assert.False(initialWeather.HasCoordinates);
+        Assert.Empty(initialWeather.Days);
+        using (var invalidZone = await client.PostAsJsonAsync("/api/farms", new FarmInput
+        {
+            Name = "Invalid zone farm", LocationText = "Test location",
+            TimeZoneId = "Not/ARealTimeZone"
+        }))
+            Assert.Equal(HttpStatusCode.BadRequest, invalidZone.StatusCode);
 
         var plot = await PostAsync<PlotDetails>(client, farm + "/plots", new PlotInput
         {
@@ -275,11 +286,13 @@ public sealed class BusinessWorkflowSqlTests
         using var restrictedFarm = await other.GetAsync(farm);
         using var restrictedHarvest = await other.GetAsync(harvests);
         using var restrictedTasks = await other.GetAsync(taskPath);
+        using var restrictedWeather = await other.GetAsync(farm + "/weather");
         using var restrictedSync = await other.PostAsJsonAsync(syncRoute, inventorySync);
         Assert.Equal(HttpStatusCode.NotFound, restrictedSync.StatusCode);
         Assert.Equal(HttpStatusCode.NotFound, restrictedFarm.StatusCode);
         Assert.Equal(HttpStatusCode.NotFound, restrictedHarvest.StatusCode);
         Assert.Equal(HttpStatusCode.NotFound, restrictedTasks.StatusCode);
+        Assert.Equal(HttpStatusCode.NotFound, restrictedWeather.StatusCode);
     }
 
     private static async Task RegisterAsync(HttpClient client, string email, string password)

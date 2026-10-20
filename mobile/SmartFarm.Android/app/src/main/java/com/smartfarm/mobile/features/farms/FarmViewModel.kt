@@ -5,6 +5,8 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import com.smartfarm.mobile.data.remote.dto.*
 import com.smartfarm.mobile.data.repository.FarmRepository
+import com.smartfarm.mobile.data.repository.WeatherRepository
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
@@ -19,10 +21,15 @@ data class FarmUiState(
     val members: List<FarmMemberDto> = emptyList(),
     val invitation: InvitationDto? = null,
     val offline: Boolean = false,
-    val cachedAtUtcMillis: Long? = null
+    val cachedAtUtcMillis: Long? = null,
+    val weather: WeatherOverviewDto? = null,
+    val weatherMessage: String? = null
 )
 
-class FarmViewModel(private val repo: FarmRepository) : ViewModel() {
+class FarmViewModel(
+    private val repo: FarmRepository,
+    private val weatherRepo: WeatherRepository
+) : ViewModel() {
     private val mutable = MutableStateFlow(FarmUiState())
     val state = mutable.asStateFlow()
 
@@ -58,12 +65,22 @@ class FarmViewModel(private val repo: FarmRepository) : ViewModel() {
                 val farm = repo.farmSnapshot(farmId)
                 val plots = repo.plotsSnapshot(farmId)
                 val members = repo.membersSnapshot(farmId)
-                val cached = farm.offline || plots.offline || members.offline
+                val weatherData = try {
+                    weatherRepo.overview(farmId)
+                } catch (cancelled: CancellationException) {
+                    throw cancelled
+                } catch (_: Exception) {
+                    null // Weather availability must not prevent opening a farm.
+                }
+                val snapshots = listOfNotNull(farm, plots, members, weatherData)
+                val cached = snapshots.any { it.offline }
                 mutable.value = mutable.value.copy(
                     selected = farm.value, plots = plots.value, members = members.value,
                     offline = cached,
-                    cachedAtUtcMillis = listOf(farm, plots, members)
-                        .filter { it.offline }.minOfOrNull { it.savedAtUtcMillis })
+                    cachedAtUtcMillis = snapshots.filter { it.offline }
+                        .minOfOrNull { it.savedAtUtcMillis },
+                    weather = weatherData?.value,
+                    weatherMessage = if (weatherData == null) "Weather data unavailable." else null)
             } catch (_: Exception) {
                 mutable.value = mutable.value.copy(error =
                     "Could not load this farm. Check permissions and connection.")
@@ -73,17 +90,36 @@ class FarmViewModel(private val repo: FarmRepository) : ViewModel() {
         }
     }
 
-    fun create(name: String, location: String, onSuccess: (String) -> Unit) = perform {
-        val farm = repo.create(FarmInputDto(name.trim(), location.trim()))
+    private fun coordinates(latitude: String, longitude: String): Pair<BigDecimal?, BigDecimal?> {
+        val lat = latitude.trim().takeIf { it.isNotEmpty() }
+        val lon = longitude.trim().takeIf { it.isNotEmpty() }
+        require((lat == null) == (lon == null)) { "Both coordinates are required." }
+        val a = lat?.toBigDecimalOrNull()
+        val b = lon?.toBigDecimalOrNull()
+        require((lat == null || a != null) && (lon == null || b != null))
+        require(a == null || (a >= BigDecimal("-90") && a <= BigDecimal("90") && a.scale() <= 6))
+        require(b == null || (b >= BigDecimal("-180") && b <= BigDecimal("180") && b.scale() <= 6))
+        return a to b
+    }
+
+    fun create(name: String, location: String, timeZone: String,
+        latitude: String, longitude: String, onSuccess: (String) -> Unit) = perform {
+        val (lat, lon) = coordinates(latitude, longitude)
+        val farm = repo.create(FarmInputDto(name.trim(), location.trim(),
+            timeZone.trim(), lat, lon))
         onSuccess(farm.id)
     }
 
-    fun saveFarm(name: String, location: String, onSuccess: () -> Unit) = perform {
+    fun saveFarm(name: String, location: String, timeZone: String,
+        latitude: String, longitude: String, onSuccess: () -> Unit) = perform {
         val current = requireNotNull(mutable.value.selected)
+        val (lat, lon) = coordinates(latitude, longitude)
         val updated = repo.updateFarm(current.id, FarmInputDto(
-            name.trim(), location.trim(), current.timeZoneId, current.latitude,
-            current.longitude, requireNotNull(current.rowVersion)))
-        mutable.value = mutable.value.copy(selected = updated)
+            name.trim(), location.trim(), timeZone.trim(), lat, lon,
+            requireNotNull(current.rowVersion)))
+        mutable.value = mutable.value.copy(
+            selected = updated, weather = null,
+            weatherMessage = "Farm settings saved. Reopen this farm to refresh weather.")
         onSuccess()
     }
 
@@ -134,9 +170,11 @@ class FarmViewModel(private val repo: FarmRepository) : ViewModel() {
         mutable.value = mutable.value.copy(members = repo.members(farmId))
     }
 
-    class Factory(private val repo: FarmRepository) : ViewModelProvider.Factory {
+    class Factory(private val repo: FarmRepository,
+        private val weather: WeatherRepository) : ViewModelProvider.Factory {
         @Suppress("UNCHECKED_CAST")
-        override fun <T : ViewModel> create(modelClass: Class<T>): T = FarmViewModel(repo) as T
+        override fun <T : ViewModel> create(modelClass: Class<T>): T =
+            FarmViewModel(repo, weather) as T
     }
 }
 

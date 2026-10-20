@@ -96,7 +96,8 @@ fun SmartFarmNavHost(auth: AuthViewModel, farms: FarmViewModel, crops: CropViewM
             LaunchedEffect(Unit) { farms.load() }
             FarmListScreen(farmState,
                 onOpen = { navController.navigate("farm/$it") },
-                onCreate = { name, location -> farms.create(name, location) {
+                onCreate = { name, location, zone, latitude, longitude ->
+                    farms.create(name, location, zone, latitude, longitude) {
                     navController.navigate("farm/$it")
                 } },
                 onAccept = { token -> farms.acceptInvitation(token) {
@@ -110,7 +111,8 @@ fun SmartFarmNavHost(auth: AuthViewModel, farms: FarmViewModel, crops: CropViewM
             LaunchedEffect(farmId) { farms.loadDetail(farmId) }
             FarmDetailScreen(farmState,
                 onBack = { navController.popBackStack() },
-                onSaveFarm = { name, location -> farms.saveFarm(name, location) {} },
+                onSaveFarm = { name, location, zone, latitude, longitude ->
+                    farms.saveFarm(name, location, zone, latitude, longitude) {} },
                 onArchiveFarm = { farms.archiveFarm { navController.popBackStack() } },
                 onAddPlot = { name, area -> farms.addPlot(name, area) },
                 onSavePlot = { plot, name, area -> farms.savePlot(plot, name, area) },

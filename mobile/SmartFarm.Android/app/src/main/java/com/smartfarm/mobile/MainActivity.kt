@@ -22,7 +22,8 @@ class MainActivity : ComponentActivity() {
     }
 
     private val farms: FarmViewModel by viewModels {
-        FarmViewModel.Factory((application as SmartFarmApplication).container.farmRepository)
+        val container = (application as SmartFarmApplication).container
+        FarmViewModel.Factory(container.farmRepository, container.weatherRepository)
     }
 
     private val crops: CropViewModel by viewModels {
