@@ -12,6 +12,7 @@ import okhttp3.mockwebserver.MockWebServer
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Test
+import okio.ByteString.Companion.toByteString
 
 class PhotoUploadContractTest {
     @Test fun photoRetriesKeepStableIdsAndBody() = runBlocking {
@@ -42,7 +43,9 @@ class PhotoUploadContractTest {
             assertEquals("PUT", first.method)
             assertEquals(route, first.path)
             assertEquals(first.path, retry.path)
-            assertEquals(first.body.readByteString(), retry.body.readByteString())
+            // Multipart boundaries are random; the image bytes must still match.
+            assertTrue(first.body.readByteString().indexOf(bytes.toByteString()) >= 0)
+            assertTrue(retry.body.readByteString().indexOf(bytes.toByteString()) >= 0)
             assertEquals("Bearer sample-token", first.getHeader("Authorization"))
             assertTrue(first.getHeader("Content-Type")!!.contains("multipart/form-data"))
         } finally { server.shutdown() }
