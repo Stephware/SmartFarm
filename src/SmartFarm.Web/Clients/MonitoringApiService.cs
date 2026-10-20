@@ -35,6 +35,13 @@ public sealed class MonitoringApiService : IMonitoringService
             $"{Cycle(farmId, cycleId)}/observations/{observationId}/photos",
             actor, stream, length, claimedContentType, ct);
 
+    public Task<PhotoDetails> AddPhotoWithIdAsync(Guid farmId, Guid cycleId,
+        Guid observationId, Guid photoId, Guid actor, Stream stream, long length,
+        string? claimedContentType, CancellationToken ct = default) =>
+        _api.UploadAsync<PhotoDetails>(HttpMethod.Put,
+            $"{Cycle(farmId, cycleId)}/observations/{observationId}/photos/{photoId}",
+            actor, stream, length, claimedContentType, ct);
+
     public Task<(Stream Stream, string ContentType)> OpenPhotoAsync(
         Guid farmId, Guid cycleId, Guid photoId, Guid actor, CancellationToken ct = default) =>
         _api.DownloadAsync($"{Cycle(farmId, cycleId)}/photos/{photoId}", actor, ct);

@@ -11,11 +11,13 @@ using SmartFarm.Core.Interfaces.Tasks;
 using SmartFarm.Infrastructure;
 using SmartFarm.Infrastructure.Identity;
 using SmartFarm.Web.HealthChecks;
+using SmartFarm.Web.Filters;
 using SmartFarm.Web.Clients;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.AddControllersWithViews();
+builder.Services.AddControllersWithViews(options => options.Filters.AddService<ApiUnavailableFilter>());
+builder.Services.AddScoped<ApiUnavailableFilter>();
 builder.Services.AddSmartFarmPersistence(
     builder.Configuration.GetConnectionString("SmartFarm"));
 builder.Services.AddSmartFarmWebIdentity(builder.Environment);

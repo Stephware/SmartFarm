@@ -82,7 +82,9 @@ public sealed class SmartFarmApiClient
                     new FarmOperationException(FarmError.Conflict, message),
                 HttpStatusCode.BadRequest =>
                     new FarmOperationException(FarmError.InvalidInput, message),
-                _ => new HttpRequestException("SmartFarm API is unavailable.", null, status)
+                _ => new HttpRequestException(
+                    $"SmartFarm API returned HTTP {(int)status} ({status}). Check the API server logs.",
+                    null, status)
             };
         }
         catch (HttpRequestException error) when (error.StatusCode is null)
@@ -124,10 +126,14 @@ public sealed class SmartFarmApiClient
         using var response = await SendAsync(request, ct);
     }
 
-    public async Task<T> UploadAsync<T>(string path, Guid actor, Stream stream,
-        long length, string? contentType, CancellationToken ct)
+    public Task<T> UploadAsync<T>(string path, Guid actor, Stream stream,
+        long length, string? contentType, CancellationToken ct) =>
+        UploadAsync<T>(HttpMethod.Post, path, actor, stream, length, contentType, ct);
+
+    public async Task<T> UploadAsync<T>(HttpMethod method, string path, Guid actor,
+        Stream stream, long length, string? contentType, CancellationToken ct)
     {
-        using var request = NewRequest(HttpMethod.Post, path, actor);
+        using var request = NewRequest(method, path, actor);
         using var form = new MultipartFormDataContent();
         using var file = new StreamContent(stream);
         file.Headers.ContentType = new MediaTypeHeaderValue(

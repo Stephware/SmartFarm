@@ -1,3 +1,4 @@
+using System.Data.Common;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.EntityFrameworkCore;
 using SmartFarm.Core.Interfaces.Crops;
@@ -22,6 +23,25 @@ using SmartFarm.Infrastructure.Services.Reports;
 using SmartFarm.Infrastructure.Services.Tasks;
 
 var builder = WebApplication.CreateBuilder(args);
+
+// In local Development, Web and API share SmartFarmDB. If only Web's user
+// secrets were configured, reuse just its database connection (no other secrets).
+// An explicit API connection setting always wins. Production is unaffected.
+if (builder.Environment.IsDevelopment() &&
+    string.IsNullOrWhiteSpace(builder.Configuration.GetConnectionString("SmartFarm")))
+{
+    var webDatabase = new ConfigurationBuilder()
+        .AddUserSecrets("SmartFarm.Web.Development")
+        .Build()
+        .GetConnectionString("SmartFarm");
+    if (!string.IsNullOrWhiteSpace(webDatabase))
+    {
+        builder.Configuration.AddInMemoryCollection(new Dictionary<string, string?>
+        {
+            ["ConnectionStrings:SmartFarm"] = webDatabase
+        });
+    }
+}
 
 builder.Services.AddControllers();
 builder.Services.AddSmartFarmPersistence(builder.Configuration.GetConnectionString("SmartFarm"));
@@ -71,26 +91,66 @@ if (!app.Environment.IsDevelopment())
     app.UseHttpsRedirection();
 }
 
+// Return a predictable response for database failures without exposing SQL details.
+// The full provider error remains in the API terminal logs.
+app.Use(async (context, next) =>
+{
+    try { await next(); }
+    catch (DbException error) when (!context.Response.HasStarted)
+    {
+        context.RequestServices.GetRequiredService<ILoggerFactory>()
+            .CreateLogger("SmartFarm.Api.Database")
+            .LogError(error, "Database failure processing {Method} {Path}",
+                context.Request.Method, context.Request.Path);
+        context.Response.Clear();
+        context.Response.StatusCode = StatusCodes.Status503ServiceUnavailable;
+        await context.Response.WriteAsJsonAsync(new
+        {
+            status = "unhealthy",
+            message = "SmartFarm database request failed. Check the API terminal and /health/database."
+        });
+    }
+});
+
 app.UseRouting();
 app.UseAuthentication();
 app.UseAuthorization();
 
 if (app.Environment.IsDevelopment())
 {
-    app.MapGet("/health/database", async (SmartFarmDbContext db, CancellationToken ct) =>
+    app.MapGet("/health/database", async (SmartFarmDbContext db,
+        ILogger<Program> logger, CancellationToken ct) =>
     {
+        static IResult Unhealthy(string message) =>
+            Results.Json(new { status = "unhealthy", message },
+                statusCode: StatusCodes.Status503ServiceUnavailable);
+
         try
         {
             if (string.IsNullOrWhiteSpace(db.Database.GetConnectionString()))
-                return Results.StatusCode(StatusCodes.Status503ServiceUnavailable);
+                return Unhealthy("Set ConnectionStrings:SmartFarm for SmartFarmDB.");
 
-            return await db.Database.CanConnectAsync(ct)
-                ? Results.Ok(new { status = "ok" })
-                : Results.StatusCode(StatusCodes.Status503ServiceUnavailable);
+            if (!await db.Database.CanConnectAsync(ct))
+                return Unhealthy("Cannot connect to SQL Server. Check the connection string and server.");
+
+            // Connecting isn't enough: an empty or wrong database also opens successfully.
+            // Probe the tables needed by authentication and the My Farms screen, read-only.
+            await db.Users.AsNoTracking().Select(u => u.Id).Take(1).ToListAsync(ct);
+            await db.Farms.AsNoTracking().Select(f => f.Id).Take(1).ToListAsync(ct);
+            await db.FarmMembers.AsNoTracking().Select(m => m.Id).Take(1).ToListAsync(ct);
+
+            return Results.Ok(new { status = "ok", message = "Database and main farm tables are ready." });
         }
-        catch (Exception)
+        catch (Microsoft.Data.SqlClient.SqlException error) when (error.Number is 208 or 207)
         {
-            return Results.StatusCode(StatusCodes.Status503ServiceUnavailable);
+            logger.LogError(error, "Required SmartFarm schema is missing or incompatible");
+            return Unhealthy("SmartFarmDB is missing required farm or identity tables. " +
+                "Verify the schema; do not rerun initialization on an existing database.");
+        }
+        catch (Exception error)
+        {
+            logger.LogError(error, "SmartFarm database health check failed");
+            return Unhealthy("Database check failed. Read the SmartFarm.Api terminal for the reason.");
         }
     });
 }
