@@ -8,7 +8,11 @@
     <p><a asp-action="Index">← My farms</a></p>
     <h1>@Model.Farm.Name</h1>
     <p>@Model.Farm.LocationText · @Model.Farm.Role</p>
-    <p><a asp-controller="Weather" asp-action="Index" asp-route-farmId="@Model.Farm.Id">View forecast and advisories →</a></p>
+    <div class="action-links">
+        <a asp-controller="Dashboard" asp-action="Index" asp-route-farmId="@Model.Farm.Id">View dashboard →</a>
+        <a asp-controller="Reports" asp-action="Harvests" asp-route-farmId="@Model.Farm.Id">Harvest reports →</a>
+        <a asp-controller="Weather" asp-action="Index" asp-route-farmId="@Model.Farm.Id">Forecast and advisories →</a>
+    </div>
     @if (TempData["Error"] is string error) { <p class="error" role="alert">@error</p> }
     @if (canManage)
     {
