@@ -3,7 +3,8 @@ namespace SmartFarm.Core.Contracts.Weather;
 // Saved forecasts and alerts, not a live request to the provider.
 public sealed record WeatherDayDetails(
     DateOnly Date, decimal? MinTemperatureC, decimal? MaxTemperatureC,
-    decimal? RainfallMm, DateTime RetrievedAtUtc, string Provider);
+    decimal? RainfallMm, DateTime RetrievedAtUtc, string Provider,
+    decimal? MaxPrecipitationProbability, decimal? MaxWindKph);
 
 public sealed record WeatherAdvisoryDetails(
     Guid Id, DateOnly Date, byte Type, byte Severity, byte Status,
