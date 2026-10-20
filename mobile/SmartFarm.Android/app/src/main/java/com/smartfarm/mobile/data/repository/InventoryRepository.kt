@@ -48,9 +48,6 @@ class InventoryRepository(
             cache?.invalidate("farm/$farmId/inventory")
         }
 
-    suspend fun item(farmId: String, itemId: String): InventoryItemDto =
-        auth.authorized { api().item(it, farmId, itemId) }
-
     suspend fun update(farmId: String, itemId: String, input: InventoryItemInputDto): InventoryItemDto =
         auth.authorized { api().update(it, farmId, itemId, input) }.also {
             cache?.invalidatePrefix("farm/$farmId/inventory")
@@ -60,9 +57,6 @@ class InventoryRepository(
         auth.authorized { api().archive(it, farmId, itemId, RowVersionDto(version)) }.also {
             cache?.invalidatePrefix("farm/$farmId/inventory")
         }
-
-    suspend fun history(farmId: String, itemId: String): List<InventoryTransactionDto> =
-        auth.authorized { api().history(it, farmId, itemId) }
 
     suspend fun post(farmId: String, itemId: String, input: InventoryMovementDto): InventoryItemDto =
         auth.authorized { api().post(it, farmId, itemId, input) }.also {
