@@ -19,6 +19,35 @@ public static class TaskRules
         return null;
     }
 
+    public static byte? ForActivity(byte activityType) => activityType switch
+    {
+        1 => 2, // Watering
+        2 => 3, // Fertilizing
+        _ => null
+    };
+
+    public static string? ValidateUpdate(FarmTaskUpdateInput input)
+    {
+        if (input.DueDate == default || input.Description?.Trim().Length > 500 ||
+            input.AssignedToUserId == Guid.Empty)
+            return "Choose a valid due date, assignee, and description up to 500 characters.";
+        return null;
+    }
+
+    public static bool Close(FarmTask task, byte status, Guid actor, DateTime utcNow)
+    {
+        if (task.Status != 0 || !IsValidCloseStatus(status)) return false;
+        task.Status = status;
+        task.ClosedAtUtc = utcNow;
+        task.ClosedByUserId = actor;
+        return true;
+    }
+
+    // Farm dates use their configured time zone, not the worker's UTC calendar day.
+    public static DateOnly FarmDate(string timeZoneId, DateTime utcNow) =>
+        DateOnly.FromDateTime(TimeZoneInfo.ConvertTimeFromUtc(
+            utcNow, TimeZoneInfo.FindSystemTimeZoneById(timeZoneId)));
+
     // Create upcoming planting, watering and harvest dates from the crop calendar.
     public static IEnumerable<(byte Type, DateOnly Due)> ScheduledTasks(
         CropCycle crop, DateOnly today, DateOnly lastDay)
