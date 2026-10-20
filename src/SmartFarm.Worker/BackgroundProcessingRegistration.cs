@@ -3,6 +3,9 @@ using Hangfire.SqlServer;
 using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using SmartFarm.Worker.Jobs;
+using SmartFarm.Worker.Scheduling;
+using SmartFarm.Worker.Services;
 
 namespace SmartFarm.Worker;
 
@@ -29,20 +32,23 @@ public static class BackgroundProcessingRegistration
             .SetDataCompatibilityLevel(CompatibilityLevel.Version_180)
             .UseSimpleAssemblyNameTypeSerializer()
             .UseRecommendedSerializerSettings()
-            .UseSqlServerStorage(connectionString!, CreateStorageOptions()));
+            .UseSqlServerStorage(connectionString!, CreateStorageOptions(options.InitializeSchema)));
         services.AddHangfireServer(server =>
         {
             server.WorkerCount = options.WorkerCount;
             server.Queues = ["default"];
         });
+        services.AddScoped<IWorkerHealthService, WorkerHealthService>();
+        services.AddScoped<WorkerHeartbeatJob>();
+        services.AddHostedService<WorkerJobScheduler>();
 
         return services;
     }
 
-    internal static SqlServerStorageOptions CreateStorageOptions() => new()
+    internal static SqlServerStorageOptions CreateStorageOptions(bool initializeSchema = false) => new()
     {
         SqlClientFactory = SqlClientFactory.Instance,
-        PrepareSchemaIfNecessary = false,
+        PrepareSchemaIfNecessary = initializeSchema,
         EnableHeavyMigrations = false,
         TryAutoDetectSchemaDependentOptions = false,
         CommandBatchMaxTimeout = TimeSpan.FromMinutes(5),
@@ -54,7 +60,7 @@ public static class BackgroundProcessingRegistration
     private static void ValidateConnectionString(string? connectionString, string? applicationConnectionString)
     {
         const string message = "Set ConnectionStrings:Hangfire to a separate, pre-provisioned jobs database " +
-            "(recommended: SmartFarmJobsDB). Its Hangfire schema must be installed with approval before enabling the worker.";
+            "(recommended: SmartFarmJobsDB). Install its Hangfire schema separately, or explicitly set Hangfire:InitializeSchema=true for initial setup.";
         if (string.IsNullOrWhiteSpace(connectionString))
         {
             throw new InvalidOperationException(message);

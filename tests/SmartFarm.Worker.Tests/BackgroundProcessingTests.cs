@@ -97,7 +97,7 @@ public sealed class BackgroundProcessingTests
     }
 
     [Fact]
-    public void StorageNeverInstallsOrUpgradesSchema()
+    public void StorageDoesNotChangeSchemaByDefault()
     {
         var options = BackgroundProcessingRegistration.CreateStorageOptions();
 
@@ -105,6 +105,14 @@ public sealed class BackgroundProcessingTests
         Assert.False(options.EnableHeavyMigrations);
         Assert.False(options.TryAutoDetectSchemaDependentOptions);
         Assert.IsType<Microsoft.Data.SqlClient.SqlClientFactory>(options.SqlClientFactory);
+    }
+
+    [Fact]
+    public void SchemaInitializationRequiresExplicitOptIn()
+    {
+        Assert.False(BackgroundProcessingRegistration.CreateStorageOptions().PrepareSchemaIfNecessary);
+        Assert.True(BackgroundProcessingRegistration.CreateStorageOptions(true).PrepareSchemaIfNecessary);
+        Assert.False(BackgroundProcessingRegistration.CreateStorageOptions(true).EnableHeavyMigrations);
     }
 
     private static IConfigurationRoot Configuration(string? connectionString) =>
