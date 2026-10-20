@@ -11,6 +11,19 @@ public static class WeatherServiceCollectionExtensions
         this IServiceCollection services,
         IConfiguration configuration)
     {
+        if (string.Equals(configuration["Weather:Provider"], "OpenMeteo", StringComparison.OrdinalIgnoreCase))
+        {
+            const string expected = "https://api.open-meteo.com/";
+            if (!string.Equals(configuration["Weather:BaseAddress"]?.TrimEnd('/') + "/", expected,
+                    StringComparison.OrdinalIgnoreCase))
+                throw new InvalidOperationException("OpenMeteo requires Weather:BaseAddress=https://api.open-meteo.com/");
+            services.AddSingleton<IWeatherProviderAdapter, OpenMeteoAdapter>();
+        }
+        else if (!string.IsNullOrWhiteSpace(configuration["Weather:Provider"]))
+        {
+            throw new InvalidOperationException("Unsupported weather provider.");
+        }
+
         services.AddOptions<WeatherOptions>()
             .Bind(configuration.GetSection(WeatherOptions.SectionName))
             .Validate(options => options.TimeoutSeconds is >= 1 and <= 120,
