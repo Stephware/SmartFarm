@@ -1,0 +1,130 @@
+@model SmartFarm.Web.ViewModels.Reports.HarvestReportPage
+@{
+    ViewData["Title"] = "Harvest reports";
+    var report = Model.Report;
+}
+<section class="panel">
+    <p><a asp-controller="Dashboard" asp-action="Index"
+          asp-route-farmId="@report.FarmId">← Farm dashboard</a></p>
+    <h1>Harvest reports</h1>
+    <p>@report.FarmName · Dates use the farm's @report.TimeZoneId time zone.</p>
+    <form method="get" asp-action="Harvests" class="report-filters">
+        <input type="hidden" name="farmId" value="@report.FarmId" />
+        <div><label for="from">From</label>
+            <input id="from" type="date" name="from" value="@report.FromDate?.ToString("yyyy-MM-dd")" />
+        </div>
+        <div><label for="to">To</label>
+            <input id="to" type="date" name="to" value="@report.ToDate?.ToString("yyyy-MM-dd")" />
+        </div>
+        <div><label for="plot">Plot</label>
+            <select id="plot" name="plotId">
+                <option value="">All plots</option>
+                @foreach (var plot in Model.Plots)
+                {
+                    <option value="@plot.Id" selected="@(report.PlotId == plot.Id)">@plot.Name</option>
+                }
+            </select>
+        </div>
+        <div><label for="crop">Crop type</label>
+            <select id="crop" name="cropTypeId">
+                <option value="">All crops</option>
+                @foreach (var crop in Model.CropTypes)
+                {
+                    <option value="@crop.Id" selected="@(report.CropTypeId == crop.Id)">@crop.Name</option>
+                }
+            </select>
+        </div>
+        <button type="submit">Apply filters</button>
+    </form>
+    <div class="action-links">
+        <a asp-action="Harvests" asp-route-farmId="@report.FarmId">Clear filters</a>
+        <a asp-action="ExportCsv" asp-route-farmId="@report.FarmId"
+           asp-route-from="@report.FromDate" asp-route-to="@report.ToDate"
+           asp-route-plotId="@report.PlotId" asp-route-cropTypeId="@report.CropTypeId">
+            Export CSV
+        </a>
+    </div>
+    <p>@report.ValidHarvestCount valid harvest records · @report.VoidedHarvestCount voided records</p>
+    @if (report.UnitTotals.Count == 0)
+    {
+        <p>No valid harvest quantities match your selected filters.</p>
+    }
+    else
+    {
+        <div class="stat-grid">
+        @foreach (var total in report.UnitTotals)
+        {
+            <div class="stat">
+                <span>@total.HarvestCount valid harvests</span>
+                <strong>@total.Quantity.ToString("N3") @total.Unit</strong>
+            </div>
+        }
+        </div>
+    }
+    <p class="hint">Totals in different units are shown separately; voided entries do not contribute to totals.</p>
+</section>
+<section class="panel">
+    <h2>Harvest by crop and plot</h2>
+    @if (report.CropPlotTotals.Count == 0) { <p>No matching totals.</p> }
+    else
+    {
+        <div class="table-scroll">
+            <table class="data-table">
+                <thead><tr><th>Crop</th><th>Plot</th><th>Harvests</th><th>Quantity</th></tr></thead>
+                <tbody>
+                @foreach (var item in report.CropPlotTotals)
+                {
+                    <tr>
+                        <td>@item.CropTypeName</td><td>@item.PlotName</td>
+                        <td>@item.HarvestCount</td>
+                        <td>@item.Quantity.ToString("N3") @item.Unit</td>
+                    </tr>
+                }
+                </tbody>
+            </table>
+        </div>
+    }
+</section>
+<section class="panel">
+    <h2>Monthly yield</h2>
+    @if (report.MonthlyTotals.Count == 0) { <p>No monthly harvest data.</p> }
+    else
+    {
+        <div class="table-scroll">
+            <table class="data-table">
+                <thead><tr><th>Month</th><th>Harvests</th><th>Quantity</th></tr></thead>
+                <tbody>
+                @foreach (var item in report.MonthlyTotals)
+                {
+                    <tr><td>@item.Month</td><td>@item.HarvestCount</td>
+                        <td>@item.Quantity.ToString("N3") @item.Unit</td></tr>
+                }
+                </tbody>
+            </table>
+        </div>
+    }
+</section>
+<section class="panel">
+    <h2>Harvest record history</h2>
+    <p class="hint">Showing the latest 100 entries. Export CSV to see every matching record, including voided records.</p>
+    @if (report.Entries.Count == 0) { <p>No records match your filters.</p> }
+    else
+    {
+        <div class="table-scroll">
+            <table class="data-table">
+                <thead><tr><th>Farm date</th><th>Crop / plot</th><th>Quantity</th><th>Status</th></tr></thead>
+                <tbody>
+                @foreach (var item in report.Entries.Take(100))
+                {
+                    <tr>
+                        <td>@item.FarmDate.ToString("yyyy-MM-dd")</td>
+                        <td>@item.CropTypeName · @item.PlotName</td>
+                        <td>@item.Quantity.ToString("N3") @item.Unit</td>
+                        <td>@(item.IsVoided ? "Voided" : "Valid")</td>
+                    </tr>
+                }
+                </tbody>
+            </table>
+        </div>
+    }
+</section>
