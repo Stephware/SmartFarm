@@ -7,6 +7,7 @@ using SmartFarm.Core.Interfaces.Monitoring;
 using SmartFarm.Core.Interfaces.Reports;
 using SmartFarm.Core.Interfaces.Security;
 using SmartFarm.Core.Interfaces.Tasks;
+using SmartFarm.Core.Interfaces.Weather;
 using SmartFarm.Infrastructure.Security;
 using SmartFarm.Infrastructure.Services.Crops;
 using SmartFarm.Infrastructure.Services.Farms;
@@ -15,6 +16,7 @@ using SmartFarm.Infrastructure.Services.Inventory;
 using SmartFarm.Infrastructure.Services.Monitoring;
 using SmartFarm.Infrastructure.Services.Reports;
 using SmartFarm.Infrastructure.Services.Tasks;
+using SmartFarm.Infrastructure.Services.Weather;
 using Microsoft.Extensions.DependencyInjection;
 using SmartFarm.Core.Interfaces.Persistence;
 using SmartFarm.Core.Interfaces.Repositories;
@@ -67,6 +69,7 @@ public static class DependencyInjection
         services.AddScoped<IHarvestService, HarvestService>();
         services.AddScoped<IFarmReportService, FarmReportService>();
         services.AddScoped<IFarmTaskService, FarmTaskService>();
+        services.AddScoped<IFarmWeatherService, FarmWeatherService>();
         return services;
     }
 }
