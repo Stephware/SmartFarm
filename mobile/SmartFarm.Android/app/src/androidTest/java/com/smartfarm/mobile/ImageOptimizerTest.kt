@@ -33,7 +33,7 @@ class ImageOptimizerTest {
             val bounds = BitmapFactory.Options().apply { inJustDecodeBounds = true }
             BitmapFactory.decodeFile(optimized.absolutePath, bounds)
             assertTrue(maxOf(bounds.outWidth, bounds.outHeight) <= ImageOptimizer.MAX_EDGE)
-            assertTrue(optimized.length() in 1..LocalPhotoFiles.MAX_BYTES.toLong())
+            assertTrue(optimized.length() in 1L..LocalPhotoFiles.MAX_BYTES.toLong())
         } finally {
             original.delete()
             optimized.delete()
