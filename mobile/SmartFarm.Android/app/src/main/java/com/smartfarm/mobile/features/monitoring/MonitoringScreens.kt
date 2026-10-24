@@ -8,7 +8,6 @@ import java.util.UUID
 import com.smartfarm.mobile.ui.components.OfflineDataNotice
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -31,9 +30,9 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.asImageBitmap
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
+import androidx.compose.foundation.layout.height
+import com.smartfarm.mobile.ui.components.GlidePhoto
 
 @Composable
 fun MonitoringScreen(
@@ -125,8 +124,10 @@ fun MonitoringScreen(
                 }, enabled = !state.busy) { Text("Select photo") }
                 OutlinedButton(onClick = { capture(null) },
                     enabled = !state.busy) { Text("Take photo") }
-                if (newPhoto != null) {
+                newPhoto?.let { photo ->
                     Text("Photo selected for offline upload")
+                    GlidePhoto(photo, "Selected crop inspection photo",
+                        Modifier.fillMaxWidth().height(220.dp))
                     OutlinedButton(onClick = { newPhoto = null }) { Text("Remove selected photo") }
                 }
                 Button(onClick = {
@@ -161,6 +162,10 @@ fun MonitoringScreen(
                     OutlinedButton(onClick = { onPreview(photo.id) }, enabled = !state.busy) {
                         Text("View photo · ${photo.uploadedAtUtc}")
                     }
+                    if (state.previewPhotoId == photo.id && state.preview != null) {
+                        GlidePhoto(state.preview, "Crop observation photo",
+                            Modifier.fillMaxWidth().height(220.dp))
+                    }
                 }
                 if (state.canRecord) {
                     Button(onClick = {
@@ -171,11 +176,6 @@ fun MonitoringScreen(
                         enabled = !state.busy) { Text("Take photo for observation") }
                 }
                 HorizontalDivider()
-            }
-            state.preview?.let { bitmap ->
-                Image(bitmap = bitmap.asImageBitmap(),
-                    contentDescription = "Selected observation photo",
-                    modifier = Modifier.fillMaxWidth(), contentScale = ContentScale.Fit)
             }
         }
     }

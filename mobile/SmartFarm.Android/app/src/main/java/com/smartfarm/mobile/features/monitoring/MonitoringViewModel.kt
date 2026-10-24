@@ -1,8 +1,7 @@
 package com.smartfarm.mobile.features.monitoring
 
 import android.content.ContentResolver
-import android.graphics.Bitmap
-import android.graphics.BitmapFactory
+import android.util.LruCache
 import android.net.Uri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
@@ -28,7 +27,8 @@ data class MonitoringUiState(
     val canRecord: Boolean = false,
     val activities: List<ActivityDto> = emptyList(),
     val observations: List<ObservationDto> = emptyList(),
-    val preview: Bitmap? = null,
+    val preview: ByteArray? = null,
+    val previewPhotoId: String? = null,
     val offline: Boolean = false,
     val cachedAtUtcMillis: Long? = null
 )
@@ -37,8 +37,16 @@ class MonitoringViewModel(private val repository: MonitoringRepository,
     private val sync: SyncRepository) : ViewModel() {
     private val mutable = MutableStateFlow(MonitoringUiState())
     val state = mutable.asStateFlow()
+    // Bounded in-memory cache for already-authorized private photo responses.
+    // No persistent disk cache; clear it when the user logs out.
+    private val photoCache = object : LruCache<String, ByteArray>(12 * 1024 * 1024) {
+        override fun sizeOf(key: String, value: ByteArray): Int = value.size
+    }
 
-    fun clear() { mutable.value = MonitoringUiState() }
+    fun clear() {
+        photoCache.evictAll()
+        mutable.value = MonitoringUiState()
+    }
 
     fun load(farmId: String, cycleId: String) {
         mutable.value = MonitoringUiState(farmId = farmId, cycleId = cycleId, busy = true)
@@ -98,19 +106,20 @@ class MonitoringViewModel(private val repository: MonitoringRepository,
     fun preview(photoId: String) {
         val snapshot = mutable.value
         if (snapshot.busy || snapshot.farmId.isBlank()) return
-        mutable.value = snapshot.copy(busy = true, error = null)
+        mutable.value = snapshot.copy(busy = true, error = null,
+            preview = null, previewPhotoId = null)
         viewModelScope.launch {
             try {
-                val bitmap = withContext(Dispatchers.IO) {
-                    val data = repository.imageBytes(snapshot.farmId, snapshot.cycleId, photoId)
-                    val options = BitmapFactory.Options().apply { inSampleSize = 4 }
-                    BitmapFactory.decodeByteArray(data, 0, data.size, options)
-                        ?: error("Invalid image")
-                }
-                mutable.value = mutable.value.copy(preview = bitmap)
+                // Authenticated Retrofit download; Glide handles decoding and bitmap cache.
+                val bytes = photoCache.get(photoId) ?: withContext(Dispatchers.IO) {
+                    repository.imageBytes(snapshot.farmId, snapshot.cycleId, photoId)
+                }.also { photoCache.put(photoId, it) }
+                mutable.value = mutable.value.copy(preview = bytes, previewPhotoId = photoId)
             } catch (_: Exception) {
                 mutable.value = mutable.value.copy(error = "Could not open photo.")
-            } finally { mutable.value = mutable.value.copy(busy = false) }
+            } finally {
+                mutable.value = mutable.value.copy(busy = false)
+            }
         }
     }
 
