@@ -20,7 +20,7 @@ internal object ImageOptimizer {
 
     fun optimize(source: File, destination: File, mime: String): String {
         require(source != destination) { "Source and destination must differ." }
-        if (source.length() !in 1..MAX_SOURCE_BYTES) {
+        if (source.length() !in 1L..MAX_SOURCE_BYTES) {
             throw IOException("Photo must be smaller than 30 MB before optimization.")
         }
         if (mime != "image/jpeg" && source.length() <= LocalPhotoFiles.MAX_BYTES) {
