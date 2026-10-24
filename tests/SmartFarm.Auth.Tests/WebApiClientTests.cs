@@ -46,6 +46,8 @@ public sealed class WebApiClientTests
             services.GetRequiredService<IFarmAccessService>());
         Assert.IsType<SmartFarm.Infrastructure.Services.Monitoring.LocalObservationPhotoStore>(
             services.GetRequiredService<IObservationPhotoStore>());
+        Assert.IsType<SmartFarm.Infrastructure.Services.Weather.FarmWeatherService>(
+            services.GetRequiredService<SmartFarm.Core.Interfaces.Weather.IFarmWeatherService>());
         Assert.Null(services.GetService<SmartFarmApiClient>());
     }
 
