@@ -11,47 +11,26 @@ using SmartFarm.Core.Interfaces.Tasks;
 using SmartFarm.Infrastructure;
 using SmartFarm.Infrastructure.Identity;
 using SmartFarm.Web.HealthChecks;
-using SmartFarm.Web.Filters;
-using SmartFarm.Web.Clients;
+using SmartFarm.Infrastructure.Services.Monitoring;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.AddControllersWithViews(options => options.Filters.AddService<ApiUnavailableFilter>());
-builder.Services.AddScoped<ApiUnavailableFilter>();
+builder.Services.AddControllersWithViews();
 builder.Services.AddSmartFarmPersistence(
     builder.Configuration.GetConnectionString("SmartFarm"));
 builder.Services.AddSmartFarmWebIdentity(builder.Environment);
 builder.Services.AddScoped<AccountRegistrationService>();
 
-// The MVC pages use the same API as Android, not Infrastructure services.
-builder.Services.AddHttpContextAccessor();
-builder.Services.AddHttpClient<SmartFarmApiClient>(client =>
-{
-    var configured = builder.Configuration["SmartFarmApi:BaseUrl"];
-    if (string.IsNullOrWhiteSpace(configured) && !builder.Environment.IsDevelopment())
-        throw new InvalidOperationException("Configure SmartFarmApi:BaseUrl to use the MVC site.");
-
-    var address = configured ?? "http://localhost:5081/";
-    if (!Uri.TryCreate(address, UriKind.Absolute, out var uri) ||
-        (uri.Scheme != Uri.UriSchemeHttps &&
-            (!builder.Environment.IsDevelopment() || uri.Scheme != Uri.UriSchemeHttp)))
-        throw new InvalidOperationException("SmartFarmApi:BaseUrl must be an absolute HTTPS URL outside Development.");
-
-    client.BaseAddress = uri;
-    client.Timeout = TimeSpan.FromSeconds(20);
-}).ConfigurePrimaryHttpMessageHandler(() => new HttpClientHandler
-{
-    AllowAutoRedirect = false,
-    UseCookies = false
-});
-builder.Services.AddScoped<IFarmManagementService, FarmApiService>();
-builder.Services.AddScoped<ICropManagementService, CropApiService>();
-builder.Services.AddScoped<IMonitoringService, MonitoringApiService>();
-builder.Services.AddScoped<IInventoryService, InventoryApiService>();
-builder.Services.AddScoped<IHarvestService, HarvestApiService>();
-builder.Services.AddScoped<IFarmReportService, FarmReportApiService>();
-builder.Services.AddScoped<IFarmTaskService, FarmTaskApiService>();
-builder.Services.AddScoped<IFarmAccessService, FarmAccessApiService>();
+// MVC and API run independently using the same Infrastructure business services.
+builder.Services.AddSmartFarmBusinessServices();
+// In Development this matches the API's sibling SmartFarm.Web/App_Data photo store.
+// Configure ObservationPhotos:StoragePath to the same shared directory on each host
+// before deploying the MVC and API to separate instances.
+builder.Services.AddSingleton<IObservationPhotoStore>(_ =>
+    new LocalObservationPhotoStore(
+        builder.Configuration["ObservationPhotos:StoragePath"] ??
+        Path.GetFullPath(Path.Combine(builder.Environment.ContentRootPath,
+            "App_Data", "observation-photos"))));
 // Web and API must use the same protected key ring when hosted on different machines.
 var dataProtection = builder.Services.AddDataProtection()
     .SetApplicationName($"SmartFarm.SharedIdentity.{builder.Environment.EnvironmentName}");
