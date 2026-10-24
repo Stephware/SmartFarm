@@ -22,18 +22,33 @@ namespace SmartFarm.Auth.Tests;
 public sealed class WebApiClientTests
 {
     [Fact]
-    public void MvcServicesUseApiClients()
+    public void MvcUsesSharedInfrastructureWithoutRequiringApiHost()
     {
         using var app = new WebApplicationFactory<Program>();
         using var scope = app.Services.CreateScope();
         var services = scope.ServiceProvider;
 
-        Assert.IsType<FarmApiService>(services.GetRequiredService<IFarmManagementService>());
-        Assert.IsType<CropApiService>(services.GetRequiredService<ICropManagementService>());
-        Assert.IsType<InventoryApiService>(services.GetRequiredService<IInventoryService>());
-        Assert.IsType<MonitoringApiService>(services.GetRequiredService<IMonitoringService>());
-        Assert.IsType<HarvestApiService>(services.GetRequiredService<IHarvestService>());
-        Assert.IsType<FarmAccessApiService>(services.GetRequiredService<IFarmAccessService>());
+        Assert.IsType<SmartFarm.Infrastructure.Services.Farms.FarmManagementService>(
+            services.GetRequiredService<IFarmManagementService>());
+        Assert.IsType<SmartFarm.Infrastructure.Services.Crops.CropManagementService>(
+            services.GetRequiredService<ICropManagementService>());
+        Assert.IsType<SmartFarm.Infrastructure.Services.Inventory.InventoryService>(
+            services.GetRequiredService<IInventoryService>());
+        Assert.IsType<SmartFarm.Infrastructure.Services.Monitoring.MonitoringService>(
+            services.GetRequiredService<IMonitoringService>());
+        Assert.IsType<SmartFarm.Infrastructure.Services.Harvests.HarvestService>(
+            services.GetRequiredService<IHarvestService>());
+        Assert.IsType<SmartFarm.Infrastructure.Services.Reports.FarmReportService>(
+            services.GetRequiredService<SmartFarm.Core.Interfaces.Reports.IFarmReportService>());
+        Assert.IsType<SmartFarm.Infrastructure.Services.Tasks.FarmTaskService>(
+            services.GetRequiredService<SmartFarm.Core.Interfaces.Tasks.IFarmTaskService>());
+        Assert.IsType<SmartFarm.Infrastructure.Security.FarmAccessService>(
+            services.GetRequiredService<IFarmAccessService>());
+        Assert.IsType<SmartFarm.Infrastructure.Services.Monitoring.LocalObservationPhotoStore>(
+            services.GetRequiredService<IObservationPhotoStore>());
+        Assert.IsType<SmartFarm.Infrastructure.Services.Weather.FarmWeatherService>(
+            services.GetRequiredService<SmartFarm.Core.Interfaces.Weather.IFarmWeatherService>());
+        Assert.Null(services.GetService<SmartFarmApiClient>());
     }
 
     [Fact]

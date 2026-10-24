@@ -45,18 +45,10 @@ if (builder.Environment.IsDevelopment() &&
 
 builder.Services.AddControllers();
 builder.Services.AddSmartFarmPersistence(builder.Configuration.GetConnectionString("SmartFarm"));
-builder.Services.AddSmartFarmRepositories();
+builder.Services.AddSmartFarmBusinessServices();
 builder.Services.AddSmartFarmWeather(builder.Configuration);
 builder.Services.AddSmartFarmApiIdentity();
 builder.Services.AddScoped<AccountRegistrationService>();
-builder.Services.AddScoped<IFarmAccessService, FarmAccessService>();
-builder.Services.AddScoped<IFarmManagementService, FarmManagementService>();
-builder.Services.AddScoped<ICropManagementService, CropManagementService>();
-builder.Services.AddScoped<IMonitoringService, MonitoringService>();
-builder.Services.AddScoped<IInventoryService, InventoryService>();
-builder.Services.AddScoped<IHarvestService, HarvestService>();
-builder.Services.AddScoped<IFarmReportService, FarmReportService>();
-builder.Services.AddScoped<IFarmTaskService, FarmTaskService>();
 builder.Services.AddSingleton<IObservationPhotoStore>(_ =>
     new LocalObservationPhotoStore(
         builder.Configuration["ObservationPhotos:StoragePath"] ??
