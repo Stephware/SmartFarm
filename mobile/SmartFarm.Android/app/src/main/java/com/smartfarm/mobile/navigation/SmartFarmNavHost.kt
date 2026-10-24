@@ -26,13 +26,15 @@ import com.smartfarm.mobile.features.harvests.HarvestScreen
 import com.smartfarm.mobile.features.syncstatus.SyncStatusViewModel
 import com.smartfarm.mobile.features.syncstatus.SyncStatusScreen
 import androidx.compose.ui.platform.LocalContext
+import com.bumptech.glide.Glide
 import com.smartfarm.mobile.features.farms.FarmListScreen
 import com.smartfarm.mobile.features.farms.FarmDetailScreen
 
 @Composable
 fun SmartFarmNavHost(auth: AuthViewModel, farms: FarmViewModel, crops: CropViewModel, monitoring: MonitoringViewModel, inventory: InventoryViewModel, harvests: HarvestViewModel, status: StatusViewModel, sync: SyncStatusViewModel) {
     val navController = rememberNavController()
-    val resolver = LocalContext.current.contentResolver
+    val appContext = LocalContext.current
+    val resolver = appContext.contentResolver
     val state by auth.state.collectAsStateWithLifecycle()
     NavHost(navController = navController, startDestination = "welcome") {
         composable("welcome") {
@@ -67,6 +69,8 @@ fun SmartFarmNavHost(auth: AuthViewModel, farms: FarmViewModel, crops: CropViewM
                 farms.clear()
                 crops.clear()
                 monitoring.clear()
+                // Remove any decoded private photos after signing out.
+                Glide.get(appContext).clearMemory()
                 inventory.clear()
                 harvests.clear()
                 sync.clear()
