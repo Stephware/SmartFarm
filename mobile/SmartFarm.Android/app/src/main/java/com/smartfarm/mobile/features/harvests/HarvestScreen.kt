@@ -18,6 +18,7 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -26,6 +27,8 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
+import com.smartfarm.mobile.data.local.entity.PendingOperation
+import com.smartfarm.mobile.ui.components.PendingRecords
 import com.smartfarm.mobile.ui.components.OfflineDataNotice
 
 @Composable
@@ -33,12 +36,21 @@ fun HarvestScreen(
     state: HarvestUiState,
     onBack: () -> Unit,
     onRecord: (String, String) -> Unit,
-    onVoid: (String, String) -> Unit
+    onVoid: (String, String) -> Unit,
+    pending: List<PendingOperation> = emptyList(),
+    onSync: () -> Unit = {}
 ) {
-    var quantity by rememberSaveable { mutableStateOf("") }
-    var notes by rememberSaveable { mutableStateOf("") }
-    var confirmVoidId by rememberSaveable { mutableStateOf<String?>(null) }
-    var voidReason by rememberSaveable { mutableStateOf("") }
+    var quantity by rememberSaveable(state.farmId, state.cycleId) { mutableStateOf("") }
+    var notes by rememberSaveable(state.farmId, state.cycleId) { mutableStateOf("") }
+    var confirmVoidId by rememberSaveable(state.farmId, state.cycleId) { mutableStateOf<String?>(null) }
+    var voidReason by rememberSaveable(state.farmId, state.cycleId) { mutableStateOf("") }
+    val receipt = state.saveReceipts["${state.farmId}/${state.cycleId}"]
+    var handled by rememberSaveable(state.farmId, state.cycleId) { mutableStateOf(receipt) }
+    LaunchedEffect(receipt) {
+        if (receipt != null && receipt != handled) {
+            quantity = ""; notes = ""; handled = receipt
+        }
+    }
     val overview = state.overview
 
     Scaffold { padding ->
@@ -65,10 +77,10 @@ fun HarvestScreen(
                 if (overview.canRecord) {
                     HorizontalDivider()
                     Text("Record partial harvest", style = MaterialTheme.typography.titleMedium)
-                    OutlinedTextField(quantity, { quantity = it }, label = { Text("Quantity (${overview.unit})") },
+                    OutlinedTextField(quantity, { quantity = it }, enabled = !state.busy, label = { Text("Quantity (${overview.unit})") },
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
                         modifier = Modifier.fillMaxWidth())
-                    OutlinedTextField(notes, { notes = it }, label = { Text("Notes (optional)") },
+                    OutlinedTextField(notes, { notes = it }, enabled = !state.busy, label = { Text("Notes (optional)") },
                         modifier = Modifier.fillMaxWidth())
                     Button(onClick = { onRecord(quantity, notes) },
                         enabled = !state.busy && quantity.isNotBlank()) { Text("Record harvest") }
@@ -78,6 +90,8 @@ fun HarvestScreen(
 
                 HorizontalDivider()
                 Text("Harvest history", style = MaterialTheme.typography.titleLarge)
+                PendingRecords(pending, state.farmId, state.cycleId,
+                    setOf("harvest"), onSync)
                 if (overview.entries.isEmpty()) Text("No harvests recorded yet.")
                 overview.entries.forEach { entry ->
                     Text("${entry.quantity.toPlainString()} ${entry.unit}" +
@@ -106,7 +120,7 @@ fun HarvestScreen(
             text = {
                 Column {
                     Text("The original entry remains in history and is excluded from totals.")
-                    OutlinedTextField(voidReason, { voidReason = it },
+                    OutlinedTextField(voidReason, { voidReason = it }, enabled = !state.busy,
                         label = { Text("Reason (required)") }, modifier = Modifier.fillMaxWidth())
                 }
             },

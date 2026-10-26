@@ -24,6 +24,7 @@ data class MonitoringUiState(
     val busy: Boolean = false,
     val error: String? = null,
     val notice: String? = null,
+    val saveReceipts: Map<String, String> = emptyMap(),
     val canRecord: Boolean = false,
     val activities: List<ActivityDto> = emptyList(),
     val observations: List<ObservationDto> = emptyList(),
@@ -49,7 +50,7 @@ class MonitoringViewModel(private val repository: MonitoringRepository,
     }
 
     fun load(farmId: String, cycleId: String) {
-        mutable.value = MonitoringUiState(farmId = farmId, cycleId = cycleId, busy = true)
+        mutable.value = MonitoringUiState(farmId = farmId, cycleId = cycleId, busy = true, saveReceipts = mutable.value.saveReceipts)
         viewModelScope.launch {
             try { refresh(farmId, cycleId) }
             catch (_: Exception) { mutable.value = mutable.value.copy(error = "Could not load monitoring history.") }
@@ -66,31 +67,34 @@ class MonitoringViewModel(private val repository: MonitoringRepository,
             cachedAtUtcMillis = snapshot.savedAtUtcMillis.takeIf { snapshot.offline })
     }
 
-    private fun submit(queued: Boolean = true, action: suspend (String, String) -> Unit) {
+    private fun submit(form: String, action: suspend (String, String) -> String) {
         val snapshot = mutable.value
         if (snapshot.busy || snapshot.farmId.isBlank() || !snapshot.canRecord) return
         mutable.value = snapshot.copy(busy = true, error = null, notice = null)
         viewModelScope.launch {
             try {
-                action(snapshot.farmId, snapshot.cycleId)
-                if (queued) {
-                    mutable.value = mutable.value.copy(
-                        notice = "Saved on this device. It will sync when online.")
-                } else {
-                    refresh(snapshot.farmId, snapshot.cycleId)
-                }
+                val id = action(snapshot.farmId, snapshot.cycleId)
+                val current = mutable.value
+                mutable.value = current.copy(saveReceipts = current.saveReceipts +
+                    ("${snapshot.farmId}/${snapshot.cycleId}/$form" to id))
+                if (mutable.value.farmId == snapshot.farmId && mutable.value.cycleId == snapshot.cycleId)
+                    mutable.value = mutable.value.copy(notice = "Saved on this device. It will sync when online.")
             } catch (_: Exception) {
-                mutable.value = mutable.value.copy(error = "Save failed. Check the values or device storage.")
-            } finally { mutable.value = mutable.value.copy(busy = false) }
+                if (mutable.value.farmId == snapshot.farmId && mutable.value.cycleId == snapshot.cycleId)
+                    mutable.value = mutable.value.copy(error = "Save failed. Check the values or device storage.")
+            } finally {
+                if (mutable.value.farmId == snapshot.farmId && mutable.value.cycleId == snapshot.cycleId)
+                    mutable.value = mutable.value.copy(busy = false)
+            }
         }
     }
 
-    fun logActivity(kind: Int, notes: String) = submit { farmId, cycleId ->
+    fun logActivity(kind: Int, notes: String) = submit("activity") { farmId, cycleId ->
         sync.queueActivity(farmId, cycleId, ActivityInputDto(kind, notes.trim().ifBlank { null }))
     }
 
     fun observe(health: Int, growth: String, notes: String,
-        uri: Uri?, resolver: ContentResolver) = submit { farmId, cycleId ->
+        uri: Uri?, resolver: ContentResolver) = submit("observation") { farmId, cycleId ->
         val input = ObservationInputDto(health,
             growth.trim().ifBlank { null }, notes.trim().ifBlank { null })
         if (uri == null) sync.queueObservation(farmId, cycleId, input)
@@ -99,7 +103,7 @@ class MonitoringViewModel(private val repository: MonitoringRepository,
 
     // Attach to an existing observation even without a connection.
     fun uploadPhoto(observationId: String, uri: Uri, resolver: ContentResolver) =
-        submit { farmId, cycleId ->
+        submit("photo") { farmId, cycleId ->
             sync.queuePhoto(farmId, cycleId, observationId, uri, resolver)
         }
 

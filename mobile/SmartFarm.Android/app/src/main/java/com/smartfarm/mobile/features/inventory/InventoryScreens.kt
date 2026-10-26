@@ -16,6 +16,7 @@ import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -25,6 +26,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import com.smartfarm.mobile.data.remote.dto.InventoryTransactionDto
+import com.smartfarm.mobile.data.local.entity.PendingOperation
+import com.smartfarm.mobile.ui.components.PendingRecords
 import com.smartfarm.mobile.ui.components.OfflineDataNotice
 import com.smartfarm.mobile.ui.components.ConfirmActionButton
 
@@ -75,17 +78,17 @@ fun InventoryListScreen(
         if (canManage && !state.offline) {
             HorizontalDivider()
             Text("Create stock item", style = MaterialTheme.typography.titleLarge)
-            OutlinedTextField(name, { name = it }, label = { Text("Name") }, modifier = Modifier.fillMaxWidth())
+            OutlinedTextField(name, { name = it }, enabled = !state.busy, label = { Text("Name") }, modifier = Modifier.fillMaxWidth())
             listOf("Seeds", "Fertilizers", "Pesticides", "Other").forEachIndexed { index, label ->
                 OutlinedButton(onClick = { category = index + 1 }) {
                     Text("${if (category == index + 1) "✓ " else ""}$label")
                 }
             }
-            OutlinedTextField(unit, { unit = it }, label = { Text("Unit (kg, L, pcs)") },
+            OutlinedTextField(unit, { unit = it }, enabled = !state.busy, label = { Text("Unit (kg, L, pcs)") },
                 modifier = Modifier.fillMaxWidth())
-            OutlinedTextField(opening, { opening = it }, label = { Text("Opening quantity") },
+            OutlinedTextField(opening, { opening = it }, enabled = !state.busy, label = { Text("Opening quantity") },
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal))
-            OutlinedTextField(reorder, { reorder = it }, label = { Text("Low-stock threshold (optional)") },
+            OutlinedTextField(reorder, { reorder = it }, enabled = !state.busy, label = { Text("Low-stock threshold (optional)") },
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal))
             Button(onClick = { onCreate(name, category, unit, opening, reorder) },
                 enabled = !state.busy && name.isNotBlank() && unit.isNotBlank()
@@ -102,7 +105,9 @@ fun InventoryItemScreen(
     onSave: (String, Int, String, String, String) -> Unit,
     onArchive: () -> Unit,
     onMovement: (Int, String, String?, String) -> Unit,
-    onReverse: (String, String) -> Unit
+    onReverse: (String, String) -> Unit,
+    pending: List<PendingOperation> = emptyList(),
+    onSync: () -> Unit = {}
 ) {
     val item = state.item
     var name by rememberSaveable(item?.id) { mutableStateOf(item?.name.orEmpty()) }
@@ -115,6 +120,13 @@ fun InventoryItemScreen(
     var reason by rememberSaveable { mutableStateOf("") }
     var selectedActivity by rememberSaveable { mutableStateOf<String?>(null) }
 
+    val receipt = state.saveReceipts["${state.farmId}/${state.itemId}"]
+    var handled by rememberSaveable(state.farmId, state.itemId) { mutableStateOf(receipt) }
+    LaunchedEffect(receipt) {
+        if (receipt != null && receipt != handled) {
+            amount = ""; reason = ""; selectedActivity = null; handled = receipt
+        }
+    }
     InventoryPage(item?.name ?: "Inventory item") {
         OutlinedButton(onClick = onBack) { Text("Inventory list") }
         Feedback(state)
@@ -125,15 +137,15 @@ fun InventoryItemScreen(
             if (item.archivedAtUtc == null && canManage && !state.offline) {
                 HorizontalDivider()
                 Text("Item details", style = MaterialTheme.typography.titleMedium)
-                OutlinedTextField(name, { name = it }, label = { Text("Name") }, modifier = Modifier.fillMaxWidth())
+                OutlinedTextField(name, { name = it }, enabled = !state.busy, label = { Text("Name") }, modifier = Modifier.fillMaxWidth())
                 listOf("Seeds", "Fertilizers", "Pesticides", "Other").forEachIndexed { index, label ->
                     OutlinedButton(onClick = { category = index + 1 }) {
                         Text("${if (category == index + 1) "✓ " else ""}$label")
                     }
                 }
-                OutlinedTextField(unit, { unit = it }, label = { Text("Unit") })
-                OutlinedTextField(description, { description = it }, label = { Text("Description") })
-                OutlinedTextField(reorder, { reorder = it }, label = { Text("Low-stock threshold") },
+                OutlinedTextField(unit, { unit = it }, enabled = !state.busy, label = { Text("Unit") })
+                OutlinedTextField(description, { description = it }, enabled = !state.busy, label = { Text("Description") })
+                OutlinedTextField(reorder, { reorder = it }, enabled = !state.busy, label = { Text("Low-stock threshold") },
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal))
                 Button(onClick = { onSave(name, category, unit, description, reorder) },
                     enabled = !state.busy) { Text("Save item details") }
@@ -147,25 +159,25 @@ fun InventoryItemScreen(
                 Text("Stock movement", style = MaterialTheme.typography.titleMedium)
                 if (canManage) {
                     listOf(2 to "Receipt", 4 to "Adjustment").forEach { (type, label) ->
-                        OutlinedButton(onClick = { movementType = type }) {
+                        OutlinedButton(onClick = { movementType = type }, enabled = !state.busy) {
                             Text("${if (movementType == type) "✓ " else ""}$label")
                         }
                     }
                 }
-                OutlinedButton(onClick = { movementType = 3 }) {
+                OutlinedButton(onClick = { movementType = 3 }, enabled = !state.busy) {
                     Text("${if (movementType == 3) "✓ " else ""}Consumption")
                 }
-                OutlinedTextField(amount, { amount = it }, label = { Text("Signed quantity (+/-)") },
+                OutlinedTextField(amount, { amount = it }, enabled = !state.busy, label = { Text("Signed quantity (+/-)") },
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal))
                 if (movementType == 3) {
                     Text("Choose the related active-crop activity:")
                     state.activities.forEach { activity ->
-                        OutlinedButton(onClick = { selectedActivity = activity.id }) {
+                        OutlinedButton(onClick = { selectedActivity = activity.id }, enabled = !state.busy) {
                             Text("${if (selectedActivity == activity.id) "✓ " else ""}${activity.label}")
                         }
                     }
                 }
-                OutlinedTextField(reason, { reason = it }, label = { Text("Reason (required for adjustments)") })
+                OutlinedTextField(reason, { reason = it }, enabled = !state.busy, label = { Text("Reason (required for adjustments)") })
                 Button(onClick = {
                     onMovement(movementType, amount,
                         if (movementType == 3) selectedActivity else null, reason)
@@ -177,6 +189,8 @@ fun InventoryItemScreen(
             }
             HorizontalDivider()
             Text("Transaction history", style = MaterialTheme.typography.titleLarge)
+            PendingRecords(pending, state.farmId, state.itemId,
+                setOf("inventory"), onSync)
             val reversedIds = state.transactions.mapNotNull { it.reversesTransactionId }.toSet()
             state.transactions.forEach { transaction ->
                 var reversalReason by rememberSaveable(transaction.id) { mutableStateOf("") }
@@ -188,7 +202,7 @@ fun InventoryItemScreen(
                 transaction.reason?.let { Text(it) }
                 if (canManage && !state.offline && item.archivedAtUtc == null &&
                     transaction.transactionType != 5 && transaction.id !in reversedIds) {
-                    OutlinedTextField(reversalReason, { reversalReason = it },
+                    OutlinedTextField(reversalReason, { reversalReason = it }, enabled = !state.busy,
                         label = { Text("Reversal reason") })
                     ConfirmActionButton("Reverse this transaction",
                         "Reverse ${transaction.quantityChange} ${item.unit} for ${item.name}? This changes the stock balance.",
