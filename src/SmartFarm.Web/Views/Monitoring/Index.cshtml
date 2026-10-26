@@ -4,6 +4,7 @@
     var cycle = Model.Cycle;
     var monitoring = Model.Monitoring;
 }
+<partial name="_FarmNavigation" model="Model.Cycle.FarmId" />
 <section class="panel">
     <p><a asp-controller="Crops" asp-action="Index"
           asp-route-farmId="@cycle.FarmId">← Crop management</a></p>

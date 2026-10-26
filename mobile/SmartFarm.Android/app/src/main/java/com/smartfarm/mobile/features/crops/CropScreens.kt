@@ -9,6 +9,8 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.AlertDialog
+import com.smartfarm.mobile.ui.components.DateInput
+import androidx.compose.material3.FilterChip
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.HorizontalDivider
@@ -39,7 +41,8 @@ fun CropScreen(
     onUpdatePlan: (CropCycleDto, String, String) -> Unit,
     onMonitoring: (CropCycleDto) -> Unit,
     onHarvests: (CropCycleDto) -> Unit,
-    onTransition: (CropCycleDto, Int, String, String) -> Unit
+    onTransition: (CropCycleDto, Int, String, String) -> Unit,
+    onRetry: () -> Unit = {}
 ) {
     var typeName by rememberSaveable { mutableStateOf("") }
     var unit by rememberSaveable { mutableStateOf("kg") }
@@ -56,7 +59,10 @@ fun CropScreen(
             Text("Crop management", style = MaterialTheme.typography.headlineMedium)
             OutlinedButton(onClick = onBack) { Text("Back to farm") }
             if (state.busy) CircularProgressIndicator()
-            state.error?.let { Text(it, color = MaterialTheme.colorScheme.error) }
+            state.error?.let {
+                Text(it, color = MaterialTheme.colorScheme.error)
+                OutlinedButton(onClick = onRetry, enabled = !state.busy) { Text("Try again") }
+            }
             OfflineDataNotice(state.offline, state.cachedAtUtcMillis)
 
             Text("Available crop types", style = MaterialTheme.typography.titleLarge)
@@ -86,24 +92,19 @@ fun CropScreen(
                 if (state.plots.isNotEmpty()) {
                     Text("Choose plot", style = MaterialTheme.typography.titleMedium)
                     state.plots.forEach { plot ->
-                        OutlinedButton(onClick = { selectedPlot = plot.id }) {
-                            Text("${if (selectedPlot == plot.id) "✓ " else ""}${plot.name}")
-                        }
+                        FilterChip(selected = selectedPlot == plot.id, onClick = { selectedPlot = plot.id },
+                            enabled = !state.busy, label = { Text(plot.name) })
                     }
                 }
                 if (state.types.isNotEmpty()) {
                     Text("Choose crop", style = MaterialTheme.typography.titleMedium)
                     state.types.forEach { type ->
-                        OutlinedButton(onClick = { selectedType = type.id }) {
-                            Text("${if (selectedType == type.id) "✓ " else ""}${type.name}")
-                        }
+                        FilterChip(selected = selectedType == type.id, onClick = { selectedType = type.id },
+                            enabled = !state.busy, label = { Text(type.name) })
                     }
                 }
-                OutlinedTextField(plannedDate, { plannedDate = it },
-                    label = { Text("Planting date (YYYY-MM-DD)") }, modifier = Modifier.fillMaxWidth())
-                OutlinedTextField(harvestDate, { harvestDate = it },
-                    label = { Text("Expected harvest (optional, YYYY-MM-DD)") },
-                    modifier = Modifier.fillMaxWidth())
+                DateInput(plannedDate, "Planting date", { plannedDate = it }, enabled = !state.busy)
+                DateInput(harvestDate, "Expected harvest (optional)", { harvestDate = it }, enabled = !state.busy)
                 Button(onClick = { onPlan(selectedPlot, selectedType, plannedDate, harvestDate) },
                     enabled = !state.busy && selectedPlot.isNotBlank() && selectedType.isNotBlank()
                         && plannedDate.isNotBlank()) { Text("Create planting plan") }
@@ -144,14 +145,11 @@ private fun CycleCard(
     cycle.terminationReason?.let { Text("Reason: $it") }
 
     if (canManage && cycle.status == 0) {
-        OutlinedTextField(editDate, { editDate = it }, label = { Text("Planned date (YYYY-MM-DD)") },
-            modifier = Modifier.fillMaxWidth())
-        OutlinedTextField(editHarvest, { editHarvest = it },
-            label = { Text("Expected harvest (optional)") }, modifier = Modifier.fillMaxWidth())
+        DateInput(editDate, "Planned date", { editDate = it }, enabled = !busy)
+        DateInput(editHarvest, "Expected harvest (optional)", { editHarvest = it }, enabled = !busy)
         OutlinedButton(onClick = { onUpdatePlan(cycle, editDate, editHarvest) },
             enabled = !busy && editDate.isNotBlank()) { Text("Update plan") }
-        OutlinedTextField(plantedDate, { plantedDate = it },
-            label = { Text("Actual planting date (YYYY-MM-DD)") }, modifier = Modifier.fillMaxWidth())
+        DateInput(plantedDate, "Actual planting date", { plantedDate = it }, enabled = !busy)
         Button(onClick = { confirmation = 1 }, enabled = !busy && plantedDate.isNotBlank()) {
             Text("Mark as planted")
         }

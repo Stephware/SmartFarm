@@ -3,23 +3,20 @@
 }
 <section class="panel" role="alert">
     <h1>Farm data is temporarily unavailable</h1>
-    <p>The website could not get a successful response from the SmartFarm API.
-       Your farm records have not been changed by this error.</p>
-    @if (ViewData["ApiStatus"] is string status)
+    @if (ViewData["WriteUnconfirmed"] is true)
     {
-        <p><strong>API response:</strong> HTTP @status</p>
+        <p>We could not confirm whether your change was saved. Review your farm records before submitting it again.</p>
     }
-    @if (ViewData["Development"] is true)
+    else
     {
-        <p>Check the terminal running <code>SmartFarm.Api</code>. You can also
-           <a href="http://localhost:5081/health/database" target="_blank" rel="noopener">
-           check the local database health endpoint</a>.</p>
-        <p>If the check reports a missing database or tables, verify your SQL Server
-           configuration and existing SmartFarmDB schema. Do not rerun the schema
-           creation script against a populated database.</p>
+        <p>We could not load this page. Try again, or return to your farms and check your connection.</p>
     }
     <div class="action-links">
-        <a class="button" asp-controller="Farms" asp-action="Index">Try again</a>
+        @if (ViewData["RetryUrl"] is string retryUrl)
+        {
+            <a class="button" href="@retryUrl">Try again</a>
+        }
+        <a asp-controller="Farms" asp-action="Index">Review my farms</a>
         <a asp-controller="Home" asp-action="Index">Back to home</a>
     </div>
 </section>

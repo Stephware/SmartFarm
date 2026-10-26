@@ -3,6 +3,7 @@
     ViewData["Title"] = "Harvest reports";
     var report = Model.Report;
 }
+<partial name="_FarmNavigation" model="Model.Report.FarmId" />
 <section class="panel">
     <p><a asp-controller="Dashboard" asp-action="Index"
           asp-route-farmId="@report.FarmId">← Farm dashboard</a></p>

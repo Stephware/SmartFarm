@@ -1,0 +1,11 @@
+@model Guid
+@{ var current = ViewContext.RouteData.Values["controller"]?.ToString(); }
+<nav class="farm-navigation" aria-label="Farm sections">
+    <a asp-controller="Farms" asp-action="Details" asp-route-id="@Model" aria-current="@(current == "Farms" ? "page" : null)">Farm overview</a>
+    <a asp-controller="Dashboard" asp-action="Index" asp-route-farmId="@Model" aria-current="@(current == "Dashboard" ? "page" : null)">Dashboard</a>
+    <a asp-controller="Tasks" asp-action="Index" asp-route-farmId="@Model" aria-current="@(current == "Tasks" ? "page" : null)">Tasks</a>
+    <a asp-controller="Crops" asp-action="Index" asp-route-farmId="@Model" aria-current="@(current is "Crops" or "Monitoring" or "Harvests" ? "page" : null)">Crops</a>
+    <a asp-controller="Inventory" asp-action="Index" asp-route-farmId="@Model" aria-current="@(current == "Inventory" ? "page" : null)">Inventory</a>
+    <a asp-controller="Weather" asp-action="Index" asp-route-farmId="@Model" aria-current="@(current == "Weather" ? "page" : null)">Weather</a>
+    <a asp-controller="Reports" asp-action="Harvests" asp-route-farmId="@Model" aria-current="@(current == "Reports" ? "page" : null)">Reports</a>
+</nav>

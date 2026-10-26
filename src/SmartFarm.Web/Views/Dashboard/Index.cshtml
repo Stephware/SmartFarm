@@ -2,6 +2,7 @@
 @{
     ViewData["Title"] = "Farm dashboard";
 }
+<partial name="_FarmNavigation" model="Model.FarmId" />
 <section class="panel">
     <p><a asp-controller="Farms" asp-action="Details" asp-route-id="@Model.FarmId">← Back to farm</a></p>
     <div class="page-heading">

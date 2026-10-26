@@ -47,6 +47,7 @@ class SafeActionsTest {
                 )
             }
         }
+        compose.onNodeWithText("Settings").performScrollTo().performClick()
         compose.onNodeWithText("Archive farm").performScrollTo().performClick()
         compose.runOnIdle { assertEquals(0, archives) }
         compose.onNodeWithText("Cancel").performClick()
