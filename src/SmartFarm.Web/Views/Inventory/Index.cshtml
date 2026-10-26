@@ -4,6 +4,7 @@
     ViewData["Title"] = "Inventory";
     var canManage = Model.Farm.Role is "Owner" or "Manager";
 }
+<partial name="_FarmNavigation" model="Model.Farm.Id" />
 <section class="panel">
     <p><a asp-controller="Farms" asp-action="Details" asp-route-id="@Model.Farm.Id">← @Model.Farm.Name</a></p>
     <h1>Inventory</h1>

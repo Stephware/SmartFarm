@@ -64,9 +64,9 @@
 
 **Interfaces:** Reuse existing APIs and permissions; add task/notification entry points where supported. Keep signed quantities at the service boundary while making consumption/receipt input positive for users.
 
-- [ ] Write behavior tests for date/quantity inputs and navigation; run RED.
-- [ ] Group farm work separately from settings; use native date pickers, accessible selection and time-zone choices; add context-preserving retry and user-facing copy.
-- [ ] Build/test both platforms, review and merge PR.
+- [x] Write behavior tests for date/quantity inputs and navigation; run RED.
+- [x] Group farm work separately from settings; use native date pickers, accessible selection and time-zone choices; add context-preserving retry and user-facing copy.
+- [x] Build/test both platforms, review and merge PR.
 
 ### Task 5: Visual consistency and responsive layouts
 

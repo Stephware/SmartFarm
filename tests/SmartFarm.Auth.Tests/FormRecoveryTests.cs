@@ -16,6 +16,13 @@ using SmartFarm.Core.Interfaces.Crops;
 using SmartFarm.Core.Interfaces.Farms;
 using SmartFarm.Core.Interfaces.Monitoring;
 using SmartFarm.Core.Interfaces.Tasks;
+using SmartFarm.Core.Interfaces.Inventory;
+using SmartFarm.Core.Contracts.Inventory;
+using SmartFarm.Infrastructure.Identity;
+using SmartFarm.Web.Controllers;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Http;
+using System.Data.Common;
 using Xunit;
 
 namespace SmartFarm.Auth.Tests;
@@ -110,13 +117,50 @@ public sealed class FormRecoveryTests
         Assert.DoesNotContain("Flood damage", Regex.Match(html, "<input[^>]*id=\"Transition_TerminationReason_[^\"]+\"[^>]*>").Value);
     }
 
-    private static WebApplicationFactory<Program> CreateApp(CropCycleStatus status = CropCycleStatus.Planned) => new WebApplicationFactory<Program>()
+    [Fact]
+    public async Task ReadOutageOffersTheSameLocalPageWithoutTechnicalDetails()
+    {
+        using var app = CreateApp(unavailable: true);
+        using var client = app.CreateClient();
+        var path = $"/Farms/Details/{FarmId}?section=plots";
+        using var response = await client.GetAsync(path);
+        Assert.Equal(HttpStatusCode.ServiceUnavailable, response.StatusCode);
+        var html = await response.Content.ReadAsStringAsync();
+        Assert.Contains($"href=\"{path}\"", html);
+        Assert.DoesNotContain("private connection details", html);
+    }
+
+    [Fact]
+    public async Task UnconfirmedWriteDoesNotOfferBlindRetry()
+    {
+        using var app = CreateApp(unavailable: true);
+        using var client = app.CreateClient();
+        var path = $"?farmId={FarmId}&cycleId={CycleId}";
+        var page = await client.GetStringAsync("/Monitoring" + path);
+        var token = WebUtility.HtmlDecode(Regex.Match(page,
+            "name=\"__RequestVerificationToken\"[^>]*value=\"([^\"]+)\"").Groups[1].Value);
+        using var response = await client.PostAsync("/Monitoring/Activity" + path,
+            new FormUrlEncodedContent(new Dictionary<string, string>
+            { ["Activity.ActivityType"] = "1", ["__RequestVerificationToken"] = token }));
+        Assert.Equal(HttpStatusCode.ServiceUnavailable, response.StatusCode);
+        var html = await response.Content.ReadAsStringAsync();
+        Assert.Contains("before submitting it again", html);
+        Assert.DoesNotContain(">Try again<", html);
+        Assert.DoesNotContain("private connection details", html);
+    }
+
+    private sealed class OfflineDatabase : DbException
+    {
+        public OfflineDatabase() : base("private connection details") { }
+    }
+
+    private static WebApplicationFactory<Program> CreateApp(CropCycleStatus status = CropCycleStatus.Planned, bool unavailable = false) => new WebApplicationFactory<Program>()
         .WithWebHostBuilder(builder => builder.ConfigureTestServices(services =>
         {
             services.AddSingleton<IAuthenticationService, SignedIn>();
             services.AddScoped(_ => Stub<IFarmManagementService>(method => method switch
             {
-                "GetAsync" => Task.FromResult<FarmDetails?>(Farm),
+                "GetAsync" => unavailable ? throw new OfflineDatabase() : Task.FromResult<FarmDetails?>(Farm),
                 "ListPlotsAsync" => Task.FromResult<IReadOnlyList<PlotDetails>>([new(Cycle.PlotId, FarmId, "North plot", 100, "version")]),
                 _ => throw new NotSupportedException(method)
             }));
@@ -129,10 +173,27 @@ public sealed class FormRecoveryTests
             }));
             services.AddScoped(_ => Stub<IMonitoringService>(method => method == "GetAsync"
                 ? Task.FromResult(new MonitoringDetails(FarmId, CycleId, true, [], []))
-                : throw new FarmOperationException(FarmError.InvalidInput, "Check the submitted values.")));
+                : throw (unavailable ? new OfflineDatabase() : new FarmOperationException(FarmError.InvalidInput, "Check the submitted values."))));
             services.AddScoped(_ => Stub<IFarmTaskService>(method => method == "ListAsync"
                 ? Task.FromResult<IReadOnlyList<FarmTaskDetails>>([]) : throw new NotSupportedException(method)));
         }));
+
+    [Theory]
+    [InlineData(StockTransactionType.Consumption, "2.5", "-2.5")]
+    [InlineData(StockTransactionType.Receipt, "2.5", "2.5")]
+    [InlineData(StockTransactionType.Adjustment, "-2.5", "-2.5")]
+    public async Task WebStockEntryConvertsOnlyPositiveConsumption(StockTransactionType type, string amount, string expected)
+    {
+        using var app = new WebApplicationFactory<Program>();
+        using var scope = app.Services.CreateScope();
+        var inventory = Stub<IInventoryService>(_ => Task.FromResult<InventoryItemDetails>(null!));
+        var controller = new InventoryController(scope.ServiceProvider.GetRequiredService<UserManager<SmartFarmUser>>(), null!, inventory)
+        { ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() } };
+        var input = new InventoryMovementInput { TransactionType = type,
+            QuantityChange = decimal.Parse(amount, System.Globalization.CultureInfo.InvariantCulture), RowVersion = "version" };
+        Assert.IsType<RedirectToActionResult>(await controller.Post(FarmId, Guid.NewGuid(), input, default));
+        Assert.Equal(decimal.Parse(expected, System.Globalization.CultureInfo.InvariantCulture), input.QuantityChange);
+    }
 
     private static T Stub<T>(Func<string, object> invoke) where T : class
     {

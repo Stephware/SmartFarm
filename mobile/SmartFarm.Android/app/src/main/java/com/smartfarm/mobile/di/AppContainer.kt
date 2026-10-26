@@ -28,6 +28,11 @@ import com.smartfarm.mobile.data.remote.api.WeatherApi
 import com.smartfarm.mobile.data.repository.WeatherRepository
 
 class AppContainer(context: Context) {
+    val taskRepository by lazy {
+        com.smartfarm.mobile.data.repository.TaskRepository(authRepository) {
+            retrofit.create(com.smartfarm.mobile.data.remote.api.TaskApi::class.java)
+        }
+    }
     private val appContext = context.applicationContext
     val database: SmartFarmDatabase by lazy {
         Room.databaseBuilder(appContext, SmartFarmDatabase::class.java, "smartfarm.db")

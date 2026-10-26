@@ -38,7 +38,8 @@ fun HarvestScreen(
     onRecord: (String, String) -> Unit,
     onVoid: (String, String) -> Unit,
     pending: List<PendingOperation> = emptyList(),
-    onSync: () -> Unit = {}
+    onSync: () -> Unit = {},
+    onRetry: () -> Unit = {}
 ) {
     var quantity by rememberSaveable(state.farmId, state.cycleId) { mutableStateOf("") }
     var notes by rememberSaveable(state.farmId, state.cycleId) { mutableStateOf("") }
@@ -62,7 +63,10 @@ fun HarvestScreen(
             OutlinedButton(onClick = onBack) { Text("Back to crop cycles") }
             Text("Harvest management", style = MaterialTheme.typography.headlineMedium)
             if (state.busy) CircularProgressIndicator()
-            state.error?.let { Text(it, color = MaterialTheme.colorScheme.error) }
+            state.error?.let {
+                Text(it, color = MaterialTheme.colorScheme.error)
+                OutlinedButton(onClick = onRetry, enabled = !state.busy) { Text("Try again") }
+            }
             state.notice?.let { Text(it, color = MaterialTheme.colorScheme.primary) }
             OfflineDataNotice(state.offline, state.cachedAtUtcMillis)
 

@@ -17,6 +17,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.FilterChip
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.HorizontalDivider
@@ -46,7 +47,8 @@ fun MonitoringScreen(
     onUpload: (String, Uri) -> Unit,
     onPreview: (String) -> Unit,
     pending: List<PendingOperation> = emptyList(),
-    onSync: () -> Unit = {}
+    onSync: () -> Unit = {},
+    onRetry: () -> Unit = {}
 ) {
     var activityType by rememberSaveable(state.farmId, state.cycleId) { mutableStateOf(1) }
     var activityNotes by rememberSaveable(state.farmId, state.cycleId) { mutableStateOf("") }
@@ -109,7 +111,10 @@ fun MonitoringScreen(
             Text("Crop monitoring", style = MaterialTheme.typography.headlineMedium)
             OutlinedButton(onClick = onBack) { Text("Back to crops") }
             if (state.busy) CircularProgressIndicator()
-            state.error?.let { Text(it, color = MaterialTheme.colorScheme.error) }
+            state.error?.let {
+                Text(it, color = MaterialTheme.colorScheme.error)
+                OutlinedButton(onClick = onRetry, enabled = !state.busy) { Text("Try again") }
+            }
             state.notice?.let { Text(it, color = MaterialTheme.colorScheme.primary) }
             OfflineDataNotice(state.offline, state.cachedAtUtcMillis)
 
@@ -117,9 +122,8 @@ fun MonitoringScreen(
                 Text("Record farm activity", style = MaterialTheme.typography.titleLarge)
                 val activities = listOf("Watering", "Fertilizing", "Pesticide", "Weeding", "Other")
                 activities.forEachIndexed { index, label ->
-                    OutlinedButton(onClick = { activityType = index + 1 }, enabled = !state.busy) {
-                        Text("${if (activityType == index + 1) "✓ " else ""}$label")
-                    }
+                    FilterChip(selected = activityType == index + 1, onClick = { activityType = index + 1 },
+                        enabled = !state.busy, label = { Text(label) })
                 }
                 OutlinedTextField(activityNotes, { activityNotes = it }, enabled = !state.busy,
                     label = { Text("Notes (optional)") }, modifier = Modifier.fillMaxWidth())
@@ -130,9 +134,8 @@ fun MonitoringScreen(
                 Text("Record inspection / observation", style = MaterialTheme.typography.titleLarge)
                 listOf("Not assessed", "Healthy", "Needs attention", "Critical")
                     .forEachIndexed { index, label ->
-                        OutlinedButton(onClick = { health = index }, enabled = !state.busy) {
-                            Text("${if (health == index) "✓ " else ""}$label")
-                        }
+                        FilterChip(selected = health == index, onClick = { health = index },
+                        enabled = !state.busy, label = { Text(label) })
                     }
                 OutlinedTextField(stage, { stage = it }, enabled = !state.busy,
                     label = { Text("Growth stage") }, modifier = Modifier.fillMaxWidth())

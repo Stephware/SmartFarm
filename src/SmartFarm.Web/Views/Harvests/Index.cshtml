@@ -4,6 +4,7 @@
     var cycle = Model.CropCycle;
     var overview = Model.Overview;
 }
+<partial name="_FarmNavigation" model="Model.CropCycle.FarmId" />
 <section class="panel">
     <p><a asp-controller="Crops" asp-action="Index"
           asp-route-farmId="@cycle.FarmId">← Crop management</a>

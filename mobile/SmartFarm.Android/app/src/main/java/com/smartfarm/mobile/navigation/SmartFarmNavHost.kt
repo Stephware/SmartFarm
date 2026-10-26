@@ -31,7 +31,7 @@ import com.smartfarm.mobile.features.farms.FarmListScreen
 import com.smartfarm.mobile.features.farms.FarmDetailScreen
 
 @Composable
-fun SmartFarmNavHost(auth: AuthViewModel, farms: FarmViewModel, crops: CropViewModel, monitoring: MonitoringViewModel, inventory: InventoryViewModel, harvests: HarvestViewModel, status: StatusViewModel, sync: SyncStatusViewModel) {
+fun SmartFarmNavHost(auth: AuthViewModel, farms: FarmViewModel, crops: CropViewModel, monitoring: MonitoringViewModel, inventory: InventoryViewModel, harvests: HarvestViewModel, status: StatusViewModel, sync: SyncStatusViewModel, tasks: com.smartfarm.mobile.features.tasks.TaskViewModel) {
     val navController = rememberNavController()
     val appContext = LocalContext.current
     val resolver = appContext.contentResolver
@@ -78,9 +78,11 @@ fun SmartFarmNavHost(auth: AuthViewModel, farms: FarmViewModel, crops: CropViewM
                 inventory.clear()
                 harvests.clear()
                 sync.clear()
+                tasks.clear()
                 navController.navigate("welcome") { popUpTo("welcome") { inclusive = true } }
             }, onFarms = { navController.navigate("farms") },
-                onSync = { navController.navigate("sync") })
+                onSync = { navController.navigate("sync") },
+                onNotifications = { navController.navigate("notifications") })
         }
         composable("sync") {
             val pending by sync.operations.collectAsStateWithLifecycle()
@@ -111,7 +113,7 @@ fun SmartFarmNavHost(auth: AuthViewModel, farms: FarmViewModel, crops: CropViewM
                 onAccept = { token -> farms.acceptInvitation(token) {
                     navController.navigate("farm/$it")
                 } },
-                onBack = { navController.popBackStack() })
+                onBack = { navController.popBackStack() }, onRetry = { farms.load() })
         }
         composable("farm/{farmId}") { entry ->
             val farmId = entry.arguments?.getString("farmId").orEmpty()
@@ -129,7 +131,25 @@ fun SmartFarmNavHost(auth: AuthViewModel, farms: FarmViewModel, crops: CropViewM
                 onInventory = { navController.navigate("inventory/$farmId") },
                 onInvite = { email, role -> farms.invite(email, role) },
                 onChangeRole = { member, role -> farms.changeRole(member, role) },
-                onRemoveMember = { farms.remove(it) })
+                onRemoveMember = { farms.remove(it) },
+                onTasks = { navController.navigate("tasks/$farmId") }, onRetry = { farms.loadDetail(farmId) })
+        }
+        composable("tasks/{farmId}") { entry ->
+            val farmId = entry.arguments?.getString("farmId").orEmpty()
+            val taskState by tasks.state.collectAsStateWithLifecycle()
+            val farmState by farms.state.collectAsStateWithLifecycle()
+            LaunchedEffect(farmId) { tasks.load(farmId) }
+            com.smartfarm.mobile.features.tasks.TaskScreen(taskState,
+                canManage = farmState.selected?.id == farmId && farmState.selected?.role in listOf("Owner", "Manager"),
+                actorId = state.account?.id, onBack = { navController.popBackStack() },
+                onRetry = { tasks.load(farmId) }, onComplete = tasks::complete, onRead = tasks::read)
+        }
+        composable("notifications") {
+            val taskState by tasks.state.collectAsStateWithLifecycle()
+            LaunchedEffect(Unit) { tasks.load() }
+            com.smartfarm.mobile.features.tasks.TaskScreen(taskState, false, state.account?.id,
+                onBack = { navController.popBackStack() }, onRetry = { tasks.load() },
+                onComplete = tasks::complete, onRead = tasks::read)
         }
         composable("crops/{farmId}") { entry ->
             val farmId = entry.arguments?.getString("farmId").orEmpty()
@@ -151,7 +171,7 @@ fun SmartFarmNavHost(auth: AuthViewModel, farms: FarmViewModel, crops: CropViewM
                 onHarvests = { cycle -> navController.navigate("harvests/$farmId/${cycle.id}") },
                 onTransition = { cycle, status, planted, reason ->
                     crops.transition(cycle, status, planted, reason)
-                })
+                }, onRetry = { crops.load(farmId) })
         }
         composable("monitor/{farmId}/{cycleId}") { entry ->
             val farmId = entry.arguments?.getString("farmId").orEmpty()
@@ -168,7 +188,7 @@ fun SmartFarmNavHost(auth: AuthViewModel, farms: FarmViewModel, crops: CropViewM
                     monitoring.uploadPhoto(observationId, uri, resolver)
                 },
                 onPreview = { monitoring.preview(it) }, pending = pending,
-                onSync = { navController.navigate("sync") })
+                onSync = { navController.navigate("sync") }, onRetry = { monitoring.load(farmId, cycleId) })
         }
         composable("inventory/{farmId}") { entry ->
             val farmId = entry.arguments?.getString("farmId").orEmpty()
@@ -182,7 +202,7 @@ fun SmartFarmNavHost(auth: AuthViewModel, farms: FarmViewModel, crops: CropViewM
                 onOpen = { navController.navigate("inventory/$farmId/$it") },
                 onCreate = { name, category, unit, opening, reorder ->
                     inventory.create(name, category, unit, opening, reorder)
-                })
+                }, onRetry = { inventory.load(farmId) })
         }
         composable("inventory/{farmId}/{itemId}") { entry ->
             val farmId = entry.arguments?.getString("farmId").orEmpty()
@@ -202,7 +222,8 @@ fun SmartFarmNavHost(auth: AuthViewModel, farms: FarmViewModel, crops: CropViewM
                     inventory.movement(kind, quantity, activityId, reason)
                 },
                 onReverse = { transactionId, reason -> inventory.reverse(transactionId, reason) },
-                pending = pending, onSync = { navController.navigate("sync") })
+                pending = pending, onSync = { navController.navigate("sync") },
+                onRetry = { inventory.loadItem(farmId, itemId) })
         }
         composable("harvests/{farmId}/{cycleId}") { entry ->
             val farmId = entry.arguments?.getString("farmId").orEmpty()
@@ -214,7 +235,8 @@ fun SmartFarmNavHost(auth: AuthViewModel, farms: FarmViewModel, crops: CropViewM
                 onBack = { navController.popBackStack() },
                 onRecord = { quantity, notes -> harvests.record(quantity, notes) },
                 onVoid = { harvestId, reason -> harvests.void(harvestId, reason) },
-                pending = pending, onSync = { navController.navigate("sync") }
+                pending = pending, onSync = { navController.navigate("sync") },
+                onRetry = { harvests.load(farmId, cycleId) }
             )
         }
     }

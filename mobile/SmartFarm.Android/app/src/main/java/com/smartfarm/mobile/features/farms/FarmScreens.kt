@@ -8,6 +8,10 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.text.KeyboardOptions
+import com.smartfarm.mobile.ui.components.TimeZoneInput
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.horizontalScroll
+import androidx.compose.material3.FilterChip
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
@@ -21,6 +25,8 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.saveable.rememberSaveableStateHolder
+import androidx.compose.runtime.key
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.KeyboardType
@@ -43,16 +49,19 @@ private fun FarmPage(title: String, content: @Composable () -> Unit) {
 }
 
 @Composable
-private fun Progress(state: FarmUiState) {
+private fun Progress(state: FarmUiState, onRetry: () -> Unit = {}) {
     if (state.loading) CircularProgressIndicator()
-    state.error?.let { Text(it, color = MaterialTheme.colorScheme.error) }
+    state.error?.let {
+        Text(it, color = MaterialTheme.colorScheme.error)
+        OutlinedButton(onClick = onRetry, enabled = !state.loading) { Text("Try again") }
+    }
     OfflineDataNotice(state.offline, state.cachedAtUtcMillis)
 }
 
 @Composable
 fun FarmListScreen(state: FarmUiState, onOpen: (String) -> Unit,
     onCreate: (String, String, String, String, String) -> Unit,
-    onAccept: (String) -> Unit, onBack: () -> Unit) {
+    onAccept: (String) -> Unit, onBack: () -> Unit, onRetry: () -> Unit = {}) {
     var name by rememberSaveable { mutableStateOf("") }
     var location by rememberSaveable { mutableStateOf("") }
     var zone by rememberSaveable { mutableStateOf("Asia/Manila") }
@@ -61,8 +70,8 @@ fun FarmListScreen(state: FarmUiState, onOpen: (String) -> Unit,
     var invitation by remember { mutableStateOf("") }
     FarmPage("My farms") {
         OutlinedButton(onClick = onBack) { Text("My account") }
-        Progress(state)
-        if (state.farms.isEmpty() && !state.loading) Text("No farms yet. Create one or accept an invitation.")
+        Progress(state, onRetry)
+        if (state.farms.isEmpty() && !state.loading && state.error == null) Text("No farms yet. Create one or accept an invitation.")
         state.farms.forEach { farm ->
             Button(onClick = { onOpen(farm.id) }, modifier = Modifier.fillMaxWidth()) {
                 Text("${farm.name} · ${farm.role}")
@@ -73,8 +82,7 @@ fun FarmListScreen(state: FarmUiState, onOpen: (String) -> Unit,
         OutlinedTextField(name, { name = it }, label = { Text("Name") }, modifier = Modifier.fillMaxWidth())
         OutlinedTextField(location, { location = it }, label = { Text("Location") }, modifier = Modifier.fillMaxWidth())
         Text("Coordinates are optional, but required for weather advisories.")
-        OutlinedTextField(zone, { zone = it }, label = { Text("Time zone (e.g., Asia/Manila)") },
-            modifier = Modifier.fillMaxWidth())
+        TimeZoneInput(zone, { zone = it }, enabled = !state.loading && !state.offline)
         OutlinedTextField(latitude, { latitude = it }, label = { Text("Latitude") },
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
             modifier = Modifier.fillMaxWidth())
@@ -102,7 +110,8 @@ fun FarmDetailScreen(state: FarmUiState, onBack: () -> Unit,
     onCrops: () -> Unit,
     onInventory: () -> Unit,
     onInvite: (String, Int) -> Unit,
-    onChangeRole: (FarmMemberDto, Int) -> Unit, onRemoveMember: (FarmMemberDto) -> Unit) {
+    onChangeRole: (FarmMemberDto, Int) -> Unit, onRemoveMember: (FarmMemberDto) -> Unit,
+    onTasks: () -> Unit = {}, onRetry: () -> Unit = {}) {
     val farm = state.selected
     val canManage = !state.offline && farm?.role in listOf("Owner", "Manager")
     val isOwner = !state.offline && farm?.role == "Owner"
@@ -115,12 +124,22 @@ fun FarmDetailScreen(state: FarmUiState, onBack: () -> Unit,
     var plotArea by rememberSaveable { mutableStateOf("") }
     var inviteEmail by rememberSaveable { mutableStateOf("") }
     var inviteRole by rememberSaveable { mutableStateOf(2) }
+    var section by rememberSaveable(farm?.id) { mutableStateOf("Overview") }
+    val visibleSection = if (section == "Settings" && !canManage) "Overview" else section
+    val sectionState = rememberSaveableStateHolder()
 
     FarmPage(farm?.name ?: "Farm") {
         OutlinedButton(onClick = onBack) { Text("All farms") }
-        Progress(state)
+        Progress(state, onRetry)
         if (farm != null) {
             Text("${farm.locationText} · ${farm.role}")
+            Row(Modifier.horizontalScroll(rememberScrollState()), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                (listOf("Overview", "Plots", "Members") + if (canManage) listOf("Settings") else emptyList()).forEach { item ->
+                    FilterChip(selected = visibleSection == item, onClick = { section = item }, label = { Text(item) })
+                }
+            }
+            if (visibleSection == "Overview") {
+            Button(onClick = onTasks) { Text("Farm tasks") }
             Button(onClick = onCrops) { Text("Crop management") }
             Button(onClick = onInventory) { Text("Inventory") }
             HorizontalDivider()
@@ -129,11 +148,11 @@ fun FarmDetailScreen(state: FarmUiState, onBack: () -> Unit,
             if (weather == null) {
                 Text(state.weatherMessage ?: "Weather information has not been loaded.")
             } else if (!weather.hasCoordinates) {
-                Text("Add both farm coordinates in Edit farm to enable weather checks.")
+                Text("An owner or manager can add coordinates in Settings to enable weather forecasts.")
             } else {
-                Text("Forecast time zone: ${weather.timeZoneId}. Saved by the weather worker.")
+                Text("Forecast time zone: ${weather.timeZoneId}. Latest saved forecast.")
                 if (weather.days.isEmpty()) {
-                    Text("No saved forecast yet. Check the worker and weather provider.")
+                    Text("No recent forecast is available. Try again later.")
                 } else {
                     weather.days.forEach { day ->
                         Text("${day.date}: ${day.minTemperatureC ?: "—"}–${day.maxTemperatureC ?: "—"} °C, " +
@@ -152,15 +171,15 @@ fun FarmDetailScreen(state: FarmUiState, onBack: () -> Unit,
                         color = MaterialTheme.colorScheme.error)
                 }
             }
-            if (canManage) {
+            }
+            if (canManage && visibleSection == "Settings") {
                 Text("Edit farm", style = MaterialTheme.typography.titleMedium)
                 OutlinedTextField(name, { name = it }, label = { Text("Name") },
                     modifier = Modifier.fillMaxWidth())
                 OutlinedTextField(location, { location = it }, label = { Text("Location") },
                     modifier = Modifier.fillMaxWidth())
                 Text("Weather checks need both coordinates and a valid time zone.")
-                OutlinedTextField(zone, { zone = it }, label = { Text("Time zone") },
-                    modifier = Modifier.fillMaxWidth())
+                TimeZoneInput(zone, { zone = it }, enabled = !state.loading)
                 OutlinedTextField(latitude, { latitude = it }, label = { Text("Latitude") },
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
                     modifier = Modifier.fillMaxWidth())
@@ -175,9 +194,12 @@ fun FarmDetailScreen(state: FarmUiState, onBack: () -> Unit,
                     enabled = !state.loading, onConfirm = onArchiveFarm)
             }
             HorizontalDivider()
+            if (visibleSection == "Plots") {
+            sectionState.SaveableStateProvider("plots-${farm.id}") {
             Text("Plots", style = MaterialTheme.typography.titleLarge)
             if (state.plots.isEmpty()) Text("No active plots.")
             state.plots.forEach { plot ->
+                key(plot.id) {
                 var editName by rememberSaveable(plot.id) { mutableStateOf(plot.name) }
                 var editArea by rememberSaveable(plot.id) { mutableStateOf(plot.areaSqMeters.toPlainString()) }
                 Text("${plot.name}: ${plot.areaSqMeters} m²")
@@ -196,6 +218,7 @@ fun FarmDetailScreen(state: FarmUiState, onBack: () -> Unit,
                         enabled = !state.loading, onConfirm = { onArchivePlot(plot) })
                 }
                 HorizontalDivider()
+                }
             }
             if (canManage) {
                 Text("Add plot", style = MaterialTheme.typography.titleMedium)
@@ -210,6 +233,9 @@ fun FarmDetailScreen(state: FarmUiState, onBack: () -> Unit,
                 }
             }
             HorizontalDivider()
+            }
+            }
+            if (visibleSection == "Members") {
             Text("Members", style = MaterialTheme.typography.titleLarge)
             state.members.forEach { member ->
                 Text("${member.fullName} · ${member.role}")
@@ -226,8 +252,9 @@ fun FarmDetailScreen(state: FarmUiState, onBack: () -> Unit,
                 Text("Invite registered user", style = MaterialTheme.typography.titleMedium)
                 OutlinedTextField(inviteEmail, { inviteEmail = it },
                     label = { Text("Registered email") }, modifier = Modifier.fillMaxWidth())
-                OutlinedButton(onClick = { inviteRole = if (inviteRole == 1) 2 else 1 }) {
-                    Text("Role: ${if (inviteRole == 1) "Manager" else "Field Worker"}")
+                listOf(1 to "Manager", 2 to "Field Worker").forEach { (role, label) ->
+                    FilterChip(selected = inviteRole == role, onClick = { inviteRole = role },
+                        enabled = !state.loading, label = { Text(label) })
                 }
                 Button(onClick = { onInvite(inviteEmail, inviteRole) },
                     enabled = !state.loading && inviteEmail.isNotBlank()) { Text("Create invitation") }
@@ -235,6 +262,7 @@ fun FarmDetailScreen(state: FarmUiState, onBack: () -> Unit,
                     Text("Share this token privately with ${it.email}. It expires in 24 hours.")
                     SelectionContainer { Text(it.token) }
                 }
+            }
             }
         }
     }

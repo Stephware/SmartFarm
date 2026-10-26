@@ -3,24 +3,30 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.AspNetCore.Mvc.ViewFeatures;
+using Microsoft.AspNetCore.Mvc.Routing;
+using System.Data.Common;
+using Microsoft.EntityFrameworkCore;
 
 namespace SmartFarm.Web.Filters;
 
-// Keep an API outage from turning every farm page into a developer exception screen.
-public sealed class ApiUnavailableFilter(
-    ILogger<ApiUnavailableFilter> logger, IWebHostEnvironment environment) : IExceptionFilter
+// Shared services and HTTP integrations must offer safe, context-aware recovery.
+public sealed class ApiUnavailableFilter(ILogger<ApiUnavailableFilter> logger) : IExceptionFilter
 {
     public void OnException(ExceptionContext context)
     {
-        if (context.Exception is not HttpRequestException error) return;
+        if (context.Exception is not (HttpRequestException or DbException or DbUpdateException { InnerException: DbException })) return;
 
-        logger.LogError(error, "SmartFarm API request failed (HTTP {Status})",
-            error.StatusCode is { } httpStatus ? (int)httpStatus : null);
+        logger.LogError(context.Exception, "SmartFarm data request failed for {Method} {Path}",
+            context.HttpContext.Request.Method, context.HttpContext.Request.Path);
+        var request = context.HttpContext.Request;
+        var path = request.PathBase + request.Path + request.QueryString;
+        var url = context.HttpContext.RequestServices.GetRequiredService<IUrlHelperFactory>().GetUrlHelper(context);
+        var isRead = HttpMethods.IsGet(request.Method);
         var viewData = new ViewDataDictionary(new EmptyModelMetadataProvider(), context.ModelState)
         {
             ["Title"] = "Farm data unavailable",
-            ["ApiStatus"] = error.StatusCode is { } status ? ((int)status).ToString() : null,
-            ["Development"] = environment.IsDevelopment()
+            ["RetryUrl"] = isRead && url.IsLocalUrl(path) ? path : null,
+            ["WriteUnconfirmed"] = !isRead
         };
         context.Result = new ViewResult
         {

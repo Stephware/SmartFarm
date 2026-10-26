@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material3.FilterChip
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.HorizontalDivider
@@ -43,9 +44,12 @@ private fun InventoryPage(title: String, content: @Composable () -> Unit) {
 }
 
 @Composable
-private fun Feedback(state: InventoryUiState) {
+private fun Feedback(state: InventoryUiState, onRetry: () -> Unit) {
     if (state.busy) CircularProgressIndicator()
-    state.error?.let { Text(it, color = MaterialTheme.colorScheme.error) }
+    state.error?.let {
+        Text(it, color = MaterialTheme.colorScheme.error)
+        OutlinedButton(onClick = onRetry, enabled = !state.busy) { Text("Try again") }
+    }
     OfflineDataNotice(state.offline, state.cachedAtUtcMillis)
             state.notice?.let { Text(it, color = MaterialTheme.colorScheme.primary) }
 }
@@ -56,7 +60,8 @@ fun InventoryListScreen(
     canManage: Boolean,
     onBack: () -> Unit,
     onOpen: (String) -> Unit,
-    onCreate: (String, Int, String, String, String) -> Unit
+    onCreate: (String, Int, String, String, String) -> Unit,
+    onRetry: () -> Unit = {}
 ) {
     var name by rememberSaveable { mutableStateOf("") }
     var category by rememberSaveable { mutableStateOf(1) }
@@ -66,7 +71,7 @@ fun InventoryListScreen(
 
     InventoryPage("Inventory") {
         OutlinedButton(onClick = onBack) { Text("Back to farm") }
-        Feedback(state)
+        Feedback(state, onRetry)
         Text("Low-stock items: ${state.workspace.lowStockCount}")
         if (state.workspace.items.isEmpty()) Text("No inventory items yet.")
         state.workspace.items.forEach { item ->
@@ -80,9 +85,8 @@ fun InventoryListScreen(
             Text("Create stock item", style = MaterialTheme.typography.titleLarge)
             OutlinedTextField(name, { name = it }, enabled = !state.busy, label = { Text("Name") }, modifier = Modifier.fillMaxWidth())
             listOf("Seeds", "Fertilizers", "Pesticides", "Other").forEachIndexed { index, label ->
-                OutlinedButton(onClick = { category = index + 1 }) {
-                    Text("${if (category == index + 1) "✓ " else ""}$label")
-                }
+                FilterChip(selected = category == index + 1, onClick = { category = index + 1 },
+                        enabled = !state.busy, label = { Text(label) })
             }
             OutlinedTextField(unit, { unit = it }, enabled = !state.busy, label = { Text("Unit (kg, L, pcs)") },
                 modifier = Modifier.fillMaxWidth())
@@ -107,7 +111,8 @@ fun InventoryItemScreen(
     onMovement: (Int, String, String?, String) -> Unit,
     onReverse: (String, String) -> Unit,
     pending: List<PendingOperation> = emptyList(),
-    onSync: () -> Unit = {}
+    onSync: () -> Unit = {},
+    onRetry: () -> Unit = {}
 ) {
     val item = state.item
     var name by rememberSaveable(item?.id) { mutableStateOf(item?.name.orEmpty()) }
@@ -129,7 +134,7 @@ fun InventoryItemScreen(
     }
     InventoryPage(item?.name ?: "Inventory item") {
         OutlinedButton(onClick = onBack) { Text("Inventory list") }
-        Feedback(state)
+        Feedback(state, onRetry)
         if (item != null) {
             Text("${item.quantityOnHand} ${item.unit}", style = MaterialTheme.typography.headlineSmall)
             if (item.isLowStock) Text("Low stock", color = MaterialTheme.colorScheme.error)
@@ -139,9 +144,8 @@ fun InventoryItemScreen(
                 Text("Item details", style = MaterialTheme.typography.titleMedium)
                 OutlinedTextField(name, { name = it }, enabled = !state.busy, label = { Text("Name") }, modifier = Modifier.fillMaxWidth())
                 listOf("Seeds", "Fertilizers", "Pesticides", "Other").forEachIndexed { index, label ->
-                    OutlinedButton(onClick = { category = index + 1 }) {
-                        Text("${if (category == index + 1) "✓ " else ""}$label")
-                    }
+                    FilterChip(selected = category == index + 1, onClick = { category = index + 1 },
+                        enabled = !state.busy, label = { Text(label) })
                 }
                 OutlinedTextField(unit, { unit = it }, enabled = !state.busy, label = { Text("Unit") })
                 OutlinedTextField(description, { description = it }, enabled = !state.busy, label = { Text("Description") })
@@ -159,22 +163,20 @@ fun InventoryItemScreen(
                 Text("Stock movement", style = MaterialTheme.typography.titleMedium)
                 if (canManage) {
                     listOf(2 to "Receipt", 4 to "Adjustment").forEach { (type, label) ->
-                        OutlinedButton(onClick = { movementType = type }, enabled = !state.busy) {
-                            Text("${if (movementType == type) "✓ " else ""}$label")
-                        }
+                        FilterChip(selected = movementType == type, onClick = { movementType = type },
+                        enabled = !state.busy, label = { Text(label) })
                     }
                 }
-                OutlinedButton(onClick = { movementType = 3 }, enabled = !state.busy) {
-                    Text("${if (movementType == 3) "✓ " else ""}Consumption")
-                }
-                OutlinedTextField(amount, { amount = it }, enabled = !state.busy, label = { Text("Signed quantity (+/-)") },
+                FilterChip(selected = movementType == 3, onClick = { movementType = 3 },
+                        enabled = !state.busy, label = { Text("Consumption") })
+                OutlinedTextField(amount, { amount = it }, enabled = !state.busy, label = { Text(if (movementType == 4) "Adjustment quantity (+/- ${item.unit})" else "Quantity (${item.unit})") },
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal))
+                Text(if (movementType == 3) "Enter the positive amount used; it will be subtracted from stock." else if (movementType == 2) "Enter the positive amount received." else "Positive adds stock; negative removes stock.")
                 if (movementType == 3) {
                     Text("Choose the related active-crop activity:")
                     state.activities.forEach { activity ->
-                        OutlinedButton(onClick = { selectedActivity = activity.id }, enabled = !state.busy) {
-                            Text("${if (selectedActivity == activity.id) "✓ " else ""}${activity.label}")
-                        }
+                        FilterChip(selected = selectedActivity == activity.id, onClick = { selectedActivity = activity.id },
+                        enabled = !state.busy, label = { Text(activity.label) })
                     }
                 }
                 OutlinedTextField(reason, { reason = it }, enabled = !state.busy, label = { Text("Reason (required for adjustments)") })

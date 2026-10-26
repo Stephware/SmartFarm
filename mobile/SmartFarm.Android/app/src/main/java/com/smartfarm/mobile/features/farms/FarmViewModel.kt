@@ -59,7 +59,8 @@ class FarmViewModel(
     }
 
     fun loadDetail(farmId: String) {
-        mutable.value = FarmUiState(loading = true)
+        mutable.value = if (mutable.value.selected?.id == farmId)
+            mutable.value.copy(loading = true, error = null) else FarmUiState(loading = true)
         viewModelScope.launch {
             try {
                 val farm = repo.farmSnapshot(farmId)
