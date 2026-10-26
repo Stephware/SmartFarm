@@ -29,6 +29,7 @@ import androidx.compose.foundation.text.selection.SelectionContainer
 import com.smartfarm.mobile.data.remote.dto.FarmMemberDto
 import com.smartfarm.mobile.data.remote.dto.PlotDto
 import com.smartfarm.mobile.ui.components.OfflineDataNotice
+import com.smartfarm.mobile.ui.components.ConfirmActionButton
 
 @Composable
 private fun FarmPage(title: String, content: @Composable () -> Unit) {
@@ -169,9 +170,9 @@ fun FarmDetailScreen(state: FarmUiState, onBack: () -> Unit,
                 Button(onClick = { onSaveFarm(name, location, zone, latitude, longitude) },
                     enabled = !state.loading && zone.isNotBlank() &&
                         (latitude.isBlank() == longitude.isBlank())) { Text("Save farm") }
-                if (isOwner) OutlinedButton(onClick = onArchiveFarm, enabled = !state.loading) {
-                    Text("Archive farm")
-                }
+                if (isOwner) ConfirmActionButton("Archive farm",
+                    "Archive ${farm.name}? Its history will be retained, and it will leave your active farms.",
+                    enabled = !state.loading, onConfirm = onArchiveFarm)
             }
             HorizontalDivider()
             Text("Plots", style = MaterialTheme.typography.titleLarge)
@@ -191,9 +192,8 @@ fun FarmDetailScreen(state: FarmUiState, onBack: () -> Unit,
                         enabled = !state.loading && editName.isNotBlank() && editArea.isNotBlank()) {
                         Text("Save plot")
                     }
-                    OutlinedButton(onClick = { onArchivePlot(plot) }, enabled = !state.loading) {
-                        Text("Archive plot")
-                    }
+                    ConfirmActionButton("Archive plot", "Archive ${plot.name}? Its history will be retained.",
+                        enabled = !state.loading, onConfirm = { onArchivePlot(plot) })
                 }
                 HorizontalDivider()
             }
@@ -214,12 +214,12 @@ fun FarmDetailScreen(state: FarmUiState, onBack: () -> Unit,
             state.members.forEach { member ->
                 Text("${member.fullName} · ${member.role}")
                 if (isOwner) {
-                    Button(onClick = { onChangeRole(member, if (member.role == "Manager") 2 else 1) },
-                        enabled = !state.loading) {
-                        Text(if (member.role == "Manager") "Set Field Worker" else "Set Manager")
-                    }
-                    OutlinedButton(onClick = { onRemoveMember(member) },
-                        enabled = !state.loading) { Text("Remove member") }
+                    ConfirmActionButton(if (member.role == "Manager") "Set Field Worker" else "Set Manager",
+                        "Change the role for ${member.fullName}? Their available farm actions will change.",
+                        enabled = !state.loading,
+                        onConfirm = { onChangeRole(member, if (member.role == "Manager") 2 else 1) })
+                    ConfirmActionButton("Remove member", "Remove ${member.fullName} from ${farm.name}? They will lose access.",
+                        enabled = !state.loading, onConfirm = { onRemoveMember(member) })
                 }
             }
             if (isOwner) {

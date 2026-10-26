@@ -20,9 +20,9 @@
     }
     @if (isOwner)
     {
-        <form asp-action="Archive" asp-route-id="@Model.Farm.Id" method="post" class="inline">
+        <form asp-action="Archive" asp-route-id="@Model.Farm.Id" method="post" class="inline" data-confirm="Archive @Model.Farm.Name? Its plots and records will no longer appear in active farms.">
             <input type="hidden" name="rowVersion" value="@Model.Farm.RowVersion" />
-            <button type="submit" onclick="return confirm('Archive this farm?')">Archive farm</button>
+            <button type="submit">Archive farm</button>
         </form>
     }
 </section>
@@ -44,9 +44,9 @@
                 @if (canManage)
                 {
                     <a asp-action="EditPlot" asp-route-id="@Model.Farm.Id" asp-route-plotId="@plot.Id">Edit</a>
-                    <form asp-action="ArchivePlot" asp-route-id="@Model.Farm.Id" asp-route-plotId="@plot.Id" method="post" class="inline">
+                    <form asp-action="ArchivePlot" asp-route-id="@Model.Farm.Id" asp-route-plotId="@plot.Id" method="post" class="inline" data-confirm="Archive @plot.Name? Its history will be retained.">
                         <input type="hidden" name="rowVersion" value="@plot.RowVersion" />
-                        <button type="submit" onclick="return confirm('Archive plot?')">Archive</button>
+                        <button type="submit">Archive</button>
                     </form>
                 }
             </li>
@@ -73,7 +73,7 @@
                 <strong>@member.FullName</strong> — @member.Role
                 @if (isOwner)
                 {
-                    <form asp-action="ChangeRole" asp-route-id="@Model.Farm.Id" asp-route-memberId="@member.Id" method="post" class="inline">
+                    <form asp-action="ChangeRole" asp-route-id="@Model.Farm.Id" asp-route-memberId="@member.Id" method="post" class="inline" data-confirm="Change the role for @member.FullName? Their available farm actions will change.">
                         <label class="visually-hidden" for="role-@member.Id">Role for @member.FullName</label>
                         <select id="role-@member.Id" name="Role">
                             @if (member.Role == "Manager")
@@ -89,8 +89,8 @@
                         </select>
                         <button type="submit">Update role</button>
                     </form>
-                    <form asp-action="RemoveMember" asp-route-id="@Model.Farm.Id" asp-route-memberId="@member.Id" method="post" class="inline">
-                        <button type="submit" onclick="return confirm('Remove this member?')">Remove</button>
+                    <form asp-action="RemoveMember" asp-route-id="@Model.Farm.Id" asp-route-memberId="@member.Id" method="post" class="inline" data-confirm="Remove @member.FullName from @Model.Farm.Name? They will lose access.">
+                        <button type="submit">Remove</button>
                     </form>
                 }
             </li>

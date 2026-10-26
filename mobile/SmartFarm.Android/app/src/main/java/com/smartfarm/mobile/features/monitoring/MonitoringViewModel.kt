@@ -93,7 +93,7 @@ class MonitoringViewModel(private val repository: MonitoringRepository,
         uri: Uri?, resolver: ContentResolver) = submit { farmId, cycleId ->
         val input = ObservationInputDto(health,
             growth.trim().ifBlank { null }, notes.trim().ifBlank { null })
-        if (uri is null) sync.queueObservation(farmId, cycleId, input)
+        if (uri == null) sync.queueObservation(farmId, cycleId, input)
         else sync.queueObservationWithPhoto(farmId, cycleId, input, uri, resolver)
     }
 

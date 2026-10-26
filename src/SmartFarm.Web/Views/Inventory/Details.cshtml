@@ -23,9 +23,9 @@
         <a asp-action="Edit" asp-route-farmId="@Model.Farm.Id" asp-route-itemId="@item.Id">Edit item</a>
         @if (item.QuantityOnHand == 0)
         {
-            <form asp-action="Archive" asp-route-farmId="@Model.Farm.Id" asp-route-itemId="@item.Id" method="post">
+            <form asp-action="Archive" asp-route-farmId="@Model.Farm.Id" asp-route-itemId="@item.Id" method="post" data-confirm="Archive @item.Name? Its transaction history will be retained.">
                 <input type="hidden" name="rowVersion" value="@item.RowVersion" />
-                <button type="submit" onclick="return confirm('Archive this zero-stock item?')">Archive item</button>
+                <button type="submit">Archive item</button>
             </form>
         }
     }
@@ -78,7 +78,7 @@
                       !reversedIds.Contains(transaction.Id))
                 {
                     <form asp-action="Reverse" asp-route-farmId="@Model.Farm.Id"
-                          asp-route-itemId="@item.Id" asp-route-transactionId="@transaction.Id" method="post">
+                          asp-route-itemId="@item.Id" asp-route-transactionId="@transaction.Id" method="post" data-confirm="Reverse @transaction.QuantityChange @item.Unit for @item.Name? This will change the stock balance.">
                         <input type="hidden" name="RowVersion" value="@item.RowVersion" />
                         <label for="reversal-@transaction.Id">Reversal reason</label>
                         <input id="reversal-@transaction.Id" name="Reason" minlength="3" maxlength="300" required />

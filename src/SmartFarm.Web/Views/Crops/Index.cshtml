@@ -94,7 +94,7 @@
             {
                 <a asp-action="EditPlan" asp-route-farmId="@Model.Farm.Id" asp-route-cycleId="@cycle.Id">Edit plan</a>
                 <form asp-action="Transition" asp-route-farmId="@Model.Farm.Id"
-                      asp-route-cycleId="@cycle.Id" method="post">
+                      asp-route-cycleId="@cycle.Id" method="post" data-confirm="Mark as planted: @cycle.CropTypeName on @cycle.PlotName? Review the dates and reason before continuing.">
                     <input type="hidden" name="Transition.RowVersion" value="@cycle.RowVersion" />
                     <input type="hidden" name="Transition.Status" value="Active" />
                     <label for="Transition_PlantedDate_@cycle.Id">Actual planting date</label><input id="Transition_PlantedDate_@cycle.Id" type="date" name="Transition.PlantedDate" value="@(Model.TransitionCycleId == cycle.Id ? Model.Transition.PlantedDate?.ToString("yyyy-MM-dd") : null)" required />
@@ -104,7 +104,7 @@
             @if (canManage && cycle.Status == CropCycleStatus.Active)
             {
                 <form asp-action="Transition" asp-route-farmId="@Model.Farm.Id"
-                      asp-route-cycleId="@cycle.Id" method="post">
+                      asp-route-cycleId="@cycle.Id" method="post" data-confirm="Complete: @cycle.CropTypeName on @cycle.PlotName? Review the dates and reason before continuing.">
                     <input type="hidden" name="Transition.RowVersion" value="@cycle.RowVersion" />
                     <input type="hidden" name="Transition.Status" value="Completed" />
                     <button type="submit">Complete crop cycle</button>
@@ -113,7 +113,7 @@
             @if (canManage && cycle.Status is CropCycleStatus.Active or CropCycleStatus.Planned)
             {
                 <form asp-action="Transition" asp-route-farmId="@Model.Farm.Id"
-                      asp-route-cycleId="@cycle.Id" method="post">
+                      asp-route-cycleId="@cycle.Id" method="post" data-confirm="Cancel: @cycle.CropTypeName on @cycle.PlotName? Review the dates and reason before continuing.">
                     <input type="hidden" name="Transition.RowVersion" value="@cycle.RowVersion" />
                     <input type="hidden" name="Transition.Status" value="Cancelled" />
                     <label for="Transition_TerminationReason_@cycle.Id">Cancellation reason</label><input id="Transition_TerminationReason_@cycle.Id" name="Transition.TerminationReason" value="@(Model.TransitionCycleId == cycle.Id && Model.Transition.Status == CropCycleStatus.Cancelled ? Model.Transition.TerminationReason : null)" maxlength="300" required />
@@ -123,7 +123,7 @@
             @if (canManage && cycle.Status == CropCycleStatus.Active)
             {
                 <form asp-action="Transition" asp-route-farmId="@Model.Farm.Id"
-                      asp-route-cycleId="@cycle.Id" method="post">
+                      asp-route-cycleId="@cycle.Id" method="post" data-confirm="Mark failed: @cycle.CropTypeName on @cycle.PlotName? Review the dates and reason before continuing.">
                     <input type="hidden" name="Transition.RowVersion" value="@cycle.RowVersion" />
                     <input type="hidden" name="Transition.Status" value="Failed" />
                     <label for="Transition_FailureReason_@cycle.Id">Failure reason</label><input id="Transition_FailureReason_@cycle.Id" name="Transition.TerminationReason" value="@(Model.TransitionCycleId == cycle.Id && Model.Transition.Status == CropCycleStatus.Failed ? Model.Transition.TerminationReason : null)" maxlength="300" required />
