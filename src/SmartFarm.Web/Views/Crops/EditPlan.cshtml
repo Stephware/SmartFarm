@@ -7,7 +7,6 @@
     <p>@Model.Cycle.PlotName · @Model.Cycle.CropTypeName</p>
     <form asp-action="EditPlan" asp-route-farmId="@Model.Farm.Id"
           asp-route-cycleId="@Model.Cycle.Id" method="post">
-        <div asp-validation-summary="All" class="error"></div>
         <input type="hidden" asp-for="Input.RowVersion" />
         <label asp-for="Input.CropTypeId">Crop type</label>
         <select asp-for="Input.CropTypeId">

@@ -5,7 +5,6 @@
 <section class="panel narrow">
     <h1>Create farm</h1>
     <form asp-action="Create" method="post">
-        <div asp-validation-summary="All" class="error"></div>
         <label asp-for="Name"></label><input asp-for="Name" required maxlength="120" /><span asp-validation-for="Name" class="error"></span>
         <label asp-for="LocationText">Location</label><input asp-for="LocationText" required maxlength="250" /><span asp-validation-for="LocationText" class="error"></span>
         <label asp-for="TimeZoneId">Time zone</label><input asp-for="TimeZoneId" required maxlength="64" /><span asp-validation-for="TimeZoneId" class="error"></span>

@@ -33,47 +33,57 @@ public sealed class CropsController : Controller
     private Guid Actor => Guid.TryParse(_users.GetUserId(User), out var id) ? id : Guid.Empty;
 
     [HttpGet]
-    public async Task<IActionResult> Index(Guid farmId, CancellationToken ct)
+    public Task<IActionResult> Index(Guid farmId, CancellationToken ct) => Workspace(farmId, ct);
+
+    private async Task<IActionResult> Workspace(Guid farmId, CancellationToken ct,
+        CropTypeInput? cropType = null, CropCyclePlanInput? plan = null, Guid? plotId = null,
+        CropCycleTransitionInput? transition = null, Guid? cycleId = null)
     {
         var farm = await _farms.GetAsync(farmId, Actor, ct);
         if (farm is null) return NotFound();
 
-        return View(new CropWorkspaceViewModel(
+        return View("Index", new CropWorkspaceViewModel(
             farm, await _farms.ListPlotsAsync(farmId, Actor, ct),
             await _crops.ListCropTypesAsync(farmId, Actor, ct),
-            await _crops.ListCyclesAsync(farmId, Actor, ct)));
+            await _crops.ListCyclesAsync(farmId, Actor, ct))
+        {
+            CropType = cropType ?? new(), Plan = plan ?? new(), PlanPlotId = plotId,
+            Transition = transition ?? new(), TransitionCycleId = cycleId
+        });
     }
 
     [HttpPost, ValidateAntiForgeryToken]
-    public async Task<IActionResult> CreateCropType(Guid farmId, CropTypeInput input, CancellationToken ct)
+    public async Task<IActionResult> CreateCropType(Guid farmId,
+        [Bind(Prefix = "CropType")] CropTypeInput input, CancellationToken ct)
     {
         if (!ModelState.IsValid)
         {
-            TempData["Error"] = "Check the crop type name, units and optional durations.";
-            return RedirectToAction(nameof(Index), new { farmId });
+            return await Workspace(farmId, ct, cropType: input);
         }
         try { await _crops.CreateCropTypeAsync(farmId, Actor, input, ct); }
         catch (FarmOperationException e)
         {
             if (e.Error == FarmError.NotFound) return NotFound();
-            TempData["Error"] = e.Message;
+            ModelState.AddModelError("", e.Message);
+            return await Workspace(farmId, ct, cropType: input);
         }
         return RedirectToAction(nameof(Index), new { farmId });
     }
 
     [HttpPost, ValidateAntiForgeryToken]
-    public async Task<IActionResult> Plan(Guid farmId, Guid plotId, CropCyclePlanInput input, CancellationToken ct)
+    public async Task<IActionResult> Plan(Guid farmId, Guid plotId,
+        [Bind(Prefix = "Plan")] CropCyclePlanInput input, CancellationToken ct)
     {
         if (!ModelState.IsValid)
         {
-            TempData["Error"] = "Choose a crop type, planting date, and valid plan details.";
-            return RedirectToAction(nameof(Index), new { farmId });
+            return await Workspace(farmId, ct, plan: input, plotId: plotId);
         }
         try { await _crops.PlanAsync(farmId, plotId, Actor, input, ct); }
         catch (FarmOperationException e)
         {
             if (e.Error == FarmError.NotFound) return NotFound();
-            TempData["Error"] = e.Message;
+            ModelState.AddModelError("", e.Message);
+            return await Workspace(farmId, ct, plan: input, plotId: plotId);
         }
         return RedirectToAction(nameof(Index), new { farmId });
     }
@@ -104,8 +114,7 @@ public sealed class CropsController : Controller
     {
         if (!ModelState.IsValid)
         {
-            TempData["Error"] = "Check the plan details before saving.";
-            return RedirectToAction(nameof(Index), new { farmId });
+            return await InvalidEditPlan(farmId, cycleId, input, ct);
         }
 
         try
@@ -115,25 +124,38 @@ public sealed class CropsController : Controller
         catch (FarmOperationException e)
         {
             if (e.Error == FarmError.NotFound) return NotFound();
-            TempData["Error"] = e.Message;
+            ModelState.AddModelError("", e.Message);
+            return await InvalidEditPlan(farmId, cycleId, input, ct);
         }
         return RedirectToAction(nameof(Index), new { farmId });
     }
 
+    private async Task<IActionResult> InvalidEditPlan(Guid farmId, Guid cycleId,
+        CropCyclePlanInput input, CancellationToken ct)
+    {
+        var result = await EditPlan(farmId, cycleId, ct);
+        if (result is ViewResult view && view.Model is CropPlanEditViewModel model)
+        {
+            view.ViewName = "EditPlan";
+            view.ViewData.Model = model with { Input = input };
+        }
+        return result;
+    }
+
     [HttpPost, ValidateAntiForgeryToken]
     public async Task<IActionResult> Transition(Guid farmId, Guid cycleId,
-        CropCycleTransitionInput input, CancellationToken ct)
+        [Bind(Prefix = "Transition")] CropCycleTransitionInput input, CancellationToken ct)
     {
         if (!ModelState.IsValid)
         {
-            TempData["Error"] = "Please provide valid crop status information.";
-            return RedirectToAction(nameof(Index), new { farmId });
+            return await Workspace(farmId, ct, transition: input, cycleId: cycleId);
         }
         try { await _crops.TransitionAsync(farmId, cycleId, Actor, input, ct); }
         catch (FarmOperationException e)
         {
             if (e.Error == FarmError.NotFound) return NotFound();
-            TempData["Error"] = e.Message;
+            ModelState.AddModelError("", e.Message);
+            return await Workspace(farmId, ct, transition: input, cycleId: cycleId);
         }
         return RedirectToAction(nameof(Index), new { farmId });
     }

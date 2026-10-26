@@ -6,5 +6,9 @@ namespace SmartFarm.Web.ViewModels.Monitoring;
 
 public sealed record MonitoringWorkspaceViewModel(
     CropCycleDetails Cycle, MonitoringDetails Monitoring,
-    IReadOnlyList<FarmTaskDetails> Tasks);
+    IReadOnlyList<FarmTaskDetails> Tasks)
+{
+    public RecordActivityInput Activity { get; init; } = new() { ActivityType = 1 };
+    public RecordObservationInput Observation { get; init; } = new();
+}
 

@@ -37,51 +37,58 @@ public sealed class MonitoringController : Controller
         ? id : Guid.Empty;
 
     [HttpGet]
-    public async Task<IActionResult> Index(Guid farmId, Guid cycleId, CancellationToken ct)
+    public Task<IActionResult> Index(Guid farmId, Guid cycleId, CancellationToken ct) =>
+        Workspace(farmId, cycleId, ct);
+
+    private async Task<IActionResult> Workspace(Guid farmId, Guid cycleId, CancellationToken ct,
+        RecordActivityInput? activity = null, RecordObservationInput? observation = null)
     {
         try
         {
             var cycle = await _crops.GetCycleAsync(farmId, cycleId, Actor, ct);
             if (cycle is null) return NotFound();
-            return View(new MonitoringWorkspaceViewModel(cycle,
+            return View("Index", new MonitoringWorkspaceViewModel(cycle,
                 await _monitoring.GetAsync(farmId, cycleId, Actor, ct),
-                await _tasks.ListAsync(farmId, Actor, ct)));
+                await _tasks.ListAsync(farmId, Actor, ct))
+            {
+                Activity = activity ?? new() { ActivityType = 1 }, Observation = observation ?? new()
+            });
         }
         catch (FarmOperationException) { return NotFound(); }
     }
 
     [HttpPost, ValidateAntiForgeryToken]
     public async Task<IActionResult> Activity(Guid farmId, Guid cycleId,
-        RecordActivityInput input, CancellationToken ct)
+        [Bind(Prefix = "Activity")] RecordActivityInput input, CancellationToken ct)
     {
         if (!ModelState.IsValid)
         {
-            TempData["Error"] = "Choose a valid activity and notes.";
-            return RedirectToAction(nameof(Index), new { farmId, cycleId });
+            return await Workspace(farmId, cycleId, ct, activity: input);
         }
         try { await _monitoring.RecordActivityAsync(farmId, cycleId, Actor, input, ct); }
         catch (FarmOperationException error)
         {
             if (error.Error == FarmError.NotFound) return NotFound();
-            TempData["Error"] = error.Message;
+            ModelState.AddModelError("", error.Message);
+            return await Workspace(farmId, cycleId, ct, activity: input);
         }
         return RedirectToAction(nameof(Index), new { farmId, cycleId });
     }
 
     [HttpPost, ValidateAntiForgeryToken]
     public async Task<IActionResult> Observation(Guid farmId, Guid cycleId,
-        RecordObservationInput input, CancellationToken ct)
+        [Bind(Prefix = "Observation")] RecordObservationInput input, CancellationToken ct)
     {
         if (!ModelState.IsValid)
         {
-            TempData["Error"] = "Choose valid health status, stage and notes.";
-            return RedirectToAction(nameof(Index), new { farmId, cycleId });
+            return await Workspace(farmId, cycleId, ct, observation: input);
         }
         try { await _monitoring.RecordObservationAsync(farmId, cycleId, Actor, input, ct); }
         catch (FarmOperationException error)
         {
             if (error.Error == FarmError.NotFound) return NotFound();
-            TempData["Error"] = error.Message;
+            ModelState.AddModelError("", error.Message);
+            return await Workspace(farmId, cycleId, ct, observation: input);
         }
         return RedirectToAction(nameof(Index), new { farmId, cycleId });
     }

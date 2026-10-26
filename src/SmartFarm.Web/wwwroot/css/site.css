@@ -16,6 +16,9 @@ button:hover, .button:hover { background: #13522d; }
 .link-button { background: none; color: #1b663d; padding: 0; text-decoration: underline; }
 .inline { display: inline; }
 .error { color: #a10b22; }
+.error a { color: inherit; }
+.validation-summary { border-left: 4px solid #a10b22; padding: 1px 16px; margin-bottom: 20px; }
+.visually-hidden { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; border: 0; }
 .hint { font-size: .85rem; color: #5d7161; }
 
 
