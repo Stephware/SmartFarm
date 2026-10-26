@@ -26,6 +26,7 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import com.smartfarm.mobile.data.remote.dto.InventoryTransactionDto
 import com.smartfarm.mobile.ui.components.OfflineDataNotice
+import com.smartfarm.mobile.ui.components.ConfirmActionButton
 
 @Composable
 private fun InventoryPage(title: String, content: @Composable () -> Unit) {
@@ -137,7 +138,8 @@ fun InventoryItemScreen(
                 Button(onClick = { onSave(name, category, unit, description, reorder) },
                     enabled = !state.busy) { Text("Save item details") }
                 if (item.quantityOnHand.signum() == 0) {
-                    OutlinedButton(onClick = onArchive, enabled = !state.busy) { Text("Archive item") }
+                    ConfirmActionButton("Archive item", "Archive ${item.name}? Its transaction history will be retained.",
+                        enabled = !state.busy, onConfirm = onArchive)
                 }
             }
             if (item.archivedAtUtc == null) {
@@ -188,10 +190,10 @@ fun InventoryItemScreen(
                     transaction.transactionType != 5 && transaction.id !in reversedIds) {
                     OutlinedTextField(reversalReason, { reversalReason = it },
                         label = { Text("Reversal reason") })
-                    OutlinedButton(onClick = { onReverse(transaction.id, reversalReason) },
-                        enabled = !state.busy && reversalReason.trim().length >= 3) {
-                        Text("Reverse this transaction")
-                    }
+                    ConfirmActionButton("Reverse this transaction",
+                        "Reverse ${transaction.quantityChange} ${item.unit} for ${item.name}? This changes the stock balance.",
+                        enabled = !state.busy && reversalReason.trim().length >= 3,
+                        onConfirm = { onReverse(transaction.id, reversalReason) })
                 }
                 HorizontalDivider()
             }

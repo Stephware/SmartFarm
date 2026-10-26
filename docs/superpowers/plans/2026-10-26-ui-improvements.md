@@ -33,10 +33,10 @@
 
 **Interfaces:** Keep service contracts; bind each multi-form input with its own prefix. Re-render the same authorized workspace on validation/business errors, redirect only on success.
 
-- [ ] Write HTTP tests for failed crop planning and monitoring forms, including attempted values and authorization.
-- [ ] Run tests (expected: failure due to redirect/lost values).
-- [ ] Preserve model state and form drafts, add field errors and focused linked summaries, associate repeated labels with unique controls.
-- [ ] Run .NET tests and diff checks; review, commit, push, create and merge PR.
+- [x] Write HTTP tests for failed crop planning and monitoring forms, including attempted values and authorization.
+- [x] Run tests (expected: failure due to redirect/lost values).
+- [x] Preserve model state and form drafts, add field errors and focused linked summaries, associate repeated labels with unique controls.
+- [x] Run .NET tests and diff checks; review, commit, push, create and merge PR.
 
 ### Task 2: Safe consequential actions
 
@@ -44,9 +44,9 @@
 
 **Interfaces:** Keep existing callbacks. Confirmation only invokes them after explicit approval; cancellation does nothing.
 
-- [ ] Write Compose tests for confirm/cancel behavior and disabled busy state; run RED.
-- [ ] Add named confirmations, preserve existing harvest/crop dialog patterns, distinguish dangerous actions.
-- [ ] Build Android, run unit and available device tests; review and merge PR.
+- [x] Write Compose tests for confirm/cancel behavior and disabled busy state; run RED.
+- [x] Add named confirmations, preserve existing harvest/crop dialog patterns, distinguish dangerous actions.
+- [x] Build Android, run unit and available device tests; review and merge PR.
 
 ### Task 3: Android drafts and offline feedback
 
