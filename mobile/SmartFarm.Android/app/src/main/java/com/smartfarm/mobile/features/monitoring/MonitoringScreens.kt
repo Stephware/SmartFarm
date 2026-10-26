@@ -5,6 +5,8 @@ import androidx.core.content.FileProvider
 import androidx.compose.ui.platform.LocalContext
 import java.io.File
 import java.util.UUID
+import com.smartfarm.mobile.data.local.entity.PendingOperation
+import com.smartfarm.mobile.ui.components.PendingRecords
 import com.smartfarm.mobile.ui.components.OfflineDataNotice
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -23,6 +25,7 @@ import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -41,17 +44,35 @@ fun MonitoringScreen(
     onActivity: (Int, String) -> Unit,
     onObservation: (Int, String, String, Uri?) -> Unit,
     onUpload: (String, Uri) -> Unit,
-    onPreview: (String) -> Unit
+    onPreview: (String) -> Unit,
+    pending: List<PendingOperation> = emptyList(),
+    onSync: () -> Unit = {}
 ) {
-    var activityType by rememberSaveable { mutableStateOf(1) }
-    var activityNotes by rememberSaveable { mutableStateOf("") }
-    var health by rememberSaveable { mutableStateOf(0) }
-    var stage by rememberSaveable { mutableStateOf("") }
-    var observationNotes by rememberSaveable { mutableStateOf("") }
-    var targetObservation by remember { mutableStateOf<String?>(null) }
-    var newPhoto by remember { mutableStateOf<Uri?>(null) }
-    var cameraUri by remember { mutableStateOf<Uri?>(null) }
-    var cameraFile by remember { mutableStateOf<File?>(null) }
+    var activityType by rememberSaveable(state.farmId, state.cycleId) { mutableStateOf(1) }
+    var activityNotes by rememberSaveable(state.farmId, state.cycleId) { mutableStateOf("") }
+    var health by rememberSaveable(state.farmId, state.cycleId) { mutableStateOf(0) }
+    var stage by rememberSaveable(state.farmId, state.cycleId) { mutableStateOf("") }
+    var observationNotes by rememberSaveable(state.farmId, state.cycleId) { mutableStateOf("") }
+    var targetObservation by rememberSaveable(state.farmId, state.cycleId) { mutableStateOf<String?>(null) }
+    var newPhoto by rememberSaveable(state.farmId, state.cycleId) { mutableStateOf<Uri?>(null) }
+    var cameraUri by rememberSaveable(state.farmId, state.cycleId) { mutableStateOf<Uri?>(null) }
+    var cameraPath by rememberSaveable(state.farmId, state.cycleId) { mutableStateOf<String?>(null) }
+    val activityReceipt = state.saveReceipts["${state.farmId}/${state.cycleId}/activity"]
+    val observationReceipt = state.saveReceipts["${state.farmId}/${state.cycleId}/observation"]
+    var handledActivity by rememberSaveable(state.farmId, state.cycleId) { mutableStateOf(activityReceipt) }
+    var handledObservation by rememberSaveable(state.farmId, state.cycleId) { mutableStateOf(observationReceipt) }
+    LaunchedEffect(activityReceipt) {
+        if (activityReceipt != null && activityReceipt != handledActivity) {
+            activityNotes = ""
+            handledActivity = activityReceipt
+        }
+    }
+    LaunchedEffect(observationReceipt) {
+        if (observationReceipt != null && observationReceipt != handledObservation) {
+            newPhoto = null; observationNotes = ""; stage = ""
+            handledObservation = observationReceipt
+        }
+    }
     val context = LocalContext.current
     val picker = rememberLauncherForActivityResult(ActivityResultContracts.GetContent()) { uri ->
         if (uri != null) {
@@ -66,7 +87,7 @@ fun MonitoringScreen(
             val target = targetObservation
             if (target != null) onUpload(target, uri) else newPhoto = uri
         } else {
-            cameraFile?.delete()
+            cameraPath?.let { File(it).delete() }
         }
         targetObservation = null
         cameraUri = null
@@ -75,7 +96,7 @@ fun MonitoringScreen(
         val folder = File(context.filesDir, "camera").apply { mkdirs() }
         val file = File(folder, "capture-${UUID.randomUUID()}.jpg")
         val uri = FileProvider.getUriForFile(context, "${context.packageName}.photos", file)
-        cameraFile = file
+        cameraPath = file.absolutePath
         cameraUri = uri
         targetObservation = target
         camera.launch(uri)
@@ -96,11 +117,11 @@ fun MonitoringScreen(
                 Text("Record farm activity", style = MaterialTheme.typography.titleLarge)
                 val activities = listOf("Watering", "Fertilizing", "Pesticide", "Weeding", "Other")
                 activities.forEachIndexed { index, label ->
-                    OutlinedButton(onClick = { activityType = index + 1 }) {
+                    OutlinedButton(onClick = { activityType = index + 1 }, enabled = !state.busy) {
                         Text("${if (activityType == index + 1) "✓ " else ""}$label")
                     }
                 }
-                OutlinedTextField(activityNotes, { activityNotes = it },
+                OutlinedTextField(activityNotes, { activityNotes = it }, enabled = !state.busy,
                     label = { Text("Notes (optional)") }, modifier = Modifier.fillMaxWidth())
                 Button(onClick = { onActivity(activityType, activityNotes) },
                     enabled = !state.busy) { Text("Save activity") }
@@ -109,13 +130,13 @@ fun MonitoringScreen(
                 Text("Record inspection / observation", style = MaterialTheme.typography.titleLarge)
                 listOf("Not assessed", "Healthy", "Needs attention", "Critical")
                     .forEachIndexed { index, label ->
-                        OutlinedButton(onClick = { health = index }) {
+                        OutlinedButton(onClick = { health = index }, enabled = !state.busy) {
                             Text("${if (health == index) "✓ " else ""}$label")
                         }
                     }
-                OutlinedTextField(stage, { stage = it },
+                OutlinedTextField(stage, { stage = it }, enabled = !state.busy,
                     label = { Text("Growth stage") }, modifier = Modifier.fillMaxWidth())
-                OutlinedTextField(observationNotes, { observationNotes = it },
+                OutlinedTextField(observationNotes, { observationNotes = it }, enabled = !state.busy,
                     label = { Text("Observation notes") }, modifier = Modifier.fillMaxWidth())
                 Text("Optional photo — saved locally with this observation.")
                 OutlinedButton(onClick = {
@@ -128,16 +149,17 @@ fun MonitoringScreen(
                     Text("Photo selected for offline upload")
                     GlidePhoto(photo, "Selected crop inspection photo",
                         Modifier.fillMaxWidth().height(220.dp))
-                    OutlinedButton(onClick = { newPhoto = null }) { Text("Remove selected photo") }
+                    OutlinedButton(onClick = { newPhoto = null }, enabled = !state.busy) { Text("Remove selected photo") }
                 }
                 Button(onClick = {
                     onObservation(health, stage, observationNotes, newPhoto)
-                    newPhoto = null
                 }, enabled = !state.busy) { Text("Save observation") }
             }
 
             HorizontalDivider()
             Text("Activity history", style = MaterialTheme.typography.titleLarge)
+            PendingRecords(pending, state.farmId, state.cycleId,
+                setOf("activity", "observation"), onSync)
             if (state.activities.isEmpty()) Text("No activities recorded.")
             state.activities.forEach { activity ->
                 val name = when (activity.activityType) {

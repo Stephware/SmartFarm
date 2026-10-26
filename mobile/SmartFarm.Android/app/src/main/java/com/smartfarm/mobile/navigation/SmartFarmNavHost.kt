@@ -36,6 +36,10 @@ fun SmartFarmNavHost(auth: AuthViewModel, farms: FarmViewModel, crops: CropViewM
     val appContext = LocalContext.current
     val resolver = appContext.contentResolver
     val state by auth.state.collectAsStateWithLifecycle()
+    val pending by sync.operations.collectAsStateWithLifecycle()
+    LaunchedEffect(state.account?.id) {
+        if (state.account != null) sync.load()
+    }
     NavHost(navController = navController, startDestination = "welcome") {
         composable("welcome") {
             val statusState by status.state.collectAsStateWithLifecycle()
@@ -163,7 +167,8 @@ fun SmartFarmNavHost(auth: AuthViewModel, farms: FarmViewModel, crops: CropViewM
                 onUpload = { observationId, uri ->
                     monitoring.uploadPhoto(observationId, uri, resolver)
                 },
-                onPreview = { monitoring.preview(it) })
+                onPreview = { monitoring.preview(it) }, pending = pending,
+                onSync = { navController.navigate("sync") })
         }
         composable("inventory/{farmId}") { entry ->
             val farmId = entry.arguments?.getString("farmId").orEmpty()
@@ -196,7 +201,8 @@ fun SmartFarmNavHost(auth: AuthViewModel, farms: FarmViewModel, crops: CropViewM
                 onMovement = { kind, quantity, activityId, reason ->
                     inventory.movement(kind, quantity, activityId, reason)
                 },
-                onReverse = { transactionId, reason -> inventory.reverse(transactionId, reason) })
+                onReverse = { transactionId, reason -> inventory.reverse(transactionId, reason) },
+                pending = pending, onSync = { navController.navigate("sync") })
         }
         composable("harvests/{farmId}/{cycleId}") { entry ->
             val farmId = entry.arguments?.getString("farmId").orEmpty()
@@ -207,7 +213,8 @@ fun SmartFarmNavHost(auth: AuthViewModel, farms: FarmViewModel, crops: CropViewM
                 state = harvestState,
                 onBack = { navController.popBackStack() },
                 onRecord = { quantity, notes -> harvests.record(quantity, notes) },
-                onVoid = { harvestId, reason -> harvests.void(harvestId, reason) }
+                onVoid = { harvestId, reason -> harvests.void(harvestId, reason) },
+                pending = pending, onSync = { navController.navigate("sync") }
             )
         }
     }

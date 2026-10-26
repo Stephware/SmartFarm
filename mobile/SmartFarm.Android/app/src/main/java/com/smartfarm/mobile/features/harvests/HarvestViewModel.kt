@@ -18,6 +18,7 @@ data class HarvestUiState(
     val busy: Boolean = false,
     val error: String? = null,
     val notice: String? = null,
+    val saveReceipts: Map<String, String> = emptyMap(),
     val overview: HarvestOverviewDto? = null,
     val offline: Boolean = false,
     val cachedAtUtcMillis: Long? = null
@@ -31,7 +32,7 @@ class HarvestViewModel(private val repository: HarvestRepository,
     fun clear() { mutable.value = HarvestUiState() }
 
     fun load(farmId: String, cycleId: String) {
-        mutable.value = HarvestUiState(farmId = farmId, cycleId = cycleId, busy = true)
+        mutable.value = HarvestUiState(farmId = farmId, cycleId = cycleId, busy = true, saveReceipts = mutable.value.saveReceipts)
         viewModelScope.launch {
             try {
                 val snapshot = repository.listSnapshot(farmId, cycleId)
@@ -87,8 +88,10 @@ class HarvestViewModel(private val repository: HarvestRepository,
         mutable.value = snapshot.copy(busy = true, error = null, notice = null)
         viewModelScope.launch {
             try {
-                sync.queueHarvest(snapshot.farmId, snapshot.cycleId,
+                val id = sync.queueHarvest(snapshot.farmId, snapshot.cycleId,
                     RecordHarvestDto(value, notes.trim().ifBlank { null }))
+                mutable.value = mutable.value.copy(saveReceipts = mutable.value.saveReceipts +
+                    ("${snapshot.farmId}/${snapshot.cycleId}" to id))
                 mutable.value = mutable.value.copy(notice =
                     "Harvest saved on this device. Sync status shows when the server confirms it.")
             } catch (_: Exception) {

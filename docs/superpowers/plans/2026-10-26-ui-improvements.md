@@ -54,9 +54,9 @@
 
 **Interfaces:** Observe local queue through existing SyncRepository. Distinguish saved locally, pending and server-confirmed records; retain drafts until saving succeeds.
 
-- [ ] Write failure/success draft tests and queued-record visibility tests; run RED.
-- [ ] Make auth forms keyboard-safe; preserve photo capture state; reset successful drafts and show pending records with sync access.
-- [ ] Build, run tests, review and merge PR.
+- [x] Write failure/success draft tests and queued-record visibility tests; run RED.
+- [x] Make auth forms keyboard-safe; preserve photo capture state; reset successful drafts and show pending records with sync access.
+- [x] Build, run tests, review and merge PR.
 
 ### Task 4: Navigation and practical data entry
 

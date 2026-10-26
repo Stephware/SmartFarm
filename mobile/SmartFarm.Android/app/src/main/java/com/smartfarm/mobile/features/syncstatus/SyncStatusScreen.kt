@@ -20,32 +20,10 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import com.google.gson.JsonParser
+import com.smartfarm.mobile.ui.components.pendingRecordDescription
 import com.smartfarm.mobile.data.local.entity.PendingOperation
 import com.smartfarm.mobile.data.local.entity.PendingPhoto
 import com.smartfarm.mobile.data.sync.StockRetryPreview
-
-private fun details(operation: PendingOperation): String = try {
-    val json = JsonParser.parseString(operation.payloadJson).asJsonObject
-    when (operation.operationType) {
-        "harvest" -> "Quantity: " + json.getAsJsonObject("harvest").get("quantity").asString
-        "inventory" -> {
-            val movement = json.getAsJsonObject("movement")
-            "Stock quantity change: " + movement.get("quantityChange").asString
-        }
-        "activity" -> {
-            val activity = json.getAsJsonObject("activity")
-            "Activity type: " + activity.get("activityType").asString
-        }
-        "observation" -> {
-            val observation = json.getAsJsonObject("observation")
-            "Health status: " + observation.get("healthStatus").asString
-        }
-        else -> operation.operationType
-    }
-} catch (_: Exception) {
-    "Saved local record"
-}
 
 @Composable
 fun SyncStatusScreen(
@@ -69,7 +47,7 @@ fun SyncStatusScreen(
     Scaffold { padding ->
         Column(Modifier.fillMaxSize().padding(padding).verticalScroll(rememberScrollState())
             .padding(20.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
-            OutlinedButton(onClick = onBack) { Text("Back to account") }
+            OutlinedButton(onClick = onBack) { Text("Back") }
             Text("Offline sync", style = MaterialTheme.typography.headlineMedium)
             Text("Pending: " + (operations.count { it.status == "pending" } +
                 photos.count { it.status == "pending" }) +
@@ -83,7 +61,7 @@ fun SyncStatusScreen(
             operations.forEach { operation ->
                 Text(operation.operationType.replaceFirstChar { it.uppercase() } +
                     " · " + operation.status, style = MaterialTheme.typography.titleMedium)
-                Text(details(operation))
+                Text(pendingRecordDescription(operation))
                 operation.errorMessage?.let { Text(it, color = MaterialTheme.colorScheme.error) }
                 if (operation.status == "review") {
                     if (operation.operationType == "inventory") {
