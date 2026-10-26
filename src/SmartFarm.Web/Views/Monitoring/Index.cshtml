@@ -20,16 +20,17 @@
         <h2>Record activity</h2>
         <form asp-action="Activity" asp-route-farmId="@cycle.FarmId"
               asp-route-cycleId="@cycle.Id" method="post">
-            <label for="activityType">Type</label>
-            <select id="activityType" name="ActivityType" required>
+            <label asp-for="Activity.ActivityType">Type</label>
+            <select asp-for="Activity.ActivityType" required>
                 <option value="1">Watering</option>
                 <option value="2">Fertilizing</option>
                 <option value="3">Pesticide</option>
                 <option value="4">Weeding</option>
                 <option value="5">Other</option>
             </select>
-            <label for="activityTask">Related task (optional)</label>
-            <select id="activityTask" name="FarmTaskId">
+            <span asp-validation-for="Activity.ActivityType" class="error"></span>
+            <label asp-for="Activity.FarmTaskId">Related task (optional)</label>
+            <select asp-for="Activity.FarmTaskId">
                 <option value="">Match my oldest due task automatically</option>
                 @foreach (var task in Model.Tasks.Where(t => t.CropCycleId == cycle.Id &&
                     t.Status == 0 && (t.TaskType == 2 || t.TaskType == 3)))
@@ -39,8 +40,8 @@
                 }
             </select>
             <p class="hint">Select a matching watering or fertilizing task to complete it with this activity.</p>
-            <label for="activityNotes">Notes (optional)</label>
-            <textarea id="activityNotes" name="Notes" maxlength="1000" rows="3"></textarea>
+            <label asp-for="Activity.Notes">Notes (optional)</label>
+            <textarea asp-for="Activity.Notes" maxlength="1000" rows="3"></textarea><span asp-validation-for="Activity.Notes" class="error"></span>
             <button type="submit">Save activity</button>
         </form>
         <p class="hint">Recorded at the server's current UTC time.</p>
@@ -49,17 +50,18 @@
         <h2>Record crop observation / inspection</h2>
         <form asp-action="Observation" asp-route-farmId="@cycle.FarmId"
               asp-route-cycleId="@cycle.Id" method="post">
-            <label for="health">Crop health</label>
-            <select name="HealthStatus" id="health" required>
+            <label asp-for="Observation.HealthStatus">Crop health</label>
+            <select asp-for="Observation.HealthStatus" required>
                 <option value="0">Not assessed</option>
                 <option value="1">Healthy</option>
                 <option value="2">Needs attention</option>
                 <option value="3">Critical</option>
             </select>
-            <label for="stage">Growth stage (optional)</label>
-            <input id="stage" name="GrowthStage" maxlength="40" />
-            <label for="notes">Observation notes (optional)</label>
-            <textarea id="notes" name="Notes" rows="3" maxlength="1000"></textarea>
+            <span asp-validation-for="Observation.HealthStatus" class="error"></span>
+            <label asp-for="Observation.GrowthStage">Growth stage (optional)</label>
+            <input asp-for="Observation.GrowthStage" maxlength="40" /><span asp-validation-for="Observation.GrowthStage" class="error"></span>
+            <label asp-for="Observation.Notes">Observation notes (optional)</label>
+            <textarea asp-for="Observation.Notes" rows="3" maxlength="1000"></textarea><span asp-validation-for="Observation.Notes" class="error"></span>
             <button type="submit">Save observation</button>
         </form>
     </section>
@@ -116,8 +118,8 @@
                 <form asp-action="Upload" asp-route-farmId="@cycle.FarmId"
                       asp-route-cycleId="@cycle.Id" asp-route-observationId="@observation.Id"
                       method="post" enctype="multipart/form-data">
-                    <label>Attach photo (JPEG, PNG or WebP, maximum 5 MB)</label>
-                    <input type="file" name="photo" accept="image/jpeg,image/png,image/webp" required />
+                    <label for="photo-@observation.Id">Attach photo (JPEG, PNG or WebP, maximum 5 MB)</label>
+                    <input id="photo-@observation.Id" type="file" name="photo" accept="image/jpeg,image/png,image/webp" required />
                     <button type="submit">Upload photo</button>
                 </form>
             }

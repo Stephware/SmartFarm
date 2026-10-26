@@ -6,7 +6,6 @@
     <h1>Accept farm invitation</h1>
     <p>Accept only if you recognize the person who invited you to SmartFarm.</p>
     <form asp-action="AcceptInvitation" method="post">
-        <div asp-validation-summary="All" class="error"></div>
         <input asp-for="Token" type="hidden" />
         <button type="submit">Accept invitation</button>
     </form>

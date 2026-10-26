@@ -1,0 +1,27 @@
+@using Microsoft.AspNetCore.Mvc.Rendering
+@if (!ViewData.ModelState.IsValid)
+{
+    <div class="error validation-summary" role="alert" tabindex="-1" data-error-summary>
+        <p><strong>Check the following before saving:</strong></p>
+        <ul>
+        @foreach (var entry in ViewData.ModelState.Where(e => e.Value!.Errors.Count > 0))
+        {
+            var fieldId = TagBuilder.CreateSanitizedId(entry.Key, "_");
+            if (entry.Key.StartsWith("Transition.") && Model is SmartFarm.Web.ViewModels.Crops.CropWorkspaceViewModel crop)
+            {
+                if (entry.Key == "Transition.TerminationReason" && crop.Transition.Status == SmartFarm.Core.Enums.CropCycleStatus.Failed)
+                    fieldId = "Transition_FailureReason";
+                fieldId += "_" + crop.TransitionCycleId;
+            }
+            foreach (var error in entry.Value!.Errors)
+            {
+                var message = string.IsNullOrEmpty(error.ErrorMessage) ? "Check this value." : error.ErrorMessage;
+                <li>
+                @if (string.IsNullOrEmpty(entry.Key)) { @message }
+                else { <a href="#@fieldId">@message</a> }
+                </li>
+            }
+        }
+        </ul>
+    </div>
+}

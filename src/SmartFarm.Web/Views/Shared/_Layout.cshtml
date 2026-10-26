@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>@ViewData["Title"] - SmartFarm</title>
     <link rel="stylesheet" href="~/css/site.css" />
+    <script src="~/js/site.js" defer></script>
 </head>
 <body>
     <header class="site-header">
@@ -26,7 +27,10 @@
             }
         </nav>
     </header>
-    <main class="page">@RenderBody()</main>
+    <main class="page">
+        <partial name="_ValidationSummary" />
+        @RenderBody()
+    </main>
 </body>
 </html>
 

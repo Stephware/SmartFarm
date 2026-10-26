@@ -74,7 +74,8 @@
                 @if (isOwner)
                 {
                     <form asp-action="ChangeRole" asp-route-id="@Model.Farm.Id" asp-route-memberId="@member.Id" method="post" class="inline">
-                        <select name="Role">
+                        <label class="visually-hidden" for="role-@member.Id">Role for @member.FullName</label>
+                        <select id="role-@member.Id" name="Role">
                             @if (member.Role == "Manager")
                             {
                                 <option value="1" selected>Manager</option>

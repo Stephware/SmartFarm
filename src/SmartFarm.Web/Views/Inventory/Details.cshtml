@@ -80,8 +80,8 @@
                     <form asp-action="Reverse" asp-route-farmId="@Model.Farm.Id"
                           asp-route-itemId="@item.Id" asp-route-transactionId="@transaction.Id" method="post">
                         <input type="hidden" name="RowVersion" value="@item.RowVersion" />
-                        <label>Reversal reason</label>
-                        <input name="Reason" minlength="3" maxlength="300" required />
+                        <label for="reversal-@transaction.Id">Reversal reason</label>
+                        <input id="reversal-@transaction.Id" name="Reason" minlength="3" maxlength="300" required />
                         <button type="submit">Reverse transaction</button>
                     </form>
                 }
