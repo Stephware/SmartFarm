@@ -1,3 +1,4 @@
+@using SmartFarm.Core.Enums
 @model SmartFarm.Web.ViewModels.Monitoring.MonitoringWorkspaceViewModel
 @{
     ViewData["Title"] = "Crop monitoring";
@@ -23,11 +24,10 @@
               asp-route-cycleId="@cycle.Id" method="post">
             <label asp-for="Activity.ActivityType">Type</label>
             <select asp-for="Activity.ActivityType" required>
-                <option value="1">Watering</option>
-                <option value="2">Fertilizing</option>
-                <option value="3">Pesticide</option>
-                <option value="4">Weeding</option>
-                <option value="5">Other</option>
+                @foreach (var option in FarmCodeLabels.Activities)
+                {
+                    <option value="@option.Code">@option.Name</option>
+                }
             </select>
             <span asp-validation-for="Activity.ActivityType" class="error"></span>
             <label asp-for="Activity.FarmTaskId">Related task (optional)</label>
@@ -53,10 +53,10 @@
               asp-route-cycleId="@cycle.Id" method="post">
             <label asp-for="Observation.HealthStatus">Crop health</label>
             <select asp-for="Observation.HealthStatus" required>
-                <option value="0">Not assessed</option>
-                <option value="1">Healthy</option>
-                <option value="2">Needs attention</option>
-                <option value="3">Critical</option>
+                @foreach (var option in FarmCodeLabels.HealthStatuses)
+                {
+                    <option value="@option.Code">@option.Name</option>
+                }
             </select>
             <span asp-validation-for="Observation.HealthStatus" class="error"></span>
             <label asp-for="Observation.GrowthStage">Growth stage (optional)</label>
@@ -74,10 +74,7 @@
     <ul class="farm-list">
         @foreach (var activity in monitoring.Activities)
         {
-            var label = activity.ActivityType switch {
-                1 => "Watering", 2 => "Fertilizing", 3 => "Pesticide",
-                4 => "Weeding", _ => "Other"
-            };
+            var label = activity.ActivityTypeName;
             <li>
                 <strong>@label</strong> · @activity.OccurredAtUtc.ToString("yyyy-MM-dd HH:mm") UTC
                 @if (activity.Notes is not null) { <p>@activity.Notes</p> }
@@ -95,10 +92,7 @@
     { <p>No observations recorded.</p> }
     @foreach (var observation in monitoring.Observations)
     {
-        var health = observation.HealthStatus switch {
-            0 => "Not assessed", 1 => "Healthy", 2 => "Needs attention",
-            _ => "Critical"
-        };
+        var health = observation.HealthStatusName;
         <div class="crop-cycle">
             <strong>@health</strong> · @observation.ObservedAtUtc.ToString("yyyy-MM-dd HH:mm") UTC
             @if (observation.GrowthStage is not null) { <p>Stage: @observation.GrowthStage</p> }
