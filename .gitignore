@@ -62,3 +62,6 @@ local.properties
 # Local observation images stay outside the public wwwroot tree.
 **/App_Data/observation-photos/
 
+# Keep documentation local.
+/docs/
+
