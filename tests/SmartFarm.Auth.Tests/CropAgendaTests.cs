@@ -8,7 +8,7 @@ namespace SmartFarm.Auth.Tests;
 public sealed class CropAgendaTests
 {
     private static CropCycleDetails Cycle(CropCycleStatus status, DateOnly planted,
-        DateOnly expected, short? watering = null) =>
+        DateOnly? expected, short? watering = null) =>
         new(Guid.NewGuid(), Guid.NewGuid(), Guid.NewGuid(), "North Plot",
             Guid.NewGuid(), "Tomato", status, new DateOnly(2026, 10, 28),
             status == CropCycleStatus.Planned ? null : planted, expected, "kg",
@@ -50,6 +50,16 @@ public sealed class CropAgendaTests
             e.Date == new DateOnly(2026, 11, 21));
         Assert.DoesNotContain(events, e => e.Date == new DateOnly(2026, 11, 25));
         Assert.Equal(events.Length, calendar.Days.Sum(d => d.Entries.Count));
+    }
+
+    [Fact]
+    public void AgendaOmitsFutureBoundaryPlantingWithoutOverflowing()
+    {
+        var cycle = Cycle(CropCycleStatus.Active, DateOnly.MaxValue, null, watering: 1);
+
+        var calendar = CropAgendaBuilder.Build([cycle], new DateOnly(2026, 10, 1));
+
+        Assert.Empty(calendar.Days);
     }
 
     [Fact]
