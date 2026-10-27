@@ -42,7 +42,7 @@ class SafeActionsTest {
                     state = FarmUiState(selected = FarmDto("farm", "North farm", "Location", "Asia/Manila", null, null, "Owner", "version")),
                     onBack = {}, onSaveFarm = { _, _, _, _, _ -> }, onArchiveFarm = { archives++ },
                     onAddPlot = { _, _ -> }, onSavePlot = { _, _, _ -> }, onArchivePlot = {},
-                    onCrops = {}, onInventory = {}, onInvite = { _, _ -> },
+                    onCrops = {}, onInventory = {}, onDecision = { _, _ -> },
                     onChangeRole = { _, _ -> }, onRemoveMember = {}
                 )
             }

@@ -61,15 +61,17 @@ public sealed class AccountController : Controller
     public async Task<IActionResult> Register(RegisterInput input)
     {
         if (!ModelState.IsValid) return View(input);
-        var result = await _registration.RegisterAsync(input.FullName, input.Email, input.Password);
+        var result = await _registration.RegisterAsync(input.FullName, input.Email, input.Password, input.JoinFarm, input.FarmCode);
         if (!result.Succeeded)
         {
             foreach (var error in result.Errors)
-                ModelState.AddModelError(string.Empty, error.Description);
+                ModelState.AddModelError(error.Code == "FarmCode" ? nameof(input.FarmCode) : string.Empty, error.Description);
             return View(input);
         }
 
-        TempData["Message"] = "Account created. Please sign in.";
+        TempData["Message"] = input.JoinFarm
+            ? "Account created. Sign in to check your farm request. Access begins after the owner approves."
+            : "Account created. Please sign in to create your farm.";
         return RedirectToAction(nameof(Login));
     }
 

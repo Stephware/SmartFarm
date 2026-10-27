@@ -2,8 +2,19 @@ using System.ComponentModel.DataAnnotations;
 
 namespace SmartFarm.Web.ViewModels.Auth;
 
-public sealed class RegisterInput
+public sealed class RegisterInput : IValidatableObject
 {
+    public bool JoinFarm { get; set; } = true;
+
+    [StringLength(32)]
+    public string? FarmCode { get; set; }
+
+    public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
+    {
+        if (JoinFarm && string.IsNullOrWhiteSpace(FarmCode))
+            yield return new ValidationResult("Enter the farm code supplied by the owner.", [nameof(FarmCode)]);
+    }
+
     [Required, StringLength(120, MinimumLength = 2)]
     public string FullName { get; set; } = string.Empty;
 

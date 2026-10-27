@@ -9,6 +9,7 @@
     <p><a asp-action="Index">← My farms</a></p>
     <h1>@Model.Farm.Name</h1>
     <p>@Model.Farm.LocationText · @Model.Farm.Role</p>
+    @if (TempData["Message"] is string message) { <p role="status">@message</p> }
     @if (TempData["Error"] is string error) { <p class="error" role="alert">@error</p> }
     @if (canManage)
     {
@@ -87,27 +88,13 @@
             </li>
         }
     </ul>
-    @if (isOwner)
-    {
-        <h3>Invite a registered user</h3>
-        <p>Invitation links expire after 24 hours and work only for the selected account.</p>
-        <form asp-action="Invite" asp-route-id="@Model.Farm.Id" method="post" class="narrow">
-            <label for="inviteEmail">Registered email</label>
-            <input id="inviteEmail" name="Email" type="email" required />
-            <label for="inviteRole">Role</label>
-            <select id="inviteRole" name="Role">
-                <option value="1">Manager</option>
-                <option value="2">Field Worker</option>
-            </select>
-            <button type="submit">Create invitation</button>
-        </form>
-        @if (TempData["InvitationUrl"] is string invitationUrl)
-        {
-            <p>Share this link privately with @TempData["InvitationEmail"]:</p>
-            <input readonly value="@invitationUrl" aria-label="Invitation link" />
-        }
-    }
+
 </section>
 
 
 
+
+@if (Model.Enrollment is not null)
+{
+    <partial name="_FarmEnrollment" model="Model.Enrollment" />
+}

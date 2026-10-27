@@ -370,6 +370,11 @@ namespace SmartFarm.Infrastructure.Persistence.Migrations
                         .HasColumnType("datetime2(3)")
                         .HasDefaultValueSql("SYSUTCDATETIME()", "DF_Farm_CreatedAt");
 
+                    b.Property<string>("JoinCode")
+                        .IsRequired()
+                        .HasMaxLength(12)
+                        .HasColumnType("nvarchar(12)");
+
                     b.Property<decimal?>("Latitude")
                         .HasColumnType("decimal(9,6)");
 
@@ -405,12 +410,64 @@ namespace SmartFarm.Infrastructure.Persistence.Migrations
                     b.HasKey("Id")
                         .HasName("PK_Farm");
 
+                    b.HasIndex("JoinCode")
+                        .IsUnique()
+                        .HasDatabaseName("UX_Farm_JoinCode");
+
                     b.HasIndex("OwnerUserId")
                         .HasDatabaseName("IX_Farm_Owner");
 
                     b.ToTable("Farm", "dbo", t =>
                         {
                             t.HasCheckConstraint("CK_Farm_Coordinates", "(Latitude IS NULL AND Longitude IS NULL) OR (Latitude IS NOT NULL AND Longitude IS NOT NULL AND Latitude BETWEEN -90 AND 90 AND Longitude BETWEEN -180 AND 180)");
+                        });
+                });
+
+            modelBuilder.Entity("SmartFarm.Core.Entities.FarmJoinRequest", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("FarmId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("RequestedAtUtc")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetime2(3)")
+                        .HasDefaultValueSql("SYSUTCDATETIME()", "DF_FarmJoinRequest_RequestedAt");
+
+                    b.Property<DateTime?>("ReviewedAtUtc")
+                        .HasColumnType("datetime2(3)");
+
+                    b.Property<Guid?>("ReviewedByUserId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasMaxLength(8)
+                        .HasColumnType("nvarchar(8)")
+                        .HasDefaultValueSql("N'Pending'", "DF_FarmJoinRequest_Status");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("Id")
+                        .HasName("PK_FarmJoinRequest");
+
+                    b.HasIndex("UserId")
+                        .HasDatabaseName("IX_FarmJoinRequest_User");
+
+                    b.HasIndex("FarmId", "UserId")
+                        .IsUnique()
+                        .HasDatabaseName("UX_FarmJoinRequest_Pending")
+                        .HasFilter("Status = N'Pending'");
+
+                    b.ToTable("FarmJoinRequest", "dbo", t =>
+                        {
+                            t.HasCheckConstraint("CK_FarmJoinRequest_Review", "(Status = N'Pending' AND ReviewedByUserId IS NULL AND ReviewedAtUtc IS NULL) OR (Status IN (N'Approved', N'Rejected') AND ReviewedByUserId IS NOT NULL AND ReviewedAtUtc IS NOT NULL)");
+
+                            t.HasCheckConstraint("CK_FarmJoinRequest_Status", "Status IN (N'Pending', N'Approved', N'Rejected')");
                         });
                 });
 
@@ -1297,6 +1354,29 @@ namespace SmartFarm.Infrastructure.Persistence.Migrations
                         .OnDelete(DeleteBehavior.NoAction)
                         .IsRequired()
                         .HasConstraintName("FK_Farm_OwnerUser");
+                });
+
+            modelBuilder.Entity("SmartFarm.Core.Entities.FarmJoinRequest", b =>
+                {
+                    b.HasOne("SmartFarm.Core.Entities.Farm", null)
+                        .WithMany()
+                        .HasForeignKey("FarmId")
+                        .OnDelete(DeleteBehavior.NoAction)
+                        .IsRequired()
+                        .HasConstraintName("FK_FarmJoinRequest_Farm");
+
+                    b.HasOne("SmartFarm.Infrastructure.Identity.SmartFarmUser", null)
+                        .WithMany()
+                        .HasForeignKey("ReviewedByUserId")
+                        .OnDelete(DeleteBehavior.NoAction)
+                        .HasConstraintName("FK_FarmJoinRequest_Reviewer");
+
+                    b.HasOne("SmartFarm.Infrastructure.Identity.SmartFarmUser", null)
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.NoAction)
+                        .IsRequired()
+                        .HasConstraintName("FK_FarmJoinRequest_User");
                 });
 
             modelBuilder.Entity("SmartFarm.Core.Entities.FarmMember", b =>

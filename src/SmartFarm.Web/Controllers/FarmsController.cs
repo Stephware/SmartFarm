@@ -15,13 +15,15 @@ public sealed class FarmsController : Controller
 {
     private readonly UserManager<SmartFarmUser> _users;
     private readonly IFarmManagementService _farms;
+    private readonly IFarmEnrollmentService _enrollment;
 
     public FarmsController(
         UserManager<SmartFarmUser> users,
-        IFarmManagementService farms)
+        IFarmManagementService farms, IFarmEnrollmentService enrollment)
     {
         _users = users;
         _farms = farms;
+        _enrollment = enrollment;
     }
 
     private Guid Actor =>
@@ -29,7 +31,53 @@ public sealed class FarmsController : Controller
 
     [HttpGet]
     public async Task<IActionResult> Index(CancellationToken ct) =>
-        View(await _farms.ListAsync(Actor, ct));
+        View(await IndexModel(new(), ct));
+
+    private async Task<FarmIndexViewModel> IndexModel(FarmJoinRequestInput input, CancellationToken ct)
+    {
+        var farms = await _farms.ListAsync(Actor, ct);
+        try { return new(farms, await _enrollment.MyRequestsAsync(Actor, ct), input); }
+        catch (Exception error) when (error is System.Data.Common.DbException or HttpRequestException)
+        {
+            HttpContext.RequestServices.GetRequiredService<ILogger<FarmsController>>().LogError(error, "Could not load join requests");
+            return new(farms, [], input, "Join request status is unavailable. Refresh this page to try again.");
+        }
+    }
+
+    [HttpPost, ValidateAntiForgeryToken]
+    public async Task<IActionResult> RequestJoin(FarmJoinRequestInput input, CancellationToken ct)
+    {
+        if (ModelState.IsValid)
+        {
+            try
+            {
+                await _enrollment.RequestAsync(Actor, input.FarmCode, ct);
+                TempData["Message"] = "Request submitted. Farm access begins after the owner approves.";
+                return RedirectToAction(nameof(Index));
+            }
+            catch (FarmOperationException error) { ModelState.AddModelError(nameof(input.FarmCode), error.Message); }
+        }
+        return View(nameof(Index), await IndexModel(input, ct));
+    }
+
+    [HttpPost, ValidateAntiForgeryToken]
+    public async Task<IActionResult> DecideJoin(Guid id, Guid requestId, bool? approve,
+        bool dashboard, CancellationToken ct)
+    {
+        if (!ModelState.IsValid || approve is null) return BadRequest();
+        try
+        {
+            await _enrollment.DecideAsync(id, requestId, Actor, approve.Value, ct);
+            TempData["Message"] = approve.Value ? "Join request approved." : "Join request rejected.";
+        }
+        catch (FarmOperationException error)
+        {
+            if (error.Error == FarmError.NotFound) return NotFound();
+            TempData["Error"] = error.Message;
+        }
+        return dashboard ? RedirectToAction("Index", "Dashboard", new { farmId = id })
+            : RedirectToAction(nameof(Details), new { id });
+    }
 
     [HttpGet]
     public IActionResult Create() => View(new FarmInput());
@@ -55,8 +103,18 @@ public sealed class FarmsController : Controller
     {
         var farm = await _farms.GetAsync(id, Actor, ct);
         if (farm is null) return NotFound();
+        FarmEnrollmentPanel? enrollment = null;
+        if (farm.Role == "Owner")
+        {
+            try { enrollment = new(id, await _enrollment.OwnerOverviewAsync(id, Actor, ct)); }
+            catch (Exception error) when (error is System.Data.Common.DbException or HttpRequestException or FarmOperationException)
+            {
+                HttpContext.RequestServices.GetRequiredService<ILogger<FarmsController>>().LogError(error, "Could not load owner join requests");
+                enrollment = new(id, null, Error: "Join requests are unavailable. Refresh this page to try again.");
+            }
+        }
         return View(new FarmWorkspaceViewModel(farm,
-            await _farms.ListPlotsAsync(id, Actor, ct), await _farms.MembersAsync(id, Actor, ct)));
+            await _farms.ListPlotsAsync(id, Actor, ct), await _farms.MembersAsync(id, Actor, ct), enrollment));
     }
 
     [HttpGet]
@@ -173,51 +231,17 @@ public sealed class FarmsController : Controller
         return RedirectToAction(nameof(Details), new { id });
     }
 
-    [HttpPost, ValidateAntiForgeryToken]
-    public async Task<IActionResult> Invite(Guid id, InviteMemberInput input, CancellationToken ct)
-    {
-        if (!ModelState.IsValid)
-        {
-            TempData["Error"] = "Enter an existing user's email and choose a valid role.";
-            return RedirectToAction(nameof(Details), new { id });
-        }
-        try
-        {
-            var invitation = await _farms.CreateInvitationAsync(id, Actor, input, ct);
-            TempData["InvitationUrl"] = Url.Action(nameof(AcceptInvitation),
-                "Farms", new { token = invitation.Token }, Request.Scheme);
-            TempData["InvitationEmail"] = invitation.Email;
-        }
-        catch (FarmOperationException e)
-        {
-            if (e.Error == FarmError.NotFound) return NotFound();
-            TempData["Error"] = e.Message;
-        }
-        return RedirectToAction(nameof(Details), new { id });
-    }
+    [AllowAnonymous, HttpPost, IgnoreAntiforgeryToken]
+    public IActionResult Invite() => RetiredInvitation();
 
-    [HttpGet]
-    public IActionResult AcceptInvitation(string token)
-    {
-        if (string.IsNullOrWhiteSpace(token)) return BadRequest();
-        return View(new InvitationAcceptance { Token = token });
-    }
+    [AllowAnonymous, AcceptVerbs("GET", "POST"), IgnoreAntiforgeryToken]
+    public IActionResult AcceptInvitation() => RetiredInvitation();
 
-    [HttpPost, ValidateAntiForgeryToken]
-    public async Task<IActionResult> AcceptInvitation(InvitationAcceptance input, CancellationToken ct)
+    private ContentResult RetiredInvitation() => new()
     {
-        if (!ModelState.IsValid) return View(input);
-        try
-        {
-            var farmId = await _farms.AcceptInvitationAsync(Actor, input.Token, ct);
-            return RedirectToAction(nameof(Details), new { id = farmId });
-        }
-        catch (FarmOperationException e)
-        {
-            ModelState.AddModelError("", e.Message);
-            return View(input);
-        }
-    }
+        StatusCode = StatusCodes.Status410Gone, ContentType = "text/plain",
+        Content = "Invitation links have been retired. Register or sign in, enter the owner's farm code, and wait for approval."
+    };
 
     [HttpPost, ValidateAntiForgeryToken]
     public async Task<IActionResult> ChangeRole(Guid id, Guid memberId, UpdateMemberInput input, CancellationToken ct)

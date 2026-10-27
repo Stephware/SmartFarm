@@ -36,7 +36,6 @@ import androidx.compose.ui.semantics.LiveRegionMode
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.saveable.rememberSaveableStateHolder
 import androidx.compose.runtime.key
@@ -76,13 +75,13 @@ private fun Progress(state: FarmUiState, onRetry: () -> Unit = {}) {
 @Composable
 fun FarmListScreen(state: FarmUiState, onOpen: (String) -> Unit,
     onCreate: (String, String, String, String, String) -> Unit,
-    onAccept: (String) -> Unit, onBack: () -> Unit, onRetry: () -> Unit = {}) {
+    onRequest: (String) -> Unit, onBack: () -> Unit, onRetry: () -> Unit = {}) {
     var name by rememberSaveable { mutableStateOf("") }
     var location by rememberSaveable { mutableStateOf("") }
     var zone by rememberSaveable { mutableStateOf("Asia/Manila") }
     var latitude by rememberSaveable { mutableStateOf("") }
     var longitude by rememberSaveable { mutableStateOf("") }
-    var invitation by remember { mutableStateOf("") }
+    var farmCode by rememberSaveable { mutableStateOf("") }
     var creating by rememberSaveable { mutableStateOf(false) }
     var joining by rememberSaveable { mutableStateOf(false) }
     RecordPage {
@@ -92,9 +91,9 @@ fun FarmListScreen(state: FarmUiState, onOpen: (String) -> Unit,
                 OutlinedButton(onClick = onBack) { Text("My account") }
                 Progress(state, onRetry)
                 if (state.farms.isEmpty() && !state.loading && state.error == null)
-                    Text("No farms yet. Add a farm or accept an invitation.")
+                    Text("No farms yet. Create a farm or request access with a farm code.")
                 Button(onClick = { creating = !creating }) { Text(if (creating) "Close farm form" else "Add a farm") }
-                OutlinedButton(onClick = { joining = !joining }) { Text(if (joining) "Close invitation form" else "Join a farm") }
+                OutlinedButton(onClick = { joining = !joining }) { Text(if (joining) "Close join form" else "Join a farm") }
             }
         }
         if (creating) item(key = "create") {
@@ -118,12 +117,25 @@ fun FarmListScreen(state: FarmUiState, onOpen: (String) -> Unit,
         }
         if (joining) item(key = "join") {
             Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                Text("Accept an invitation", style = MaterialTheme.typography.titleMedium)
-                OutlinedTextField(invitation, { invitation = it }, label = { Text("Invitation token") },
+                Text("Request farm access", style = MaterialTheme.typography.titleMedium)
+                OutlinedTextField(farmCode, { farmCode = it }, label = { Text("Farm code") },
                     modifier = Modifier.fillMaxWidth())
-                Button(onClick = { onAccept(invitation) },
-                    enabled = !state.loading && !state.offline && invitation.isNotBlank()) { Text("Join farm") }
+                Button(onClick = { onRequest(farmCode) },
+                    enabled = !state.loading && !state.offline && farmCode.isNotBlank()) { Text("Request access") }
             }
+        }
+        item(key = "enrollment-feedback") {
+            Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                state.enrollmentMessage?.let { Text(it, modifier = Modifier.semantics { liveRegion = LiveRegionMode.Polite }) }
+                if (state.myRequests.isNotEmpty()) Text("My join requests", style = MaterialTheme.typography.titleMedium)
+                if (state.myRequests.isNotEmpty() || state.enrollmentMessage != null)
+                    OutlinedButton(onClick = onRetry, enabled = !state.loading) { Text("Refresh join requests") }
+            }
+        }
+        items(state.myRequests, key = { "request-${it.id}" }) { request ->
+            Text("${request.farmName}: ${request.status}" +
+                if (request.status == "Pending") " · Awaiting owner approval" else "",
+                modifier = Modifier.semantics { liveRegion = LiveRegionMode.Polite })
         }
         items(state.farms, key = { "farm-${it.id}" }) { farm ->
             OutlinedCard(onClick = { onOpen(farm.id) }, modifier = Modifier.fillMaxWidth().testTag("record-card")) {
@@ -145,7 +157,7 @@ fun FarmDetailScreen(state: FarmUiState, onBack: () -> Unit,
     onArchivePlot: (PlotDto) -> Unit,
     onCrops: () -> Unit,
     onInventory: () -> Unit,
-    onInvite: (String, Int) -> Unit,
+    onDecision: (String, Boolean) -> Unit,
     onChangeRole: (FarmMemberDto, Int) -> Unit, onRemoveMember: (FarmMemberDto) -> Unit,
     onTasks: () -> Unit = {}, onRetry: () -> Unit = {}) {
     val farm = state.selected
@@ -158,8 +170,6 @@ fun FarmDetailScreen(state: FarmUiState, onBack: () -> Unit,
     var longitude by rememberSaveable(farm?.id) { mutableStateOf(farm?.longitude?.toPlainString().orEmpty()) }
     var plotName by rememberSaveable { mutableStateOf("") }
     var plotArea by rememberSaveable { mutableStateOf("") }
-    var inviteEmail by rememberSaveable { mutableStateOf("") }
-    var inviteRole by rememberSaveable { mutableStateOf(2) }
     var section by rememberSaveable(farm?.id) { mutableStateOf("Overview") }
     val visibleSection = if (section == "Settings" && !canManage) "Overview" else section
     val sectionState = rememberSaveableStateHolder()
@@ -175,6 +185,7 @@ fun FarmDetailScreen(state: FarmUiState, onBack: () -> Unit,
                 }
             }
             if (visibleSection == "Overview") {
+            if (farm.role == "Owner") EnrollmentPanel(state, onDecision, onRetry)
             Button(onClick = onTasks) { Text("Farm tasks") }
             Button(onClick = onCrops) { Text("Crop management") }
             Button(onClick = onInventory) { Text("Inventory") }
@@ -284,21 +295,8 @@ fun FarmDetailScreen(state: FarmUiState, onBack: () -> Unit,
                         enabled = !state.loading, onConfirm = { onRemoveMember(member) })
                 }
             }
-            if (isOwner) {
-                Text("Invite registered user", style = MaterialTheme.typography.titleMedium)
-                OutlinedTextField(inviteEmail, { inviteEmail = it },
-                    label = { Text("Registered email") }, modifier = Modifier.fillMaxWidth())
-                listOf(1 to "Manager", 2 to "Field Worker").forEach { (role, label) ->
-                    FilterChip(selected = inviteRole == role, onClick = { inviteRole = role },
-                        enabled = !state.loading, label = { Text(label) })
-                }
-                Button(onClick = { onInvite(inviteEmail, inviteRole) },
-                    enabled = !state.loading && inviteEmail.isNotBlank()) { Text("Create invitation") }
-                state.invitation?.let {
-                    Text("Share this token privately with ${it.email}. It expires in 24 hours.")
-                    SelectionContainer { Text(it.token) }
-                }
-            }
+            if (farm.role == "Owner") EnrollmentPanel(state, onDecision, onRetry)
+
             }
         }
     }
@@ -306,3 +304,33 @@ fun FarmDetailScreen(state: FarmUiState, onBack: () -> Unit,
 
 
 
+
+@Composable
+private fun EnrollmentPanel(state: FarmUiState, onDecision: (String, Boolean) -> Unit, onRetry: () -> Unit) {
+    Text("Farm access requests", style = MaterialTheme.typography.titleLarge,
+        modifier = Modifier.semantics { heading() })
+    if (state.offline) {
+        Text("Join requests and farm code are unavailable offline.")
+        return
+    }
+    state.enrollmentMessage?.let { Text(it, modifier = Modifier.semantics { liveRegion = LiveRegionMode.Polite }) }
+    OutlinedButton(onClick = onRetry, enabled = !state.loading) { Text("Refresh join requests") }
+    val overview = state.enrollment
+    if (overview == null) {
+        if (state.enrollmentMessage == null) Text("Join requests and farm code are unavailable. Refresh to try again.")
+        return
+    }
+    Text("Share this farm code. Farmers receive Field Worker access only after you approve.")
+    SelectionContainer { Text(overview.joinCode) }
+    val pending = overview.requests.filter { it.status == "Pending" && it.farmId == state.selected?.id }
+    if (pending.isEmpty()) Text("No pending join requests.")
+    pending.forEach { request ->
+        Text(request.fullName, style = MaterialTheme.typography.titleMedium)
+        Text(request.email)
+        Text("Requested ${request.requestedAtUtc} (UTC)")
+        ConfirmActionButton("Approve ${request.fullName}", "Give ${request.fullName} Field Worker access?",
+            enabled = !state.loading, onConfirm = { onDecision(request.id, true) })
+        ConfirmActionButton("Reject ${request.fullName}", "Reject ${request.fullName}'s request?",
+            enabled = !state.loading, onConfirm = { onDecision(request.id, false) })
+    }
+}

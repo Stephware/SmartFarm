@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material3.FilterChip
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.OutlinedButton
@@ -58,14 +59,27 @@ fun LoginScreen(state: AuthUiState, onSubmit: (String, String) -> Unit, onRegist
 @Composable
 fun RegisterScreen(
     state: AuthUiState,
-    onSubmit: (String, String, String, String) -> Unit,
+    onSubmit: (String, String, String, String, Boolean, String?) -> Unit,
     onLogin: () -> Unit
 ) {
     var name by rememberSaveable { mutableStateOf("") }
     var email by rememberSaveable { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     var confirm by remember { mutableStateOf("") }
+    var joinFarm by rememberSaveable { mutableStateOf(true) }
+    var farmCode by rememberSaveable { mutableStateOf("") }
     AuthScaffold("Create an account") {
+        FilterChip(selected = joinFarm, onClick = { joinFarm = true }, enabled = !state.busy,
+            label = { Text("Join an existing farm") })
+        FilterChip(selected = !joinFarm, onClick = { joinFarm = false }, enabled = !state.busy,
+            label = { Text("Create/manage my own farm") })
+        if (joinFarm) {
+            OutlinedTextField(farmCode, { farmCode = it }, label = { Text("Farm code") },
+                isError = state.farmCodeError != null,
+                supportingText = { Text(state.farmCodeError ?: "Ask the farm owner for the code. Access starts after approval.",
+                    modifier = Modifier.semantics { liveRegion = LiveRegionMode.Assertive }) },
+                enabled = !state.busy, modifier = Modifier.fillMaxWidth(), singleLine = true)
+        }
         OutlinedTextField(name, { name = it }, label = { Text("Full name") },
             modifier = Modifier.fillMaxWidth(), singleLine = true)
         OutlinedTextField(email, { email = it }, label = { Text("Email") },
@@ -81,9 +95,9 @@ fun RegisterScreen(
             modifier = Modifier.fillMaxWidth(), singleLine = true)
         Text("At least 10 characters, with uppercase, lowercase, and a number.")
         Feedback(state)
-        Button(onClick = { onSubmit(name, email, password, confirm) },
+        Button(onClick = { onSubmit(name, email, password, confirm, joinFarm, farmCode.takeIf { joinFarm }) },
             enabled = !state.busy && name.isNotBlank() && email.isNotBlank() &&
-                password.length >= 10 && password == confirm) { Text("Register") }
+                password.length >= 10 && password == confirm && (!joinFarm || farmCode.isNotBlank())) { Text("Register") }
         OutlinedButton(onClick = onLogin) { Text("Back to log in") }
     }
 }

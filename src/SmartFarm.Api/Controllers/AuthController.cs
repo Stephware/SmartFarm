@@ -23,11 +23,11 @@ public sealed class AuthController(
     [AllowAnonymous, HttpPost("register")]
     public async Task<IActionResult> Register([FromBody] RegisterInput input)
     {
-        var result = await registration.RegisterAsync(input.FullName, input.Email, input.Password);
+        var result = await registration.RegisterAsync(input.FullName, input.Email, input.Password, input.JoinFarm, input.FarmCode);
         if (!result.Succeeded)
-            return BadRequest(new { errors = result.Errors.Select(error => error.Description) });
+            return BadRequest(new { errors = result.Errors.Select(error => error.Description), farmCodeError = result.Errors.FirstOrDefault(error => error.Code == "FarmCode")?.Description });
 
-        return StatusCode(StatusCodes.Status201Created, new { message = "Account created. Please sign in." });
+        return StatusCode(StatusCodes.Status201Created, new { message = input.JoinFarm ? "Account created. Farm access awaits owner approval. Please sign in." : "Account created. Please sign in." });
     }
 
     [AllowAnonymous, HttpPost("login")]

@@ -75,12 +75,16 @@ class FarmRepository(
         cache?.invalidate("farm/$farmId/plots")
     }
 
-    suspend fun invite(farmId: String, input: InviteMemberDto): InvitationDto =
-        authentication.authorized { api().invite(it, farmId, input) }
-    suspend fun accept(token: String): InvitationAcceptedDto {
-        val result = authentication.authorized { api().accept(it, AcceptInvitationDto(token)) }
-        cache?.invalidate("farms")
-        return result
+    // Enrollment is online-only: never persist owner codes or applicants in the farm cache.
+    suspend fun myJoinRequests(): List<FarmJoinRequestDto> =
+        authentication.authorized { api().myJoinRequests(it) }
+    suspend fun requestToJoin(code: String): FarmJoinRequestDto =
+        authentication.authorized { api().requestToJoin(it, FarmJoinInputDto(code.trim())) }
+    suspend fun enrollment(farmId: String): FarmEnrollmentOverviewDto =
+        authentication.authorized { api().enrollment(it, farmId) }
+    suspend fun decideJoinRequest(farmId: String, requestId: String, approve: Boolean) {
+        authentication.authorized { api().decideJoinRequest(it, farmId, requestId, FarmJoinDecisionDto(approve)) }
+        cache?.invalidate("farm/$farmId/members")
     }
     suspend fun changeRole(farmId: String, memberId: String, role: Int) {
         authentication.authorized { api().changeRole(it, farmId, memberId, UpdateMemberDto(role)) }

@@ -17,7 +17,7 @@ nav { display: flex; gap: 14px; align-items: center; flex-wrap: wrap; }
 .panel { background: var(--surface); padding: 28px; border: 1px solid var(--divider); border-radius: 12px; }
 .narrow { max-width: 480px; }
 label { display: block; font-weight: 600; margin: 17px 0 6px; }
-input:not([type=checkbox]) { display: block; width: 100%; padding: 11px; border: 1px solid var(--outline); border-radius: 6px; font: inherit; }
+input:not([type=checkbox]):not([type=radio]) { display: block; width: 100%; padding: 11px; border: 1px solid var(--outline); border-radius: 6px; font: inherit; }
 .check { font-weight: normal; display: flex; gap: 9px; align-items: center; }
 button, .button { min-height: 44px; display: inline-flex; align-items: center; justify-content: center; background: var(--primary); color: var(--on-primary); padding: 10px 16px; border: 0; border-radius: 6px; font: inherit; text-decoration: none; cursor: pointer; }
 button:hover, .button:hover { background: var(--primary-hover); }
@@ -113,3 +113,6 @@ button, a, p, li { overflow-wrap: anywhere; }
         --divider: #3e4b41; --soft: #213527; --focus: #aff2bd;
     }
 }
+
+fieldset { border: 1px solid var(--outline); border-radius: 6px; padding: 12px 16px; margin: 0 0 16px; }
+input[type=radio] { width: 20px; height: 20px; flex-shrink: 0; }

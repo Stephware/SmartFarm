@@ -20,9 +20,9 @@ public sealed class FarmMembersController(
     public Task<IActionResult> List(Guid farmId, CancellationToken ct) =>
         Result(async () => Ok(await farms.MembersAsync(farmId, ActorId, ct)));
 
-    [HttpPost("invitations")]
-    public Task<IActionResult> Invite(Guid farmId, [FromBody] InviteMemberInput input, CancellationToken ct) =>
-        Result(async () => Ok(await farms.CreateInvitationAsync(farmId, ActorId, input, ct)));
+    [AllowAnonymous, HttpPost("invitations")]
+    public IActionResult Invite(Guid farmId) =>
+        StatusCode(StatusCodes.Status410Gone, new { message = "Invitation links are retired. Use a farm code and owner approval." });
 
     [HttpPut("{memberId:guid}")]
     public Task<IActionResult> Role(Guid farmId, Guid memberId,
@@ -43,11 +43,9 @@ public sealed class FarmMembersController(
 [ApiController]
 [Authorize(AuthenticationSchemes = SmartFarmAuthSchemes.Bearer)]
 [Route("api/farm-invitations")]
-public sealed class FarmInvitationsController(
-    UserManager<SmartFarmUser> users, IFarmManagementService farms)
-    : FarmApiControllerBase(users)
+public sealed class FarmInvitationsController : ControllerBase
 {
-    [HttpPost("accept")]
-    public Task<IActionResult> Accept([FromBody] InvitationAcceptance input, CancellationToken ct) =>
-        Result(async () => Ok(new { farmId = await farms.AcceptInvitationAsync(ActorId, input.Token, ct) }));
+    [AllowAnonymous, HttpPost("accept")]
+    public IActionResult Accept() =>
+        StatusCode(StatusCodes.Status410Gone, new { message = "Invitation links are retired. Use a farm code and owner approval." });
 }

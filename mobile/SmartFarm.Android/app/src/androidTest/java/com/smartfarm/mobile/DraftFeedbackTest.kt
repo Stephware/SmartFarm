@@ -17,6 +17,7 @@ import androidx.core.app.ActivityOptionsCompat
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.test.junit4.StateRestorationTester
 import android.net.Uri
+import androidx.compose.ui.test.isDisplayed
 import androidx.compose.foundation.layout.Column
 import com.smartfarm.mobile.data.local.entity.PendingOperation
 import com.smartfarm.mobile.ui.components.PendingRecords
@@ -109,8 +110,11 @@ class DraftFeedbackTest {
     }
 
     @Test fun registrationSubmitCanBeScrolledAboveTheKeyboard() {
-        compose.setContent { SmartFarmTheme { RegisterScreen(AuthUiState(), { _, _, _, _ -> }, {}) } }
+        compose.setContent { SmartFarmTheme { RegisterScreen(AuthUiState(), { _, _, _, _, _, _ -> }, {}) } }
         compose.onNodeWithText("Confirm password").performScrollTo().performTextInput("Password2026")
-        compose.onNodeWithText("Register").performScrollTo().assertIsDisplayed()
+        compose.onNodeWithText("Register").performScrollTo()
+        // The system keyboard animates outside Compose's idling clock.
+        compose.waitUntil(5000) { compose.onNodeWithText("Register").isDisplayed() }
+        compose.onNodeWithText("Register").assertIsDisplayed()
     }
 }

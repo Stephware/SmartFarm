@@ -1,7 +1,7 @@
 /*
   SmartFarm — Initial SQL Server schema (manual SQL-first initialization)
   Run ONLY on a new, empty SmartFarmDB database in DBeaver.
-  Includes 7 ASP.NET Core Identity tables + 16 SmartFarm business tables.
+  Includes 7 ASP.NET Core Identity tables + 17 SmartFarm business tables.
 
   IMPORTANT FOR EF CORE:
   This SQL does not insert __EFMigrationsHistory entries. Do not later run a
@@ -121,6 +121,7 @@ BEGIN TRY
     CREATE TABLE dbo.Farm (
         Id UNIQUEIDENTIFIER NOT NULL,
         OwnerUserId UNIQUEIDENTIFIER NOT NULL,
+        JoinCode NVARCHAR(12) NOT NULL,
         Name NVARCHAR(120) NOT NULL,
         LocationText NVARCHAR(250) NOT NULL,
         Latitude DECIMAL(9,6) NULL,
@@ -135,6 +136,25 @@ BEGIN TRY
             (Latitude IS NULL AND Longitude IS NULL) OR
             (Latitude IS NOT NULL AND Longitude IS NOT NULL
              AND Latitude BETWEEN -90 AND 90 AND Longitude BETWEEN -180 AND 180)
+        )
+    );
+
+    CREATE TABLE dbo.FarmJoinRequest (
+        Id UNIQUEIDENTIFIER NOT NULL,
+        FarmId UNIQUEIDENTIFIER NOT NULL,
+        UserId UNIQUEIDENTIFIER NOT NULL,
+        Status NVARCHAR(8) NOT NULL CONSTRAINT DF_FarmJoinRequest_Status DEFAULT (N'Pending'),
+        RequestedAtUtc DATETIME2(3) NOT NULL CONSTRAINT DF_FarmJoinRequest_RequestedAt DEFAULT (SYSUTCDATETIME()),
+        ReviewedByUserId UNIQUEIDENTIFIER NULL,
+        ReviewedAtUtc DATETIME2(3) NULL,
+        CONSTRAINT PK_FarmJoinRequest PRIMARY KEY (Id),
+        CONSTRAINT FK_FarmJoinRequest_Farm FOREIGN KEY (FarmId) REFERENCES dbo.Farm(Id) ON DELETE NO ACTION,
+        CONSTRAINT FK_FarmJoinRequest_User FOREIGN KEY (UserId) REFERENCES dbo.AspNetUsers(Id) ON DELETE NO ACTION,
+        CONSTRAINT FK_FarmJoinRequest_Reviewer FOREIGN KEY (ReviewedByUserId) REFERENCES dbo.AspNetUsers(Id) ON DELETE NO ACTION,
+        CONSTRAINT CK_FarmJoinRequest_Status CHECK (Status IN (N'Pending', N'Approved', N'Rejected')),
+        CONSTRAINT CK_FarmJoinRequest_Review CHECK (
+            (Status = N'Pending' AND ReviewedByUserId IS NULL AND ReviewedAtUtc IS NULL)
+            OR (Status IN (N'Approved', N'Rejected') AND ReviewedByUserId IS NOT NULL AND ReviewedAtUtc IS NOT NULL)
         )
     );
 
@@ -448,6 +468,8 @@ BEGIN TRY
     CREATE UNIQUE INDEX UserNameIndex ON dbo.AspNetUsers(NormalizedUserName) WHERE NormalizedUserName IS NOT NULL;
 
     /* BUSINESS UNIQUE INDEXES */
+    CREATE UNIQUE INDEX UX_Farm_JoinCode ON dbo.Farm(JoinCode);
+    CREATE UNIQUE INDEX UX_FarmJoinRequest_Pending ON dbo.FarmJoinRequest(FarmId, UserId) WHERE Status = N'Pending';
     CREATE UNIQUE INDEX UX_FarmMember_Active ON dbo.FarmMember(FarmId, UserId) WHERE RemovedAtUtc IS NULL;
     CREATE UNIQUE INDEX UX_Plot_Farm_Name_Active ON dbo.Plot(FarmId, Name) WHERE ArchivedAtUtc IS NULL;
     CREATE UNIQUE INDEX UX_CropType_Name ON dbo.CropType(Name);
@@ -458,6 +480,7 @@ BEGIN TRY
     CREATE UNIQUE INDEX UX_InventoryTransaction_Reverses ON dbo.InventoryTransaction(ReversesTransactionId) WHERE ReversesTransactionId IS NOT NULL;
 
     /* LOOKUP & FOREIGN KEY INDEXES */
+    CREATE INDEX IX_FarmJoinRequest_User ON dbo.FarmJoinRequest(UserId);
     CREATE INDEX IX_Farm_Owner ON dbo.Farm(OwnerUserId);
     CREATE INDEX IX_FarmMember_User ON dbo.FarmMember(UserId);
     CREATE INDEX IX_Plot_Farm ON dbo.Plot(FarmId);
@@ -500,4 +523,4 @@ SELECT N'SmartFarm schema created' AS Message,
        COUNT(*) AS TableCount
 FROM sys.tables
 WHERE schema_id = SCHEMA_ID(N'dbo');
--- Expected: 23 tables (7 Identity + 16 SmartFarm).
+-- Expected: 24 tables (7 Identity + 17 SmartFarm).

@@ -39,13 +39,15 @@ data class PlotInputDto(
 data class FarmMemberDto(val id: String, val userId: String,
     val fullName: String, val email: String, val role: String)
 
-data class InvitationDto(val token: String, val expiresAtUtc: String,
-    val email: String, val role: String)
-
-data class InviteMemberDto(val email: String, val role: Int)
 data class UpdateMemberDto(val role: Int)
-data class AcceptInvitationDto(val token: String)
-data class InvitationAcceptedDto(val farmId: String)
 
+data class FarmJoinRequestDto(
+    val id: String, val farmId: String, val farmName: String, val userId: String,
+    val fullName: String, val email: String, val status: String,
+    val requestedAtUtc: String, val reviewedAtUtc: String? = null
+)
+data class FarmEnrollmentOverviewDto(val joinCode: String, val requests: List<FarmJoinRequestDto>)
+data class FarmJoinInputDto(val farmCode: String)
+data class FarmJoinDecisionDto(val approve: Boolean)
 
 data class RowVersionDto(val rowVersion: String)

@@ -1,18 +1,18 @@
-@model IReadOnlyList<SmartFarm.Core.Contracts.Farms.FarmSummary>
+@model SmartFarm.Web.ViewModels.Farms.FarmIndexViewModel
 @{
     ViewData["Title"] = "My farms";
 }
 <section class="panel">
     <h1>My farms</h1>
     <p><a class="button" asp-controller="Farms" asp-action="Create">Add a farm</a></p>
-    @if (Model.Count == 0)
+    @if (Model.Farms.Count == 0)
     {
-        <p>No farms yet. Create your first farm or ask an owner to invite you.</p>
+        <p>No farms yet. Request access with a farm code, or create your own farm.</p>
     }
     else
     {
         <ul class="farm-list">
-        @foreach (var farm in Model)
+        @foreach (var farm in Model.Farms)
         {
             <li>
                 <a asp-action="Details" asp-route-id="@farm.Id"><strong>@farm.Name</strong></a>
@@ -27,3 +27,31 @@
     }
 </section>
 
+
+<section class="panel">
+    <h2>Join a farm</h2>
+    <p>Enter the code supplied by the owner. Access begins after the owner approves your request.</p>
+    @if (TempData["Message"] is string message) { <p role="status">@message</p> }
+    <form asp-action="RequestJoin" method="post" class="narrow">
+        <label for="FarmCode">Farm code</label>
+        <input id="FarmCode" name="FarmCode" value="@Model.Join.FarmCode" required maxlength="64" autocomplete="off" spellcheck="false" />
+        @Html.ValidationMessage("FarmCode", null, new { @class = "error" })
+        <button type="submit">Request to join</button>
+    </form>
+    <h3>Your join requests</h3>
+    @if (Model.RequestError is not null) { <p role="alert">@Model.RequestError</p> }
+    else if (Model.JoinRequests.Count == 0) { <p>No join requests yet.</p> }
+    else
+    {
+        <ul class="farm-list">
+        @foreach (var request in Model.JoinRequests)
+        {
+            <li><strong>@request.FarmName</strong> — @request.Status
+                <span>Requested @request.RequestedAtUtc.ToString("MMM d, yyyy HH:mm") UTC</span>
+                @if (request.Status == "Pending") { <span>Waiting for the farm owner to approve.</span> }
+                @if (request.Status == "Rejected") { <span>The owner declined this request. Contact them before submitting again.</span> }
+            </li>
+        }
+        </ul>
+    }
+</section>

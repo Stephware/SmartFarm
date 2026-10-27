@@ -6,6 +6,7 @@ import androidx.lifecycle.viewModelScope
 import com.smartfarm.mobile.data.remote.dto.*
 import com.smartfarm.mobile.data.repository.FarmRepository
 import com.smartfarm.mobile.data.repository.WeatherRepository
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -19,7 +20,9 @@ data class FarmUiState(
     val selected: FarmDto? = null,
     val plots: List<PlotDto> = emptyList(),
     val members: List<FarmMemberDto> = emptyList(),
-    val invitation: InvitationDto? = null,
+    val myRequests: List<FarmJoinRequestDto> = emptyList(),
+    val enrollment: FarmEnrollmentOverviewDto? = null,
+    val enrollmentMessage: String? = null,
     val offline: Boolean = false,
     val cachedAtUtcMillis: Long? = null,
     val weather: WeatherOverviewDto? = null,
@@ -32,12 +35,15 @@ class FarmViewModel(
 ) : ViewModel() {
     private val mutable = MutableStateFlow(FarmUiState())
     val state = mutable.asStateFlow()
+    private var loadJob: Job? = null
+    private var actionJob: Job? = null
 
     private fun perform(block: suspend () -> Unit) {
         if (mutable.value.loading) return
         mutable.value = mutable.value.copy(loading = true, error = null)
-        viewModelScope.launch {
+        actionJob = viewModelScope.launch {
             try { block() }
+            catch (cancelled: CancellationException) { throw cancelled }
             catch (_: Exception) {
                 mutable.value = mutable.value.copy(error =
                     "Could not complete the request. Check permissions, current data and connection.")
@@ -47,21 +53,61 @@ class FarmViewModel(
 
 
     fun clear() {
+        loadJob?.cancel()
+        actionJob?.cancel()
         mutable.value = FarmUiState()
     }
 
-    fun load() = perform {
-        val snapshot = repo.listSnapshot()
-        mutable.value = mutable.value.copy(farms = snapshot.value, selected = null,
-            plots = emptyList(), members = emptyList(), invitation = null,
-            offline = snapshot.offline,
-            cachedAtUtcMillis = snapshot.savedAtUtcMillis.takeIf { snapshot.offline })
+    fun load() {
+        clear()
+        mutable.value = FarmUiState(loading = true)
+        loadJob = viewModelScope.launch {
+            try {
+                val snapshot = repo.listSnapshot()
+                mutable.value = mutable.value.copy(farms = snapshot.value, offline = snapshot.offline,
+                    cachedAtUtcMillis = snapshot.savedAtUtcMillis.takeIf { snapshot.offline })
+                loadMyRequests()
+            } catch (cancelled: CancellationException) { throw cancelled }
+            catch (_: Exception) {
+                mutable.value = mutable.value.copy(error = "Could not load farms. Check your connection.")
+            } finally { mutable.value = mutable.value.copy(loading = false) }
+        }
+    }
+
+    private suspend fun loadMyRequests() {
+        mutable.value = mutable.value.copy(myRequests = emptyList(), enrollmentMessage = null)
+        try {
+            mutable.value = mutable.value.copy(myRequests = repo.myJoinRequests())
+        } catch (cancelled: CancellationException) { throw cancelled }
+        catch (_: Exception) {
+            mutable.value = mutable.value.copy(enrollmentMessage =
+                "Join request status unavailable. Connect and refresh to check owner approval.")
+        }
+    }
+
+    private suspend fun loadEnrollment(farmId: String) {
+        mutable.value = mutable.value.copy(enrollment = null, enrollmentMessage = null)
+        if (mutable.value.selected?.role != "Owner") return
+        if (mutable.value.offline) {
+            mutable.value = mutable.value.copy(enrollmentMessage = "Join requests and farm code are unavailable offline.")
+            return
+        }
+        try {
+            val overview = repo.enrollment(farmId)
+            mutable.value = mutable.value.copy(enrollment = overview)
+        } catch (cancelled: CancellationException) { throw cancelled }
+        catch (_: Exception) {
+            mutable.value = mutable.value.copy(enrollmentMessage = "Join requests and farm code are unavailable. Refresh to try again.")
+        }
     }
 
     fun loadDetail(farmId: String) {
+        loadJob?.cancel()
+        actionJob?.cancel()
         mutable.value = if (mutable.value.selected?.id == farmId)
-            mutable.value.copy(loading = true, error = null) else FarmUiState(loading = true)
-        viewModelScope.launch {
+            mutable.value.copy(loading = true, error = null, enrollment = null, myRequests = emptyList(),
+                enrollmentMessage = null) else FarmUiState(loading = true)
+        loadJob = viewModelScope.launch {
             try {
                 val farm = repo.farmSnapshot(farmId)
                 val plots = repo.plotsSnapshot(farmId)
@@ -82,7 +128,9 @@ class FarmViewModel(
                         .minOfOrNull { it.savedAtUtcMillis },
                     weather = weatherData?.value,
                     weatherMessage = if (weatherData == null) "Weather data unavailable." else null)
-            } catch (_: Exception) {
+                loadEnrollment(farmId)
+            } catch (cancelled: CancellationException) { throw cancelled }
+            catch (_: Exception) {
                 mutable.value = mutable.value.copy(error =
                     "Could not load this farm. Check permissions and connection.")
             } finally {
@@ -127,7 +175,7 @@ class FarmViewModel(
     fun archiveFarm(onSuccess: () -> Unit) = perform {
         val farm = requireNotNull(mutable.value.selected)
         repo.archiveFarm(farm.id, RowVersionDto(requireNotNull(farm.rowVersion)))
-        mutable.value = mutable.value.copy(selected = null, plots = emptyList(), members = emptyList())
+        mutable.value = mutable.value.copy(selected = null, plots = emptyList(), members = emptyList(), enrollment = null)
         onSuccess()
     }
 
@@ -149,14 +197,23 @@ class FarmViewModel(
         mutable.value = mutable.value.copy(plots = repo.plots(farmId))
     }
 
-    fun invite(email: String, role: Int) = perform {
-        val farmId = requireNotNull(mutable.value.selected).id
-        mutable.value = mutable.value.copy(invitation = repo.invite(farmId, InviteMemberDto(email.trim(), role)))
+    fun requestToJoin(code: String) = perform {
+        require(code.isNotBlank())
+        repo.requestToJoin(code)
+        loadMyRequests()
+        if (mutable.value.enrollmentMessage == null) mutable.value = mutable.value.copy(
+            enrollmentMessage = "Request sent. Farm access awaits owner approval.")
     }
 
-    fun acceptInvitation(token: String, onSuccess: (String) -> Unit) = perform {
-        val accepted = repo.accept(token.trim())
-        onSuccess(accepted.farmId)
+    fun decideJoinRequest(requestId: String, approve: Boolean) = perform {
+        val farm = requireNotNull(mutable.value.selected)
+        require(farm.role == "Owner" && !mutable.value.offline)
+        require(mutable.value.enrollment?.requests?.any {
+            it.id == requestId && it.farmId == farm.id && it.status == "Pending"
+        } == true)
+        repo.decideJoinRequest(farm.id, requestId, approve)
+        loadEnrollment(farm.id)
+        mutable.value = mutable.value.copy(members = repo.members(farm.id))
     }
 
     fun changeRole(member: FarmMemberDto, role: Int) = perform {

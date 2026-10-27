@@ -90,13 +90,14 @@ class Predicate:
         text = clean_sql(sql)
         self.tokens = []
         position = 0
-        pattern = re.compile(r'\s*(<>|>=|<=|[A-Za-z_]\w*|-?\d+(?:\.\d+)?|[(),=<>])')
+        pattern = re.compile(r"\s*(N?'(?:''|[^'])*'|<>|>=|<=|[A-Za-z_]\w*|-?\d+(?:\.\d+)?|[(),=<>])")
         while position < len(text):
             if not text[position:].strip():
                 break
             match = pattern.match(text, position)
             require(match, 'Unsupported predicate syntax: ' + text[position:])
-            self.tokens.append(match[1].lower())
+            token = match[1]
+            self.tokens.append(token.removeprefix('N') if "'" in token else token.lower())
             position = match.end()
         self.index = 0
 
@@ -117,7 +118,7 @@ class Predicate:
             self.pop(')')
             return value
         value = self.pop()
-        require(re.fullmatch(r'[a-z_]\w*|-?\d+(?:\.\d+)?', value), 'Unsupported scalar')
+        require(re.fullmatch(r"'(?:''|[^'])*'|[a-z_]\w*|-?\d+(?:\.\d+)?", value), 'Unsupported scalar')
         return ('atom', value)
 
     def predicate(self):
