@@ -39,11 +39,11 @@ public abstract class NamedByteCodeConverter<TCode> : JsonConverter<byte>
         new(value.Where(char.IsLetterOrDigit).ToArray());
 }
 
-public sealed class ActivityTypeJsonConverter : NamedByteCodeConverter<FarmActivityType>;
-public sealed class HealthStatusJsonConverter : NamedByteCodeConverter<CropHealthStatus>;
-public sealed class TaskTypeJsonConverter : NamedByteCodeConverter<FarmTaskType>;
-public sealed class TaskCloseStatusJsonConverter : NamedByteCodeConverter<FarmTaskStatus>;
-public sealed class MemberRoleJsonConverter : NamedByteCodeConverter<FarmMemberRole>;
+public sealed class ActivityTypeJsonConverter : NamedByteCodeConverter<FarmActivityType> { }
+public sealed class HealthStatusJsonConverter : NamedByteCodeConverter<CropHealthStatus> { }
+public sealed class TaskTypeJsonConverter : NamedByteCodeConverter<FarmTaskType> { }
+public sealed class TaskCloseStatusJsonConverter : NamedByteCodeConverter<FarmTaskStatus> { }
+public sealed class MemberRoleJsonConverter : NamedByteCodeConverter<FarmMemberRole> { }
 
 public sealed class NamedEnumCodeConverter<TCode> : JsonConverter<TCode>
     where TCode : struct, Enum
