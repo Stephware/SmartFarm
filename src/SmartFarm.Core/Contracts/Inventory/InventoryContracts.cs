@@ -57,13 +57,19 @@ public sealed record InventoryItemDetails(
     Guid Id, Guid FarmId, string Name, InventoryCategory Category,
     string Unit, string? Description, decimal QuantityOnHand,
     decimal? ReorderLevel, bool IsLowStock, DateTime? ArchivedAtUtc,
-    string RowVersion);
+    string RowVersion)
+{
+    public string CategoryName => FarmCodeLabels.Category(Category);
+}
 
 public sealed record InventoryTransactionDetails(
     Guid Id, Guid InventoryItemId, Guid? CropActivityId,
     Guid? ReversesTransactionId, StockTransactionType TransactionType,
     decimal QuantityChange, DateTime OccurredAtUtc,
-    DateTime RecordedAtUtc, Guid RecordedByUserId, string? Reason);
+    DateTime RecordedAtUtc, Guid RecordedByUserId, string? Reason)
+{
+    public string TransactionTypeName => FarmCodeLabels.Transaction(TransactionType);
+}
 
 public sealed record InventoryActivityOption(Guid Id, string Label);
 
