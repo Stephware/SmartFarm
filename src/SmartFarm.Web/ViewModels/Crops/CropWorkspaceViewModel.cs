@@ -9,6 +9,7 @@ public sealed record CropWorkspaceViewModel(
     IReadOnlyList<CropTypeDetails> CropTypes,
     IReadOnlyList<CropCycleDetails> Cycles)
 {
+    public CropAgendaMonth? Agenda { get; init; }
     public CropTypeInput CropType { get; init; } = new();
     public CropCyclePlanInput Plan { get; init; } = new();
     public Guid? PlanPlotId { get; init; }
