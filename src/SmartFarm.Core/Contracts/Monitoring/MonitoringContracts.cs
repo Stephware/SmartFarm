@@ -1,4 +1,6 @@
 using System.ComponentModel.DataAnnotations;
+using System.Text.Json.Serialization;
+using SmartFarm.Core.Contracts;
 using SmartFarm.Core.Enums;
 
 namespace SmartFarm.Core.Contracts.Monitoring;
@@ -8,6 +10,7 @@ namespace SmartFarm.Core.Contracts.Monitoring;
 public sealed class RecordActivityInput
 {
     [Range(1, 5)]
+    [JsonConverter(typeof(ActivityTypeJsonConverter))]
     public byte ActivityType { get; set; }
 
     [StringLength(1000)]
@@ -20,6 +23,7 @@ public sealed class RecordActivityInput
 public sealed class RecordObservationInput
 {
     [Range(0, 3)]
+    [JsonConverter(typeof(HealthStatusJsonConverter))]
     public byte HealthStatus { get; set; }
 
     [StringLength(40)]
