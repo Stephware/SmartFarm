@@ -1,6 +1,8 @@
 package com.smartfarm.mobile
 
 import androidx.room.Room
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
 import android.net.Uri
 import com.smartfarm.mobile.data.sync.LocalPhotoFiles
 import java.io.File
@@ -55,16 +57,25 @@ class OfflinePhotoQueueTest {
         val staging = File(context.cacheDir, "photo-test-${UUID.randomUUID()}.jpg")
         val files = LocalPhotoFiles(context)
         val id = UUID.randomUUID().toString()
-        val sample = byteArrayOf(0xff.toByte(), 0xd8.toByte(), 0xff.toByte(), 1, 2, 3)
+        val sample = Bitmap.createBitmap(16, 16, Bitmap.Config.ARGB_8888)
         try {
-            staging.writeBytes(sample)
+            staging.outputStream().use {
+                assertTrue(sample.compress(Bitmap.CompressFormat.JPEG, 100, it))
+            }
             assertEquals("image/jpeg",
                 files.copyFrom(context.contentResolver, Uri.fromFile(staging), id))
             assertTrue(files.file(id).isFile)
-            assertTrue(files.file(id).readBytes().contentEquals(sample))
+            val stored = requireNotNull(BitmapFactory.decodeFile(files.file(id).absolutePath))
+            try {
+                assertEquals(16, stored.width)
+                assertEquals(16, stored.height)
+            } finally {
+                stored.recycle()
+            }
             files.delete(id)
             assertTrue(!files.file(id).exists())
         } finally {
+            sample.recycle()
             staging.delete()
             files.file(id).delete()
         }
