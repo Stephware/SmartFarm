@@ -11,6 +11,42 @@
     <p>Plan planting, track active crops, and review crop history.</p>
     @if (TempData["Error"] is string error) { <p class="error" role="alert">@error</p> }
 </section>
+@if (Model.Agenda is { } agenda)
+{
+<section class="panel" aria-labelledby="crop-calendar-heading">
+    <h2 id="crop-calendar-heading">Crop calendar</h2>
+    <p class="hint">Planting, projected watering, and expected harvest dates for @Model.Farm.Name. Dates use @Model.Farm.TimeZoneId; check farm tasks for completion status.</p>
+    <nav class="crop-agenda-nav" aria-label="Calendar month">
+        <a asp-controller="Crops" asp-action="Index" asp-route-farmId="@Model.Farm.Id"
+           asp-route-month="@agenda.PreviousMonth.ToString("yyyy-MM")" aria-label="Previous month">← Previous</a>
+        <strong>@agenda.FirstDay.ToString("MMMM yyyy")</strong>
+        <a asp-controller="Crops" asp-action="Index" asp-route-farmId="@Model.Farm.Id"
+           asp-route-month="@agenda.NextMonth.ToString("yyyy-MM")" aria-label="Next month">Next →</a>
+    </nav>
+    @if (agenda.Days.Count == 0)
+    {
+        <p>No planting, watering, or harvest dates scheduled for this month.</p>
+    }
+    else
+    {
+        <ol class="crop-agenda-list">
+        @foreach (var day in agenda.Days)
+        {
+            <li>
+                <time datetime="@day.Date.ToString("yyyy-MM-dd")">@day.Date.ToString("ddd, MMM d")</time>
+                <ul>
+                @foreach (var entry in day.Entries)
+                {
+                    <li><strong>@entry.Kind</strong> · @entry.CropName <span>— @entry.PlotName</span></li>
+                }
+                </ul>
+            </li>
+        }
+        </ol>
+    }
+    <p><a asp-controller="Tasks" asp-action="Index" asp-route-farmId="@Model.Farm.Id">View assigned tasks and reminders →</a></p>
+</section>
+}
 <section class="panel">
     <h2>Crop types</h2>
     @if (Model.CropTypes.Count == 0) { <p>No crop types available yet.</p> }
