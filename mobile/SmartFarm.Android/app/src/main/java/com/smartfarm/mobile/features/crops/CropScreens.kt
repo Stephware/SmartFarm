@@ -11,6 +11,8 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.AlertDialog
 import com.smartfarm.mobile.ui.components.DateInput
 import androidx.compose.material3.FilterChip
+import androidx.compose.foundation.lazy.items
+import com.smartfarm.mobile.ui.components.RecordPage
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.HorizontalDivider
@@ -20,6 +22,10 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.heading
+import androidx.compose.ui.semantics.liveRegion
+import androidx.compose.ui.semantics.LiveRegionMode
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -53,19 +59,19 @@ fun CropScreen(
     var plannedDate by rememberSaveable { mutableStateOf("") }
     var harvestDate by rememberSaveable { mutableStateOf("") }
 
-    Scaffold { padding ->
-        Column(Modifier.fillMaxSize().padding(padding).verticalScroll(rememberScrollState()).padding(20.dp),
-            verticalArrangement = Arrangement.spacedBy(12.dp)) {
-            Text("Crop management", style = MaterialTheme.typography.headlineMedium)
+    RecordPage {
+        item(key = "forms") {
+            Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+            Text("Crop management", style = MaterialTheme.typography.headlineMedium, modifier = Modifier.semantics { heading() })
             OutlinedButton(onClick = onBack) { Text("Back to farm") }
             if (state.busy) CircularProgressIndicator()
             state.error?.let {
-                Text(it, color = MaterialTheme.colorScheme.error)
+                Text(it, color = MaterialTheme.colorScheme.error, modifier = Modifier.semantics { liveRegion = LiveRegionMode.Assertive })
                 OutlinedButton(onClick = onRetry, enabled = !state.busy) { Text("Try again") }
             }
             OfflineDataNotice(state.offline, state.cachedAtUtcMillis)
 
-            Text("Available crop types", style = MaterialTheme.typography.titleLarge)
+            Text("Available crop types", style = MaterialTheme.typography.titleLarge, modifier = Modifier.semantics { heading() })
             if (state.types.isEmpty()) Text("No crop types yet.")
             state.types.forEach { type -> Text("${type.name} · ${type.defaultHarvestUnit}") }
 
@@ -86,7 +92,7 @@ fun CropScreen(
                 }
 
                 HorizontalDivider()
-                Text("Plan planting", style = MaterialTheme.typography.titleLarge)
+                Text("Plan planting", style = MaterialTheme.typography.titleLarge, modifier = Modifier.semantics { heading() })
                 if (state.plots.isEmpty()) Text("Create a plot first.")
                 if (state.types.isEmpty()) Text("Create a crop type first.")
                 if (state.plots.isNotEmpty()) {
@@ -110,9 +116,12 @@ fun CropScreen(
                         && plannedDate.isNotBlank()) { Text("Create planting plan") }
             }
             HorizontalDivider()
-            Text("Crop cycles and history", style = MaterialTheme.typography.titleLarge)
+            Text("Crop cycles and history", style = MaterialTheme.typography.titleLarge, modifier = Modifier.semantics { heading() })
             if (state.cycles.isEmpty()) Text("No crop cycles yet.")
-            state.cycles.forEach { cycle ->
+            }
+        }
+        items(state.cycles, key = { "cycle-${it.id}" }) { cycle ->
+            Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
                 CycleCard(cycle, canManage && !state.offline, state.busy, onUpdatePlan, onTransition, onMonitoring, onHarvests)
                 HorizontalDivider()
             }

@@ -18,7 +18,7 @@
     {
         <form asp-action="Archive" asp-route-id="@Model.Farm.Id" method="post" class="inline" data-confirm="Archive @Model.Farm.Name? Its plots and records will no longer appear in active farms.">
             <input type="hidden" name="rowVersion" value="@Model.Farm.RowVersion" />
-            <button type="submit">Archive farm</button>
+            <button class="button-danger" type="submit">Archive farm</button>
         </form>
     }
 </section>
@@ -37,7 +37,7 @@
                     <a asp-action="EditPlot" asp-route-id="@Model.Farm.Id" asp-route-plotId="@plot.Id">Edit</a>
                     <form asp-action="ArchivePlot" asp-route-id="@Model.Farm.Id" asp-route-plotId="@plot.Id" method="post" class="inline" data-confirm="Archive @plot.Name? Its history will be retained.">
                         <input type="hidden" name="rowVersion" value="@plot.RowVersion" />
-                        <button type="submit">Archive</button>
+                        <button class="button-danger" type="submit">Archive</button>
                     </form>
                 }
             </li>
@@ -81,7 +81,7 @@
                         <button type="submit">Update role</button>
                     </form>
                     <form asp-action="RemoveMember" asp-route-id="@Model.Farm.Id" asp-route-memberId="@member.Id" method="post" class="inline" data-confirm="Remove @member.FullName from @Model.Farm.Name? They will lose access.">
-                        <button type="submit">Remove</button>
+                        <button class="button-danger" type="submit">Remove</button>
                     </form>
                 }
             </li>

@@ -1,5 +1,10 @@
 package com.smartfarm.mobile.features.farms
 
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.widthIn
+import androidx.compose.foundation.layout.consumeWindowInsets
+import androidx.compose.ui.Alignment
+import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -12,6 +17,10 @@ import com.smartfarm.mobile.ui.components.TimeZoneInput
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.material3.FilterChip
+import androidx.compose.foundation.lazy.items
+import androidx.compose.material3.OutlinedCard
+import androidx.compose.ui.platform.testTag
+import com.smartfarm.mobile.ui.components.RecordPage
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
@@ -20,6 +29,10 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.HorizontalDivider
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.heading
+import androidx.compose.ui.semantics.liveRegion
+import androidx.compose.ui.semantics.LiveRegionMode
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -40,10 +53,12 @@ import com.smartfarm.mobile.ui.components.ConfirmActionButton
 @Composable
 private fun FarmPage(title: String, content: @Composable () -> Unit) {
     Scaffold { padding ->
-        Column(Modifier.fillMaxSize().padding(padding).verticalScroll(rememberScrollState()).padding(20.dp),
-            verticalArrangement = Arrangement.spacedBy(12.dp)) {
-            Text(title, style = MaterialTheme.typography.headlineMedium)
+        Box(Modifier.fillMaxSize().padding(padding).consumeWindowInsets(padding).imePadding(), contentAlignment = Alignment.TopCenter) {
+            Column(Modifier.widthIn(max = 840.dp).fillMaxSize().verticalScroll(rememberScrollState()).padding(24.dp),
+                verticalArrangement = Arrangement.spacedBy(12.dp)) {
+            Text(title, style = MaterialTheme.typography.headlineMedium, modifier = Modifier.semantics { heading() })
             content()
+            }
         }
     }
 }
@@ -52,7 +67,7 @@ private fun FarmPage(title: String, content: @Composable () -> Unit) {
 private fun Progress(state: FarmUiState, onRetry: () -> Unit = {}) {
     if (state.loading) CircularProgressIndicator()
     state.error?.let {
-        Text(it, color = MaterialTheme.colorScheme.error)
+        Text(it, color = MaterialTheme.colorScheme.error, modifier = Modifier.semantics { liveRegion = LiveRegionMode.Assertive })
         OutlinedButton(onClick = onRetry, enabled = !state.loading) { Text("Try again") }
     }
     OfflineDataNotice(state.offline, state.cachedAtUtcMillis)
@@ -68,37 +83,58 @@ fun FarmListScreen(state: FarmUiState, onOpen: (String) -> Unit,
     var latitude by rememberSaveable { mutableStateOf("") }
     var longitude by rememberSaveable { mutableStateOf("") }
     var invitation by remember { mutableStateOf("") }
-    FarmPage("My farms") {
-        OutlinedButton(onClick = onBack) { Text("My account") }
-        Progress(state, onRetry)
-        if (state.farms.isEmpty() && !state.loading && state.error == null) Text("No farms yet. Create one or accept an invitation.")
-        state.farms.forEach { farm ->
-            Button(onClick = { onOpen(farm.id) }, modifier = Modifier.fillMaxWidth()) {
-                Text("${farm.name} · ${farm.role}")
+    var creating by rememberSaveable { mutableStateOf(false) }
+    var joining by rememberSaveable { mutableStateOf(false) }
+    RecordPage {
+        item(key = "header") {
+            Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                Text("My farms", style = MaterialTheme.typography.headlineMedium, modifier = Modifier.semantics { heading() })
+                OutlinedButton(onClick = onBack) { Text("My account") }
+                Progress(state, onRetry)
+                if (state.farms.isEmpty() && !state.loading && state.error == null)
+                    Text("No farms yet. Add a farm or accept an invitation.")
+                Button(onClick = { creating = !creating }) { Text(if (creating) "Close farm form" else "Add a farm") }
+                OutlinedButton(onClick = { joining = !joining }) { Text(if (joining) "Close invitation form" else "Join a farm") }
             }
         }
-        HorizontalDivider()
-        Text("Create farm", style = MaterialTheme.typography.titleMedium)
-        OutlinedTextField(name, { name = it }, label = { Text("Name") }, modifier = Modifier.fillMaxWidth())
-        OutlinedTextField(location, { location = it }, label = { Text("Location") }, modifier = Modifier.fillMaxWidth())
-        Text("Coordinates are optional, but required for weather advisories.")
-        TimeZoneInput(zone, { zone = it }, enabled = !state.loading && !state.offline)
-        OutlinedTextField(latitude, { latitude = it }, label = { Text("Latitude") },
-            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
-            modifier = Modifier.fillMaxWidth())
-        OutlinedTextField(longitude, { longitude = it }, label = { Text("Longitude") },
-            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
-            modifier = Modifier.fillMaxWidth())
-        Button(onClick = { onCreate(name, location, zone, latitude, longitude) },
-            enabled = !state.loading && !state.offline && name.isNotBlank() &&
-                location.isNotBlank() && zone.isNotBlank() &&
-                (latitude.isBlank() == longitude.isBlank())) { Text("Create") }
-        HorizontalDivider()
-        Text("Accept an invitation", style = MaterialTheme.typography.titleMedium)
-        OutlinedTextField(invitation, { invitation = it }, label = { Text("Invitation token") },
-            modifier = Modifier.fillMaxWidth())
-        Button(onClick = { onAccept(invitation) },
-            enabled = !state.loading && !state.offline && invitation.isNotBlank()) { Text("Join farm") }
+        if (creating) item(key = "create") {
+            Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                Text("Create farm", style = MaterialTheme.typography.titleMedium)
+                OutlinedTextField(name, { name = it }, label = { Text("Name") }, modifier = Modifier.fillMaxWidth())
+                OutlinedTextField(location, { location = it }, label = { Text("Location") }, modifier = Modifier.fillMaxWidth())
+                Text("Coordinates are optional, but required for weather advisories.")
+                TimeZoneInput(zone, { zone = it }, enabled = !state.loading && !state.offline)
+                OutlinedTextField(latitude, { latitude = it }, label = { Text("Latitude") },
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
+                    modifier = Modifier.fillMaxWidth())
+                OutlinedTextField(longitude, { longitude = it }, label = { Text("Longitude") },
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
+                    modifier = Modifier.fillMaxWidth())
+                Button(onClick = { onCreate(name, location, zone, latitude, longitude) },
+                    enabled = !state.loading && !state.offline && name.isNotBlank() &&
+                        location.isNotBlank() && zone.isNotBlank() &&
+                        (latitude.isBlank() == longitude.isBlank())) { Text("Create") }
+            }
+        }
+        if (joining) item(key = "join") {
+            Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                Text("Accept an invitation", style = MaterialTheme.typography.titleMedium)
+                OutlinedTextField(invitation, { invitation = it }, label = { Text("Invitation token") },
+                    modifier = Modifier.fillMaxWidth())
+                Button(onClick = { onAccept(invitation) },
+                    enabled = !state.loading && !state.offline && invitation.isNotBlank()) { Text("Join farm") }
+            }
+        }
+        items(state.farms, key = { "farm-${it.id}" }) { farm ->
+            OutlinedCard(onClick = { onOpen(farm.id) }, modifier = Modifier.fillMaxWidth().testTag("record-card")) {
+                Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                    Text(farm.name, style = MaterialTheme.typography.titleMedium)
+                    Text(farm.locationText)
+                    Text(farm.role, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                }
+            }
+        }
+
     }
 }
 
@@ -143,7 +179,7 @@ fun FarmDetailScreen(state: FarmUiState, onBack: () -> Unit,
             Button(onClick = onCrops) { Text("Crop management") }
             Button(onClick = onInventory) { Text("Inventory") }
             HorizontalDivider()
-            Text("Weather forecast and advisories", style = MaterialTheme.typography.titleLarge)
+            Text("Weather forecast and advisories", style = MaterialTheme.typography.titleLarge, modifier = Modifier.semantics { heading() })
             val weather = state.weather
             if (weather == null) {
                 Text(state.weatherMessage ?: "Weather information has not been loaded.")
@@ -196,7 +232,7 @@ fun FarmDetailScreen(state: FarmUiState, onBack: () -> Unit,
             HorizontalDivider()
             if (visibleSection == "Plots") {
             sectionState.SaveableStateProvider("plots-${farm.id}") {
-            Text("Plots", style = MaterialTheme.typography.titleLarge)
+            Text("Plots", style = MaterialTheme.typography.titleLarge, modifier = Modifier.semantics { heading() })
             if (state.plots.isEmpty()) Text("No active plots.")
             state.plots.forEach { plot ->
                 key(plot.id) {
@@ -236,7 +272,7 @@ fun FarmDetailScreen(state: FarmUiState, onBack: () -> Unit,
             }
             }
             if (visibleSection == "Members") {
-            Text("Members", style = MaterialTheme.typography.titleLarge)
+            Text("Members", style = MaterialTheme.typography.titleLarge, modifier = Modifier.semantics { heading() })
             state.members.forEach { member ->
                 Text("${member.fullName} · ${member.role}")
                 if (isOwner) {

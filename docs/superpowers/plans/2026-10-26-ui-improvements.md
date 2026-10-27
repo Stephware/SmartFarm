@@ -74,6 +74,10 @@
 
 **Interfaces:** Preserve completed workflows; green primary, neutral secondary, error/destructive roles; adaptive gutters and bounded forms; lazy lists with stable record keys.
 
-- [ ] Check narrow-screen and large-text behavior using available UI tools/tests.
-- [ ] Align color roles, action hierarchy, spacing, headings and responsive list/form layouts without new dependencies.
-- [ ] Run final .NET/Android checks, review and merge PR; report any unavailable visual/device checks.
+- [x] Check narrow-screen and large-text behavior using available UI tools/tests.
+- [x] Align color roles, action hierarchy, spacing, headings and responsive list/form layouts without new dependencies.
+- [x] Run final .NET/Android checks, review and merge PR; report any unavailable visual/device checks.
+
+**Final verification:** Web UI checks pass (2/2). Android unit tests pass (12/12); emulator tests pass 28/29, with only the existing invalid-JPEG photo fixture failure. .NET passes 273/275, with the two baseline failures listed above. New coverage verifies long-list virtualization, immediate access to create forms, 375dp dark registration at 200% font scale, landscape submit access, and semantic palette contrast. Narrow/landscape emulator screenshots were inspected; manual Web browser, TalkBack and physical tablet checks were unavailable.
+
+**Review:** The final review found create/join forms opening after all list records. Two regression tests reproduced this; conditional forms now precede the records. No other critical or important review findings remain. Each group is integrated through its own PR to dev.

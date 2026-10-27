@@ -69,9 +69,10 @@
     @if (report.CropPlotTotals.Count == 0) { <p>No matching totals.</p> }
     else
     {
-        <div class="table-scroll">
+        <div class="table-scroll" tabindex="0" role="region" aria-label="Harvest by crop and plot">
             <table class="data-table">
-                <thead><tr><th>Crop</th><th>Plot</th><th>Harvests</th><th>Quantity</th></tr></thead>
+                <caption class="visually-hidden">Harvest by crop and plot</caption>
+                <thead><tr><th scope="col">Crop</th><th scope="col">Plot</th><th scope="col">Harvests</th><th scope="col">Quantity</th></tr></thead>
                 <tbody>
                 @foreach (var item in report.CropPlotTotals)
                 {
@@ -91,9 +92,10 @@
     @if (report.MonthlyTotals.Count == 0) { <p>No monthly harvest data.</p> }
     else
     {
-        <div class="table-scroll">
+        <div class="table-scroll" tabindex="0" role="region" aria-label="Monthly yield">
             <table class="data-table">
-                <thead><tr><th>Month</th><th>Harvests</th><th>Quantity</th></tr></thead>
+                <caption class="visually-hidden">Monthly yield</caption>
+                <thead><tr><th scope="col">Month</th><th scope="col">Harvests</th><th scope="col">Quantity</th></tr></thead>
                 <tbody>
                 @foreach (var item in report.MonthlyTotals)
                 {
@@ -111,9 +113,10 @@
     @if (report.Entries.Count == 0) { <p>No records match your filters.</p> }
     else
     {
-        <div class="table-scroll">
+        <div class="table-scroll" tabindex="0" role="region" aria-label="Harvest record history">
             <table class="data-table">
-                <thead><tr><th>Farm date</th><th>Crop / plot</th><th>Quantity</th><th>Status</th></tr></thead>
+                <caption class="visually-hidden">Harvest record history</caption>
+                <thead><tr><th scope="col">Farm date</th><th scope="col">Crop / plot</th><th scope="col">Quantity</th><th scope="col">Status</th></tr></thead>
                 <tbody>
                 @foreach (var item in report.Entries.Take(100))
                 {
