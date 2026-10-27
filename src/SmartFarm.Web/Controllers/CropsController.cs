@@ -33,20 +33,24 @@ public sealed class CropsController : Controller
     private Guid Actor => Guid.TryParse(_users.GetUserId(User), out var id) ? id : Guid.Empty;
 
     [HttpGet]
-    public Task<IActionResult> Index(Guid farmId, CancellationToken ct) => Workspace(farmId, ct);
+    public Task<IActionResult> Index(Guid farmId, CancellationToken ct, string? month = null) =>
+        Workspace(farmId, ct, month: month);
 
     private async Task<IActionResult> Workspace(Guid farmId, CancellationToken ct,
         CropTypeInput? cropType = null, CropCyclePlanInput? plan = null, Guid? plotId = null,
-        CropCycleTransitionInput? transition = null, Guid? cycleId = null)
+        CropCycleTransitionInput? transition = null, Guid? cycleId = null, string? month = null)
     {
         var farm = await _farms.GetAsync(farmId, Actor, ct);
         if (farm is null) return NotFound();
 
+        var cycles = await _crops.ListCyclesAsync(farmId, Actor, ct);
         return View("Index", new CropWorkspaceViewModel(
             farm, await _farms.ListPlotsAsync(farmId, Actor, ct),
             await _crops.ListCropTypesAsync(farmId, Actor, ct),
-            await _crops.ListCyclesAsync(farmId, Actor, ct))
+            cycles)
         {
+            Agenda = CropAgendaBuilder.Build(cycles,
+                CropAgendaBuilder.SelectMonth(month, farm.TimeZoneId, DateTime.UtcNow)),
             CropType = cropType ?? new(), Plan = plan ?? new(), PlanPlotId = plotId,
             Transition = transition ?? new(), TransitionCycleId = cycleId
         });
