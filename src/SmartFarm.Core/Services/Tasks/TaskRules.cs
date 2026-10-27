@@ -1,12 +1,14 @@
 using SmartFarm.Core.Contracts.Tasks;
 using SmartFarm.Core.Entities;
+using SmartFarm.Core.Enums;
 
 namespace SmartFarm.Core.Services.Tasks;
 
 public static class TaskRules
 {
-    public static bool IsValidType(byte type) => type is >= 1 and <= 6;
-    public static bool IsValidCloseStatus(byte status) => status is >= 1 and <= 3;
+    public static bool IsValidType(byte type) => Enum.IsDefined((FarmTaskType)type);
+    public static bool IsValidCloseStatus(byte status) => status is (byte)FarmTaskStatus.Completed or
+        (byte)FarmTaskStatus.Skipped or (byte)FarmTaskStatus.Cancelled;
 
     public static string? Validate(FarmTaskInput input)
     {
@@ -21,8 +23,8 @@ public static class TaskRules
 
     public static byte? ForActivity(byte activityType) => activityType switch
     {
-        1 => (byte)2, // Watering
-        2 => (byte)3, // Fertilizing
+        (byte)FarmActivityType.Watering => (byte)FarmTaskType.Watering,
+        (byte)FarmActivityType.Fertilizing => (byte)FarmTaskType.Fertilizing,
         _ => null
     };
 
