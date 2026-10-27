@@ -27,11 +27,10 @@ builder.Services.AddSmartFarmBusinessServices();
 // In Development this matches the API's sibling SmartFarm.Web/App_Data photo store.
 // Configure ObservationPhotos:StoragePath to the same shared directory on each host
 // before deploying the MVC and API to separate instances.
-builder.Services.AddSingleton<IObservationPhotoStore>(_ =>
-    new LocalObservationPhotoStore(
-        builder.Configuration["ObservationPhotos:StoragePath"] ??
-        Path.GetFullPath(Path.Combine(builder.Environment.ContentRootPath,
-            "App_Data", "observation-photos"))));
+builder.Services.AddSharedObservationPhotoStore(
+    builder.Configuration, builder.Environment.IsDevelopment(),
+    Path.GetFullPath(Path.Combine(builder.Environment.ContentRootPath,
+        "App_Data", "observation-photos")));
 // Web and API must use the same protected key ring when hosted on different machines.
 var dataProtection = builder.Services.AddDataProtection()
     .SetApplicationName($"SmartFarm.SharedIdentity.{builder.Environment.EnvironmentName}");
