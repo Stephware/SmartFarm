@@ -1,3 +1,5 @@
+using SmartFarm.Core.Enums;
+
 namespace SmartFarm.Core.Contracts.Tasks;
 
 public sealed record FarmTaskInput(
@@ -18,9 +20,16 @@ public sealed record FarmTaskCloseInput(byte Status, string RowVersion);
 public sealed record FarmTaskDetails(
     Guid Id, Guid FarmId, Guid? CropCycleId, Guid? AssignedToUserId,
     byte TaskType, DateOnly DueDate, byte Status, string? Description,
-    DateTime CreatedAtUtc, DateTime? ClosedAtUtc, string RowVersion);
+    DateTime CreatedAtUtc, DateTime? ClosedAtUtc, string RowVersion)
+{
+    public string TaskTypeName => FarmCodeLabels.Task(TaskType);
+    public string StatusName => FarmCodeLabels.TaskStatus(Status);
+}
 
 public sealed record NotificationDetails(
     Guid Id, byte Type, string Title, string Message,
     Guid? FarmTaskId, Guid? WeatherAdvisoryId,
-    DateTime CreatedAtUtc, DateTime? ReadAtUtc);
+    DateTime CreatedAtUtc, DateTime? ReadAtUtc)
+{
+    public string TypeName => FarmCodeLabels.Notification(Type);
+}
