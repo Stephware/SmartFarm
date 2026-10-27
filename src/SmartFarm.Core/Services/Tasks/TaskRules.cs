@@ -7,8 +7,8 @@ namespace SmartFarm.Core.Services.Tasks;
 public static class TaskRules
 {
     public static bool IsValidType(byte type) => Enum.IsDefined((FarmTaskType)type);
-    public static bool IsValidCloseStatus(byte status) => status is (byte)FarmTaskStatus.Completed or
-        (byte)FarmTaskStatus.Skipped or (byte)FarmTaskStatus.Cancelled;
+    public static bool IsValidCloseStatus(byte status) =>
+        status >= (byte)FarmTaskStatus.Completed && status <= (byte)FarmTaskStatus.Cancelled;
 
     public static string? Validate(FarmTaskInput input)
     {
@@ -21,12 +21,14 @@ public static class TaskRules
         return null;
     }
 
-    public static byte? ForActivity(byte activityType) => activityType switch
+    public static byte? ForActivity(byte activityType)
     {
-        (byte)FarmActivityType.Watering => (byte)FarmTaskType.Watering,
-        (byte)FarmActivityType.Fertilizing => (byte)FarmTaskType.Fertilizing,
-        _ => null
-    };
+        if (activityType == (byte)FarmActivityType.Watering)
+            return (byte)FarmTaskType.Watering;
+        if (activityType == (byte)FarmActivityType.Fertilizing)
+            return (byte)FarmTaskType.Fertilizing;
+        return null;
+    }
 
     public static string? ValidateUpdate(FarmTaskUpdateInput input)
     {
