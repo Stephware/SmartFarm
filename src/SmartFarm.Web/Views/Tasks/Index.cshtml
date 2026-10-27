@@ -1,11 +1,11 @@
+@using SmartFarm.Core.Enums
 @model SmartFarm.Web.ViewModels.Tasks.TaskPage
 @{
     ViewData["Title"] = "Farm tasks";
     var canManage = Model.Farm.Role is "Owner" or "Manager";
     var actorId = Guid.TryParse(User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value, out var userId)
         ? userId : Guid.Empty;
-    var taskNames = new[] { "", "Planting", "Watering", "Fertilizing", "Inspection", "Harvest", "Other" };
-    var statuses = new[] { "Pending", "Completed", "Skipped", "Cancelled" };
+
 }
 <partial name="_FarmNavigation" model="Model.Farm.Id" />
 <section class="panel">
@@ -18,8 +18,8 @@
         @foreach (var task in Model.Tasks)
         {
             <li>
-                <strong>@taskNames[task.TaskType]</strong> — @task.DueDate.ToString("yyyy-MM-dd")
-                <span> · @statuses[task.Status]</span>
+                <strong>@task.TaskTypeName</strong> — @task.DueDate.ToString("yyyy-MM-dd")
+                <span> · @task.StatusName</span>
                 @if (task.AssignedToUserId is { } assigned)
                 {
                     <span> · Assigned: @(Model.Members.FirstOrDefault(m => m.UserId == assigned)?.FullName ?? "Farm owner")</span>
@@ -73,9 +73,9 @@
         <form asp-action="Create" asp-route-farmId="@Model.Farm.Id" method="post" class="narrow">
             <label for="taskType">Task type</label>
             <select name="TaskType" id="taskType">
-                @for (var type = 1; type <= 6; type++)
+                @foreach (var option in FarmCodeLabels.TaskTypes)
                 {
-                    <option value="@type">@taskNames[type]</option>
+                    <option value="@option.Code">@option.Name</option>
                 }
             </select>
             <label for="taskDue">Due date</label>
