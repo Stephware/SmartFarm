@@ -124,8 +124,8 @@ public static class FarmCodeLabels
         Options<InventoryCategory>(code => Category((InventoryCategory)code));
     public static IReadOnlyList<FarmCodeOption> InventoryMovementTypes =>
         Options<StockTransactionType>(code => Transaction((StockTransactionType)code))
-            .Where(item => item.Code is >= (byte)StockTransactionType.Receipt
-                and <= (byte)StockTransactionType.Adjustment).ToArray();
+            .Where(item => item.Code >= (byte)StockTransactionType.Receipt &&
+                item.Code <= (byte)StockTransactionType.Adjustment).ToArray();
     public static IReadOnlyList<FarmCodeOption> CropStatuses =>
         Options<CropCycleStatus>(code => CropStatus((CropCycleStatus)code));
 }
