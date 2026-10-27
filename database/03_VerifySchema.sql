@@ -12,24 +12,24 @@ IF EXISTS (
     THROW 50011, 'Unexpected user tables outside dbo.', 1;
 
 IF (SELECT COUNT(*) FROM sys.tables
-    WHERE schema_id = SCHEMA_ID(N'dbo') AND name <> N'__EFMigrationsHistory') <> 23
-    THROW 50012, 'Expected 23 SmartFarm and Identity tables.', 1;
+    WHERE schema_id = SCHEMA_ID(N'dbo') AND name <> N'__EFMigrationsHistory') <> 24
+    THROW 50012, 'Expected 24 SmartFarm and Identity tables.', 1;
 
 IF (SELECT COUNT(*) FROM sys.indexes AS i
     JOIN sys.tables AS t ON t.object_id = i.object_id
     WHERE t.schema_id = SCHEMA_ID(N'dbo') AND t.name <> N'__EFMigrationsHistory'
-        AND i.is_primary_key = 0 AND i.name IS NOT NULL) <> 45
-    THROW 50013, 'Expected 45 application indexes.', 1;
+        AND i.is_primary_key = 0 AND i.name IS NOT NULL) <> 48
+    THROW 50013, 'Expected 48 application indexes.', 1;
 
 IF (SELECT COUNT(*) FROM sys.foreign_keys AS fk
     JOIN sys.tables AS t ON t.object_id = fk.parent_object_id
-    WHERE t.schema_id = SCHEMA_ID(N'dbo') AND t.name <> N'__EFMigrationsHistory') <> 39
-    THROW 50014, 'Expected 39 foreign keys.', 1;
+    WHERE t.schema_id = SCHEMA_ID(N'dbo') AND t.name <> N'__EFMigrationsHistory') <> 42
+    THROW 50014, 'Expected 42 foreign keys.', 1;
 
 IF (SELECT COUNT(*) FROM sys.check_constraints AS ck
     JOIN sys.tables AS t ON t.object_id = ck.parent_object_id
-    WHERE t.schema_id = SCHEMA_ID(N'dbo') AND t.name <> N'__EFMigrationsHistory') <> 36
-    THROW 50015, 'Expected 36 check constraints.', 1;
+    WHERE t.schema_id = SCHEMA_ID(N'dbo') AND t.name <> N'__EFMigrationsHistory') <> 38
+    THROW 50015, 'Expected 38 check constraints.', 1;
 
 IF (SELECT COUNT(*) FROM sys.columns AS c
     JOIN sys.tables AS t ON t.object_id = c.object_id
@@ -66,6 +66,8 @@ IF EXISTS (
 IF EXISTS (
     SELECT 1
     FROM (VALUES
+        (N'Farm', N'UX_Farm_JoinCode', 0),
+        (N'FarmJoinRequest', N'UX_FarmJoinRequest_Pending', 1),
         (N'FarmMember', N'UX_FarmMember_Active', 1),
         (N'CropCycle', N'UX_CropCycle_OneActivePerPlot', 1),
         (N'FarmTask', N'UX_FarmTask_Dedupe', 1),
@@ -83,8 +85,8 @@ IF EXISTS (
     THROW 50017, 'A required unique business index is missing or incorrectly configured.', 1;
 
 SELECT N'PASS' AS SchemaCheck, DB_NAME() AS ConnectedDatabase,
-       23 AS AppAndIdentityTables, 45 AS AppIndexes,
-       39 AS ForeignKeys, 36 AS CheckConstraints, 5 AS RowVersionColumns;
+       24 AS AppAndIdentityTables, 48 AS AppIndexes,
+       42 AS ForeignKeys, 38 AS CheckConstraints, 5 AS RowVersionColumns;
 
 SELECT name AS TableName
 FROM sys.tables
@@ -95,5 +97,5 @@ SELECT fk.name AS ForeignKeyName,
        OBJECT_NAME(fk.parent_object_id) AS ChildTable,
        OBJECT_NAME(fk.referenced_object_id) AS ParentTable
 FROM sys.foreign_keys AS fk
-WHERE SCHEMA_NAME(OBJECTPROPERTYEX(fk.parent_object_id, 'SchemaId')) = N'dbo'
+WHERE OBJECT_SCHEMA_NAME(fk.parent_object_id) = N'dbo'
 ORDER BY ChildTable, ForeignKeyName;

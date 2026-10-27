@@ -41,6 +41,7 @@ public static class DependencyInjection
     public static IServiceCollection AddSmartFarmRepositories(this IServiceCollection services)
     {
         services.AddScoped<IFarmRepository, FarmRepository>();
+        services.AddScoped<IFarmEnrollmentRepository, FarmEnrollmentRepository>();
         services.AddScoped<IUserRepository, UserRepository>();
         services.AddScoped<IPlotRepository, PlotRepository>();
         services.AddScoped<IFarmMemberRepository, FarmMemberRepository>();
@@ -63,6 +64,7 @@ public static class DependencyInjection
         services.AddSmartFarmRepositories();
         services.AddScoped<IFarmAccessService, FarmAccessService>();
         services.AddScoped<IFarmManagementService, FarmManagementService>();
+        services.AddScoped<IFarmEnrollmentService, FarmEnrollmentService>();
         services.AddScoped<ICropManagementService, CropManagementService>();
         services.AddScoped<IMonitoringService, MonitoringService>();
         services.AddScoped<IInventoryService, InventoryService>();

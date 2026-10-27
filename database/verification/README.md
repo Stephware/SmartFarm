@@ -26,8 +26,8 @@ incomplete metadata is unsuitable for baseline approval.
 
 The report lists differences by object. Exit codes are `0` for matching
 contracts, `1` for schema differences, and `2` for invalid input or unsupported
-syntax. A successful report for the current contract has 23 tables, 193
-columns, 23 primary keys, 39 foreign keys, 36 checks, and 45 secondary indexes.
+syntax. A successful report for the current contract has 24 tables, 201
+columns, 24 primary keys, 42 foreign keys, 38 checks, and 48 secondary indexes.
 
 Comparison includes column types, lengths, precision/scale, nullability,
 identity seed/increment, named defaults, named keys and foreign keys, deletion
@@ -36,7 +36,7 @@ also verifies trusted/enabled constraints, index storage flags, absence of
 triggers, and column collations inherited from the database default.
 
 Predicate comparison preserves parentheses and operator precedence. It
-normalizes SQL Server's `IN` and `BETWEEN` expansions and associative ordering
+normalizes SQL Server's `IN` and `BETWEEN` expansions, including string states and associative ordering
 of `AND`/`OR`. It never compares checks by deleting parentheses. Supported
 normalizations also include `rowversion`/`timestamp`, an omitted `ON DELETE
 NO ACTION`, and exact constant casts such as `CAST(1 AS bit)` for a bit column.

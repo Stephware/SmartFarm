@@ -1,14 +1,14 @@
 # EF Core schema alignment and migration adoption
 
 `database/02_CreateSchema.sql` remains the SQL-first contract for the existing
-`SmartFarmDB`. Infrastructure maps all 23 `dbo` tables: 16 plain Core entities and
+`SmartFarmDB`. Infrastructure maps all 24 `dbo` tables: 17 plain Core entities and
 seven ASP.NET Core Identity tables using GUID user/role IDs. Identity types stay
 in Infrastructure, and Core entities reference users through scalar GUIDs. This
 change registers no authentication workflows or automatic database operations.
 
 Each table has a separate Fluent API configuration. Mappings explicitly retain
-column types/nullability, 23 primary keys, 39 foreign keys and their delete
-behavior, 36 checks, 28 named defaults, and 45 secondary indexes (including
+column types/nullability, 24 primary keys, 42 foreign keys and their delete
+behavior, 38 checks, 30 named defaults, and 48 secondary indexes (including
 filters). The FK index convention is disabled because the SQL contract defines
 which indexes exist. Identity schema version 1 is explicit: adding passkeys or
 other Identity schema changes requires a separate reviewed migration.
@@ -45,7 +45,7 @@ The design-time factory deliberately builds the model without a connection
 string. The generated create script is for comparison only; **do not execute it
 against an existing database**. The xUnit tests cover the model contract,
 concurrency and client GUID behavior, the true/false sentinel, and the empty
-baseline plus snapshot drift. The Python verifier compares every supported
+baseline, farm enrollment invariants and snapshot drift. The Python verifier compares every supported
 schema object and predicate with the checked-in SQL, failing on differences or
 unsupported DDL. Its README also documents supplying a read-only live catalog
 export for a three-way comparison.
@@ -105,3 +105,42 @@ regression tests passed. The repository catalog export was executed successfully
 and matched the independent catalog capture. No schema,
 application data, or migration history was changed. Credentials stayed in local
 user secrets and were excluded from artifacts/source.
+
+## Farmer registration approval upgrade (2026-10-27)
+
+`database/04_FarmerRegistrationApproval.sql` is the explicit upgrade for existing
+SQL-first databases. It backfills missing `Farm.JoinCode` values using
+`CRYPT_GEN_RANDOM(6)` and uppercase hex, retains existing codes on rerun, and adds
+`FarmJoinRequest`. A unique code index and a unique farm/user index filtered to
+Pending prevent collisions and duplicate live requests. State/reviewer checks
+require Pending requests to have no decision metadata and Approved/Rejected
+requests to have both reviewer and timestamp. All three foreign keys use
+NO ACTION. Existing users, memberships, ownership and historic decisions survive.
+
+Follow [database upgrade instructions](../database/README.md#upgrade-an-existing-database-for-farmer-approval).
+The transaction locks `Farm` during backfill; arrange a deployment window.
+`20261027022450_FarmerRegistrationApproval` executes the same rerunnable SQL when
+using an already adopted EF migration history. Its Down operation deliberately
+refuses to remove codes or history. The SQL-first script does not insert history;
+no application startup path applies it. A fresh database's current create script
+already contains the upgraded contract.
+
+Offline verification now expects 24 tables, 201 columns, 24 primary keys,
+42 foreign keys, 38 check constraints, 30 named defaults and 48 secondary indexes.
+The historical baseline verification record above describes the earlier schema.
+
+Verification on 2026-10-27: 14 offline schema xUnit tests and 15 Python verifier
+regressions passed; EF-generated CREATE matched the complete fresh SQL contract,
+and the snapshot had no pending changes. A uniquely named disposable SQL Server
+database was initialized with the previous schema and seeded with two users,
+two farms and an active Manager membership. Running the upgrade twice retained
+those records and produced unique, valid, stable codes. SQL rejected duplicate
+Pending requests, invalid states and missing/inconsistent reviewer metadata;
+rejection retained history and permitted a new Pending request. The read-only
+verifier passed, and the upgraded live catalog matched the fresh contract in
+full. Actual fresh-schema creation followed by the upgrade and verifier also
+passed. All schema-test databases were removed; no application database or its
+migration history was changed. The enrollment upgrade and EF migration were
+also checked for exact SQL equality, and downgrade refusal was verified.
+The generated EF baseline-adoption/enrollment script was executed only in a
+disposable database and passed structural verification with both history rows.

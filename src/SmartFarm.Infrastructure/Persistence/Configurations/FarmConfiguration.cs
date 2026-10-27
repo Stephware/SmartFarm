@@ -15,6 +15,7 @@ internal sealed class FarmConfiguration : IEntityTypeConfiguration<Farm>
         });
         builder.Property(entity => entity.Id).HasColumnType("uniqueidentifier").ValueGeneratedNever();
         builder.Property(entity => entity.OwnerUserId).HasColumnType("uniqueidentifier");
+        builder.Property(entity => entity.JoinCode).HasColumnType("nvarchar(12)").IsRequired().HasMaxLength(12);
         builder.Property(entity => entity.Name).HasColumnType("nvarchar(120)").IsRequired(true).HasMaxLength(120);
         builder.Property(entity => entity.LocationText).HasColumnType("nvarchar(250)").IsRequired(true).HasMaxLength(250);
         builder.Property(entity => entity.Latitude).HasColumnType("decimal(9,6)");
@@ -27,5 +28,6 @@ internal sealed class FarmConfiguration : IEntityTypeConfiguration<Farm>
         builder.HasOne<SmartFarmUser>().WithMany().HasForeignKey(entity => entity.OwnerUserId)
             .OnDelete(DeleteBehavior.NoAction).HasConstraintName("FK_Farm_OwnerUser");
         builder.HasIndex(entity => entity.OwnerUserId).HasDatabaseName("IX_Farm_Owner");
+        builder.HasIndex(entity => entity.JoinCode).IsUnique().HasDatabaseName("UX_Farm_JoinCode");
     }
 }

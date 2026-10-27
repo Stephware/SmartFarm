@@ -52,13 +52,21 @@ interface FarmApi {
     suspend fun members(@Header("Authorization") auth: String,
         @Path("farmId") farmId: String): List<FarmMemberDto>
 
-    @POST("api/farms/{farmId}/members/invitations")
-    suspend fun invite(@Header("Authorization") auth: String,
-        @Path("farmId") farmId: String, @Body input: InviteMemberDto): InvitationDto
+    @GET("api/farm-join-requests")
+    suspend fun myJoinRequests(@Header("Authorization") auth: String): List<FarmJoinRequestDto>
 
-    @POST("api/farm-invitations/accept")
-    suspend fun accept(@Header("Authorization") auth: String,
-        @Body input: AcceptInvitationDto): InvitationAcceptedDto
+    @POST("api/farm-join-requests")
+    suspend fun requestToJoin(@Header("Authorization") auth: String,
+        @Body input: FarmJoinInputDto): FarmJoinRequestDto
+
+    @GET("api/farms/{farmId}/join-requests")
+    suspend fun enrollment(@Header("Authorization") auth: String,
+        @Path("farmId") farmId: String): FarmEnrollmentOverviewDto
+
+    @POST("api/farms/{farmId}/join-requests/{requestId}/decision")
+    suspend fun decideJoinRequest(@Header("Authorization") auth: String,
+        @Path("farmId") farmId: String, @Path("requestId") requestId: String,
+        @Body input: FarmJoinDecisionDto)
 
     @PUT("api/farms/{farmId}/members/{memberId}")
     suspend fun changeRole(@Header("Authorization") auth: String,

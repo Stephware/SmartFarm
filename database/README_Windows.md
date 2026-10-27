@@ -37,7 +37,7 @@ SELECT DB_NAME() AS CurrentDatabase;
 ```
 
 3. On a **new, empty** `SmartFarmDB`, open `database/02_CreateSchema.sql` and execute the **whole script**, not just a selected statement.
-4. Run `database/03_VerifySchema.sql`. Expect **23 dbo tables** (7 ASP.NET Core Identity + 16 SmartFarm tables), plus their foreign keys.
+4. Run `database/03_VerifySchema.sql`. Expect **24 dbo tables** (7 ASP.NET Core Identity + 17 SmartFarm tables), plus their foreign keys.
 
 Error **50001** means the SQL editor is not using `SmartFarmDB`. Error **50002** means the database contains dbo tables already—inspect and verify them before considering any change. Do **not** drop or reset an existing database without checking whether it contains important data.
 

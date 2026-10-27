@@ -1,6 +1,6 @@
 # Authentication and authorization (Phase 1)
 
-SmartFarm uses the existing seven ASP.NET Core Identity tables. No new tables, migrations, or database seeding are required. This phase follows the MVC account-controller pattern from the reference VeterinaryClinicSystem and the separated Web API controller pattern in the reference API projects; authentication itself uses ASP.NET Core Identity rather than copying custom password handling.
+SmartFarm uses the existing seven ASP.NET Core Identity tables. Identity still uses those seven tables. Farm enrollment additionally requires the non-destructive [farm approval upgrade](../database/04_FarmerRegistrationApproval.sql) on existing databases. This phase follows the MVC account-controller pattern from the reference VeterinaryClinicSystem and the separated Web API controller pattern in the reference API projects; authentication itself uses ASP.NET Core Identity rather than copying custom password handling.
 
 ## Run the web application
 
@@ -19,7 +19,7 @@ SmartFarm uses the existing seven ASP.NET Core Identity tables. No new tables, m
 4. Open `http://localhost:5080/Account/Register`, register a test user, then log in at `/Account/Login`, open `/Account/Profile`, and log out using the header form. The MVC forms use antiforgery tokens and Identity cookies.
 5. Check `http://localhost:5080/health/database` returns 200 with a reachable database (Development only).
 
-Registration asks for full name, email, password and confirmation. Passwords require 10+ characters, uppercase, lowercase and a number. Identity enforces duplicate email checks and password lockout after five failed attempts for 10 minutes. Sign-up does **not** create a farm or grant management rights.
+Registration asks for full name, email, password and confirmation. Farmers choose **Join an existing farm** and enter the owner’s farm code. The owner approves or rejects the request in their farm dashboard. Pending accounts can sign in and see their request status, but cannot access farm data. Choose **Create/manage my own farm** to use the existing owner signup path. Passwords require 10+ characters, uppercase, lowercase and a number. Identity enforces duplicate email checks and password lockout after five failed attempts for 10 minutes. Sign-up does **not** create a farm or grant management rights.
 
 ## Android bearer API
 
@@ -27,7 +27,7 @@ The API uses Identity's **opaque, proprietary bearer tokens**, not JWTs. Browser
 
 | Endpoint | Request | Result |
 | --- | --- | --- |
-| `POST /api/auth/register` | JSON `fullName, email, password, confirmPassword` | 201 when account created |
+| `POST /api/auth/register` | JSON `fullName, email, password, confirmPassword, joinFarm, farmCode` | 201 when account created |
 | `POST /api/auth/login` | JSON `email, password` | Access/refresh tokens |
 | `POST /api/auth/refresh` | JSON `refreshToken` | Fresh access/refresh tokens |
 | `GET /api/auth/me` | `Authorization: Bearer <access-token>` | Authenticated account |
@@ -39,12 +39,12 @@ To test API registration/login locally in Development:
 
 ```bash
 curl -i -H 'Content-Type: application/json' \
-  -d '{"fullName":"Test Farmer","email":"tester@example.test","password":"TestPassword123","confirmPassword":"TestPassword123"}' \
-  http://localhost:5080/api/auth/register
+  -d '{"fullName":"Test Farmer","email":"tester@example.test","password":"TestPassword123","confirmPassword":"TestPassword123","joinFarm":true,"farmCode":"OWNER_FARM_CODE"}' \
+  http://localhost:5081/api/auth/register
 
 curl -i -H 'Content-Type: application/json' \
   -d '{"email":"tester@example.test","password":"TestPassword123"}' \
-  http://localhost:5080/api/auth/login
+  http://localhost:5081/api/auth/login
 ```
 
 Use the returned `accessToken` (do not paste it into shared terminals, logs, tickets or the repo) when testing `/api/auth/me`. Credentials above are only examples; change them in your development environment. **Use HTTPS outside localhost development.**
@@ -64,9 +64,9 @@ The service is in `SmartFarm.Infrastructure/Security/FarmAccessService.cs`; poli
 
 ## Android
 
-Open `mobile/SmartFarm.Android` in Android Studio. The debug build uses `http://10.0.2.2:5080/` for the emulator and permits cleartext **only** to local development hosts through its debug network-security configuration. Production builds require a real HTTPS API address; the placeholder release URL is intentionally empty.
+Open `mobile/SmartFarm.Android` in Android Studio. The debug build uses `http://10.0.2.2:5081/` for the emulator and permits cleartext **only** to local development hosts through its debug network-security configuration. Production builds require a real HTTPS API address; the placeholder release URL is intentionally empty.
 
-Run `./gradlew assembleDebug testDebugUnitTest` from the Android project folder. Start the local ASP.NET Core Web host, run the emulator, register/log in using the Compose screens, then visit the account screen and log out.
+Run `./gradlew assembleDebug testDebugUnitTest` from the Android project folder. Start SmartFarm.Api on port 5081, run the emulator, register/log in using the Compose screens, then visit the account screen and log out.
 
 **Security limitations to address before production:** Android tokens currently live only in memory (restart signs the user out); logout discards local tokens but cannot instantly revoke already issued opaque access tokens. Do not store tokens in Room or plaintext preferences. Email verification, password recovery, two-factor authentication, production HTTPS/configuration, and secure persisted token storage are future work. The public registration endpoint should have rate limiting/abuse controls before public deployment.
 
@@ -76,3 +76,11 @@ Run `./gradlew assembleDebug testDebugUnitTest` from the Android project folder.
 - Complete web/database/API registration, login, refresh, disabled-user, unauthorized access and Android emulator smoke tests **require your local SQL Server and Android SDK**.
 - Do not call `Database.Migrate()`, `EnsureCreated()`, or alter migration history for this feature.
 - No GitHub Actions or CI/CD is introduced by this phase.
+
+## Farm enrollment
+
+After upgrading the database, an owner opens **Farm dashboard → Farmer join requests** to find their code and pending applicants. Farmers can also submit a code after login from **My farms → Join a farm**. Approval grants Field Worker access; existing role management can promote a member later. Rejecting a request does not create membership. Existing accounts and memberships remain unchanged.
+
+`GET /api/farm-join-requests` lists the signed-in account’s requests; `POST` submits `{ "farmCode": "ABCD-1234-5678" }`. Only the owner can call `GET /api/farms/{farmId}/join-requests` for the code/pending applicants, or `POST /api/farms/{farmId}/join-requests/{requestId}/decision` with `{ "approve": true }` or `false`. All require bearer authentication. Signup returns `farmCodeError` alongside `errors` when a code cannot be accepted. Old invitation creation/acceptance URLs return **410 Gone** and grant no access.
+
+Apply `database/04_FarmerRegistrationApproval.sql` to the existing populated SmartFarmDB before running the new hosts and Android client. It backfills stable codes and adds the request table without recreating existing tables. See [database setup](../database/README.md) for SQL Server access. Do not rerun `02_CreateSchema.sql` on populated databases. The application never applies upgrades automatically.

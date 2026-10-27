@@ -38,6 +38,7 @@ fun SmartFarmNavHost(auth: AuthViewModel, farms: FarmViewModel, crops: CropViewM
     val state by auth.state.collectAsStateWithLifecycle()
     val pending by sync.operations.collectAsStateWithLifecycle()
     LaunchedEffect(state.account?.id) {
+        farms.clear()
         if (state.account != null) sync.load()
     }
     NavHost(navController = navController, startDestination = "welcome") {
@@ -60,8 +61,8 @@ fun SmartFarmNavHost(auth: AuthViewModel, farms: FarmViewModel, crops: CropViewM
         }
         composable("register") {
             RegisterScreen(state,
-                onSubmit = { name, email, password, confirm ->
-                    auth.register(name, email, password, confirm) {
+                onSubmit = { name, email, password, confirm, joinFarm, farmCode ->
+                    auth.register(name, email, password, confirm, joinFarm, farmCode) {
                         navController.navigate("login") { popUpTo("welcome") }
                     }
                 },
@@ -110,9 +111,7 @@ fun SmartFarmNavHost(auth: AuthViewModel, farms: FarmViewModel, crops: CropViewM
                     farms.create(name, location, zone, latitude, longitude) {
                     navController.navigate("farm/$it")
                 } },
-                onAccept = { token -> farms.acceptInvitation(token) {
-                    navController.navigate("farm/$it")
-                } },
+                onRequest = farms::requestToJoin,
                 onBack = { navController.popBackStack() }, onRetry = { farms.load() })
         }
         composable("farm/{farmId}") { entry ->
@@ -129,7 +128,7 @@ fun SmartFarmNavHost(auth: AuthViewModel, farms: FarmViewModel, crops: CropViewM
                 onArchivePlot = { plot -> farms.archivePlot(plot) },
                 onCrops = { navController.navigate("crops/$farmId") },
                 onInventory = { navController.navigate("inventory/$farmId") },
-                onInvite = { email, role -> farms.invite(email, role) },
+                onDecision = farms::decideJoinRequest,
                 onChangeRole = { member, role -> farms.changeRole(member, role) },
                 onRemoveMember = { farms.remove(it) },
                 onTasks = { navController.navigate("tasks/$farmId") }, onRetry = { farms.loadDetail(farmId) })

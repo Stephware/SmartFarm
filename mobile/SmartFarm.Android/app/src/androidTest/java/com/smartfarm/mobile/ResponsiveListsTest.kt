@@ -67,7 +67,7 @@ class ResponsiveListsTest {
         compose.setContent {
             DeviceConfigurationOverride(DeviceConfigurationOverride.ForcedSize(DpSize(375.dp, 667.dp))) {
                 DeviceConfigurationOverride(DeviceConfigurationOverride.FontScale(2f)) {
-                    MaterialTheme(colorScheme = DarkColors) { RegisterScreen(AuthUiState(), { _, _, _, _ -> }, {}) }
+                    MaterialTheme(colorScheme = DarkColors) { RegisterScreen(AuthUiState(), { _, _, _, _, _, _ -> }, {}) }
                 }
             }
         }
@@ -79,7 +79,7 @@ class ResponsiveListsTest {
     @Test fun landscapeRegistrationKeepsTheSubmitControlReachable() {
         compose.setContent {
             DeviceConfigurationOverride(DeviceConfigurationOverride.ForcedSize(DpSize(667.dp, 375.dp))) {
-                SmartFarmTheme { RegisterScreen(AuthUiState(), { _, _, _, _ -> }, {}) }
+                SmartFarmTheme { RegisterScreen(AuthUiState(), { _, _, _, _, _, _ -> }, {}) }
             }
         }
         compose.onNodeWithText("Register").performScrollTo().assertIsDisplayed()

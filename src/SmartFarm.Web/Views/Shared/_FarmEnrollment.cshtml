@@ -1,0 +1,32 @@
+@model SmartFarm.Web.ViewModels.Farms.FarmEnrollmentPanel
+<section class="panel" aria-labelledby="join-requests-heading">
+    <h2 id="join-requests-heading">Farmer join requests</h2>
+    @if (Model.Error is not null)
+    {
+        <p role="alert">@Model.Error</p>
+    }
+    else if (Model.Overview is { } overview)
+    {
+        <p>Share this farm code with farmers registering or requesting access. Each request needs your approval.</p>
+        <label for="farm-join-code">Farm code</label>
+        <input id="farm-join-code" readonly value="@overview.JoinCode" />
+        @if (overview.Requests.Count == 0) { <p>No pending join requests.</p> }
+        else
+        {
+            <ul class="farm-list">
+            @foreach (var request in overview.Requests)
+            {
+                <li>
+                    <strong>@request.FullName</strong>
+                    <span>@request.Email · Requested @request.RequestedAtUtc.ToString("MMM d, yyyy HH:mm") UTC</span>
+                    <form asp-controller="Farms" asp-action="DecideJoin" asp-route-id="@Model.FarmId"
+                          asp-route-requestId="@request.Id" asp-route-dashboard="@Model.Dashboard" method="post" class="action-links">
+                        <button name="approve" value="true" type="submit">Approve @request.FullName</button>
+                        <button class="button-danger" name="approve" value="false" type="submit">Reject @request.FullName</button>
+                    </form>
+                </li>
+            }
+            </ul>
+        }
+    }
+</section>
