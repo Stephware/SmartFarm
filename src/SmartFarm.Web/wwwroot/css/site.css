@@ -116,3 +116,13 @@ button, a, p, li { overflow-wrap: anywhere; }
 
 fieldset { border: 1px solid var(--outline); border-radius: 6px; padding: 12px 16px; margin: 0 0 16px; }
 input[type=radio] { width: 20px; height: 20px; flex-shrink: 0; }
+
+/* Month-by-month crop agenda; read-only, mobile-friendly and keyboard accessible. */
+.crop-agenda-nav { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px; margin: 16px 0; }
+.crop-agenda-nav a { display: inline-flex; min-height: 44px; align-items: center; padding: 8px; }
+.crop-agenda-list { list-style: none; margin: 0 0 18px; padding: 0; }
+.crop-agenda-list > li { display: grid; grid-template-columns: minmax(105px, 140px) 1fr; gap: 14px; padding: 14px 0; border-bottom: 1px solid var(--divider); }
+.crop-agenda-list time { color: var(--muted); font-weight: 600; }
+.crop-agenda-list ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
+.crop-agenda-list ul li { padding: 8px 10px; background: var(--soft); border-left: 3px solid var(--primary); border-radius: 4px; overflow-wrap: anywhere; }
+@media (max-width: 480px) { .crop-agenda-list > li { grid-template-columns: 1fr; gap: 5px; } }
