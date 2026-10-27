@@ -49,13 +49,10 @@ builder.Services.AddSmartFarmBusinessServices();
 builder.Services.AddSmartFarmWeather(builder.Configuration);
 builder.Services.AddSmartFarmApiIdentity();
 builder.Services.AddScoped<AccountRegistrationService>();
-builder.Services.AddSingleton<IObservationPhotoStore>(_ =>
-    new LocalObservationPhotoStore(
-        builder.Configuration["ObservationPhotos:StoragePath"] ??
-        (builder.Environment.IsDevelopment()
-            ? Path.GetFullPath(Path.Combine(builder.Environment.ContentRootPath, "..", "SmartFarm.Web",
-                "App_Data", "observation-photos"))
-            : Path.Combine(builder.Environment.ContentRootPath, "App_Data", "observation-photos"))));
+builder.Services.AddSharedObservationPhotoStore(
+    builder.Configuration, builder.Environment.IsDevelopment(),
+    Path.GetFullPath(Path.Combine(builder.Environment.ContentRootPath, "..",
+        "SmartFarm.Web", "App_Data", "observation-photos")));
 // Web and API must use the same protected key ring when hosted on different machines.
 var dataProtection = builder.Services.AddDataProtection()
     .SetApplicationName($"SmartFarm.SharedIdentity.{builder.Environment.EnvironmentName}");

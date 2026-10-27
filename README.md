@@ -74,6 +74,12 @@ SmartFarm/
 
 Feature folders still contain `.gitkeep` placeholders. The .NET 10 solution includes four backend projects and foundation tests; Android includes its own Gradle project.
 
+## Shared private photos (separate Web and API hosts)
+
+In Development, MVC and API continue using the same `src/SmartFarm.Web/App_Data/observation-photos` folder. For separate deployed instances, mount **one durable private directory** accessible to both processes and set `ObservationPhotos__StoragePath` to that **same absolute mounted path** on **both** hosts (for example, `/mnt/anigo-photos`). Production startup rejects a missing, relative, or public `wwwroot` storage path.
+
+Both hosts need read/write access; keep the mount outside any public web directory. Move existing photos into the shared directory before switching paths, since the SQL database stores photo keys rather than image bytes. Do not move or delete files from the old location until both hosts can open existing photos. A matching path string on two machines is **not** enough unless it refers to the same shared volume.
+
 ## Database setup
 
 Developers run their **own** SQL Server instances and use the same version-controlled SQL scripts:

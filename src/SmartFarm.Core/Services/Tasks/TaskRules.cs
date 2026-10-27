@@ -67,9 +67,10 @@ public static class TaskRules
             var interval = crop.WateringIntervalDays.Value;
             var days = today.DayNumber - planted.DayNumber;
             var next = Math.Max(1, (days + interval - 1) / interval);
-            for (var due = planted.AddDays(next * interval); due <= lastDay; due = due.AddDays(interval))
+            for (var dueDay = planted.DayNumber + next * interval;
+                dueDay <= lastDay.DayNumber; dueDay += interval)
             {
-                if (due >= today) yield return (2, due);
+                if (dueDay >= today.DayNumber) yield return (2, DateOnly.FromDayNumber(dueDay));
             }
         }
 
