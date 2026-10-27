@@ -1,3 +1,4 @@
+@using SmartFarm.Core.Enums
 @model SmartFarm.Core.Contracts.Weather.WeatherOverview
 @{
     ViewData["Title"] = "Farm weather";
@@ -41,7 +42,7 @@
         <ul class="farm-list">
         @foreach (var advisory in Model.Advisories.Where(a => a.Status == 0))
         {
-            <li><strong>@advisory.Date.ToString("yyyy-MM-dd") — severity @advisory.Severity</strong>
+            <li><strong>@advisory.Date.ToString("yyyy-MM-dd") — @advisory.SeverityName @advisory.TypeName advisory</strong>
                 <p>@advisory.Message</p>
             </li>
         }
