@@ -62,5 +62,7 @@ public sealed class CropAgendaTests
             CropAgendaBuilder.SelectMonth("2026-12", "Asia/Manila", utc));
         Assert.Equal(new DateOnly(2026, 11, 1),
             CropAgendaBuilder.SelectMonth("not-a-month", "Asia/Manila", utc));
+        Assert.Equal(new DateOnly(2026, 10, 1),
+            CropAgendaBuilder.SelectMonth(null, "Invalid/FarmZone", utc));
     }
 }
