@@ -20,6 +20,10 @@ public abstract class NamedByteCodeConverter<TCode> : JsonConverter<byte>
             var name = reader.GetString()?.Trim();
             if (!string.IsNullOrWhiteSpace(name))
             {
+                // Web JSON options already accepted numeric strings; preserve that behavior.
+                if (byte.TryParse(name, System.Globalization.NumberStyles.None,
+                        System.Globalization.CultureInfo.InvariantCulture, out var numericString))
+                    return numericString;
                 foreach (var value in Enum.GetValues<TCode>())
                 {
                     if (string.Equals(Normalize(value.ToString()), Normalize(name),
