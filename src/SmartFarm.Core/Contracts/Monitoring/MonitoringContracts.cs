@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using SmartFarm.Core.Enums;
 
 namespace SmartFarm.Core.Contracts.Monitoring;
 
@@ -31,13 +32,19 @@ public sealed class RecordObservationInput
 public sealed record ActivityDetails(
     Guid Id, byte ActivityType, DateTime OccurredAtUtc,
     DateTime RecordedAtUtc, Guid RecordedByUserId, string? Notes,
-    Guid? FarmTaskId = null);
+    Guid? FarmTaskId = null)
+{
+    public string ActivityTypeName => FarmCodeLabels.Activity(ActivityType);
+}
 
 public sealed record ObservationDetails(
     Guid Id, byte HealthStatus, string? GrowthStage,
     DateTime ObservedAtUtc, DateTime RecordedAtUtc,
     Guid RecordedByUserId, string? Notes,
-    IReadOnlyList<PhotoDetails> Photos);
+    IReadOnlyList<PhotoDetails> Photos)
+{
+    public string HealthStatusName => FarmCodeLabels.Health(HealthStatus);
+}
 
 public sealed record PhotoDetails(
     Guid Id, Guid ObservationId, string ContentType,
