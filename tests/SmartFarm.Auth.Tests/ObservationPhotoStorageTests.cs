@@ -36,19 +36,35 @@ public sealed class ObservationPhotoStorageTests
     }
 
     [Fact]
-    public void BothHostsUseTheSameConfiguredStoreRegistration()
+    public async Task TwoSeparateHostsCanSaveAndReadTheSamePrivatePhoto()
     {
-        var sharedPath = Path.Combine(Path.GetTempPath(), "anigo-shared-photo-store");
+        var sharedPath = Path.Combine(Path.GetTempPath(), "anigo-media-" + Guid.NewGuid().ToString("N"));
         var config = new ConfigurationBuilder().AddInMemoryCollection(
             new Dictionary<string, string?> { ["ObservationPhotos:StoragePath"] = sharedPath }).Build();
-
-        foreach (var development in new[] { true, false })
+        try
         {
-            var services = new ServiceCollection();
-            services.AddSharedObservationPhotoStore(config, development, LocalPath);
-            using var scope = services.BuildServiceProvider();
-            Assert.IsType<LocalObservationPhotoStore>(
-                scope.GetRequiredService<IObservationPhotoStore>());
+            var webServices = new ServiceCollection();
+            webServices.AddSharedObservationPhotoStore(config, false, LocalPath);
+            var apiServices = new ServiceCollection();
+            apiServices.AddSharedObservationPhotoStore(config, false, LocalPath);
+            using var webHost = webServices.BuildServiceProvider();
+            using var apiHost = apiServices.BuildServiceProvider();
+            var web = webHost.GetRequiredService<IObservationPhotoStore>();
+            var api = apiHost.GetRequiredService<IObservationPhotoStore>();
+
+            var bytes = new byte[] { 1, 2, 3, 4 };
+            var key = await web.SaveAsync(bytes, ".jpg");
+            await using (var stream = await api.OpenAsync(key))
+            {
+                using var output = new MemoryStream();
+                await stream.CopyToAsync(output);
+                Assert.Equal(bytes, output.ToArray());
+            }
+            await api.DeleteAsync(key);
+        }
+        finally
+        {
+            if (Directory.Exists(sharedPath)) Directory.Delete(sharedPath, true);
         }
     }
 }
