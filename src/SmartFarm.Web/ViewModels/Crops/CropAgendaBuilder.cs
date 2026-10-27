@@ -16,7 +16,13 @@ public static class CropAgendaBuilder
     // Navigation is scoped to reasonable farm-planning dates, with no database changes.
     public static DateOnly SelectMonth(string? month, string timeZoneId, DateTime utcNow)
     {
-        var current = TaskRules.FarmDate(timeZoneId, utcNow);
+        DateOnly current;
+        try { current = TaskRules.FarmDate(timeZoneId, utcNow); }
+        catch (Exception error) when (error is TimeZoneNotFoundException or InvalidTimeZoneException)
+        {
+            // Legacy farms with invalid time zones should still be able to see crops.
+            current = DateOnly.FromDateTime(utcNow);
+        }
         var fallback = new DateOnly(current.Year, current.Month, 1);
         if (!DateOnly.TryParseExact(month is null ? "" : month + "-01", "yyyy-MM-dd",
                 CultureInfo.InvariantCulture, DateTimeStyles.None, out var selected) ||
