@@ -1,7 +1,9 @@
 using System.Net;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
-using Microsoft.Extensions.Configuration;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
+using SmartFarm.Infrastructure.Persistence;
 using Xunit;
 
 namespace SmartFarm.Api.Tests;
@@ -14,11 +16,10 @@ public sealed class DatabaseHealthTests
         using var factory = new WebApplicationFactory<Program>().WithWebHostBuilder(builder =>
         {
             builder.UseEnvironment("Development");
-            builder.ConfigureAppConfiguration((_, configuration) =>
-                configuration.AddInMemoryCollection(new Dictionary<string, string?>
-                {
-                    ["ConnectionStrings:SmartFarm"] = ""
-                }));
+            // Local user-secrets fallback must not supply a real database to this test.
+            builder.ConfigureServices(services => services.AddScoped(_ =>
+                new SmartFarmDbContext(new DbContextOptionsBuilder<SmartFarmDbContext>()
+                    .UseSqlServer().Options)));
         });
         using var client = factory.CreateClient();
         using var response = await client.GetAsync("/health/database");
