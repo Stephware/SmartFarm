@@ -1,4 +1,6 @@
 using System.ComponentModel.DataAnnotations;
+using System.Text.Json.Serialization;
+using SmartFarm.Core.Contracts;
 using SmartFarm.Core.Enums;
 
 namespace SmartFarm.Core.Contracts.Inventory;
@@ -9,6 +11,7 @@ public sealed class InventoryItemInput
     public string Name { get; set; } = string.Empty;
 
     [Range(1, 4)]
+    [JsonConverter(typeof(NamedEnumCodeConverter<InventoryCategory>))]
     public InventoryCategory Category { get; set; }
 
     [Required, StringLength(20)]
@@ -31,6 +34,7 @@ public sealed class InventoryMovementInput
 {
     // Only Receipt=2, Consumption=3, Adjustment=4. Reversal is a separate endpoint.
     [Range(2, 4)]
+    [JsonConverter(typeof(NamedEnumCodeConverter<StockTransactionType>))]
     public StockTransactionType TransactionType { get; set; }
 
     public decimal QuantityChange { get; set; }
