@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import com.smartfarm.mobile.ui.components.RecordPage
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.HorizontalDivider
@@ -13,6 +14,10 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.heading
+import androidx.compose.ui.semantics.liveRegion
+import androidx.compose.ui.semantics.LiveRegionMode
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
@@ -23,15 +28,13 @@ fun TaskScreen(state: TaskUiState, canManage: Boolean, actorId: String?, onBack:
     onRetry: () -> Unit, onComplete: (TaskDto) -> Unit, onRead: (String) -> Unit) {
     val taskNames = listOf("Task", "Planting", "Watering", "Fertilizing", "Inspection", "Harvest", "Other")
     val statuses = listOf("Pending", "Completed", "Skipped", "Cancelled")
-    Scaffold { padding ->
-        LazyColumn(Modifier.fillMaxSize().padding(padding).padding(horizontal = 20.dp),
-            verticalArrangement = Arrangement.spacedBy(12.dp)) {
+    RecordPage {
             item {
                 OutlinedButton(onClick = onBack) { Text("Back") }
-                Text(if (state.farmId == null) "Notifications" else "Farm tasks", style = MaterialTheme.typography.headlineMedium)
+                Text(if (state.farmId == null) "Notifications" else "Farm tasks", style = MaterialTheme.typography.headlineMedium, modifier = Modifier.semantics { heading() })
                 Text("Connect to the internet to refresh and update these records.")
                 if (state.busy) CircularProgressIndicator()
-                state.error?.let { Text(it, color = MaterialTheme.colorScheme.error) }
+                state.error?.let { Text(it, color = MaterialTheme.colorScheme.error, modifier = Modifier.semantics { liveRegion = LiveRegionMode.Assertive }) }
                 OutlinedButton(onClick = onRetry, enabled = !state.busy) { Text("Refresh") }
                 if (!state.busy && state.error == null && state.tasks.isEmpty() && state.notifications.isEmpty())
                     Text(if (state.farmId == null) "No notifications yet." else "No tasks scheduled yet.")
@@ -56,6 +59,5 @@ fun TaskScreen(state: TaskUiState, canManage: Boolean, actorId: String?, onBack:
                     HorizontalDivider()
                 }
             }
-        }
     }
 }

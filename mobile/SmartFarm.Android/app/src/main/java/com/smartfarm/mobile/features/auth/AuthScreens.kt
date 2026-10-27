@@ -1,5 +1,9 @@
 package com.smartfarm.mobile.features.auth
 
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.widthIn
+import androidx.compose.foundation.layout.consumeWindowInsets
+import androidx.compose.ui.Alignment
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -16,6 +20,10 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.heading
+import androidx.compose.ui.semantics.liveRegion
+import androidx.compose.ui.semantics.LiveRegionMode
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
@@ -96,20 +104,19 @@ fun AccountScreen(state: AuthUiState, onLogout: () -> Unit, onFarms: () -> Unit,
 @Composable
 private fun Feedback(state: AuthUiState) {
     if (state.busy) CircularProgressIndicator()
-    state.error?.let { Text(it, color = MaterialTheme.colorScheme.error) }
-    state.notice?.let { Text(it, color = MaterialTheme.colorScheme.primary) }
+    state.error?.let { Text(it, color = MaterialTheme.colorScheme.error, modifier = Modifier.semantics { liveRegion = LiveRegionMode.Assertive }) }
+    state.notice?.let { Text(it, color = MaterialTheme.colorScheme.primary, modifier = Modifier.semantics { liveRegion = LiveRegionMode.Polite }) }
 }
 
 @Composable
 private fun AuthScaffold(title: String, content: @Composable () -> Unit) {
     Scaffold { padding ->
-        Column(
-            modifier = Modifier.fillMaxSize().padding(padding).imePadding()
-                .verticalScroll(rememberScrollState()).padding(24.dp),
-            verticalArrangement = Arrangement.spacedBy(12.dp)
-        ) {
-            Text(title, style = MaterialTheme.typography.headlineMedium)
+        Box(Modifier.fillMaxSize().padding(padding).consumeWindowInsets(padding).imePadding(), contentAlignment = Alignment.TopCenter) {
+            Column(Modifier.widthIn(max = 560.dp).fillMaxSize().verticalScroll(rememberScrollState()).padding(24.dp),
+                verticalArrangement = Arrangement.spacedBy(12.dp)) {
+            Text(title, style = MaterialTheme.typography.headlineMedium, modifier = Modifier.semantics { heading() })
             content()
+            }
         }
     }
 }

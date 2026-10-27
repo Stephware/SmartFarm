@@ -8,6 +8,7 @@
     <script src="~/js/site.js" defer></script>
 </head>
 <body>
+    <a class="skip-link" href="#main-content">Skip to content</a>
     <header class="site-header">
         <a class="brand" href="@Url.Action("Index", "Home")">SmartFarm</a>
         <nav aria-label="Main navigation">
@@ -27,7 +28,7 @@
             }
         </nav>
     </header>
-    <main class="page">
+    <main class="page" id="main-content" tabindex="-1">
         <partial name="_ValidationSummary" />
         @RenderBody()
     </main>

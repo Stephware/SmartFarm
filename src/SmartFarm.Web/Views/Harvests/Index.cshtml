@@ -62,7 +62,7 @@ else
                           asp-route-cycleId="@cycle.Id" asp-route-harvestId="@entry.Id" method="post" data-confirm="Void @entry.Quantity @entry.Unit for @cycle.CropTypeName? The record stays in history and is excluded from totals.">
                         <label for="void-@entry.Id">Reason for voiding (required)</label>
                         <input id="void-@entry.Id" name="Reason" minlength="3" maxlength="300" required />
-                        <button type="submit">
+                        <button class="button-danger" type="submit">
                             Void entry
                         </button>
                     </form>

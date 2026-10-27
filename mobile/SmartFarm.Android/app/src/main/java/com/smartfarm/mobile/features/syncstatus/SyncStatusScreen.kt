@@ -7,12 +7,18 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.AlertDialog
+import androidx.compose.foundation.lazy.items
+import com.smartfarm.mobile.ui.components.RecordPage
 import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.heading
+import androidx.compose.ui.semantics.liveRegion
+import androidx.compose.ui.semantics.LiveRegionMode
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -44,25 +50,28 @@ fun SyncStatusScreen(
     var discard by remember { mutableStateOf<PendingOperation?>(null) }
     var discardPhoto by remember { mutableStateOf<PendingPhoto?>(null) }
 
-    Scaffold { padding ->
-        Column(Modifier.fillMaxSize().padding(padding).verticalScroll(rememberScrollState())
-            .padding(20.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
+    RecordPage {
+        item(key = "header") {
+            Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
             OutlinedButton(onClick = onBack) { Text("Back") }
-            Text("Offline sync", style = MaterialTheme.typography.headlineMedium)
+            Text("Offline sync", style = MaterialTheme.typography.headlineMedium, modifier = Modifier.semantics { heading() })
             Text("Pending: " + (operations.count { it.status == "pending" } +
                 photos.count { it.status == "pending" }) +
                 " · Needs review: " + (operations.count { it.status == "review" } +
                 photos.count { it.status == "review" }))
-            error?.let { Text(it, color = MaterialTheme.colorScheme.error) }
+            error?.let { Text(it, color = MaterialTheme.colorScheme.error, modifier = Modifier.semantics { liveRegion = LiveRegionMode.Assertive }) }
             Text("Changes stay on this device until the server confirms them. " +
                 "Check rejected records before retrying; stock may need a newer version.")
             Button(onClick = onSyncNow) { Text("Sync now") }
             if (operations.isEmpty() && photos.isEmpty()) Text("All local changes are synced.")
-            operations.forEach { operation ->
+            }
+        }
+        items(operations, key = { "operation-${it.operationId}" }) { operation ->
+            Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
                 Text(operation.operationType.replaceFirstChar { it.uppercase() } +
                     " · " + operation.status, style = MaterialTheme.typography.titleMedium)
                 Text(pendingRecordDescription(operation))
-                operation.errorMessage?.let { Text(it, color = MaterialTheme.colorScheme.error) }
+                operation.errorMessage?.let { Text(it, color = MaterialTheme.colorScheme.error, modifier = Modifier.semantics { liveRegion = LiveRegionMode.Assertive }) }
                 if (operation.status == "review") {
                     if (operation.operationType == "inventory") {
                         OutlinedButton(onClick = { onReviewStock(operation.operationId) }) {
@@ -78,16 +87,19 @@ fun SyncStatusScreen(
                     }
                 }
             }
-            if (photos.isNotEmpty()) {
-                Text("Crop photos", style = MaterialTheme.typography.titleLarge)
-                photos.forEach { photo ->
+        }
+        if (photos.isNotEmpty()) item(key = "photos-heading") {
+            Text("Crop photos", style = MaterialTheme.typography.titleLarge, modifier = Modifier.semantics { heading() })
+        }
+        items(photos, key = { "photo-${it.photoId}" }) { photo ->
+            Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
                     Text("Photo · " + photo.status,
                         style = MaterialTheme.typography.titleMedium)
                     if (photo.observationId == null) {
                         Text("Waiting for its observation to sync first.")
                     }
                     photo.errorMessage?.let {
-                        Text(it, color = MaterialTheme.colorScheme.error)
+                        Text(it, color = MaterialTheme.colorScheme.error, modifier = Modifier.semantics { liveRegion = LiveRegionMode.Assertive })
                     }
                     if (photo.status == "review") {
                         OutlinedButton(onClick = { onRetryPhoto(photo.photoId) }) {
@@ -97,7 +109,7 @@ fun SyncStatusScreen(
                     OutlinedButton(onClick = { discardPhoto = photo }) {
                         Text("Discard local photo")
                     }
-                }
+
             }
         }
     }

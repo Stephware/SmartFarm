@@ -18,6 +18,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.FilterChip
+import androidx.compose.foundation.lazy.items
+import com.smartfarm.mobile.ui.components.RecordPage
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.HorizontalDivider
@@ -27,6 +29,10 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.heading
+import androidx.compose.ui.semantics.liveRegion
+import androidx.compose.ui.semantics.LiveRegionMode
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -104,22 +110,21 @@ fun MonitoringScreen(
         camera.launch(uri)
     }
 
-    Scaffold { padding ->
-        Column(Modifier.fillMaxSize().padding(padding)
-            .verticalScroll(rememberScrollState()).padding(20.dp),
-            verticalArrangement = Arrangement.spacedBy(12.dp)) {
-            Text("Crop monitoring", style = MaterialTheme.typography.headlineMedium)
+    RecordPage {
+        item(key = "forms") {
+            Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+            Text("Crop monitoring", style = MaterialTheme.typography.headlineMedium, modifier = Modifier.semantics { heading() })
             OutlinedButton(onClick = onBack) { Text("Back to crops") }
             if (state.busy) CircularProgressIndicator()
             state.error?.let {
-                Text(it, color = MaterialTheme.colorScheme.error)
+                Text(it, color = MaterialTheme.colorScheme.error, modifier = Modifier.semantics { liveRegion = LiveRegionMode.Assertive })
                 OutlinedButton(onClick = onRetry, enabled = !state.busy) { Text("Try again") }
             }
-            state.notice?.let { Text(it, color = MaterialTheme.colorScheme.primary) }
+            state.notice?.let { Text(it, color = MaterialTheme.colorScheme.primary, modifier = Modifier.semantics { liveRegion = LiveRegionMode.Polite }) }
             OfflineDataNotice(state.offline, state.cachedAtUtcMillis)
 
             if (state.canRecord) {
-                Text("Record farm activity", style = MaterialTheme.typography.titleLarge)
+                Text("Record farm activity", style = MaterialTheme.typography.titleLarge, modifier = Modifier.semantics { heading() })
                 val activities = listOf("Watering", "Fertilizing", "Pesticide", "Weeding", "Other")
                 activities.forEachIndexed { index, label ->
                     FilterChip(selected = activityType == index + 1, onClick = { activityType = index + 1 },
@@ -131,7 +136,7 @@ fun MonitoringScreen(
                     enabled = !state.busy) { Text("Save activity") }
 
                 HorizontalDivider()
-                Text("Record inspection / observation", style = MaterialTheme.typography.titleLarge)
+                Text("Record inspection / observation", style = MaterialTheme.typography.titleLarge, modifier = Modifier.semantics { heading() })
                 listOf("Not assessed", "Healthy", "Needs attention", "Critical")
                     .forEachIndexed { index, label ->
                         FilterChip(selected = health == index, onClick = { health = index },
@@ -160,11 +165,14 @@ fun MonitoringScreen(
             }
 
             HorizontalDivider()
-            Text("Activity history", style = MaterialTheme.typography.titleLarge)
+            Text("Activity history", style = MaterialTheme.typography.titleLarge, modifier = Modifier.semantics { heading() })
             PendingRecords(pending, state.farmId, state.cycleId,
                 setOf("activity", "observation"), onSync)
             if (state.activities.isEmpty()) Text("No activities recorded.")
-            state.activities.forEach { activity ->
+            }
+        }
+        items(state.activities, key = { "activity-${it.id}" }) { activity ->
+            Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 val name = when (activity.activityType) {
                     1 -> "Watering"; 2 -> "Fertilizing"; 3 -> "Pesticide"
                     4 -> "Weeding"; else -> "Other"
@@ -172,11 +180,16 @@ fun MonitoringScreen(
                 Text("$name · ${activity.occurredAtUtc}")
                 activity.notes?.let { Text(it) }
             }
-
+        }
+        item(key = "observations-heading") {
+            Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
             HorizontalDivider()
-            Text("Observations and photos", style = MaterialTheme.typography.titleLarge)
+            Text("Observations and photos", style = MaterialTheme.typography.titleLarge, modifier = Modifier.semantics { heading() })
             if (state.observations.isEmpty()) Text("No observations recorded.")
-            state.observations.forEach { observation ->
+            }
+        }
+        items(state.observations, key = { "observation-${it.id}" }) { observation ->
+            Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
                 val status = when (observation.healthStatus) {
                     0 -> "Not assessed"; 1 -> "Healthy"; 2 -> "Needs attention"; else -> "Critical"
                 }
@@ -205,4 +218,3 @@ fun MonitoringScreen(
         }
     }
 }
-

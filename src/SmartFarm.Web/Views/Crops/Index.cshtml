@@ -118,7 +118,7 @@
                     <input type="hidden" name="Transition.RowVersion" value="@cycle.RowVersion" />
                     <input type="hidden" name="Transition.Status" value="Cancelled" />
                     <label for="Transition_TerminationReason_@cycle.Id">Cancellation reason</label><input id="Transition_TerminationReason_@cycle.Id" name="Transition.TerminationReason" value="@(Model.TransitionCycleId == cycle.Id && Model.Transition.Status == CropCycleStatus.Cancelled ? Model.Transition.TerminationReason : null)" maxlength="300" required />
-                    <button type="submit">Cancel cycle</button>
+                    <button class="button-danger" type="submit">Cancel cycle</button>
                 </form>
             }
             @if (canManage && cycle.Status == CropCycleStatus.Active)
@@ -128,7 +128,7 @@
                     <input type="hidden" name="Transition.RowVersion" value="@cycle.RowVersion" />
                     <input type="hidden" name="Transition.Status" value="Failed" />
                     <label for="Transition_FailureReason_@cycle.Id">Failure reason</label><input id="Transition_FailureReason_@cycle.Id" name="Transition.TerminationReason" value="@(Model.TransitionCycleId == cycle.Id && Model.Transition.Status == CropCycleStatus.Failed ? Model.Transition.TerminationReason : null)" maxlength="300" required />
-                    <button type="submit">Mark failed</button>
+                    <button class="button-danger" type="submit">Mark failed</button>
                 </form>
             }
         </div>

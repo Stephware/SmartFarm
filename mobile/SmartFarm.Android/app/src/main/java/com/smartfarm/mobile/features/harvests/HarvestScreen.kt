@@ -9,6 +9,8 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.AlertDialog
+import androidx.compose.foundation.lazy.items
+import com.smartfarm.mobile.ui.components.RecordPage
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.HorizontalDivider
@@ -19,6 +21,10 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.heading
+import androidx.compose.ui.semantics.liveRegion
+import androidx.compose.ui.semantics.LiveRegionMode
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -54,25 +60,22 @@ fun HarvestScreen(
     }
     val overview = state.overview
 
-    Scaffold { padding ->
-        Column(
-            Modifier.fillMaxSize().padding(padding)
-                .verticalScroll(rememberScrollState()).padding(20.dp),
-            verticalArrangement = Arrangement.spacedBy(12.dp)
-        ) {
+    RecordPage {
+        item(key = "form") {
+            Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
             OutlinedButton(onClick = onBack) { Text("Back to crop cycles") }
-            Text("Harvest management", style = MaterialTheme.typography.headlineMedium)
+            Text("Harvest management", style = MaterialTheme.typography.headlineMedium, modifier = Modifier.semantics { heading() })
             if (state.busy) CircularProgressIndicator()
             state.error?.let {
-                Text(it, color = MaterialTheme.colorScheme.error)
+                Text(it, color = MaterialTheme.colorScheme.error, modifier = Modifier.semantics { liveRegion = LiveRegionMode.Assertive })
                 OutlinedButton(onClick = onRetry, enabled = !state.busy) { Text("Try again") }
             }
-            state.notice?.let { Text(it, color = MaterialTheme.colorScheme.primary) }
+            state.notice?.let { Text(it, color = MaterialTheme.colorScheme.primary, modifier = Modifier.semantics { liveRegion = LiveRegionMode.Polite }) }
             OfflineDataNotice(state.offline, state.cachedAtUtcMillis)
 
             if (overview != null) {
                 Text("${overview.cropName} · ${overview.plotName}",
-                    style = MaterialTheme.typography.titleLarge)
+                    style = MaterialTheme.typography.titleLarge, modifier = Modifier.semantics { heading() })
                 Text("Total yield: ${overview.totalQuantity.toPlainString()} ${overview.unit}",
                     style = MaterialTheme.typography.titleMedium)
                 Text("${overview.validHarvestCount} valid · ${overview.voidedHarvestCount} voided")
@@ -93,11 +96,15 @@ fun HarvestScreen(
                 }
 
                 HorizontalDivider()
-                Text("Harvest history", style = MaterialTheme.typography.titleLarge)
+                Text("Harvest history", style = MaterialTheme.typography.titleLarge, modifier = Modifier.semantics { heading() })
                 PendingRecords(pending, state.farmId, state.cycleId,
                     setOf("harvest"), onSync)
                 if (overview.entries.isEmpty()) Text("No harvests recorded yet.")
-                overview.entries.forEach { entry ->
+            }
+            }
+        }
+        items(overview?.entries.orEmpty(), key = { "harvest-${it.id}" }) { entry ->
+            Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
                     Text("${entry.quantity.toPlainString()} ${entry.unit}" +
                         if (entry.isVoided) " · Voided" else "",
                         style = MaterialTheme.typography.titleMedium)
@@ -105,14 +112,14 @@ fun HarvestScreen(
                     entry.notes?.let { Text(it) }
                     if (entry.isVoided) {
                         Text("Voided: ${entry.voidReason.orEmpty()}")
-                    } else if (overview.canVoid && !state.offline) {
+                    } else if (overview?.canVoid == true && !state.offline) {
                         OutlinedButton(onClick = {
                             voidReason = ""
                             confirmVoidId = entry.id
                         }, enabled = !state.busy) { Text("Void entry") }
                     }
                     HorizontalDivider()
-                }
+
             }
         }
     }
