@@ -47,6 +47,8 @@ public sealed class ReadableCodeContractsTests
         var old = JsonSerializer.Deserialize<RecordActivityInput>(
             """{"activityType":1,"notes":"Done"}""", WebJson)!;
         Assert.Equal(old.ActivityType, named.ActivityType);
+        Assert.Equal(old.ActivityType, JsonSerializer.Deserialize<RecordActivityInput>(
+            """{"activityType":"1"}""", WebJson)!.ActivityType);
         using (var json = JsonDocument.Parse(JsonSerializer.Serialize(named, WebJson)))
             Assert.Equal(1, json.RootElement.GetProperty("activityType").GetByte());
 
