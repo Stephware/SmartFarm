@@ -1,12 +1,14 @@
+using SmartFarm.Core.Enums;
+
 namespace SmartFarm.Core.Services.Monitoring;
 
 public static class MonitoringRules
 {
     public const int MaxPhotoBytes = 5 * 1024 * 1024;
 
-    public static bool ValidActivity(byte kind) => kind is >= 1 and <= 5;
-    public static bool ValidHealth(byte health) => health <= 3;
-    public static bool CanRecord(byte cropStatus) => cropStatus == 1;
+    public static bool ValidActivity(byte kind) => Enum.IsDefined((FarmActivityType)kind);
+    public static bool ValidHealth(byte health) => Enum.IsDefined((CropHealthStatus)health);
+    public static bool CanRecord(byte cropStatus) => cropStatus == (byte)CropCycleStatus.Active;
 
     // Content type alone is untrusted. Accept only recognized file signatures
     // and match the declared type to prevent arbitrary executable uploads.
