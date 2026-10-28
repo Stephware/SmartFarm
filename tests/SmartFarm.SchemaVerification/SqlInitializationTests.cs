@@ -10,6 +10,21 @@ public sealed class SqlInitializationTests
         File.ReadAllText(Path.Combine(AppContext.BaseDirectory, "Database", filename));
 
     [Fact]
+    public void WorkflowUpgradeOnlyExpandsExistingChecksAndCanBeRerun()
+    {
+        var script = ReadSql("05_FarmEnrollmentWorkflow.sql");
+        Assert.Contains("BEGIN TRANSACTION", script);
+        Assert.Contains("ROLLBACK TRANSACTION", script);
+        Assert.Contains("WITH CHECK ADD CONSTRAINT CK_FarmJoinRequest_Status", script);
+        Assert.Contains("N'Canceled'", script);
+        Assert.Contains("ReviewedByUserId = UserId", script);
+        Assert.Contains("Type IN (1,2,3,4)", script);
+        Assert.DoesNotContain("DROP TABLE", script);
+        Assert.DoesNotContain("DELETE FROM", script);
+        Assert.DoesNotContain("ALTER COLUMN", script);
+    }
+
+    [Fact]
     public void EnrollmentUpgradeBackfillsWithoutRemovingExistingRecords()
     {
         var script = ReadSql("04_FarmerRegistrationApproval.sql");

@@ -9,6 +9,8 @@ using SmartFarm.Infrastructure.Identity;
 using SmartFarm.Api.Models.Auth;
 
 using SmartFarm.Api.Authentication;
+using Microsoft.AspNetCore.RateLimiting;
+using SmartFarm.Infrastructure.Security;
 
 namespace SmartFarm.Api.Controllers;
 
@@ -21,16 +23,18 @@ public sealed class AuthController(
     IOptionsMonitor<BearerTokenOptions> tokenOptions) : ControllerBase
 {
     [AllowAnonymous, HttpPost("register")]
+    [EnableRateLimiting(EnrollmentRateLimiting.Registration)]
     public async Task<IActionResult> Register([FromBody] RegisterInput input)
     {
-        var result = await registration.RegisterAsync(input.FullName, input.Email, input.Password, input.JoinFarm, input.FarmCode);
+        var result = await registration.RegisterAsync(input.FullName, input.Email, input.Password);
         if (!result.Succeeded)
-            return BadRequest(new { errors = result.Errors.Select(error => error.Description), farmCodeError = result.Errors.FirstOrDefault(error => error.Code == "FarmCode")?.Description });
+            return BadRequest(new { errors = result.Errors.Select(error => error.Description) });
 
-        return StatusCode(StatusCodes.Status201Created, new { message = input.JoinFarm ? "Account created. Farm access awaits owner approval. Please sign in." : "Account created. Please sign in." });
+        return StatusCode(StatusCodes.Status201Created, new { message = "Account created. Please sign in." });
     }
 
     [AllowAnonymous, HttpPost("login")]
+    [EnableRateLimiting(EnrollmentRateLimiting.Login)]
     public async Task<IActionResult> Login([FromBody] LoginInput input)
     {
         var user = await users.FindByEmailAsync(input.Email.Trim());

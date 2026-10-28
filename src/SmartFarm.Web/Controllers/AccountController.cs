@@ -1,6 +1,8 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
+using SmartFarm.Infrastructure.Security;
 using SmartFarm.Infrastructure.Identity;
 using SmartFarm.Web.ViewModels.Auth;
 
@@ -27,12 +29,12 @@ public sealed class AccountController : Controller
     [AllowAnonymous, HttpGet]
     public IActionResult Login(string? returnUrl = null)
     {
-        if (User.Identity?.IsAuthenticated == true) return RedirectToAction("Index", "Home");
+        if (User.Identity?.IsAuthenticated == true) return RedirectToAction("Index", "Farms");
         ViewData["ReturnUrl"] = returnUrl;
         return View(new LoginInput());
     }
 
-    [AllowAnonymous, HttpPost, ValidateAntiForgeryToken]
+    [AllowAnonymous, HttpPost, ValidateAntiForgeryToken, EnableRateLimiting(EnrollmentRateLimiting.Login)]
     public async Task<IActionResult> Login(LoginInput input, string? returnUrl = null)
     {
         ViewData["ReturnUrl"] = returnUrl;
@@ -51,27 +53,25 @@ public sealed class AccountController : Controller
             return View(input);
         }
 
-        return Url.IsLocalUrl(returnUrl) ? LocalRedirect(returnUrl!) : RedirectToAction("Index", "Home");
+        return Url.IsLocalUrl(returnUrl) ? LocalRedirect(returnUrl!) : RedirectToAction("Index", "Farms");
     }
 
     [AllowAnonymous, HttpGet]
     public IActionResult Register() => View(new RegisterInput());
 
-    [AllowAnonymous, HttpPost, ValidateAntiForgeryToken]
+    [AllowAnonymous, HttpPost, ValidateAntiForgeryToken, EnableRateLimiting(EnrollmentRateLimiting.Registration)]
     public async Task<IActionResult> Register(RegisterInput input)
     {
         if (!ModelState.IsValid) return View(input);
-        var result = await _registration.RegisterAsync(input.FullName, input.Email, input.Password, input.JoinFarm, input.FarmCode);
+        var result = await _registration.RegisterAsync(input.FullName, input.Email, input.Password);
         if (!result.Succeeded)
         {
             foreach (var error in result.Errors)
-                ModelState.AddModelError(error.Code == "FarmCode" ? nameof(input.FarmCode) : string.Empty, error.Description);
+                ModelState.AddModelError(string.Empty, error.Description);
             return View(input);
         }
 
-        TempData["Message"] = input.JoinFarm
-            ? "Account created. Sign in to check your farm request. Access begins after the owner approves."
-            : "Account created. Please sign in to create your farm.";
+        TempData["Message"] = "Account created. Sign in to create a farm or request access to an existing farm.";
         return RedirectToAction(nameof(Login));
     }
 

@@ -7,9 +7,17 @@
     }
     else if (Model.Overview is { } overview)
     {
-        <p>Share this farm code with farmers registering or requesting access. Each request needs your approval.</p>
+        <p>Share this 12-character farm code with farmers requesting access. Each request needs your approval.</p>
         <label for="farm-join-code">Farm code</label>
-        <input id="farm-join-code" readonly value="@overview.JoinCode" />
+        <input id="farm-join-code" readonly value="@overview.JoinCode" aria-describedby="farm-code-copy-status" />
+        <button type="button" data-copy-target="farm-join-code" data-copy-status="farm-code-copy-status">Copy code</button>
+        <p id="farm-code-copy-status" role="status" aria-atomic="true"></p>
+        <form asp-controller="Farms" asp-action="RegenerateCode" asp-route-id="@Model.FarmId" asp-route-dashboard="@Model.Dashboard"
+              method="post" data-confirm="Regenerate this farm code? The old code will stop accepting new requests.">
+            <input type="hidden" name="CurrentCode" value="@overview.JoinCode" />
+            <button type="submit">Regenerate code</button>
+        </form>
+        <h3>Pending requests</h3>
         @if (overview.Requests.Count == 0) { <p>No pending join requests.</p> }
         else
         {
@@ -24,6 +32,21 @@
                         <button name="approve" value="true" type="submit">Approve @request.FullName</button>
                         <button class="button-danger" name="approve" value="false" type="submit">Reject @request.FullName</button>
                     </form>
+                </li>
+            }
+            </ul>
+        }
+        <h3>Request history</h3>
+        @if (overview.History is not { Count: > 0 }) { <p>No past join requests.</p> }
+        else
+        {
+            <ul class="farm-list">
+            @foreach (var request in overview.History)
+            {
+                <li>
+                    <strong>@request.FullName</strong> — @request.Status
+                    <span>@request.Email · Requested @request.RequestedAtUtc.ToString("MMM d, yyyy HH:mm") UTC</span>
+                    @if (request.ReviewedAtUtc is { } reviewed) { <span>Updated @reviewed.ToString("MMM d, yyyy HH:mm") UTC</span> }
                 </li>
             }
             </ul>

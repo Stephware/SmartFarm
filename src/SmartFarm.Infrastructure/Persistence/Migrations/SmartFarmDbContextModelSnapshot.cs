@@ -465,9 +465,9 @@ namespace SmartFarm.Infrastructure.Persistence.Migrations
 
                     b.ToTable("FarmJoinRequest", "dbo", t =>
                         {
-                            t.HasCheckConstraint("CK_FarmJoinRequest_Review", "(Status = N'Pending' AND ReviewedByUserId IS NULL AND ReviewedAtUtc IS NULL) OR (Status IN (N'Approved', N'Rejected') AND ReviewedByUserId IS NOT NULL AND ReviewedAtUtc IS NOT NULL)");
+                            t.HasCheckConstraint("CK_FarmJoinRequest_Review", "(Status = N'Pending' AND ReviewedByUserId IS NULL AND ReviewedAtUtc IS NULL) OR (Status IN (N'Approved', N'Rejected') AND ReviewedByUserId IS NOT NULL AND ReviewedAtUtc IS NOT NULL) OR (Status = N'Canceled' AND ReviewedByUserId = UserId AND ReviewedAtUtc IS NOT NULL)");
 
-                            t.HasCheckConstraint("CK_FarmJoinRequest_Status", "Status IN (N'Pending', N'Approved', N'Rejected')");
+                            t.HasCheckConstraint("CK_FarmJoinRequest_Status", "Status IN (N'Pending', N'Approved', N'Rejected', N'Canceled')");
                         });
                 });
 
@@ -850,7 +850,7 @@ namespace SmartFarm.Infrastructure.Persistence.Migrations
 
                     b.ToTable("Notification", "dbo", t =>
                         {
-                            t.HasCheckConstraint("CK_Notification_Type", "Type IN (1,2,3)");
+                            t.HasCheckConstraint("CK_Notification_Type", "Type IN (1,2,3,4)");
                         });
                 });
 

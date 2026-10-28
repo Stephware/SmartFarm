@@ -46,7 +46,12 @@ data class FarmJoinRequestDto(
     val fullName: String, val email: String, val status: String,
     val requestedAtUtc: String, val reviewedAtUtc: String? = null
 )
-data class FarmEnrollmentOverviewDto(val joinCode: String, val requests: List<FarmJoinRequestDto>)
+data class FarmEnrollmentOverviewDto(
+    val joinCode: String = "", val requests: List<FarmJoinRequestDto> = emptyList(),
+    val history: List<FarmJoinRequestDto> = emptyList()
+)
+data class RegenerateJoinCodeDto(val currentCode: String)
+data class FarmJoinCodeDto(val joinCode: String)
 data class FarmJoinInputDto(val farmCode: String)
 data class FarmJoinDecisionDto(val approve: Boolean)
 

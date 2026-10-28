@@ -7,9 +7,6 @@ import com.smartfarm.mobile.data.remote.dto.LoginRequest
 import com.smartfarm.mobile.data.remote.dto.RefreshRequest
 import com.smartfarm.mobile.data.remote.dto.RegisterRequest
 import retrofit2.HttpException
-import com.google.gson.JsonParser
-
-class FarmCodeException(message: String) : IllegalArgumentException(message)
 
 // Tokens deliberately remain in memory until secure persisted storage is designed.
 // Restarting the app requires signing in again; never save tokens in Room/plain preferences.
@@ -18,21 +15,9 @@ class AuthRepository(private val onLogin: () -> Unit = {}, private val api: () -
         private set
     private var session: AuthTokens? = null
 
-    suspend fun register(name: String, email: String, password: String, confirm: String,
-        joinFarm: Boolean = false, farmCode: String? = null) {
-        require(!joinFarm || !farmCode.isNullOrBlank()) { "A farm code is required." }
-        val response = api().register(RegisterRequest(name.trim(), email.trim(), password, confirm, joinFarm,
-            farmCode?.trim().takeIf { joinFarm }))
-        if (!response.isSuccessful) {
-            val codeError = runCatching {
-                val json = JsonParser.parseString(response.errorBody()?.string()).asJsonObject
-                json.get("farmCodeError")?.takeUnless { it.isJsonNull }?.asString
-                    ?: json.get("errors")?.takeIf { it.isJsonObject }?.asJsonObject
-                        ?.getAsJsonArray("FarmCode")?.firstOrNull()?.asString
-            }.getOrNull()
-            if (joinFarm && !codeError.isNullOrBlank()) throw FarmCodeException(codeError)
-            throw HttpException(response)
-        }
+    suspend fun register(name: String, email: String, password: String) {
+        val response = api().register(RegisterRequest(name.trim(), email.trim(), password))
+        if (!response.isSuccessful) throw HttpException(response)
     }
 
     suspend fun login(email: String, password: String): AccountResponse {

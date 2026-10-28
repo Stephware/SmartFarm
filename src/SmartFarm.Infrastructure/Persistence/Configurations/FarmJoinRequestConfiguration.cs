@@ -11,8 +11,8 @@ internal sealed class FarmJoinRequestConfiguration : IEntityTypeConfiguration<Fa
     {
         builder.ToTable("FarmJoinRequest", "dbo", table =>
         {
-            table.HasCheckConstraint("CK_FarmJoinRequest_Status", "Status IN (N'Pending', N'Approved', N'Rejected')");
-            table.HasCheckConstraint("CK_FarmJoinRequest_Review", "(Status = N'Pending' AND ReviewedByUserId IS NULL AND ReviewedAtUtc IS NULL) OR (Status IN (N'Approved', N'Rejected') AND ReviewedByUserId IS NOT NULL AND ReviewedAtUtc IS NOT NULL)");
+            table.HasCheckConstraint("CK_FarmJoinRequest_Status", "Status IN (N'Pending', N'Approved', N'Rejected', N'Canceled')");
+            table.HasCheckConstraint("CK_FarmJoinRequest_Review", "(Status = N'Pending' AND ReviewedByUserId IS NULL AND ReviewedAtUtc IS NULL) OR (Status IN (N'Approved', N'Rejected') AND ReviewedByUserId IS NOT NULL AND ReviewedAtUtc IS NOT NULL) OR (Status = N'Canceled' AND ReviewedByUserId = UserId AND ReviewedAtUtc IS NOT NULL)");
         });
         builder.HasKey(entity => entity.Id).HasName("PK_FarmJoinRequest");
         builder.Property(entity => entity.Id).HasColumnType("uniqueidentifier").ValueGeneratedNever();

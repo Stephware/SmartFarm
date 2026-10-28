@@ -4,7 +4,12 @@
 }
 <section class="panel">
     <h1>My farms</h1>
-    <p><a class="button" asp-controller="Farms" asp-action="Create">Add a farm</a></p>
+    @if (TempData["Message"] is string message) { <p role="status">@message</p> }
+    @if (TempData["Error"] is string error) { <p class="error" role="alert">@error</p> }
+    <div class="action-links">
+        <a class="button" asp-controller="Farms" asp-action="Create">Create farm</a>
+        <a href="#join-farm">Join farm</a>
+    </div>
     @if (Model.Farms.Count == 0)
     {
         <p>No farms yet. Request access with a farm code, or create your own farm.</p>
@@ -26,19 +31,18 @@
         </ul>
     }
 </section>
-
-
-<section class="panel">
-    <h2>Join a farm</h2>
+<section class="panel" id="join-farm" aria-labelledby="join-farm-heading">
+    <h2 id="join-farm-heading">Join a farm</h2>
     <p>Enter the code supplied by the owner. Access begins after the owner approves your request.</p>
-    @if (TempData["Message"] is string message) { <p role="status">@message</p> }
     <form asp-action="RequestJoin" method="post" class="narrow">
         <label for="FarmCode">Farm code</label>
         <input id="FarmCode" name="FarmCode" value="@Model.Join.FarmCode" required maxlength="64" autocomplete="off" spellcheck="false" />
         @Html.ValidationMessage("FarmCode", null, new { @class = "error" })
         <button type="submit">Request to join</button>
     </form>
-    <h3>Your join requests</h3>
+</section>
+<section class="panel">
+    <h2>Your join requests</h2>
     @if (Model.RequestError is not null) { <p role="alert">@Model.RequestError</p> }
     else if (Model.JoinRequests.Count == 0) { <p>No join requests yet.</p> }
     else
@@ -46,10 +50,22 @@
         <ul class="farm-list">
         @foreach (var request in Model.JoinRequests)
         {
-            <li><strong>@request.FarmName</strong> — @request.Status
+            <li>
+                <strong>@request.FarmName</strong> — @request.Status
                 <span>Requested @request.RequestedAtUtc.ToString("MMM d, yyyy HH:mm") UTC</span>
-                @if (request.Status == "Pending") { <span>Waiting for the farm owner to approve.</span> }
-                @if (request.Status == "Rejected") { <span>The owner declined this request. Contact them before submitting again.</span> }
+                @if (request.ReviewedAtUtc is { } reviewed) { <span>Updated @reviewed.ToString("MMM d, yyyy HH:mm") UTC</span> }
+                @if (request.Status == "Pending")
+                {
+                    <span>Waiting for the farm owner to approve.</span>
+                    <form asp-action="CancelJoin" asp-route-farmId="@request.FarmId" asp-route-requestId="@request.Id" method="post"
+                          data-confirm="Cancel your request to join @request.FarmName?">
+                        <button type="submit">Cancel request</button>
+                    </form>
+                }
+                @if (request.Status is "Rejected" or "Canceled")
+                {
+                    <p>To apply again, enter a valid farm code above.</p>
+                }
             </li>
         }
         </ul>

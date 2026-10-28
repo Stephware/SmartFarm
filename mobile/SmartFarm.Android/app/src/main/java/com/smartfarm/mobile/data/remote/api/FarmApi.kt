@@ -68,6 +68,14 @@ interface FarmApi {
         @Path("farmId") farmId: String, @Path("requestId") requestId: String,
         @Body input: FarmJoinDecisionDto)
 
+    @POST("api/farms/{farmId}/join-requests/{requestId}/cancel")
+    suspend fun cancelJoinRequest(@Header("Authorization") auth: String,
+        @Path("farmId") farmId: String, @Path("requestId") requestId: String)
+
+    @POST("api/farms/{farmId}/join-code/regenerate")
+    suspend fun regenerateJoinCode(@Header("Authorization") auth: String,
+        @Path("farmId") farmId: String, @Body input: RegenerateJoinCodeDto): FarmJoinCodeDto
+
     @PUT("api/farms/{farmId}/members/{memberId}")
     suspend fun changeRole(@Header("Authorization") auth: String,
         @Path("farmId") farmId: String, @Path("memberId") memberId: String,

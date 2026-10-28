@@ -86,6 +86,11 @@ class FarmRepository(
         authentication.authorized { api().decideJoinRequest(it, farmId, requestId, FarmJoinDecisionDto(approve)) }
         cache?.invalidate("farm/$farmId/members")
     }
+    suspend fun cancelJoinRequest(farmId: String, requestId: String) =
+        authentication.authorized { api().cancelJoinRequest(it, farmId, requestId) }
+    suspend fun regenerateJoinCode(farmId: String, currentCode: String): FarmJoinCodeDto =
+        authentication.authorized { api().regenerateJoinCode(it, farmId, RegenerateJoinCodeDto(currentCode)) }
+
     suspend fun changeRole(farmId: String, memberId: String, role: Int) {
         authentication.authorized { api().changeRole(it, farmId, memberId, UpdateMemberDto(role)) }
         cache?.invalidate("farm/$farmId/members")

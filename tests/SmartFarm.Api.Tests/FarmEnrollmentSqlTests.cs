@@ -1,4 +1,9 @@
 using System.Data;
+using Microsoft.AspNetCore.Builder;
+using System.Threading.RateLimiting;
+using Microsoft.AspNetCore.RateLimiting;
+using Microsoft.Extensions.Options;
+using SmartFarm.Infrastructure.Security;
 using System.Net;
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
@@ -26,7 +31,7 @@ public sealed class FarmEnrollmentSqlTests
     private const string Password = "EnrollmentTest2026!";
 
     [Fact]
-    public async Task JoiningRegistrationAndConcurrentOwnerApprovalUseRealSql_WhenDisposableDatabaseConfigured()
+    public async Task IndependentRegistrationAndConcurrentOwnerApprovalUseRealSql_WhenDisposableDatabaseConfigured()
     {
         var connection = TestConnection();
         if (connection is null) return;
@@ -42,13 +47,19 @@ public sealed class FarmEnrollmentSqlTests
         var overview = await Get<FarmEnrollmentOverview>(owner, farmPath + "/join-requests");
         Assert.Matches("^[A-F0-9]{12}$", overview.JoinCode);
 
-        // Parallel signups must not deadlock Identity's uniqueness reads inside the joining transaction.
+        // Parallel account signups remain independent; farm access is requested only after login.
         using var parallelOne = factory.CreateClient();
         using var parallelTwo = factory.CreateClient();
         var parallelSignups = await Task.WhenAll(
             parallelOne.PostAsJsonAsync("/api/auth/register", Registration($"parallel-a-{suffix}@example.test", true, overview.JoinCode)),
             parallelTwo.PostAsJsonAsync("/api/auth/register", Registration($"parallel-b-{suffix}@example.test", true, overview.JoinCode)));
         foreach (var signup in parallelSignups) { using (signup) Assert.Equal(HttpStatusCode.Created, signup.StatusCode); }
+        Assert.Empty((await Get<FarmEnrollmentOverview>(owner, farmPath + "/join-requests")).Requests);
+        await Login(parallelOne, $"parallel-a-{suffix}@example.test");
+        await Login(parallelTwo, $"parallel-b-{suffix}@example.test");
+        await Task.WhenAll(
+            Post<FarmJoinRequestDetails>(parallelOne, "/api/farm-join-requests", new { farmCode = overview.JoinCode }),
+            Post<FarmJoinRequestDetails>(parallelTwo, "/api/farm-join-requests", new { farmCode = overview.JoinCode }));
         var parallelRequests = (await Get<FarmEnrollmentOverview>(owner, farmPath + "/join-requests")).Requests;
         foreach (var request in parallelRequests)
         {
@@ -58,19 +69,18 @@ public sealed class FarmEnrollmentSqlTests
 
         using var applicant = factory.CreateClient();
         var invalidEmail = $"invalid-{suffix}@example.test";
+        // Obsolete signup farm fields are ignored: even an invalid code cannot block account creation.
         using (var invalid = await applicant.PostAsJsonAsync("/api/auth/register", Registration(invalidEmail, true, "000000000000")))
-        {
-            Assert.Equal(HttpStatusCode.BadRequest, invalid.StatusCode);
-            using var error = JsonDocument.Parse(await invalid.Content.ReadAsStringAsync());
-            Assert.False(string.IsNullOrEmpty(error.RootElement.GetProperty("farmCodeError").GetString()));
-        }
-        await WithDb(factory, async db => Assert.False(await db.Users.AnyAsync(u => u.Email == invalidEmail)));
+            Assert.Equal(HttpStatusCode.Created, invalid.StatusCode);
+        await WithDb(factory, async db => Assert.True(await db.Users.AnyAsync(u => u.Email == invalidEmail)));
 
         var applicantEmail = $"farmer-{suffix}@example.test";
         await Register(applicant, applicantEmail, true, "  " + overview.JoinCode[..4].ToLowerInvariant() + "-" + overview.JoinCode[4..].ToLowerInvariant() + "  ");
         using (var duplicate = await applicant.PostAsJsonAsync("/api/auth/register", Registration(applicantEmail, true, overview.JoinCode))) Assert.Equal(HttpStatusCode.BadRequest, duplicate.StatusCode);
         await WithDb(factory, async db => Assert.Equal(1, await db.Users.CountAsync(u => u.Email == applicantEmail)));
         await Login(applicant, applicantEmail);
+        Assert.Empty(await Get<List<FarmJoinRequestDetails>>(applicant, "/api/farm-join-requests"));
+        await Post<FarmJoinRequestDetails>(applicant, "/api/farm-join-requests", new { farmCode = overview.JoinCode });
         using (var pendingAccess = await applicant.GetAsync(farmPath)) Assert.Equal(HttpStatusCode.NotFound, pendingAccess.StatusCode);
         using (var hiddenOverview = await applicant.GetAsync(farmPath + "/join-requests")) Assert.Equal(HttpStatusCode.NotFound, hiddenOverview.StatusCode);
         var pending = Assert.Single(await Get<List<FarmJoinRequestDetails>>(applicant, "/api/farm-join-requests"));
@@ -116,12 +126,12 @@ public sealed class FarmEnrollmentSqlTests
         using (var disabled = await owner.PostAsJsonAsync(farmPath + $"/join-requests/{afterRejection.Id}/decision", new { approve = true })) Assert.Equal(HttpStatusCode.NotFound, disabled.StatusCode);
         using (var archived = await owner.SendAsync(new HttpRequestMessage(HttpMethod.Delete, farmPath) { Content = JsonContent.Create(new RowVersionInput { RowVersion = farm.RowVersion }) })) Assert.Equal(HttpStatusCode.NoContent, archived.StatusCode);
         var archivedEmail = $"archived-{suffix}@example.test";
-        using (var invalidArchived = await applicant.PostAsJsonAsync("/api/auth/register", Registration(archivedEmail, true, overview.JoinCode))) Assert.Equal(HttpStatusCode.BadRequest, invalidArchived.StatusCode);
-        await WithDb(factory, async db => Assert.False(await db.Users.AnyAsync(u => u.Email == archivedEmail)));
+        using (var invalidArchived = await applicant.PostAsJsonAsync("/api/auth/register", Registration(archivedEmail, true, overview.JoinCode))) Assert.Equal(HttpStatusCode.Created, invalidArchived.StatusCode);
+        await WithDb(factory, async db => Assert.True(await db.Users.AnyAsync(u => u.Email == archivedEmail)));
     }
 
     [Fact]
-    public async Task EnrollmentPersistenceFailureRollsBackTheRealIdentityInsert_WhenDisposableDatabaseConfigured()
+    public async Task RegistrationDoesNotDependOnEnrollmentAvailability_WhenDisposableDatabaseConfigured()
     {
         var connection = TestConnection();
         if (connection is null) return;
@@ -130,8 +140,8 @@ public sealed class FarmEnrollmentSqlTests
         using var client = factory.CreateClient();
         var email = $"rollback-{Guid.NewGuid():N}@example.test";
         using var response = await client.PostAsJsonAsync("/api/auth/register", Registration(email, true, "ABCD12345678"));
-        Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
-        await WithDb(factory, async db => Assert.False(await db.Users.AnyAsync(u => u.Email == email)));
+        Assert.Equal(HttpStatusCode.Created, response.StatusCode);
+        await WithDb(factory, async db => Assert.True(await db.Users.AnyAsync(u => u.Email == email)));
     }
 
     [Fact]
@@ -184,6 +194,108 @@ public sealed class FarmEnrollmentSqlTests
         await WithDb(factory, async db => Assert.NotEqual(collision.OccupiedCode, (await db.Farms.SingleAsync(f => f.Id == created.Id)).JoinCode));
     }
 
+    [Fact]
+    public async Task CancellationRotationAndNotificationsAreAtomicUnderConcurrency_WhenDisposableDatabaseConfigured()
+    {
+        var connection = TestConnection();
+        if (connection is null) return;
+        using var factory = Factory(connection);
+        await AssertDisposableDatabase(factory, connection);
+        using var owner = factory.CreateClient();
+        using var applicant = factory.CreateClient();
+        var suffix = Guid.NewGuid().ToString("N");
+        var ownerEmail = $"rotate-owner-{suffix}@example.test";
+        var email = $"cancel-applicant-{suffix}@example.test";
+        await Register(owner, ownerEmail); await Login(owner, ownerEmail);
+        await Register(applicant, email); await Login(applicant, email);
+        var farm = await Post<FarmDetails>(owner, "/api/farms", new FarmInput { Name = "Cancel " + suffix, LocationText = "Test farm" });
+        var path = $"/api/farms/{farm.Id}";
+        var original = await Get<FarmEnrollmentOverview>(owner, path + "/join-requests");
+        var duplicates = await Task.WhenAll(Enumerable.Range(0, 4).Select(_ =>
+            Post<FarmJoinRequestDetails>(applicant, "/api/farm-join-requests", new { farmCode = original.JoinCode })));
+        var request = duplicates[0];
+        Assert.All(duplicates, r => Assert.Equal(request.Id, r.Id));
+        using (var forbidden = await owner.PostAsync(path + $"/join-requests/{request.Id}/cancel", null)) Assert.Equal(HttpStatusCode.NotFound, forbidden.StatusCode);
+        var cancellations = await Task.WhenAll(Enumerable.Range(0, 3).Select(_ => applicant.PostAsync(path + $"/join-requests/{request.Id}/cancel", null)));
+        foreach (var response in cancellations) { using (response) Assert.Equal(HttpStatusCode.NoContent, response.StatusCode); }
+        var canceled = Assert.Single(await Get<List<FarmJoinRequestDetails>>(applicant, "/api/farm-join-requests"));
+        Assert.Equal("Canceled", canceled.Status);
+        var contested = await Post<FarmJoinRequestDetails>(applicant, "/api/farm-join-requests", new { farmCode = original.JoinCode });
+        var race = await Task.WhenAll(
+            owner.PostAsJsonAsync(path + $"/join-requests/{contested.Id}/decision", new { approve = true }),
+            applicant.PostAsync(path + $"/join-requests/{contested.Id}/cancel", null));
+        Assert.Equal(1, race.Count(r => r.StatusCode == HttpStatusCode.NoContent));
+        Assert.Equal(1, race.Count(r => r.StatusCode == HttpStatusCode.Conflict));
+        foreach (var response in race) response.Dispose();
+        var rotations = await Task.WhenAll(Enumerable.Range(0, 2).Select(_ => owner.PostAsJsonAsync(path + "/join-code/regenerate", new { currentCode = original.JoinCode })));
+        Assert.Equal(1, rotations.Count(r => r.StatusCode == HttpStatusCode.OK));
+        Assert.Equal(1, rotations.Count(r => r.StatusCode == HttpStatusCode.Conflict));
+        foreach (var response in rotations) response.Dispose();
+        var current = await Get<FarmEnrollmentOverview>(owner, path + "/join-requests");
+        Assert.NotEqual(original.JoinCode, current.JoinCode);
+        Assert.Empty(current.Requests); Assert.Equal(2, current.History!.Count);
+        using var newApplicant = factory.CreateClient();
+        var newEmail = $"new-applicant-{suffix}@example.test";
+        await Register(newApplicant, newEmail); await Login(newApplicant, newEmail);
+        using (var oldCode = await newApplicant.PostAsJsonAsync("/api/farm-join-requests", new { farmCode = original.JoinCode })) Assert.Equal(HttpStatusCode.BadRequest, oldCode.StatusCode);
+        await Post<FarmJoinRequestDetails>(newApplicant, "/api/farm-join-requests", new { farmCode = current.JoinCode });
+        await WithDb(factory, async db =>
+        {
+            var stored = await db.FarmJoinRequests.SingleAsync(r => r.Id == contested.Id);
+            Assert.Contains(stored.Status, new[] { "Approved", "Canceled" });
+            var membership = await db.FarmMembers.CountAsync(m => m.FarmId == farm.Id && m.UserId == request.UserId && m.RemovedAtUtc == null);
+            Assert.Equal(stored.Status == "Approved" ? 1 : 0, membership);
+            var ownerId = (await db.Users.SingleAsync(u => u.Email == ownerEmail)).Id;
+            Assert.Equal(3, await db.Notifications.CountAsync(n => n.UserId == ownerId && n.Type == 4));
+            Assert.Equal(stored.Status == "Approved" ? 1 : 0, await db.Notifications.CountAsync(n => n.UserId == request.UserId && n.Type == 4));
+            Assert.Equal(3, await db.FarmJoinRequests.CountAsync(r => r.FarmId == farm.Id));
+        });
+    }
+
+    [Fact]
+    public async Task EnrollmentNotificationsRollBackWithRequestAndMembership_WhenDisposableDatabaseConfigured()
+    {
+        var connection = TestConnection();
+        if (connection is null) return;
+        var failure = new FailAfterEnrollmentSave();
+        using var factory = Factory(connection, interceptor: failure);
+        using var owner = factory.CreateClient();
+        using var applicant = factory.CreateClient();
+        var suffix = Guid.NewGuid().ToString("N");
+        var ownerEmail = $"atomic-owner-{suffix}@example.test";
+        var email = $"atomic-applicant-{suffix}@example.test";
+        await Register(owner, ownerEmail); await Login(owner, ownerEmail);
+        await Register(applicant, email); await Login(applicant, email);
+        var farm = await Post<FarmDetails>(owner, "/api/farms", new FarmInput { Name = "Atomic " + suffix, LocationText = "Test farm" });
+        var overview = await Get<FarmEnrollmentOverview>(owner, $"/api/farms/{farm.Id}/join-requests");
+        Guid actor = default, ownerId = default;
+        await WithDb(factory, async db =>
+        {
+            actor = (await db.Users.SingleAsync(u => u.Email == email)).Id;
+            ownerId = (await db.Users.SingleAsync(u => u.Email == ownerEmail)).Id;
+        });
+        failure.Enabled = true;
+        await using (var scope = factory.Services.CreateAsyncScope())
+            await Assert.ThrowsAsync<DbUpdateException>(() => scope.ServiceProvider.GetRequiredService<IFarmEnrollmentService>().RequestAsync(actor, overview.JoinCode));
+        await WithDb(factory, async db =>
+        {
+            Assert.False(await db.FarmJoinRequests.AnyAsync(r => r.FarmId == farm.Id));
+            Assert.False(await db.Notifications.AnyAsync(n => n.UserId == ownerId));
+        });
+        failure.Enabled = false;
+        var request = await Post<FarmJoinRequestDetails>(applicant, "/api/farm-join-requests", new { farmCode = overview.JoinCode });
+        failure.Enabled = true;
+        await using (var scope = factory.Services.CreateAsyncScope())
+            await Assert.ThrowsAsync<DbUpdateException>(() => scope.ServiceProvider.GetRequiredService<IFarmEnrollmentService>().DecideAsync(farm.Id, request.Id, ownerId, true));
+        await WithDb(factory, async db =>
+        {
+            Assert.Equal("Pending", (await db.FarmJoinRequests.SingleAsync(r => r.Id == request.Id)).Status);
+            Assert.False(await db.FarmMembers.AnyAsync(m => m.FarmId == farm.Id));
+            Assert.False(await db.Notifications.AnyAsync(n => n.UserId == actor));
+            Assert.Single(await db.Notifications.Where(n => n.UserId == ownerId).ToListAsync());
+        });
+    }
+
     private static string? TestConnection()
     {
         var connection = Environment.GetEnvironmentVariable("SMARTFARM_ENROLLMENT_TEST_CONNECTION");
@@ -199,6 +311,12 @@ public sealed class FarmEnrollmentSqlTests
             builder.ConfigureAppConfiguration((_, config) => config.AddInMemoryCollection(new Dictionary<string, string?> { ["ConnectionStrings:SmartFarm"] = connection }));
             builder.ConfigureServices(services =>
             {
+                services.RemoveAll<IConfigureOptions<RateLimiterOptions>>();
+                services.AddRateLimiter(options =>
+                {
+                    foreach (var name in new[] { EnrollmentRateLimiting.Registration, EnrollmentRateLimiting.Login, EnrollmentRateLimiting.Enrollment })
+                        options.AddPolicy(name, _ => RateLimitPartition.GetNoLimiter("sql-workflow"));
+                });
                 services.RemoveAll<SmartFarmDbContext>();
                 services.RemoveAll<DbContextOptions<SmartFarmDbContext>>();
                 services.AddDbContext<SmartFarmDbContext>(options =>
@@ -248,6 +366,22 @@ public sealed class FarmEnrollmentSqlTests
         await using var scope = factory.Services.CreateAsyncScope();
         await work(scope.ServiceProvider.GetRequiredService<SmartFarmDbContext>());
     }
+    private sealed class FailAfterEnrollmentSave : SaveChangesInterceptor
+    {
+        public bool Enabled { get; set; }
+        private bool fail;
+        public override ValueTask<InterceptionResult<int>> SavingChangesAsync(DbContextEventData eventData, InterceptionResult<int> result, CancellationToken ct = default)
+        {
+            fail = Enabled && eventData.Context!.ChangeTracker.Entries<SmartFarm.Core.Entities.Notification>().Any(e => e.State == EntityState.Added && e.Entity.Type == 4);
+            return ValueTask.FromResult(result);
+        }
+        public override ValueTask<int> SavedChangesAsync(SaveChangesCompletedEventData eventData, int result, CancellationToken ct = default)
+        {
+            if (fail) throw new DbUpdateException("Simulated failure after writing enrollment and notification rows.");
+            return ValueTask.FromResult(result);
+        }
+    }
+
     private sealed class ForceJoinCodeCollision : SaveChangesInterceptor
     {
         public string OccupiedCode { get; } = Guid.NewGuid().ToString("N")[..12].ToUpperInvariant();
@@ -278,6 +412,8 @@ public sealed class FarmEnrollmentSqlTests
 
     private sealed class FailedEnrollment : IFarmEnrollmentService
     {
+        public Task CancelAsync(Guid farmId, Guid requestId, Guid actor, CancellationToken ct = default) => throw new NotImplementedException();
+        public Task<string> RegenerateCodeAsync(Guid farmId, Guid actor, string currentCode, CancellationToken ct = default) => throw new NotImplementedException();
         public Task<FarmJoinRequestDetails> RequestAsync(Guid actor, string code, CancellationToken ct = default) => throw new DbUpdateException("Simulated enrollment persistence failure.");
         public Task<IReadOnlyList<FarmJoinRequestDetails>> MyRequestsAsync(Guid actor, CancellationToken ct = default) => throw new NotImplementedException();
         public Task<FarmEnrollmentOverview> OwnerOverviewAsync(Guid farmId, Guid actor, CancellationToken ct = default) => throw new NotImplementedException();

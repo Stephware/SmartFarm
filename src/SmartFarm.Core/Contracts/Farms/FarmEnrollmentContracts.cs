@@ -6,7 +6,14 @@ public sealed record FarmJoinRequestDetails(Guid Id, Guid FarmId, string FarmNam
     Guid UserId, string FullName, string Email, string Status, DateTime RequestedAtUtc,
     DateTime? ReviewedAtUtc);
 
-public sealed record FarmEnrollmentOverview(string JoinCode, IReadOnlyList<FarmJoinRequestDetails> Requests);
+public sealed record FarmEnrollmentOverview(string JoinCode, IReadOnlyList<FarmJoinRequestDetails> Requests,
+    IReadOnlyList<FarmJoinRequestDetails>? History = null);
+
+public sealed class FarmCodeRegenerationInput
+{
+    [Required, StringLength(12, MinimumLength = 12)]
+    public string CurrentCode { get; set; } = "";
+}
 
 public sealed class FarmJoinRequestInput
 {

@@ -12,11 +12,13 @@ using SmartFarm.Infrastructure;
 using SmartFarm.Infrastructure.Identity;
 using SmartFarm.Web.HealthChecks;
 using SmartFarm.Infrastructure.Services.Monitoring;
+using SmartFarm.Infrastructure.Security;
 
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllersWithViews(options => options.Filters.AddService<SmartFarm.Web.Filters.ApiUnavailableFilter>());
 builder.Services.AddScoped<SmartFarm.Web.Filters.ApiUnavailableFilter>();
+builder.Services.AddEnrollmentRateLimiting();
 builder.Services.AddSmartFarmPersistence(
     builder.Configuration.GetConnectionString("SmartFarm"));
 builder.Services.AddSmartFarmWebIdentity(builder.Environment);
@@ -68,6 +70,7 @@ app.UseStaticFiles();
 app.UseRouting();
 app.UseAuthentication();
 app.UseAuthorization();
+app.UseRateLimiter();
 
 if (app.Environment.IsDevelopment())
 {

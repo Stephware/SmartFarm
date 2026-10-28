@@ -12,5 +12,6 @@
     <None Include="../../database/02_CreateSchema.sql" Link="Database/02_CreateSchema.sql" CopyToOutputDirectory="PreserveNewest" />
     <None Include="../../database/03_VerifySchema.sql" Link="Database/03_VerifySchema.sql" CopyToOutputDirectory="PreserveNewest" />
     <None Include="../../database/04_FarmerRegistrationApproval.sql" Link="Database/04_FarmerRegistrationApproval.sql" CopyToOutputDirectory="PreserveNewest" />
+    <None Include="../../database/05_FarmEnrollmentWorkflow.sql" Link="Database/05_FarmEnrollmentWorkflow.sql" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
 </Project>

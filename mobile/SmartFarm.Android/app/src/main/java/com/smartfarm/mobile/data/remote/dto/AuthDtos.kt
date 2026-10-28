@@ -5,10 +5,7 @@ data class LoginRequest(val email: String, val password: String)
 data class RegisterRequest(
     val fullName: String,
     val email: String,
-    val password: String,
-    val confirmPassword: String,
-    val joinFarm: Boolean = false,
-    val farmCode: String? = null
+    val password: String
 )
 
 data class RefreshRequest(val refreshToken: String)

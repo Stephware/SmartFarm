@@ -17,3 +17,18 @@ for (const form of document.querySelectorAll("form[data-confirm]")) {
         if (!window.confirm(form.dataset.confirm)) event.preventDefault();
     });
 }
+
+for (const button of document.querySelectorAll("[data-copy-target]")) {
+    button.addEventListener("click", async () => {
+        const field = document.getElementById(button.dataset.copyTarget);
+        const status = document.getElementById(button.dataset.copyStatus);
+        try {
+            await navigator.clipboard.writeText(field.value);
+            status.textContent = "Farm code copied.";
+        } catch {
+            field.focus();
+            field.select();
+            status.textContent = "Select and copy the farm code.";
+        }
+    });
+}
