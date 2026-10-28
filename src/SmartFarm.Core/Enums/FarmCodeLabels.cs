@@ -57,6 +57,8 @@ public static class FarmCodeLabels
     {
         FarmNotificationType.TaskReminder => "Task reminder",
         FarmNotificationType.WeatherAdvisory => "Weather advisory",
+        FarmNotificationType.Other => "Other notification",
+        FarmNotificationType.FarmEnrollment => "Farm enrollment",
         _ => "Unknown"
     };
 
