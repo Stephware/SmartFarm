@@ -46,7 +46,9 @@ public enum FarmMemberRole : byte
 public enum FarmNotificationType : byte
 {
     TaskReminder = 1,
-    WeatherAdvisory = 2
+    WeatherAdvisory = 2,
+    Other = 3,
+    FarmEnrollment = 4
 }
 
 public enum WeatherAdvisoryType : byte
