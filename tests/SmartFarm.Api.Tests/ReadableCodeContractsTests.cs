@@ -80,6 +80,8 @@ public sealed class ReadableCodeContractsTests
         Assert.Equal("Unknown", FarmCodeLabels.Activity(255));
         Assert.Equal("Unknown", FarmCodeLabels.Health(255));
         Assert.Equal("Unknown", FarmCodeLabels.TaskStatus(255));
+        Assert.Equal("Farm enrollment", FarmCodeLabels.Notification(4));
+        Assert.Equal("Other notification", FarmCodeLabels.Notification(3));
     }
 
     [Fact]
