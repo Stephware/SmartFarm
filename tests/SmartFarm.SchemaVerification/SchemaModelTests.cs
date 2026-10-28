@@ -32,6 +32,8 @@ public sealed class SchemaModelTests
         Assert.Equal("Status = N'Pending'", pending.GetFilter());
         Assert.Contains(request.GetCheckConstraints(), constraint => constraint.Name == "CK_FarmJoinRequest_Status");
         Assert.Contains(request.GetCheckConstraints(), constraint => constraint.Name == "CK_FarmJoinRequest_Review");
+        Assert.Contains(request.GetCheckConstraints(), constraint => constraint.Name == "CK_FarmJoinRequest_Status" && constraint.Sql.Contains("Canceled"));
+        Assert.Contains(model.FindEntityType(typeof(Notification))!.GetCheckConstraints(), constraint => constraint.Name == "CK_Notification_Type" && constraint.Sql.Contains("4"));
         var codes = Enumerable.Range(0, 100).Select(_ => new Farm().JoinCode).ToArray();
         Assert.All(codes, value => Assert.Matches("^[0-9A-F]{12}$", value));
         Assert.Equal(codes.Length, codes.Distinct().Count());
@@ -94,7 +96,7 @@ public sealed class SchemaModelTests
         using var context = new SmartFarmDbContextFactory().CreateDbContext([]);
         Assert.False(context.Database.HasPendingModelChanges());
         var assembly = context.GetService<IMigrationsAssembly>();
-        Assert.Equal(2, assembly.Migrations.Count);
+        Assert.Equal(3, assembly.Migrations.Count);
         var migrationType = assembly.Migrations.Single(entry => entry.Key.EndsWith("_ExistingSchemaBaseline", StringComparison.Ordinal)).Value;
         var migration = assembly.CreateMigration(migrationType, context.Database.ProviderName!);
         Assert.Empty(migration.UpOperations);
@@ -105,5 +107,11 @@ public sealed class SchemaModelTests
         var script = File.ReadAllText(Path.Combine(AppContext.BaseDirectory, "Database", "04_FarmerRegistrationApproval.sql"));
         Assert.Equal(script.Trim(), upgrade.Sql.Trim());
         Assert.Throws<NotSupportedException>(() => enrollment.DownOperations);
+        var workflowType = assembly.Migrations.Single(entry => entry.Key.EndsWith("_FarmEnrollmentWorkflow", StringComparison.Ordinal)).Value;
+        var workflow = assembly.CreateMigration(workflowType, context.Database.ProviderName!);
+        var workflowSql = Assert.IsType<SqlOperation>(Assert.Single(workflow.UpOperations));
+        Assert.Equal(File.ReadAllText(Path.Combine(AppContext.BaseDirectory, "Database", "05_FarmEnrollmentWorkflow.sql")).Trim(), workflowSql.Sql.Trim());
+        Assert.Throws<NotSupportedException>(() => workflow.DownOperations);
+
     }
 }

@@ -12,6 +12,7 @@ public interface IFarmEnrollmentRepository
     Task<FarmJoinRequest?> FindAsync(Guid farmId, Guid requestId, CancellationToken ct);
     Task<FarmJoinRequestDetails> DetailsAsync(Guid requestId, CancellationToken ct);
     Task<IReadOnlyList<FarmJoinRequestDetails>> ListForUserAsync(Guid userId, CancellationToken ct);
-    Task<IReadOnlyList<FarmJoinRequestDetails>> ListPendingAsync(Guid farmId, CancellationToken ct);
+    Task<IReadOnlyList<FarmJoinRequestDetails>> ListForFarmAsync(Guid farmId, CancellationToken ct);
     void Add(FarmJoinRequest request);
+    void Add(Notification notification);
 }

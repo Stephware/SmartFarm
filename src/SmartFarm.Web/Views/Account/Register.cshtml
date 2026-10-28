@@ -5,23 +5,12 @@
 <section class="panel narrow">
     <h1>Create an account</h1>
     <form method="post" asp-action="Register" asp-controller="Account">
-        <fieldset id="JoinFarm">
-            <legend>How will you use AniGo?</legend>
-            <label class="check"><input type="radio" asp-for="JoinFarm" id="join-existing-farm" value="true" /> Join an existing farm</label>
-            <label class="check"><input type="radio" asp-for="JoinFarm" id="create-own-farm" value="false" /> Create/manage my own farm</label>
-        </fieldset>
-        <label asp-for="FarmCode">Farm code</label>
-        <input asp-for="FarmCode" autocomplete="off" spellcheck="false" aria-describedby="farm-code-help" />
-        <span asp-validation-for="FarmCode" class="error"></span>
-        <p id="farm-code-help" class="hint">Required when joining a farm. Ask the owner for the code; you can access the farm after the owner approves your request.</p>
         <label asp-for="FullName">Full name</label>
         <input asp-for="FullName" autocomplete="name" /><span asp-validation-for="FullName" class="error"></span>
         <label asp-for="Email"></label>
         <input asp-for="Email" type="email" autocomplete="email" /><span asp-validation-for="Email" class="error"></span>
         <label asp-for="Password"></label>
         <input asp-for="Password" type="password" autocomplete="new-password" /><span asp-validation-for="Password" class="error"></span>
-        <label asp-for="ConfirmPassword">Confirm password</label>
-        <input asp-for="ConfirmPassword" type="password" autocomplete="new-password" /><span asp-validation-for="ConfirmPassword" class="error"></span>
         <p class="hint">Use at least 10 characters, including uppercase, lowercase, and a number.</p>
         <button type="submit">Create account</button>
     </form>

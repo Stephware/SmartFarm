@@ -39,8 +39,10 @@ public sealed class FarmEnrollmentRepository(SmartFarmDbContext db) : IFarmEnrol
     public async Task<IReadOnlyList<FarmJoinRequestDetails>> ListForUserAsync(Guid userId, CancellationToken ct) =>
         await Details(db.FarmJoinRequests.Where(r => r.UserId == userId).OrderByDescending(r => r.RequestedAtUtc).ThenBy(r => r.Id)).ToListAsync(ct);
 
-    public async Task<IReadOnlyList<FarmJoinRequestDetails>> ListPendingAsync(Guid farmId, CancellationToken ct) =>
-        await Details(db.FarmJoinRequests.Where(r => r.FarmId == farmId && r.Status == "Pending").OrderBy(r => r.RequestedAtUtc).ThenBy(r => r.Id)).ToListAsync(ct);
+    public async Task<IReadOnlyList<FarmJoinRequestDetails>> ListForFarmAsync(Guid farmId, CancellationToken ct) =>
+        await Details(db.FarmJoinRequests.Where(r => r.FarmId == farmId).OrderBy(r => r.RequestedAtUtc).ThenBy(r => r.Id)).ToListAsync(ct);
+
+    public void Add(Notification notification) => db.Notifications.Add(notification);
 
     public void Add(FarmJoinRequest request) => db.FarmJoinRequests.Add(request);
 }

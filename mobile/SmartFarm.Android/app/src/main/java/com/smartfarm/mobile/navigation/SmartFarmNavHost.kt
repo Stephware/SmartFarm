@@ -54,15 +54,15 @@ fun SmartFarmNavHost(auth: AuthViewModel, farms: FarmViewModel, crops: CropViewM
             LoginScreen(state,
                 onSubmit = { email, password ->
                     auth.login(email, password) {
-                        navController.navigate("account") { popUpTo("welcome") }
+                        navController.navigate("farms") { popUpTo("welcome") }
                     }
                 },
                 onRegister = { navController.navigate("register") })
         }
         composable("register") {
             RegisterScreen(state,
-                onSubmit = { name, email, password, confirm, joinFarm, farmCode ->
-                    auth.register(name, email, password, confirm, joinFarm, farmCode) {
+                onSubmit = { name, email, password ->
+                    auth.register(name, email, password) {
                         navController.navigate("login") { popUpTo("welcome") }
                     }
                 },
@@ -112,7 +112,8 @@ fun SmartFarmNavHost(auth: AuthViewModel, farms: FarmViewModel, crops: CropViewM
                     navController.navigate("farm/$it")
                 } },
                 onRequest = farms::requestToJoin,
-                onBack = { navController.popBackStack() }, onRetry = { farms.load() })
+                onBack = { navController.navigate("account") }, onRetry = { farms.load() },
+                onCancelRequest = farms::cancelJoinRequest)
         }
         composable("farm/{farmId}") { entry ->
             val farmId = entry.arguments?.getString("farmId").orEmpty()
@@ -131,7 +132,8 @@ fun SmartFarmNavHost(auth: AuthViewModel, farms: FarmViewModel, crops: CropViewM
                 onDecision = farms::decideJoinRequest,
                 onChangeRole = { member, role -> farms.changeRole(member, role) },
                 onRemoveMember = { farms.remove(it) },
-                onTasks = { navController.navigate("tasks/$farmId") }, onRetry = { farms.loadDetail(farmId) })
+                onTasks = { navController.navigate("tasks/$farmId") }, onRetry = { farms.loadDetail(farmId) },
+                onRegenerateCode = farms::regenerateJoinCode)
         }
         composable("tasks/{farmId}") { entry ->
             val farmId = entry.arguments?.getString("farmId").orEmpty()

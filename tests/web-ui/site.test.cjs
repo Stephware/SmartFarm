@@ -13,7 +13,7 @@ test('consequential forms submit only after explicit confirmation', () => {
             addEventListener: (event, callback) => { if (event === 'submit') handler = callback; }
         };
         vm.runInNewContext(source, {
-            document: { querySelector: () => null, querySelectorAll: () => [form] },
+            document: { querySelector: () => null, querySelectorAll: selector => selector === 'form[data-confirm]' ? [form] : [] },
             window: { confirm: message => { assert.equal(message, 'Archive North farm?'); return approved; } }
         });
         assert.equal(typeof handler, 'function');
@@ -41,5 +41,30 @@ test('light and dark semantic colors preserve readable text and control boundari
             assert.ok(contrast(a, b) >= 4.5, `${a}/${b}: ${contrast(a, b)}`);
         assert.ok(contrast('outline', 'surface') >= 3);
         assert.ok(contrast('focus', 'surface') >= 3);
+    }
+});
+
+
+test('copy code reports success and selects the code when clipboard access fails', async () => {
+    for (const works of [true, false]) {
+        let handler;
+        let selected = false;
+        let focused = false;
+        const field = { value: 'ABCD12345678', focus: () => { focused = true; }, select: () => { selected = true; } };
+        const status = { textContent: '' };
+        const button = { dataset: { copyTarget: 'code', copyStatus: 'status' }, addEventListener: (_, callback) => { handler = callback; } };
+        vm.runInNewContext(source, {
+            document: {
+                querySelector: () => null,
+                querySelectorAll: selector => selector === '[data-copy-target]' ? [button] : [],
+                getElementById: id => id === 'code' ? field : status
+            },
+            navigator: { clipboard: { writeText: async value => { assert.equal(value, 'ABCD12345678'); if (!works) throw new Error('denied'); } } }
+        });
+        assert.equal(typeof handler, 'function');
+        await handler();
+        assert.equal(selected, !works);
+        assert.equal(focused, !works);
+        assert.match(status.textContent, works ? /copied/i : /select.*copy/i);
     }
 });

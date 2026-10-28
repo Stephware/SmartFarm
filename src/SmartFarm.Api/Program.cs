@@ -44,6 +44,7 @@ if (builder.Environment.IsDevelopment() &&
 }
 
 builder.Services.AddControllers();
+builder.Services.AddEnrollmentRateLimiting();
 builder.Services.AddSmartFarmPersistence(builder.Configuration.GetConnectionString("SmartFarm"));
 builder.Services.AddSmartFarmBusinessServices();
 builder.Services.AddSmartFarmWeather(builder.Configuration);
@@ -104,6 +105,7 @@ app.Use(async (context, next) =>
 app.UseRouting();
 app.UseAuthentication();
 app.UseAuthorization();
+app.UseRateLimiter();
 
 if (app.Environment.IsDevelopment())
 {

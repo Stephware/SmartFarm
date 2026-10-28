@@ -1,6 +1,8 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
+using SmartFarm.Infrastructure.Security;
 using SmartFarm.Core.Contracts.Farms;
 using SmartFarm.Core.Interfaces.Farms;
 using SmartFarm.Infrastructure.Identity;
@@ -44,7 +46,7 @@ public sealed class FarmsController : Controller
         }
     }
 
-    [HttpPost, ValidateAntiForgeryToken]
+    [HttpPost, ValidateAntiForgeryToken, EnableRateLimiting(EnrollmentRateLimiting.Enrollment)]
     public async Task<IActionResult> RequestJoin(FarmJoinRequestInput input, CancellationToken ct)
     {
         if (ModelState.IsValid)
@@ -60,7 +62,49 @@ public sealed class FarmsController : Controller
         return View(nameof(Index), await IndexModel(input, ct));
     }
 
-    [HttpPost, ValidateAntiForgeryToken]
+    [HttpPost, ValidateAntiForgeryToken, EnableRateLimiting(EnrollmentRateLimiting.Enrollment)]
+    public async Task<IActionResult> CancelJoin(Guid farmId, Guid requestId, CancellationToken ct)
+    {
+        try
+        {
+            await _enrollment.CancelAsync(farmId, requestId, Actor, ct);
+            TempData["Message"] = "Join request canceled. You can apply again with a valid farm code.";
+        }
+        catch (FarmOperationException error)
+        {
+            if (error.Error == FarmError.NotFound) return NotFound();
+            TempData["Error"] = error.Message;
+        }
+        return RedirectToAction(nameof(Index));
+    }
+
+    [HttpPost, ValidateAntiForgeryToken, EnableRateLimiting(EnrollmentRateLimiting.Enrollment)]
+    public async Task<IActionResult> RegenerateCode(Guid id, FarmCodeRegenerationInput input,
+        bool dashboard, CancellationToken ct)
+    {
+        if (!ModelState.IsValid) return BadRequest();
+        try
+        {
+            await _enrollment.RegenerateCodeAsync(id, Actor, input.CurrentCode, ct);
+            TempData["Message"] = "Farm code regenerated. Share the new code with farmers requesting access.";
+        }
+        catch (FarmOperationException error)
+        {
+            if (error.Error == FarmError.NotFound) return NotFound();
+            TempData["Error"] = error.Message;
+            if (error.Error == FarmError.Conflict)
+            {
+                var result = await Details(id, ct);
+                if (result is ViewResult view) view.ViewName = nameof(Details);
+                Response.StatusCode = StatusCodes.Status409Conflict;
+                return result;
+            }
+        }
+        return dashboard ? RedirectToAction("Index", "Dashboard", new { farmId = id })
+            : RedirectToAction(nameof(Details), new { id });
+    }
+
+    [HttpPost, ValidateAntiForgeryToken, EnableRateLimiting(EnrollmentRateLimiting.Enrollment)]
     public async Task<IActionResult> DecideJoin(Guid id, Guid requestId, bool? approve,
         bool dashboard, CancellationToken ct)
     {

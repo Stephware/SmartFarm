@@ -11,6 +11,7 @@ import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import retrofit2.HttpException
 import java.math.BigDecimal
 
 data class FarmUiState(
@@ -44,13 +45,20 @@ class FarmViewModel(
         actionJob = viewModelScope.launch {
             try { block() }
             catch (cancelled: CancellationException) { throw cancelled }
-            catch (_: Exception) {
-                mutable.value = mutable.value.copy(error =
-                    "Could not complete the request. Check permissions, current data and connection.")
+            catch (error: Exception) {
+                mutable.value = mutable.value.copy(error = enrollmentError(error,
+                    "Could not complete the request. Check permissions, current data and connection."))
             } finally { mutable.value = mutable.value.copy(loading = false) }
         }
     }
 
+
+    private fun enrollmentError(error: Exception, fallback: String): String =
+        when ((error as? HttpException)?.code()) {
+            429 -> "Too many requests. Please wait and try again."
+            409 -> "This request changed. Refresh to load the latest farm access details."
+            else -> fallback
+        }
 
     fun clear() {
         loadJob?.cancel()
@@ -79,9 +87,9 @@ class FarmViewModel(
         try {
             mutable.value = mutable.value.copy(myRequests = repo.myJoinRequests())
         } catch (cancelled: CancellationException) { throw cancelled }
-        catch (_: Exception) {
-            mutable.value = mutable.value.copy(enrollmentMessage =
-                "Join request status unavailable. Connect and refresh to check owner approval.")
+        catch (error: Exception) {
+            mutable.value = mutable.value.copy(enrollmentMessage = enrollmentError(error,
+                "Join request status unavailable. Connect and refresh to check owner approval."))
         }
     }
 
@@ -96,8 +104,9 @@ class FarmViewModel(
             val overview = repo.enrollment(farmId)
             mutable.value = mutable.value.copy(enrollment = overview)
         } catch (cancelled: CancellationException) { throw cancelled }
-        catch (_: Exception) {
-            mutable.value = mutable.value.copy(enrollmentMessage = "Join requests and farm code are unavailable. Refresh to try again.")
+        catch (error: Exception) {
+            mutable.value = mutable.value.copy(enrollmentMessage = enrollmentError(error,
+                "Join requests and farm code are unavailable. Refresh to try again."))
         }
     }
 
@@ -198,11 +207,35 @@ class FarmViewModel(
     }
 
     fun requestToJoin(code: String) = perform {
-        require(code.isNotBlank())
+        require(code.isNotBlank() && !mutable.value.offline)
         repo.requestToJoin(code)
         loadMyRequests()
         if (mutable.value.enrollmentMessage == null) mutable.value = mutable.value.copy(
             enrollmentMessage = "Request sent. Farm access awaits owner approval.")
+    }
+
+    fun cancelJoinRequest(request: FarmJoinRequestDto) = perform {
+        require(!mutable.value.offline && mutable.value.myRequests.any {
+            it.id == request.id && it.farmId == request.farmId && it.status == "Pending"
+        })
+        repo.cancelJoinRequest(request.farmId, request.id)
+        loadMyRequests()
+        if (mutable.value.enrollmentMessage == null) mutable.value = mutable.value.copy(
+            enrollmentMessage = "Request canceled. You can apply again with the farm's current code.")
+    }
+
+    fun regenerateJoinCode(currentCode: String) = perform {
+        val farm = requireNotNull(mutable.value.selected)
+        val overview = requireNotNull(mutable.value.enrollment)
+        require(farm.role == "Owner" && !mutable.value.offline && overview.joinCode == currentCode)
+        val updated = try {
+            repo.regenerateJoinCode(farm.id, currentCode)
+        } catch (error: HttpException) {
+            if (error.code() == 409) mutable.value = mutable.value.copy(enrollment = null)
+            throw error
+        }
+        mutable.value = mutable.value.copy(enrollment = overview.copy(joinCode = updated.joinCode),
+            enrollmentMessage = "New farm code ready. The previous code no longer works for new requests.")
     }
 
     fun decideJoinRequest(requestId: String, approve: Boolean) = perform {

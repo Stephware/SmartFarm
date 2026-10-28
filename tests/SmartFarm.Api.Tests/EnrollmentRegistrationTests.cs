@@ -1,11 +1,11 @@
-using System.Data;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using System.Net;
+using System.Net.Http.Json;
+using Microsoft.AspNetCore.Mvc.Testing;
+using Microsoft.AspNetCore.TestHost;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging.Abstractions;
-using Microsoft.Extensions.Options;
-using SmartFarm.Core.Contracts.Farms;
-using SmartFarm.Core.Interfaces.Farms;
-using SmartFarm.Core.Interfaces.Persistence;
 using SmartFarm.Infrastructure.Identity;
 using Xunit;
 
@@ -14,89 +14,80 @@ namespace SmartFarm.Api.Tests;
 public sealed class EnrollmentRegistrationTests
 {
     [Fact]
-    public async Task JoiningRegistrationCommitsAccountAndRequestTogether()
+    public async Task ApiRegistrationAcceptsThreeFieldsAndIgnoresOldEnrollmentFields()
     {
-        using var state = new State();
-        var result = await state.Registration.RegisterAsync(" New Farmer ", " farmer@example.test ", "password", true, "ABCD12345678");
+        using var users = new Users();
+        using var app = new WebApplicationFactory<Program>().WithWebHostBuilder(builder =>
+            builder.ConfigureTestServices(services => services.AddScoped<UserManager<SmartFarmUser>>(_ => users)));
+        using var client = app.CreateClient();
+        using var response = await client.PostAsJsonAsync("/api/auth/register", new
+        {
+            fullName = "New Farmer", email = "farmer@example.test", password = "StrongPassword123",
+            joinFarm = true, farmCode = "invalid"
+        });
+        Assert.Equal(HttpStatusCode.Created, response.StatusCode);
+        Assert.Single(users.Created);
+        Assert.DoesNotContain("approval", await response.Content.ReadAsStringAsync());
+    }
+
+    [Fact]
+    public async Task RegistrationCreatesOnlyAnAccountWithTrimmedNameAndEmail()
+    {
+        using var users = new Users();
+        var result = await new AccountRegistrationService(users).RegisterAsync(
+            " New Farmer ", " farmer@example.test ", "StrongPassword123");
         Assert.True(result.Succeeded);
-        Assert.True(state.Committed);
-        Assert.Equal(Assert.Single(state.CreatedUsers).Id, state.RequestUser);
-        Assert.Equal("New Farmer", state.CreatedUsers[0].FullName);
+        var created = Assert.Single(users.Created);
+        Assert.Equal("New Farmer", created.FullName);
+        Assert.Equal("farmer@example.test", created.Email);
+        Assert.Equal(created.Email, created.UserName);
+        Assert.True(created.LockoutEnabled);
     }
 
     [Fact]
-    public async Task InvalidCodeRollsBackNewAccountAndReturnsFarmCodeError()
+    public async Task DuplicateIdentityReturnsItsOriginalError()
     {
-        using var state = new State { Failure = new FarmOperationException(FarmError.InvalidInput, "Invalid farm code.") };
-        var result = await state.Registration.RegisterAsync("New Farmer", "farmer@example.test", "password", true, "invalid");
+        using var users = new Users { Failure = IdentityResult.Failed(new IdentityError { Code = "DuplicateEmail" }) };
+        var result = await new AccountRegistrationService(users).RegisterAsync("Farmer", "farmer@example.test", "StrongPassword123");
         Assert.False(result.Succeeded);
-        Assert.Contains(result.Errors, error => error.Code == "FarmCode");
-        Assert.Empty(state.CreatedUsers);
-        Assert.False(state.Committed);
+        Assert.Equal("DuplicateEmail", Assert.Single(result.Errors).Code);
+        Assert.Empty(users.Created);
     }
 
     [Fact]
-    public async Task PersistenceFailureRollsBackAccount()
+    public async Task DatabaseFailureReturnsSafeRegistrationError()
     {
-        using var state = new State { Failure = new DbUpdateException("Database unavailable") };
-        var result = await state.Registration.RegisterAsync("New Farmer", "farmer@example.test", "password", true, "ABCD12345678");
+        using var users = new Users { DatabaseFailure = true };
+        var result = await new AccountRegistrationService(users).RegisterAsync("Farmer", "farmer@example.test", "StrongPassword123");
         Assert.False(result.Succeeded);
-        Assert.Empty(state.CreatedUsers);
-        Assert.False(state.Committed);
+        Assert.Equal("Registration", Assert.Single(result.Errors).Code);
+        Assert.DoesNotContain("private database details", Assert.Single(result.Errors).Description);
     }
 
-    [Fact]
-    public async Task RejectedIdentityNeverCreatesRequest()
+    [Theory]
+    [InlineData("x", "farmer@example.test")]
+    [InlineData("Farmer", "x")]
+    public async Task InvalidLengthsDoNotCreateAccount(string name, string email)
     {
-        using var state = new State { IdentityFailure = true };
-        var result = await state.Registration.RegisterAsync("New Farmer", "farmer@example.test", "password", true, "ABCD12345678");
-        Assert.False(result.Succeeded);
-        Assert.Null(state.RequestUser);
-        Assert.Empty(state.CreatedUsers);
+        using var users = new Users();
+        Assert.False((await new AccountRegistrationService(users).RegisterAsync(name, email, "StrongPassword123")).Succeeded);
+        Assert.Empty(users.Created);
     }
 
-    [Fact]
-    public async Task OwnerRegistrationKeepsOriginalPath()
+    private sealed class Users() : UserManager<SmartFarmUser>(new Store(),
+        Microsoft.Extensions.Options.Options.Create(new IdentityOptions()), new PasswordHasher<SmartFarmUser>(), [], [],
+        new UpperInvariantLookupNormalizer(), new IdentityErrorDescriber(), null!, NullLogger<UserManager<SmartFarmUser>>.Instance)
     {
-        using var state = new State();
-        Assert.True((await state.Registration.RegisterAsync("New Owner", "owner@example.test", "password")).Succeeded);
-        Assert.Single(state.CreatedUsers);
-        Assert.Null(state.RequestUser);
-        Assert.False(state.Started);
-    }
-
-    private sealed class State : UserManager<SmartFarmUser>, IFarmEnrollmentService, IUnitOfWork, IUnitOfWorkTransaction
-    {
-        public List<SmartFarmUser> CreatedUsers { get; } = [];
-        public Exception? Failure { get; init; }
-        public bool IdentityFailure { get; init; }
-        public bool Committed { get; private set; }
-        public bool Started { get; private set; }
-        public Guid? RequestUser { get; private set; }
-        public AccountRegistrationService Registration => new(this, this, this);
-        public State() : base(new Store(), Microsoft.Extensions.Options.Options.Create(new IdentityOptions()), new PasswordHasher<SmartFarmUser>(), [], [],
-            new UpperInvariantLookupNormalizer(), new IdentityErrorDescriber(), null!, NullLogger<UserManager<SmartFarmUser>>.Instance) { }
+        public List<SmartFarmUser> Created { get; } = [];
+        public IdentityResult? Failure { get; init; }
+        public bool DatabaseFailure { get; init; }
         public override Task<IdentityResult> CreateAsync(SmartFarmUser user, string password)
         {
-            if (IdentityFailure) return Task.FromResult(IdentityResult.Failed(new IdentityError { Code = "DuplicateEmail" }));
-            CreatedUsers.Add(user);
+            if (DatabaseFailure) throw new DbUpdateException("private database details");
+            if (Failure is not null) return Task.FromResult(Failure);
+            Created.Add(user);
             return Task.FromResult(IdentityResult.Success);
         }
-        public Task<FarmJoinRequestDetails> RequestAsync(Guid actor, string code, CancellationToken ct = default)
-        {
-            if (Failure is not null) throw Failure;
-            Assert.True(HasActiveTransaction);
-            RequestUser = actor;
-            return Task.FromResult(new FarmJoinRequestDetails(Guid.NewGuid(), Guid.NewGuid(), "Farm", actor, "Farmer", "farmer@example.test", "Pending", DateTime.UtcNow, null));
-        }
-        public Task<IReadOnlyList<FarmJoinRequestDetails>> MyRequestsAsync(Guid actor, CancellationToken ct = default) => throw new NotImplementedException();
-        public Task<FarmEnrollmentOverview> OwnerOverviewAsync(Guid farmId, Guid actor, CancellationToken ct = default) => throw new NotImplementedException();
-        public Task DecideAsync(Guid farmId, Guid requestId, Guid actor, bool approve, CancellationToken ct = default) => throw new NotImplementedException();
-        public bool HasActiveTransaction => Started && !Committed;
-        public Task<int> SaveChangesAsync(CancellationToken ct = default) => throw new NotImplementedException();
-        public Task<IUnitOfWorkTransaction> BeginTransactionAsync(IsolationLevel isolationLevel, CancellationToken ct = default) { Assert.Equal(IsolationLevel.ReadCommitted, isolationLevel); Started = true; return Task.FromResult<IUnitOfWorkTransaction>(this); }
-        public Task CommitAsync(CancellationToken ct = default) { Committed = true; return Task.CompletedTask; }
-        public ValueTask DisposeAsync() { if (!Committed) CreatedUsers.Clear(); return ValueTask.CompletedTask; }
     }
 
     private sealed class Store : IUserStore<SmartFarmUser>

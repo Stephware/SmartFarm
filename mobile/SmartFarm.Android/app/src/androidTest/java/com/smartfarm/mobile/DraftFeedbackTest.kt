@@ -110,8 +110,8 @@ class DraftFeedbackTest {
     }
 
     @Test fun registrationSubmitCanBeScrolledAboveTheKeyboard() {
-        compose.setContent { SmartFarmTheme { RegisterScreen(AuthUiState(), { _, _, _, _, _, _ -> }, {}) } }
-        compose.onNodeWithText("Confirm password").performScrollTo().performTextInput("Password2026")
+        compose.setContent { SmartFarmTheme { RegisterScreen(AuthUiState(), { _, _, _ -> }, {}) } }
+        compose.onNodeWithText("Password").performScrollTo().performTextInput("Password2026")
         compose.onNodeWithText("Register").performScrollTo()
         // The system keyboard animates outside Compose's idling clock.
         compose.waitUntil(5000) { compose.onNodeWithText("Register").isDisplayed() }

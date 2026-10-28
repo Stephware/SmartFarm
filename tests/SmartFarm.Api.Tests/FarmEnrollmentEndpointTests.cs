@@ -25,6 +25,8 @@ public sealed class FarmEnrollmentEndpointTests : IClassFixture<WebApplicationFa
     [InlineData("POST", "/api/farm-join-requests")]
     [InlineData("GET", "/api/farms/11111111-1111-1111-1111-111111111111/join-requests")]
     [InlineData("POST", "/api/farms/11111111-1111-1111-1111-111111111111/join-requests/22222222-2222-2222-2222-222222222222/decision")]
+    [InlineData("POST", "/api/farms/11111111-1111-1111-1111-111111111111/join-requests/22222222-2222-2222-2222-222222222222/cancel")]
+    [InlineData("POST", "/api/farms/11111111-1111-1111-1111-111111111111/join-code/regenerate")]
     public async Task EnrollmentRequiresBearerAuthentication(string method, string path)
     {
         using var request = new HttpRequestMessage(new HttpMethod(method), path);

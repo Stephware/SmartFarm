@@ -112,6 +112,82 @@ public sealed class FarmEnrollmentServiceTests
         await Assert.ThrowsAsync<FarmOperationException>(() => state.Service.RequestAsync(state.Applicant, state.Farm.JoinCode));
     }
 
+    [Fact]
+    public async Task ApplicantCanCancelAndReapplyWithoutErasingHistory()
+    {
+        var state = new State();
+        var pending = await state.Service.RequestAsync(state.Applicant, state.Farm.JoinCode);
+        await Assert.ThrowsAsync<FarmOperationException>(() => state.Service.CancelAsync(state.Farm.Id, pending.Id, state.Owner));
+        await Assert.ThrowsAsync<FarmOperationException>(() => state.Service.CancelAsync(Guid.NewGuid(), pending.Id, state.Applicant));
+        await state.Service.CancelAsync(state.Farm.Id, pending.Id, state.Applicant);
+        await state.Service.CancelAsync(state.Farm.Id, pending.Id, state.Applicant);
+        var canceled = Assert.Single(state.Requests);
+        Assert.Equal("Canceled", canceled.Status);
+        Assert.Equal(state.Applicant, canceled.ReviewedByUserId);
+        Assert.NotNull(canceled.ReviewedAtUtc);
+        Assert.Empty(state.Members);
+        Assert.Equal(FarmError.Conflict, (await Assert.ThrowsAsync<FarmOperationException>(() =>
+            state.Service.DecideAsync(state.Farm.Id, pending.Id, state.Owner, true))).Error);
+        var next = await state.Service.RequestAsync(state.Applicant, state.Farm.JoinCode);
+        Assert.NotEqual(pending.Id, next.Id);
+        var overview = await state.Service.OwnerOverviewAsync(state.Farm.Id, state.Owner);
+        Assert.Equal(next.Id, Assert.Single(overview.Requests).Id);
+        Assert.Equal(pending.Id, Assert.Single(overview.History!).Id);
+    }
+
+    [Fact]
+    public async Task DecidedRequestCannotBeCanceledOrGrantAccessTwice()
+    {
+        var state = new State();
+        var request = await state.Service.RequestAsync(state.Applicant, state.Farm.JoinCode);
+        await state.Service.DecideAsync(state.Farm.Id, request.Id, state.Owner, true);
+        Assert.Equal(FarmError.Conflict, (await Assert.ThrowsAsync<FarmOperationException>(() =>
+            state.Service.CancelAsync(state.Farm.Id, request.Id, state.Applicant))).Error);
+        Assert.Equal("Approved", Assert.Single(state.Requests).Status);
+        Assert.Single(state.Members);
+    }
+
+    [Theory]
+    [InlineData(true)]
+    [InlineData(false)]
+    public async Task NewRequestsAndDecisionsNotifyOnceInsideTheirTransaction(bool approve)
+    {
+        var state = new State();
+        var request = await state.Service.RequestAsync(state.Applicant, state.Farm.JoinCode);
+        await state.Service.RequestAsync(state.Applicant, state.Farm.JoinCode);
+        var incoming = Assert.Single(state.Notifications);
+        Assert.Equal(state.Owner, incoming.UserId);
+        Assert.Equal((byte)4, incoming.Type);
+        Assert.Contains(state.Farm.Name, incoming.Message);
+        Assert.DoesNotContain(state.Farm.JoinCode, incoming.Message);
+        await state.Service.DecideAsync(state.Farm.Id, request.Id, state.Owner, approve);
+        await state.Service.DecideAsync(state.Farm.Id, request.Id, state.Owner, approve);
+        var decision = Assert.Single(state.Notifications, n => n.UserId == state.Applicant);
+        Assert.Contains(approve ? "approved" : "rejected", decision.Message);
+        Assert.Equal(2, state.Notifications.Count);
+        Assert.NotEqual(incoming.DeduplicationKey, decision.DeduplicationKey);
+    }
+
+    [Fact]
+    public async Task OnlyOwnerCanRotateCodeAndStaleRotationCannotReplaceNewerCode()
+    {
+        var state = new State();
+        var old = state.Farm.JoinCode;
+        var request = await state.Service.RequestAsync(state.Applicant, old);
+        await Assert.ThrowsAsync<FarmOperationException>(() => state.Service.RegenerateCodeAsync(state.Farm.Id, state.Applicant, old));
+        var code = await state.Service.RegenerateCodeAsync(state.Farm.Id, state.Owner, old);
+        Assert.Matches("^[A-F0-9]{12}$", code);
+        Assert.NotEqual(old, code);
+        Assert.Equal(code, state.Farm.JoinCode);
+        Assert.Equal(FarmError.Conflict, (await Assert.ThrowsAsync<FarmOperationException>(() =>
+            state.Service.RegenerateCodeAsync(state.Farm.Id, state.Owner, old))).Error);
+        Assert.Equal(code, state.Farm.JoinCode);
+        await Assert.ThrowsAsync<FarmOperationException>(() => state.Service.RequestAsync(Guid.NewGuid(), old));
+        Assert.Equal(request.Id, (await state.Service.RequestAsync(state.Applicant, code)).Id);
+        Assert.Single(state.Requests);
+        Assert.Empty(state.Members);
+    }
+
     private sealed class State : IFarmEnrollmentRepository, IFarmMemberRepository, IUnitOfWork, IUnitOfWorkTransaction
     {
         public Guid Owner { get; } = Guid.NewGuid();
@@ -120,6 +196,7 @@ public sealed class FarmEnrollmentServiceTests
         public FarmEnrollmentService Service { get; }
         public List<FarmJoinRequest> Requests { get; } = [];
         public List<FarmMember> Members { get; } = [];
+        public List<Notification> Notifications { get; } = [];
         public HashSet<Guid> Inactive { get; } = [];
         public State() { Farm = new Farm { OwnerUserId = Owner, JoinCode = "ABCD12345678", Name = "Test Farm" }; Service = new(this, this, this); }
         public Task<Farm?> FindFarmByCodeForUpdateAsync(string code, CancellationToken ct) => Task.FromResult(Farm.JoinCode == code && Farm.ArchivedAtUtc is null ? Farm : null);
@@ -130,7 +207,8 @@ public sealed class FarmEnrollmentServiceTests
         private FarmJoinRequestDetails Map(FarmJoinRequest r) => new(r.Id, r.FarmId, Farm.Name, r.UserId, "Farmer", "farmer@example.test", r.Status, r.RequestedAtUtc, r.ReviewedAtUtc);
         public Task<FarmJoinRequestDetails> DetailsAsync(Guid requestId, CancellationToken ct) => Task.FromResult(Map(Requests.Single(r => r.Id == requestId)));
         public Task<IReadOnlyList<FarmJoinRequestDetails>> ListForUserAsync(Guid userId, CancellationToken ct) => Task.FromResult<IReadOnlyList<FarmJoinRequestDetails>>(Requests.Where(r => r.UserId == userId).Select(Map).ToList());
-        public Task<IReadOnlyList<FarmJoinRequestDetails>> ListPendingAsync(Guid farmId, CancellationToken ct) => Task.FromResult<IReadOnlyList<FarmJoinRequestDetails>>(Requests.Where(r => r.FarmId == farmId && r.Status == "Pending").Select(Map).ToList());
+        public Task<IReadOnlyList<FarmJoinRequestDetails>> ListForFarmAsync(Guid farmId, CancellationToken ct) => Task.FromResult<IReadOnlyList<FarmJoinRequestDetails>>(Requests.Where(r => r.FarmId == farmId).Select(Map).ToList());
+        public void Add(Notification notification) { Assert.True(HasActiveTransaction); Notifications.Add(notification); }
         public void Add(FarmJoinRequest request) => Requests.Add(request);
         public Task<FarmMember?> GetActiveAsync(Guid farmId, Guid userId, CancellationToken ct = default) => Task.FromResult(Members.SingleOrDefault(m => m.FarmId == farmId && m.UserId == userId && m.RemovedAtUtc is null));
         public Task<IReadOnlyList<FarmMember>> ListActiveAsync(Guid farmId, CancellationToken ct = default) => throw new NotImplementedException();

@@ -151,10 +151,11 @@ BEGIN TRY
         CONSTRAINT FK_FarmJoinRequest_Farm FOREIGN KEY (FarmId) REFERENCES dbo.Farm(Id) ON DELETE NO ACTION,
         CONSTRAINT FK_FarmJoinRequest_User FOREIGN KEY (UserId) REFERENCES dbo.AspNetUsers(Id) ON DELETE NO ACTION,
         CONSTRAINT FK_FarmJoinRequest_Reviewer FOREIGN KEY (ReviewedByUserId) REFERENCES dbo.AspNetUsers(Id) ON DELETE NO ACTION,
-        CONSTRAINT CK_FarmJoinRequest_Status CHECK (Status IN (N'Pending', N'Approved', N'Rejected')),
+        CONSTRAINT CK_FarmJoinRequest_Status CHECK (Status IN (N'Pending', N'Approved', N'Rejected', N'Canceled')),
         CONSTRAINT CK_FarmJoinRequest_Review CHECK (
             (Status = N'Pending' AND ReviewedByUserId IS NULL AND ReviewedAtUtc IS NULL)
             OR (Status IN (N'Approved', N'Rejected') AND ReviewedByUserId IS NOT NULL AND ReviewedAtUtc IS NOT NULL)
+            OR (Status = N'Canceled' AND ReviewedByUserId = UserId AND ReviewedAtUtc IS NOT NULL)
         )
     );
 
@@ -435,7 +436,7 @@ BEGIN TRY
         CONSTRAINT FK_Notification_User FOREIGN KEY (UserId) REFERENCES dbo.AspNetUsers(Id) ON DELETE NO ACTION,
         CONSTRAINT FK_Notification_Task FOREIGN KEY (FarmTaskId) REFERENCES dbo.FarmTask(Id) ON DELETE NO ACTION,
         CONSTRAINT FK_Notification_Advisory FOREIGN KEY (WeatherAdvisoryId) REFERENCES dbo.WeatherAdvisory(Id) ON DELETE NO ACTION,
-        CONSTRAINT CK_Notification_Type CHECK (Type IN (1,2,3))
+        CONSTRAINT CK_Notification_Type CHECK (Type IN (1,2,3,4))
     );
 
     /* 16: SYNC OPERATION (server-side idempotency ledger) */

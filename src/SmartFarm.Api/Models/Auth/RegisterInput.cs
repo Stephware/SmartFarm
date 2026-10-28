@@ -13,16 +13,13 @@ public sealed class RegisterInput : IValidatableObject
     [Required, StringLength(128, MinimumLength = 10), DataType(DataType.Password)]
     public string Password { get; set; } = string.Empty;
 
-    [Required, Compare(nameof(Password)), DataType(DataType.Password)]
-    public string ConfirmPassword { get; set; } = string.Empty;
-    public bool JoinFarm { get; set; }
-
-    [StringLength(64)]
-    public string? FarmCode { get; set; }
+    [DataType(DataType.Password)]
+    public string? ConfirmPassword { get; set; }
 
     public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
     {
-        if (JoinFarm && string.IsNullOrWhiteSpace(FarmCode))
-            yield return new ValidationResult("Enter your farm code.", [nameof(FarmCode)]);
+        if (ConfirmPassword is not null && ConfirmPassword != Password)
+            yield return new ValidationResult("The password and confirmation password do not match.",
+                [nameof(ConfirmPassword)]);
     }
 }

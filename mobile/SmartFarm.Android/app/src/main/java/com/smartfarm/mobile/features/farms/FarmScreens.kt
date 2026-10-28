@@ -1,5 +1,10 @@
 package com.smartfarm.mobile.features.farms
 
+import android.content.ClipData
+import android.content.ClipboardManager
+import androidx.compose.ui.platform.LocalContext
+import com.smartfarm.mobile.data.remote.dto.FarmJoinRequestDto
+
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.layout.consumeWindowInsets
@@ -75,7 +80,8 @@ private fun Progress(state: FarmUiState, onRetry: () -> Unit = {}) {
 @Composable
 fun FarmListScreen(state: FarmUiState, onOpen: (String) -> Unit,
     onCreate: (String, String, String, String, String) -> Unit,
-    onRequest: (String) -> Unit, onBack: () -> Unit, onRetry: () -> Unit = {}) {
+    onRequest: (String) -> Unit, onBack: () -> Unit, onRetry: () -> Unit = {},
+    onCancelRequest: (FarmJoinRequestDto) -> Unit = {}) {
     var name by rememberSaveable { mutableStateOf("") }
     var location by rememberSaveable { mutableStateOf("") }
     var zone by rememberSaveable { mutableStateOf("Asia/Manila") }
@@ -132,10 +138,29 @@ fun FarmListScreen(state: FarmUiState, onOpen: (String) -> Unit,
                     OutlinedButton(onClick = onRetry, enabled = !state.loading) { Text("Refresh join requests") }
             }
         }
-        items(state.myRequests, key = { "request-${it.id}" }) { request ->
-            Text("${request.farmName}: ${request.status}" +
-                if (request.status == "Pending") " · Awaiting owner approval" else "",
-                modifier = Modifier.semantics { liveRegion = LiveRegionMode.Polite })
+        items(state.myRequests.filter { it.status == "Pending" }, key = { "request-${it.id}" }) { request ->
+            Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                Text("${request.farmName}: Pending · Awaiting owner approval",
+                    modifier = Modifier.semantics { liveRegion = LiveRegionMode.Polite })
+                Text("Requested ${request.requestedAtUtc} (UTC)")
+                ConfirmActionButton("Cancel request for ${request.farmName}",
+                    "Cancel this request? You can apply again with a valid farm code.",
+                    enabled = !state.loading && !state.offline, onConfirm = { onCancelRequest(request) })
+            }
+        }
+        val history = state.myRequests.filter { it.status != "Pending" }
+        if (history.isNotEmpty()) item(key = "request-history-heading") {
+            Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                Text("Request history", style = MaterialTheme.typography.titleMedium)
+                Text("Enter the farm's current code to apply again after rejection or cancellation.")
+            }
+        }
+        items(history, key = { "request-${it.id}" }) { request ->
+            Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                Text("${request.farmName}: ${request.status}")
+                Text("Requested ${request.requestedAtUtc} (UTC)")
+                request.reviewedAtUtc?.let { Text("Updated $it (UTC)") }
+            }
         }
         items(state.farms, key = { "farm-${it.id}" }) { farm ->
             OutlinedCard(onClick = { onOpen(farm.id) }, modifier = Modifier.fillMaxWidth().testTag("record-card")) {
@@ -159,7 +184,7 @@ fun FarmDetailScreen(state: FarmUiState, onBack: () -> Unit,
     onInventory: () -> Unit,
     onDecision: (String, Boolean) -> Unit,
     onChangeRole: (FarmMemberDto, Int) -> Unit, onRemoveMember: (FarmMemberDto) -> Unit,
-    onTasks: () -> Unit = {}, onRetry: () -> Unit = {}) {
+    onTasks: () -> Unit = {}, onRetry: () -> Unit = {}, onRegenerateCode: (String) -> Unit = {}) {
     val farm = state.selected
     val canManage = !state.offline && farm?.role in listOf("Owner", "Manager")
     val isOwner = !state.offline && farm?.role == "Owner"
@@ -185,7 +210,7 @@ fun FarmDetailScreen(state: FarmUiState, onBack: () -> Unit,
                 }
             }
             if (visibleSection == "Overview") {
-            if (farm.role == "Owner") EnrollmentPanel(state, onDecision, onRetry)
+            if (farm.role == "Owner") EnrollmentPanel(state, onDecision, onRetry, onRegenerateCode)
             Button(onClick = onTasks) { Text("Farm tasks") }
             Button(onClick = onCrops) { Text("Crop management") }
             Button(onClick = onInventory) { Text("Inventory") }
@@ -295,7 +320,7 @@ fun FarmDetailScreen(state: FarmUiState, onBack: () -> Unit,
                         enabled = !state.loading, onConfirm = { onRemoveMember(member) })
                 }
             }
-            if (farm.role == "Owner") EnrollmentPanel(state, onDecision, onRetry)
+            if (farm.role == "Owner") EnrollmentPanel(state, onDecision, onRetry, onRegenerateCode)
 
             }
         }
@@ -306,7 +331,8 @@ fun FarmDetailScreen(state: FarmUiState, onBack: () -> Unit,
 
 
 @Composable
-private fun EnrollmentPanel(state: FarmUiState, onDecision: (String, Boolean) -> Unit, onRetry: () -> Unit) {
+private fun EnrollmentPanel(state: FarmUiState, onDecision: (String, Boolean) -> Unit,
+    onRetry: () -> Unit, onRegenerateCode: (String) -> Unit) {
     Text("Farm access requests", style = MaterialTheme.typography.titleLarge,
         modifier = Modifier.semantics { heading() })
     if (state.offline) {
@@ -322,6 +348,17 @@ private fun EnrollmentPanel(state: FarmUiState, onDecision: (String, Boolean) ->
     }
     Text("Share this farm code. Farmers receive Field Worker access only after you approve.")
     SelectionContainer { Text(overview.joinCode) }
+    val context = LocalContext.current
+    var copied by rememberSaveable(overview.joinCode) { mutableStateOf(false) }
+    OutlinedButton(onClick = {
+        context.getSystemService(ClipboardManager::class.java)
+            .setPrimaryClip(ClipData.newPlainText("Farm code", overview.joinCode))
+        copied = true
+    }, enabled = !state.loading) { Text("Copy farm code") }
+    if (copied) Text("Farm code copied.", modifier = Modifier.semantics { liveRegion = LiveRegionMode.Polite })
+    ConfirmActionButton("Regenerate farm code",
+        "Replace the farm code? The old code will stop accepting new requests. Existing requests and memberships stay unchanged.",
+        enabled = !state.loading, onConfirm = { onRegenerateCode(overview.joinCode) })
     val pending = overview.requests.filter { it.status == "Pending" && it.farmId == state.selected?.id }
     if (pending.isEmpty()) Text("No pending join requests.")
     pending.forEach { request ->
@@ -333,4 +370,15 @@ private fun EnrollmentPanel(state: FarmUiState, onDecision: (String, Boolean) ->
         ConfirmActionButton("Reject ${request.fullName}", "Reject ${request.fullName}'s request?",
             enabled = !state.loading, onConfirm = { onDecision(request.id, false) })
     }
+    val history = overview.history.filter { it.farmId == state.selected?.id && it.status != "Pending" }
+    if (history.isNotEmpty()) {
+        Text("Request history", style = MaterialTheme.typography.titleMedium)
+        history.forEach { request ->
+            Text("${request.fullName}: ${request.status}")
+            Text(request.email)
+            Text("Requested ${request.requestedAtUtc} (UTC)")
+            request.reviewedAtUtc?.let { Text("Updated $it (UTC)") }
+        }
+    }
+
 }
