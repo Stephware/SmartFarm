@@ -5,6 +5,8 @@
     <a asp-controller="Dashboard" asp-action="Index" asp-route-farmId="@Model" aria-current="@(current == "Dashboard" ? "page" : null)">Dashboard</a>
     <a asp-controller="Tasks" asp-action="Index" asp-route-farmId="@Model" aria-current="@(current == "Tasks" ? "page" : null)">Tasks</a>
     <a asp-controller="Crops" asp-action="Index" asp-route-farmId="@Model" aria-current="@(current is "Crops" or "Monitoring" or "Harvests" ? "page" : null)">Crops</a>
+    <a asp-controller="PlotLayout" asp-action="Index" asp-route-farmId="@Model" aria-current="@(current == "PlotLayout" ? "page" : null)">Plot layout</a>
+    <a asp-controller="FarmFinance" asp-action="Index" asp-route-farmId="@Model" aria-current="@(current == "FarmFinance" ? "page" : null)">Finances</a>
     <a asp-controller="Inventory" asp-action="Index" asp-route-farmId="@Model" aria-current="@(current == "Inventory" ? "page" : null)">Inventory</a>
     <a asp-controller="Weather" asp-action="Index" asp-route-farmId="@Model" aria-current="@(current == "Weather" ? "page" : null)">Weather</a>
     <a asp-controller="Reports" asp-action="Harvests" asp-route-farmId="@Model" aria-current="@(current == "Reports" ? "page" : null)">Reports</a>
