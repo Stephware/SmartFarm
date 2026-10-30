@@ -1,0 +1,75 @@
+@model SmartFarm.Web.ViewModels.Finance.FarmFinancePage
+@{
+    ViewData["Title"] = "Farm finance";
+    var canManage = Model.Farm.Role is "Owner" or "Manager";
+}
+<partial name="_FarmNavigation" model="Model.Farm.Id" />
+<section class="panel">
+    <h1>Farm finances</h1>
+    <p class="hint">Optional manual income and expense tracking in Philippine pesos (PHP). Harvest quantities are not assumed to be sales, and inventory transactions are not automatically counted as expenses.</p>
+    @if (TempData["Error"] is string error) { <p class="error" role="alert">@error</p> }
+    @if (TempData["Message"] is string message) { <p role="status">@message</p> }
+    <div class="stat-grid">
+        <div class="stat"><span>Recorded income</span><strong>₱@Model.Finance.IncomePhp.ToString("N2")</strong></div>
+        <div class="stat"><span>Recorded expenses</span><strong>₱@Model.Finance.ExpensesPhp.ToString("N2")</strong></div>
+        <div class="stat"><span>Net recorded cash</span><strong>₱@Model.Finance.NetPhp.ToString("N2")</strong></div>
+    </div>
+    <p class="hint">These totals represent recorded entries, not complete farm profit or accounting statements.</p>
+</section>
+@if (canManage)
+{
+<section class="panel">
+    <h2>Add income or expense</h2>
+    <form asp-action="Record" asp-route-farmId="@Model.Farm.Id" method="post" class="narrow">
+        <label for="kind">Entry type</label>
+        <select id="kind" name="Kind" required>
+            <option value="Expense">Expense</option>
+            <option value="Income">Income (recorded sales or other receipts)</option>
+        </select>
+        <label for="category">Category</label>
+        <input id="category" name="Category" maxlength="60" minlength="2" placeholder="Seeds, fertilizer, crop sale..." required />
+        <label for="amount">Amount (PHP)</label>
+        <input id="amount" name="AmountPhp" type="number" min="0.01" max="999999999999.99" step="0.01" required />
+        <label for="date">Farm date</label>
+        <input id="date" name="EntryDate" type="date" value="@DateTime.Today.ToString("yyyy-MM-dd")" min="2000-01-01" max="2100-12-30" required />
+        <label for="crop">Related crop (optional)</label>
+        <select id="crop" name="CropCycleId">
+            <option value="">Farm-wide</option>
+            @foreach (var crop in Model.Crops)
+            { <option value="@crop.Id">@crop.CropTypeName · @crop.PlotName</option> }
+        </select>
+        <label for="notes">Notes (optional)</label>
+        <textarea id="notes" name="Notes" maxlength="500"></textarea>
+        <button type="submit">Record entry</button>
+    </form>
+</section>
+}
+<section class="panel">
+    <h2>Finance history</h2>
+    @if (Model.Finance.Entries.Count == 0) { <p>No recorded entries yet.</p> }
+    else
+    {
+        <p class="hint">Showing the latest 500 entries. Voided entries remain visible and do not count toward totals.</p>
+        <ul class="farm-list">
+        @foreach (var entry in Model.Finance.Entries)
+        {
+            <li>
+                <strong>@entry.EntryDate.ToString("MMM d, yyyy") · @entry.Kind · @entry.Category</strong>
+                <span>₱@entry.AmountPhp.ToString("N2") @(entry.IsVoided ? " · Voided" : "")</span>
+                @if (entry.Notes is not null) { <p>@entry.Notes</p> }
+                @if (entry.IsVoided) { <p>Void reason: @entry.VoidReason</p> }
+                @if (canManage && !entry.IsVoided)
+                {
+                    <form asp-action="Void" asp-route-farmId="@Model.Farm.Id"
+                          asp-route-entryId="@entry.Id" method="post" class="inline"
+                          data-confirm="Void this finance entry? It will remain in history.">
+                        <label for="void-@entry.Id">Reason</label>
+                        <input id="void-@entry.Id" name="Reason" minlength="3" maxlength="300" required />
+                        <button type="submit" class="button-danger">Void entry</button>
+                    </form>
+                }
+            </li>
+        }
+        </ul>
+    }
+</section>
