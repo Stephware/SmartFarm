@@ -1,0 +1,54 @@
+@model SmartFarm.Web.ViewModels.Monitoring.CropTimelinePage
+@{
+    ViewData["Title"] = "Crop timeline";
+    var cycle = Model.Cycle;
+}
+<partial name="_FarmNavigation" model="cycle.FarmId" />
+<section class="panel">
+    <p><a asp-controller="Crops" asp-action="Index" asp-route-farmId="@cycle.FarmId">← Crop management</a></p>
+    <h1>@cycle.CropTypeName · @cycle.PlotName</h1>
+    <p>Crop timeline · @cycle.StatusName</p>
+    <p class="hint">Activity and photo timestamps are shown in @Model.TimeZoneId. Scheduled dates are plans, not proof that work was completed.</p>
+    <div class="action-links">
+        <a asp-controller="Monitoring" asp-action="Index" asp-route-farmId="@cycle.FarmId"
+           asp-route-cycleId="@cycle.Id">Record an activity or inspection</a>
+        <a asp-controller="Harvests" asp-action="Index" asp-route-farmId="@cycle.FarmId"
+           asp-route-cycleId="@cycle.Id">Harvests</a>
+    </div>
+</section>
+<section class="panel">
+    <h2>History and upcoming milestones</h2>
+    @if (Model.Entries.Count == 0)
+    {
+        <p>No events are available for this crop yet.</p>
+    }
+    else
+    {
+        @if (Model.TotalCount > Model.Entries.Count)
+        {
+            <p class="hint">Showing the most recent @Model.Entries.Count of @Model.TotalCount timeline entries. See the monitoring, task, and harvest pages for complete histories.</p>
+        }
+        <ol class="crop-timeline">
+        @foreach (var entry in Model.Entries)
+        {
+            <li>
+                <div class="timeline-date">
+                    <time datetime="@entry.FarmDate.ToString("yyyy-MM-dd")">@entry.FarmDate.ToString("MMM d, yyyy")</time>
+                    @if (entry.FarmTime is { } localTime) { <small>@localTime.ToString("HH:mm")</small> }
+                </div>
+                <div>
+                    <span class="timeline-category">@entry.Category</span>
+                    <strong>@entry.Title</strong>
+                    @if (!string.IsNullOrWhiteSpace(entry.Detail)) { <p>@entry.Detail</p> }
+                    @if (entry.PhotoId is { } photoId)
+                    {
+                        <a asp-controller="Monitoring" asp-action="Photo"
+                           asp-route-farmId="@cycle.FarmId" asp-route-cycleId="@cycle.Id"
+                           asp-route-photoId="@photoId" target="_blank" rel="noopener">View private photo</a>
+                    }
+                </div>
+            </li>
+        }
+        </ol>
+    }
+</section>

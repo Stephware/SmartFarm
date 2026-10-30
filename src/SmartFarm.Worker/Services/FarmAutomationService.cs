@@ -115,6 +115,43 @@ public sealed class FarmAutomationService(
             }
 
             await db.SaveChangesAsync(ct);
+
+            // Weekly low-stock digests use the existing general-notification type (3),
+            // avoiding schema changes and repeated daily alerts. Only owners/managers
+            // who are still active members receive farm inventory information.
+            var lowStockItems = await db.InventoryItems.AsNoTracking()
+                .Where(i => i.FarmId == farm.Id && i.ArchivedAtUtc == null &&
+                    i.ReorderLevel != null && i.QuantityOnHand <= i.ReorderLevel)
+                .OrderBy(i => i.Name).Select(i => new { i.Name, i.QuantityOnHand, i.Unit })
+                .Take(6).ToListAsync(ct);
+            if (lowStockItems.Count > 0)
+            {
+                var managers = await db.FarmMembers.AsNoTracking()
+                    .Where(m => m.FarmId == farm.Id && m.RemovedAtUtc == null && m.Role == 1)
+                    .Select(m => m.UserId).ToListAsync(ct);
+                managers.Add(farm.OwnerUserId);
+                var recipients = await db.Users.AsNoTracking()
+                    .Where(u => managers.Contains(u.Id) && u.DisabledAtUtc == null)
+                    .Select(u => u.Id).Distinct().ToListAsync(ct);
+
+                // Weekly notification per farm and recipient; daily worker runs never spam.
+                var key = LowStockReminderRules.WeeklyKey(farm.Id, today);
+                foreach (var userId in recipients)
+                {
+                    if (await db.Notifications.AnyAsync(n => n.UserId == userId &&
+                        n.DeduplicationKey == key, ct)) continue;
+                    db.Notifications.Add(new Notification
+                    {
+                        UserId = userId, Type = 3, DeduplicationKey = key,
+                        Title = "Low stock · " + farm.Name,
+                        Message = lowStockItems.Count == 1
+                            ? $"{lowStockItems[0].Name} is low ({lowStockItems[0].QuantityOnHand:N3} {lowStockItems[0].Unit} left). Check farm inventory."
+                            : $"{lowStockItems.Count} inventory items need restocking. Open farm inventory to review.",
+                        CreatedAtUtc = utcNow
+                    });
+                }
+                await db.SaveChangesAsync(ct);
+            }
         }
     }
 

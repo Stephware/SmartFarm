@@ -37,8 +37,12 @@ public sealed class MonitoringController : Controller
         ? id : Guid.Empty;
 
     [HttpGet]
-    public Task<IActionResult> Index(Guid farmId, Guid cycleId, CancellationToken ct) =>
-        Workspace(farmId, cycleId, ct);
+    public Task<IActionResult> Index(Guid farmId, Guid cycleId, CancellationToken ct, string? quick = null) =>
+        Workspace(farmId, cycleId, ct,
+            activity: new RecordActivityInput
+            {
+                ActivityType = quick == "fertilizing" ? (byte)2 : (byte)1
+            });
 
     private async Task<IActionResult> Workspace(Guid farmId, Guid cycleId, CancellationToken ct,
         RecordActivityInput? activity = null, RecordObservationInput? observation = null)

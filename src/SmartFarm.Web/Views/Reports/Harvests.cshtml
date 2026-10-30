@@ -65,6 +65,63 @@
     }
     <p class="hint">Totals in different units are shown separately; voided entries do not contribute to totals.</p>
 </section>
+<section class="panel" aria-labelledby="harvest-analytics-heading">
+    <h2 id="harvest-analytics-heading">Harvest analytics</h2>
+    <p class="hint">Charts follow your current date, plot, and crop filters. Voided harvests are excluded. Each unit has its own scale.</p>
+    @if (Model.MonthlyCharts.Count == 0)
+    {
+        <p>No harvest data to chart for the selected filters.</p>
+    }
+    @foreach (var chart in Model.MonthlyCharts)
+    {
+        <h3>Monthly yield · @chart.Unit</h3>
+        <div class="harvest-chart" role="group" aria-label="Monthly harvest in @chart.Unit">
+        @foreach (var bar in chart.Bars)
+        {
+            <div class="harvest-bar-row">
+                <span>@bar.Label</span>
+                <div class="harvest-bar-track" role="img"
+                     aria-label="@bar.Label: @bar.Quantity.ToString("N3") @chart.Unit from @bar.HarvestCount harvests">
+                    <span class="harvest-bar-fill" style="width:@(bar.WidthPercent.ToString("0.##", System.Globalization.CultureInfo.InvariantCulture))%"></span>
+                </div>
+                <strong>@bar.Quantity.ToString("N3") @chart.Unit</strong>
+            </div>
+        }
+        </div>
+        @if (chart.TotalRows > chart.Bars.Count)
+        {
+            <p class="hint">Showing the most recent @chart.Bars.Count of @chart.TotalRows months for this unit.</p>
+        }
+    }
+    @foreach (var chart in Model.CropPlotCharts)
+    {
+        <h3>Yield by crop and plot · @chart.Unit</h3>
+        <div class="harvest-chart" role="group" aria-label="Yield by crop and plot in @chart.Unit">
+        @foreach (var bar in chart.Bars)
+        {
+            <div class="harvest-bar-row">
+                <span>@bar.Label</span>
+                <div class="harvest-bar-track" role="img"
+                     aria-label="@bar.Label: @bar.Quantity.ToString("N3") @chart.Unit">
+                    <span class="harvest-bar-fill" style="width:@(bar.WidthPercent.ToString("0.##", System.Globalization.CultureInfo.InvariantCulture))%"></span>
+                </div>
+                <div>
+                    <strong>@bar.Quantity.ToString("N3") @chart.Unit</strong>
+                    @if (bar.YieldPerSquareMeter is { } perArea)
+                    {
+                        <small> @perArea.ToString("N3") @chart.Unit/m²</small>
+                    }
+                </div>
+            </div>
+        }
+        </div>
+        @if (chart.TotalRows > chart.Bars.Count)
+        {
+            <p class="hint">Showing the top @chart.Bars.Count of @chart.TotalRows crop/plot totals for this unit.</p>
+        }
+    }
+    <p class="hint">Yield per square meter uses the plot's current recorded area; it is a historical estimate if the area changed.</p>
+</section>
 <section class="panel">
     <h2>Harvest by crop and plot</h2>
     @if (report.CropPlotTotals.Count == 0) { <p>No matching totals.</p> }

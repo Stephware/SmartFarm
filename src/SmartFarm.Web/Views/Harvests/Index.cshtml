@@ -20,7 +20,7 @@
 </section>
 @if (overview.CanRecord)
 {
-    <section class="panel">
+    <section class="panel" id="record-harvest">
         <h2>Record partial harvest</h2>
         <form asp-action="Record" asp-route-farmId="@cycle.FarmId"
               asp-route-cycleId="@cycle.Id" method="post">
