@@ -65,6 +65,23 @@ public sealed class PhaseOneInsightsTests
     }
 
     [Fact]
+    public void DashboardSupportsOptionalActionableItemsWithoutChangingExistingConstructor()
+    {
+        var dashboard = new FarmDashboard(Guid.NewGuid(), "East Farm",
+            new DateOnly(2026, 10, 30), 2, 1, 2, 1, 4, 1, 1, 1, [], []);
+        Assert.Empty(dashboard.AttentionItems);
+
+        var updated = dashboard with
+        {
+            AttentionItems = [new DashboardAttentionItem("task", Guid.NewGuid(),
+                "Watering overdue", "Review the task", new DateOnly(2026, 10, 29))]
+        };
+        Assert.Single(updated.AttentionItems);
+        Assert.Equal(4, updated.OpenTasks);
+        Assert.Empty(dashboard.AttentionItems);
+    }
+
+    [Fact]
     public void HarvestChartsKeepUnitsSeparateAndNeverUseVoidedData()
     {
         var plotId = Guid.NewGuid();
