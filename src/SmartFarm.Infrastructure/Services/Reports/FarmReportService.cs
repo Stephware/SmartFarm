@@ -133,7 +133,10 @@ public sealed class FarmReportService(SmartFarmDbContext db, IFarmAccessService 
             join plot in db.Plots.AsNoTracking() on cycle.PlotId equals plot.Id
             join type in db.CropTypes.AsNoTracking() on cycle.CropTypeId equals type.Id
             where plot.FarmId == farmId && plot.ArchivedAtUtc == null &&
-                cycle.Status == (byte)CropCycleStatus.Active && observation.HealthStatus >= 2
+                cycle.Status == (byte)CropCycleStatus.Active && observation.HealthStatus >= 2 &&
+                !db.CropObservations.AsNoTracking().Any(newer =>
+                    newer.CropCycleId == cycle.Id &&
+                    newer.ObservedAtUtc > observation.ObservedAtUtc)
             orderby observation.ObservedAtUtc descending
             select new { CycleId = cycle.Id, PlotName = plot.Name,
                 CropName = type.Name, observation.HealthStatus, observation.ObservedAtUtc })
@@ -150,7 +153,7 @@ public sealed class FarmReportService(SmartFarmDbContext db, IFarmAccessService 
             .Select(g => g.First()).Take(4)
             .Select(i => new DashboardAttentionItem("inspection", i.CycleId,
                 i.CropName + " · " + i.PlotName,
-                FarmCodeLabels.Health(i.HealthStatus) + " at last flagged inspection.")));
+                FarmCodeLabels.Health(i.HealthStatus) + " at the latest crop inspection.")));
 
         var recent = await HarvestsAsync(farmId, actor, today.AddDays(-29), today, ct: ct);
         return new FarmDashboard(
