@@ -181,6 +181,27 @@ fun MonitoringScreen(
                 activity.notes?.let { Text(it) }
             }
         }
+        item(key = "photo-progress") {
+            val progress = state.observations.flatMap { observation ->
+                observation.photos.map { photo -> observation to photo }
+            }.sortedWith(compareBy({ it.first.observedAtUtc }, { it.second.uploadedAtUtc }))
+            Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                HorizontalDivider()
+                Text("Crop photo progress", style = MaterialTheme.typography.titleLarge,
+                    modifier = Modifier.semantics { heading() })
+                Text("Inspection photos are listed from earliest to latest. Open a photo to compare growth.")
+                if (progress.isEmpty()) Text("No inspection photos yet.")
+                progress.forEach { (observation, photo) ->
+                    OutlinedButton(onClick = { onPreview(photo.id) }, enabled = !state.busy) {
+                        Text("${observation.observedAtUtc.take(10)} · ${observation.growthStage ?: "Inspection"}")
+                    }
+                    if (state.previewPhotoId == photo.id && state.preview != null) {
+                        GlidePhoto(state.preview, "Crop progress inspection photo",
+                            Modifier.fillMaxWidth().height(220.dp))
+                    }
+                }
+            }
+        }
         item(key = "observations-heading") {
             Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
             HorizontalDivider()
