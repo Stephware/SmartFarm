@@ -105,12 +105,17 @@ public sealed class FarmReportService(SmartFarmDbContext db, IFarmAccessService 
         var lowStock = await db.InventoryItems.AsNoTracking().CountAsync(
             item => item.FarmId == farmId && item.ArchivedAtUtc == null &&
                 item.ReorderLevel != null && item.QuantityOnHand <= item.ReorderLevel, ct);
+        // Count only currently concerning active crops, not older observations
+        // that may have been followed by a healthy inspection.
         var concerning = await (
             from obs in db.CropObservations.AsNoTracking()
             join cycle in db.CropCycles.AsNoTracking() on obs.CropCycleId equals cycle.Id
             join plot in db.Plots.AsNoTracking() on cycle.PlotId equals plot.Id
-            where plot.FarmId == farmId && cycle.Status == 1 && obs.HealthStatus >= 2
-            select obs.Id).CountAsync(ct);
+            where plot.FarmId == farmId && plot.ArchivedAtUtc == null &&
+                cycle.Status == (byte)CropCycleStatus.Active && obs.HealthStatus >= 2 &&
+                !db.CropObservations.AsNoTracking().Any(newer =>
+                    newer.CropCycleId == cycle.Id && newer.ObservedAtUtc > obs.ObservedAtUtc)
+            select cycle.Id).Distinct().CountAsync(ct);
         // Focused drill-downs: fetch a bounded set in each category to avoid
         // expensive N+1 lookups and keep every item scoped to the current farm.
         var late = await db.FarmTasks.AsNoTracking()
