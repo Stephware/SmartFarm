@@ -148,3 +148,14 @@ input[type=radio] { width: 20px; height: 20px; flex-shrink: 0; }
     .harvest-bar-row > div:last-child, .harvest-bar-row > strong { grid-column: 2; }
 }
 @media (max-width: 420px) { .crop-timeline > li { grid-template-columns: 1fr; gap: 5px; } }
+
+/* Phase 2: private inspection photo progress and existing plot crop history. */
+.photo-progress-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 16px; }
+.photo-progress-grid figure { margin: 0; padding: 10px; border: 1px solid var(--divider); border-radius: 10px; background: var(--soft); }
+.photo-progress-grid img { width: 100%; height: 160px; object-fit: cover; border-radius: 6px; }
+.photo-progress-grid figcaption { display: grid; gap: 3px; padding: 8px 0 0; overflow-wrap: anywhere; }
+.photo-progress-grid figcaption span { color: var(--muted); font-size: .9rem; }
+.rotation-plot { border-bottom: 1px solid var(--divider); padding: 14px 0; }
+.rotation-plot summary { cursor: pointer; font-weight: 600; min-height: 44px; align-content: center; }
+.rotation-list { padding-left: 24px; }
+.rotation-list li { margin: 12px 0; }

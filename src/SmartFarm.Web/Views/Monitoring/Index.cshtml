@@ -86,6 +86,49 @@
         }
     </ul>
 </section>
+@{
+    var progressPhotos = monitoring.Observations
+        .SelectMany(o => o.Photos.Select(photo => new
+        {
+            Photo = photo,
+            o.ObservedAtUtc,
+            Health = o.HealthStatusName,
+            o.GrowthStage
+        }))
+        .OrderBy(p => p.ObservedAtUtc)
+        .ThenBy(p => p.Photo.UploadedAtUtc)
+        .ToList();
+}
+<section class="panel" aria-labelledby="photo-progress-heading">
+    <h2 id="photo-progress-heading">Crop photo progress</h2>
+    <p class="hint">Compare inspection photos from earliest to latest. Only authorized farm members can open these private images.</p>
+    @if (progressPhotos.Count == 0)
+    {
+        <p>No inspection photos yet. Record an inspection and attach a photo to build a visual history.</p>
+    }
+    else
+    {
+        <div class="photo-progress-grid">
+        @foreach (var entry in progressPhotos)
+        {
+            <figure>
+                <a asp-controller="Monitoring" asp-action="Photo"
+                   asp-route-farmId="@cycle.FarmId" asp-route-cycleId="@cycle.Id"
+                   asp-route-photoId="@entry.Photo.Id" target="_blank" rel="noopener">
+                    <img src="@Url.Action("Photo", "Monitoring", new {
+                        farmId = cycle.FarmId, cycleId = cycle.Id, photoId = entry.Photo.Id })"
+                         alt="Crop inspection photo taken on @entry.ObservedAtUtc.ToString("MMM d, yyyy")" loading="lazy" />
+                </a>
+                <figcaption>
+                    <strong>@entry.ObservedAtUtc.ToString("MMM d, yyyy") UTC</strong>
+                    <span>@entry.Health</span>
+                    @if (!string.IsNullOrWhiteSpace(entry.GrowthStage)) { <span>@entry.GrowthStage</span> }
+                </figcaption>
+            </figure>
+        }
+        </div>
+    }
+</section>
 <section class="panel">
     <h2>Observations and photos</h2>
     @if (monitoring.Observations.Count == 0)
