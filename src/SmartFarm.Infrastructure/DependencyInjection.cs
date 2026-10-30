@@ -1,5 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using SmartFarm.Core.Interfaces.Crops;
+using SmartFarm.Core.Interfaces.Finance;
+using SmartFarm.Infrastructure.Services.Finance;
 using SmartFarm.Core.Interfaces.Farms;
 using SmartFarm.Core.Interfaces.Harvests;
 using SmartFarm.Core.Interfaces.Inventory;
@@ -70,6 +72,7 @@ public static class DependencyInjection
         services.AddScoped<IInventoryService, InventoryService>();
         services.AddScoped<IHarvestService, HarvestService>();
         services.AddScoped<IFarmReportService, FarmReportService>();
+        services.AddScoped<IFarmFinanceService, FarmFinanceService>();
         services.AddScoped<IFarmTaskService, FarmTaskService>();
         services.AddScoped<IFarmWeatherService, FarmWeatherService>();
         return services;

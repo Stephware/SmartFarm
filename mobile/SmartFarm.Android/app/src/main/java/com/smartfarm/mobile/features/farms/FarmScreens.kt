@@ -269,6 +269,27 @@ fun FarmDetailScreen(state: FarmUiState, onBack: () -> Unit,
             if (visibleSection == "Plots") {
             sectionState.SaveableStateProvider("plots-${farm.id}") {
             Text("Plots", style = MaterialTheme.typography.titleLarge, modifier = Modifier.semantics { heading() })
+            Text("Schematic overview only; tiles do not represent real positions or distances.",
+                style = MaterialTheme.typography.bodySmall)
+            if (state.plots.isNotEmpty()) {
+                state.plots.chunked(2).forEach { rowPlots ->
+                    Row(horizontalArrangement = Arrangement.spacedBy(8.dp),
+                        modifier = Modifier.fillMaxWidth()) {
+                        rowPlots.forEach { plot ->
+                            OutlinedCard(
+                                modifier = Modifier.weight(1f),
+                                onClick = onCrops
+                            ) {
+                                Column(Modifier.padding(14.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                                    Text(plot.name, style = MaterialTheme.typography.titleMedium)
+                                    Text("${plot.areaSqMeters} m²")
+                                    Text("View crop records", style = MaterialTheme.typography.bodySmall)
+                                }
+                            }
+                        }
+                    }
+                }
+            }
             if (state.plots.isEmpty()) Text("No active plots.")
             state.plots.forEach { plot ->
                 key(plot.id) {

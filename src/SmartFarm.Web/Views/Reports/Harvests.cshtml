@@ -8,6 +8,7 @@
     <p><a asp-controller="Dashboard" asp-action="Index"
           asp-route-farmId="@report.FarmId">← Farm dashboard</a></p>
     <h1>Harvest reports</h1>
+    <p><a asp-controller="FarmFinance" asp-action="Index" asp-route-farmId="@report.FarmId">View separately recorded farm income and expenses →</a></p>
     <p>@report.FarmName · Dates use the farm's @report.TimeZoneId time zone.</p>
     <form method="get" asp-action="Harvests" class="report-filters">
         <input type="hidden" name="farmId" value="@report.FarmId" />

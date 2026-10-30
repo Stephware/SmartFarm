@@ -159,3 +159,10 @@ input[type=radio] { width: 20px; height: 20px; flex-shrink: 0; }
 .rotation-plot summary { cursor: pointer; font-weight: 600; min-height: 44px; align-content: center; }
 .rotation-list { padding-left: 24px; }
 .rotation-list li { margin: 12px 0; }
+
+/* Phase 3 schematic map, never a geographic representation. */
+.plot-layout-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 14px; margin: 24px 0; }
+.plot-layout-tile { display: flex; flex-direction: column; justify-content: center; gap: 8px; min-height: 140px; padding: 18px; border: 2px solid var(--primary); border-radius: 12px; text-decoration: none; background: var(--soft); }
+.plot-layout-tile:hover, .plot-layout-tile:focus-visible { background: var(--divider); }
+.plot-layout-tile strong { font-size: 1.1rem; }
+.plot-layout-tile span { color: var(--muted); }
