@@ -135,8 +135,7 @@ public sealed class FarmAutomationService(
                     .Select(u => u.Id).Distinct().ToListAsync(ct);
 
                 // Weekly notification per farm and recipient; daily worker runs never spam.
-                var weekStart = today.AddDays(-((int)today.DayOfWeek + 6) % 7);
-                var key = $"stock:{farm.Id:N}:{weekStart:yyyyMMdd}";
+                var key = LowStockReminderRules.WeeklyKey(farm.Id, today);
                 foreach (var userId in recipients)
                 {
                     if (await db.Notifications.AnyAsync(n => n.UserId == userId &&
