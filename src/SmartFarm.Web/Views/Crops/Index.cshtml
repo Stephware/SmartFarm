@@ -141,7 +141,22 @@
             <p><a asp-controller="Harvests" asp-action="Index"
                   asp-route-farmId="@Model.Farm.Id" asp-route-cycleId="@cycle.Id">Harvest records →</a></p>
             <p><a asp-controller="Monitoring" asp-action="Index"
-                  asp-route-farmId="@Model.Farm.Id" asp-route-cycleId="@cycle.Id">Activities, inspections and photos →</a></p>
+                  asp-route-farmId="@Model.Farm.Id" asp-route-cycleId="@cycle.Id">Activities, inspections and photos →</a>
+                · <a asp-controller="CropTimeline" asp-action="Index"
+                    asp-route-farmId="@Model.Farm.Id" asp-route-cycleId="@cycle.Id">Full timeline →</a></p>
+            @if (cycle.Status == CropCycleStatus.Active)
+            {
+                <div class="action-links" aria-label="Quick field logging for @cycle.CropTypeName on @cycle.PlotName">
+                    <a asp-controller="Monitoring" asp-action="Index" asp-route-farmId="@Model.Farm.Id"
+                       asp-route-cycleId="@cycle.Id" asp-route-quick="watering"
+                       asp-fragment="record-activity">Log watering</a>
+                    <a asp-controller="Monitoring" asp-action="Index" asp-route-farmId="@Model.Farm.Id"
+                       asp-route-cycleId="@cycle.Id" asp-route-quick="inspection"
+                       asp-fragment="record-inspection">Record inspection</a>
+                    <a asp-controller="Harvests" asp-action="Index" asp-route-farmId="@Model.Farm.Id"
+                       asp-route-cycleId="@cycle.Id" asp-fragment="record-harvest">Record harvest</a>
+                </div>
+            }
             <p><strong>@cycle.Status</strong> · Planned: @cycle.PlannedPlantingDate.ToString("yyyy-MM-dd")
                 @if (cycle.PlantedDate is not null) { <span> · Planted: @cycle.PlantedDate.Value.ToString("yyyy-MM-dd")</span> }
             </p>

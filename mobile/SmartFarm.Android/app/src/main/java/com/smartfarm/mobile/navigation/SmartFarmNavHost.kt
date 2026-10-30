@@ -4,6 +4,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.LaunchedEffect
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.navigation.NavType
+import androidx.navigation.navArgument
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
@@ -169,12 +171,19 @@ fun SmartFarmNavHost(auth: AuthViewModel, farms: FarmViewModel, crops: CropViewM
                 },
                 onUpdatePlan = { cycle, date, expected -> crops.updatePlan(cycle, date, expected) },
                 onMonitoring = { cycle -> navController.navigate("monitor/$farmId/${cycle.id}") },
+                onQuickMonitoring = { cycle, mode ->
+                    navController.navigate("monitor/$farmId/${cycle.id}?quick=$mode")
+                },
                 onHarvests = { cycle -> navController.navigate("harvests/$farmId/${cycle.id}") },
                 onTransition = { cycle, status, planted, reason ->
                     crops.transition(cycle, status, planted, reason)
                 }, onRetry = { crops.load(farmId) })
         }
-        composable("monitor/{farmId}/{cycleId}") { entry ->
+        composable("monitor/{farmId}/{cycleId}?quick={quick}",
+            arguments = listOf(navArgument("quick") {
+                type = NavType.StringType
+                defaultValue = ""
+            })) { entry ->
             val farmId = entry.arguments?.getString("farmId").orEmpty()
             val cycleId = entry.arguments?.getString("cycleId").orEmpty()
             val monitoringState by monitoring.state.collectAsStateWithLifecycle()
@@ -189,7 +198,9 @@ fun SmartFarmNavHost(auth: AuthViewModel, farms: FarmViewModel, crops: CropViewM
                     monitoring.uploadPhoto(observationId, uri, resolver)
                 },
                 onPreview = { monitoring.preview(it) }, pending = pending,
-                onSync = { navController.navigate("sync") }, onRetry = { monitoring.load(farmId, cycleId) })
+                onSync = { navController.navigate("sync") },
+                onRetry = { monitoring.load(farmId, cycleId) },
+                quick = entry.arguments?.getString("quick").orEmpty())
         }
         composable("inventory/{farmId}") { entry ->
             val farmId = entry.arguments?.getString("farmId").orEmpty()

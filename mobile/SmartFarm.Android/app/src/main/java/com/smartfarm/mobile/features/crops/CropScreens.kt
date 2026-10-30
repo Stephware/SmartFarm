@@ -48,7 +48,8 @@ fun CropScreen(
     onMonitoring: (CropCycleDto) -> Unit,
     onHarvests: (CropCycleDto) -> Unit,
     onTransition: (CropCycleDto, Int, String, String) -> Unit,
-    onRetry: () -> Unit = {}
+    onRetry: () -> Unit = {},
+    onQuickMonitoring: (CropCycleDto, String) -> Unit = { cycle, _ -> onMonitoring(cycle) }
 ) {
     var typeName by rememberSaveable { mutableStateOf("") }
     var unit by rememberSaveable { mutableStateOf("kg") }
@@ -141,7 +142,7 @@ fun CropScreen(
         }
         items(state.cycles, key = { "cycle-${it.id}" }) { cycle ->
             Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                CycleCard(cycle, canManage && !state.offline, state.busy, onUpdatePlan, onTransition, onMonitoring, onHarvests)
+                CycleCard(cycle, canManage && !state.offline, state.busy, onUpdatePlan, onTransition, onMonitoring, onHarvests, onQuickMonitoring)
                 HorizontalDivider()
             }
         }
@@ -156,7 +157,8 @@ private fun CycleCard(
     onUpdatePlan: (CropCycleDto, String, String) -> Unit,
     onTransition: (CropCycleDto, Int, String, String) -> Unit,
     onMonitoring: (CropCycleDto) -> Unit,
-    onHarvests: (CropCycleDto) -> Unit
+    onHarvests: (CropCycleDto) -> Unit,
+    onQuickMonitoring: (CropCycleDto, String) -> Unit
 ) {
     var editDate by rememberSaveable(cycle.id, cycle.rowVersion) { mutableStateOf(cycle.plannedPlantingDate) }
     var editHarvest by rememberSaveable(cycle.id, cycle.rowVersion) { mutableStateOf(cycle.expectedHarvestDate.orEmpty()) }
@@ -168,6 +170,16 @@ private fun CycleCard(
     Text("${cycle.statusName} · Planned: ${cycle.plannedPlantingDate}")
     OutlinedButton(onClick = { onMonitoring(cycle) }) { Text("Activities, inspections & photos") }
     OutlinedButton(onClick = { onHarvests(cycle) }) { Text("Harvest records") }
+    if (cycle.status == 1) {
+        Text("Quick field log", style = MaterialTheme.typography.labelLarge)
+        OutlinedButton(onClick = { onQuickMonitoring(cycle, "watering") }) {
+            Text("Log watering")
+        }
+        OutlinedButton(onClick = { onQuickMonitoring(cycle, "inspection") }) {
+            Text("Record inspection")
+        }
+        OutlinedButton(onClick = { onHarvests(cycle) }) { Text("Record harvest") }
+    }
     cycle.plantedDate?.let { Text("Planted: $it") }
     cycle.expectedHarvestDate?.let { Text("Expected harvest: $it") }
     cycle.terminationReason?.let { Text("Reason: $it") }

@@ -18,7 +18,7 @@
 </section>
 @if (monitoring.CanRecord)
 {
-    <section class="panel">
+    <section class="panel" id="record-activity">
         <h2>Record activity</h2>
         <form asp-action="Activity" asp-route-farmId="@cycle.FarmId"
               asp-route-cycleId="@cycle.Id" method="post">
@@ -47,7 +47,7 @@
         </form>
         <p class="hint">Recorded at the server's current UTC time.</p>
     </section>
-    <section class="panel">
+    <section class="panel" id="record-inspection">
         <h2>Record crop observation / inspection</h2>
         <form asp-action="Observation" asp-route-farmId="@cycle.FarmId"
               asp-route-cycleId="@cycle.Id" method="post">
