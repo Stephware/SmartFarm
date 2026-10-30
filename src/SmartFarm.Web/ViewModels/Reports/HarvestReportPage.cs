@@ -6,4 +6,9 @@ namespace SmartFarm.Web.ViewModels.Reports;
 
 public sealed record HarvestReportPage(
     HarvestReport Report, IReadOnlyList<PlotDetails> Plots,
-    IReadOnlyList<CropTypeDetails> CropTypes);
+    IReadOnlyList<CropTypeDetails> CropTypes)
+{
+    public IReadOnlyList<HarvestChart> MonthlyCharts => HarvestAnalyticsBuilder.Monthly(Report);
+    public IReadOnlyList<HarvestChart> CropPlotCharts => HarvestAnalyticsBuilder.CropAndPlot(Report, Plots);
+}
+
