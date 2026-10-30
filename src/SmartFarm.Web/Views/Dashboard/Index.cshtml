@@ -49,7 +49,7 @@
                 {
                     case "task":
                         <a asp-controller="Tasks" asp-action="Index" asp-route-farmId="@Model.Report.FarmId"
-                           asp-fragment="@($"task-{alert.TargetId}")">Review task →</a>
+                           asp-fragment="@("task-" + alert.TargetId.ToString())">Review task →</a>
                         break;
                     case "inventory":
                         <a asp-controller="Inventory" asp-action="Details" asp-route-farmId="@Model.Report.FarmId"
