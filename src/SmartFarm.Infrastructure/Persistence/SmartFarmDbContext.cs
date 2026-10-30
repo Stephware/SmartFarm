@@ -11,6 +11,7 @@ public sealed class SmartFarmDbContext(DbContextOptions<SmartFarmDbContext> opti
     : IdentityDbContext<SmartFarmUser, SmartFarmRole, Guid>(options)
 {
     public DbSet<Farm> Farms => Set<Farm>();
+    public DbSet<FarmFinanceEntry> FarmFinanceEntries => Set<FarmFinanceEntry>();
     public DbSet<FarmJoinRequest> FarmJoinRequests => Set<FarmJoinRequest>();
     public DbSet<FarmMember> FarmMembers => Set<FarmMember>();
     public DbSet<Plot> Plots => Set<Plot>();
