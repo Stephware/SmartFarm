@@ -116,6 +116,25 @@ fun CropScreen(
                         && plannedDate.isNotBlank()) { Text("Create planting plan") }
             }
             HorizontalDivider()
+            Text("Plot crop rotation history", style = MaterialTheme.typography.titleLarge,
+                modifier = Modifier.semantics { heading() })
+            Text("Previous crop cycles per plot; includes completed, failed and cancelled crops.")
+            if (state.cycles.isEmpty()) Text("No planting history yet.")
+            state.cycles.groupBy { it.plotId }.values.sortedBy { it.first().plotName }.forEach { history ->
+                var expanded by rememberSaveable(history.first().plotId) { mutableStateOf(false) }
+                OutlinedButton(onClick = { expanded = !expanded }) {
+                    Text("${history.first().plotName} · ${history.size} cycles" +
+                        if (expanded) " (hide)" else " (show)")
+                }
+                if (expanded) {
+                    history.sortedByDescending { it.plantedDate ?: it.plannedPlantingDate }
+                        .forEach { crop ->
+                            Text("${crop.cropTypeName} · ${crop.statusName} · " +
+                                (crop.plantedDate ?: crop.plannedPlantingDate))
+                        }
+                }
+            }
+            HorizontalDivider()
             Text("Crop cycles and history", style = MaterialTheme.typography.titleLarge, modifier = Modifier.semantics { heading() })
             if (state.cycles.isEmpty()) Text("No crop cycles yet.")
             }
