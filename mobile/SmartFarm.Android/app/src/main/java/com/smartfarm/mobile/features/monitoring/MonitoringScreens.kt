@@ -54,8 +54,13 @@ fun MonitoringScreen(
     onPreview: (String) -> Unit,
     pending: List<PendingOperation> = emptyList(),
     onSync: () -> Unit = {},
-    onRetry: () -> Unit = {}
+    onRetry: () -> Unit = {},
+    quick: String = ""
 ) {
+    // Quick modes only change presentation; the same offline-capable handlers save data.
+    var showAll by rememberSaveable(state.farmId, state.cycleId, quick) {
+        mutableStateOf(quick != "watering" && quick != "inspection")
+    }
     var activityType by rememberSaveable(state.farmId, state.cycleId) { mutableStateOf(1) }
     var activityNotes by rememberSaveable(state.farmId, state.cycleId) { mutableStateOf("") }
     var health by rememberSaveable(state.farmId, state.cycleId) { mutableStateOf(0) }
@@ -124,6 +129,12 @@ fun MonitoringScreen(
             OfflineDataNotice(state.offline, state.cachedAtUtcMillis)
 
             if (state.canRecord) {
+                if (!showAll) {
+                    Text(if (quick == "watering") "Quick log: Watering" else "Quick log: Inspection",
+                        style = MaterialTheme.typography.titleMedium)
+                    OutlinedButton(onClick = { showAll = true }) { Text("Show all logging options") }
+                }
+                if (showAll || quick != "inspection") {
                 Text("Record farm activity", style = MaterialTheme.typography.titleLarge, modifier = Modifier.semantics { heading() })
                 val activities = listOf("Watering", "Fertilizing", "Pesticide", "Weeding", "Other")
                 activities.forEachIndexed { index, label ->
@@ -135,6 +146,8 @@ fun MonitoringScreen(
                 Button(onClick = { onActivity(activityType, activityNotes) },
                     enabled = !state.busy) { Text("Save activity") }
 
+                }
+                if (showAll || quick != "watering") {
                 HorizontalDivider()
                 Text("Record inspection / observation", style = MaterialTheme.typography.titleLarge, modifier = Modifier.semantics { heading() })
                 listOf("Not assessed", "Healthy", "Needs attention", "Critical")
@@ -162,6 +175,7 @@ fun MonitoringScreen(
                 Button(onClick = {
                     onObservation(health, stage, observationNotes, newPhoto)
                 }, enabled = !state.busy) { Text("Save observation") }
+                }
             }
 
             HorizontalDivider()

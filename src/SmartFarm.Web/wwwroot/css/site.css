@@ -126,3 +126,25 @@ input[type=radio] { width: 20px; height: 20px; flex-shrink: 0; }
 .crop-agenda-list ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
 .crop-agenda-list ul li { padding: 8px 10px; background: var(--soft); border-left: 3px solid var(--primary); border-radius: 4px; overflow-wrap: anywhere; }
 @media (max-width: 480px) { .crop-agenda-list > li { grid-template-columns: 1fr; gap: 5px; } }
+
+/* Phase 1: crop history and unit-separated harvest analytics. */
+.crop-timeline { list-style: none; margin: 0; padding: 0; }
+.crop-timeline > li { display: grid; grid-template-columns: minmax(112px, 155px) 1fr; gap: 18px; padding: 16px 0; border-bottom: 1px solid var(--divider); }
+.timeline-date { font-variant-numeric: tabular-nums; }
+.timeline-date time { display: block; font-weight: 600; }
+.timeline-date small { display: block; color: var(--muted); }
+.timeline-category { display: inline-block; border: 1px solid var(--divider); color: var(--muted); border-radius: 999px; font-size: .8rem; padding: 2px 8px; margin-right: 10px; }
+.crop-timeline strong { display: inline; }
+.crop-timeline p { margin: 8px 0; white-space: pre-wrap; }
+.harvest-chart { display: grid; gap: 12px; margin: 16px 0 28px; }
+.harvest-bar-row { display: grid; grid-template-columns: minmax(120px, 190px) minmax(70px, 1fr) minmax(120px, 210px); gap: 12px; align-items: center; }
+.harvest-bar-row > span { overflow-wrap: anywhere; }
+.harvest-bar-row strong { display: block; font-variant-numeric: tabular-nums; }
+.harvest-bar-row small { display: block; color: var(--muted); }
+.harvest-bar-track { height: 15px; border-radius: 999px; background: var(--divider); overflow: hidden; }
+.harvest-bar-fill { display: block; height: 100%; border-radius: inherit; background: var(--primary); min-width: 0; }
+@media (max-width: 620px) {
+    .harvest-bar-row { grid-template-columns: minmax(96px, 135px) minmax(40px, 1fr); gap: 6px 10px; }
+    .harvest-bar-row > div:last-child, .harvest-bar-row > strong { grid-column: 2; }
+}
+@media (max-width: 420px) { .crop-timeline > li { grid-template-columns: 1fr; gap: 5px; } }

@@ -17,7 +17,7 @@
     <ul class="farm-list">
         @foreach (var task in Model.Tasks)
         {
-            <li>
+            <li id="task-@task.Id">
                 <strong>@task.TaskTypeName</strong> — @task.DueDate.ToString("yyyy-MM-dd")
                 <span> · @task.StatusName</span>
                 @if (task.AssignedToUserId is { } assigned)

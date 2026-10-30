@@ -23,9 +23,16 @@ public sealed record HarvestReport(
     IReadOnlyList<HarvestMonthlyTotal> MonthlyTotals,
     IReadOnlyList<HarvestReportEntry> Entries);
 
+public sealed record DashboardAttentionItem(
+    string Kind, Guid TargetId, string Title, string Detail, DateOnly? DueDate = null);
+
 public sealed record FarmDashboard(
     Guid FarmId, string FarmName, DateOnly FarmToday,
     int ActivePlots, int PlannedCrops, int ActiveCrops, int CompletedCrops,
     int OpenTasks, int OverdueTasks, int LowStockItems, int ConcerningObservations,
     IReadOnlyList<HarvestUnitTotal> HarvestLast30Days,
-    IReadOnlyList<HarvestReportEntry> RecentHarvests);
+    IReadOnlyList<HarvestReportEntry> RecentHarvests)
+{
+    // Read-only drill-downs. Existing response fields remain unchanged for Android.
+    public IReadOnlyList<DashboardAttentionItem> AttentionItems { get; init; } = [];
+}

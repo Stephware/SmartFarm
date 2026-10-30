@@ -29,6 +29,46 @@
 </section>
 @if (Model.Enrollment is not null) { <partial name="_FarmEnrollment" model="Model.Enrollment" /> }
 
+<section class="panel" aria-labelledby="attention-heading">
+    <h2 id="attention-heading">Needs attention</h2>
+    <p class="hint">Open the affected record to review or update it. Only authorized farm members can view these details.</p>
+    @if (Model.Report.AttentionItems.Count == 0)
+    {
+        <p>No overdue tasks, low-stock items, or concerning crop inspections to show.</p>
+    }
+    else
+    {
+        <ul class="farm-list">
+        @foreach (var alert in Model.Report.AttentionItems)
+        {
+            <li>
+                <strong>@alert.Title</strong>
+                @if (alert.DueDate is { } due) { <span>Due @due.ToString("MMM d, yyyy")</span> }
+                <p>@alert.Detail</p>
+                @switch (alert.Kind)
+                {
+                    case "task":
+                        <a asp-controller="Tasks" asp-action="Index" asp-route-farmId="@Model.Report.FarmId"
+                           asp-fragment="@("task-" + alert.TargetId.ToString())">Review task →</a>
+                        break;
+                    case "inventory":
+                        <a asp-controller="Inventory" asp-action="Details" asp-route-farmId="@Model.Report.FarmId"
+                           asp-route-itemId="@alert.TargetId">Review inventory →</a>
+                        break;
+                    case "inspection":
+                        <a asp-controller="Monitoring" asp-action="Index" asp-route-farmId="@Model.Report.FarmId"
+                           asp-route-cycleId="@alert.TargetId">Review crop inspection →</a>
+                        break;
+                }
+            </li>
+        }
+        </ul>
+    }
+    <div class="action-links">
+        <a asp-controller="Tasks" asp-action="Index" asp-route-farmId="@Model.Report.FarmId">All tasks (@Model.Report.OpenTasks open)</a>
+        <a asp-controller="Inventory" asp-action="Index" asp-route-farmId="@Model.Report.FarmId">Inventory (@Model.Report.LowStockItems low)</a>
+    </div>
+</section>
 <section class="panel">
     <h2>Crop progress</h2>
     @{
