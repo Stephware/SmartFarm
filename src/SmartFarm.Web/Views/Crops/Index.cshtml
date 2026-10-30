@@ -109,6 +109,28 @@
     else if (Model.CropTypes.Count == 0) { <p>Add a crop type before planning a crop.</p> }
     else { <p>You have read-only access to planting plans.</p> }
 </section>
+<section class="panel" aria-labelledby="rotation-heading">
+    <h2 id="rotation-heading">Plot crop rotation history</h2>
+    <p class="hint">See previous and current crop cycles per plot, including completed, failed, and cancelled plantings. This is a record of your farm history, not a rotation recommendation.</p>
+    @if (Model.Cycles.Count == 0) { <p>No planting history recorded yet.</p> }
+    @foreach (var plotHistory in Model.Cycles.GroupBy(c => new { c.PlotId, c.PlotName }).OrderBy(g => g.Key.PlotName))
+    {
+        <details class="rotation-plot">
+            <summary>@plotHistory.Key.PlotName · @plotHistory.Count() crop cycle(s)</summary>
+            <ol class="rotation-list">
+            @foreach (var history in plotHistory.OrderByDescending(c => c.PlantedDate ?? c.PlannedPlantingDate))
+            {
+                <li>
+                    <strong>@history.CropTypeName</strong> · @history.StatusName
+                    <span> · @(history.PlantedDate ?? history.PlannedPlantingDate).ToString("MMM d, yyyy")</span>
+                    @if (history.ExpectedHarvestDate is { } harvest)
+                    { <span> · Expected harvest @harvest.ToString("MMM d, yyyy")</span> }
+                </li>
+            }
+            </ol>
+        </details>
+    }
+</section>
 <section class="panel">
     <h2>Crop cycles and history</h2>
     @if (Model.Cycles.Count == 0) { <p>No crop cycles have been planned yet.</p> }
