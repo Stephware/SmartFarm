@@ -76,7 +76,7 @@
       searchButton.disabled = true;
       setStatus("Searching locations...");
       try {
-        const response = await fetch("/farms/locations/search?query=" + encodeURIComponent(query), {
+        const response = await fetch(root.dataset.searchUrl + "?query=" + encodeURIComponent(query), {
           credentials: "same-origin",
           headers: { "Accept": "application/json" }
         });
