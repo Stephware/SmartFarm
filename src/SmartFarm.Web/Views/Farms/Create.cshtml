@@ -9,7 +9,7 @@
         <label asp-for="LocationText">Farm location / nearby address</label><input asp-for="LocationText" data-farm-location-label required maxlength="250" placeholder="Barangay, municipality, province" /><span asp-validation-for="LocationText" class="error"></span>
         <input asp-for="Latitude" data-farm-latitude type="hidden" />
         <input asp-for="Longitude" data-farm-longitude type="hidden" />
-<div class="farm-location-picker" data-farm-location-picker>
+<div class="farm-location-picker" data-farm-location-picker data-search-url="@Url.Action("Search", "FarmLocations")">
     <p class="hint">Find your barangay or nearby place, then position the pin on your actual farm. No coordinates to type.</p>
     <div class="farm-location-search">
         <label>Search a place <input type="search" data-farm-search placeholder="Barangay, town, or address" autocomplete="off" maxlength="120" /></label>
