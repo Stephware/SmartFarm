@@ -32,7 +32,8 @@ function setup() {
     const map = {
         setView: () => map,
         on: (name, fn) => { listeners["map:" + name] = fn; },
-        invalidateSize: () => {}
+        invalidateSize: () => {},
+        removeLayer: () => {}
     };
     const L = {
         map: () => map,
