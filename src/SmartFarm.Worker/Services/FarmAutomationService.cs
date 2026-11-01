@@ -153,6 +153,8 @@ public sealed class FarmAutomationService(
                 await db.SaveChangesAsync(ct);
             }
         }
+
+        logger.LogInformation("Farm tasks and reminders scan completed for {FarmCount} farms.", farms.Count);
     }
 
     public async Task CheckWeatherAsync(CancellationToken ct = default)
@@ -286,5 +288,7 @@ public sealed class FarmAutomationService(
                 await db.SaveChangesAsync(ct);
             }
         }
+
+        logger.LogInformation("Farm weather scan completed for {FarmCount} farms.", farms.Count);
     }
 }
