@@ -166,3 +166,18 @@ input[type=radio] { width: 20px; height: 20px; flex-shrink: 0; }
 .plot-layout-tile:hover, .plot-layout-tile:focus-visible { background: var(--divider); }
 .plot-layout-tile strong { font-size: 1.1rem; }
 .plot-layout-tile span { color: var(--muted); }
+
+/* Zero-cost, user-driven farm location picker. */
+.farm-location-picker { margin: 12px 0 22px; }
+.farm-location-search { display: flex; align-items: end; gap: 10px; flex-wrap: wrap; }
+.farm-location-search > label { flex: 1 1 210px; }
+.farm-location-search button { min-height: 42px; }
+.farm-location-results { display: grid; gap: 6px; margin: 8px 0; }
+.farm-location-results button { text-align: left; width: 100%; border: 1px solid var(--divider); background: var(--surface); color: var(--text); border-radius: 6px; padding: 9px; }
+.farm-location-results button:hover, .farm-location-results button:focus-visible { border-color: var(--primary); }
+.farm-location-map { height: 290px; width: 100%; border-radius: 10px; background: var(--soft); overflow: hidden; margin: 12px 0 8px; z-index: 0; }
+.farm-location-controls { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-bottom: 8px; }
+.farm-location-controls button { min-height: 40px; }
+.farm-location-status { font-size: .92rem; color: var(--muted); margin: 7px 0; }
+.farm-location-picker .leaflet-container { font: inherit; }
+.farm-location-picker .leaflet-control-attribution { font-size: 10px; }

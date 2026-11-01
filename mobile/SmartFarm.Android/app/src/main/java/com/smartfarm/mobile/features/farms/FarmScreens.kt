@@ -106,15 +106,15 @@ fun FarmListScreen(state: FarmUiState, onOpen: (String) -> Unit,
             Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
                 Text("Create farm", style = MaterialTheme.typography.titleMedium)
                 OutlinedTextField(name, { name = it }, label = { Text("Name") }, modifier = Modifier.fillMaxWidth())
-                OutlinedTextField(location, { location = it }, label = { Text("Location") }, modifier = Modifier.fillMaxWidth())
-                Text("Coordinates are optional, but required for weather advisories.")
+                OutlinedTextField(location, { location = it; latitude = ""; longitude = "" },
+                    label = { Text("Farm address or area") }, modifier = Modifier.fillMaxWidth())
+                FarmLocationPicker(location, latitude, longitude, enabled = !state.loading && !state.offline) {
+                    selectedName, selectedLat, selectedLon ->
+                    location = selectedName
+                    latitude = selectedLat
+                    longitude = selectedLon
+                }
                 TimeZoneInput(zone, { zone = it }, enabled = !state.loading && !state.offline)
-                OutlinedTextField(latitude, { latitude = it }, label = { Text("Latitude") },
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
-                    modifier = Modifier.fillMaxWidth())
-                OutlinedTextField(longitude, { longitude = it }, label = { Text("Longitude") },
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
-                    modifier = Modifier.fillMaxWidth())
                 Button(onClick = { onCreate(name, location, zone, latitude, longitude) },
                     enabled = !state.loading && !state.offline && name.isNotBlank() &&
                         location.isNotBlank() && zone.isNotBlank() &&
@@ -220,7 +220,7 @@ fun FarmDetailScreen(state: FarmUiState, onBack: () -> Unit,
             if (weather == null) {
                 Text(state.weatherMessage ?: "Weather information has not been loaded.")
             } else if (!weather.hasCoordinates) {
-                Text("An owner or manager can add coordinates in Settings to enable weather forecasts.")
+                Text("An owner or manager can choose a farm pin in Settings to enable weather forecasts.")
             } else {
                 Text("Forecast time zone: ${weather.timeZoneId}. Latest saved forecast.")
                 if (weather.days.isEmpty()) {
@@ -248,16 +248,15 @@ fun FarmDetailScreen(state: FarmUiState, onBack: () -> Unit,
                 Text("Edit farm", style = MaterialTheme.typography.titleMedium)
                 OutlinedTextField(name, { name = it }, label = { Text("Name") },
                     modifier = Modifier.fillMaxWidth())
-                OutlinedTextField(location, { location = it }, label = { Text("Location") },
-                    modifier = Modifier.fillMaxWidth())
-                Text("Weather checks need both coordinates and a valid time zone.")
+                OutlinedTextField(location, { location = it; latitude = ""; longitude = "" },
+                    label = { Text("Farm address or area") }, modifier = Modifier.fillMaxWidth())
+                FarmLocationPicker(location, latitude, longitude, enabled = !state.loading) {
+                    selectedName, selectedLat, selectedLon ->
+                    location = selectedName
+                    latitude = selectedLat
+                    longitude = selectedLon
+                }
                 TimeZoneInput(zone, { zone = it }, enabled = !state.loading)
-                OutlinedTextField(latitude, { latitude = it }, label = { Text("Latitude") },
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
-                    modifier = Modifier.fillMaxWidth())
-                OutlinedTextField(longitude, { longitude = it }, label = { Text("Longitude") },
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
-                    modifier = Modifier.fillMaxWidth())
                 Button(onClick = { onSaveFarm(name, location, zone, latitude, longitude) },
                     enabled = !state.loading && zone.isNotBlank() &&
                         (latitude.isBlank() == longitude.isBlank())) { Text("Save farm") }
