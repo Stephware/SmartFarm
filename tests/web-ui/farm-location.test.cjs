@@ -27,6 +27,7 @@ function setup() {
     };
     const root = {
         closest: () => form,
+        dataset: { searchUrl: "/farms/locations/search" },
         querySelector: name => controls[name]
     };
     const map = {
