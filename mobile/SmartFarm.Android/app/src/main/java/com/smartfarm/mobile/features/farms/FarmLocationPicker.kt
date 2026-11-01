@@ -7,6 +7,8 @@ import android.os.Looper
 import android.webkit.JavascriptInterface
 import android.webkit.WebView
 import android.webkit.WebViewClient
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -43,11 +45,11 @@ private data class PlaceResult(val name: String, val latitude: Double, val longi
 
 private const val MAP_HTML = """
 <!doctype html><html lang="en"><head><meta name="viewport" content="width=device-width,initial-scale=1">
-<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="">
 <style>html,body,#map{height:100%;width:100%;margin:0}body{background:#e5eee9;font-family:sans-serif}
 #fallback{position:absolute;top:15px;left:15px;z-index:1000;background:white;padding:6px;font-size:12px}</style>
 </head><body><div id="map"></div><div id="fallback">Loading map...</div>
-<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script><script>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script><script>
 if (window.L) {
   document.getElementById("fallback").remove();
   const map=L.map("map",{scrollWheelZoom:false}).setView([15.3,121],6);
@@ -150,7 +152,8 @@ private fun FarmLocationDialog(
 
     Dialog(onDismissRequest = onDismiss) {
         Surface(shape = MaterialTheme.shapes.large, modifier = Modifier.widthIn(max = 540.dp)) {
-            Column(Modifier.padding(14.dp), verticalArrangement = Arrangement.spacedBy(9.dp)) {
+            Column(Modifier.verticalScroll(rememberScrollState()).padding(14.dp),
+                verticalArrangement = Arrangement.spacedBy(9.dp)) {
                 Text("Choose farm location", style = MaterialTheme.typography.titleLarge)
                 Text("Search a barangay or nearby place, then move the pin to the farm.",
                     style = MaterialTheme.typography.bodySmall)
@@ -213,6 +216,14 @@ private fun FarmLocationDialog(
                             settings.userAgentString =
                                 "AniGoSmartFarm/1.0 (+https://github.com/Stephware/SmartFarm)"
                             webViewClient = object : WebViewClient() {
+                                override fun onPageFinished(view: WebView?, url: String?) {
+                                    if (lat != null && lon != null) {
+                                        val a = String.format(Locale.US, "%.6f", lat)
+                                        val b = String.format(Locale.US, "%.6f", lon)
+                                        view?.evaluateJavascript(
+                                            "window.selectFarmPin && window.selectFarmPin($a,$b)", null)
+                                    }
+                                }
                                 override fun shouldOverrideUrlLoading(
                                     view: WebView, request: android.webkit.WebResourceRequest
                                 ): Boolean = true
@@ -225,14 +236,6 @@ private fun FarmLocationDialog(
                             webView = this
                         }
                     },
-                    update = { view ->
-                        if (lat != null && lon != null) {
-                            val a = String.format(Locale.US, "%.6f", lat)
-                            val b = String.format(Locale.US, "%.6f", lon)
-                            view.evaluateJavascript(
-                                "window.selectFarmPin && window.selectFarmPin($a,$b)", null)
-                        }
-                    },
                     modifier = Modifier.fillMaxWidth().height(250.dp)
                 )
                 Text(message, style = MaterialTheme.typography.bodySmall)
@@ -242,8 +245,8 @@ private fun FarmLocationDialog(
                     OutlinedButton(onClick = onDismiss) { Text("Cancel") }
                     Button(onClick = {
                         onConfirm(
-                            name.trim(), String.format(Locale.US, "%.6f", lat),
-                            String.format(Locale.US, "%.6f", lon))
+                            name.trim(), String.format(Locale.US, "%.6f", requireNotNull(lat)),
+                            String.format(Locale.US, "%.6f", requireNotNull(lon)))
                     }, enabled = name.trim().length in 2..250 && lat != null && lon != null) {
                         Text("Use this location")
                     }
