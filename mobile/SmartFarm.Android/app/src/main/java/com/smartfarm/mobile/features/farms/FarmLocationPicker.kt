@@ -1,5 +1,13 @@
 package com.smartfarm.mobile.features.farms
 
+import android.Manifest
+import android.content.Context
+import android.content.pm.PackageManager
+import android.location.LocationManager
+import android.os.Build
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.core.content.ContextCompat
 import android.annotation.SuppressLint
 import android.location.Geocoder
 import android.os.Handler
@@ -142,6 +150,57 @@ private fun FarmLocationDialog(
         message = "Pin selected. Confirm the farm's address or nearby area."
     }
 
+    @SuppressLint("MissingPermission")
+    fun useDeviceLocation() {
+        val fine = ContextCompat.checkSelfPermission(
+            context, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED
+        val coarse = ContextCompat.checkSelfPermission(
+            context, Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED
+        if (!fine && !coarse) {
+            message = "Location permission is needed. You can still search or tap the map."
+            return
+        }
+        try {
+            val manager = context.getSystemService(Context.LOCATION_SERVICE) as LocationManager
+            val provider = when {
+                coarse && manager.isProviderEnabled(LocationManager.NETWORK_PROVIDER) ->
+                    LocationManager.NETWORK_PROVIDER
+                fine && manager.isProviderEnabled(LocationManager.GPS_PROVIDER) ->
+                    LocationManager.GPS_PROVIDER
+                else -> null
+            }
+            if (provider == null) {
+                message = "Turn on device location, or select your farm on the map."
+                return
+            }
+            message = "Getting your approximate position..."
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+                manager.getCurrentLocation(provider, null, context.mainExecutor) { found ->
+                    if (found != null) select(found.latitude, found.longitude)
+                    else message = "Location unavailable. Search or tap the map instead."
+                }
+            } else {
+                val found = manager.getLastKnownLocation(provider)
+                if (found != null && System.currentTimeMillis() - found.time in 0..300000) {
+                    select(found.latitude, found.longitude)
+                } else {
+                    message = "No recent device location. Search or tap the map instead."
+                }
+            }
+        } catch (_: SecurityException) {
+            message = "Location permission unavailable. Search or tap the map."
+        } catch (_: IllegalArgumentException) {
+            message = "Location service unavailable. Search or tap the map."
+        }
+    }
+
+    val locationPermissionLauncher = rememberLauncherForActivityResult(
+        ActivityResultContracts.RequestMultiplePermissions()
+    ) { grants ->
+        if (grants.values.any { it }) useDeviceLocation()
+        else message = "Location access denied. Search or tap the map instead."
+    }
+
     DisposableEffect(Unit) {
         onDispose {
             webView?.removeJavascriptInterface("AniGoPin")
@@ -159,6 +218,18 @@ private fun FarmLocationDialog(
                     style = MaterialTheme.typography.bodySmall)
                 OutlinedTextField(query, { query = it }, label = { Text("Search address or place") },
                     modifier = Modifier.fillMaxWidth(), singleLine = true)
+                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    Button(onClick = {
+                        val fine = ContextCompat.checkSelfPermission(context,
+                            Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED
+                        val coarse = ContextCompat.checkSelfPermission(context,
+                            Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED
+                        if (fine || coarse) useDeviceLocation()
+                        else locationPermissionLauncher.launch(arrayOf(
+                            Manifest.permission.ACCESS_COARSE_LOCATION,
+                            Manifest.permission.ACCESS_FINE_LOCATION))
+                    }) { Text("Use my location") }
+                }
                 Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                     Button(onClick = {
                         val text = query.trim()
