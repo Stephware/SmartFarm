@@ -20,6 +20,12 @@ CREATE UNIQUE INDEX UX_Sample_Name ON dbo.Sample(Name) WHERE Status = 1;
 
 
 class PredicateTests(unittest.TestCase):
+    def test_enrollment_string_states_preserve_literals(self):
+        self.assertEqual(verifier.predicate("Status IN (N'Pending', N'Approved', N'Rejected')"),
+                         verifier.predicate("([Status]=N'Rejected' OR [Status]=N'Pending' OR [Status]=N'Approved')"))
+        self.assertEqual(verifier.predicate("Status = 'Pending'"), verifier.predicate("Status = N'Pending'"))
+        self.assertNotEqual(verifier.predicate("Status = N'Pending'"), verifier.predicate("Status = N'Rejected'"))
+
     def test_sql_server_expansion_matches_without_losing_grouping(self):
         self.assertEqual(verifier.predicate('A IN (1,2) AND B BETWEEN -3 AND 4'),
                          verifier.predicate('([A]=(2) OR [A]=(1)) AND [B]>=(-3) AND [B]<=(4)'))

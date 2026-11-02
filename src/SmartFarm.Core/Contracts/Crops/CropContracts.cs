@@ -57,5 +57,8 @@ public sealed record CropCycleDetails(
     DateOnly PlannedPlantingDate, DateOnly? PlantedDate,
     DateOnly? ExpectedHarvestDate, string HarvestUnit,
     short? WateringIntervalDays, DateTime? CompletedAtUtc,
-    string? TerminationReason, string RowVersion);
+    string? TerminationReason, string RowVersion)
+{
+    public string StatusName => FarmCodeLabels.CropStatus(Status);
+}
 

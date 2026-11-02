@@ -17,6 +17,9 @@ import com.smartfarm.mobile.navigation.SmartFarmNavHost
 import com.smartfarm.mobile.ui.theme.SmartFarmTheme
 
 class MainActivity : ComponentActivity() {
+    private val tasks: com.smartfarm.mobile.features.tasks.TaskViewModel by viewModels {
+        com.smartfarm.mobile.features.tasks.TaskViewModel.Factory((application as SmartFarmApplication).container.taskRepository)
+    }
     private val authentication: AuthViewModel by viewModels {
         AuthViewModel.Factory((application as SmartFarmApplication).container.authRepository)
     }
@@ -57,7 +60,7 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
-        setContent { SmartFarmTheme { SmartFarmNavHost(authentication, farms, crops, monitoring, inventory, harvests, status, syncStatus) } }
+        setContent { SmartFarmTheme { SmartFarmNavHost(authentication, farms, crops, monitoring, inventory, harvests, status, syncStatus, tasks) } }
     }
 }
 

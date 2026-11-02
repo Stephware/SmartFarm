@@ -1,5 +1,6 @@
 using Hangfire;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using SmartFarm.Worker.Jobs;
 
@@ -12,13 +13,19 @@ public sealed class WorkerJobScheduler : IHostedService
     public const string WeatherJobId = "smartfarm-weather-check";
 
     private readonly IRecurringJobManager _recurringJobs;
+    private readonly IBackgroundJobClient _jobs;
+    private readonly bool _runJobsOnStartup;
     private readonly ILogger<WorkerJobScheduler> _logger;
 
     public WorkerJobScheduler(
         IRecurringJobManager recurringJobs,
+        IBackgroundJobClient jobs,
+        IConfiguration configuration,
         ILogger<WorkerJobScheduler> logger)
     {
         _recurringJobs = recurringJobs;
+        _jobs = jobs;
+        _runJobsOnStartup = configuration.GetValue<bool>("Hangfire:RunJobsOnStartup");
         _logger = logger;
     }
 
@@ -44,7 +51,21 @@ public sealed class WorkerJobScheduler : IHostedService
             "0 */6 * * *",
             new RecurringJobOptions { TimeZone = TimeZoneInfo.Utc });
 
-        _logger.LogInformation("Scheduled worker, task, and weather checks.");
+        // Enqueue a lightweight check immediately so the server can prove it processes jobs,
+        // without waiting for the first hourly recurring run.
+        _jobs.Enqueue<WorkerHeartbeatJob>(job => job.ExecuteAsync());
+
+        // Use only for initial/local verification: real farm jobs are normally cron-driven.
+        if (_runJobsOnStartup)
+        {
+            _jobs.Enqueue<TaskReminderJob>(job => job.ExecuteAsync());
+            _jobs.Enqueue<WeatherCheckJob>(job => job.ExecuteAsync());
+        }
+
+        _logger.LogInformation(
+            "Scheduled heartbeat (hourly), tasks/reminders (hourly) and weather (every 6 hours). " +
+            "Startup heartbeat queued. Immediate farm-job checks: {RunJobsOnStartup}.",
+            _runJobsOnStartup);
         return Task.CompletedTask;
     }
 

@@ -1,18 +1,20 @@
+@using SmartFarm.Core.Enums
 @model SmartFarm.Core.Contracts.Weather.WeatherOverview
 @{
     ViewData["Title"] = "Farm weather";
 }
+<partial name="_FarmNavigation" model="Model.FarmId" />
 <section class="panel">
     <p><a asp-controller="Farms" asp-action="Details" asp-route-id="@Model.FarmId">← Back to farm</a></p>
     <h1>Farm weather</h1>
-    <p>Forecast dates use @Model.TimeZoneId. Information is saved by the weather worker, not updated live on this page.</p>
+    <p>Forecast dates use @Model.TimeZoneId. This page shows the latest saved forecast.</p>
     @if (!Model.HasCoordinates)
     {
         <p class="hint">Weather is not enabled for this farm. An owner or manager must add its latitude and longitude in Edit farm.</p>
     }
     else if (Model.Days.Count == 0)
     {
-        <p>No recent forecast has been saved. Check that the Hangfire worker and weather provider are enabled.</p>
+        <p>No recent forecast is available. Try again later, or ask your farm manager to check the weather settings.</p>
     }
     else
     {
@@ -40,7 +42,7 @@
         <ul class="farm-list">
         @foreach (var advisory in Model.Advisories.Where(a => a.Status == 0))
         {
-            <li><strong>@advisory.Date.ToString("yyyy-MM-dd") — severity @advisory.Severity</strong>
+            <li><strong>@advisory.Date.ToString("yyyy-MM-dd") — @advisory.SeverityName @advisory.TypeName advisory</strong>
                 <p>@advisory.Message</p>
             </li>
         }

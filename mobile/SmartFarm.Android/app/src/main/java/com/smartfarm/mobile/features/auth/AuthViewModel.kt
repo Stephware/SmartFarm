@@ -5,6 +5,7 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import com.smartfarm.mobile.data.remote.dto.AccountResponse
 import com.smartfarm.mobile.data.repository.AuthRepository
+import retrofit2.HttpException
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
@@ -28,22 +29,25 @@ class AuthViewModel(private val repository: AuthRepository) : ViewModel() {
                 val user = repository.login(email, password)
                 mutableState.value = AuthUiState(account = user)
                 onSuccess()
-            } catch (_: Exception) {
-                mutableState.value = AuthUiState(error = "Sign in failed. Check your credentials and connection.")
+            } catch (error: Exception) {
+                mutableState.value = AuthUiState(error = if ((error as? HttpException)?.code() == 429)
+                    "Too many requests. Please wait and try again." else "Sign in failed. Check your credentials and connection.")
             }
         }
     }
 
-    fun register(fullName: String, email: String, password: String, confirmation: String, onSuccess: () -> Unit) {
+    fun register(fullName: String, email: String, password: String, onSuccess: () -> Unit) {
         if (mutableState.value.busy) return
         mutableState.value = AuthUiState(busy = true)
         viewModelScope.launch {
             try {
-                repository.register(fullName, email, password, confirmation)
+                repository.register(fullName, email, password)
                 mutableState.value = AuthUiState(notice = "Account created. You can now sign in.")
                 onSuccess()
-            } catch (_: Exception) {
-                mutableState.value = AuthUiState(error = "Registration failed. Check your details and connection.")
+            } catch (error: Exception) {
+                mutableState.value = AuthUiState(error = if ((error as? HttpException)?.code() == 429)
+                    "Too many requests. Please wait and try again." else
+                    "Registration failed. Check your details and connection.")
             }
         }
     }

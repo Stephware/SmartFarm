@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using SmartFarm.Core.Contracts.Farms;
 using SmartFarm.Core.Contracts.Inventory;
+using SmartFarm.Core.Enums;
 using SmartFarm.Core.Interfaces.Farms;
 using SmartFarm.Core.Interfaces.Inventory;
 using SmartFarm.Infrastructure.Identity;
@@ -124,6 +125,8 @@ public sealed class InventoryController : Controller
             TempData["Error"] = "Enter a valid quantity, type and row version.";
             return RedirectToAction(nameof(Details), new { farmId, itemId });
         }
+        if (input.TransactionType == StockTransactionType.Consumption && input.QuantityChange > 0)
+            input.QuantityChange = -input.QuantityChange;
         try { await _inventory.PostAsync(farmId, itemId, Actor, input, ct); }
         catch (FarmOperationException e)
         {

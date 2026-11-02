@@ -2,7 +2,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace SmartFarm.Web.ViewModels.Auth;
 
-public sealed class RegisterInput
+public sealed class RegisterInput : IValidatableObject
 {
     [Required, StringLength(120, MinimumLength = 2)]
     public string FullName { get; set; } = string.Empty;
@@ -13,7 +13,12 @@ public sealed class RegisterInput
     [Required, StringLength(128, MinimumLength = 10), DataType(DataType.Password)]
     public string Password { get; set; } = string.Empty;
 
-    [Required, Compare(nameof(Password)), DataType(DataType.Password)]
-    public string ConfirmPassword { get; set; } = string.Empty;
-}
+    [StringLength(128), DataType(DataType.Password)]
+    public string? ConfirmPassword { get; set; }
 
+    public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
+    {
+        if (ConfirmPassword is not null && ConfirmPassword != Password)
+            yield return new ValidationResult("The passwords do not match.", [nameof(ConfirmPassword)]);
+    }
+}

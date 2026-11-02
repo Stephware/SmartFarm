@@ -11,7 +11,7 @@ internal sealed class NotificationConfiguration : IEntityTypeConfiguration<Notif
     {
         builder.ToTable("Notification", "dbo", table =>
         {
-            table.HasCheckConstraint("CK_Notification_Type", "Type IN (1,2,3)");
+            table.HasCheckConstraint("CK_Notification_Type", "Type IN (1,2,3,4)");
         });
         builder.Property(entity => entity.Id).HasColumnType("uniqueidentifier").ValueGeneratedNever();
         builder.Property(entity => entity.UserId).HasColumnType("uniqueidentifier");

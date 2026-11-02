@@ -9,6 +9,8 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.AlertDialog
+import androidx.compose.foundation.lazy.items
+import com.smartfarm.mobile.ui.components.RecordPage
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.HorizontalDivider
@@ -18,6 +20,11 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.heading
+import androidx.compose.ui.semantics.liveRegion
+import androidx.compose.ui.semantics.LiveRegionMode
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -26,6 +33,8 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
+import com.smartfarm.mobile.data.local.entity.PendingOperation
+import com.smartfarm.mobile.ui.components.PendingRecords
 import com.smartfarm.mobile.ui.components.OfflineDataNotice
 
 @Composable
@@ -33,30 +42,40 @@ fun HarvestScreen(
     state: HarvestUiState,
     onBack: () -> Unit,
     onRecord: (String, String) -> Unit,
-    onVoid: (String, String) -> Unit
+    onVoid: (String, String) -> Unit,
+    pending: List<PendingOperation> = emptyList(),
+    onSync: () -> Unit = {},
+    onRetry: () -> Unit = {}
 ) {
-    var quantity by rememberSaveable { mutableStateOf("") }
-    var notes by rememberSaveable { mutableStateOf("") }
-    var confirmVoidId by rememberSaveable { mutableStateOf<String?>(null) }
-    var voidReason by rememberSaveable { mutableStateOf("") }
+    var quantity by rememberSaveable(state.farmId, state.cycleId) { mutableStateOf("") }
+    var notes by rememberSaveable(state.farmId, state.cycleId) { mutableStateOf("") }
+    var confirmVoidId by rememberSaveable(state.farmId, state.cycleId) { mutableStateOf<String?>(null) }
+    var voidReason by rememberSaveable(state.farmId, state.cycleId) { mutableStateOf("") }
+    val receipt = state.saveReceipts["${state.farmId}/${state.cycleId}"]
+    var handled by rememberSaveable(state.farmId, state.cycleId) { mutableStateOf(receipt) }
+    LaunchedEffect(receipt) {
+        if (receipt != null && receipt != handled) {
+            quantity = ""; notes = ""; handled = receipt
+        }
+    }
     val overview = state.overview
 
-    Scaffold { padding ->
-        Column(
-            Modifier.fillMaxSize().padding(padding)
-                .verticalScroll(rememberScrollState()).padding(20.dp),
-            verticalArrangement = Arrangement.spacedBy(12.dp)
-        ) {
+    RecordPage {
+        item(key = "form") {
+            Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
             OutlinedButton(onClick = onBack) { Text("Back to crop cycles") }
-            Text("Harvest management", style = MaterialTheme.typography.headlineMedium)
+            Text("Harvest management", style = MaterialTheme.typography.headlineMedium, modifier = Modifier.semantics { heading() })
             if (state.busy) CircularProgressIndicator()
-            state.error?.let { Text(it, color = MaterialTheme.colorScheme.error) }
-            state.notice?.let { Text(it, color = MaterialTheme.colorScheme.primary) }
+            state.error?.let {
+                Text(it, color = MaterialTheme.colorScheme.error, modifier = Modifier.semantics { liveRegion = LiveRegionMode.Assertive })
+                OutlinedButton(onClick = onRetry, enabled = !state.busy) { Text("Try again") }
+            }
+            state.notice?.let { Text(it, color = MaterialTheme.colorScheme.primary, modifier = Modifier.semantics { liveRegion = LiveRegionMode.Polite }) }
             OfflineDataNotice(state.offline, state.cachedAtUtcMillis)
 
             if (overview != null) {
                 Text("${overview.cropName} · ${overview.plotName}",
-                    style = MaterialTheme.typography.titleLarge)
+                    style = MaterialTheme.typography.titleLarge, modifier = Modifier.semantics { heading() })
                 Text("Total yield: ${overview.totalQuantity.toPlainString()} ${overview.unit}",
                     style = MaterialTheme.typography.titleMedium)
                 Text("${overview.validHarvestCount} valid · ${overview.voidedHarvestCount} voided")
@@ -65,10 +84,10 @@ fun HarvestScreen(
                 if (overview.canRecord) {
                     HorizontalDivider()
                     Text("Record partial harvest", style = MaterialTheme.typography.titleMedium)
-                    OutlinedTextField(quantity, { quantity = it }, label = { Text("Quantity (${overview.unit})") },
+                    OutlinedTextField(quantity, { quantity = it }, enabled = !state.busy, label = { Text("Quantity (${overview.unit})") },
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
                         modifier = Modifier.fillMaxWidth())
-                    OutlinedTextField(notes, { notes = it }, label = { Text("Notes (optional)") },
+                    OutlinedTextField(notes, { notes = it }, enabled = !state.busy, label = { Text("Notes (optional)") },
                         modifier = Modifier.fillMaxWidth())
                     Button(onClick = { onRecord(quantity, notes) },
                         enabled = !state.busy && quantity.isNotBlank()) { Text("Record harvest") }
@@ -77,9 +96,15 @@ fun HarvestScreen(
                 }
 
                 HorizontalDivider()
-                Text("Harvest history", style = MaterialTheme.typography.titleLarge)
+                Text("Harvest history", style = MaterialTheme.typography.titleLarge, modifier = Modifier.semantics { heading() })
+                PendingRecords(pending, state.farmId, state.cycleId,
+                    setOf("harvest"), onSync)
                 if (overview.entries.isEmpty()) Text("No harvests recorded yet.")
-                overview.entries.forEach { entry ->
+            }
+            }
+        }
+        items(overview?.entries.orEmpty(), key = { "harvest-${it.id}" }) { entry ->
+            Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
                     Text("${entry.quantity.toPlainString()} ${entry.unit}" +
                         if (entry.isVoided) " · Voided" else "",
                         style = MaterialTheme.typography.titleMedium)
@@ -87,14 +112,14 @@ fun HarvestScreen(
                     entry.notes?.let { Text(it) }
                     if (entry.isVoided) {
                         Text("Voided: ${entry.voidReason.orEmpty()}")
-                    } else if (overview.canVoid && !state.offline) {
+                    } else if (overview?.canVoid == true && !state.offline) {
                         OutlinedButton(onClick = {
                             voidReason = ""
                             confirmVoidId = entry.id
                         }, enabled = !state.busy) { Text("Void entry") }
                     }
                     HorizontalDivider()
-                }
+
             }
         }
     }
@@ -106,7 +131,7 @@ fun HarvestScreen(
             text = {
                 Column {
                     Text("The original entry remains in history and is excluded from totals.")
-                    OutlinedTextField(voidReason, { voidReason = it },
+                    OutlinedTextField(voidReason, { voidReason = it }, enabled = !state.busy,
                         label = { Text("Reason (required)") }, modifier = Modifier.fillMaxWidth())
                 }
             },

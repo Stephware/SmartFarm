@@ -61,8 +61,6 @@ public sealed class BusinessEndpointTests : IClassFixture<WebApplicationFactory<
                 { "PUT", $"{plots}/{PlotId}" },
                 { "GET", $"{farm}/access" },
                 { "GET", $"{farm}/members" },
-                { "POST", $"{farm}/members/invitations" },
-                { "POST", "/api/farm-invitations/accept" },
                 { "GET", $"{farm}/crop-types" },
                 { "POST", $"{farm}/crop-types" },
                 { "GET", cropCycles },

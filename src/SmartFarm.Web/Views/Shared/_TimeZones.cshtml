@@ -1,0 +1,6 @@
+<datalist id="time-zones">
+@foreach (var zone in TimeZoneInfo.GetSystemTimeZones())
+{
+    <option value="@zone.Id">@zone.DisplayName</option>
+}
+</datalist>

@@ -9,6 +9,8 @@ using SmartFarm.Infrastructure.Identity;
 using SmartFarm.Api.Models.Auth;
 
 using SmartFarm.Api.Authentication;
+using Microsoft.AspNetCore.RateLimiting;
+using SmartFarm.Infrastructure.Security;
 
 namespace SmartFarm.Api.Controllers;
 
@@ -21,6 +23,7 @@ public sealed class AuthController(
     IOptionsMonitor<BearerTokenOptions> tokenOptions) : ControllerBase
 {
     [AllowAnonymous, HttpPost("register")]
+    [EnableRateLimiting(EnrollmentRateLimiting.Registration)]
     public async Task<IActionResult> Register([FromBody] RegisterInput input)
     {
         var result = await registration.RegisterAsync(input.FullName, input.Email, input.Password);
@@ -31,6 +34,7 @@ public sealed class AuthController(
     }
 
     [AllowAnonymous, HttpPost("login")]
+    [EnableRateLimiting(EnrollmentRateLimiting.Login)]
     public async Task<IActionResult> Login([FromBody] LoginInput input)
     {
         var user = await users.FindByEmailAsync(input.Email.Trim());

@@ -64,6 +64,9 @@ dependencies {
     implementation("androidx.lifecycle:lifecycle-runtime-compose:2.9.4")
     implementation("androidx.room:room-runtime:2.8.5")
     ksp("androidx.room:room-compiler:2.8.5")
+    // Glide loads monitoring photos; ExifInterface preserves rotation during optimization.
+    implementation("com.github.bumptech.glide:glide:5.0.5")
+    implementation("androidx.exifinterface:exifinterface:1.4.1")
     implementation("com.squareup.retrofit2:retrofit:3.0.0")
     implementation("com.squareup.retrofit2:converter-gson:3.0.0")
     implementation("com.squareup.okhttp3:okhttp:4.12.0")

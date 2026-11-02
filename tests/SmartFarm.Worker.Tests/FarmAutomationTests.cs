@@ -64,6 +64,37 @@ public sealed class FarmAutomationTests
     }
 
     [Fact]
+    public void WateringAtDateLimitDoesNotOverflowAfterLastDueDate()
+    {
+        var crop = new CropCycle
+        {
+            Status = 1,
+            PlantedDate = DateOnly.MaxValue.AddDays(-1),
+            WateringIntervalDays = 1
+        };
+
+        var tasks = TaskRules.ScheduledTasks(crop, DateOnly.MaxValue, DateOnly.MaxValue).ToList();
+
+        Assert.Equal(((byte)2, DateOnly.MaxValue), Assert.Single(tasks));
+    }
+
+    [Theory]
+    [InlineData(1)]
+    [InlineData(32767)]
+    public void FuturePlantingAtDateLimitHasNoWateringInCurrentMonth(short interval)
+    {
+        var crop = new CropCycle
+        {
+            Status = 1,
+            PlantedDate = DateOnly.MaxValue,
+            WateringIntervalDays = interval
+        };
+
+        Assert.Empty(TaskRules.ScheduledTasks(crop,
+            new DateOnly(2026, 10, 1), new DateOnly(2026, 10, 31)));
+    }
+
+    [Fact]
     public void PlannedCropsOnlyGeneratePlantingTasks()
     {
         var day = new DateOnly(2026, 10, 20);

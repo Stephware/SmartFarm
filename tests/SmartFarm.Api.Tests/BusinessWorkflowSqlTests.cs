@@ -6,6 +6,11 @@ using System.Text.Json;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Data.SqlClient;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
+using SmartFarm.Infrastructure.Persistence;
 using SmartFarm.Core.Contracts.Crops;
 using SmartFarm.Core.Contracts.Farms;
 using SmartFarm.Core.Contracts.Harvests;
@@ -29,12 +34,24 @@ public sealed class BusinessWorkflowSqlTests
         if (string.IsNullOrWhiteSpace(connection))
             return; // Offline test runs do not require a SQL Server instance.
 
+        var database = new SqlConnectionStringBuilder(connection).InitialCatalog;
+        Assert.True(database.StartsWith("SmartFarmEnrollmentTest_", StringComparison.Ordinal) || database.StartsWith("SmartFarmEnrollmentBackend_", StringComparison.Ordinal), "SQL workflow tests require a separately initialized disposable enrollment database.");
         using var factory = new WebApplicationFactory<Program>().WithWebHostBuilder(builder =>
+        {
             builder.ConfigureAppConfiguration((_, config) =>
                 config.AddInMemoryCollection(new Dictionary<string, string?>
                 {
                     ["ConnectionStrings:SmartFarm"] = connection
-                })));
+                }));
+            builder.ConfigureServices(services =>
+            {
+                services.RemoveAll<SmartFarmDbContext>();
+                services.RemoveAll<DbContextOptions<SmartFarmDbContext>>();
+                services.AddDbContext<SmartFarmDbContext>(options => options.UseSqlServer(connection));
+            });
+        });
+        await using (var scope = factory.Services.CreateAsyncScope())
+            Assert.Equal(database, scope.ServiceProvider.GetRequiredService<SmartFarmDbContext>().Database.GetDbConnection().Database);
         using var client = factory.CreateClient();
         var suffix = Guid.NewGuid().ToString("N")[..10];
         var password = "SmartFarmTest2026!";

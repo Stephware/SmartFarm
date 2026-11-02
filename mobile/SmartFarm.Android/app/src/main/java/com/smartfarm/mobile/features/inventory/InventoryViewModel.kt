@@ -11,12 +11,21 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import java.math.BigDecimal
 
+internal fun inventoryMovementQuantity(type: Int, text: String): BigDecimal {
+    val value = text.toBigDecimalOrNull()
+    require(type in 2..4 && value != null && value.signum() != 0 &&
+        value.stripTrailingZeros().scale() <= 3 && value.abs() <= BigDecimal("999999999999999.999") &&
+        (type == 4 || value.signum() > 0)) { "Enter a positive quantity with up to 3 decimals; adjustments may be negative." }
+    return if (type == 3) value.negate() else value
+}
+
 data class InventoryUiState(
     val farmId: String = "",
     val itemId: String = "",
     val busy: Boolean = false,
     val error: String? = null,
     val notice: String? = null,
+    val saveReceipts: Map<String, String> = emptyMap(),
     val workspace: InventoryWorkspaceDto = InventoryWorkspaceDto(emptyList(), 0),
     val item: InventoryItemDto? = null,
     val transactions: List<InventoryTransactionDto> = emptyList(),
@@ -33,7 +42,7 @@ class InventoryViewModel(private val repo: InventoryRepository,
     fun clear() { mutable.value = InventoryUiState() }
 
     fun load(farmId: String) {
-        mutable.value = InventoryUiState(farmId = farmId, busy = true)
+        mutable.value = InventoryUiState(farmId = farmId, busy = true, saveReceipts = mutable.value.saveReceipts)
         viewModelScope.launch {
             try {
                 val snapshot = repo.listSnapshot(farmId)
@@ -47,7 +56,9 @@ class InventoryViewModel(private val repo: InventoryRepository,
     }
 
     fun loadItem(farmId: String, itemId: String) {
-        mutable.value = InventoryUiState(farmId = farmId, itemId = itemId, busy = true)
+        mutable.value = if (mutable.value.farmId == farmId && mutable.value.itemId == itemId)
+            mutable.value.copy(busy = true, error = null) else
+            InventoryUiState(farmId = farmId, itemId = itemId, busy = true, saveReceipts = mutable.value.saveReceipts)
         viewModelScope.launch {
             try {
                 val item = repo.itemSnapshot(farmId, itemId)
@@ -115,11 +126,15 @@ class InventoryViewModel(private val repo: InventoryRepository,
         mutable.value = snapshot.copy(busy = true, error = null, notice = null)
         viewModelScope.launch {
             try {
-                sync.queueInventory(snapshot.farmId, snapshot.itemId, InventoryMovementDto(
-                    type, BigDecimal(quantity), activity, reason.trim().ifBlank { null },
+                val id = sync.queueInventory(snapshot.farmId, snapshot.itemId, InventoryMovementDto(
+                    type, inventoryMovementQuantity(type, quantity), activity, reason.trim().ifBlank { null },
                     current.rowVersion))
+                mutable.value = mutable.value.copy(saveReceipts = mutable.value.saveReceipts +
+                    ("${snapshot.farmId}/${snapshot.itemId}" to id))
                 mutable.value = mutable.value.copy(notice =
                     "Stock change queued. Do not record it again; check offline sync status.")
+            } catch (invalid: IllegalArgumentException) {
+                mutable.value = mutable.value.copy(error = invalid.message)
             } catch (_: Exception) {
                 mutable.value = mutable.value.copy(error = "Could not save the change on this device.")
             } finally {

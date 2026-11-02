@@ -5,8 +5,7 @@ data class LoginRequest(val email: String, val password: String)
 data class RegisterRequest(
     val fullName: String,
     val email: String,
-    val password: String,
-    val confirmPassword: String
+    val password: String
 )
 
 data class RefreshRequest(val refreshToken: String)

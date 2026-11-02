@@ -1,4 +1,7 @@
 using System.ComponentModel.DataAnnotations;
+using System.Text.Json.Serialization;
+using SmartFarm.Core.Contracts;
+using SmartFarm.Core.Enums;
 
 namespace SmartFarm.Core.Contracts.Monitoring;
 
@@ -7,6 +10,7 @@ namespace SmartFarm.Core.Contracts.Monitoring;
 public sealed class RecordActivityInput
 {
     [Range(1, 5)]
+    [JsonConverter(typeof(ActivityTypeJsonConverter))]
     public byte ActivityType { get; set; }
 
     [StringLength(1000)]
@@ -19,6 +23,7 @@ public sealed class RecordActivityInput
 public sealed class RecordObservationInput
 {
     [Range(0, 3)]
+    [JsonConverter(typeof(HealthStatusJsonConverter))]
     public byte HealthStatus { get; set; }
 
     [StringLength(40)]
@@ -31,13 +36,19 @@ public sealed class RecordObservationInput
 public sealed record ActivityDetails(
     Guid Id, byte ActivityType, DateTime OccurredAtUtc,
     DateTime RecordedAtUtc, Guid RecordedByUserId, string? Notes,
-    Guid? FarmTaskId = null);
+    Guid? FarmTaskId = null)
+{
+    public string ActivityTypeName => FarmCodeLabels.Activity(ActivityType);
+}
 
 public sealed record ObservationDetails(
     Guid Id, byte HealthStatus, string? GrowthStage,
     DateTime ObservedAtUtc, DateTime RecordedAtUtc,
     Guid RecordedByUserId, string? Notes,
-    IReadOnlyList<PhotoDetails> Photos);
+    IReadOnlyList<PhotoDetails> Photos)
+{
+    public string HealthStatusName => FarmCodeLabels.Health(HealthStatus);
+}
 
 public sealed record PhotoDetails(
     Guid Id, Guid ObservationId, string ContentType,

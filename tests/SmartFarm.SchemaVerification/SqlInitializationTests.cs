@@ -10,6 +10,39 @@ public sealed class SqlInitializationTests
         File.ReadAllText(Path.Combine(AppContext.BaseDirectory, "Database", filename));
 
     [Fact]
+    public void WorkflowUpgradeOnlyExpandsExistingChecksAndCanBeRerun()
+    {
+        var script = ReadSql("05_FarmEnrollmentWorkflow.sql");
+        Assert.Contains("BEGIN TRANSACTION", script);
+        Assert.Contains("ROLLBACK TRANSACTION", script);
+        Assert.Contains("WITH CHECK ADD CONSTRAINT CK_FarmJoinRequest_Status", script);
+        Assert.Contains("N'Canceled'", script);
+        Assert.Contains("ReviewedByUserId = UserId", script);
+        Assert.Contains("Type IN (1,2,3,4)", script);
+        Assert.DoesNotContain("DROP TABLE", script);
+        Assert.DoesNotContain("DELETE FROM", script);
+        Assert.DoesNotContain("ALTER COLUMN", script);
+    }
+
+    [Fact]
+    public void EnrollmentUpgradeBackfillsWithoutRemovingExistingRecords()
+    {
+        var script = ReadSql("04_FarmerRegistrationApproval.sql");
+        Assert.Contains("IF DB_NAME() <> N'SmartFarmDB'", script);
+        Assert.Contains("IF COL_LENGTH(N'dbo.Farm', N'JoinCode') IS NULL", script);
+        Assert.Contains("CRYPT_GEN_RANDOM(6)", script);
+        Assert.Contains("TABLOCKX, HOLDLOCK", script);
+        Assert.Contains("WHERE JoinCode IS NULL", script);
+        Assert.Contains("IF OBJECT_ID(N'dbo.FarmJoinRequest', N'U') IS NULL", script);
+        Assert.Contains("CK_FarmJoinRequest_Review", script);
+        Assert.Contains("WHERE Status = N'Pending'", script);
+        Assert.Contains("ROLLBACK TRANSACTION", script);
+        Assert.DoesNotMatch(@"(?mi)^\s*(DROP|TRUNCATE|DELETE|MERGE)\b", script);
+        Assert.DoesNotContain("INSERT INTO dbo.AspNetUsers", script);
+        Assert.DoesNotContain("INSERT INTO dbo.FarmMember", script);
+    }
+
+    [Fact]
     public void FreshSchemaUsesRequiredSqlServerIndexSettings()
     {
         var script = ReadSql("02_CreateSchema.sql");
@@ -49,9 +82,9 @@ public sealed class SqlInitializationTests
         Assert.Contains("BEGIN CATCH", schema);
         Assert.Contains("ROLLBACK TRANSACTION", schema);
 
-        Assert.Equal(23, Regex.Matches(schema, @"\bCREATE TABLE dbo\.",
+        Assert.Equal(24, Regex.Matches(schema, @"\bCREATE TABLE dbo\.",
             RegexOptions.IgnoreCase).Count);
-        Assert.Equal(45, Regex.Matches(schema, @"\bCREATE (?:UNIQUE )?INDEX\b",
+        Assert.Equal(48, Regex.Matches(schema, @"\bCREATE (?:UNIQUE )?INDEX\b",
             RegexOptions.IgnoreCase).Count);
     }
 
@@ -61,10 +94,10 @@ public sealed class SqlInitializationTests
         var script = ReadSql("03_VerifySchema.sql");
 
         Assert.Contains("IF DB_NAME() <> N'SmartFarmDB'", script);
-        Assert.Contains("Expected 23 SmartFarm and Identity tables.", script);
-        Assert.Contains("Expected 45 application indexes.", script);
-        Assert.Contains("Expected 39 foreign keys.", script);
-        Assert.Contains("Expected 36 check constraints.", script);
+        Assert.Contains("Expected 24 SmartFarm and Identity tables.", script);
+        Assert.Contains("Expected 48 application indexes.", script);
+        Assert.Contains("Expected 42 foreign keys.", script);
+        Assert.Contains("Expected 38 check constraints.", script);
         Assert.Contains("Expected five SQL rowversion columns.", script);
         Assert.Contains("UX_FarmTask_Dedupe", script);
         Assert.Contains("UX_Notification_User_Dedupe", script);
@@ -73,6 +106,7 @@ public sealed class SqlInitializationTests
         Assert.Contains("fk.is_not_trusted = 1", script);
         Assert.Contains("ck.is_not_trusted = 1", script);
         Assert.Contains("i.is_disabled = 1", script);
+        Assert.Contains("OBJECT_SCHEMA_NAME(fk.parent_object_id) = N'dbo'", script);
         Assert.False(Regex.IsMatch(script,
             @"(?mi)^\s*(CREATE|ALTER|DROP|TRUNCATE|INSERT|UPDATE|DELETE|MERGE|EXEC)\b"),
             "Schema verification must be read-only.");

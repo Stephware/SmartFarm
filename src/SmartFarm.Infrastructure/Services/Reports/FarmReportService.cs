@@ -105,18 +105,70 @@ public sealed class FarmReportService(SmartFarmDbContext db, IFarmAccessService 
         var lowStock = await db.InventoryItems.AsNoTracking().CountAsync(
             item => item.FarmId == farmId && item.ArchivedAtUtc == null &&
                 item.ReorderLevel != null && item.QuantityOnHand <= item.ReorderLevel, ct);
+        // Count only currently concerning active crops, not older observations
+        // that may have been followed by a healthy inspection.
         var concerning = await (
             from obs in db.CropObservations.AsNoTracking()
             join cycle in db.CropCycles.AsNoTracking() on obs.CropCycleId equals cycle.Id
             join plot in db.Plots.AsNoTracking() on cycle.PlotId equals plot.Id
-            where plot.FarmId == farmId && cycle.Status == 1 && obs.HealthStatus >= 2
-            select obs.Id).CountAsync(ct);
+            where plot.FarmId == farmId && plot.ArchivedAtUtc == null &&
+                cycle.Status == (byte)CropCycleStatus.Active && obs.HealthStatus >= 2 &&
+                !db.CropObservations.AsNoTracking().Any(newer =>
+                    newer.CropCycleId == cycle.Id && newer.ObservedAtUtc > obs.ObservedAtUtc)
+            select cycle.Id).Distinct().CountAsync(ct);
+        // Focused drill-downs: fetch a bounded set in each category to avoid
+        // expensive N+1 lookups and keep every item scoped to the current farm.
+        var late = await db.FarmTasks.AsNoTracking()
+            .Where(t => t.FarmId == farmId && t.Status == 0 && t.DueDate < today)
+            .OrderBy(t => t.DueDate).ThenBy(t => t.Id)
+            .Select(t => new { t.Id, t.TaskType, t.DueDate, t.Description })
+            .Take(4).ToListAsync(ct);
+
+        var shortages = await db.InventoryItems.AsNoTracking()
+            .Where(i => i.FarmId == farmId && i.ArchivedAtUtc == null &&
+                i.ReorderLevel != null && i.QuantityOnHand <= i.ReorderLevel)
+            .OrderBy(i => i.QuantityOnHand).ThenBy(i => i.Name)
+            .Select(i => new { i.Id, i.Name, i.QuantityOnHand, i.ReorderLevel, i.Unit })
+            .Take(4).ToListAsync(ct);
+
+        var inspections = await (
+            from observation in db.CropObservations.AsNoTracking()
+            join cycle in db.CropCycles.AsNoTracking()
+                on observation.CropCycleId equals cycle.Id
+            join plot in db.Plots.AsNoTracking() on cycle.PlotId equals plot.Id
+            join type in db.CropTypes.AsNoTracking() on cycle.CropTypeId equals type.Id
+            where plot.FarmId == farmId && plot.ArchivedAtUtc == null &&
+                cycle.Status == (byte)CropCycleStatus.Active && observation.HealthStatus >= 2 &&
+                !db.CropObservations.AsNoTracking().Any(newer =>
+                    newer.CropCycleId == cycle.Id &&
+                    newer.ObservedAtUtc > observation.ObservedAtUtc)
+            orderby observation.ObservedAtUtc descending
+            select new { CycleId = cycle.Id, PlotName = plot.Name,
+                CropName = type.Name, observation.HealthStatus, observation.ObservedAtUtc })
+            .Take(30).ToListAsync(ct);
+
+        var attention = new List<DashboardAttentionItem>();
+        attention.AddRange(late.Select(t => new DashboardAttentionItem("task", t.Id,
+            FarmCodeLabels.Task(t.TaskType) + " overdue",
+            t.Description ?? "Scheduled farm task needs attention.", t.DueDate)));
+        attention.AddRange(shortages.Select(i => new DashboardAttentionItem("inventory", i.Id,
+            i.Name + " · Low stock",
+            $"{i.QuantityOnHand:N3} {i.Unit} remaining; threshold {i.ReorderLevel:N3} {i.Unit}.")));
+        attention.AddRange(inspections.GroupBy(i => i.CycleId)
+            .Select(g => g.First()).Take(4)
+            .Select(i => new DashboardAttentionItem("inspection", i.CycleId,
+                i.CropName + " · " + i.PlotName,
+                FarmCodeLabels.Health(i.HealthStatus) + " at the latest crop inspection.")));
+
         var recent = await HarvestsAsync(farmId, actor, today.AddDays(-29), today, ct: ct);
         return new FarmDashboard(
             farmId, farm.Name, today, activePlots,
             cropStatuses.Count(s => s == 0), cropStatuses.Count(s => s == 1),
             cropStatuses.Count(s => s == 2),
             openTasks, overdueTasks, lowStock, concerning,
-            recent.UnitTotals, recent.Entries.Where(e => !e.IsVoided).Take(5).ToList());
+            recent.UnitTotals, recent.Entries.Where(e => !e.IsVoided).Take(5).ToList())
+        {
+            AttentionItems = attention
+        };
     }
 }

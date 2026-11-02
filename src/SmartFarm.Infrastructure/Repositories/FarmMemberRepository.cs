@@ -20,10 +20,11 @@ public Task<FarmMember?> GetActiveAsync(Guid farmId, Guid userId, CancellationTo
     public async Task<IReadOnlyList<SmartFarm.Core.Contracts.Farms.FarmMemberDetails>> ListDetailsAsync(Guid farmId,
         CancellationToken ct = default) =>
         await db.FarmMembers.AsNoTracking().Where(m => m.FarmId == farmId && m.RemovedAtUtc == null)
-            .Join(db.Users, m => m.UserId, u => u.Id, (m, u) =>
-                new SmartFarm.Core.Contracts.Farms.FarmMemberDetails(m.Id, m.UserId, u.FullName, u.Email ?? "",
-                    m.Role == 1 ? "Manager" : "FieldWorker"))
-            .OrderBy(m => m.FullName).ToListAsync(ct);
+            .Join(db.Users, m => m.UserId, u => u.Id, (m, u) => new { Member = m, User = u })
+            .OrderBy(row => row.User.FullName)
+            .Select(row => new SmartFarm.Core.Contracts.Farms.FarmMemberDetails(
+                row.Member.Id, row.Member.UserId, row.User.FullName, row.User.Email ?? "",
+                row.Member.Role == 1 ? "Manager" : "FieldWorker")).ToListAsync(ct);
 
     public async Task<IReadOnlyList<FarmMember>> ListForUserAsync(Guid farmId, Guid userId,
         CancellationToken ct = default) =>

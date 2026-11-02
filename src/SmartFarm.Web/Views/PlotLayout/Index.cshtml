@@ -1,0 +1,32 @@
+@model SmartFarm.Web.ViewModels.Farms.PlotLayoutPage
+@{
+    ViewData["Title"] = "Plot layout";
+}
+<partial name="_FarmNavigation" model="Model.Farm.Id" />
+<section class="panel">
+    <p><a asp-controller="Farms" asp-action="Details" asp-route-id="@Model.Farm.Id">← @Model.Farm.Name</a></p>
+    <h1>Visual plot layout</h1>
+    <p class="hint">Schematic overview only. Tiles are arranged automatically and do not show real-world positions, boundaries, or distances.</p>
+    @if (Model.Tiles.Count == 0)
+    {
+        <p>No active plots. Add a plot from the farm overview.</p>
+    }
+    else
+    {
+        <div class="plot-layout-grid" role="list" aria-label="Farm plot overview">
+        @foreach (var plot in Model.Tiles)
+        {
+            <a role="listitem" class="plot-layout-tile"
+               asp-controller="Crops" asp-action="Index" asp-route-farmId="@Model.Farm.Id"
+               aria-label="@plot.Name, @plot.AreaSqMeters square meters, @(plot.CropName ?? "No current crop")">
+                <strong>@plot.Name</strong>
+                <span>@plot.AreaSqMeters.ToString("N2") m²</span>
+                @if (plot.CropName is not null)
+                { <span>@plot.CropName · @plot.CropStatus</span> }
+                else { <span>No active or planned crop</span> }
+            </a>
+        }
+        </div>
+    }
+    <p><a asp-controller="Crops" asp-action="Index" asp-route-farmId="@Model.Farm.Id">Open crop records and planting plans →</a></p>
+</section>

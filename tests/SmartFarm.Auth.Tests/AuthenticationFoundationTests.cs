@@ -34,5 +34,19 @@ public sealed class AuthenticationFoundationTests
             invalid, new ValidationContext(invalid), errors, validateAllProperties: true));
         Assert.NotEmpty(errors);
     }
+    [Theory]
+    [InlineData(null, true)]
+    [InlineData("StrongPassword123", true)]
+    [InlineData("different", false)]
+    public void RegistrationAcceptsThreeFieldsAndChecksOptionalConfirmation(string? confirmation, bool valid)
+    {
+        var input = new RegisterInput
+        {
+            FullName = "Test Farmer", Email = "farmer@example.test", Password = "StrongPassword123",
+            ConfirmPassword = confirmation
+        };
+        Assert.Equal(valid, Validator.TryValidateObject(input, new ValidationContext(input), [], true));
+    }
+
 }
 

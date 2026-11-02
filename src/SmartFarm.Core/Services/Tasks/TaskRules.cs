@@ -1,12 +1,14 @@
 using SmartFarm.Core.Contracts.Tasks;
 using SmartFarm.Core.Entities;
+using SmartFarm.Core.Enums;
 
 namespace SmartFarm.Core.Services.Tasks;
 
 public static class TaskRules
 {
-    public static bool IsValidType(byte type) => type is >= 1 and <= 6;
-    public static bool IsValidCloseStatus(byte status) => status is >= 1 and <= 3;
+    public static bool IsValidType(byte type) => Enum.IsDefined((FarmTaskType)type);
+    public static bool IsValidCloseStatus(byte status) =>
+        status >= (byte)FarmTaskStatus.Completed && status <= (byte)FarmTaskStatus.Cancelled;
 
     public static string? Validate(FarmTaskInput input)
     {
@@ -19,12 +21,14 @@ public static class TaskRules
         return null;
     }
 
-    public static byte? ForActivity(byte activityType) => activityType switch
+    public static byte? ForActivity(byte activityType)
     {
-        1 => (byte)2, // Watering
-        2 => (byte)3, // Fertilizing
-        _ => null
-    };
+        if (activityType == (byte)FarmActivityType.Watering)
+            return (byte)FarmTaskType.Watering;
+        if (activityType == (byte)FarmActivityType.Fertilizing)
+            return (byte)FarmTaskType.Fertilizing;
+        return null;
+    }
 
     public static string? ValidateUpdate(FarmTaskUpdateInput input)
     {
@@ -67,9 +71,10 @@ public static class TaskRules
             var interval = crop.WateringIntervalDays.Value;
             var days = today.DayNumber - planted.DayNumber;
             var next = Math.Max(1, (days + interval - 1) / interval);
-            for (var due = planted.AddDays(next * interval); due <= lastDay; due = due.AddDays(interval))
+            for (var dueDay = planted.DayNumber + next * interval;
+                dueDay <= lastDay.DayNumber; dueDay += interval)
             {
-                if (due >= today) yield return (2, due);
+                if (dueDay >= today.DayNumber) yield return (2, DateOnly.FromDayNumber(dueDay));
             }
         }
 

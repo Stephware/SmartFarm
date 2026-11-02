@@ -1,8 +1,7 @@
 package com.smartfarm.mobile.features.monitoring
 
 import android.content.ContentResolver
-import android.graphics.Bitmap
-import android.graphics.BitmapFactory
+import android.util.LruCache
 import android.net.Uri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
@@ -25,10 +24,12 @@ data class MonitoringUiState(
     val busy: Boolean = false,
     val error: String? = null,
     val notice: String? = null,
+    val saveReceipts: Map<String, String> = emptyMap(),
     val canRecord: Boolean = false,
     val activities: List<ActivityDto> = emptyList(),
     val observations: List<ObservationDto> = emptyList(),
-    val preview: Bitmap? = null,
+    val preview: ByteArray? = null,
+    val previewPhotoId: String? = null,
     val offline: Boolean = false,
     val cachedAtUtcMillis: Long? = null
 )
@@ -37,11 +38,19 @@ class MonitoringViewModel(private val repository: MonitoringRepository,
     private val sync: SyncRepository) : ViewModel() {
     private val mutable = MutableStateFlow(MonitoringUiState())
     val state = mutable.asStateFlow()
+    // Bounded in-memory cache for already-authorized private photo responses.
+    // No persistent disk cache; clear it when the user logs out.
+    private val photoCache = object : LruCache<String, ByteArray>(12 * 1024 * 1024) {
+        override fun sizeOf(key: String, value: ByteArray): Int = value.size
+    }
 
-    fun clear() { mutable.value = MonitoringUiState() }
+    fun clear() {
+        photoCache.evictAll()
+        mutable.value = MonitoringUiState()
+    }
 
     fun load(farmId: String, cycleId: String) {
-        mutable.value = MonitoringUiState(farmId = farmId, cycleId = cycleId, busy = true)
+        mutable.value = MonitoringUiState(farmId = farmId, cycleId = cycleId, busy = true, saveReceipts = mutable.value.saveReceipts)
         viewModelScope.launch {
             try { refresh(farmId, cycleId) }
             catch (_: Exception) { mutable.value = mutable.value.copy(error = "Could not load monitoring history.") }
@@ -58,59 +67,63 @@ class MonitoringViewModel(private val repository: MonitoringRepository,
             cachedAtUtcMillis = snapshot.savedAtUtcMillis.takeIf { snapshot.offline })
     }
 
-    private fun submit(queued: Boolean = true, action: suspend (String, String) -> Unit) {
+    private fun submit(form: String, action: suspend (String, String) -> String) {
         val snapshot = mutable.value
         if (snapshot.busy || snapshot.farmId.isBlank() || !snapshot.canRecord) return
         mutable.value = snapshot.copy(busy = true, error = null, notice = null)
         viewModelScope.launch {
             try {
-                action(snapshot.farmId, snapshot.cycleId)
-                if (queued) {
-                    mutable.value = mutable.value.copy(
-                        notice = "Saved on this device. It will sync when online.")
-                } else {
-                    refresh(snapshot.farmId, snapshot.cycleId)
-                }
+                val id = action(snapshot.farmId, snapshot.cycleId)
+                val current = mutable.value
+                mutable.value = current.copy(saveReceipts = current.saveReceipts +
+                    ("${snapshot.farmId}/${snapshot.cycleId}/$form" to id))
+                if (mutable.value.farmId == snapshot.farmId && mutable.value.cycleId == snapshot.cycleId)
+                    mutable.value = mutable.value.copy(notice = "Saved on this device. It will sync when online.")
             } catch (_: Exception) {
-                mutable.value = mutable.value.copy(error = "Save failed. Check the values or device storage.")
-            } finally { mutable.value = mutable.value.copy(busy = false) }
+                if (mutable.value.farmId == snapshot.farmId && mutable.value.cycleId == snapshot.cycleId)
+                    mutable.value = mutable.value.copy(error = "Save failed. Check the values or device storage.")
+            } finally {
+                if (mutable.value.farmId == snapshot.farmId && mutable.value.cycleId == snapshot.cycleId)
+                    mutable.value = mutable.value.copy(busy = false)
+            }
         }
     }
 
-    fun logActivity(kind: Int, notes: String) = submit { farmId, cycleId ->
+    fun logActivity(kind: Int, notes: String) = submit("activity") { farmId, cycleId ->
         sync.queueActivity(farmId, cycleId, ActivityInputDto(kind, notes.trim().ifBlank { null }))
     }
 
     fun observe(health: Int, growth: String, notes: String,
-        uri: Uri?, resolver: ContentResolver) = submit { farmId, cycleId ->
+        uri: Uri?, resolver: ContentResolver) = submit("observation") { farmId, cycleId ->
         val input = ObservationInputDto(health,
             growth.trim().ifBlank { null }, notes.trim().ifBlank { null })
-        if (uri is null) sync.queueObservation(farmId, cycleId, input)
+        if (uri == null) sync.queueObservation(farmId, cycleId, input)
         else sync.queueObservationWithPhoto(farmId, cycleId, input, uri, resolver)
     }
 
     // Attach to an existing observation even without a connection.
     fun uploadPhoto(observationId: String, uri: Uri, resolver: ContentResolver) =
-        submit { farmId, cycleId ->
+        submit("photo") { farmId, cycleId ->
             sync.queuePhoto(farmId, cycleId, observationId, uri, resolver)
         }
 
     fun preview(photoId: String) {
         val snapshot = mutable.value
         if (snapshot.busy || snapshot.farmId.isBlank()) return
-        mutable.value = snapshot.copy(busy = true, error = null)
+        mutable.value = snapshot.copy(busy = true, error = null,
+            preview = null, previewPhotoId = null)
         viewModelScope.launch {
             try {
-                val bitmap = withContext(Dispatchers.IO) {
-                    val data = repository.imageBytes(snapshot.farmId, snapshot.cycleId, photoId)
-                    val options = BitmapFactory.Options().apply { inSampleSize = 4 }
-                    BitmapFactory.decodeByteArray(data, 0, data.size, options)
-                        ?: error("Invalid image")
-                }
-                mutable.value = mutable.value.copy(preview = bitmap)
+                // Authenticated Retrofit download; Glide handles decoding and bitmap cache.
+                val bytes = photoCache.get(photoId) ?: withContext(Dispatchers.IO) {
+                    repository.imageBytes(snapshot.farmId, snapshot.cycleId, photoId)
+                }.also { photoCache.put(photoId, it) }
+                mutable.value = mutable.value.copy(preview = bytes, previewPhotoId = photoId)
             } catch (_: Exception) {
                 mutable.value = mutable.value.copy(error = "Could not open photo.")
-            } finally { mutable.value = mutable.value.copy(busy = false) }
+            } finally {
+                mutable.value = mutable.value.copy(busy = false)
+            }
         }
     }
 

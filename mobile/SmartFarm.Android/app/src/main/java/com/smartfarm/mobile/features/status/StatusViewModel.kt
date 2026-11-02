@@ -27,7 +27,7 @@ class StatusViewModel(private val repository: StatusRepository) : ViewModel() {
                 else
                     StatusUiState(message = "Unexpected backend response")
             } catch (_: Exception) {
-                StatusUiState(message = "Cannot connect. Start SmartFarm.Api on port 5081.")
+                StatusUiState(message = "Cannot connect. Start the AniGo API on port 5081.")
             }
         }
     }

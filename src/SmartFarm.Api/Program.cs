@@ -44,26 +44,16 @@ if (builder.Environment.IsDevelopment() &&
 }
 
 builder.Services.AddControllers();
+builder.Services.AddEnrollmentRateLimiting();
 builder.Services.AddSmartFarmPersistence(builder.Configuration.GetConnectionString("SmartFarm"));
-builder.Services.AddSmartFarmRepositories();
+builder.Services.AddSmartFarmBusinessServices();
 builder.Services.AddSmartFarmWeather(builder.Configuration);
 builder.Services.AddSmartFarmApiIdentity();
 builder.Services.AddScoped<AccountRegistrationService>();
-builder.Services.AddScoped<IFarmAccessService, FarmAccessService>();
-builder.Services.AddScoped<IFarmManagementService, FarmManagementService>();
-builder.Services.AddScoped<ICropManagementService, CropManagementService>();
-builder.Services.AddScoped<IMonitoringService, MonitoringService>();
-builder.Services.AddScoped<IInventoryService, InventoryService>();
-builder.Services.AddScoped<IHarvestService, HarvestService>();
-builder.Services.AddScoped<IFarmReportService, FarmReportService>();
-builder.Services.AddScoped<IFarmTaskService, FarmTaskService>();
-builder.Services.AddSingleton<IObservationPhotoStore>(_ =>
-    new LocalObservationPhotoStore(
-        builder.Configuration["ObservationPhotos:StoragePath"] ??
-        (builder.Environment.IsDevelopment()
-            ? Path.GetFullPath(Path.Combine(builder.Environment.ContentRootPath, "..", "SmartFarm.Web",
-                "App_Data", "observation-photos"))
-            : Path.Combine(builder.Environment.ContentRootPath, "App_Data", "observation-photos"))));
+builder.Services.AddSharedObservationPhotoStore(
+    builder.Configuration, builder.Environment.IsDevelopment(),
+    Path.GetFullPath(Path.Combine(builder.Environment.ContentRootPath, "..",
+        "SmartFarm.Web", "App_Data", "observation-photos")));
 // Web and API must use the same protected key ring when hosted on different machines.
 var dataProtection = builder.Services.AddDataProtection()
     .SetApplicationName($"SmartFarm.SharedIdentity.{builder.Environment.EnvironmentName}");
@@ -115,6 +105,7 @@ app.Use(async (context, next) =>
 app.UseRouting();
 app.UseAuthentication();
 app.UseAuthorization();
+app.UseRateLimiter();
 
 if (app.Environment.IsDevelopment())
 {

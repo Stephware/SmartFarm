@@ -15,8 +15,8 @@ class AuthRepository(private val onLogin: () -> Unit = {}, private val api: () -
         private set
     private var session: AuthTokens? = null
 
-    suspend fun register(name: String, email: String, password: String, confirm: String) {
-        val response = api().register(RegisterRequest(name.trim(), email.trim(), password, confirm))
+    suspend fun register(name: String, email: String, password: String) {
+        val response = api().register(RegisterRequest(name.trim(), email.trim(), password))
         if (!response.isSuccessful) throw HttpException(response)
     }
 

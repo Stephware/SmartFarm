@@ -1,4 +1,6 @@
 using System.ComponentModel.DataAnnotations;
+using System.Text.Json.Serialization;
+using SmartFarm.Core.Contracts;
 
 namespace SmartFarm.Core.Contracts.Farms;
 
@@ -43,12 +45,14 @@ public sealed class InviteMemberInput
     public string Email { get; set; } = "";
 
     [Range(1, 2)]
+    [JsonConverter(typeof(MemberRoleJsonConverter))]
     public byte Role { get; set; }
 }
 
 public sealed class UpdateMemberInput
 {
     [Range(1, 2)]
+    [JsonConverter(typeof(MemberRoleJsonConverter))]
     public byte Role { get; set; }
 }
 

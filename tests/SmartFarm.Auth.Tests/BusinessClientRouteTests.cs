@@ -206,7 +206,7 @@ public sealed class BusinessClientRouteTests : IClassFixture<WebApplicationFacto
         {
             RequestCount++;
             Method = request.Method;
-            Path = request.RequestUri?.AbsolutePath;
+            Path = request.RequestUri?.PathAndQuery;
             AuthorizationScheme = request.Headers.Authorization?.Scheme;
             return Task.FromResult(new HttpResponseMessage(HttpStatusCode.NotFound));
         }

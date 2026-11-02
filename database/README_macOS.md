@@ -58,7 +58,7 @@ Click **Test Connection**.
 1. In a SQL editor connected to `master`, execute all of `01_CreateDatabase.sql`.
 2. Switch the SQL editor's active database/connection context to **`SmartFarmDB`**. Check with `SELECT DB_NAME() AS CurrentDatabase;`.
 3. **Only for a new, empty database**, execute the complete `02_CreateSchema.sql` as a SQL script.
-4. Run `03_VerifySchema.sql` while connected to `SmartFarmDB`. Expect **23 dbo tables** (7 Identity + 16 SmartFarm) and the associated foreign keys.
+4. Run `03_VerifySchema.sql` while connected to `SmartFarmDB`. Expect **24 dbo tables** (7 Identity + 17 SmartFarm) and the associated foreign keys.
 
 If you get **50001**, you have the wrong database selected. If you get **50002**, dbo tables already exist; verify their contents instead of rerunning the schema or deleting anything.
 

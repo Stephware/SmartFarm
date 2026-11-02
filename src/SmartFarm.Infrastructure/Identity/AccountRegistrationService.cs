@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 
 namespace SmartFarm.Infrastructure.Identity;
 
@@ -7,8 +8,8 @@ public sealed class AccountRegistrationService(UserManager<SmartFarmUser> users)
 {
     public async Task<IdentityResult> RegisterAsync(string name, string email, string password)
     {
-        var cleanName = name.Trim();
-        var cleanEmail = email.Trim();
+        var cleanName = (name ?? "").Trim();
+        var cleanEmail = (email ?? "").Trim();
         if (cleanName.Length is < 2 or > 120 || cleanEmail.Length is < 3 or > 256)
             return IdentityResult.Failed(new IdentityError { Description = "Invalid name or email length." });
 
@@ -19,7 +20,13 @@ public sealed class AccountRegistrationService(UserManager<SmartFarmUser> users)
             Email = cleanEmail,
             LockoutEnabled = true
         };
-        return await users.CreateAsync(user, password);
+        try
+        {
+            return await users.CreateAsync(user, password);
+        }
+        catch (DbUpdateException)
+        {
+            return IdentityResult.Failed(new IdentityError { Code = "Registration", Description = "Registration could not be saved. Please try again." });
+        }
     }
 }
-

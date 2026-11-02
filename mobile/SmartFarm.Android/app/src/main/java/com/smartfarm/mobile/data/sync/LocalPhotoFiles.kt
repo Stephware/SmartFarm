@@ -38,45 +38,47 @@ class LocalPhotoFiles(context: Context) {
         return File(directory, "$uuid.image")
     }
 
+    // Stage up to 30 MB, then store one compressed file for all upload retries.
     suspend fun copyFrom(resolver: ContentResolver, uri: Uri, id: String): String =
         withContext(Dispatchers.IO) {
-            val target = file(id)
             directory.mkdirs()
+            val destination = file(id)
+            val staging = File(directory, "${UUID.fromString(id)}.source")
             val buffer = ByteArray(8192)
-            var length = 0
+            var length = 0L
             try {
-                val firstBytes = ByteArray(12)
-                var firstCount = 0
-                resolver.openInputStream(uri)?.use { source ->
-                    target.outputStream().use { destination ->
+                resolver.openInputStream(uri)?.use { input ->
+                    staging.outputStream().use { output ->
                         while (true) {
-                            val size = source.read(buffer)
-                            if (size < 0) break
-                            length += size
-                            if (length > MAX_BYTES) throw IOException("Photo exceeds 5 MB.")
-                            if (firstCount < 12) {
-                                val take = minOf(size, 12 - firstCount)
-                                buffer.copyInto(firstBytes, firstCount, 0, take)
-                                firstCount += take
+                            val count = input.read(buffer)
+                            if (count < 0) break
+                            length += count
+                            if (length > ImageOptimizer.MAX_SOURCE_BYTES) {
+                                throw IOException("Photo must be smaller than 30 MB.")
                             }
-                            destination.write(buffer, 0, size)
+                            output.write(buffer, 0, count)
                         }
                     }
                 } ?: throw IOException("Cannot open selected photo.")
+
+                val header = ByteArray(12)
+                val headerSize = staging.inputStream().use { it.read(header) }
                 val mime = when {
-                    firstCount >= 3 && firstBytes[0] == 0xff.toByte() &&
-                        firstBytes[1] == 0xd8.toByte() && firstBytes[2] == 0xff.toByte() -> "image/jpeg"
-                    firstCount >= 8 && firstBytes.copyOfRange(0, 8).contentEquals(
+                    headerSize >= 3 && header[0] == 0xff.toByte() &&
+                        header[1] == 0xd8.toByte() && header[2] == 0xff.toByte() -> "image/jpeg"
+                    headerSize >= 8 && header.copyOfRange(0, 8).contentEquals(
                         byteArrayOf(137.toByte(), 80, 78, 71, 13, 10, 26, 10)) -> "image/png"
-                    firstCount >= 12 && String(firstBytes, 0, 4, Charsets.US_ASCII) == "RIFF" &&
-                        String(firstBytes, 8, 4, Charsets.US_ASCII) == "WEBP" -> "image/webp"
+                    headerSize >= 12 && String(header, 0, 4, Charsets.US_ASCII) == "RIFF" &&
+                        String(header, 8, 4, Charsets.US_ASCII) == "WEBP" -> "image/webp"
                     else -> throw IOException("Choose a JPEG, PNG, or WebP photo.")
                 }
-                if (length == 0) throw IOException("Empty photo.")
-                mime
+                if (length == 0L) throw IOException("Empty photo.")
+                ImageOptimizer.optimize(staging, destination, mime)
             } catch (error: Exception) {
-                target.delete()
+                destination.delete()
                 throw error
+            } finally {
+                staging.delete()
             }
         }
 

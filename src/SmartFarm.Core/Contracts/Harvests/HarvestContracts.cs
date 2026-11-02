@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using SmartFarm.Core.Enums;
 
 namespace SmartFarm.Core.Contracts.Harvests;
 
@@ -27,5 +28,8 @@ public sealed record HarvestOverview(
     Guid FarmId, Guid CycleId, string CropName, string PlotName,
     string Unit, byte CropStatus, bool CanRecord, bool CanVoid,
     decimal TotalQuantity, int ValidHarvestCount, int VoidedHarvestCount,
-    IReadOnlyList<HarvestEntry> Entries);
+    IReadOnlyList<HarvestEntry> Entries)
+{
+    public string CropStatusName => FarmCodeLabels.CropStatus((CropCycleStatus)CropStatus);
+}
 

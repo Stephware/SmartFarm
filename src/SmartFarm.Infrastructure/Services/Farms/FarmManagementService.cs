@@ -1,7 +1,4 @@
 using System.Security.Cryptography;
-using System.Text.Json;
-using Microsoft.AspNetCore.DataProtection;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using SmartFarm.Core.Contracts.Farms;
@@ -12,7 +9,6 @@ using SmartFarm.Core.Interfaces.Repositories;
 using SmartFarm.Core.Interfaces.Persistence;
 using SmartFarm.Core.Interfaces.Security;
 using SmartFarm.Core.Services.Security;
-using SmartFarm.Infrastructure.Identity;
 
 namespace SmartFarm.Infrastructure.Services.Farms;
 
@@ -24,13 +20,8 @@ public sealed class FarmManagementService(
     IInventoryItemRepository stock,
     IUserRepository people,
     IUnitOfWork unit,
-    IFarmAccessService access,
-    UserManager<SmartFarmUser> users,
-    IDataProtectionProvider protection) : IFarmManagementService
+    IFarmAccessService access) : IFarmManagementService
 {
-    private readonly ITimeLimitedDataProtector _inviteTokens = protection
-        .CreateProtector("SmartFarm.FarmInvitation.v1").ToTimeLimitedDataProtector();
-
     private static FarmOperationException Missing() =>
         new(FarmError.NotFound, "Farm or resource not found.");
 
@@ -99,11 +90,24 @@ public sealed class FarmManagementService(
     private static PlotDetails Map(Plot plot) =>
         new(plot.Id, plot.FarmId, plot.Name, plot.AreaSqMeters, Convert.ToBase64String(plot.RowVersion));
 
-    private async Task Save(CancellationToken ct)
+    private async Task Save(CancellationToken ct, Farm? newFarm = null)
     {
         try
         {
-            await unit.SaveChangesAsync(ct);
+            for (var attempt = 0; ; attempt++)
+            {
+                try
+                {
+                    await unit.SaveChangesAsync(ct);
+                    break;
+                }
+                catch (DbUpdateException error) when (newFarm is not null && attempt < 4 &&
+                    error.InnerException is SqlException { Number: 2601 or 2627 } sql &&
+                    sql.Message.Contains("UX_Farm_JoinCode", StringComparison.Ordinal))
+                {
+                    newFarm.JoinCode = Convert.ToHexString(RandomNumberGenerator.GetBytes(6));
+                }
+            }
         }
         catch (DbUpdateConcurrencyException)
         {
@@ -142,7 +146,7 @@ public sealed class FarmManagementService(
             TimeZoneId = input.TimeZoneId.Trim(), Latitude = input.Latitude, Longitude = input.Longitude
         };
         farms.Add(farm);
-        await Save(ct);
+        await Save(ct, farm);
         return Map(farm, FarmAccessLevel.Owner);
     }
 
@@ -234,63 +238,12 @@ public sealed class FarmManagementService(
         return await members.ListDetailsAsync(farmId, ct);
     }
 
-    private sealed record InvitationPayload(Guid FarmId, Guid OwnerId,
-        Guid TargetUserId, byte Role, DateTimeOffset IssuedAtUtc);
+    public Task<InvitationDetails> CreateInvitationAsync(
+        Guid farmId, Guid actor, InviteMemberInput input, CancellationToken ct = default) =>
+        throw Invalid("Invitation links are retired. Use a farm code and owner approval.");
 
-    public async Task<InvitationDetails> CreateInvitationAsync(
-        Guid farmId, Guid actor, InviteMemberInput input, CancellationToken ct = default)
-    {
-        if (await access.GetAccessLevelAsync(farmId, actor, ct) != FarmAccessLevel.Owner)
-            throw Missing();
-        if (input.Role is not (1 or 2) || string.IsNullOrWhiteSpace(input.Email))
-            throw Invalid("Enter a registered email and a valid role.");
-        var target = await users.FindByEmailAsync(input.Email.Trim());
-        if (target is null || target.DisabledAtUtc is not null || target.Id == actor)
-            throw Invalid("An eligible registered account is required.");
-        if (await members.GetActiveAsync(farmId, target.Id, ct) is not null)
-            throw Conflict("This user already belongs to the farm.");
-
-        var issued = DateTimeOffset.UtcNow;
-        var payload = JsonSerializer.Serialize(new InvitationPayload(farmId, actor, target.Id, input.Role, issued));
-        var token = _inviteTokens.Protect(payload, TimeSpan.FromHours(24));
-        return new InvitationDetails(token, issued.AddHours(24), target.Email ?? "", input.Role == 1 ? "Manager" : "FieldWorker");
-    }
-
-    public async Task<Guid> AcceptInvitationAsync(Guid actor, string token, CancellationToken ct = default)
-    {
-        InvitationPayload? payload;
-        try
-        {
-            payload = JsonSerializer.Deserialize<InvitationPayload>(_inviteTokens.Unprotect(token));
-        }
-        catch (Exception e) when (e is CryptographicException or FormatException or JsonException or ArgumentException)
-        {
-            throw Invalid("The invitation is invalid or expired.");
-        }
-        if (payload is null || payload.TargetUserId != actor || payload.Role is not (1 or 2))
-            throw Invalid("The invitation does not belong to this account.");
-
-        var farm = await farms.GetActiveAsync(payload.FarmId, ct);
-        if (farm is null || farm.OwnerUserId != payload.OwnerId ||
-            !await people.IsActiveAsync(actor, ct))
-            throw Missing();
-
-        // No invitation table exists in the SQL-first schema. Prior removal invalidates
-        // a previously issued invitation to prevent an old link from restoring access.
-        var oldMemberships = await members.ListForUserAsync(payload.FarmId, actor, ct);
-        if (oldMemberships.Any(m => m.RemovedAtUtc is null))
-            throw Conflict("Already a farm member.");
-        if (oldMemberships.Any(m => m.RemovedAtUtc.HasValue &&
-            new DateTimeOffset(DateTime.SpecifyKind(m.RemovedAtUtc.Value, DateTimeKind.Utc)) >= payload.IssuedAtUtc))
-            throw Conflict("Invitation was revoked by a membership removal.");
-
-        members.Add(new FarmMember
-        {
-            FarmId = payload.FarmId, UserId = actor, Role = payload.Role
-        });
-        await Save(ct);
-        return payload.FarmId;
-    }
+    public Task<Guid> AcceptInvitationAsync(Guid actor, string token, CancellationToken ct = default) =>
+        throw Invalid("Invitation links are retired. Use a farm code and owner approval.");
 
     public async Task ChangeMemberRoleAsync(
         Guid farmId, Guid memberId, Guid actor, byte role, CancellationToken ct = default)
