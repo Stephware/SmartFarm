@@ -48,6 +48,9 @@ sql-data/
 *.swp
 *.swo
 .DS_Store
+.claude/
+CLAUDE.md
+PRODUCT.md
 
 # Android local settings and generated output.
 .gradle/
@@ -64,4 +67,3 @@ local.properties
 
 # Keep documentation local.
 /docs/
-

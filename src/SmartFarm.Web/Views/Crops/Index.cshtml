@@ -7,8 +7,12 @@
 <partial name="_FarmNavigation" model="Model.Farm.Id" />
 <section class="panel">
     <p><a asp-controller="Farms" asp-action="Details" asp-route-id="@Model.Farm.Id">← @Model.Farm.Name</a></p>
-    <h1>Crop management</h1>
-    <p>Plan planting, track active crops, and review crop history.</p>
+    <div class="page-heading">
+        <div>
+            <h1>Crop Management</h1>
+            <p>Plan planting schedules, track active crops, and review historical cycles.</p>
+        </div>
+    </div>
     @if (TempData["Error"] is string error) { <p class="error" role="alert">@error</p> }
 </section>
 @if (Model.Agenda is { } agenda)
@@ -25,7 +29,7 @@
     </nav>
     @if (agenda.Days.Count == 0)
     {
-        <p>No planting, watering, or harvest dates scheduled for this month.</p>
+        <p class="hint">No scheduled activities for this month.</p>
     }
     else
     {
@@ -49,7 +53,7 @@
 }
 <section class="panel">
     <h2>Crop types</h2>
-    @if (Model.CropTypes.Count == 0) { <p>No crop types available yet.</p> }
+    @if (Model.CropTypes.Count == 0) { <p class="hint">No crop types available. Add one below to start planning.</p> }
     else
     {
         <ul class="farm-list">
@@ -109,10 +113,10 @@
     else if (Model.CropTypes.Count == 0) { <p>Add a crop type before planning a crop.</p> }
     else { <p>You have read-only access to planting plans.</p> }
 </section>
-<section class="panel" aria-labelledby="rotation-heading">
-    <h2 id="rotation-heading">Plot crop rotation history</h2>
-    <p class="hint">See previous and current crop cycles per plot, including completed, failed, and cancelled plantings. This is a record of your farm history, not a rotation recommendation.</p>
-    @if (Model.Cycles.Count == 0) { <p>No planting history recorded yet.</p> }
+<section class="panel">
+    <h2>Plot crop rotation history</h2>
+    <p class="hint">Historical and current crop cycles per plot. This is your farm's planting record, not a rotation recommendation.</p>
+    @if (Model.Cycles.Count == 0) { <p class="hint">No planting history recorded yet.</p> }
     @foreach (var plotHistory in Model.Cycles.GroupBy(c => new { c.PlotId, c.PlotName }).OrderBy(g => g.Key.PlotName))
     {
         <details class="rotation-plot">
@@ -133,7 +137,7 @@
 </section>
 <section class="panel">
     <h2>Crop cycles and history</h2>
-    @if (Model.Cycles.Count == 0) { <p>No crop cycles have been planned yet.</p> }
+    @if (Model.Cycles.Count == 0) { <p class="hint">No crop cycles have been planned yet.</p> }
     @foreach (var cycle in Model.Cycles)
     {
         <div class="crop-cycle">

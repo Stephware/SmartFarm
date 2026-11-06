@@ -1,35 +1,164 @@
 @{
     ViewData["Title"] = "AniGo farm management";
+    ViewData["ShowLandingBackground"] = true;
 }
-<section class="panel landing-hero">
-    <p class="hint">Farm planning · Field monitoring · Harvest reporting</p>
-    <h1>Keep your farm organized, from planting to harvest.</h1>
-    <p>Track plots and crops, record field observations, monitor stock, and review
-       harvest results in one place.</p>
-    <div class="action-links">
-    @if (User.Identity?.IsAuthenticated == true)
-    {
-        <a class="button" asp-controller="Farms" asp-action="Index">Open my farms</a>
-        <a asp-controller="Notifications" asp-action="Index">Review reminders</a>
-    }
-    else
-    {
-        <a class="button" asp-controller="Account" asp-action="Login">Log in</a>
-        <a asp-controller="Account" asp-action="Register">Create account</a>
-    }
+
+<section class="landing-hero">
+    <div class="hero-content">
+        <p class="hint">From planting to harvest, season after season</p>
+        <h1>Plan your season. Scout your fields. Know your yields.</h1>
+        <p>Map your fields, track crop cycles, log scouting reports, and compare what worked season to season—all in one place built for working farms.</p>
+        <div class="landing-cta">
+        @if (User.Identity?.IsAuthenticated == true)
+        {
+            <a class="button" asp-controller="Farms" asp-action="Index">Go to my farms</a>
+            <a class="link-button" asp-controller="Notifications" asp-action="Index">Review reminders</a>
+        }
+        else
+        {
+            <a class="button" asp-controller="Account" asp-action="Register">Start your season</a>
+            <a class="button-secondary" asp-controller="Account" asp-action="Login">Log in</a>
+        }
+        </div>
+        <p class="landing-trust">Free for your first season · No payment needed</p>
+    </div>
+    <div class="hero-visual">
+        <svg width="440" height="320" viewBox="0 0 440 320" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+            <rect x="20" y="20" width="180" height="120" rx="4" fill="#F4E4C1" stroke="#7CAA2D" stroke-width="3"/>
+            <rect x="220" y="20" width="180" height="120" rx="4" fill="#F4E4C1" stroke="#8B5A3C" stroke-width="3"/>
+            <rect x="20" y="160" width="180" height="120" rx="4" fill="#F4E4C1" stroke="#7CAA2D" stroke-width="3"/>
+            <rect x="220" y="160" width="180" height="120" rx="4" fill="#F4E4C1" stroke="#C9A66B" stroke-width="3"/>
+            <text x="110" y="85" fill="#3D2817" font-size="14" font-weight="600" text-anchor="middle">Plot A</text>
+            <text x="310" y="85" fill="#3D2817" font-size="14" font-weight="600" text-anchor="middle">Plot B</text>
+            <text x="110" y="225" fill="#3D2817" font-size="14" font-weight="600" text-anchor="middle">Plot C</text>
+            <text x="310" y="225" fill="#3D2817" font-size="14" font-weight="600" text-anchor="middle">Plot D</text>
+            <circle cx="110" cy="105" r="4" fill="#7CAA2D"/>
+            <circle cx="310" cy="105" r="4" fill="#8B5A3C"/>
+            <circle cx="110" cy="245" r="4" fill="#7CAA2D"/>
+            <circle cx="310" cy="245" r="4" fill="#C9A66B"/>
+        </svg>
     </div>
 </section>
-<section class="feature-grid">
-    <div class="panel">
-        <h2>Plan your crops</h2>
-        <p>Organize your farms and plots, set planting dates, and follow each crop cycle.</p>
+<section class="landing-features">
+    <div class="feature-card">
+        <svg class="feature-icon" width="56" height="56" viewBox="0 0 56 56" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+            <rect x="8" y="14" width="40" height="34" rx="2" stroke="currentColor" stroke-width="2.5"/>
+            <path d="M8 24h40M18 14v10M38 14v10" stroke="currentColor" stroke-width="2.5"/>
+            <circle cx="18" cy="34" r="2.5" fill="currentColor"/>
+            <circle cx="28" cy="34" r="2.5" fill="currentColor"/>
+            <circle cx="38" cy="34" r="2.5" fill="currentColor"/>
+        </svg>
+        <span class="feature-number">1</span>
+        <h2>Map fields and schedule plantings</h2>
+        <p>Track 12 plots across 3 crop rotations with drag-and-drop scheduling. Set planting windows by crop variety and manage overlapping cycles across your operation.</p>
+        <div class="feature-preview">
+            <svg width="280" height="160" viewBox="0 0 280 160" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <rect width="280" height="160" fill="#FFF9E6"/>
+                <rect x="12" y="12" width="80" height="60" rx="2" fill="#F4E4C1" stroke="#7CAA2D" stroke-width="2"/>
+                <rect x="100" y="12" width="80" height="60" rx="2" fill="#F4E4C1" stroke="#8B5A3C" stroke-width="2"/>
+                <rect x="188" y="12" width="80" height="60" rx="2" fill="#F4E4C1" stroke="#C9A66B" stroke-width="2"/>
+                <text x="52" y="45" fill="#3D2817" font-size="10" font-weight="600" text-anchor="middle">Tomatoes</text>
+                <text x="140" y="45" fill="#3D2817" font-size="10" font-weight="600" text-anchor="middle">Lettuce</text>
+                <text x="228" y="45" fill="#3D2817" font-size="10" font-weight="600" text-anchor="middle">Planned</text>
+                <rect x="12" y="88" width="256" height="8" rx="4" fill="#F4E4C1"/>
+                <rect x="12" y="88" width="120" height="8" rx="4" fill="#7CAA2D"/>
+            </svg>
+        </div>
     </div>
-    <div class="panel">
-        <h2>Record fieldwork</h2>
-        <p>Log crop activities, inspections, harvests, and inventory movements.</p>
+    <div class="feature-card">
+        <svg class="feature-icon" width="56" height="56" viewBox="0 0 56 56" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+            <rect x="12" y="10" width="32" height="38" rx="2" stroke="currentColor" stroke-width="2.5"/>
+            <path d="M18 19h20M18 28h20M18 37h12" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/>
+        </svg>
+        <span class="feature-number">2</span>
+        <h2>Log scouting and spray records</h2>
+        <p>Document pest sightings and treatment applications with photos. Build compliance-ready records automatically—dates, products, rates, and field conditions all timestamped.</p>
+        <div class="feature-preview">
+            <svg width="280" height="160" viewBox="0 0 280 160" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <rect width="280" height="160" fill="#FFF9E6"/>
+                <rect x="12" y="12" width="256" height="36" rx="4" fill="#F4E4C1" stroke="#7CAA2D" stroke-width="2"/>
+                <circle cx="28" cy="30" r="8" fill="#7CAA2D"/>
+                <line x1="44" y1="24" x2="180" y2="24" stroke="#3D2817" stroke-width="2"/>
+                <line x1="44" y1="36" x2="120" y2="36" stroke="#8B7355" stroke-width="1.5"/>
+                <rect x="12" y="56" width="256" height="36" rx="4" fill="#F4E4C1" stroke="#8B5A3C" stroke-width="2"/>
+                <circle cx="28" cy="74" r="8" fill="#8B5A3C"/>
+                <line x1="44" y1="68" x2="200" y2="68" stroke="#3D2817" stroke-width="2"/>
+                <line x1="44" y1="80" x2="140" y2="80" stroke="#8B7355" stroke-width="1.5"/>
+                <rect x="12" y="100" width="256" height="36" rx="4" fill="#F4E4C1" stroke="#C9A66B" stroke-width="2"/>
+                <circle cx="28" cy="118" r="8" fill="#C9A66B"/>
+                <line x1="44" y1="112" x2="190" y2="112" stroke="#3D2817" stroke-width="2"/>
+                <line x1="44" y1="124" x2="160" y2="124" stroke="#8B7355" stroke-width="1.5"/>
+            </svg>
+        </div>
     </div>
-    <div class="panel">
-        <h2>Review results</h2>
-        <p>Check tasks and weather advisories, then compare harvests by crop, plot, month, and unit.</p>
+    <div class="feature-card">
+        <svg class="feature-icon" width="56" height="56" viewBox="0 0 56 56" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+            <path d="M10 44h36M14 44V32M22 44V22M30 44V26M38 44V16" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/>
+            <path d="M12 12l9 7 9-5 11 9" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        <span class="feature-number">3</span>
+        <h2>Track yields and compare seasons</h2>
+        <p>Compare Spring 2025 tomato yields vs. Spring 2024 by plot. See what worked, adjust rotations for next year, and know your returns by crop and harvest window.</p>
+        <div class="feature-preview">
+            <svg width="280" height="160" viewBox="0 0 280 160" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <rect width="280" height="160" fill="#FFF9E6"/>
+                <line x1="20" y1="140" x2="260" y2="140" stroke="#8B7355" stroke-width="2"/>
+                <line x1="20" y1="20" x2="20" y2="140" stroke="#8B7355" stroke-width="2"/>
+                <rect x="40" y="80" width="30" height="60" fill="#7CAA2D"/>
+                <rect x="80" y="60" width="30" height="80" fill="#5A8823"/>
+                <rect x="120" y="90" width="30" height="50" fill="#7CAA2D"/>
+                <rect x="160" y="50" width="30" height="90" fill="#5A8823"/>
+                <rect x="200" y="70" width="30" height="70" fill="#7CAA2D"/>
+                <text x="55" y="155" fill="#3D2817" font-size="10" text-anchor="middle">Mar</text>
+                <text x="95" y="155" fill="#3D2817" font-size="10" text-anchor="middle">Apr</text>
+                <text x="135" y="155" fill="#3D2817" font-size="10" text-anchor="middle">May</text>
+                <text x="175" y="155" fill="#3D2817" font-size="10" text-anchor="middle">Jun</text>
+                <text x="215" y="155" fill="#3D2817" font-size="10" text-anchor="middle">Jul</text>
+            </svg>
+        </div>
+    </div>
+</section>
+
+<section class="landing-how">
+    <h2>How it works</h2>
+    <div class="how-steps">
+        <div class="how-step">
+            <div class="step-number">1</div>
+            <h3>Register your farm and plots</h3>
+            <p>Name your farm, add field workers and managers, then map your plots. No GPS required—just plot names and sizes.</p>
+        </div>
+        <div class="how-step">
+            <div class="step-number">2</div>
+            <h3>Plan crop cycles</h3>
+            <p>Schedule plantings by plot and crop variety. Set expected harvest dates. Track one active crop per plot.</p>
+        </div>
+        <div class="how-step">
+            <div class="step-number">3</div>
+            <h3>Log field activity</h3>
+            <p>Record watering, inspections, pest sightings, and spray applications. Attach photos. Build your compliance history.</p>
+        </div>
+        <div class="how-step">
+            <div class="step-number">4</div>
+            <h3>Record harvests</h3>
+            <p>Log partial harvests as you pick. Track quantities by unit. Compare yields across seasons and plots.</p>
+        </div>
+    </div>
+</section>
+
+<section class="landing-proof">
+    <h2>Built for working farms</h2>
+    <div class="proof-grid">
+        <div class="proof-stat">
+            <strong>Multi-season tracking</strong>
+            <p>Compare what worked last spring, adjust for next year</p>
+        </div>
+        <div class="proof-stat">
+            <strong>Compliance-ready logs</strong>
+            <p>Timestamped records with photos for audits and certifications</p>
+        </div>
+        <div class="proof-stat">
+            <strong>Farm team access</strong>
+            <p>Owners, managers, and field workers—everyone sees what they need</p>
+        </div>
     </div>
 </section>

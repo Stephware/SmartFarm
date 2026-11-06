@@ -8,6 +8,13 @@
     <script src="~/js/site.js" defer></script>
 </head>
 <body>
+    @if (ViewData["ShowLandingBackground"] as bool? == true)
+    {
+        <div class="landing-background">
+            <div class="background-image"></div>
+            <div class="background-overlay"></div>
+        </div>
+    }
     <a class="skip-link" href="#main-content">Skip to content</a>
     <header class="site-header">
         <a class="brand" href="@Url.Action("Index", "Home")">AniGo</a>

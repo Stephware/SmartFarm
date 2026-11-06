@@ -7,14 +7,18 @@
 <partial name="_FarmNavigation" model="Model.Farm.Id" />
 <section class="panel">
     <p><a asp-action="Index">← My farms</a></p>
-    <h1>@Model.Farm.Name</h1>
-    <p>@Model.Farm.LocationText · @Model.Farm.Role</p>
-    @if (TempData["Message"] is string message) { <p role="status">@message</p> }
+    <div class="page-heading">
+        <div>
+            <h1>@Model.Farm.Name</h1>
+            <p>@Model.Farm.LocationText · <strong>@Model.Farm.Role</strong></p>
+        </div>
+        @if (canManage)
+        {
+            <a class="button" asp-action="Edit" asp-route-id="@Model.Farm.Id">Edit farm details</a>
+        }
+    </div>
+    @if (TempData["Message"] is string message) { <p class="status-message" role="status">@message</p> }
     @if (TempData["Error"] is string error) { <p class="error" role="alert">@error</p> }
-    @if (canManage)
-    {
-        <a asp-action="Edit" asp-route-id="@Model.Farm.Id">Edit farm</a>
-    }
     @if (isOwner)
     {
         <form asp-action="Archive" asp-route-id="@Model.Farm.Id" method="post" class="inline" data-confirm="Archive @Model.Farm.Name? Its plots and records will no longer appear in active farms.">
@@ -26,7 +30,7 @@
 <section class="panel">
     <h2>Plots</h2>
     <p><a asp-controller="PlotLayout" asp-action="Index" asp-route-farmId="@Model.Farm.Id">View schematic plot layout →</a></p>
-    @if (Model.Plots.Count == 0) { <p>No active plots.</p> }
+    @if (Model.Plots.Count == 0) { <p class="hint">No active plots. Add one below to start managing crops.</p> }
     else
     {
         <ul class="farm-list">

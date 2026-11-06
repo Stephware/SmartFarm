@@ -9,10 +9,13 @@
 <section class="panel">
     <p><a asp-controller="Crops" asp-action="Index"
           asp-route-farmId="@cycle.FarmId">← Crop management</a></p>
-    <h1>@cycle.CropTypeName — @cycle.PlotName</h1>
-    <p>Status: <strong>@cycle.Status</strong></p>
-    <p>Log watering, fertilization, pesticide use, weeding, or other activities.
-       Inspections are saved as crop observations.</p>
+    <div class="page-heading">
+        <div>
+            <h1>@cycle.CropTypeName — @cycle.PlotName</h1>
+            <p>Status: <strong>@cycle.Status</strong></p>
+        </div>
+    </div>
+    <p class="hint">Log field activities and record crop observations with photos.</p>
     @if (TempData["Error"] is string error)
     { <p class="error" role="alert">@error</p> }
 </section>
@@ -70,7 +73,7 @@
 <section class="panel">
     <h2>Activity history</h2>
     @if (monitoring.Activities.Count == 0)
-    { <p>No activities recorded.</p> }
+    { <p class="hint">No activities recorded yet.</p> }
     <ul class="farm-list">
         @foreach (var activity in monitoring.Activities)
         {

@@ -10,10 +10,12 @@
 <partial name="_FarmNavigation" model="Model.Farm.Id" />
 <section class="panel">
     <p><a asp-controller="Farms" asp-action="Details" asp-route-id="@Model.Farm.Id">← @Model.Farm.Name</a></p>
-    <h1>Farm tasks</h1>
-    <p>Scheduled planting, watering, and harvest tasks are added automatically when the worker is enabled.</p>
+    <div class="page-heading">
+        <h1>Farm Tasks</h1>
+    </div>
+    <p class="hint">Scheduled planting, watering, and harvest tasks are added automatically when the worker is enabled.</p>
     @if (TempData["Error"] is string error) { <p class="error" role="alert">@error</p> }
-    @if (Model.Tasks.Count == 0) { <p>No tasks yet.</p> }
+    @if (Model.Tasks.Count == 0) { <div class="empty-state"><p>No tasks yet</p><p class="hint">Tasks will appear here once created or scheduled automatically.</p></div> }
     <ul class="farm-list">
         @foreach (var task in Model.Tasks)
         {

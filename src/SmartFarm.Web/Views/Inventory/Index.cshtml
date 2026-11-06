@@ -7,10 +7,12 @@
 <partial name="_FarmNavigation" model="Model.Farm.Id" />
 <section class="panel">
     <p><a asp-controller="Farms" asp-action="Details" asp-route-id="@Model.Farm.Id">← @Model.Farm.Name</a></p>
-    <h1>Inventory</h1>
-    <p>Active supplies: @Model.Workspace.Items.Count · Low stock: @Model.Workspace.LowStockCount</p>
+    <div class="page-heading">
+        <h1>Inventory</h1>
+    </div>
+    <p>Active supplies: <strong>@Model.Workspace.Items.Count</strong> · Low stock: <strong class="@(Model.Workspace.LowStockCount > 0 ? "error" : "")">@Model.Workspace.LowStockCount</strong></p>
     @if (TempData["Error"] is string error) { <p role="alert" class="error">@error</p> }
-    @if (Model.Workspace.Items.Count == 0) { <p>No inventory items yet.</p> }
+    @if (Model.Workspace.Items.Count == 0) { <div class="empty-state"><p>No inventory items</p><p class="hint">Add supplies below to start tracking stock levels.</p></div> }
     <ul class="farm-list">
         @foreach (var item in Model.Workspace.Items)
         {
