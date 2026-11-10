@@ -25,6 +25,13 @@ import androidx.compose.material3.FilterChip
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.OutlinedCard
 import androidx.compose.ui.platform.testTag
+import com.smartfarm.mobile.ui.components.FarmHero
+import com.smartfarm.mobile.ui.components.FarmSectionCard
+import com.smartfarm.mobile.ui.components.FarmSectionHeader
+import com.smartfarm.mobile.ui.components.FarmStatusChip
+import com.smartfarm.mobile.ui.components.FarmStatusTone
+import com.smartfarm.mobile.ui.components.FarmPlotPreview
+import com.smartfarm.mobile.ui.components.FarmEmptyState
 import com.smartfarm.mobile.ui.components.RecordPage
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
@@ -61,9 +68,9 @@ import java.time.format.DateTimeFormatter
 private fun FarmPage(title: String, content: @Composable () -> Unit) {
     Scaffold { padding ->
         Box(Modifier.fillMaxSize().padding(padding).consumeWindowInsets(padding).imePadding(), contentAlignment = Alignment.TopCenter) {
-            Column(Modifier.widthIn(max = 840.dp).fillMaxSize().verticalScroll(rememberScrollState()).padding(24.dp),
-                verticalArrangement = Arrangement.spacedBy(12.dp)) {
-            Text(title, style = MaterialTheme.typography.headlineMedium, modifier = Modifier.semantics { heading() })
+            Column(Modifier.widthIn(max = 840.dp).fillMaxSize().verticalScroll(rememberScrollState()).padding(20.dp),
+                verticalArrangement = Arrangement.spacedBy(16.dp)) {
+            FarmHero(title, "Track your farm activity, growing areas, and team.")
             content()
             }
         }
@@ -96,18 +103,17 @@ fun FarmListScreen(state: FarmUiState, onOpen: (String) -> Unit,
     RecordPage {
         item(key = "header") {
             Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                Text("My farms", style = MaterialTheme.typography.headlineMedium, modifier = Modifier.semantics { heading() })
+                FarmHero("My farms", "Your farms and access requests in one place.")
                 OutlinedButton(onClick = onBack) { Text("My account") }
                 Progress(state, onRetry)
                 if (state.farms.isEmpty() && !state.loading && state.error == null)
-                    Text("No farms yet. Create a farm or request access with a farm code.")
+                    FarmEmptyState("No farms yet", "Create a farm or request access with a farm code.")
                 Button(onClick = { creating = !creating }) { Text(if (creating) "Close farm form" else "Add a farm") }
                 OutlinedButton(onClick = { joining = !joining }) { Text(if (joining) "Close join form" else "Join a farm") }
             }
         }
         if (creating) item(key = "create") {
-            Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                Text("Create farm", style = MaterialTheme.typography.titleMedium)
+            FarmSectionCard("Create farm", subtitle = "Enter farm details to start managing your fields.") {
                 OutlinedTextField(name, { name = it }, label = { Text("Name") }, modifier = Modifier.fillMaxWidth())
                 OutlinedTextField(location, { location = it; latitude = ""; longitude = "" },
                     label = { Text("Farm address or area") }, modifier = Modifier.fillMaxWidth())
@@ -125,8 +131,7 @@ fun FarmListScreen(state: FarmUiState, onOpen: (String) -> Unit,
             }
         }
         if (joining) item(key = "join") {
-            Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                Text("Request farm access", style = MaterialTheme.typography.titleMedium)
+            FarmSectionCard("Request farm access", subtitle = "Ask the owner for their farm code.") {
                 OutlinedTextField(farmCode, { farmCode = it }, label = { Text("Farm code") },
                     modifier = Modifier.fillMaxWidth())
                 Button(onClick = { onRequest(farmCode) },
@@ -167,10 +172,19 @@ fun FarmListScreen(state: FarmUiState, onOpen: (String) -> Unit,
         }
         items(state.farms, key = { "farm-${it.id}" }) { farm ->
             OutlinedCard(onClick = { onOpen(farm.id) }, modifier = Modifier.fillMaxWidth().testTag("record-card")) {
-                Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
-                    Text(farm.name, style = MaterialTheme.typography.titleMedium)
-                    Text(farm.locationText)
-                    Text(farm.role, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                    FarmPlotPreview()
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text(farm.name, style = MaterialTheme.typography.titleLarge, modifier = Modifier.weight(1f))
+                        FarmStatusChip(farm.role, FarmStatusTone.Planned)
+                    }
+                    Text(farm.locationText, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    Text("Open farm →", style = MaterialTheme.typography.labelLarge,
+                        color = MaterialTheme.colorScheme.primary)
                 }
             }
         }
@@ -206,7 +220,11 @@ fun FarmDetailScreen(state: FarmUiState, onBack: () -> Unit,
         OutlinedButton(onClick = onBack) { Text("All farms") }
         Progress(state, onRetry)
         if (farm != null) {
-            Text("${farm.locationText} · ${farm.role}")
+            Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                Text(farm.locationText, style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.weight(1f))
+                FarmStatusChip(farm.role, FarmStatusTone.Planned)
+            }
             Row(Modifier.horizontalScroll(rememberScrollState()), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 (listOf("Overview", "Plots", "Members") + if (canManage) listOf("Settings") else emptyList()).forEach { item ->
                     FilterChip(selected = visibleSection == item, onClick = { section = item }, label = { Text(item) })
@@ -214,11 +232,13 @@ fun FarmDetailScreen(state: FarmUiState, onBack: () -> Unit,
             }
             if (visibleSection == "Overview") {
             if (farm.role == "Owner") EnrollmentPanel(state, onDecision, onRetry, onRegenerateCode)
-            Button(onClick = onTasks) { Text("Farm tasks") }
-            Button(onClick = onCrops) { Text("Crop management") }
-            Button(onClick = onInventory) { Text("Inventory") }
-            HorizontalDivider()
-            Text("Weather forecast and advisories", style = MaterialTheme.typography.titleLarge, modifier = Modifier.semantics { heading() })
+            FarmSectionCard("Farm workspace", subtitle = "Choose where you'd like to work.") {
+                Button(onClick = onTasks, modifier = Modifier.fillMaxWidth()) { Text("Farm tasks") }
+                OutlinedButton(onClick = onCrops, modifier = Modifier.fillMaxWidth()) { Text("Crop management") }
+                OutlinedButton(onClick = onInventory, modifier = Modifier.fillMaxWidth()) { Text("Inventory") }
+            }
+            FarmSectionCard("Weather forecast and advisories",
+                subtitle = "Latest saved forecast. Not real-time weather.") {
             val weather = state.weather
             if (state.weatherOffline) {
                 val cachedAt = state.weatherCachedAtUtcMillis?.let {
@@ -264,8 +284,9 @@ fun FarmDetailScreen(state: FarmUiState, onBack: () -> Unit,
                 }
             }
             }
+            }
             if (canManage && visibleSection == "Settings") {
-                Text("Edit farm", style = MaterialTheme.typography.titleMedium)
+                FarmSectionCard("Edit farm", subtitle = "Update this farm's address, location pin and local time zone.") {
                 OutlinedTextField(name, { name = it }, label = { Text("Name") },
                     modifier = Modifier.fillMaxWidth())
                 OutlinedTextField(location, { location = it; latitude = ""; longitude = "" },
@@ -283,6 +304,7 @@ fun FarmDetailScreen(state: FarmUiState, onBack: () -> Unit,
                 if (isOwner) ConfirmActionButton("Archive farm",
                     "Archive ${farm.name}? Its history will be retained, and it will leave your active farms.",
                     enabled = !state.loading, onConfirm = onArchiveFarm)
+                }
             }
             HorizontalDivider()
             if (visibleSection == "Plots") {
@@ -299,17 +321,20 @@ fun FarmDetailScreen(state: FarmUiState, onBack: () -> Unit,
                                 modifier = Modifier.weight(1f),
                                 onClick = onCrops
                             ) {
-                                Column(Modifier.padding(14.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                                Column(Modifier.padding(12.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                                    FarmPlotPreview()
                                     Text(plot.name, style = MaterialTheme.typography.titleMedium)
-                                    Text("${plot.areaSqMeters} m²")
-                                    Text("View crop records", style = MaterialTheme.typography.bodySmall)
+                                    Text("${plot.areaSqMeters} m²",
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant)
+                                    Text("View crop records →", style = MaterialTheme.typography.bodySmall,
+                                        color = MaterialTheme.colorScheme.primary)
                                 }
                             }
                         }
                     }
                 }
             }
-            if (state.plots.isEmpty()) Text("No active plots.")
+            if (state.plots.isEmpty()) FarmEmptyState("No active plots", "Add a growing area to start planning crops.")
             state.plots.forEach { plot ->
                 key(plot.id) {
                 var editName by rememberSaveable(plot.id) { mutableStateOf(plot.name) }
@@ -348,9 +373,12 @@ fun FarmDetailScreen(state: FarmUiState, onBack: () -> Unit,
             }
             }
             if (visibleSection == "Members") {
-            Text("Members", style = MaterialTheme.typography.titleLarge, modifier = Modifier.semantics { heading() })
+            FarmSectionHeader("Members", "Review who can access and manage this farm.")
+            if (state.members.isEmpty()) {
+                FarmEmptyState("No additional members", "An owner can share the farm code and approve join requests.")
+            }
             state.members.forEach { member ->
-                Text("${member.fullName} · ${member.role}")
+                FarmSectionCard(member.fullName, subtitle = member.role) {
                 if (isOwner) {
                     ConfirmActionButton(if (member.role == "Manager") "Set Field Worker" else "Set Manager",
                         "Change the role for ${member.fullName}? Their available farm actions will change.",
@@ -358,6 +386,7 @@ fun FarmDetailScreen(state: FarmUiState, onBack: () -> Unit,
                         onConfirm = { onChangeRole(member, if (member.role == "Manager") 2 else 1) })
                     ConfirmActionButton("Remove member", "Remove ${member.fullName} from ${farm.name}? They will lose access.",
                         enabled = !state.loading, onConfirm = { onRemoveMember(member) })
+                }
                 }
             }
             if (farm.role == "Owner") EnrollmentPanel(state, onDecision, onRetry, onRegenerateCode)
