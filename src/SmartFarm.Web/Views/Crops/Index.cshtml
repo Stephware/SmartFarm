@@ -5,15 +5,28 @@
     var canManage = Model.Farm.Role is "Owner" or "Manager";
 }
 <partial name="_FarmNavigation" model="Model.Farm.Id" />
-<section class="panel">
+<section class="panel sf-crop-hero">
     <p><a asp-controller="Farms" asp-action="Details" asp-route-id="@Model.Farm.Id">← @Model.Farm.Name</a></p>
-    <h1>Crop management</h1>
-    <p>Plan planting, track active crops, and review crop history.</p>
-    @if (TempData["Error"] is string error) { <p class="error" role="alert">@error</p> }
+    <p class="sf-kicker">CROP MANAGEMENT</p>
+    <div class="sf-page-header">
+        <div>
+            <h1>Crop management</h1>
+            <p class="sf-muted">Plan planting, track active crops, and review crop history.</p>
+        </div>
+        <a class="sf-button-outline" asp-controller="PlotLayout" asp-action="Index" asp-route-farmId="@Model.Farm.Id">View plots</a>
+    </div>
+    <nav class="sf-page-jump-nav" aria-label="Crop page sections">
+        @if (Model.Agenda is not null) { <a href="#crop-calendar-heading">Calendar</a> }
+        <a href="#crop-types-heading">Crop types</a>
+        <a href="#planting-plans-heading">Planting plans</a>
+        <a href="#rotation-heading">Plot history</a>
+        <a href="#crop-cycles-heading">Crop cycles</a>
+    </nav>
+    @if (TempData["Error"] is string error) { <p class="error form-error" role="alert">@error</p> }
 </section>
 @if (Model.Agenda is { } agenda)
 {
-<section class="panel" aria-labelledby="crop-calendar-heading">
+<section class="panel sf-crop-calendar" aria-labelledby="crop-calendar-heading">
     <h2 id="crop-calendar-heading">Crop calendar</h2>
     <p class="hint">Planting, projected watering, and expected harvest dates for @Model.Farm.Name. Dates use @Model.Farm.TimeZoneId; check farm tasks for completion status.</p>
     <nav class="crop-agenda-nav" aria-label="Calendar month">
@@ -47,8 +60,8 @@
     <p><a asp-controller="Tasks" asp-action="Index" asp-route-farmId="@Model.Farm.Id">View assigned tasks and reminders →</a></p>
 </section>
 }
-<section class="panel">
-    <h2>Crop types</h2>
+<section class="panel sf-crop-types" aria-labelledby="crop-types-heading">
+    <h2 id="crop-types-heading">Crop types</h2>
     @if (Model.CropTypes.Count == 0) { <p>No crop types available yet.</p> }
     else
     {
@@ -65,7 +78,7 @@
     {
         <h3>Add a crop type</h3>
         <p class="hint">Crop types are shared across farms. Existing types cannot be renamed here.</p>
-        <form asp-action="CreateCropType" asp-route-farmId="@Model.Farm.Id" method="post">
+        <form class="sf-crop-form" asp-action="CreateCropType" asp-route-farmId="@Model.Farm.Id" method="post">
             <label asp-for="CropType.Name">Crop name</label><input asp-for="CropType.Name" maxlength="100" required /><span asp-validation-for="CropType.Name" class="error"></span>
             <label asp-for="CropType.DefaultHarvestUnit">Harvest unit</label><input asp-for="CropType.DefaultHarvestUnit" maxlength="20" required /><span asp-validation-for="CropType.DefaultHarvestUnit" class="error"></span>
             <label asp-for="CropType.DefaultGrowthDays">Typical growth days (optional)</label>
@@ -76,11 +89,11 @@
         </form>
     }
 </section>
-<section class="panel">
-    <h2>Planting plans</h2>
+<section class="panel sf-crop-plan" aria-labelledby="planting-plans-heading">
+    <h2 id="planting-plans-heading">Planting plans</h2>
     @if (canManage && Model.Plots.Count > 0 && Model.CropTypes.Count > 0)
     {
-        <form asp-action="Plan" asp-route-farmId="@Model.Farm.Id" method="post">
+        <form class="sf-crop-form" asp-action="Plan" asp-route-farmId="@Model.Farm.Id" method="post">
             <label for="plotId">Plot</label>
             <select id="plotId" name="plotId" required>
                 @foreach (var plot in Model.Plots)
@@ -109,7 +122,7 @@
     else if (Model.CropTypes.Count == 0) { <p>Add a crop type before planning a crop.</p> }
     else { <p>You have read-only access to planting plans.</p> }
 </section>
-<section class="panel" aria-labelledby="rotation-heading">
+<section class="panel sf-crop-history" aria-labelledby="rotation-heading">
     <h2 id="rotation-heading">Plot crop rotation history</h2>
     <p class="hint">See previous and current crop cycles per plot, including completed, failed, and cancelled plantings. This is a record of your farm history, not a rotation recommendation.</p>
     @if (Model.Cycles.Count == 0) { <p>No planting history recorded yet.</p> }
@@ -131,13 +144,21 @@
         </details>
     }
 </section>
-<section class="panel">
-    <h2>Crop cycles and history</h2>
+<section class="panel sf-crop-cycles" aria-labelledby="crop-cycles-heading">
+    <div class="sf-section-line"><h2 id="crop-cycles-heading">Crop cycles and history</h2><span class="sf-muted">@Model.Cycles.Count record(s)</span></div>
     @if (Model.Cycles.Count == 0) { <p>No crop cycles have been planned yet.</p> }
+    <div class="sf-crop-card-grid">
     @foreach (var cycle in Model.Cycles)
     {
-        <div class="crop-cycle">
-            <h3>@cycle.CropTypeName · @cycle.PlotName</h3>
+        <article class="crop-cycle sf-crop-record">
+            <div class="sf-crop-card-heading">
+                <span class="sf-crop-decoration" aria-hidden="true"><i></i></span>
+                <div>
+                    <h3>@cycle.CropTypeName</h3>
+                    <p class="sf-muted">@cycle.PlotName</p>
+                </div>
+                <span class="sf-status-chip @(cycle.Status == CropCycleStatus.Active ? "sf-status-chip--active" : cycle.Status == CropCycleStatus.Planned ? "sf-status-chip--planned" : cycle.Status == CropCycleStatus.Failed ? "sf-status-chip--failed" : "sf-status-chip--neutral")">@cycle.Status</span>
+            </div>
             <p><a asp-controller="Harvests" asp-action="Index"
                   asp-route-farmId="@Model.Farm.Id" asp-route-cycleId="@cycle.Id">Harvest records →</a></p>
             <p><a asp-controller="Monitoring" asp-action="Index"
@@ -146,7 +167,7 @@
                     asp-route-farmId="@Model.Farm.Id" asp-route-cycleId="@cycle.Id">Full timeline →</a></p>
             @if (cycle.Status == CropCycleStatus.Active)
             {
-                <div class="action-links" aria-label="Quick field logging for @cycle.CropTypeName on @cycle.PlotName">
+                <div class="action-links sf-crop-quick-actions" aria-label="Quick field logging for @cycle.CropTypeName on @cycle.PlotName">
                     <a asp-controller="Monitoring" asp-action="Index" asp-route-farmId="@Model.Farm.Id"
                        asp-route-cycleId="@cycle.Id" asp-route-quick="watering"
                        asp-fragment="record-activity">Log watering</a>
@@ -204,9 +225,7 @@
                     <button class="button-danger" type="submit">Mark failed</button>
                 </form>
             }
-        </div>
+        </article>
     }
+    </div>
 </section>
-
-
-
