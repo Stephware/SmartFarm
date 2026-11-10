@@ -2,72 +2,106 @@
 @{
     ViewData["Title"] = "My farms";
 }
-<section class="panel">
-    <h1>My farms</h1>
-    @if (TempData["Message"] is string message) { <p role="status">@message</p> }
-    @if (TempData["Error"] is string error) { <p class="error" role="alert">@error</p> }
-    <div class="action-links">
-        <a class="button" asp-controller="Farms" asp-action="Create">Create farm</a>
-        <a href="#join-farm">Join farm</a>
+<div class="page-heading farm-page-heading">
+    <div>
+        <p class="section-kicker">YOUR WORKSPACE</p>
+        <h1>My farms</h1>
+        <p class="sf-muted">Choose a farm to manage, or get access to a new one.</p>
     </div>
+    <a class="button" asp-controller="Farms" asp-action="Create">Create farm</a>
+</div>
+
+@if (TempData["Message"] is string message) { <p class="form-notice" role="status">@message</p> }
+@if (TempData["Error"] is string error) { <p class="error form-error" role="alert">@error</p> }
+
+<section class="farm-library" aria-label="Your available farms">
     @if (Model.Farms.Count == 0)
     {
-        <p>No farms yet. Request access with a farm code, or create your own farm.</p>
+        <div class="sf-empty-state">
+            <h2>No farms yet</h2>
+            <p>Start by creating your own farm, or enter a code below to request access to an existing farm.</p>
+            <a class="button" asp-controller="Farms" asp-action="Create">Create my first farm</a>
+        </div>
     }
     else
     {
-        <ul class="farm-list">
-        @foreach (var farm in Model.Farms)
-        {
-            <li>
-                <a asp-action="Details" asp-route-id="@farm.Id"><strong>@farm.Name</strong></a>
-                <span>@farm.LocationText · @farm.Role</span>
-                <div class="action-links">
-                    <a asp-controller="Dashboard" asp-action="Index" asp-route-farmId="@farm.Id">Dashboard</a>
-                    <a asp-controller="Reports" asp-action="Harvests" asp-route-farmId="@farm.Id">Harvest reports</a>
-                </div>
-            </li>
-        }
+        <ul class="farm-select-grid">
+            @foreach (var farm in Model.Farms)
+            {
+                <li class="farm-select-card">
+                    <div class="farm-card-decor" aria-hidden="true"><span></span><span></span><span></span></div>
+                    <div class="farm-card-body">
+                        <span class="farm-role-badge">@farm.Role</span>
+                        <h2><a asp-action="Details" asp-route-id="@farm.Id">@farm.Name</a></h2>
+                        <p class="sf-muted">@farm.LocationText</p>
+                        <div class="farm-card-actions">
+                            <a class="button" asp-controller="Dashboard" asp-action="Index" asp-route-farmId="@farm.Id">Open dashboard</a>
+                            <a class="farm-text-link" asp-controller="Reports" asp-action="Harvests" asp-route-farmId="@farm.Id">Harvest reports</a>
+                        </div>
+                    </div>
+                </li>
+            }
         </ul>
     }
 </section>
-<section class="panel" id="join-farm" aria-labelledby="join-farm-heading">
-    <h2 id="join-farm-heading">Join a farm</h2>
-    <p>Enter the code supplied by the owner. Access begins after the owner approves your request.</p>
-    <form asp-action="RequestJoin" method="post" class="narrow">
-        <label for="FarmCode">Farm code</label>
-        <input id="FarmCode" name="FarmCode" value="@Model.Join.FarmCode" required maxlength="64" autocomplete="off" spellcheck="false" />
-        @Html.ValidationMessage("FarmCode", null, new { @class = "error" })
-        <button type="submit">Request to join</button>
-    </form>
-</section>
-<section class="panel">
-    <h2>Your join requests</h2>
-    @if (Model.RequestError is not null) { <p role="alert">@Model.RequestError</p> }
-    else if (Model.JoinRequests.Count == 0) { <p>No join requests yet.</p> }
-    else
-    {
-        <ul class="farm-list">
-        @foreach (var request in Model.JoinRequests)
+
+<div class="farm-onboarding-grid">
+    <section class="panel join-farm-panel" id="join-farm" aria-labelledby="join-farm-heading">
+        <p class="section-kicker">JOIN A FARM</p>
+        <h2 id="join-farm-heading">Have a farm code?</h2>
+        <p class="sf-muted">Enter the code provided by the farm owner. You'll receive access after they approve your request.</p>
+        <form asp-action="RequestJoin" method="post" class="join-farm-form">
+            <label for="FarmCode">Farm code</label>
+            <input id="FarmCode" name="FarmCode" value="@Model.Join.FarmCode" required maxlength="64" autocomplete="off" spellcheck="false" />
+            @Html.ValidationMessage("FarmCode", null, new { @class = "error" })
+            <button type="submit">Request to join</button>
+        </form>
+    </section>
+    <section class="panel join-requests-panel" aria-labelledby="requests-heading">
+        <p class="section-kicker">ACCESS REQUESTS</p>
+        <h2 id="requests-heading">Your join requests</h2>
+        @if (Model.RequestError is not null)
         {
-            <li>
-                <strong>@request.FarmName</strong> — @request.Status
-                <span>Requested @request.RequestedAtUtc.ToString("MMM d, yyyy HH:mm") UTC</span>
-                @if (request.ReviewedAtUtc is { } reviewed) { <span>Updated @reviewed.ToString("MMM d, yyyy HH:mm") UTC</span> }
-                @if (request.Status == "Pending")
-                {
-                    <span>Waiting for the farm owner to approve.</span>
-                    <form asp-action="CancelJoin" asp-route-farmId="@request.FarmId" asp-route-requestId="@request.Id" method="post"
-                          data-confirm="Cancel your request to join @request.FarmName?">
-                        <button type="submit">Cancel request</button>
-                    </form>
-                }
-                @if (request.Status is "Rejected" or "Canceled")
-                {
-                    <p>To apply again, enter a valid farm code above.</p>
-                }
-            </li>
+            <p role="alert" class="error">@Model.RequestError</p>
         }
-        </ul>
-    }
-</section>
+        else if (Model.JoinRequests.Count == 0)
+        {
+            <div class="requests-empty">
+                <p class="sf-muted">You haven't requested access to any farms yet.</p>
+            </div>
+        }
+        else
+        {
+            <ul class="join-requests-list">
+                @foreach (var request in Model.JoinRequests)
+                {
+                    var statusClass = request.Status == "Pending" ? "sf-status-chip--planned" :
+                        request.Status == "Approved" ? "sf-status-chip--active" : "sf-status-chip--neutral";
+                    <li>
+                        <div class="request-title-row">
+                            <strong>@request.FarmName</strong>
+                            <span class="sf-status-chip @statusClass">@request.Status</span>
+                        </div>
+                        <p class="sf-muted request-date">Requested @request.RequestedAtUtc.ToString("MMM d, yyyy HH:mm") UTC</p>
+                        @if (request.ReviewedAtUtc is { } reviewed)
+                        {
+                            <p class="sf-muted request-date">Updated @reviewed.ToString("MMM d, yyyy HH:mm") UTC</p>
+                        }
+                        @if (request.Status == "Pending")
+                        {
+                            <p class="sf-muted">Waiting for the farm owner's approval.</p>
+                            <form asp-action="CancelJoin" asp-route-farmId="@request.FarmId" asp-route-requestId="@request.Id"
+                                  method="post" data-confirm="Cancel your request to join @request.FarmName?">
+                                <button class="button-danger" type="submit">Cancel request</button>
+                            </form>
+                        }
+                        @if (request.Status is "Rejected" or "Canceled")
+                        {
+                            <p class="sf-muted">You can apply again with a valid farm code.</p>
+                        }
+                    </li>
+                }
+            </ul>
+        }
+    </section>
+</div>

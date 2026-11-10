@@ -1,38 +1,83 @@
+@{
+    var signedIn = User.Identity?.IsAuthenticated == true;
+    var currentController = ViewContext.RouteData.Values["controller"]?.ToString();
+}
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#2d6c45" />
     <title>@ViewData["Title"] - AniGo</title>
-    <link rel="stylesheet" href="~/css/site.css" />
-    <script src="~/js/site.js" defer></script>
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <script src="~/js/site.js" asp-append-version="true" defer></script>
 </head>
-<body>
+<body class="@(signedIn ? "is-authenticated" : "is-guest")">
     <a class="skip-link" href="#main-content">Skip to content</a>
-    <header class="site-header">
-        <a class="brand" href="@Url.Action("Index", "Home")">AniGo</a>
-        <nav aria-label="Main navigation">
-            @if (User.Identity?.IsAuthenticated == true)
-            {
-                <a href="@Url.Action("Index", "Farms")">My farms</a>
-                <a href="@Url.Action("Index", "Notifications")">Notifications</a>
-                <a href="@Url.Action("Profile", "Account")">My account</a>
-                <form method="post" asp-controller="Account" asp-action="Logout" class="inline">
-                    <button type="submit" class="link-button">Log out</button>
-                </form>
-            }
-            else
-            {
-                <a href="@Url.Action("Login", "Account")">Log in</a>
-                <a href="@Url.Action("Register", "Account")">Create account</a>
-            }
-        </nav>
-    </header>
-    <main class="page" id="main-content" tabindex="-1">
-        <partial name="_ValidationSummary" />
-        @RenderBody()
-    </main>
+    @if (signedIn)
+    {
+        <div class="app-shell">
+            <aside class="app-sidebar" aria-label="Workspace navigation">
+                <a class="brand sidebar-brand" asp-controller="Farms" asp-action="Index">
+                    <span class="brand-badge" aria-hidden="true">A</span>
+                    <span>AniGo<small>Farm management</small></span>
+                </a>
+                <p class="sidebar-caption">WORKSPACE</p>
+                <nav class="sidebar-links" aria-label="Account sections">
+                    <a asp-controller="Farms" asp-action="Index" aria-current="@(currentController == "Farms" ? "page" : null)">My farms</a>
+                    <a asp-controller="Notifications" asp-action="Index" aria-current="@(currentController == "Notifications" ? "page" : null)">Notifications</a>
+                    <a asp-controller="Account" asp-action="Profile" aria-current="@(currentController == "Account" ? "page" : null)">My account</a>
+                </nav>
+                <div class="sidebar-bottom">
+                    <p>Plan crops, manage plots, and record fieldwork in one place.</p>
+                    <form method="post" asp-controller="Account" asp-action="Logout" class="logout-form">
+                        <button type="submit" class="sidebar-logout">Log out</button>
+                    </form>
+                </div>
+            </aside>
+            <div class="app-body">
+                <header class="site-header app-topbar">
+                    <div class="app-topbar-title">
+                        <a class="mobile-brand" asp-controller="Farms" asp-action="Index">
+                            <span class="brand-badge" aria-hidden="true">A</span>AniGo
+                        </a>
+                        <span class="topbar-label">Farm workspace</span>
+                        <strong>@(ViewData["Title"] ?? "Overview")</strong>
+                    </div>
+                    <details class="mobile-nav">
+                        <summary>Menu</summary>
+                        <nav aria-label="Mobile workspace navigation">
+                            <a asp-controller="Farms" asp-action="Index">My farms</a>
+                            <a asp-controller="Notifications" asp-action="Index">Notifications</a>
+                            <a asp-controller="Account" asp-action="Profile">My account</a>
+                            <form method="post" asp-controller="Account" asp-action="Logout" class="logout-form">
+                                <button type="submit" class="link-button">Log out</button>
+                            </form>
+                        </nav>
+                    </details>
+                </header>
+                <main class="page app-page" id="main-content" tabindex="-1">
+                    <partial name="_ValidationSummary" />
+                    @RenderBody()
+                </main>
+            </div>
+        </div>
+    }
+    else
+    {
+        <header class="site-header guest-topbar">
+            <a class="brand" asp-controller="Home" asp-action="Index">
+                <span class="brand-badge" aria-hidden="true">A</span>AniGo
+            </a>
+            <nav aria-label="Main navigation">
+                <a asp-controller="Account" asp-action="Login">Log in</a>
+                <a class="button guest-nav-cta" asp-controller="Account" asp-action="Register">Create account</a>
+            </nav>
+        </header>
+        <main class="page guest-page" id="main-content" tabindex="-1">
+            <partial name="_ValidationSummary" />
+            @RenderBody()
+        </main>
+    }
 </body>
 </html>
-
-

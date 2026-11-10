@@ -2,18 +2,38 @@
 @{
     ViewData["Title"] = "Register";
 }
-<section class="panel narrow">
-    <h1>Create an account</h1>
-    <form method="post" asp-action="Register" asp-controller="Account">
-        <label asp-for="FullName">Full name</label>
-        <input asp-for="FullName" autocomplete="name" /><span asp-validation-for="FullName" class="error"></span>
-        <label asp-for="Email"></label>
-        <input asp-for="Email" type="email" autocomplete="email" /><span asp-validation-for="Email" class="error"></span>
-        <label asp-for="Password"></label>
-        <input asp-for="Password" type="password" autocomplete="new-password" /><span asp-validation-for="Password" class="error"></span>
-        <p class="hint">Use at least 10 characters, including uppercase, lowercase, and a number.</p>
-        <button type="submit">Create account</button>
-    </form>
-    <p>Already registered? <a asp-controller="Account" asp-action="Login">Log in</a>.</p>
-</section>
-
+<div class="auth-layout">
+    <aside class="auth-intro">
+        <p class="auth-kicker">GROW WITH ANIGO</p>
+        <h2>A simpler way to manage your farm.</h2>
+        <p>Set up your own farm or request to join an existing farm using its owner's code.</p>
+        <div class="auth-intro-foot">One account can access multiple farms.</div>
+    </aside>
+    <section class="panel auth-card" aria-labelledby="register-heading">
+        <div class="auth-heading">
+            <p class="auth-kicker">GET STARTED</p>
+            <h1 id="register-heading">Create your account</h1>
+            <p>Set up your profile to start managing or joining farms.</p>
+        </div>
+        <form method="post" asp-action="Register" asp-controller="Account" class="auth-form">
+            <div class="form-field">
+                <label asp-for="FullName">Full name</label>
+                <input asp-for="FullName" autocomplete="name" />
+                <span asp-validation-for="FullName" class="error"></span>
+            </div>
+            <div class="form-field">
+                <label asp-for="Email"></label>
+                <input asp-for="Email" type="email" autocomplete="email" />
+                <span asp-validation-for="Email" class="error"></span>
+            </div>
+            <div class="form-field">
+                <label asp-for="Password"></label>
+                <input asp-for="Password" type="password" autocomplete="new-password" aria-describedby="password-guidance" />
+                <span asp-validation-for="Password" class="error"></span>
+                <p class="hint" id="password-guidance">Use at least 10 characters, including uppercase, lowercase, and a number.</p>
+            </div>
+            <button class="auth-submit" type="submit">Create account</button>
+        </form>
+        <p class="auth-switch">Already have an account? <a asp-controller="Account" asp-action="Login">Log in</a>.</p>
+    </section>
+</div>
