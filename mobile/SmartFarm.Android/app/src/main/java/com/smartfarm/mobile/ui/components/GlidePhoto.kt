@@ -1,6 +1,7 @@
 package com.smartfarm.mobile.ui.components
 
 import android.graphics.drawable.Drawable
+import android.content.Context
 import android.widget.ImageView
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
@@ -26,7 +27,10 @@ import com.bumptech.glide.request.RequestListener
 import com.bumptech.glide.request.target.Target
 
 private enum class PhotoDisplayState { Loading, Ready, Error }
-private class PhotoBinding(val model: Any?)
+private class PhotoImageView(context: Context) : ImageView(context) {
+    var hasBoundModel = false
+    var boundModel: Any? = null
+}
 
 /**
  * Reusable Compose-compatible Glide image with loading and failure placeholders.
@@ -41,7 +45,7 @@ fun GlidePhoto(model: Any?, contentDescription: String, modifier: Modifier = Mod
         AndroidView(
             modifier = Modifier.fillMaxSize(),
             factory = { context ->
-                ImageView(context).apply {
+                PhotoImageView(context).apply {
                     scaleType = ImageView.ScaleType.FIT_CENTER
                     this.contentDescription = contentDescription
                     adjustViewBounds = true
@@ -49,18 +53,21 @@ fun GlidePhoto(model: Any?, contentDescription: String, modifier: Modifier = Mod
             },
             onReset = { image ->
                 Glide.with(image).clear(image)
-                image.tag = null
+                image.boundModel = null
+                image.hasBoundModel = false
             },
             onRelease = { image ->
                 Glide.with(image).clear(image)
-                image.tag = null
+                image.boundModel = null
+                image.hasBoundModel = false
             },
             update = { image ->
                 image.contentDescription = contentDescription
                 // State updates must not restart the Glide request.
-                if ((image.tag as? PhotoBinding)?.model != model) {
+                if (!image.hasBoundModel || image.boundModel != model) {
                     Glide.with(image).clear(image)
-                    image.tag = PhotoBinding(model)
+                    image.boundModel = model
+                    image.hasBoundModel = true
                     if (model == null) {
                         status = PhotoDisplayState.Error
                     } else {
@@ -73,7 +80,7 @@ fun GlidePhoto(model: Any?, contentDescription: String, modifier: Modifier = Mod
                                     error: GlideException?, model: Any?,
                                     target: Target<Drawable>, isFirstResource: Boolean
                                 ): Boolean {
-                                    if ((image.tag as? PhotoBinding)?.model == model) {
+                                    if (image.hasBoundModel && image.boundModel == model) {
                                         status = PhotoDisplayState.Error
                                     }
                                     return false
@@ -83,7 +90,7 @@ fun GlidePhoto(model: Any?, contentDescription: String, modifier: Modifier = Mod
                                     resource: Drawable, model: Any, target: Target<Drawable>,
                                     dataSource: DataSource, isFirstResource: Boolean
                                 ): Boolean {
-                                    if ((image.tag as? PhotoBinding)?.model == model) {
+                                    if (image.hasBoundModel && image.boundModel == model) {
                                         status = PhotoDisplayState.Ready
                                     }
                                     return false
