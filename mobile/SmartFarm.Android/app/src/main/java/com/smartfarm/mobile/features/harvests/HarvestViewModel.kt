@@ -6,6 +6,8 @@ import androidx.lifecycle.viewModelScope
 import com.smartfarm.mobile.data.remote.dto.HarvestOverviewDto
 import com.smartfarm.mobile.data.remote.dto.RecordHarvestDto
 import com.smartfarm.mobile.data.repository.HarvestRepository
+import com.smartfarm.mobile.data.repository.NetworkErrorMessages
+import kotlinx.coroutines.CancellationException
 import com.smartfarm.mobile.data.sync.SyncRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -39,8 +41,11 @@ class HarvestViewModel(private val repository: HarvestRepository,
                 mutable.value = mutable.value.copy(overview = snapshot.value,
                     offline = snapshot.offline,
                     cachedAtUtcMillis = snapshot.savedAtUtcMillis.takeIf { snapshot.offline })
-            } catch (_: Exception) {
-                mutable.value = mutable.value.copy(error = "Could not load harvest history.")
+            } catch (cancelled: CancellationException) {
+                throw cancelled
+            } catch (error: Exception) {
+                mutable.value = mutable.value.copy(error = NetworkErrorMessages.forRequest(
+                    error, "Could not load harvest history."))
             } finally {
                 mutable.value = mutable.value.copy(busy = false)
             }
@@ -54,6 +59,8 @@ class HarvestViewModel(private val repository: HarvestRepository,
         viewModelScope.launch {
             try {
                 operation(snapshot.farmId, snapshot.cycleId)
+            } catch (cancelled: CancellationException) {
+                throw cancelled
             } catch (_: Exception) {
                 // A lost response does not prove the server rejected the write.
                 // Never encourage blindly retrying a non-idempotent harvest POST.
@@ -66,6 +73,8 @@ class HarvestViewModel(private val repository: HarvestRepository,
                 mutable.value = mutable.value.copy(
                     overview = repository.list(snapshot.farmId, snapshot.cycleId),
                     notice = message)
+            } catch (cancelled: CancellationException) {
+                throw cancelled
             } catch (_: Exception) {
                 mutable.value = mutable.value.copy(
                     notice = "The server confirmed the change, but history could not refresh. Reopen to check it.")
@@ -94,6 +103,8 @@ class HarvestViewModel(private val repository: HarvestRepository,
                     ("${snapshot.farmId}/${snapshot.cycleId}" to id))
                 mutable.value = mutable.value.copy(notice =
                     "Harvest saved on this device. Sync status shows when the server confirms it.")
+            } catch (cancelled: CancellationException) {
+                throw cancelled
             } catch (_: Exception) {
                 mutable.value = mutable.value.copy(error = "Could not save harvest on this device.")
             } finally {
