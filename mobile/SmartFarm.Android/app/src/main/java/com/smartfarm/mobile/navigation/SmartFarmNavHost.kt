@@ -9,6 +9,11 @@ import androidx.navigation.navArgument
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.compose.currentBackStackEntryAsState
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.Scaffold
+import androidx.compose.ui.Modifier
 import com.smartfarm.mobile.features.auth.AccountScreen
 import com.smartfarm.mobile.features.auth.AuthViewModel
 import com.smartfarm.mobile.features.status.StatusViewModel
@@ -35,6 +40,12 @@ import com.smartfarm.mobile.features.farms.FarmDetailScreen
 @Composable
 fun SmartFarmNavHost(auth: AuthViewModel, farms: FarmViewModel, crops: CropViewModel, monitoring: MonitoringViewModel, inventory: InventoryViewModel, harvests: HarvestViewModel, status: StatusViewModel, sync: SyncStatusViewModel, tasks: com.smartfarm.mobile.features.tasks.TaskViewModel) {
     val navController = rememberNavController()
+    val currentEntry by navController.currentBackStackEntryAsState()
+    val currentRoute = currentEntry?.destination?.route
+    val currentFarmId = currentEntry?.arguments?.getString("farmId").orEmpty()
+    val showFarmTabs = currentRoute in setOf(
+        "farm/{farmId}", "tasks/{farmId}", "crops/{farmId}", "inventory/{farmId}"
+    ) && currentFarmId.isNotBlank()
     val appContext = LocalContext.current
     val resolver = appContext.contentResolver
     val state by auth.state.collectAsStateWithLifecycle()
@@ -43,7 +54,31 @@ fun SmartFarmNavHost(auth: AuthViewModel, farms: FarmViewModel, crops: CropViewM
         farms.clear()
         if (state.account != null) sync.load()
     }
-    NavHost(navController = navController, startDestination = "welcome") {
+    Scaffold(
+        contentWindowInsets = WindowInsets(0, 0, 0, 0),
+        bottomBar = {
+            if (state.account != null && showFarmTabs) {
+                FarmWorkspaceBar(selectedRoute = currentRoute.orEmpty()) { destination ->
+                    if (destination == "account") {
+                        navController.navigate("account") { launchSingleTop = true }
+                    } else {
+                        val route = destination.replace("{farmId}", currentFarmId)
+                        navController.navigate(route) {
+                            // Keep the active farm as the shared root of all workspace tabs.
+                            launchSingleTop = true
+                            restoreState = true
+                            popUpTo("farm/$currentFarmId") { saveState = true }
+                        }
+                    }
+                }
+            }
+        }
+    ) { workspacePadding ->
+    NavHost(
+        navController = navController,
+        startDestination = "welcome",
+        modifier = Modifier.padding(workspacePadding)
+    ) {
         composable("welcome") {
             val statusState by status.state.collectAsStateWithLifecycle()
             WelcomeScreen(
@@ -254,10 +289,5 @@ fun SmartFarmNavHost(auth: AuthViewModel, farms: FarmViewModel, crops: CropViewM
             )
         }
     }
+    }
 }
-
-
-
-
-
-
