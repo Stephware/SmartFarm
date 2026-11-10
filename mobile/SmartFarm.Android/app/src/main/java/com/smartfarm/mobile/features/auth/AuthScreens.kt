@@ -24,6 +24,8 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.liveRegion
 import androidx.compose.ui.semantics.LiveRegionMode
+import com.smartfarm.mobile.ui.components.FarmHero
+import com.smartfarm.mobile.ui.components.FarmSectionCard
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
@@ -87,12 +89,22 @@ fun RegisterScreen(
 fun AccountScreen(state: AuthUiState, onLogout: () -> Unit, onFarms: () -> Unit,
     onSync: () -> Unit, onNotifications: () -> Unit = {}) {
     AuthScaffold("My account") {
-        Text("Welcome, ${state.account?.fullName.orEmpty()}")
-        Text(state.account?.email.orEmpty())
-        Button(onClick = onFarms) { Text("My farms") }
-        OutlinedButton(onClick = onNotifications) { Text("Notifications") }
-        OutlinedButton(onClick = onSync) { Text("Offline sync status") }
-        OutlinedButton(onClick = onLogout) { Text("Log out") }
+        FarmSectionCard("Account information", subtitle = "Signed in to AniGo") {
+            Text(state.account?.fullName.orEmpty(), style = MaterialTheme.typography.titleMedium)
+            Text(state.account?.email.orEmpty(),
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant)
+        }
+        FarmSectionCard("Your workspace", subtitle = "Open farm operations or review your records.") {
+            Button(onClick = onFarms, modifier = Modifier.fillMaxWidth()) { Text("My farms") }
+            OutlinedButton(onClick = onNotifications, modifier = Modifier.fillMaxWidth()) {
+                Text("Notifications")
+            }
+            OutlinedButton(onClick = onSync, modifier = Modifier.fillMaxWidth()) {
+                Text("Offline sync status")
+            }
+        }
+        OutlinedButton(onClick = onLogout, modifier = Modifier.fillMaxWidth()) { Text("Log out") }
     }
 }
 
@@ -109,7 +121,14 @@ private fun AuthScaffold(title: String, content: @Composable () -> Unit) {
         Box(Modifier.fillMaxSize().padding(padding).consumeWindowInsets(padding).imePadding(), contentAlignment = Alignment.TopCenter) {
             Column(Modifier.widthIn(max = 560.dp).fillMaxSize().verticalScroll(rememberScrollState()).padding(24.dp),
                 verticalArrangement = Arrangement.spacedBy(12.dp)) {
-            Text(title, style = MaterialTheme.typography.headlineMedium, modifier = Modifier.semantics { heading() })
+            FarmHero(
+                title,
+                when (title) {
+                    "Log in" -> "Return to your farms and daily fieldwork."
+                    "Create an account" -> "Start managing farms or request access with a code."
+                    else -> "Your account and farm workspaces."
+                }
+            )
             content()
             }
         }
