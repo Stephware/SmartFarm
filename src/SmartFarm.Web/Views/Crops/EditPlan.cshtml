@@ -2,10 +2,11 @@
 @{
     ViewData["Title"] = "Edit planting plan";
 }
-<section class="panel narrow">
+<section class="panel sf-edit-form-panel">
+    <p class="sf-kicker">CROP PLANNING</p>
     <h1>Edit planting plan</h1>
     <p>@Model.Cycle.PlotName · @Model.Cycle.CropTypeName</p>
-    <form asp-action="EditPlan" asp-route-farmId="@Model.Farm.Id"
+    <form class="sf-crop-form" asp-action="EditPlan" asp-route-farmId="@Model.Farm.Id"
           asp-route-cycleId="@Model.Cycle.Id" method="post">
         <input type="hidden" asp-for="Input.RowVersion" />
         <label asp-for="Input.CropTypeId">Crop type</label>

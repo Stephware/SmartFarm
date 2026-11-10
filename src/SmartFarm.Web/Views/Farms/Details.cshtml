@@ -5,96 +5,134 @@
     var isOwner = Model.Farm.Role == "Owner";
 }
 <partial name="_FarmNavigation" model="Model.Farm.Id" />
-<section class="panel">
-    <p><a asp-action="Index">← My farms</a></p>
-    <h1>@Model.Farm.Name</h1>
-    <p>@Model.Farm.LocationText · @Model.Farm.Role</p>
-    @if (TempData["Message"] is string message) { <p role="status">@message</p> }
-    @if (TempData["Error"] is string error) { <p class="error" role="alert">@error</p> }
-    @if (canManage)
-    {
-        <a asp-action="Edit" asp-route-id="@Model.Farm.Id">Edit farm</a>
-    }
+<section class="panel sf-farm-hero" aria-labelledby="farm-heading">
+    <div class="sf-page-header">
+        <div>
+            <p><a asp-action="Index">← My farms</a></p>
+            <p class="sf-kicker">FARM OVERVIEW</p>
+            <h1 id="farm-heading">@Model.Farm.Name</h1>
+            <div class="sf-farm-identity">
+                <span>@Model.Farm.LocationText</span>
+                <span class="sf-status-chip sf-status-chip--planned">@Model.Farm.Role</span>
+            </div>
+        </div>
+        <div class="sf-farm-actions">
+            <a class="button" asp-controller="Dashboard" asp-action="Index" asp-route-farmId="@Model.Farm.Id">Open dashboard</a>
+            @if (canManage)
+            {
+                <a class="sf-button-outline" asp-action="Edit" asp-route-id="@Model.Farm.Id">Edit farm</a>
+            }
+        </div>
+    </div>
+    @if (TempData["Message"] is string message) { <p class="form-notice" role="status">@message</p> }
+    @if (TempData["Error"] is string error) { <p class="error form-error" role="alert">@error</p> }
     @if (isOwner)
     {
-        <form asp-action="Archive" asp-route-id="@Model.Farm.Id" method="post" class="inline" data-confirm="Archive @Model.Farm.Name? Its plots and records will no longer appear in active farms.">
-            <input type="hidden" name="rowVersion" value="@Model.Farm.RowVersion" />
-            <button class="button-danger" type="submit">Archive farm</button>
-        </form>
+        <div class="sf-farm-danger-zone">
+            <p class="sf-muted">Archiving removes this farm from active lists but preserves its records.</p>
+            <form asp-action="Archive" asp-route-id="@Model.Farm.Id" method="post" class="inline" data-confirm="Archive @Model.Farm.Name? Its plots and records will no longer appear in active farms.">
+                <input type="hidden" name="rowVersion" value="@Model.Farm.RowVersion" />
+                <button class="button-danger" type="submit">Archive farm</button>
+            </form>
+        </div>
     }
 </section>
-<section class="panel">
-    <h2>Plots</h2>
-    <p><a asp-controller="PlotLayout" asp-action="Index" asp-route-farmId="@Model.Farm.Id">View schematic plot layout →</a></p>
-    @if (Model.Plots.Count == 0) { <p>No active plots.</p> }
-    else
-    {
-        <ul class="farm-list">
-        @foreach (var plot in Model.Plots)
+<div class="sf-farm-management-grid">
+    <section class="panel sf-farm-plots" aria-labelledby="plots-heading">
+        <div class="sf-section-line">
+            <div>
+                <h2 id="plots-heading">Plots</h2>
+                <p class="sf-muted">Manage your farm's growing spaces.</p>
+            </div>
+            <a asp-controller="PlotLayout" asp-action="Index" asp-route-farmId="@Model.Farm.Id">View schematic plot layout →</a>
+        </div>
+        @if (Model.Plots.Count == 0)
         {
-            <li>
-                <strong>@plot.Name</strong> — @plot.AreaSqMeters m²
-                @if (canManage)
-                {
-                    <a asp-action="EditPlot" asp-route-id="@Model.Farm.Id" asp-route-plotId="@plot.Id">Edit</a>
-                    <form asp-action="ArchivePlot" asp-route-id="@Model.Farm.Id" asp-route-plotId="@plot.Id" method="post" class="inline" data-confirm="Archive @plot.Name? Its history will be retained.">
-                        <input type="hidden" name="rowVersion" value="@plot.RowVersion" />
-                        <button class="button-danger" type="submit">Archive</button>
-                    </form>
-                }
-            </li>
+            <div class="sf-empty-state"><strong>No active plots</strong><p>Add your first plot to start planning crops.</p></div>
         }
+        else
+        {
+            <ul class="sf-plot-list">
+            @foreach (var plot in Model.Plots)
+            {
+                <li>
+                    <div class="sf-list-icon" aria-hidden="true">P</div>
+                    <div class="sf-plot-list-details">
+                        <strong>@plot.Name</strong>
+                        <span class="sf-muted">@plot.AreaSqMeters m²</span>
+                    </div>
+                    @if (canManage)
+                    {
+                        <div class="sf-row-actions">
+                            <a asp-action="EditPlot" asp-route-id="@Model.Farm.Id" asp-route-plotId="@plot.Id">Edit</a>
+                            <form asp-action="ArchivePlot" asp-route-id="@Model.Farm.Id" asp-route-plotId="@plot.Id"
+                                  method="post" class="inline" data-confirm="Archive @plot.Name? Its history will be retained.">
+                                <input type="hidden" name="rowVersion" value="@plot.RowVersion" />
+                                <button class="button-danger" type="submit">Archive</button>
+                            </form>
+                        </div>
+                    }
+                </li>
+            }
+            </ul>
+        }
+        @if (canManage)
+        {
+            <div class="sf-add-plot">
+                <h3>Add plot</h3>
+                <form asp-action="CreatePlot" asp-route-id="@Model.Farm.Id" method="post" class="sf-inline-form">
+                    <div><label for="plotName">Name</label><input id="plotName" name="Name" required maxlength="100" minlength="2" placeholder="e.g. North field" /></div>
+                    <div><label for="plotArea">Area (m²)</label><input id="plotArea" name="AreaSqMeters" type="number" min="0.01" step="0.01" required /></div>
+                    <button type="submit">Add plot</button>
+                </form>
+            </div>
+        }
+    </section>
+    <section class="panel sf-farm-members" aria-labelledby="members-heading">
+        <div class="sf-section-line">
+            <div>
+                <h2 id="members-heading">Members</h2>
+                <p class="sf-muted">See who has access to this farm.</p>
+            </div>
+        </div>
+        <ul class="sf-member-list">
+            <li><span class="sf-member-avatar" aria-hidden="true">O</span><div><strong>Farm owner</strong><span class="sf-muted">The account that created this farm</span></div><span class="sf-status-chip sf-status-chip--active">Owner</span></li>
+            @foreach (var member in Model.Members)
+            {
+                <li>
+                    <span class="sf-member-avatar" aria-hidden="true">M</span>
+                    <div class="sf-member-details"><strong>@member.FullName</strong><span class="sf-muted">@member.Role</span></div>
+                    @if (isOwner)
+                    {
+                        <div class="sf-member-controls">
+                            <form asp-action="ChangeRole" asp-route-id="@Model.Farm.Id" asp-route-memberId="@member.Id" method="post"
+                                  data-confirm="Change the role for @member.FullName? Their available farm actions will change.">
+                                <label class="visually-hidden" for="role-@member.Id">Role for @member.FullName</label>
+                                <select id="role-@member.Id" name="Role">
+                                    @if (member.Role == "Manager")
+                                    {
+                                        <option value="1" selected>Manager</option>
+                                        <option value="2">Field Worker</option>
+                                    }
+                                    else
+                                    {
+                                        <option value="1">Manager</option>
+                                        <option value="2" selected>Field Worker</option>
+                                    }
+                                </select>
+                                <button type="submit">Update role</button>
+                            </form>
+                            <form asp-action="RemoveMember" asp-route-id="@Model.Farm.Id" asp-route-memberId="@member.Id"
+                                  method="post" class="inline" data-confirm="Remove @member.FullName from @Model.Farm.Name? They will lose access.">
+                                <button class="button-danger" type="submit">Remove</button>
+                            </form>
+                        </div>
+                    }
+                </li>
+            }
         </ul>
-    }
-    @if (canManage)
-    {
-        <h3>Add plot</h3>
-        <form asp-action="CreatePlot" asp-route-id="@Model.Farm.Id" method="post" class="narrow">
-            <label for="plotName">Name</label><input id="plotName" name="Name" required maxlength="100" minlength="2" />
-            <label for="plotArea">Area (m²)</label><input id="plotArea" name="AreaSqMeters" type="number" min="0.01" step="0.01" required />
-            <button type="submit">Add plot</button>
-        </form>
-    }
-</section>
-<section class="panel">
-    <h2>Members</h2>
-    <ul class="farm-list">
-        <li>Owner — the account that created this farm</li>
-        @foreach (var member in Model.Members)
-        {
-            <li>
-                <strong>@member.FullName</strong> — @member.Role
-                @if (isOwner)
-                {
-                    <form asp-action="ChangeRole" asp-route-id="@Model.Farm.Id" asp-route-memberId="@member.Id" method="post" class="inline" data-confirm="Change the role for @member.FullName? Their available farm actions will change.">
-                        <label class="visually-hidden" for="role-@member.Id">Role for @member.FullName</label>
-                        <select id="role-@member.Id" name="Role">
-                            @if (member.Role == "Manager")
-                            {
-                                <option value="1" selected>Manager</option>
-                                <option value="2">Field Worker</option>
-                            }
-                            else
-                            {
-                                <option value="1">Manager</option>
-                                <option value="2" selected>Field Worker</option>
-                            }
-                        </select>
-                        <button type="submit">Update role</button>
-                    </form>
-                    <form asp-action="RemoveMember" asp-route-id="@Model.Farm.Id" asp-route-memberId="@member.Id" method="post" class="inline" data-confirm="Remove @member.FullName from @Model.Farm.Name? They will lose access.">
-                        <button class="button-danger" type="submit">Remove</button>
-                    </form>
-                }
-            </li>
-        }
-    </ul>
-
-</section>
-
-
-
-
+    </section>
+</div>
 @if (Model.Enrollment is not null)
 {
     <partial name="_FarmEnrollment" model="Model.Enrollment" />

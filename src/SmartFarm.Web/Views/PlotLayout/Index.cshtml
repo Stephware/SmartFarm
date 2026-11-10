@@ -3,30 +3,50 @@
     ViewData["Title"] = "Plot layout";
 }
 <partial name="_FarmNavigation" model="Model.Farm.Id" />
-<section class="panel">
-    <p><a asp-controller="Farms" asp-action="Details" asp-route-id="@Model.Farm.Id">← @Model.Farm.Name</a></p>
-    <h1>Visual plot layout</h1>
-    <p class="hint">Schematic overview only. Tiles are arranged automatically and do not show real-world positions, boundaries, or distances.</p>
+<section class="panel sf-plot-overview" aria-labelledby="plot-layout-heading">
+    <div class="sf-page-header">
+        <div>
+            <p><a asp-controller="Farms" asp-action="Details" asp-route-id="@Model.Farm.Id">← @Model.Farm.Name</a></p>
+            <p class="sf-kicker">YOUR GROWING SPACES</p>
+            <h1 id="plot-layout-heading">Visual plot layout</h1>
+            <p class="sf-muted">Browse plots, check recorded crops, and open their management pages.</p>
+        </div>
+        <a class="sf-button-outline" asp-controller="Farms" asp-action="Details" asp-route-id="@Model.Farm.Id">Manage plots</a>
+    </div>
+    <p class="sf-schematic-note"><strong>Schematic overview only.</strong> Tiles are arranged automatically and do not show real-world positions, boundaries, or distances.</p>
     @if (Model.Tiles.Count == 0)
     {
-        <p>No active plots. Add a plot from the farm overview.</p>
+        <div class="sf-empty-state">
+            <strong>No active plots</strong>
+            <p>Add a plot from the farm overview to get started.</p>
+            <a asp-controller="Farms" asp-action="Details" asp-route-id="@Model.Farm.Id">Go to farm overview →</a>
+        </div>
     }
     else
     {
-        <div class="plot-layout-grid" role="list" aria-label="Farm plot overview">
+        <div class="plot-layout-grid sf-plot-grid" role="list" aria-label="Farm plot overview">
         @foreach (var plot in Model.Tiles)
         {
-            <a role="listitem" class="plot-layout-tile"
+            <a role="listitem" class="plot-layout-tile sf-plot-tile @(plot.CropName is null ? "sf-plot-empty" : "sf-plot-growing")"
                asp-controller="Crops" asp-action="Index" asp-route-farmId="@Model.Farm.Id"
                aria-label="@plot.Name, @plot.AreaSqMeters square meters, @(plot.CropName ?? "No current crop")">
-                <strong>@plot.Name</strong>
-                <span>@plot.AreaSqMeters.ToString("N2") m²</span>
-                @if (plot.CropName is not null)
-                { <span>@plot.CropName · @plot.CropStatus</span> }
-                else { <span>No active or planned crop</span> }
+                <div class="sf-plot-field" aria-hidden="true"><span></span><span></span><span></span></div>
+                <div class="sf-plot-tile-info">
+                    <strong>@plot.Name</strong>
+                    <span>@plot.AreaSqMeters.ToString("N2") m²</span>
+                    @if (plot.CropName is not null)
+                    {
+                        <span class="sf-plot-crop">@plot.CropName</span>
+                        <span class="sf-plot-status">@plot.CropStatus</span>
+                    }
+                    else
+                    {
+                        <span class="sf-plot-crop">No active or planned crop</span>
+                    }
+                </div>
             </a>
         }
         </div>
     }
-    <p><a asp-controller="Crops" asp-action="Index" asp-route-farmId="@Model.Farm.Id">Open crop records and planting plans →</a></p>
+    <p class="sf-overview-footer"><a asp-controller="Crops" asp-action="Index" asp-route-farmId="@Model.Farm.Id">Open crop records and planting plans →</a></p>
 </section>
