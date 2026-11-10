@@ -47,6 +47,7 @@ class SyncRepository(
     private val dao: PendingOperationDao,
     private val photoDao: PendingPhotoDao,
     private val files: LocalPhotoFiles,
+    private val observationQueue: OfflineObservationQueue,
     private val api: () -> SyncApi,
     private val monitoringApi: () -> MonitoringApi,
     private val inventoryApi: () -> InventoryApi,
@@ -122,14 +123,29 @@ class SyncRepository(
     ): String {
         val user = requireNotNull(auth.currentUserId) { "Sign in before saving." }
         val operationId = UUID.randomUUID().toString()
-        val photoId = stagePhoto(farmId, cycleId, null, operationId, uri, resolver)
+        val photoId = UUID.randomUUID().toString()
+
+        // Produce the immutable upload file once. Only publish the matching Room
+        // rows in one transaction, so a process crash cannot leave a stranded photo.
+        val mime = files.copyFrom(resolver, uri, photoId)
         try {
-            queue(SyncWriteRequest(farmId, cycleId, "observation", observation = input), operationId)
+            if (auth.currentUserId != user) throw IllegalStateException("Account changed.")
+            val operation = PendingOperation(
+                operationId = operationId, userId = user, farmId = farmId,
+                operationType = "observation",
+                payloadJson = gson.toJson(SyncWriteRequest(
+                    farmId, cycleId, "observation", observation = input)),
+                createdAtUtc = System.currentTimeMillis())
+            val photo = PendingPhoto(
+                photoId = photoId, userId = user, farmId = farmId, cycleId = cycleId,
+                observationId = null, parentOperationId = operationId,
+                mimeType = mime, savedAtUtcMillis = System.currentTimeMillis())
+            observationQueue.add(operation, photo)
         } catch (error: Exception) {
-            photoDao.remove(user, photoId)
             files.delete(photoId)
             throw error
         }
+        schedule()
         files.deleteTemporaryCameraSource(uri)
         return operationId
     }
@@ -179,6 +195,8 @@ class SyncRepository(
 
     suspend fun discardPhoto(id: String) {
         val user = auth.currentUserId ?: return
+        // A guessed/stale ID must never remove another account's private file.
+        if (photoDao.find(user, id) == null) return
         photoDao.remove(user, id)
         files.delete(id)
     }
@@ -220,6 +238,8 @@ class SyncRepository(
 
     private suspend fun uploadPendingOnce(): Boolean {
         val user = auth.currentUserId ?: return true
+        // Reconcile abandoned partial files; every account's queued IDs are protected.
+        files.pruneAbandoned(photoDao.allPhotoIds().toSet())
         while (true) {
             val pending = dao.pending(user)
             if (pending.isEmpty()) break
@@ -235,11 +255,18 @@ class SyncRepository(
                     val response = auth.authorized {
                         api().submit(it, operation.operationId, input)
                     }
+                    // Never discard local data based on an unrelated/malformed reply.
+                    if (!SyncReceiptValidator.operationMatches(
+                            response, operation.operationId, operation.operationType)) {
+                        dao.needsReview(operation.operationId, user,
+                            "Unexpected sync confirmation. Review before retrying.")
+                        continue
+                    }
                     if (operation.operationType == "observation") {
-                        val observationId = response.result.get("id")?.asString
-                        if (observationId.isNullOrBlank()) {
+                        val observationId = SyncReceiptValidator.observationId(response)
+                        if (observationId == null) {
                             dao.needsReview(operation.operationId, user,
-                                "The server did not return an observation ID.")
+                                "The server did not return a valid observation ID.")
                             continue
                         }
                         photoDao.resolveObservation(user, operation.operationId, observationId)
@@ -276,9 +303,14 @@ class SyncRepository(
                 try {
                     val body = file.asRequestBody(photo.mimeType.toMediaType())
                     val part = MultipartBody.Part.createFormData("photo", "field-photo", body)
-                    auth.authorized { bearer ->
+                    val saved = auth.authorized { bearer ->
                         monitoringApi().uploadWithId(bearer, photo.farmId, photo.cycleId,
                             requireNotNull(photo.observationId), photo.photoId, part)
+                    }
+                    if (!SyncReceiptValidator.photoMatches(saved, photo)) {
+                        photoDao.review(user, photo.photoId,
+                            "Unexpected photo confirmation. Review before retrying.")
+                        continue
                     }
                     photoDao.remove(user, photo.photoId)
                     files.delete(photo.photoId)
