@@ -256,16 +256,14 @@ class SyncRepository(
                         api().submit(it, operation.operationId, input)
                     }
                     // Never discard local data based on an unrelated/malformed reply.
-                    if (!response.operationId.equals(operation.operationId, ignoreCase = true) ||
-                        response.operationType != operation.operationType) {
+                    if (!SyncReceiptValidator.operationMatches(
+                            response, operation.operationId, operation.operationType)) {
                         dao.needsReview(operation.operationId, user,
                             "Unexpected sync confirmation. Review before retrying.")
                         continue
                     }
                     if (operation.operationType == "observation") {
-                        val observationId = runCatching {
-                            UUID.fromString(response.result.get("id")?.asString).toString()
-                        }.getOrNull()
+                        val observationId = SyncReceiptValidator.observationId(response)
                         if (observationId == null) {
                             dao.needsReview(operation.operationId, user,
                                 "The server did not return a valid observation ID.")
@@ -309,8 +307,7 @@ class SyncRepository(
                         monitoringApi().uploadWithId(bearer, photo.farmId, photo.cycleId,
                             requireNotNull(photo.observationId), photo.photoId, part)
                     }
-                    if (!saved.id.equals(photo.photoId, ignoreCase = true) ||
-                        !saved.observationId.equals(photo.observationId, ignoreCase = true)) {
+                    if (!SyncReceiptValidator.photoMatches(saved, photo)) {
                         photoDao.review(user, photo.photoId,
                             "Unexpected photo confirmation. Review before retrying.")
                         continue
