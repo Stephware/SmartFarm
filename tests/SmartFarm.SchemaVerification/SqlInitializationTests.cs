@@ -94,7 +94,8 @@ public sealed class SqlInitializationTests
         var script = ReadSql("03_VerifySchema.sql");
 
         Assert.Contains("IF DB_NAME() <> N'SmartFarmDB'", script);
-        Assert.Contains("Expected 24 SmartFarm and Identity tables.", script);
+        Assert.Contains("24 + @financeTable", script);
+        Assert.Contains("Unexpected SmartFarm table count.", script);
         Assert.Contains("Expected 48 application indexes.", script);
         Assert.Contains("Expected 42 foreign keys.", script);
         Assert.Contains("Expected 38 check constraints.", script);
