@@ -48,8 +48,8 @@
 <div class="farm-onboarding-grid">
     <section class="panel join-farm-panel" id="join-farm" aria-labelledby="join-farm-heading">
         <p class="section-kicker">JOIN A FARM</p>
-        <h2 id="join-farm-heading">Have a farm code?</h2>
-        <p class="sf-muted">Enter the code provided by the farm owner. You'll receive access after they approve your request.</p>
+        <h2 id="join-farm-heading">Join farm</h2>
+        <p class="sf-muted">Have a farm code? Enter the code supplied by the owner. Access begins after the owner approves your request.</p>
         <form asp-action="RequestJoin" method="post" class="join-farm-form">
             <label for="FarmCode">Farm code</label>
             <input id="FarmCode" name="FarmCode" value="@Model.Join.FarmCode" required maxlength="64" autocomplete="off" spellcheck="false" />
