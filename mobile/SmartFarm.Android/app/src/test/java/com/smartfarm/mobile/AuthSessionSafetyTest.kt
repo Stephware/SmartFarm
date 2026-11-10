@@ -77,8 +77,8 @@ class AuthSessionSafetyTest {
                 "/api/auth/refresh" -> {
                     refreshStarted.countDown()
                     if (!allowRefresh.await(8, TimeUnit.SECONDS))
-                        return MockResponse().setResponseCode(503)
-                    json(tokens("new-access", "new-refresh"))
+                        MockResponse().setResponseCode(503)
+                    else json(tokens("new-access", "new-refresh"))
                 }
                 else -> MockResponse().setResponseCode(404)
             }
@@ -120,8 +120,8 @@ class AuthSessionSafetyTest {
                 "/api/auth/me" -> {
                     accountStarted.countDown()
                     if (!allowAccount.await(8, TimeUnit.SECONDS))
-                        return MockResponse().setResponseCode(503)
-                    json(account)
+                        MockResponse().setResponseCode(503)
+                    else json(account)
                 }
                 else -> MockResponse().setResponseCode(404)
             }
