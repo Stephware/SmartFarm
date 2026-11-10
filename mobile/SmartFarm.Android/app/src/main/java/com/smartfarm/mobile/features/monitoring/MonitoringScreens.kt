@@ -12,6 +12,10 @@ import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -28,6 +32,8 @@ import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
+import androidx.compose.material3.Surface
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.heading
@@ -40,6 +46,10 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.window.Dialog
+import androidx.compose.ui.window.DialogProperties
+import kotlinx.coroutines.CancellationException
 import androidx.compose.ui.unit.dp
 import androidx.compose.foundation.layout.height
 import com.smartfarm.mobile.ui.components.GlidePhoto
@@ -52,6 +62,8 @@ fun MonitoringScreen(
     onObservation: (Int, String, String, Uri?) -> Unit,
     onUpload: (String, Uri) -> Unit,
     onPreview: (String) -> Unit,
+    onThumbnail: suspend (String) -> ByteArray,
+    onDismissPreview: () -> Unit,
     pending: List<PendingOperation> = emptyList(),
     onSync: () -> Unit = {},
     onRetry: () -> Unit = {},
@@ -70,6 +82,13 @@ fun MonitoringScreen(
     var newPhoto by rememberSaveable(state.farmId, state.cycleId) { mutableStateOf<Uri?>(null) }
     var cameraUri by rememberSaveable(state.farmId, state.cycleId) { mutableStateOf<Uri?>(null) }
     var cameraPath by rememberSaveable(state.farmId, state.cycleId) { mutableStateOf<String?>(null) }
+    var viewerPhotoId by rememberSaveable(state.farmId, state.cycleId) {
+        mutableStateOf<String?>(null)
+    }
+    fun openPhoto(photoId: String) {
+        viewerPhotoId = photoId
+        onPreview(photoId)
+    }
     val activityReceipt = state.saveReceipts["${state.farmId}/${state.cycleId}/activity"]
     val observationReceipt = state.saveReceipts["${state.farmId}/${state.cycleId}/observation"]
     var handledActivity by rememberSaveable(state.farmId, state.cycleId) { mutableStateOf(activityReceipt) }
@@ -114,6 +133,10 @@ fun MonitoringScreen(
         targetObservation = target
         camera.launch(uri)
     }
+
+    val progressPhotos = state.observations
+        .flatMap { observation -> observation.photos.map { observation to it } }
+        .sortedWith(compareBy({ it.first.observedAtUtc }, { it.second.uploadedAtUtc }))
 
     RecordPage {
         item(key = "forms") {
@@ -195,26 +218,21 @@ fun MonitoringScreen(
                 activity.notes?.let { Text(it) }
             }
         }
-        item(key = "photo-progress") {
-            val progress = state.observations.flatMap { observation ->
-                observation.photos.map { photo -> observation to photo }
-            }.sortedWith(compareBy({ it.first.observedAtUtc }, { it.second.uploadedAtUtc }))
+        item(key = "photo-progress-heading") {
             Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 HorizontalDivider()
                 Text("Crop photo progress", style = MaterialTheme.typography.titleLarge,
                     modifier = Modifier.semantics { heading() })
-                Text("Inspection photos are listed from earliest to latest. Open a photo to compare growth.")
-                if (progress.isEmpty()) Text("No inspection photos yet.")
-                progress.forEach { (observation, photo) ->
-                    OutlinedButton(onClick = { onPreview(photo.id) }, enabled = !state.busy) {
-                        Text("${observation.observedAtUtc.take(10)} · ${observation.growthStage ?: "Inspection"}")
-                    }
-                    if (state.previewPhotoId == photo.id && state.preview != null) {
-                        GlidePhoto(state.preview, "Crop progress inspection photo",
-                            Modifier.fillMaxWidth().height(220.dp))
-                    }
-                }
+                Text("Inspection photos in date order. Tap one to inspect it.")
+                if (progressPhotos.isEmpty()) Text("No inspection photos yet.")
             }
+        }
+        items(progressPhotos, key = { "progress-${it.second.id}" }) { (observation, photo) ->
+            ObservationPhotoRow(
+                photoId = photo.id,
+                label = "${observation.observedAtUtc.take(10)} · ${observation.growthStage ?: "Inspection"}",
+                onThumbnail = onThumbnail,
+                onOpen = { openPhoto(photo.id) })
         }
         item(key = "observations-heading") {
             Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
@@ -232,13 +250,11 @@ fun MonitoringScreen(
                 observation.growthStage?.let { Text("Stage: $it") }
                 observation.notes?.let { Text(it) }
                 observation.photos.forEach { photo ->
-                    OutlinedButton(onClick = { onPreview(photo.id) }, enabled = !state.busy) {
-                        Text("View photo · ${photo.uploadedAtUtc}")
-                    }
-                    if (state.previewPhotoId == photo.id && state.preview != null) {
-                        GlidePhoto(state.preview, "Crop observation photo",
-                            Modifier.fillMaxWidth().height(220.dp))
-                    }
+                    ObservationPhotoRow(
+                        photoId = photo.id,
+                        label = "Uploaded ${photo.uploadedAtUtc.take(10)}",
+                        onThumbnail = onThumbnail,
+                        onOpen = { openPhoto(photo.id) })
                 }
                 if (state.canRecord) {
                     Button(onClick = {
@@ -250,6 +266,101 @@ fun MonitoringScreen(
                 }
                 HorizontalDivider()
             }
+        }
+    }
+    viewerPhotoId?.let { photoId ->
+        fun dismiss() {
+            viewerPhotoId = null
+            onDismissPreview()
+        }
+        Dialog(
+            onDismissRequest = { dismiss() },
+            properties = DialogProperties(usePlatformDefaultWidth = false)
+        ) {
+            Surface(
+                modifier = Modifier.fillMaxWidth(0.94f).fillMaxHeight(0.84f),
+                shape = MaterialTheme.shapes.large
+            ) {
+                Column(Modifier.fillMaxSize().padding(16.dp),
+                    verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                    Row(Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically) {
+                        Text("Inspection photo", style = MaterialTheme.typography.titleLarge)
+                        TextButton(onClick = { dismiss() }) { Text("Close") }
+                    }
+                    when {
+                        state.previewPhotoId != photoId || state.busy ->
+                            Box(Modifier.fillMaxWidth().weight(1f),
+                                contentAlignment = Alignment.Center) {
+                                CircularProgressIndicator()
+                            }
+                        state.preview != null ->
+                            GlidePhoto(state.preview, "Enlarged crop inspection photo",
+                                Modifier.fillMaxWidth().weight(1f))
+                        else ->
+                            Column(Modifier.fillMaxWidth().weight(1f),
+                                verticalArrangement = Arrangement.Center,
+                                horizontalAlignment = Alignment.CenterHorizontally) {
+                                Text("Photo unavailable. Check your connection.")
+                                OutlinedButton(onClick = { onPreview(photoId) }) {
+                                    Text("Retry photo")
+                                }
+                            }
+                    }
+                }
+            }
+        }
+    }
+
+}
+
+private sealed interface ThumbnailState {
+    data object Loading : ThumbnailState
+    data object Failed : ThumbnailState
+    data class Ready(val bytes: ByteArray) : ThumbnailState
+}
+
+@Composable
+private fun ObservationPhotoRow(
+    photoId: String,
+    label: String,
+    onThumbnail: suspend (String) -> ByteArray,
+    onOpen: () -> Unit
+) {
+    var retry by remember(photoId) { mutableStateOf(0) }
+    var thumbnail by remember(photoId) { mutableStateOf<ThumbnailState>(ThumbnailState.Loading) }
+    LaunchedEffect(photoId, retry) {
+        thumbnail = ThumbnailState.Loading
+        try {
+            thumbnail = ThumbnailState.Ready(onThumbnail(photoId))
+        } catch (cancelled: CancellationException) {
+            throw cancelled
+        } catch (_: Exception) {
+            thumbnail = ThumbnailState.Failed
+        }
+    }
+
+    Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(12.dp),
+        verticalAlignment = Alignment.CenterVertically) {
+        when (val photo = thumbnail) {
+            is ThumbnailState.Ready ->
+                GlidePhoto(photo.bytes, "Thumbnail for $label", Modifier.size(96.dp))
+            ThumbnailState.Loading ->
+                Box(Modifier.size(96.dp), contentAlignment = Alignment.Center) {
+                    CircularProgressIndicator(Modifier.size(28.dp))
+                }
+            ThumbnailState.Failed ->
+                Column(Modifier.size(96.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.Center) {
+                    Text("Unavailable", style = MaterialTheme.typography.labelSmall)
+                    TextButton(onClick = { retry++ }) { Text("Retry") }
+                }
+        }
+        Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(6.dp)) {
+            Text(label, style = MaterialTheme.typography.bodyMedium)
+            OutlinedButton(onClick = onOpen) { Text("Enlarge photo") }
         }
     }
 }
