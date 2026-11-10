@@ -23,11 +23,6 @@ internal object ImageOptimizer {
         if (source.length() !in 1L..MAX_SOURCE_BYTES) {
             throw IOException("Photo must be smaller than 30 MB before optimization.")
         }
-        if (mime != "image/jpeg" && source.length() <= LocalPhotoFiles.MAX_BYTES) {
-            source.copyTo(destination, overwrite = true)
-            return mime
-        }
-
         val bounds = BitmapFactory.Options().apply { inJustDecodeBounds = true }
         BitmapFactory.decodeFile(source.absolutePath, bounds)
         if (bounds.outWidth <= 0 || bounds.outHeight <= 0 ||
@@ -37,9 +32,26 @@ internal object ImageOptimizer {
 
         var sample = 1
         while (maxOf(bounds.outWidth, bounds.outHeight) / sample > 4096) sample *= 2
-        val decoded = BitmapFactory.decodeFile(source.absolutePath,
-            BitmapFactory.Options().apply { inSampleSize = sample })
+        val options = BitmapFactory.Options().apply { inSampleSize = sample }
+        val decoded = BitmapFactory.decodeFile(source.absolutePath, options)
             ?: throw IOException("Photo cannot be decoded.")
+
+        // Preserve source bytes whenever processing would not improve a small photo.
+        // This also validates the image pixels before allowing a lossless copy.
+        if (source.length() <= LocalPhotoFiles.MAX_BYTES &&
+            (mime != "image/jpeg" ||
+                (source.length() <= 1024L * 1024L &&
+                    maxOf(bounds.outWidth, bounds.outHeight) <= MAX_EDGE))) {
+            try {
+                source.copyTo(destination, overwrite = true)
+                return mime
+            } catch (error: Exception) {
+                destination.delete()
+                throw error
+            } finally {
+                decoded.recycle()
+            }
+        }
         var working = decoded
         try {
             val exif = ExifInterface(source.absolutePath)
@@ -73,13 +85,16 @@ internal object ImageOptimizer {
                 write(working, destination, format, 100)
             }
 
-            if (destination.length() > LocalPhotoFiles.MAX_BYTES) {
-                throw IOException("Photo cannot fit within 5 MB without reducing quality further.")
-            }
+            // Never reject a valid under-limit source merely because re-encoding is larger.
+            // Require at least 10% savings before introducing JPEG generation loss.
             if (source.length() <= LocalPhotoFiles.MAX_BYTES &&
-                source.length() <= destination.length()) {
+                (destination.length() > LocalPhotoFiles.MAX_BYTES ||
+                    destination.length() * 10 >= source.length() * 9)) {
                 source.copyTo(destination, overwrite = true)
                 return mime
+            }
+            if (destination.length() > LocalPhotoFiles.MAX_BYTES) {
+                throw IOException("Photo cannot fit within 5 MB without reducing quality further.")
             }
             return if (mime == "image/jpeg") "image/jpeg"
                 else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) "image/webp"
