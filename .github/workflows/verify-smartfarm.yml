@@ -1,0 +1,55 @@
+name: Verify SmartFarm
+
+on:
+  pull_request:
+    branches: [dev, main]
+  push:
+    branches: [dev]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: smartfarm-verify-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  dotnet:
+    name: API, MVC, Worker and schema tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 10.0.x
+      - name: Restore
+        run: dotnet restore SmartFarm.slnx
+      - name: Build
+        run: dotnet build SmartFarm.slnx --configuration Release --no-restore
+      - name: Test
+        run: dotnet test SmartFarm.slnx --configuration Release --no-build --no-restore
+      # SQL-backed workflow tests require a separately initialized disposable
+      # database and are intentionally not run against developer/production data.
+
+  android:
+    name: Android build and Retrofit/Room unit tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+          cache: gradle
+          cache-dependency-path: mobile/SmartFarm.Android/**/*.gradle.kts
+      - uses: android-actions/setup-android@v3
+      - name: Install Android SDK 36
+        run: sdkmanager "platforms;android-36" "build-tools;36.0.0"
+      - name: Build Android and run unit tests
+        working-directory: mobile/SmartFarm.Android
+        run: bash ./gradlew --no-daemon :app:assembleDebug :app:testDebugUnitTest
+      # Device/Room instrumentation tests are run locally with an emulator;
+      # the CI job only claims the Android build and JVM unit-test coverage.
