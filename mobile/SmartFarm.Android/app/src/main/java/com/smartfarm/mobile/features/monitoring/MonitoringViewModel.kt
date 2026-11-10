@@ -47,10 +47,13 @@ class MonitoringViewModel(private val repository: MonitoringRepository,
         override fun sizeOf(key: String, value: ByteArray): Int = value.size
     }
     private var previewJob: Job? = null
+    private var loadJob: Job? = null
 
     fun clear() {
         previewJob?.cancel()
         previewJob = null
+        loadJob?.cancel()
+        loadJob = null
         photoCache.evictAll()
         mutable.value = MonitoringUiState()
     }
@@ -61,13 +64,25 @@ class MonitoringViewModel(private val repository: MonitoringRepository,
     }
 
     fun load(farmId: String, cycleId: String) {
-        // A completed request from a previously opened crop must never replace this screen.
         previewJob?.cancel()
-        mutable.value = MonitoringUiState(farmId = farmId, cycleId = cycleId, busy = true, saveReceipts = mutable.value.saveReceipts)
-        viewModelScope.launch {
-            try { refresh(farmId, cycleId) }
-            catch (_: Exception) { mutable.value = mutable.value.copy(error = "Could not load monitoring history.") }
-            finally { mutable.value = mutable.value.copy(busy = false) }
+        loadJob?.cancel()
+        mutable.value = MonitoringUiState(
+            farmId = farmId, cycleId = cycleId, busy = true,
+            saveReceipts = mutable.value.saveReceipts)
+        loadJob = viewModelScope.launch {
+            try {
+                refresh(farmId, cycleId)
+            } catch (cancelled: CancellationException) {
+                throw cancelled
+            } catch (_: Exception) {
+                if (mutable.value.farmId == farmId && mutable.value.cycleId == cycleId) {
+                    mutable.value = mutable.value.copy(error = "Could not load monitoring history.")
+                }
+            } finally {
+                if (mutable.value.farmId == farmId && mutable.value.cycleId == cycleId) {
+                    mutable.value = mutable.value.copy(busy = false)
+                }
+            }
         }
     }
 
