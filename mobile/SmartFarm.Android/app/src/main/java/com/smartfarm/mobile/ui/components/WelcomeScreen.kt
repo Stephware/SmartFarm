@@ -42,8 +42,8 @@ fun WelcomeScreen(
             verticalArrangement = Arrangement.spacedBy(12.dp, Alignment.CenterVertically),
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
-            Text(stringResource(R.string.welcome), style = MaterialTheme.typography.headlineMedium, modifier = Modifier.semantics { heading() })
-            Text(stringResource(R.string.welcome_description), style = MaterialTheme.typography.bodyLarge)
+            FarmPlotPreview()
+            FarmHero(stringResource(R.string.welcome), stringResource(R.string.welcome_description))
             Button(onClick = onLogin, modifier = Modifier.fillMaxWidth()) { Text("Log in") }
             OutlinedButton(onClick = onRegister, modifier = Modifier.fillMaxWidth()) { Text("Create account") }
             if (BuildConfig.DEBUG) {
