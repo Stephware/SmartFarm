@@ -27,6 +27,8 @@ data class FarmUiState(
     val offline: Boolean = false,
     val cachedAtUtcMillis: Long? = null,
     val weather: WeatherOverviewDto? = null,
+    val weatherOffline: Boolean = false,
+    val weatherCachedAtUtcMillis: Long? = null,
     val weatherMessage: String? = null
 )
 
@@ -128,7 +130,9 @@ class FarmViewModel(
                 } catch (_: Exception) {
                     null // Weather availability must not prevent opening a farm.
                 }
-                val snapshots = listOfNotNull(farm, plots, members, weatherData)
+                // Cached weather must not disable online farm management.
+                // Only farm, plot and member snapshots control the farm offline state.
+                val snapshots = listOf(farm, plots, members)
                 val cached = snapshots.any { it.offline }
                 mutable.value = mutable.value.copy(
                     selected = farm.value, plots = plots.value, members = members.value,
@@ -136,6 +140,9 @@ class FarmViewModel(
                     cachedAtUtcMillis = snapshots.filter { it.offline }
                         .minOfOrNull { it.savedAtUtcMillis },
                     weather = weatherData?.value,
+                    weatherOffline = weatherData?.offline == true,
+                    weatherCachedAtUtcMillis = weatherData?.savedAtUtcMillis
+                        ?.takeIf { weatherData.offline },
                     weatherMessage = if (weatherData == null) "Weather data unavailable." else null)
                 loadEnrollment(farmId)
             } catch (cancelled: CancellationException) { throw cancelled }
@@ -176,7 +183,8 @@ class FarmViewModel(
             name.trim(), location.trim(), timeZone.trim(), lat, lon,
             requireNotNull(current.rowVersion)))
         mutable.value = mutable.value.copy(
-            selected = updated, weather = null,
+            selected = updated, weather = null, weatherOffline = false,
+            weatherCachedAtUtcMillis = null,
             weatherMessage = "Farm settings saved. Reopen this farm to refresh weather.")
         onSuccess()
     }
