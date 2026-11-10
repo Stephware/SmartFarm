@@ -23,6 +23,27 @@ public sealed class FarmEnrollmentWebTests
     private static readonly FarmJoinRequestDetails Pending = new(RequestId, FarmId, "Green Farm", Guid.NewGuid(),
         "New Farmer", "applicant@example.test", "Pending", DateTime.UtcNow, null);
 
+    [Theory]
+    [InlineData("Owner")]
+    [InlineData("Manager")]
+    [InlineData("FieldWorker")]
+    public async Task FarmPagesKeepResponsiveWorkspaceAndFarmSectionNavigation(string role)
+    {
+        using var app = App(role);
+        using var client = app.CreateClient();
+        var html = await client.GetStringAsync($"/Farms/Details?id={FarmId}");
+
+        Assert.Contains("class=\"app-shell\"", html);
+        Assert.Contains("class=\"app-sidebar\"", html);
+        Assert.Contains("class=\"mobile-nav\"", html);
+        Assert.Contains("aria-label=\"Mobile workspace navigation\"", html);
+        Assert.Contains("aria-label=\"Farm sections\"", html);
+        Assert.Contains("href=\"#main-content\"", html);
+        Assert.Contains("id=\"main-content\"", html);
+        Assert.Contains("aria-current=\"page\"", html);
+        Assert.Contains("Farm overview", html);
+    }
+
     [Fact]
     public async Task MyFarmsShowsPendingStatusAndAcceptsCodeWithAntiforgery()
     {
