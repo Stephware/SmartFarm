@@ -67,6 +67,7 @@ public sealed class BusinessEndpointTests : IClassFixture<WebApplicationFactory<
                 { "POST", $"{plots}/{PlotId}/crop-cycles" },
                 { "POST", $"{crop}/transitions" },
                 { "GET", monitoring },
+                { "GET", $"{monitoring}/photos/{Guid.NewGuid()}" },
                 { "POST", $"{monitoring}/activities" },
                 { "POST", $"{monitoring}/observations" },
                 { "PUT", $"{monitoring}/observations/{Guid.NewGuid()}/photos/{Guid.NewGuid()}" },
