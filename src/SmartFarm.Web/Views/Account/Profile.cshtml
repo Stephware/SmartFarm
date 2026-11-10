@@ -2,10 +2,30 @@
 @{
     ViewData["Title"] = "My account";
 }
-<section class="panel">
-    <h1>My account</h1>
-    <p><strong>Name:</strong> @Model.FullName</p>
-    <p><strong>Email:</strong> @Model.Email</p>
-    <p>Farm membership and management will be implemented in the next phase.</p>
+<section class="panel sf-account-hero" aria-labelledby="account-heading">
+    <p class="sf-kicker">ACCOUNT OVERVIEW</p>
+    <h1 id="account-heading">My account</h1>
+    <p class="sf-muted">Your AniGo account details and quick links to your farm workspace.</p>
+    <div class="sf-account-identity">
+        <span class="sf-account-avatar" aria-hidden="true">A</span>
+        <div>
+            <h2>@Model.FullName</h2>
+            <p>@Model.Email</p>
+        </div>
+    </div>
 </section>
-
+<section class="panel sf-account-details" aria-labelledby="account-details-heading">
+    <h2 id="account-details-heading">Account information</h2>
+    <dl>
+        <div><dt>Name</dt><dd>@Model.FullName</dd></div>
+        <div><dt>Email</dt><dd>@Model.Email</dd></div>
+    </dl>
+    <p class="hint">This page displays your current account information. Farm membership and permissions are managed within each farm.</p>
+</section>
+<section class="panel sf-account-links" aria-labelledby="account-links-heading">
+    <h2 id="account-links-heading">Your workspace</h2>
+    <div class="sf-account-link-grid">
+        <a asp-controller="Farms" asp-action="Index"><strong>My farms</strong><span>Open your farms or request access →</span></a>
+        <a asp-controller="Notifications" asp-action="Index"><strong>Notifications</strong><span>Read farm reminders and advisories →</span></a>
+    </div>
+</section>
