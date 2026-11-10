@@ -117,6 +117,8 @@ class MonitoringViewModel(private val repository: MonitoringRepository,
                     ("${snapshot.farmId}/${snapshot.cycleId}/$form" to id))
                 if (mutable.value.farmId == snapshot.farmId && mutable.value.cycleId == snapshot.cycleId)
                     mutable.value = mutable.value.copy(notice = "Saved on this device. It will sync when online.")
+            } catch (cancelled: CancellationException) {
+                throw cancelled
             } catch (_: Exception) {
                 if (mutable.value.farmId == snapshot.farmId && mutable.value.cycleId == snapshot.cycleId)
                     mutable.value = mutable.value.copy(error = "Save failed. Check the values or device storage.")
