@@ -52,14 +52,17 @@ class OfflineSyncReliabilityTest {
             assertEquals(1,
                 database.pendingPhotoDao().forObservationOperation("account-a", operationId).size)
 
+            val secondOperation = operation.copy(operationId = UUID.randomUUID().toString())
+            val mismatchedPhoto = photo(UUID.randomUUID().toString(), "account-b")
+                .copy(parentOperationId = secondOperation.operationId)
             var rejectedOtherAccount = false
             try {
-                queue.add(operation.copy(operationId = UUID.randomUUID().toString()),
-                    photo(UUID.randomUUID().toString(), "account-b"))
+                queue.add(secondOperation, mismatchedPhoto)
             } catch (_: IllegalArgumentException) {
                 rejectedOtherAccount = true
             }
             assertTrue(rejectedOtherAccount)
+            assertNull(database.pendingPhotoDao().find("account-b", mismatchedPhoto.photoId))
         } finally {
             database.close()
         }
