@@ -13,6 +13,14 @@ import com.smartfarm.mobile.ui.components.DateInput
 import androidx.compose.material3.FilterChip
 import androidx.compose.foundation.lazy.items
 import com.smartfarm.mobile.ui.components.RecordPage
+import com.smartfarm.mobile.ui.components.FarmHero
+import com.smartfarm.mobile.ui.components.FarmSectionCard
+import com.smartfarm.mobile.ui.components.FarmSectionHeader
+import com.smartfarm.mobile.ui.components.FarmStatusChip
+import com.smartfarm.mobile.ui.components.FarmStatusTone
+import com.smartfarm.mobile.ui.components.FarmEmptyState
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.HorizontalDivider
@@ -63,7 +71,7 @@ fun CropScreen(
     RecordPage {
         item(key = "forms") {
             Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-            Text("Crop management", style = MaterialTheme.typography.headlineMedium, modifier = Modifier.semantics { heading() })
+            FarmHero("Crop management", "Plan planting, monitor fieldwork and keep crop histories organized.")
             OutlinedButton(onClick = onBack) { Text("Back to farm") }
             if (state.busy) CircularProgressIndicator()
             state.error?.let {
@@ -72,9 +80,11 @@ fun CropScreen(
             }
             OfflineDataNotice(state.offline, state.cachedAtUtcMillis)
 
-            Text("Available crop types", style = MaterialTheme.typography.titleLarge, modifier = Modifier.semantics { heading() })
-            if (state.types.isEmpty()) Text("No crop types yet.")
-            state.types.forEach { type -> Text("${type.name} · ${type.defaultHarvestUnit}") }
+            FarmSectionHeader("Available crop types", "Shared crop options for planting and harvest planning.")
+            if (state.types.isEmpty()) FarmEmptyState("No crop types yet", "Add a crop type before planning.")
+            state.types.forEach { type ->
+                FarmSectionCard(type.name, subtitle = "Default harvest unit: ${type.defaultHarvestUnit}") {}
+            }
 
             if (canManage && !state.offline) {
                 HorizontalDivider()
@@ -98,16 +108,22 @@ fun CropScreen(
                 if (state.types.isEmpty()) Text("Create a crop type first.")
                 if (state.plots.isNotEmpty()) {
                     Text("Choose plot", style = MaterialTheme.typography.titleMedium)
-                    state.plots.forEach { plot ->
-                        FilterChip(selected = selectedPlot == plot.id, onClick = { selectedPlot = plot.id },
-                            enabled = !state.busy, label = { Text(plot.name) })
+                    Row(Modifier.horizontalScroll(rememberScrollState()),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                        state.plots.forEach { plot ->
+                            FilterChip(selected = selectedPlot == plot.id, onClick = { selectedPlot = plot.id },
+                                enabled = !state.busy, label = { Text(plot.name) })
+                        }
                     }
                 }
                 if (state.types.isNotEmpty()) {
                     Text("Choose crop", style = MaterialTheme.typography.titleMedium)
-                    state.types.forEach { type ->
-                        FilterChip(selected = selectedType == type.id, onClick = { selectedType = type.id },
-                            enabled = !state.busy, label = { Text(type.name) })
+                    Row(Modifier.horizontalScroll(rememberScrollState()),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                        state.types.forEach { type ->
+                            FilterChip(selected = selectedType == type.id, onClick = { selectedType = type.id },
+                                enabled = !state.busy, label = { Text(type.name) })
+                        }
                     }
                 }
                 DateInput(plannedDate, "Planting date", { plannedDate = it }, enabled = !state.busy)
@@ -117,8 +133,7 @@ fun CropScreen(
                         && plannedDate.isNotBlank()) { Text("Create planting plan") }
             }
             HorizontalDivider()
-            Text("Plot crop rotation history", style = MaterialTheme.typography.titleLarge,
-                modifier = Modifier.semantics { heading() })
+            FarmSectionHeader("Plot crop rotation history", "Review previous plantings by plot.")
             Text("Previous crop cycles per plot; includes completed, failed and cancelled crops.")
             if (state.cycles.isEmpty()) Text("No planting history yet.")
             state.cycles.groupBy { it.plotId }.values.sortedBy { it.first().plotName }.forEach { history ->
@@ -136,15 +151,13 @@ fun CropScreen(
                 }
             }
             HorizontalDivider()
-            Text("Crop cycles and history", style = MaterialTheme.typography.titleLarge, modifier = Modifier.semantics { heading() })
-            if (state.cycles.isEmpty()) Text("No crop cycles yet.")
+            FarmSectionHeader("Crop cycles and history", "See growing cycles and record fieldwork.")
+            if (state.cycles.isEmpty()) FarmEmptyState("No crop cycles yet", "Create a planting plan to begin.")
             }
         }
         items(state.cycles, key = { "cycle-${it.id}" }) { cycle ->
-            Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                CycleCard(cycle, canManage && !state.offline, state.busy, onUpdatePlan, onTransition, onMonitoring, onHarvests, onQuickMonitoring)
-                HorizontalDivider()
-            }
+            CycleCard(cycle, canManage && !state.offline, state.busy, onUpdatePlan,
+                onTransition, onMonitoring, onHarvests, onQuickMonitoring)
         }
     }
 }
@@ -166,10 +179,16 @@ private fun CycleCard(
     var reason by rememberSaveable(cycle.id, cycle.rowVersion) { mutableStateOf("") }
     var confirmation by rememberSaveable { mutableStateOf<Int?>(null) }
 
-    Text("${cycle.cropTypeName} · ${cycle.plotName}", style = MaterialTheme.typography.titleMedium)
-    Text("${cycle.statusName} · Planned: ${cycle.plannedPlantingDate}")
-    OutlinedButton(onClick = { onMonitoring(cycle) }) { Text("Activities, inspections & photos") }
-    OutlinedButton(onClick = { onHarvests(cycle) }) { Text("Harvest records") }
+    FarmSectionCard("${cycle.cropTypeName} · ${cycle.plotName}",
+        subtitle = "Planned planting: ${cycle.plannedPlantingDate}") {
+    FarmStatusChip(cycle.statusName, when (cycle.status) {
+        0 -> FarmStatusTone.Planned
+        1 -> FarmStatusTone.Active
+        3 -> FarmStatusTone.Failed
+        else -> FarmStatusTone.Neutral
+    })
+    OutlinedButton(onClick = { onMonitoring(cycle) }, modifier = Modifier.fillMaxWidth()) { Text("Activities, inspections & photos") }
+    OutlinedButton(onClick = { onHarvests(cycle) }, modifier = Modifier.fillMaxWidth()) { Text("Harvest records") }
     if (cycle.status == 1) {
         Text("Quick field log", style = MaterialTheme.typography.labelLarge)
         OutlinedButton(onClick = { onQuickMonitoring(cycle, "watering") }) {
@@ -223,6 +242,5 @@ private fun CycleCard(
             dismissButton = { TextButton(onClick = { confirmation = null }) { Text("Back") } }
         )
     }
+    }
 }
-
-
