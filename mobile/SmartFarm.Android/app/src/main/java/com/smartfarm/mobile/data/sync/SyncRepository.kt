@@ -238,6 +238,8 @@ class SyncRepository(
 
     private suspend fun uploadPendingOnce(): Boolean {
         val user = auth.currentUserId ?: return true
+        // Reconcile abandoned partial files; every account's queued IDs are protected.
+        files.pruneAbandoned(photoDao.allPhotoIds().toSet())
         while (true) {
             val pending = dao.pending(user)
             if (pending.isEmpty()) break
@@ -253,11 +255,20 @@ class SyncRepository(
                     val response = auth.authorized {
                         api().submit(it, operation.operationId, input)
                     }
+                    // Never discard local data based on an unrelated/malformed reply.
+                    if (!response.operationId.equals(operation.operationId, ignoreCase = true) ||
+                        response.operationType != operation.operationType) {
+                        dao.needsReview(operation.operationId, user,
+                            "Unexpected sync confirmation. Review before retrying.")
+                        continue
+                    }
                     if (operation.operationType == "observation") {
-                        val observationId = response.result.get("id")?.asString
-                        if (observationId.isNullOrBlank()) {
+                        val observationId = runCatching {
+                            UUID.fromString(response.result.get("id")?.asString).toString()
+                        }.getOrNull()
+                        if (observationId == null) {
                             dao.needsReview(operation.operationId, user,
-                                "The server did not return an observation ID.")
+                                "The server did not return a valid observation ID.")
                             continue
                         }
                         photoDao.resolveObservation(user, operation.operationId, observationId)
@@ -294,9 +305,15 @@ class SyncRepository(
                 try {
                     val body = file.asRequestBody(photo.mimeType.toMediaType())
                     val part = MultipartBody.Part.createFormData("photo", "field-photo", body)
-                    auth.authorized { bearer ->
+                    val saved = auth.authorized { bearer ->
                         monitoringApi().uploadWithId(bearer, photo.farmId, photo.cycleId,
                             requireNotNull(photo.observationId), photo.photoId, part)
+                    }
+                    if (!saved.id.equals(photo.photoId, ignoreCase = true) ||
+                        !saved.observationId.equals(photo.observationId, ignoreCase = true)) {
+                        photoDao.review(user, photo.photoId,
+                            "Unexpected photo confirmation. Review before retrying.")
+                        continue
                     }
                     photoDao.remove(user, photo.photoId)
                     files.delete(photo.photoId)
