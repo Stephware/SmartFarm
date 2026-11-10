@@ -53,6 +53,9 @@ import com.smartfarm.mobile.data.remote.dto.FarmMemberDto
 import com.smartfarm.mobile.data.remote.dto.PlotDto
 import com.smartfarm.mobile.ui.components.OfflineDataNotice
 import com.smartfarm.mobile.ui.components.ConfirmActionButton
+import java.time.Instant
+import java.time.ZoneId
+import java.time.format.DateTimeFormatter
 
 @Composable
 private fun FarmPage(title: String, content: @Composable () -> Unit) {
@@ -217,12 +220,29 @@ fun FarmDetailScreen(state: FarmUiState, onBack: () -> Unit,
             HorizontalDivider()
             Text("Weather forecast and advisories", style = MaterialTheme.typography.titleLarge, modifier = Modifier.semantics { heading() })
             val weather = state.weather
+            if (state.weatherOffline) {
+                val cachedAt = state.weatherCachedAtUtcMillis?.let {
+                    DateTimeFormatter.ofPattern("MMM d, yyyy h:mm a")
+                        .withZone(ZoneId.systemDefault())
+                        .format(Instant.ofEpochMilli(it))
+                } ?: "a previous visit"
+                Text("Weather is from an offline copy saved $cachedAt. " +
+                    "Refresh when connected for updated forecasts.",
+                    color = MaterialTheme.colorScheme.tertiary,
+                    style = MaterialTheme.typography.bodyMedium)
+            }
             if (weather == null) {
                 Text(state.weatherMessage ?: "Weather information has not been loaded.")
             } else if (!weather.hasCoordinates) {
                 Text("An owner or manager can choose a farm pin in Settings to enable weather forecasts.")
             } else {
                 Text("Forecast time zone: ${weather.timeZoneId}. Latest saved forecast.")
+                if (WeatherFreshness.isStale(weather.days)) {
+                    Text("Weather forecast is over 12 hours old or has an invalid update time. " +
+                        "Conditions and advisories may have changed. Check a current weather source.",
+                        color = MaterialTheme.colorScheme.error,
+                        modifier = Modifier.semantics { liveRegion = LiveRegionMode.Polite })
+                }
                 if (weather.days.isEmpty()) {
                     Text("No recent forecast is available. Try again later.")
                 } else {
