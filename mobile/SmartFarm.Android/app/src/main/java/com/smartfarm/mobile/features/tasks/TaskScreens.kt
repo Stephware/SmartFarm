@@ -7,6 +7,12 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import com.smartfarm.mobile.ui.components.RecordPage
+import com.smartfarm.mobile.ui.components.FarmHero
+import com.smartfarm.mobile.ui.components.FarmSectionCard
+import com.smartfarm.mobile.ui.components.FarmStatusChip
+import com.smartfarm.mobile.ui.components.FarmStatusTone
+import com.smartfarm.mobile.ui.components.FarmEmptyState
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.HorizontalDivider
@@ -30,33 +36,49 @@ fun TaskScreen(state: TaskUiState, canManage: Boolean, actorId: String?, onBack:
     val statuses = listOf("Pending", "Completed", "Skipped", "Cancelled")
     RecordPage {
             item {
+                FarmHero(
+                    if (state.farmId == null) "Notifications" else "Farm tasks",
+                    if (state.farmId == null) "Task reminders and farm advisories."
+                    else "Track assigned work and completion status."
+                )
                 OutlinedButton(onClick = onBack) { Text("Back") }
-                Text(if (state.farmId == null) "Notifications" else "Farm tasks", style = MaterialTheme.typography.headlineMedium, modifier = Modifier.semantics { heading() })
-                Text("Connect to the internet to refresh and update these records.")
+                Text("Connect to the internet to refresh and update these records.",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant)
                 if (state.busy) CircularProgressIndicator()
                 state.error?.let { Text(it, color = MaterialTheme.colorScheme.error, modifier = Modifier.semantics { liveRegion = LiveRegionMode.Assertive }) }
                 OutlinedButton(onClick = onRetry, enabled = !state.busy) { Text("Refresh") }
-                if (!state.busy && state.error == null && state.tasks.isEmpty() && state.notifications.isEmpty())
-                    Text(if (state.farmId == null) "No notifications yet." else "No tasks scheduled yet.")
+                if (!state.busy && state.error == null && state.tasks.isEmpty() && state.notifications.isEmpty()) {
+                    FarmEmptyState(
+                        if (state.farmId == null) "No notifications yet." else "No tasks scheduled yet.",
+                        if (state.farmId == null) "New reminders and advisories appear here."
+                        else "Upcoming farm work will appear here once scheduled."
+                    )
+                }
             }
             items(state.tasks, key = { it.id }) { task ->
-                Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                    Text(taskNames.getOrElse(task.taskType) { "Task" }, style = MaterialTheme.typography.titleMedium)
-                    Text("Due ${task.dueDate} · ${statuses.getOrElse(task.status) { "Unknown status" }}")
-                    task.description?.let { Text(it) }
-                    if (task.status == 0 && (canManage || task.assignedToUserId == actorId && actorId != null))
-                        Button(onClick = { onComplete(task) }, enabled = !state.busy) { Text("Mark completed") }
-                    HorizontalDivider()
+                FarmSectionCard(
+                    title = taskNames.getOrElse(task.taskType) { "Task" },
+                    subtitle = "Due ${task.dueDate}"
+                ) {
+                    FarmStatusChip(statuses.getOrElse(task.status) { "Unknown status" },
+                        if (task.status == 0) FarmStatusTone.Planned else FarmStatusTone.Neutral)
+                    task.description?.let { Text(it, style = MaterialTheme.typography.bodyMedium) }
+                    if (task.status == 0 && (canManage || task.assignedToUserId == actorId && actorId != null)) {
+                        Button(onClick = { onComplete(task) }, enabled = !state.busy,
+                            modifier = Modifier.fillMaxWidth()) { Text("Mark completed") }
+                    }
                 }
             }
             items(state.notifications, key = { it.id }) { notification ->
-                Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                    Text(notification.title, style = MaterialTheme.typography.titleMedium)
-                    Text(notification.message)
-                    Text(if (notification.readAtUtc == null) "Unread" else "Read")
-                    if (notification.readAtUtc == null)
-                        OutlinedButton(onClick = { onRead(notification.id) }, enabled = !state.busy) { Text("Mark as read") }
-                    HorizontalDivider()
+                FarmSectionCard(title = notification.title) {
+                    FarmStatusChip(if (notification.readAtUtc == null) "Unread" else "Read",
+                        if (notification.readAtUtc == null) FarmStatusTone.Planned else FarmStatusTone.Neutral)
+                    Text(notification.message, style = MaterialTheme.typography.bodyMedium)
+                    if (notification.readAtUtc == null) {
+                        OutlinedButton(onClick = { onRead(notification.id) }, enabled = !state.busy,
+                            modifier = Modifier.fillMaxWidth()) { Text("Mark as read") }
+                    }
                 }
             }
     }
