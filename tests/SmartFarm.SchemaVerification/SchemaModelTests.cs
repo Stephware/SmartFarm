@@ -49,7 +49,7 @@ public sealed class SchemaModelTests
         Assert.Equal(46, entities.Sum(entity => entity.GetForeignKeys().Count()));
         Assert.Equal(51, entities.Sum(entity => entity.GetIndexes().Count()));
         Assert.Equal(41, entities.Sum(entity => entity.GetCheckConstraints().Count()));
-        Assert.Equal(30, entities.SelectMany(entity => entity.GetProperties()).Count(property =>
+        Assert.Equal(31, entities.SelectMany(entity => entity.GetProperties()).Count(property =>
             property.GetDefaultValueSql() is not null || property.TryGetDefaultValue(out _)));
         Assert.All(entities, entity => Assert.Equal("dbo", entity.GetSchema()));
     }
