@@ -1,35 +1,52 @@
 @{
     ViewData["Title"] = "AniGo farm management";
 }
-<section class="panel landing-hero">
-    <p class="hint">Farm planning · Field monitoring · Harvest reporting</p>
-    <h1>Keep your farm organized, from planting to harvest.</h1>
-    <p>Track plots and crops, record field observations, monitor stock, and review
-       harvest results in one place.</p>
-    <div class="action-links">
-    @if (User.Identity?.IsAuthenticated == true)
-    {
-        <a class="button" asp-controller="Farms" asp-action="Index">Open my farms</a>
-        <a asp-controller="Notifications" asp-action="Index">Review reminders</a>
-    }
-    else
-    {
-        <a class="button" asp-controller="Account" asp-action="Login">Log in</a>
-        <a asp-controller="Account" asp-action="Register">Create account</a>
-    }
+<section class="landing-hero panel">
+    <div class="landing-copy">
+        <p class="landing-eyebrow"><span aria-hidden="true"></span> FOR THE WORK THAT GROWS</p>
+        <h1>Every farm, crop, and harvest in one place.</h1>
+        <p class="landing-lede">Plan planting, keep track of daily fieldwork, monitor supplies, and understand your harvests with AniGo.</p>
+        <div class="landing-actions">
+            @if (User.Identity?.IsAuthenticated == true)
+            {
+                <a class="button" asp-controller="Farms" asp-action="Index">Open my farms</a>
+                <a class="sf-button-outline" asp-controller="Notifications" asp-action="Index">Review reminders</a>
+            }
+            else
+            {
+                <a class="button" asp-controller="Account" asp-action="Register">Get started</a>
+                <a class="sf-button-outline" asp-controller="Account" asp-action="Login">Log in</a>
+            }
+        </div>
+        <p class="landing-reassurance">Built for farm owners, managers, and field workers.</p>
+    </div>
+    <div class="landing-visual" aria-label="Illustration of organized farm plots" role="img">
+        <div class="visual-head">
+            <span>Farm plots</span><small>Illustrative overview</small>
+        </div>
+        <div class="visual-fields" aria-hidden="true">
+            <div class="visual-field field-a"><span class="field-name">Plot A</span><div class="field-furrows"><i></i><i></i><i></i></div></div>
+            <div class="visual-field field-b"><span class="field-name">Plot B</span><div class="field-furrows"><i></i><i></i><i></i></div></div>
+            <div class="visual-field field-c"><span class="field-name">Plot C</span><div class="field-furrows"><i></i><i></i><i></i></div></div>
+            <div class="visual-field field-d"><span class="field-name">Plot D</span><div class="field-furrows"><i></i><i></i><i></i></div></div>
+        </div>
+        <p class="visual-footnote">A clearer way to organize your growing spaces.</p>
     </div>
 </section>
-<section class="feature-grid">
-    <div class="panel">
-        <h2>Plan your crops</h2>
-        <p>Organize your farms and plots, set planting dates, and follow each crop cycle.</p>
-    </div>
-    <div class="panel">
-        <h2>Record fieldwork</h2>
-        <p>Log crop activities, inspections, harvests, and inventory movements.</p>
-    </div>
-    <div class="panel">
-        <h2>Review results</h2>
-        <p>Check tasks and weather advisories, then compare harvests by crop, plot, month, and unit.</p>
-    </div>
+<section class="landing-features" aria-label="What you can do with AniGo">
+    <article class="panel">
+        <div class="feature-index">01</div>
+        <h2>Plan with confidence</h2>
+        <p>Organize farms and plots, schedule planting dates, and follow each crop cycle.</p>
+    </article>
+    <article class="panel">
+        <div class="feature-index">02</div>
+        <h2>Record the work</h2>
+        <p>Log activities, inspections, photos, inventory movements, and partial harvests.</p>
+    </article>
+    <article class="panel">
+        <div class="feature-index">03</div>
+        <h2>Stay informed</h2>
+        <p>Review farm tasks, available weather advisories, and harvest reports in one workspace.</p>
+    </article>
 </section>
