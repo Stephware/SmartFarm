@@ -8,6 +8,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.unit.dp
 
 /**
@@ -35,8 +36,16 @@ internal fun FarmWorkspaceBar(
         tabs.forEach { (route, label, symbol) ->
             NavigationBarItem(
                 selected = selectedRoute == route,
-                onClick = { onNavigate(route) },
-                icon = { Text(symbol, style = MaterialTheme.typography.titleLarge) },
+                // Re-tapping the active tab should not add another destination or reset forms.
+                onClick = { if (selectedRoute != route) onNavigate(route) },
+                // The visible label supplies the spoken name; don't read decorative glyphs.
+                icon = {
+                    Text(
+                        symbol,
+                        modifier = Modifier.clearAndSetSemantics { },
+                        style = MaterialTheme.typography.titleLarge
+                    )
+                },
                 label = { Text(label) },
                 alwaysShowLabel = true,
                 colors = NavigationBarItemDefaults.colors(
