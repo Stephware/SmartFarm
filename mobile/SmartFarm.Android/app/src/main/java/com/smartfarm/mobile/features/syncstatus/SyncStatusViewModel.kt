@@ -8,6 +8,7 @@ import com.smartfarm.mobile.data.local.entity.PendingPhoto
 import com.smartfarm.mobile.data.sync.StockRetryPreview
 import com.smartfarm.mobile.data.sync.SyncRepository
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
@@ -55,6 +56,8 @@ class SyncStatusViewModel(private val repository: SyncRepository) : ViewModel() 
         errorMutable.value = null
         try {
             previewMutable.value = repository.previewStockRetry(id)
+        } catch (cancelled: CancellationException) {
+            throw cancelled
         } catch (error: Exception) {
             errorMutable.value = error.message ?: "Cannot load the current stock balance."
         }
@@ -66,6 +69,8 @@ class SyncStatusViewModel(private val repository: SyncRepository) : ViewModel() 
         try {
             repository.confirmStockRetry(preview)
             previewMutable.value = null
+        } catch (cancelled: CancellationException) {
+            throw cancelled
         } catch (error: Exception) {
             previewMutable.value = null
             errorMutable.value = error.message ?: "Stock changed again. Review and retry."
