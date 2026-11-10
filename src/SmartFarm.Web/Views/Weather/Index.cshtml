@@ -2,6 +2,10 @@
 @model SmartFarm.Core.Contracts.Weather.WeatherOverview
 @{
     ViewData["Title"] = "Farm weather";
+    // Weather checks run every six hours; warn after two missed updates.
+    var nowUtc = DateTime.UtcNow;
+    var stale = Model.Days.Any(day => day.RetrievedAtUtc < nowUtc.AddHours(-12)
+        || day.RetrievedAtUtc > nowUtc.AddMinutes(5));
 }
 <partial name="_FarmNavigation" model="Model.FarmId" />
 <section class="panel">
@@ -18,6 +22,11 @@
     }
     else
     {
+        @if (stale)
+        {
+            <p class="error" role="alert">Weather data is over 12 hours old or has an invalid update time.
+                Conditions and advisories may have changed. Check a current weather source.</p>
+        }
         <h2>Latest saved forecast</h2>
         <ul class="farm-list">
         @foreach (var day in Model.Days)
@@ -35,7 +44,7 @@
     <h2>Weather advisories</h2>
     @if (Model.Advisories.All(a => a.Status != 0))
     {
-        <p>No active rain or heat warnings in the saved forecast.</p>
+        <p>No active warnings in the saved forecast. This does not rule out current hazards.</p>
     }
     else
     {
