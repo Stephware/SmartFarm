@@ -13,6 +13,14 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.OutlinedCard
 import androidx.compose.ui.platform.testTag
 import com.smartfarm.mobile.ui.components.RecordPage
+import com.smartfarm.mobile.ui.components.FarmHero
+import com.smartfarm.mobile.ui.components.FarmSectionCard
+import com.smartfarm.mobile.ui.components.FarmSectionHeader
+import com.smartfarm.mobile.ui.components.FarmStatusChip
+import com.smartfarm.mobile.ui.components.FarmStatusTone
+import com.smartfarm.mobile.ui.components.FarmEmptyState
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.HorizontalDivider
@@ -70,22 +78,31 @@ fun InventoryListScreen(
     RecordPage {
         item(key = "header") {
             Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                Text("Inventory", style = MaterialTheme.typography.headlineMedium, modifier = Modifier.semantics { heading() })
+                FarmHero("Inventory", "Track farm-wide supplies and stock movements.")
                 OutlinedButton(onClick = onBack) { Text("Back to farm") }
                 Feedback(state, onRetry)
-                Text("Low-stock items: ${state.workspace.lowStockCount}")
-                if (state.workspace.items.isEmpty() && !state.busy && state.error == null) Text("No inventory items yet.")
+                FarmSectionCard("Stock overview") {
+                    FarmStatusChip("Low-stock items: ${state.workspace.lowStockCount}",
+                        if (state.workspace.lowStockCount > 0) FarmStatusTone.Warning else FarmStatusTone.Active)
+                    Text("${state.workspace.items.size} available supply items",
+                        color = MaterialTheme.colorScheme.onSurfaceVariant)
+                }
+                if (state.workspace.items.isEmpty() && !state.busy && state.error == null)
+                    FarmEmptyState("No inventory items yet.", "Create a supply record to start tracking farm stock.")
                 if (canManage && !state.offline)
                     Button(onClick = { creating = !creating }) { Text(if (creating) "Close item form" else "Add stock item") }
             }
         }
         if (creating && canManage && !state.offline) item(key = "create") {
-            Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                Text("Create stock item", style = MaterialTheme.typography.titleLarge, modifier = Modifier.semantics { heading() })
+            FarmSectionCard("Create stock item",
+                subtitle = "Set the opening balance and an optional low-stock threshold.") {
                 OutlinedTextField(name, { name = it }, enabled = !state.busy, label = { Text("Name") }, modifier = Modifier.fillMaxWidth())
-                listOf("Seeds", "Fertilizers", "Pesticides", "Other").forEachIndexed { index, label ->
-                    FilterChip(selected = category == index + 1, onClick = { category = index + 1 },
+                Row(Modifier.horizontalScroll(rememberScrollState()),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    listOf("Seeds", "Fertilizers", "Pesticides", "Other").forEachIndexed { index, label ->
+                        FilterChip(selected = category == index + 1, onClick = { category = index + 1 },
                             enabled = !state.busy, label = { Text(label) })
+                    }
                 }
                 OutlinedTextField(unit, { unit = it }, enabled = !state.busy, label = { Text("Unit (kg, L, pcs)") },
                     modifier = Modifier.fillMaxWidth())
@@ -100,10 +117,15 @@ fun InventoryListScreen(
         }
         items(state.workspace.items, key = { "stock-${it.id}" }) { item ->
             OutlinedCard(onClick = { onOpen(item.id) }, modifier = Modifier.fillMaxWidth().testTag("record-card")) {
-                Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
-                    Text(item.name, style = MaterialTheme.typography.titleMedium)
-                    Text("${item.quantityOnHand} ${item.unit}")
-                    if (item.isLowStock) Text("Low stock", color = MaterialTheme.colorScheme.error)
+                Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                    Text(item.name, style = MaterialTheme.typography.titleLarge)
+                    Text("${item.quantityOnHand} ${item.unit}",
+                        style = MaterialTheme.typography.headlineSmall)
+                    FarmStatusChip(if (item.isLowStock) "Low stock" else "In stock",
+                        if (item.isLowStock) FarmStatusTone.Warning else FarmStatusTone.Active)
+                    Text("View stock history →",
+                        style = MaterialTheme.typography.labelLarge,
+                        color = MaterialTheme.colorScheme.primary)
                 }
             }
         }
@@ -147,13 +169,19 @@ fun InventoryItemScreen(
     RecordPage {
         item(key = "form") {
             Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                Text(item?.name ?: "Inventory item", style = MaterialTheme.typography.headlineMedium, modifier = Modifier.semantics { heading() })
+                FarmHero(item?.name ?: "Inventory item", "Review balances and record farm stock movement.")
         OutlinedButton(onClick = onBack) { Text("Inventory list") }
         Feedback(state, onRetry)
         if (item != null) {
-            Text("${item.quantityOnHand} ${item.unit}", style = MaterialTheme.typography.headlineSmall, modifier = Modifier.semantics { heading() })
-            if (item.isLowStock) Text("Low stock", color = MaterialTheme.colorScheme.error)
-            if (item.archivedAtUtc != null) Text("Archived — read only")
+            FarmSectionCard("Available stock") {
+                Text("${item.quantityOnHand} ${item.unit}",
+                    style = MaterialTheme.typography.headlineSmall)
+                FarmStatusChip(
+                    if (item.archivedAtUtc != null) "Archived — read only"
+                    else if (item.isLowStock) "Low stock" else "In stock",
+                    if (item.isLowStock) FarmStatusTone.Warning else FarmStatusTone.Neutral
+                )
+            }
             if (item.archivedAtUtc == null && canManage && !state.offline) {
                 HorizontalDivider()
                 OutlinedButton(onClick = { editingDetails = !editingDetails }, enabled = !state.busy) {
@@ -162,9 +190,12 @@ fun InventoryItemScreen(
                 if (editingDetails) {
                 Text("Item details", style = MaterialTheme.typography.titleMedium)
                 OutlinedTextField(name, { name = it }, enabled = !state.busy, label = { Text("Name") }, modifier = Modifier.fillMaxWidth())
-                listOf("Seeds", "Fertilizers", "Pesticides", "Other").forEachIndexed { index, label ->
-                    FilterChip(selected = category == index + 1, onClick = { category = index + 1 },
-                        enabled = !state.busy, label = { Text(label) })
+                Row(Modifier.horizontalScroll(rememberScrollState()),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    listOf("Seeds", "Fertilizers", "Pesticides", "Other").forEachIndexed { index, label ->
+                        FilterChip(selected = category == index + 1, onClick = { category = index + 1 },
+                            enabled = !state.busy, label = { Text(label) })
+                    }
                 }
                 OutlinedTextField(unit, { unit = it }, enabled = !state.busy, label = { Text("Unit") })
                 OutlinedTextField(description, { description = it }, enabled = !state.busy, label = { Text("Description") })
@@ -180,7 +211,8 @@ fun InventoryItemScreen(
                 }
             if (item.archivedAtUtc == null) {
                 HorizontalDivider()
-                Text("Stock movement", style = MaterialTheme.typography.titleMedium)
+                FarmSectionHeader("Stock movement",
+                    "Record a receipt, supply use, or adjustment. Saved offline entries are not yet confirmed by the server.")
                 if (canManage) {
                     listOf(2 to "Receipt", 4 to "Adjustment").forEach { (type, label) ->
                         FilterChip(selected = movementType == type, onClick = { movementType = type },
@@ -210,21 +242,21 @@ fun InventoryItemScreen(
                 }
             }
             HorizontalDivider()
-            Text("Transaction history", style = MaterialTheme.typography.titleLarge, modifier = Modifier.semantics { heading() })
+            FarmSectionHeader("Transaction history", "Existing stock movements and queued local changes.")
             PendingRecords(pending, state.farmId, state.itemId,
                 setOf("inventory"), onSync)
         }
             }
         }
         if (item != null) items(state.transactions, key = { "transaction-${it.id}" }) { transaction ->
-            Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                var reversalReason by rememberSaveable(transaction.id) { mutableStateOf("") }
+            var reversalReason by rememberSaveable(transaction.id) { mutableStateOf("") }
                 val type = when (transaction.transactionType) {
                     1 -> "Opening"; 2 -> "Receipt"; 3 -> "Consumption"
                     4 -> "Adjustment"; else -> "Reversal"
                 }
-                Text("$type · ${transaction.quantityChange} ${item.unit} · ${transaction.occurredAtUtc}")
-                transaction.reason?.let { Text(it) }
+                FarmSectionCard(type, subtitle = "Recorded ${transaction.occurredAtUtc} UTC") {
+                Text("${transaction.quantityChange} ${item.unit}", style = MaterialTheme.typography.titleLarge)
+                transaction.reason?.let { Text(it, style = MaterialTheme.typography.bodyMedium) }
                 if (canManage && !state.offline && item.archivedAtUtc == null &&
                     transaction.transactionType != 5 && transaction.id !in reversedIds) {
                     OutlinedTextField(reversalReason, { reversalReason = it }, enabled = !state.busy,
@@ -234,7 +266,6 @@ fun InventoryItemScreen(
                         enabled = !state.busy && reversalReason.trim().length >= 3,
                         onConfirm = { onReverse(transaction.id, reversalReason) })
                 }
-                HorizontalDivider()
             }
         }
     }

@@ -11,6 +11,12 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.AlertDialog
 import androidx.compose.foundation.lazy.items
 import com.smartfarm.mobile.ui.components.RecordPage
+import com.smartfarm.mobile.ui.components.FarmHero
+import com.smartfarm.mobile.ui.components.FarmSectionCard
+import com.smartfarm.mobile.ui.components.FarmSectionHeader
+import com.smartfarm.mobile.ui.components.FarmStatusChip
+import com.smartfarm.mobile.ui.components.FarmStatusTone
+import com.smartfarm.mobile.ui.components.FarmEmptyState
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.HorizontalDivider
@@ -64,7 +70,7 @@ fun HarvestScreen(
         item(key = "form") {
             Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
             OutlinedButton(onClick = onBack) { Text("Back to crop cycles") }
-            Text("Harvest management", style = MaterialTheme.typography.headlineMedium, modifier = Modifier.semantics { heading() })
+            FarmHero("Harvest management", "Record partial harvests and review the crop's yield history.")
             if (state.busy) CircularProgressIndicator()
             state.error?.let {
                 Text(it, color = MaterialTheme.colorScheme.error, modifier = Modifier.semantics { liveRegion = LiveRegionMode.Assertive })
@@ -74,41 +80,49 @@ fun HarvestScreen(
             OfflineDataNotice(state.offline, state.cachedAtUtcMillis)
 
             if (overview != null) {
-                Text("${overview.cropName} · ${overview.plotName}",
-                    style = MaterialTheme.typography.titleLarge, modifier = Modifier.semantics { heading() })
-                Text("Total yield: ${overview.totalQuantity.toPlainString()} ${overview.unit}",
-                    style = MaterialTheme.typography.titleMedium)
-                Text("${overview.validHarvestCount} valid · ${overview.voidedHarvestCount} voided")
-                Text("Harvesting does not automatically complete the crop cycle.")
+                FarmSectionCard("${overview.cropName} · ${overview.plotName}",
+                    subtitle = "Server-confirmed harvest totals for this crop.") {
+                    Text("Total yield: ${overview.totalQuantity.toPlainString()} ${overview.unit}",
+                        style = MaterialTheme.typography.titleLarge)
+                    Text("${overview.validHarvestCount} valid · ${overview.voidedHarvestCount} voided",
+                        style = MaterialTheme.typography.bodyMedium)
+                    Text("Harvesting does not automatically complete the crop cycle.",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant)
+                }
 
                 if (overview.canRecord) {
-                    HorizontalDivider()
-                    Text("Record partial harvest", style = MaterialTheme.typography.titleMedium)
+                    FarmSectionCard("Record partial harvest",
+                        subtitle = "Each saved quantity becomes a separate record; the crop cycle remains active.") {
                     OutlinedTextField(quantity, { quantity = it }, enabled = !state.busy, label = { Text("Quantity (${overview.unit})") },
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
                         modifier = Modifier.fillMaxWidth())
                     OutlinedTextField(notes, { notes = it }, enabled = !state.busy, label = { Text("Notes (optional)") },
                         modifier = Modifier.fillMaxWidth())
                     Button(onClick = { onRecord(quantity, notes) },
-                        enabled = !state.busy && quantity.isNotBlank()) { Text("Record harvest") }
+                        enabled = !state.busy && quantity.isNotBlank(), modifier = Modifier.fillMaxWidth()) {
+                        Text("Record harvest")
+                    }
+                    }
                 } else {
                     Text("Only active crop cycles can accept new harvest entries.")
                 }
 
-                HorizontalDivider()
-                Text("Harvest history", style = MaterialTheme.typography.titleLarge, modifier = Modifier.semantics { heading() })
+                FarmSectionHeader("Harvest history", "Past valid and voided harvest entries for this crop.")
                 PendingRecords(pending, state.farmId, state.cycleId,
                     setOf("harvest"), onSync)
-                if (overview.entries.isEmpty()) Text("No harvests recorded yet.")
+                if (overview.entries.isEmpty())
+                    FarmEmptyState("No harvests recorded yet.", "Saved harvests will appear here.")
             }
             }
         }
         items(overview?.entries.orEmpty(), key = { "harvest-${it.id}" }) { entry ->
-            Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                    Text("${entry.quantity.toPlainString()} ${entry.unit}" +
-                        if (entry.isVoided) " · Voided" else "",
-                        style = MaterialTheme.typography.titleMedium)
-                    Text(entry.harvestedAtUtc)
+            FarmSectionCard(
+                "${entry.quantity.toPlainString()} ${entry.unit}",
+                subtitle = "Recorded ${entry.harvestedAtUtc} UTC"
+            ) {
+                    FarmStatusChip(if (entry.isVoided) "Voided" else "Valid",
+                        if (entry.isVoided) FarmStatusTone.Failed else FarmStatusTone.Active)
                     entry.notes?.let { Text(it) }
                     if (entry.isVoided) {
                         Text("Voided: ${entry.voidReason.orEmpty()}")
@@ -118,8 +132,6 @@ fun HarvestScreen(
                             confirmVoidId = entry.id
                         }, enabled = !state.busy) { Text("Void entry") }
                     }
-                    HorizontalDivider()
-
             }
         }
     }

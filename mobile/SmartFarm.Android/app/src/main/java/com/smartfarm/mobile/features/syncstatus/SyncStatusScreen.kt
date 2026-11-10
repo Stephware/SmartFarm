@@ -9,6 +9,13 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.AlertDialog
 import androidx.compose.foundation.lazy.items
 import com.smartfarm.mobile.ui.components.RecordPage
+import com.smartfarm.mobile.ui.components.FarmHero
+import com.smartfarm.mobile.ui.components.FarmSectionCard
+import com.smartfarm.mobile.ui.components.FarmSectionHeader
+import com.smartfarm.mobile.ui.components.FarmStatusChip
+import com.smartfarm.mobile.ui.components.FarmStatusTone
+import com.smartfarm.mobile.ui.components.FarmEmptyState
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
@@ -54,22 +61,39 @@ fun SyncStatusScreen(
         item(key = "header") {
             Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
             OutlinedButton(onClick = onBack) { Text("Back") }
-            Text("Offline sync", style = MaterialTheme.typography.headlineMedium, modifier = Modifier.semantics { heading() })
-            Text("Pending: " + (operations.count { it.status == "pending" } +
-                photos.count { it.status == "pending" }) +
-                " · Needs review: " + (operations.count { it.status == "review" } +
-                photos.count { it.status == "review" }))
+            FarmHero("Offline sync", "Review changes saved on this device before they reach the server.")
+            FarmSectionCard("Sync queue", subtitle = "These are local records awaiting server confirmation.") {
+                FarmStatusChip(
+                    "Pending: " + (operations.count { it.status == "pending" } +
+                        photos.count { it.status == "pending" }),
+                    FarmStatusTone.Planned
+                )
+                FarmStatusChip(
+                    "Needs review: " + (operations.count { it.status == "review" } +
+                        photos.count { it.status == "review" }),
+                    if (operations.any { it.status == "review" } || photos.any { it.status == "review" })
+                        FarmStatusTone.Warning else FarmStatusTone.Neutral
+                )
+            }
             error?.let { Text(it, color = MaterialTheme.colorScheme.error, modifier = Modifier.semantics { liveRegion = LiveRegionMode.Assertive }) }
             Text("Changes stay on this device until the server confirms them. " +
                 "Check rejected records before retrying; stock may need a newer version.")
-            Button(onClick = onSyncNow) { Text("Sync now") }
-            if (operations.isEmpty() && photos.isEmpty()) Text("All local changes are synced.")
+            Button(onClick = onSyncNow, modifier = Modifier.fillMaxWidth()) { Text("Sync now") }
+            if (operations.isEmpty() && photos.isEmpty()) {
+                FarmEmptyState("All local changes are synced.",
+                    "No local field records or crop photos are waiting for upload.")
+            }
             }
         }
         items(operations, key = { "operation-${it.operationId}" }) { operation ->
-            Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                Text(operation.operationType.replaceFirstChar { it.uppercase() } +
-                    " · " + operation.status, style = MaterialTheme.typography.titleMedium)
+            FarmSectionCard(
+                operation.operationType.replaceFirstChar { it.uppercase() },
+                subtitle = "Saved field record"
+            ) {
+                FarmStatusChip(
+                    if (operation.status == "review") "Needs review" else "Waiting to sync",
+                    if (operation.status == "review") FarmStatusTone.Warning else FarmStatusTone.Planned
+                )
                 Text(pendingRecordDescription(operation))
                 operation.errorMessage?.let { Text(it, color = MaterialTheme.colorScheme.error, modifier = Modifier.semantics { liveRegion = LiveRegionMode.Assertive }) }
                 if (operation.status == "review") {
@@ -89,12 +113,14 @@ fun SyncStatusScreen(
             }
         }
         if (photos.isNotEmpty()) item(key = "photos-heading") {
-            Text("Crop photos", style = MaterialTheme.typography.titleLarge, modifier = Modifier.semantics { heading() })
+            FarmSectionHeader("Crop photos", "Queued inspection images are uploaded after their observations.")
         }
         items(photos, key = { "photo-${it.photoId}" }) { photo ->
-            Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                    Text("Photo · " + photo.status,
-                        style = MaterialTheme.typography.titleMedium)
+            FarmSectionCard("Crop photo", subtitle = "Local inspection image") {
+                    FarmStatusChip(
+                        if (photo.status == "review") "Needs review" else "Waiting to sync",
+                        if (photo.status == "review") FarmStatusTone.Warning else FarmStatusTone.Planned
+                    )
                     if (photo.observationId == null) {
                         Text("Waiting for its observation to sync first.")
                     }

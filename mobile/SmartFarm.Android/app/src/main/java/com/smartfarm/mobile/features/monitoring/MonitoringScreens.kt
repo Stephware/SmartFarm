@@ -24,6 +24,13 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.FilterChip
 import androidx.compose.foundation.lazy.items
 import com.smartfarm.mobile.ui.components.RecordPage
+import com.smartfarm.mobile.ui.components.FarmHero
+import com.smartfarm.mobile.ui.components.FarmSectionCard
+import com.smartfarm.mobile.ui.components.FarmSectionHeader
+import com.smartfarm.mobile.ui.components.FarmStatusChip
+import com.smartfarm.mobile.ui.components.FarmStatusTone
+import com.smartfarm.mobile.ui.components.FarmEmptyState
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.HorizontalDivider
@@ -141,7 +148,7 @@ fun MonitoringScreen(
     RecordPage {
         item(key = "forms") {
             Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-            Text("Crop monitoring", style = MaterialTheme.typography.headlineMedium, modifier = Modifier.semantics { heading() })
+            FarmHero("Crop monitoring", "Record field activities, inspect crops, and review saved photos.")
             OutlinedButton(onClick = onBack) { Text("Back to crops") }
             if (state.busy) CircularProgressIndicator()
             state.error?.let {
@@ -150,6 +157,10 @@ fun MonitoringScreen(
             }
             state.notice?.let { Text(it, color = MaterialTheme.colorScheme.primary, modifier = Modifier.semantics { liveRegion = LiveRegionMode.Polite }) }
             OfflineDataNotice(state.offline, state.cachedAtUtcMillis)
+            if (!state.canRecord) {
+                FarmEmptyState("Read-only crop cycle",
+                    "New field records require an active crop cycle. Existing history is still available.")
+            }
 
             if (state.canRecord) {
                 if (!showAll) {
@@ -158,26 +169,33 @@ fun MonitoringScreen(
                     OutlinedButton(onClick = { showAll = true }) { Text("Show all logging options") }
                 }
                 if (showAll || quick != "inspection") {
-                Text("Record farm activity", style = MaterialTheme.typography.titleLarge, modifier = Modifier.semantics { heading() })
+                FarmSectionCard("Record farm activity",
+                    subtitle = "Choose an activity and save the work to this crop cycle.") {
                 val activities = listOf("Watering", "Fertilizing", "Pesticide", "Weeding", "Other")
-                activities.forEachIndexed { index, label ->
-                    FilterChip(selected = activityType == index + 1, onClick = { activityType = index + 1 },
-                        enabled = !state.busy, label = { Text(label) })
+                Row(Modifier.horizontalScroll(rememberScrollState()),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    activities.forEachIndexed { index, label ->
+                        FilterChip(selected = activityType == index + 1, onClick = { activityType = index + 1 },
+                            enabled = !state.busy, label = { Text(label) })
+                    }
                 }
                 OutlinedTextField(activityNotes, { activityNotes = it }, enabled = !state.busy,
                     label = { Text("Notes (optional)") }, modifier = Modifier.fillMaxWidth())
                 Button(onClick = { onActivity(activityType, activityNotes) },
-                    enabled = !state.busy) { Text("Save activity") }
-
+                    enabled = !state.busy, modifier = Modifier.fillMaxWidth()) { Text("Save activity") }
+                }
                 }
                 if (showAll || quick != "watering") {
-                HorizontalDivider()
-                Text("Record inspection / observation", style = MaterialTheme.typography.titleLarge, modifier = Modifier.semantics { heading() })
-                listOf("Not assessed", "Healthy", "Needs attention", "Critical")
-                    .forEachIndexed { index, label ->
-                        FilterChip(selected = health == index, onClick = { health = index },
-                        enabled = !state.busy, label = { Text(label) })
-                    }
+                FarmSectionCard("Record inspection / observation",
+                    subtitle = "Check crop condition and attach a photo if available.") {
+                Row(Modifier.horizontalScroll(rememberScrollState()),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    listOf("Not assessed", "Healthy", "Needs attention", "Critical")
+                        .forEachIndexed { index, label ->
+                            FilterChip(selected = health == index, onClick = { health = index },
+                                enabled = !state.busy, label = { Text(label) })
+                        }
+                }
                 OutlinedTextField(stage, { stage = it }, enabled = !state.busy,
                     label = { Text("Growth stage") }, modifier = Modifier.fillMaxWidth())
                 OutlinedTextField(observationNotes, { observationNotes = it }, enabled = !state.busy,
@@ -197,34 +215,35 @@ fun MonitoringScreen(
                 }
                 Button(onClick = {
                     onObservation(health, stage, observationNotes, newPhoto)
-                }, enabled = !state.busy) { Text("Save observation") }
+                }, enabled = !state.busy, modifier = Modifier.fillMaxWidth()) { Text("Save observation") }
+                }
                 }
             }
 
-            HorizontalDivider()
-            Text("Activity history", style = MaterialTheme.typography.titleLarge, modifier = Modifier.semantics { heading() })
+            FarmSectionHeader("Activity history",
+                "Previous fieldwork records for this crop cycle.")
             PendingRecords(pending, state.farmId, state.cycleId,
                 setOf("activity", "observation"), onSync)
-            if (state.activities.isEmpty()) Text("No activities recorded.")
+            if (state.activities.isEmpty())
+                FarmEmptyState("No activities recorded.", "Saved fieldwork will appear here.")
             }
         }
         items(state.activities, key = { "activity-${it.id}" }) { activity ->
-            Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                val name = when (activity.activityType) {
-                    1 -> "Watering"; 2 -> "Fertilizing"; 3 -> "Pesticide"
-                    4 -> "Weeding"; else -> "Other"
-                }
-                Text("$name · ${activity.occurredAtUtc}")
-                activity.notes?.let { Text(it) }
+            val name = when (activity.activityType) {
+                1 -> "Watering"; 2 -> "Fertilizing"; 3 -> "Pesticide"
+                4 -> "Weeding"; else -> "Other"
+            }
+            FarmSectionCard(name, subtitle = "Recorded ${activity.occurredAtUtc} UTC") {
+                activity.notes?.let { Text(it, style = MaterialTheme.typography.bodyMedium) }
             }
         }
         item(key = "photo-progress-heading") {
             Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 HorizontalDivider()
-                Text("Crop photo progress", style = MaterialTheme.typography.titleLarge,
-                    modifier = Modifier.semantics { heading() })
-                Text("Inspection photos in date order. Tap one to inspect it.")
-                if (progressPhotos.isEmpty()) Text("No inspection photos yet.")
+                FarmSectionHeader("Crop photo progress",
+                    "Inspection photos in date order. Tap one to inspect it.")
+                if (progressPhotos.isEmpty())
+                    FarmEmptyState("No inspection photos yet.", "Add photos to crop observations to compare them here.")
             }
         }
         items(progressPhotos, key = { "progress-${it.second.id}" }) { (observation, photo) ->
@@ -238,16 +257,21 @@ fun MonitoringScreen(
         item(key = "observations-heading") {
             Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
             HorizontalDivider()
-            Text("Observations and photos", style = MaterialTheme.typography.titleLarge, modifier = Modifier.semantics { heading() })
-            if (state.observations.isEmpty()) Text("No observations recorded.")
+            FarmSectionHeader("Observations and photos", "Crop health and inspection records.")
+            if (state.observations.isEmpty())
+                FarmEmptyState("No observations recorded.", "New inspection records will appear here.")
             }
         }
         items(state.observations, key = { "observation-${it.id}" }) { observation ->
-            Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                val status = when (observation.healthStatus) {
-                    0 -> "Not assessed"; 1 -> "Healthy"; 2 -> "Needs attention"; else -> "Critical"
-                }
-                Text("$status · ${observation.observedAtUtc}", style = MaterialTheme.typography.titleMedium)
+            val status = when (observation.healthStatus) {
+                0 -> "Not assessed"; 1 -> "Healthy"; 2 -> "Needs attention"; else -> "Critical"
+            }
+            FarmSectionCard("Crop observation", subtitle = "Recorded ${observation.observedAtUtc} UTC") {
+                FarmStatusChip(status, when (observation.healthStatus) {
+                    1 -> FarmStatusTone.Active
+                    2, 3 -> FarmStatusTone.Warning
+                    else -> FarmStatusTone.Neutral
+                })
                 observation.growthStage?.let { Text("Stage: $it") }
                 observation.notes?.let { Text(it) }
                 observation.photos.forEach { photo ->
@@ -266,7 +290,6 @@ fun MonitoringScreen(
                     OutlinedButton(onClick = { capture(observation.id) },
                         enabled = !state.busy) { Text("Take photo for observation") }
                 }
-                HorizontalDivider()
             }
         }
     }
