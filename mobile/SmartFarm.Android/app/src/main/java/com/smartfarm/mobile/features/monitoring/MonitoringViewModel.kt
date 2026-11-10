@@ -14,6 +14,10 @@ import com.smartfarm.mobile.data.remote.dto.ActivityInputDto
 import com.smartfarm.mobile.data.remote.dto.ObservationInputDto
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.currentCoroutineContext
+import kotlinx.coroutines.ensureActive
+import kotlinx.coroutines.sync.Semaphore
+import kotlinx.coroutines.sync.withPermit
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -46,6 +50,11 @@ class MonitoringViewModel(private val repository: MonitoringRepository,
     private val photoCache = object : LruCache<String, ByteArray>(12 * 1024 * 1024) {
         override fun sizeOf(key: String, value: ByteArray): Int = value.size
     }
+    // Thumbnails are small and memory-only; keep network downloads bounded.
+    private val thumbnailCache = object : LruCache<String, ByteArray>(4 * 1024 * 1024) {
+        override fun sizeOf(key: String, value: ByteArray): Int = value.size
+    }
+    private val thumbnailRequests = Semaphore(2)
     private var previewJob: Job? = null
     private var loadJob: Job? = null
 
@@ -55,6 +64,7 @@ class MonitoringViewModel(private val repository: MonitoringRepository,
         loadJob?.cancel()
         loadJob = null
         photoCache.evictAll()
+        thumbnailCache.evictAll()
         mutable.value = MonitoringUiState()
     }
 
@@ -134,6 +144,40 @@ class MonitoringViewModel(private val repository: MonitoringRepository,
         submit("photo") { farmId, cycleId ->
             sync.queuePhoto(farmId, cycleId, observationId, uri, resolver)
         }
+
+    suspend fun thumbnail(photoId: String): ByteArray {
+        val snapshot = mutable.value
+        require(snapshot.farmId.isNotBlank() && snapshot.cycleId.isNotBlank())
+        thumbnailCache.get(photoId)?.let { return it }
+
+        return thumbnailRequests.withPermit {
+            thumbnailCache.get(photoId)?.let { return@withPermit it }
+            val bytes = photoCache.get(photoId) ?: withContext(Dispatchers.IO) {
+                repository.imageBytes(snapshot.farmId, snapshot.cycleId, photoId)
+            }
+            val small = withContext(Dispatchers.Default) {
+                PhotoThumbnailFactory.create(bytes)
+            }
+            // The composable is cancelled when scrolled away; never cache across logout.
+            currentCoroutineContext().ensureActive()
+            if (mutable.value.farmId != snapshot.farmId ||
+                mutable.value.cycleId != snapshot.cycleId) {
+                throw CancellationException("Monitoring context changed.")
+            }
+            if (bytes.size <= 5 * 1024 * 1024) photoCache.put(photoId, bytes)
+            thumbnailCache.put(photoId, small)
+            small
+        }
+    }
+
+    fun dismissPreview() {
+        previewJob?.cancel()
+        previewJob = null
+        if (mutable.value.previewPhotoId != null) {
+            mutable.value = mutable.value.copy(
+                preview = null, previewPhotoId = null, busy = false, error = null)
+        }
+    }
 
     fun preview(photoId: String) {
         val snapshot = mutable.value
