@@ -2,56 +2,101 @@
 @model SmartFarm.Core.Contracts.Weather.WeatherOverview
 @{
     ViewData["Title"] = "Farm weather";
-    // Weather checks run every six hours; warn after two missed updates.
+    // Saved weather updates are normally checked every six hours. Two missed updates warrant a warning.
     var nowUtc = DateTime.UtcNow;
     var stale = Model.Days.Any(day => day.RetrievedAtUtc < nowUtc.AddHours(-12)
         || day.RetrievedAtUtc > nowUtc.AddMinutes(5));
+    var activeAdvisories = Model.Advisories.Where(a => a.Status == 0).ToList();
 }
 <partial name="_FarmNavigation" model="Model.FarmId" />
-<section class="panel">
-    <p><a asp-controller="Farms" asp-action="Details" asp-route-id="@Model.FarmId">← Back to farm</a></p>
-    <h1>Farm weather</h1>
-    <p>Forecast dates use @Model.TimeZoneId. This page shows the latest saved forecast.</p>
+<section class="panel sf-weather-hero" aria-labelledby="weather-heading">
+    <div class="sf-page-header">
+        <div>
+            <p><a asp-controller="Farms" asp-action="Details" asp-route-id="@Model.FarmId">← Back to farm</a></p>
+            <p class="sf-kicker">FARM CONDITIONS</p>
+            <h1 id="weather-heading">Farm weather</h1>
+            <p class="sf-muted">Forecast dates use @Model.TimeZoneId. This page shows the latest saved forecast, not live weather.</p>
+        </div>
+        <span class="sf-status-chip @(stale ? "sf-status-chip--warning" : "sf-status-chip--neutral")">
+            @(Model.Days.Count == 0 ? "No saved forecast" : stale ? "Update overdue" : "Saved forecast")
+        </span>
+    </div>
     @if (!Model.HasCoordinates)
     {
-        <p class="hint">Weather is not enabled for this farm. An owner or manager must add its latitude and longitude in Edit farm.</p>
+        <div class="sf-empty-state">
+            <h2>Weather is not enabled for this farm</h2>
+            <p>An owner or manager must add its latitude and longitude in Edit farm.</p>
+            <a asp-controller="Farms" asp-action="Details" asp-route-id="@Model.FarmId">Return to farm overview →</a>
+        </div>
     }
     else if (Model.Days.Count == 0)
     {
-        <p>No recent forecast is available. Try again later, or ask your farm manager to check the weather settings.</p>
+        <div class="sf-empty-state">
+            <h2>No recent forecast is available</h2>
+            <p>Try again later, or ask your farm manager to check the weather settings.</p>
+        </div>
     }
     else
     {
         @if (stale)
         {
-            <p class="error" role="alert">Weather data is over 12 hours old or has an invalid update time.
-                Conditions and advisories may have changed. Check a current weather source.</p>
+            <div class="sf-weather-stale" role="alert">
+                <strong>Weather data may be out of date.</strong>
+                <p>Weather data is over 12 hours old or has an invalid update time. Conditions and advisories may have changed. Check a current weather source.</p>
+            </div>
         }
         <h2>Latest saved forecast</h2>
-        <ul class="farm-list">
+        <p class="sf-muted">Check times are displayed in UTC. Forecast dates follow your farm's time zone.</p>
+        <ul class="sf-weather-grid">
         @foreach (var day in Model.Days)
         {
-            <li><strong>@day.Date.ToString("yyyy-MM-dd")</strong> —
-                @(day.MinTemperatureC?.ToString("0.#") ?? "—")–@(day.MaxTemperatureC?.ToString("0.#") ?? "—") °C,
-                @(day.RainfallMm?.ToString("0.#") ?? "—") mm rainfall,
-                @(day.MaxPrecipitationProbability?.ToString("0.#") ?? "—")% rain chance,
-                @(day.MaxWindKph?.ToString("0.#") ?? "—") km/h wind
-                <small>· @day.Provider · checked @day.RetrievedAtUtc.ToString("yyyy-MM-dd HH:mm") UTC</small>
+            <li class="sf-weather-card">
+                <div class="sf-weather-card-top">
+                    <time datetime="@day.Date.ToString("yyyy-MM-dd")">@day.Date.ToString("ddd, MMM d")</time>
+                    <span>@day.Provider</span>
+                </div>
+                <div class="sf-weather-temps">
+                    <strong>@(day.MinTemperatureC?.ToString("0.#") ?? "—")–@(day.MaxTemperatureC?.ToString("0.#") ?? "—") °C</strong>
+                    <span>Forecast temperature range</span>
+                </div>
+                <dl class="sf-weather-facts">
+                    <div><dt>Rainfall</dt><dd>@(day.RainfallMm?.ToString("0.#") ?? "—") mm</dd></div>
+                    <div><dt>Rain chance</dt><dd>@(day.MaxPrecipitationProbability?.ToString("0.#") ?? "—")%</dd></div>
+                    <div><dt>Max wind</dt><dd>@(day.MaxWindKph?.ToString("0.#") ?? "—") km/h</dd></div>
+                </dl>
+                <small>Checked @day.RetrievedAtUtc.ToString("MMM d, yyyy HH:mm") UTC</small>
             </li>
         }
         </ul>
     }
-    <h2>Weather advisories</h2>
-    @if (Model.Advisories.All(a => a.Status != 0))
+</section>
+<section class="panel sf-weather-advisories" aria-labelledby="weather-alerts-heading">
+    <div class="sf-section-line">
+        <div>
+            <p class="sf-kicker">FARM AWARENESS</p>
+            <h2 id="weather-alerts-heading">Weather advisories</h2>
+        </div>
+        <span class="sf-status-chip @(activeAdvisories.Count > 0 ? "sf-status-chip--warning" : "sf-status-chip--neutral")">
+            @activeAdvisories.Count active
+        </span>
+    </div>
+    @if (activeAdvisories.Count == 0)
     {
-        <p>No active warnings in the saved forecast. This does not rule out current hazards.</p>
+        <div class="sf-empty-state">
+            <strong>No active warnings in the saved forecast.</strong>
+            <p>This does not rule out current hazards. Check official local weather updates when conditions are uncertain.</p>
+        </div>
     }
     else
     {
-        <ul class="farm-list">
-        @foreach (var advisory in Model.Advisories.Where(a => a.Status == 0))
+        <ul class="sf-weather-alert-list">
+        @foreach (var advisory in activeAdvisories)
         {
-            <li><strong>@advisory.Date.ToString("yyyy-MM-dd") — @advisory.SeverityName @advisory.TypeName advisory</strong>
+            <li>
+                <div class="sf-weather-alert-title">
+                    <strong>@advisory.SeverityName @advisory.TypeName advisory</strong>
+                    <time datetime="@advisory.Date.ToString("yyyy-MM-dd")">@advisory.Date.ToString("MMM d, yyyy")</time>
+                </div>
                 <p>@advisory.Message</p>
             </li>
         }

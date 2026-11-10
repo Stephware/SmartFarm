@@ -1,27 +1,61 @@
 @model IReadOnlyList<SmartFarm.Core.Contracts.Tasks.NotificationDetails>
 @{
     ViewData["Title"] = "Notifications";
+    var unreadCount = Model.Count(notification => notification.ReadAtUtc is null);
 }
-<section class="panel">
-    <p><a asp-controller="Farms" asp-action="Index">← My farms</a></p>
-    <h1>Notifications</h1>
-    <p>Task reminders and farm weather advisories appear here.</p>
-    @if (Model.Count == 0) { <p>No notifications yet.</p> }
-    <ul class="farm-list">
+<section class="panel sf-notifications-hero" aria-labelledby="notifications-heading">
+    <div class="sf-page-header">
+        <div>
+            <p><a asp-controller="Farms" asp-action="Index">← My farms</a></p>
+            <p class="sf-kicker">FARM UPDATES</p>
+            <h1 id="notifications-heading">Notifications</h1>
+            <p class="sf-muted">Task reminders and farm weather advisories appear here.</p>
+        </div>
+        <div class="sf-notifications-count">
+            <strong>@unreadCount</strong>
+            <span>Unread</span>
+        </div>
+    </div>
+    <p class="sf-ops-hint">Notifications appear here when created by the farm's existing task and weather processes. They are not push notifications.</p>
+</section>
+<section class="panel sf-notifications-panel" aria-labelledby="notifications-list-heading">
+    <div class="sf-section-line">
+        <h2 id="notifications-list-heading">Recent notifications</h2>
+        <span>@Model.Count total</span>
+    </div>
+    @if (Model.Count == 0)
+    {
+        <div class="sf-empty-state">
+            <strong>No notifications yet.</strong>
+            <p>Task reminders and weather notices will appear here when available.</p>
+        </div>
+    }
+    else
+    {
+        <ul class="sf-notifications-list">
         @foreach (var notification in Model)
         {
-            <li>
-                <strong>@notification.Title</strong>
-                @if (notification.ReadAtUtc is null) { <span> · Unread</span> }
-                <p>@notification.Message</p>
-                <small>@notification.CreatedAtUtc.ToString("yyyy-MM-dd HH:mm") UTC</small>
-                @if (notification.ReadAtUtc is null)
-                {
-                    <form asp-action="Read" asp-route-id="@notification.Id" method="post">
-                        <button type="submit">Mark as read</button>
-                    </form>
-                }
+            <li class="sf-notification @(notification.ReadAtUtc is null ? "sf-notification-unread" : "sf-notification-read")">
+                <div class="sf-notification-marker" aria-hidden="true"></div>
+                <div class="sf-notification-body">
+                    <div class="sf-notification-heading">
+                        <strong>@notification.Title</strong>
+                        @if (notification.ReadAtUtc is null)
+                        {
+                            <span class="sf-status-chip sf-status-chip--planned">Unread</span>
+                        }
+                    </div>
+                    <p>@notification.Message</p>
+                    <time datetime="@notification.CreatedAtUtc.ToString("yyyy-MM-ddTHH:mm:ssZ")">@notification.CreatedAtUtc.ToString("MMM d, yyyy HH:mm") UTC</time>
+                    @if (notification.ReadAtUtc is null)
+                    {
+                        <form asp-action="Read" asp-route-id="@notification.Id" method="post">
+                            <button type="submit" class="sf-notification-read-button">Mark as read</button>
+                        </form>
+                    }
+                </div>
             </li>
         }
-    </ul>
+        </ul>
+    }
 </section>

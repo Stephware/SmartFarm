@@ -1,5 +1,10 @@
 @{
     ViewData["Title"] = "Access denied";
 }
-<section class="panel"><h1>Access denied</h1><p>You do not have permission to view this page.</p></section>
-
+<section class="panel sf-access-denied" aria-labelledby="access-heading">
+    <p class="sf-kicker">ACCESS RESTRICTED</p>
+    <h1 id="access-heading">Access denied</h1>
+    <p>You do not have permission to view this page.</p>
+    <p class="sf-muted">If you need access to a farm, ask its owner to review your membership or join request.</p>
+    <a class="button" asp-controller="Farms" asp-action="Index">Return to my farms</a>
+</section>
