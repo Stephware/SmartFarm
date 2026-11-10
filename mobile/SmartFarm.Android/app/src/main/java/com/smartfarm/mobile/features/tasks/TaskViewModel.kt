@@ -37,7 +37,7 @@ class TaskViewModel(private val repository: TaskRepository) : ViewModel() {
             } catch (cancelled: CancellationException) { throw cancelled }
             catch (error: Exception) {
                 mutable.value = mutable.value.copy(busy = false,
-                    error = NetworkErrorMessages.forRequest(error,
+                    error = NetworkErrorMessages.forMutation(error,
                         "Could not refresh these records. Check your connection and try again before repeating an update."))
             }
         }
