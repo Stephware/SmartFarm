@@ -73,7 +73,7 @@ class CropViewModel(
                 throw cancelled
             } catch (error: Exception) {
                 mutable.value = mutable.value.copy(
-                    error = NetworkErrorMessages.forRequest(error,
+                    error = NetworkErrorMessages.forMutation(error,
                         "Could not save. Check dates, permissions, crop status and connection; reload if the record changed."))
             } finally {
                 mutable.value = mutable.value.copy(busy = false)
