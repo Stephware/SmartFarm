@@ -1,95 +1,129 @@
 @model SmartFarm.Web.ViewModels.Farms.FarmDashboardViewModel
 @{
     ViewData["Title"] = "Farm dashboard";
+    var total = Model.Report.PlannedCrops + Model.Report.ActiveCrops + Model.Report.CompletedCrops;
+    var completedPercent = total == 0 ? 0 : Math.Round(Model.Report.CompletedCrops * 100m / total);
+    var activePercent = total == 0 ? 0 : Math.Round(Model.Report.ActiveCrops * 100m / total);
 }
-@if (TempData["Message"] is string message) { <p role="status">@message</p> }
-@if (TempData["Error"] is string error) { <p class="error" role="alert">@error</p> }
 <partial name="_FarmNavigation" model="Model.Report.FarmId" />
-<section class="panel">
-    <p><a asp-controller="Farms" asp-action="Details" asp-route-id="@Model.Report.FarmId">← Back to farm</a></p>
-    <div class="page-heading">
-        <div>
-            <p class="hint">Farm overview · @Model.Report.FarmToday.ToString("MMMM d, yyyy")</p>
-            <h1>@Model.Report.FarmName</h1>
-            <p class="hint">Live information from your farm records</p>
+@if (TempData["Message"] is string message) { <p class="form-notice" role="status">@message</p> }
+@if (TempData["Error"] is string error) { <p class="error form-error" role="alert">@error</p> }
+<section class="panel dashboard-hero" aria-labelledby="dashboard-heading">
+    <div>
+        <p class="sf-kicker">FARM DASHBOARD · @Model.Report.FarmToday.ToString("MMMM d, yyyy")</p>
+        <h1 id="dashboard-heading">@Model.Report.FarmName</h1>
+        <p>Live information from your farm records. See what is growing and what needs your attention.</p>
+    </div>
+    <div class="dashboard-hero-actions">
+        <a class="sf-button-outline" asp-controller="Farms" asp-action="Details" asp-route-id="@Model.Report.FarmId">Farm overview</a>
+        <a class="button" asp-controller="Reports" asp-action="Harvests" asp-route-farmId="@Model.Report.FarmId">Harvest reports</a>
+    </div>
+</section>
+<section aria-labelledby="dashboard-stats-heading" class="dashboard-summary">
+    <div class="sf-section-line">
+        <h2 id="dashboard-stats-heading">At a glance</h2>
+        <span>Current farm totals</span>
+    </div>
+    <div class="dashboard-stat-grid">
+        <div class="stat sf-metric"><span>Active plots</span><strong>@Model.Report.ActivePlots</strong><small>Growing areas</small></div>
+        <div class="stat sf-metric"><span>Active crops</span><strong>@Model.Report.ActiveCrops</strong><small>Currently planted</small></div>
+        <div class="stat sf-metric"><span>Planned crops</span><strong>@Model.Report.PlannedCrops</strong><small>Upcoming plantings</small></div>
+        <div class="stat sf-metric"><span>Completed crops</span><strong>@Model.Report.CompletedCrops</strong><small>Finished crop cycles</small></div>
+        <div class="stat sf-metric"><span>Open tasks</span><strong>@Model.Report.OpenTasks</strong><small>Not completed</small></div>
+        <div class="stat sf-metric @(Model.Report.OverdueTasks > 0 ? "sf-metric-warning" : "")"><span>Overdue tasks</span><strong>@Model.Report.OverdueTasks</strong><small>Past due date</small></div>
+        <div class="stat sf-metric @(Model.Report.LowStockItems > 0 ? "sf-metric-warning" : "")"><span>Low-stock items</span><strong>@Model.Report.LowStockItems</strong><small>Below reorder level</small></div>
+        <div class="stat sf-metric @(Model.Report.ConcerningObservations > 0 ? "sf-metric-warning" : "")"><span>Observations needing attention</span><strong>@Model.Report.ConcerningObservations</strong><small>Review inspection records</small></div>
+    </div>
+</section>
+<div class="dashboard-content-grid">
+    <section class="panel dashboard-attention" aria-labelledby="attention-heading">
+        <div class="sf-section-line">
+            <h2 id="attention-heading">Needs attention</h2>
+            <span class="sf-status-chip sf-status-chip--warning">Review items</span>
         </div>
-        <a class="button" asp-controller="Reports" asp-action="Harvests"
-           asp-route-farmId="@Model.Report.FarmId">Harvest reports</a>
-    </div>
-    <div class="stat-grid">
-        <div class="stat"><span>Active plots</span><strong>@Model.Report.ActivePlots</strong></div>
-        <div class="stat"><span>Active crops</span><strong>@Model.Report.ActiveCrops</strong></div>
-        <div class="stat"><span>Planned crops</span><strong>@Model.Report.PlannedCrops</strong></div>
-        <div class="stat"><span>Completed crops</span><strong>@Model.Report.CompletedCrops</strong></div>
-        <div class="stat"><span>Open tasks</span><strong>@Model.Report.OpenTasks</strong></div>
-        <div class="stat"><span>Overdue tasks</span><strong>@Model.Report.OverdueTasks</strong></div>
-        <div class="stat"><span>Low-stock items</span><strong>@Model.Report.LowStockItems</strong></div>
-        <div class="stat"><span>Observations needing attention</span><strong>@Model.Report.ConcerningObservations</strong></div>
-    </div>
-</section>
-@if (Model.Enrollment is not null) { <partial name="_FarmEnrollment" model="Model.Enrollment" /> }
-
-<section class="panel" aria-labelledby="attention-heading">
-    <h2 id="attention-heading">Needs attention</h2>
-    <p class="hint">Open the affected record to review or update it. Only authorized farm members can view these details.</p>
-    @if (Model.Report.AttentionItems.Count == 0)
-    {
-        <p>No overdue tasks, low-stock items, or concerning crop inspections to show.</p>
-    }
-    else
-    {
-        <ul class="farm-list">
-        @foreach (var alert in Model.Report.AttentionItems)
+        <p class="sf-muted">Open the affected record to review or update it. Only authorized farm members can view these details.</p>
+        @if (Model.Report.AttentionItems.Count == 0)
         {
-            <li>
-                <strong>@alert.Title</strong>
-                @if (alert.DueDate is { } due) { <span>Due @due.ToString("MMM d, yyyy")</span> }
-                <p>@alert.Detail</p>
-                @switch (alert.Kind)
-                {
-                    case "task":
-                        <a asp-controller="Tasks" asp-action="Index" asp-route-farmId="@Model.Report.FarmId"
-                           asp-fragment="@("task-" + alert.TargetId.ToString())">Review task →</a>
-                        break;
-                    case "inventory":
-                        <a asp-controller="Inventory" asp-action="Details" asp-route-farmId="@Model.Report.FarmId"
-                           asp-route-itemId="@alert.TargetId">Review inventory →</a>
-                        break;
-                    case "inspection":
-                        <a asp-controller="Monitoring" asp-action="Index" asp-route-farmId="@Model.Report.FarmId"
-                           asp-route-cycleId="@alert.TargetId">Review crop inspection →</a>
-                        break;
-                }
-            </li>
+            <div class="sf-empty-state">
+                <strong>Nothing urgent right now</strong>
+                <p>No overdue tasks, low-stock items, or concerning crop inspections to show.</p>
+            </div>
         }
-        </ul>
-    }
-    <div class="action-links">
-        <a asp-controller="Tasks" asp-action="Index" asp-route-farmId="@Model.Report.FarmId">All tasks (@Model.Report.OpenTasks open)</a>
-        <a asp-controller="Inventory" asp-action="Index" asp-route-farmId="@Model.Report.FarmId">Inventory (@Model.Report.LowStockItems low)</a>
+        else
+        {
+            <ul class="sf-attention-list">
+            @foreach (var alert in Model.Report.AttentionItems)
+            {
+                <li>
+                    <div class="sf-attention-dot" aria-hidden="true"></div>
+                    <div>
+                        <strong>@alert.Title</strong>
+                        @if (alert.DueDate is { } due) { <span class="sf-muted">Due @due.ToString("MMM d, yyyy")</span> }
+                        <p>@alert.Detail</p>
+                        @switch (alert.Kind)
+                        {
+                            case "task":
+                                <a asp-controller="Tasks" asp-action="Index" asp-route-farmId="@Model.Report.FarmId"
+                                   asp-fragment="@("task-" + alert.TargetId.ToString())">Review task →</a>
+                                break;
+                            case "inventory":
+                                <a asp-controller="Inventory" asp-action="Details" asp-route-farmId="@Model.Report.FarmId"
+                                   asp-route-itemId="@alert.TargetId">Review inventory →</a>
+                                break;
+                            case "inspection":
+                                <a asp-controller="Monitoring" asp-action="Index" asp-route-farmId="@Model.Report.FarmId"
+                                   asp-route-cycleId="@alert.TargetId">Review crop inspection →</a>
+                                break;
+                        }
+                    </div>
+                </li>
+            }
+            </ul>
+        }
+        <div class="action-links">
+            <a asp-controller="Tasks" asp-action="Index" asp-route-farmId="@Model.Report.FarmId">All tasks (@Model.Report.OpenTasks open)</a>
+            <a asp-controller="Inventory" asp-action="Index" asp-route-farmId="@Model.Report.FarmId">Inventory (@Model.Report.LowStockItems low)</a>
+        </div>
+    </section>
+    <div class="dashboard-side-stack">
+        <section class="panel dashboard-progress" aria-labelledby="progress-heading">
+            <h2 id="progress-heading">Crop progress</h2>
+            <p class="sf-muted">@total planned, active or completed cycles · @completedPercent% completed</p>
+            <div class="progress-track" role="img"
+                 aria-label="@Model.Report.CompletedCrops completed crops, @Model.Report.ActiveCrops active crops and @Model.Report.PlannedCrops planned crops">
+                <div class="progress-completed" style="width:@(completedPercent.ToString(System.Globalization.CultureInfo.InvariantCulture))%"></div>
+                <div class="progress-active" style="width:@(activePercent.ToString(System.Globalization.CultureInfo.InvariantCulture))%"></div>
+            </div>
+            <div class="sf-progress-legend" aria-hidden="true">
+                <span><i class="legend-complete"></i> Completed</span>
+                <span><i class="legend-active"></i> Active</span>
+                <span><i class="legend-planned"></i> Planned</span>
+            </div>
+            <p class="hint">Failed or cancelled cycles are excluded from this progress percentage.</p>
+            <a asp-controller="Crops" asp-action="Index" asp-route-farmId="@Model.Report.FarmId">Manage crop cycles →</a>
+        </section>
+        <section class="panel dashboard-quick" aria-labelledby="quick-heading">
+            <h2 id="quick-heading">Quick actions</h2>
+            <div class="sf-quick-links">
+                <a asp-controller="Tasks" asp-action="Index" asp-route-farmId="@Model.Report.FarmId">Review tasks <span aria-hidden="true">→</span></a>
+                <a asp-controller="Inventory" asp-action="Index" asp-route-farmId="@Model.Report.FarmId">Check inventory <span aria-hidden="true">→</span></a>
+                <a asp-controller="Weather" asp-action="Index" asp-route-farmId="@Model.Report.FarmId">Weather advisories <span aria-hidden="true">→</span></a>
+                <a asp-controller="Reports" asp-action="Harvests" asp-route-farmId="@Model.Report.FarmId">Harvest history <span aria-hidden="true">→</span></a>
+            </div>
+        </section>
     </div>
-</section>
-<section class="panel">
-    <h2>Crop progress</h2>
-    @{
-        var total = Model.Report.PlannedCrops + Model.Report.ActiveCrops + Model.Report.CompletedCrops;
-        var completedPercent = total == 0 ? 0 : Math.Round(Model.Report.CompletedCrops * 100m / total);
-        var activePercent = total == 0 ? 0 : Math.Round(Model.Report.ActiveCrops * 100m / total);
-    }
-    <p>@total planned, active or completed cycles · @completedPercent% completed</p>
-    <div class="progress-track" role="img"
-         aria-label="@Model.Report.CompletedCrops completed crops, @Model.Report.ActiveCrops active crops and @Model.Report.PlannedCrops planned crops">
-        <div class="progress-completed" style="width:@(completedPercent.ToString(System.Globalization.CultureInfo.InvariantCulture))%"></div>
-        <div class="progress-active" style="width:@(activePercent.ToString(System.Globalization.CultureInfo.InvariantCulture))%"></div>
+</div>
+<section class="panel dashboard-harvests" aria-labelledby="harvest-heading">
+    <div class="sf-section-line">
+        <div>
+            <h2 id="harvest-heading">Harvests in the last 30 farm days</h2>
+            <p class="sf-muted">Amounts are grouped by their recorded harvest units.</p>
+        </div>
+        <a asp-controller="Reports" asp-action="Harvests" asp-route-farmId="@Model.Report.FarmId">View report →</a>
     </div>
-    <p class="hint">Failed or cancelled cycles are excluded from this progress percentage.</p>
-    <p><a asp-controller="Crops" asp-action="Index" asp-route-farmId="@Model.Report.FarmId">Manage crop cycles →</a></p>
-</section>
-<section class="panel">
-    <h2>Harvests in the last 30 farm days</h2>
     @if (Model.Report.HarvestLast30Days.Count == 0)
     {
-        <p>No valid harvests have been recorded in this period.</p>
+        <p class="sf-muted">No valid harvests have been recorded in this period.</p>
     }
     else
     {
@@ -104,10 +138,10 @@
         </div>
     }
     <h3>Most recent harvests</h3>
-    @if (Model.Report.RecentHarvests.Count == 0) { <p>No recent harvests.</p> }
+    @if (Model.Report.RecentHarvests.Count == 0) { <p class="sf-muted">No recent harvests.</p> }
     else
     {
-        <ul class="farm-list">
+        <ul class="farm-list sf-recent-harvests">
         @foreach (var entry in Model.Report.RecentHarvests)
         {
             <li>
@@ -120,12 +154,4 @@
         </ul>
     }
 </section>
-<section class="panel">
-    <h2>Quick actions</h2>
-    <div class="action-links">
-        <a asp-controller="Tasks" asp-action="Index" asp-route-farmId="@Model.Report.FarmId">Review tasks</a>
-        <a asp-controller="Inventory" asp-action="Index" asp-route-farmId="@Model.Report.FarmId">Check inventory</a>
-        <a asp-controller="Weather" asp-action="Index" asp-route-farmId="@Model.Report.FarmId">Weather advisories</a>
-        <a asp-controller="Reports" asp-action="Harvests" asp-route-farmId="@Model.Report.FarmId">Harvest history</a>
-    </div>
-</section>
+@if (Model.Enrollment is not null) { <partial name="_FarmEnrollment" model="Model.Enrollment" /> }
