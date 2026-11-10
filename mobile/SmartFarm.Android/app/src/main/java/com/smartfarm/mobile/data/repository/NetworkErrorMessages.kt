@@ -28,6 +28,13 @@ internal object NetworkErrorMessages {
         else -> fallback
     }
 
+    // Non-idempotent writes may have succeeded even if their response was lost.
+    fun forMutation(error: Throwable, fallback: String): String = when {
+        error is IOException || (error is HttpException && error.code() >= 500) ->
+            "Could not confirm the change. Refresh the records before trying again."
+        else -> forRequest(error, fallback)
+    }
+
     fun forLogin(error: Throwable): String = when ((error as? HttpException)?.code()) {
         400, 401 -> "Incorrect email or password."
         else -> forRequest(error, "Sign in failed. Check your credentials and connection.")
