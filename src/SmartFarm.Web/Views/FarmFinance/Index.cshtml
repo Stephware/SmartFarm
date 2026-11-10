@@ -4,69 +4,127 @@
     var canManage = Model.Farm.Role is "Owner" or "Manager";
 }
 <partial name="_FarmNavigation" model="Model.Farm.Id" />
-<section class="panel">
-    <h1>Farm finances</h1>
-    <p class="hint">Optional manual income and expense tracking in Philippine pesos (PHP). Harvest quantities are not assumed to be sales, and inventory transactions are not automatically counted as expenses.</p>
-    @if (TempData["Error"] is string error) { <p class="error" role="alert">@error</p> }
-    @if (TempData["Message"] is string message) { <p role="status">@message</p> }
-    <div class="stat-grid">
-        <div class="stat"><span>Recorded income</span><strong>₱@Model.Finance.IncomePhp.ToString("N2")</strong></div>
-        <div class="stat"><span>Recorded expenses</span><strong>₱@Model.Finance.ExpensesPhp.ToString("N2")</strong></div>
-        <div class="stat"><span>Net recorded cash</span><strong>₱@Model.Finance.NetPhp.ToString("N2")</strong></div>
+<section class="panel sf-finance-hero" aria-labelledby="finance-heading">
+    <div class="sf-page-header">
+        <div>
+            <p><a asp-controller="Farms" asp-action="Details" asp-route-id="@Model.Farm.Id">← @Model.Farm.Name</a></p>
+            <p class="sf-kicker">MANUAL CASH RECORDS</p>
+            <h1 id="finance-heading">Farm finances</h1>
+            <p class="sf-muted">Optional manual income and expense tracking in Philippine pesos (PHP).</p>
+        </div>
+        @if (canManage) { <a class="button" href="#add-finance-entry">Add transaction</a> }
     </div>
-    <p class="hint">These totals represent recorded entries, not complete farm profit or accounting statements.</p>
+    @if (TempData["Error"] is string error) { <p class="error form-error" role="alert">@error</p> }
+    @if (TempData["Message"] is string message) { <p class="form-notice" role="status">@message</p> }
+    <div class="sf-finance-stats" aria-label="Recorded finance totals">
+        <div>
+            <span>Recorded income</span>
+            <strong>₱@Model.Finance.IncomePhp.ToString("N2")</strong>
+        </div>
+        <div>
+            <span>Recorded expenses</span>
+            <strong>₱@Model.Finance.ExpensesPhp.ToString("N2")</strong>
+        </div>
+        <div class="sf-finance-net">
+            <span>Net recorded cash</span>
+            <strong>₱@Model.Finance.NetPhp.ToString("N2")</strong>
+        </div>
+    </div>
+    <p class="sf-finance-disclaimer">Harvest quantities are not assumed to be sales, and inventory transactions are not automatically counted as expenses. These totals represent recorded entries, not complete farm profit or accounting statements.</p>
 </section>
 @if (canManage)
 {
-<section class="panel">
-    <h2>Add income or expense</h2>
-    <form asp-action="Record" asp-route-farmId="@Model.Farm.Id" method="post" class="narrow">
-        <label for="kind">Entry type</label>
-        <select id="kind" name="Kind" required>
-            <option value="Expense">Expense</option>
-            <option value="Income">Income (recorded sales or other receipts)</option>
-        </select>
-        <label for="category">Category</label>
-        <input id="category" name="Category" maxlength="60" minlength="2" placeholder="Seeds, fertilizer, crop sale..." required />
-        <label for="amount">Amount (PHP)</label>
-        <input id="amount" name="AmountPhp" type="number" min="0.01" max="999999999999.99" step="0.01" required />
-        <label for="date">Farm date</label>
-        <input id="date" name="EntryDate" type="date" value="@Model.FarmToday.ToString("yyyy-MM-dd")" min="2000-01-01" max="2100-12-30" required />
-        <label for="crop">Related crop (optional)</label>
-        <select id="crop" name="CropCycleId">
-            <option value="">Farm-wide</option>
-            @foreach (var crop in Model.Crops)
-            { <option value="@crop.Id">@crop.CropTypeName · @crop.PlotName</option> }
-        </select>
-        <label for="notes">Notes (optional)</label>
-        <textarea id="notes" name="Notes" maxlength="500"></textarea>
-        <button type="submit">Record entry</button>
-    </form>
-</section>
+    <section class="panel sf-finance-entry-panel" id="add-finance-entry" aria-labelledby="finance-add-heading">
+        <p class="sf-kicker">RECORD MONEY IN OR OUT</p>
+        <h2 id="finance-add-heading">Add income or expense</h2>
+        <p class="sf-muted">Enter the amount, farm date, and category. Link a crop only when relevant.</p>
+        <form asp-action="Record" asp-route-farmId="@Model.Farm.Id" method="post" class="sf-ops-form sf-finance-entry-form">
+            <div>
+                <label for="kind">Entry type</label>
+                <select id="kind" name="Kind" required>
+                    <option value="Expense">Expense</option>
+                    <option value="Income">Income (recorded sales or other receipts)</option>
+                </select>
+            </div>
+            <div>
+                <label for="category">Category</label>
+                <input id="category" name="Category" maxlength="60" minlength="2" placeholder="Seeds, fertilizer, crop sale..." required />
+            </div>
+            <div>
+                <label for="amount">Amount (PHP)</label>
+                <input id="amount" name="AmountPhp" type="number" min="0.01" max="999999999999.99" step="0.01" required />
+            </div>
+            <div>
+                <label for="date">Farm date</label>
+                <input id="date" name="EntryDate" type="date" value="@Model.FarmToday.ToString("yyyy-MM-dd")" min="2000-01-01" max="2100-12-30" required />
+            </div>
+            <div class="sf-form-wide">
+                <label for="crop">Related crop (optional)</label>
+                <select id="crop" name="CropCycleId">
+                    <option value="">Farm-wide</option>
+                    @foreach (var crop in Model.Crops)
+                    {
+                        <option value="@crop.Id">@crop.CropTypeName · @crop.PlotName</option>
+                    }
+                </select>
+            </div>
+            <div class="sf-form-wide">
+                <label for="notes">Notes (optional)</label>
+                <textarea id="notes" name="Notes" maxlength="500"></textarea>
+            </div>
+            <div class="sf-form-wide">
+                <button type="submit">Record entry</button>
+            </div>
+        </form>
+    </section>
 }
-<section class="panel">
-    <h2>Finance history</h2>
-    @if (Model.Finance.Entries.Count == 0) { <p>No recorded entries yet.</p> }
+<section class="panel sf-finance-history" aria-labelledby="finance-history-heading">
+    <div class="sf-section-line">
+        <div>
+            <p class="sf-kicker">RECENT RECORDS</p>
+            <h2 id="finance-history-heading">Finance history</h2>
+        </div>
+        <span>@Model.Finance.Entries.Count displayed</span>
+    </div>
+    @if (Model.Finance.Entries.Count == 0)
+    {
+        <div class="sf-empty-state">
+            <strong>No recorded entries yet.</strong>
+            <p>Income and expenses you enter will appear here.</p>
+        </div>
+    }
     else
     {
         <p class="hint">Showing the latest 500 entries. Voided entries remain visible and do not count toward totals.</p>
-        <ul class="farm-list">
+        <ul class="sf-finance-list">
         @foreach (var entry in Model.Finance.Entries)
         {
-            <li>
-                <strong>@entry.EntryDate.ToString("MMM d, yyyy") · @entry.Kind · @entry.Category</strong>
-                <span>₱@entry.AmountPhp.ToString("N2") @(entry.IsVoided ? " · Voided" : "")</span>
+            <li class="sf-finance-row @(entry.IsVoided ? "sf-finance-voided" : "")">
+                <div class="sf-finance-row-head">
+                    <div>
+                        <span class="sf-status-chip @(entry.IsVoided ? "sf-status-chip--neutral" : entry.Kind.ToString() == "Income" ? "sf-status-chip--active" : "sf-status-chip--planned")">@entry.Kind</span>
+                        <strong>@entry.Category</strong>
+                        <time datetime="@entry.EntryDate.ToString("yyyy-MM-dd")">@entry.EntryDate.ToString("MMM d, yyyy")</time>
+                    </div>
+                    <div class="sf-finance-amount">
+                        <strong>₱@entry.AmountPhp.ToString("N2")</strong>
+                        @if (entry.IsVoided) { <span class="sf-status-chip sf-status-chip--failed">Voided</span> }
+                    </div>
+                </div>
                 @if (entry.Notes is not null) { <p>@entry.Notes</p> }
                 @if (entry.IsVoided) { <p>Void reason: @entry.VoidReason</p> }
                 @if (canManage && !entry.IsVoided)
                 {
-                    <form asp-action="Void" asp-route-farmId="@Model.Farm.Id"
-                          asp-route-entryId="@entry.Id" method="post" class="inline"
-                          data-confirm="Void this finance entry? It will remain in history.">
-                        <label for="void-@entry.Id">Reason</label>
-                        <input id="void-@entry.Id" name="Reason" minlength="3" maxlength="300" required />
-                        <button type="submit" class="button-danger">Void entry</button>
-                    </form>
+                    <details class="sf-edit-disclosure">
+                        <summary>Void entry</summary>
+                        <p class="sf-muted">The record will remain visible and will be excluded from totals.</p>
+                        <form asp-action="Void" asp-route-farmId="@Model.Farm.Id" asp-route-entryId="@entry.Id"
+                              method="post" data-confirm="Void this finance entry? It will remain in history.">
+                            <label for="void-@entry.Id">Reason</label>
+                            <input id="void-@entry.Id" name="Reason" minlength="3" maxlength="300" required />
+                            <button type="submit" class="button-danger">Void entry</button>
+                        </form>
+                    </details>
                 }
             </li>
         }
