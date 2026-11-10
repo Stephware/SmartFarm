@@ -86,8 +86,12 @@ public sealed class BackgroundProcessingTests
     {
         var services = new ServiceCollection();
         services.AddLogging();
-        services.AddSmartFarmBackgroundProcessing(Configuration(
-            "Server=127.0.0.1,1;Database=SmartFarmJobsDB;Integrated Security=true;Connect Timeout=1"));
+        var configuration = Configuration(
+            "Server=127.0.0.1,1;Database=SmartFarmJobsDB;Integrated Security=true;Connect Timeout=1");
+        // This container builds services directly instead of through HostBuilder,
+        // so it must provide the configuration dependency used by the scheduler.
+        services.AddSingleton<IConfiguration>(configuration);
+        services.AddSmartFarmBackgroundProcessing(configuration);
         using var provider = services.BuildServiceProvider();
 
         Assert.IsType<SqlServerStorage>(provider.GetRequiredService<JobStorage>());
