@@ -4,10 +4,15 @@
     var cycle = Model.Cycle;
 }
 <partial name="_FarmNavigation" model="cycle.FarmId" />
-<section class="panel">
+<section class="panel sf-timeline-hero">
     <p><a asp-controller="Crops" asp-action="Index" asp-route-farmId="@cycle.FarmId">← Crop management</a></p>
-    <h1>@cycle.CropTypeName · @cycle.PlotName</h1>
-    <p>Crop timeline · @cycle.StatusName</p>
+    <p class="sf-kicker">CROP ACTIVITY HISTORY</p>
+    <div class="sf-page-header">
+        <div>
+            <h1>@cycle.CropTypeName · @cycle.PlotName</h1>
+            <p>Crop timeline · <span class="sf-status-chip sf-status-chip--neutral">@cycle.StatusName</span></p>
+        </div>
+    </div>
     <p class="hint">Activity and photo timestamps are shown in @Model.TimeZoneId. Scheduled dates are plans, not proof that work was completed.</p>
     <div class="action-links">
         <a asp-controller="Monitoring" asp-action="Index" asp-route-farmId="@cycle.FarmId"
@@ -16,7 +21,7 @@
            asp-route-cycleId="@cycle.Id">Harvests</a>
     </div>
 </section>
-<section class="panel">
+<section class="panel sf-timeline-history">
     <h2>History and upcoming milestones</h2>
     @if (Model.Entries.Count == 0)
     {
@@ -28,7 +33,7 @@
         {
             <p class="hint">Showing the most recent @Model.Entries.Count of @Model.TotalCount timeline entries. See the monitoring, task, and harvest pages for complete histories.</p>
         }
-        <ol class="crop-timeline">
+        <ol class="crop-timeline sf-timeline-list">
         @foreach (var entry in Model.Entries)
         {
             <li>
