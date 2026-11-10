@@ -12,7 +12,10 @@ import com.smartfarm.mobile.data.repository.MonitoringRepository
 import com.smartfarm.mobile.data.sync.SyncRepository
 import com.smartfarm.mobile.data.remote.dto.ActivityInputDto
 import com.smartfarm.mobile.data.remote.dto.ObservationInputDto
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.isActive
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
@@ -43,18 +46,43 @@ class MonitoringViewModel(private val repository: MonitoringRepository,
     private val photoCache = object : LruCache<String, ByteArray>(12 * 1024 * 1024) {
         override fun sizeOf(key: String, value: ByteArray): Int = value.size
     }
+    private var previewJob: Job? = null
+    private var loadJob: Job? = null
 
     fun clear() {
+        previewJob?.cancel()
+        previewJob = null
+        loadJob?.cancel()
+        loadJob = null
         photoCache.evictAll()
         mutable.value = MonitoringUiState()
     }
 
+    override fun onCleared() {
+        clear()
+        super.onCleared()
+    }
+
     fun load(farmId: String, cycleId: String) {
-        mutable.value = MonitoringUiState(farmId = farmId, cycleId = cycleId, busy = true, saveReceipts = mutable.value.saveReceipts)
-        viewModelScope.launch {
-            try { refresh(farmId, cycleId) }
-            catch (_: Exception) { mutable.value = mutable.value.copy(error = "Could not load monitoring history.") }
-            finally { mutable.value = mutable.value.copy(busy = false) }
+        previewJob?.cancel()
+        loadJob?.cancel()
+        mutable.value = MonitoringUiState(
+            farmId = farmId, cycleId = cycleId, busy = true,
+            saveReceipts = mutable.value.saveReceipts)
+        loadJob = viewModelScope.launch {
+            try {
+                refresh(farmId, cycleId)
+            } catch (cancelled: CancellationException) {
+                throw cancelled
+            } catch (_: Exception) {
+                if (mutable.value.farmId == farmId && mutable.value.cycleId == cycleId) {
+                    mutable.value = mutable.value.copy(error = "Could not load monitoring history.")
+                }
+            } finally {
+                if (mutable.value.farmId == farmId && mutable.value.cycleId == cycleId) {
+                    mutable.value = mutable.value.copy(busy = false)
+                }
+            }
         }
     }
 
@@ -110,19 +138,35 @@ class MonitoringViewModel(private val repository: MonitoringRepository,
     fun preview(photoId: String) {
         val snapshot = mutable.value
         if (snapshot.busy || snapshot.farmId.isBlank()) return
+        previewJob?.cancel()
         mutable.value = snapshot.copy(busy = true, error = null,
-            preview = null, previewPhotoId = null)
-        viewModelScope.launch {
+            preview = null, previewPhotoId = photoId)
+        previewJob = viewModelScope.launch {
             try {
-                // Authenticated Retrofit download; Glide handles decoding and bitmap cache.
+                // Retrofit authenticates the download; Glide decodes/cache-displays its bytes.
                 val bytes = photoCache.get(photoId) ?: withContext(Dispatchers.IO) {
                     repository.imageBytes(snapshot.farmId, snapshot.cycleId, photoId)
-                }.also { photoCache.put(photoId, it) }
-                mutable.value = mutable.value.copy(preview = bytes, previewPhotoId = photoId)
+                }
+                if (!isActive || mutable.value.farmId != snapshot.farmId ||
+                    mutable.value.cycleId != snapshot.cycleId ||
+                    mutable.value.previewPhotoId != photoId) return@launch
+
+                photoCache.put(photoId, bytes)
+                mutable.value = mutable.value.copy(preview = bytes)
+            } catch (cancelled: CancellationException) {
+                throw cancelled
             } catch (_: Exception) {
-                mutable.value = mutable.value.copy(error = "Could not open photo.")
+                if (mutable.value.farmId == snapshot.farmId &&
+                    mutable.value.cycleId == snapshot.cycleId &&
+                    mutable.value.previewPhotoId == photoId) {
+                    mutable.value = mutable.value.copy(error = "Could not open photo.")
+                }
             } finally {
-                mutable.value = mutable.value.copy(busy = false)
+                if (mutable.value.farmId == snapshot.farmId &&
+                    mutable.value.cycleId == snapshot.cycleId &&
+                    mutable.value.previewPhotoId == photoId) {
+                    mutable.value = mutable.value.copy(busy = false)
+                }
             }
         }
     }
