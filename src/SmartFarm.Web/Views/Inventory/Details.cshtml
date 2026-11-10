@@ -10,15 +10,24 @@
         .Select(x => x.ReversesTransactionId!.Value).ToHashSet();
 }
 <partial name="_FarmNavigation" model="Model.Farm.Id" />
-<section class="panel">
-    <p><a asp-action="Index" asp-route-farmId="@Model.Farm.Id">← Inventory</a></p>
-    <h1>@item.Name</h1>
-    <p>@item.Category · @item.Unit</p>
-    <h2>@item.QuantityOnHand @item.Unit</h2>
-    @if (item.IsLowStock) { <p class="error">Low-stock threshold reached</p> }
-    @if (!active) { <p>Archived item — transaction history remains available.</p> }
-    @if (item.Description is not null) { <p>@item.Description</p> }
-    @if (TempData["Error"] is string error) { <p class="error" role="alert">@error</p> }
+<section class="panel sf-ops-hero sf-stock-hero" aria-labelledby="stock-heading">
+    <div class="sf-page-header">
+        <div>
+            <p><a asp-action="Index" asp-route-farmId="@Model.Farm.Id">← Inventory</a></p>
+            <p class="sf-kicker">SUPPLY DETAILS</p>
+            <h1 id="stock-heading">@item.Name</h1>
+            <p class="sf-muted">@item.Category · @item.Unit</p>
+        </div>
+        <div class="sf-stock-hero-balance">
+            <span>Available stock</span>
+            <strong>@item.QuantityOnHand <small>@item.Unit</small></strong>
+            @if (item.IsLowStock) { <span class="sf-status-chip sf-status-chip--warning">Low-stock threshold reached</span> }
+            else if (active) { <span class="sf-status-chip sf-status-chip--active">In stock</span> }
+        </div>
+    </div>
+    @if (!active) { <p class="sf-ops-hint">Archived item — transaction history remains available.</p> }
+    @if (item.Description is not null) { <p class="sf-muted">@item.Description</p> }
+    @if (TempData["Error"] is string error) { <p class="error form-error" role="alert">@error</p> }
     @if (canManage && active)
     {
         <a asp-action="Edit" asp-route-farmId="@Model.Farm.Id" asp-route-itemId="@item.Id">Edit item</a>
@@ -33,11 +42,12 @@
 </section>
 @if (active)
 {
-    <section class="panel">
-        <h2>Stock movement</h2>
+    <section class="panel sf-stock-movement" aria-labelledby="stock-movement-heading">
+        <p class="sf-kicker">TRACK STOCK</p>
+        <h2 id="stock-movement-heading">Stock movement</h2>
         <p>Receipts add stock. Consumption subtracts stock and must reference a crop activity.
            Adjustments may add or remove stock with a reason.</p>
-        <form asp-action="Post" asp-route-farmId="@Model.Farm.Id" asp-route-itemId="@item.Id" method="post">
+        <form class="sf-ops-form" asp-action="Post" asp-route-farmId="@Model.Farm.Id" asp-route-itemId="@item.Id" method="post">
             <input type="hidden" name="RowVersion" value="@item.RowVersion" />
             <label for="kind">Movement type</label>
             <select id="kind" name="TransactionType">
@@ -65,21 +75,27 @@
         </form>
     </section>
 }
-<section class="panel">
-    <h2>Transaction history</h2>
+<section class="panel sf-stock-history" aria-labelledby="transaction-heading">
+    <div class="sf-section-line">
+        <h2 id="transaction-heading">Transaction history</h2>
+        <span>@Model.Transactions.Count entry/entries</span>
+    </div>
     @if (Model.Transactions.Count == 0) { <p>No stock movements recorded.</p> }
-    <ul class="farm-list">
+    <ul class="farm-list sf-stock-transactions">
         @foreach (var transaction in Model.Transactions)
         {
             <li>
-                <strong>@transaction.TransactionType</strong> · @transaction.QuantityChange @item.Unit
-                <span>@transaction.OccurredAtUtc.ToString("yyyy-MM-dd HH:mm") UTC</span>
+                <div class="sf-transaction-title">
+                    <strong>@transaction.TransactionType</strong>
+                    <strong class="sf-transaction-qty">@transaction.QuantityChange @item.Unit</strong>
+                </div>
+                <time datetime="@transaction.OccurredAtUtc.ToString("yyyy-MM-ddTHH:mm:ssZ")">@transaction.OccurredAtUtc.ToString("MMM d, yyyy HH:mm") UTC</time>
                 @if (transaction.Reason is not null) { <p>@transaction.Reason</p> }
                 @if (transaction.ReversesTransactionId is not null) { <small>Reversal of @transaction.ReversesTransactionId</small> }
                 @if (canManage && active && transaction.TransactionType != StockTransactionType.Reversal &&
                       !reversedIds.Contains(transaction.Id))
                 {
-                    <form asp-action="Reverse" asp-route-farmId="@Model.Farm.Id"
+                    <form class="sf-reverse-form" asp-action="Reverse" asp-route-farmId="@Model.Farm.Id"
                           asp-route-itemId="@item.Id" asp-route-transactionId="@transaction.Id" method="post" data-confirm="Reverse @transaction.QuantityChange @item.Unit for @item.Name? This will change the stock balance.">
                         <input type="hidden" name="RowVersion" value="@item.RowVersion" />
                         <label for="reversal-@transaction.Id">Reversal reason</label>

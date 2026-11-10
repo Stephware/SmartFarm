@@ -5,34 +5,92 @@
     var canManage = Model.Farm.Role is "Owner" or "Manager";
     var actorId = Guid.TryParse(User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value, out var userId)
         ? userId : Guid.Empty;
-
+    var openCount = Model.Tasks.Count(task => task.Status == 0);
 }
 <partial name="_FarmNavigation" model="Model.Farm.Id" />
-<section class="panel">
-    <p><a asp-controller="Farms" asp-action="Details" asp-route-id="@Model.Farm.Id">← @Model.Farm.Name</a></p>
-    <h1>Farm tasks</h1>
-    <p>Scheduled planting, watering, and harvest tasks are added automatically when the worker is enabled.</p>
-    @if (TempData["Error"] is string error) { <p class="error" role="alert">@error</p> }
-    @if (Model.Tasks.Count == 0) { <p>No tasks yet.</p> }
-    <ul class="farm-list">
-        @foreach (var task in Model.Tasks)
+<section class="panel sf-ops-hero" aria-labelledby="tasks-heading">
+    <div class="sf-page-header">
+        <div>
+            <p><a asp-controller="Farms" asp-action="Details" asp-route-id="@Model.Farm.Id">← @Model.Farm.Name</a></p>
+            <p class="sf-kicker">FIELD OPERATIONS</p>
+            <h1 id="tasks-heading">Farm tasks</h1>
+            <p class="sf-muted">See what needs doing, who's assigned, and when work is due.</p>
+        </div>
+        @if (canManage)
         {
-            <li id="task-@task.Id">
-                <strong>@task.TaskTypeName</strong> — @task.DueDate.ToString("yyyy-MM-dd")
-                <span> · @task.StatusName</span>
-                @if (task.AssignedToUserId is { } assigned)
+            <a class="button" href="#add-task">Add a task</a>
+        }
+    </div>
+    <div class="sf-ops-summary" aria-label="Task summary">
+        <div><strong>@openCount</strong><span>Open tasks</span></div>
+        <div><strong>@(Model.Tasks.Count - openCount)</strong><span>Closed tasks</span></div>
+        <div><strong>@Model.Tasks.Count</strong><span>Total tasks</span></div>
+    </div>
+    <p class="hint">Scheduled planting, watering, and harvest tasks are added automatically when the worker is enabled.</p>
+    @if (TempData["Error"] is string error) { <p class="error form-error" role="alert">@error</p> }
+</section>
+<section class="panel sf-task-panel" aria-labelledby="task-list-heading">
+    <div class="sf-section-line">
+        <h2 id="task-list-heading">Task list</h2>
+        <span>Open tasks appear first</span>
+    </div>
+    @if (Model.Tasks.Count == 0)
+    {
+        <div class="sf-empty-state">
+            <strong>No tasks yet.</strong>
+            <p>Farm work and reminders will appear here once tasks have been added.</p>
+        </div>
+    }
+    else
+    {
+        <ul class="sf-task-list">
+        @foreach (var task in Model.Tasks.OrderBy(t => t.Status == 0 ? 0 : 1).ThenBy(t => t.DueDate))
+        {
+            <li id="task-@task.Id" class="sf-task-item @(task.Status == 0 ? "sf-task-open" : "sf-task-closed")">
+                <div class="sf-task-main">
+                    <span class="sf-task-symbol" aria-hidden="true">✓</span>
+                    <div class="sf-task-content">
+                        <div class="sf-task-title">
+                            <h3>@task.TaskTypeName</h3>
+                            <span class="sf-status-chip @(task.Status == 0 ? "sf-status-chip--active" : "sf-status-chip--neutral")">@task.StatusName</span>
+                        </div>
+                        <div class="sf-task-meta">
+                            <span><strong>Due:</strong> <time datetime="@task.DueDate.ToString("yyyy-MM-dd")">@task.DueDate.ToString("MMM d, yyyy")</time></span>
+                            @if (task.AssignedToUserId is { } assigned)
+                            {
+                                <span><strong>Assigned:</strong> @(Model.Members.FirstOrDefault(m => m.UserId == assigned)?.FullName ?? "Farm owner")</span>
+                            }
+                            else
+                            {
+                                <span>Unassigned · Farm owner receives reminder</span>
+                            }
+                        </div>
+                        @if (!string.IsNullOrWhiteSpace(task.Description))
+                        {
+                            <p class="sf-task-description">@task.Description</p>
+                        }
+                    </div>
+                </div>
+                @if (task.Status == 0 && (canManage || task.AssignedToUserId == actorId))
                 {
-                    <span> · Assigned: @(Model.Members.FirstOrDefault(m => m.UserId == assigned)?.FullName ?? "Farm owner")</span>
-                }
-                @if (!string.IsNullOrWhiteSpace(task.Description))
-                {
-                    <p>@task.Description</p>
+                    <div class="sf-task-actions">
+                        <form asp-action="Close" asp-route-farmId="@Model.Farm.Id" asp-route-taskId="@task.Id" method="post">
+                            <input type="hidden" name="RowVersion" value="@task.RowVersion" />
+                            <label class="visually-hidden" for="close-status-@task.Id">Task status</label>
+                            <select id="close-status-@task.Id" name="Status" aria-label="Update task status">
+                                <option value="1">Completed</option>
+                                <option value="2">Skipped</option>
+                                <option value="3">Cancelled</option>
+                            </select>
+                            <button type="submit">Update task</button>
+                        </form>
+                    </div>
                 }
                 @if (task.Status == 0 && canManage)
                 {
-                    <details>
+                    <details class="sf-edit-disclosure">
                         <summary>Edit task and assignment</summary>
-                        <form asp-action="Update" asp-route-farmId="@Model.Farm.Id" asp-route-taskId="@task.Id" method="post" class="narrow">
+                        <form asp-action="Update" asp-route-farmId="@Model.Farm.Id" asp-route-taskId="@task.Id" method="post" class="sf-ops-form">
                             <input type="hidden" name="RowVersion" value="@task.RowVersion" />
                             <label for="editDue-@task.Id">Due date</label>
                             <input type="date" id="editDue-@task.Id" name="DueDate" value="@task.DueDate.ToString("yyyy-MM-dd")" required />
@@ -50,55 +108,62 @@
                         </form>
                     </details>
                 }
-                @if (task.Status == 0 && (canManage || task.AssignedToUserId == actorId))
-                {
-                    <form asp-action="Close" asp-route-farmId="@Model.Farm.Id" asp-route-taskId="@task.Id" method="post">
-                        <input type="hidden" name="RowVersion" value="@task.RowVersion" />
-                        <select name="Status" aria-label="Update task status">
-                            <option value="1">Completed</option>
-                            <option value="2">Skipped</option>
-                            <option value="3">Cancelled</option>
-                        </select>
-                        <button type="submit">Update task</button>
-                    </form>
-                }
             </li>
         }
-    </ul>
+        </ul>
+    }
 </section>
 @if (canManage)
 {
-    <section class="panel">
-        <h2>Add a task</h2>
-        <form asp-action="Create" asp-route-farmId="@Model.Farm.Id" method="post" class="narrow">
-            <label for="taskType">Task type</label>
-            <select name="TaskType" id="taskType">
-                @foreach (var option in FarmCodeLabels.TaskTypes)
-                {
-                    <option value="@option.Code">@option.Name</option>
-                }
-            </select>
-            <label for="taskDue">Due date</label>
-            <input type="date" id="taskDue" name="DueDate" required />
-            <label for="taskCrop">Crop cycle (optional)</label>
-            <select name="CropCycleId" id="taskCrop">
-                <option value="">No crop</option>
-                @foreach (var crop in Model.Cycles)
-                {
-                    <option value="@crop.Id">@crop.PlotName — @crop.CropTypeName</option>
-                }
-            </select>
-            <label for="taskAssignee">Assign to (optional)</label>
-            <select name="AssignedToUserId" id="taskAssignee">
-                <option value="">Unassigned (reminder goes to farm owner)</option>
-                @foreach (var member in Model.Members)
-                {
-                    <option value="@member.UserId">@member.FullName — @member.Role</option>
-                }
-            </select>
-            <label for="taskDescription">Description</label>
-            <textarea id="taskDescription" name="Description" maxlength="500"></textarea>
-            <button type="submit">Create task</button>
+    <section class="panel sf-task-create" id="add-task" aria-labelledby="add-task-heading">
+        <div class="sf-section-line">
+            <div>
+                <p class="sf-kicker">PLAN THE NEXT JOB</p>
+                <h2 id="add-task-heading">Add a task</h2>
+            </div>
+        </div>
+        <p class="sf-muted">Select the work, due date, and person responsible. You can leave the crop and assignee blank.</p>
+        <form asp-action="Create" asp-route-farmId="@Model.Farm.Id" method="post" class="sf-ops-form sf-create-task-form">
+            <div>
+                <label for="taskType">Task type</label>
+                <select name="TaskType" id="taskType">
+                    @foreach (var option in FarmCodeLabels.TaskTypes)
+                    {
+                        <option value="@option.Code">@option.Name</option>
+                    }
+                </select>
+            </div>
+            <div>
+                <label for="taskDue">Due date</label>
+                <input type="date" id="taskDue" name="DueDate" required />
+            </div>
+            <div>
+                <label for="taskCrop">Crop cycle (optional)</label>
+                <select name="CropCycleId" id="taskCrop">
+                    <option value="">No crop</option>
+                    @foreach (var crop in Model.Cycles)
+                    {
+                        <option value="@crop.Id">@crop.PlotName — @crop.CropTypeName</option>
+                    }
+                </select>
+            </div>
+            <div>
+                <label for="taskAssignee">Assign to (optional)</label>
+                <select name="AssignedToUserId" id="taskAssignee">
+                    <option value="">Unassigned (reminder goes to farm owner)</option>
+                    @foreach (var member in Model.Members)
+                    {
+                        <option value="@member.UserId">@member.FullName — @member.Role</option>
+                    }
+                </select>
+            </div>
+            <div class="sf-form-wide">
+                <label for="taskDescription">Description</label>
+                <textarea id="taskDescription" name="Description" maxlength="500"></textarea>
+            </div>
+            <div class="sf-form-wide">
+                <button type="submit">Create task</button>
+            </div>
         </form>
     </section>
 }
