@@ -141,8 +141,8 @@ class FarmViewModel(
                         .minOfOrNull { it.savedAtUtcMillis },
                     weather = weatherData?.value,
                     weatherOffline = weatherData?.offline == true,
-                    weatherCachedAtUtcMillis = weatherData?.savedAtUtcMillis
-                        ?.takeIf { weatherData.offline },
+                    weatherCachedAtUtcMillis = weatherData?.takeIf { it.offline }
+                        ?.savedAtUtcMillis,
                     weatherMessage = if (weatherData == null) "Weather data unavailable." else null)
                 loadEnrollment(farmId)
             } catch (cancelled: CancellationException) { throw cancelled }
