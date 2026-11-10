@@ -423,6 +423,78 @@ namespace SmartFarm.Infrastructure.Persistence.Migrations
                         });
                 });
 
+            // The finance ledger is a manually provisioned, optional SQL-first table.
+            modelBuilder.Entity("SmartFarm.Core.Entities.FarmFinanceEntry", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<decimal>("AmountPhp")
+                        .HasColumnType("decimal(14,2)");
+
+                    b.Property<string>("Category")
+                        .IsRequired()
+                        .HasMaxLength(60)
+                        .HasColumnType("nvarchar(60)");
+
+                    b.Property<Guid?>("CropCycleId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateOnly>("EntryDate")
+                        .HasColumnType("date");
+
+                    b.Property<Guid>("FarmId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Kind")
+                        .IsRequired()
+                        .HasMaxLength(10)
+                        .HasColumnType("nvarchar(10)");
+
+                    b.Property<string>("Notes")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<DateTime>("RecordedAtUtc")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetime2(3)")
+                        .HasDefaultValueSql("SYSUTCDATETIME()", "DF_FarmFinanceEntry_RecordedAt");
+
+                    b.Property<Guid>("RecordedByUserId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("VoidReason")
+                        .HasMaxLength(300)
+                        .HasColumnType("nvarchar(300)");
+
+                    b.Property<DateTime?>("VoidedAtUtc")
+                        .HasColumnType("datetime2(3)");
+
+                    b.Property<Guid?>("VoidedByUserId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("Id")
+                        .HasName("PK_FarmFinanceEntry");
+
+                    b.HasIndex("CropCycleId")
+                        .HasDatabaseName("IX_FarmFinanceEntry_Cycle");
+
+                    b.HasIndex("RecordedByUserId")
+                        .HasDatabaseName("IX_FarmFinanceEntry_RecordedBy");
+
+                    b.HasIndex("FarmId", "EntryDate")
+                        .HasDatabaseName("IX_FarmFinanceEntry_Farm_Date");
+
+                    b.ToTable("FarmFinanceEntry", "dbo", t =>
+                        {
+                            t.HasCheckConstraint("CK_FarmFinanceEntry_Amount", "AmountPhp > 0");
+
+                            t.HasCheckConstraint("CK_FarmFinanceEntry_Kind", "Kind IN (N'Expense', N'Income')");
+
+                            t.HasCheckConstraint("CK_FarmFinanceEntry_Void", "(VoidedAtUtc IS NULL AND VoidedByUserId IS NULL AND VoidReason IS NULL) OR (VoidedAtUtc IS NOT NULL AND VoidedByUserId IS NOT NULL AND VoidReason IS NOT NULL)");
+                        });
+                });
+
             modelBuilder.Entity("SmartFarm.Core.Entities.FarmJoinRequest", b =>
                 {
                     b.Property<Guid>("Id")
@@ -1354,6 +1426,35 @@ namespace SmartFarm.Infrastructure.Persistence.Migrations
                         .OnDelete(DeleteBehavior.NoAction)
                         .IsRequired()
                         .HasConstraintName("FK_Farm_OwnerUser");
+                });
+
+            modelBuilder.Entity("SmartFarm.Core.Entities.FarmFinanceEntry", b =>
+                {
+                    b.HasOne("SmartFarm.Core.Entities.CropCycle", null)
+                        .WithMany()
+                        .HasForeignKey("CropCycleId")
+                        .OnDelete(DeleteBehavior.NoAction)
+                        .HasConstraintName("FK_FarmFinanceEntry_CropCycle");
+
+                    b.HasOne("SmartFarm.Core.Entities.Farm", null)
+                        .WithMany()
+                        .HasForeignKey("FarmId")
+                        .OnDelete(DeleteBehavior.NoAction)
+                        .IsRequired()
+                        .HasConstraintName("FK_FarmFinanceEntry_Farm");
+
+                    b.HasOne("SmartFarm.Infrastructure.Identity.SmartFarmUser", null)
+                        .WithMany()
+                        .HasForeignKey("RecordedByUserId")
+                        .OnDelete(DeleteBehavior.NoAction)
+                        .IsRequired()
+                        .HasConstraintName("FK_FarmFinanceEntry_RecordedBy");
+
+                    b.HasOne("SmartFarm.Infrastructure.Identity.SmartFarmUser", null)
+                        .WithMany()
+                        .HasForeignKey("VoidedByUserId")
+                        .OnDelete(DeleteBehavior.NoAction)
+                        .HasConstraintName("FK_FarmFinanceEntry_VoidedBy");
                 });
 
             modelBuilder.Entity("SmartFarm.Core.Entities.FarmJoinRequest", b =>
