@@ -45,7 +45,7 @@ public sealed class SchemaModelTests
         using var context = new SmartFarmDbContextFactory().CreateDbContext([]);
         var entities = context.GetService<IDesignTimeModel>().Model.GetEntityTypes().ToArray();
         Assert.Equal(25, entities.Length); // Includes seven Identity tables and optional finance ledger.
-        Assert.Equal(201, entities.Sum(entity => entity.GetProperties().Count()));
+        Assert.Equal(214, entities.Sum(entity => entity.GetProperties().Count())); // Includes 13 finance ledger columns.
         Assert.Equal(46, entities.Sum(entity => entity.GetForeignKeys().Count()));
         Assert.Equal(51, entities.Sum(entity => entity.GetIndexes().Count()));
         Assert.Equal(41, entities.Sum(entity => entity.GetCheckConstraints().Count()));
