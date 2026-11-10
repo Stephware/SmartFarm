@@ -45,9 +45,14 @@ jobs:
           java-version: '17'
           cache: gradle
           cache-dependency-path: mobile/SmartFarm.Android/**/*.gradle.kts
-      - uses: android-actions/setup-android@v3
+      # ubuntu-latest already provides Android command-line tools. Installing
+      # obsolete SDK "tools" through setup-android fails on recent runners.
       - name: Install Android SDK 36
-        run: sdkmanager "platforms;android-36" "build-tools;36.0.0"
+        run: |
+          test -n "${ANDROID_HOME:-}"
+          SDKMANAGER="$(find "$ANDROID_HOME/cmdline-tools" -path '*/bin/sdkmanager' -print -quit)"
+          test -n "$SDKMANAGER"
+          "$SDKMANAGER" "platforms;android-36" "build-tools;36.0.0"
       - name: Build Android and run unit tests
         working-directory: mobile/SmartFarm.Android
         run: bash ./gradlew --no-daemon :app:assembleDebug :app:testDebugUnitTest
