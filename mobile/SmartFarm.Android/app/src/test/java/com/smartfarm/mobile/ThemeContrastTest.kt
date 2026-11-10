@@ -19,7 +19,9 @@ class ThemeContrastTest {
         for (colors in listOf(LightColors, DarkColors)) {
             for ((text, background) in listOf(colors.onPrimary to colors.primary,
                 colors.onSecondary to colors.secondary, colors.onTertiary to colors.tertiary,
-                colors.onSurface to colors.surface, colors.onSurfaceVariant to colors.surfaceVariant,
+                colors.onSurface to colors.surface, colors.onBackground to colors.background,
+                colors.onSurface to colors.surfaceContainer, colors.onSurfaceVariant to colors.surfaceVariant,
+                colors.onSurfaceVariant to colors.surfaceContainerHigh,
                 colors.onPrimaryContainer to colors.primaryContainer,
                 colors.onSecondaryContainer to colors.secondaryContainer,
                 colors.onTertiaryContainer to colors.tertiaryContainer,
@@ -27,6 +29,7 @@ class ThemeContrastTest {
                 assertTrue("Text contrast ${contrast(text, background)}", contrast(text, background) >= 4.5f)
             }
             assertTrue("Control outline contrast", contrast(colors.outline, colors.surface) >= 3f)
+            assertTrue("Primary focus contrast", contrast(colors.primary, colors.background) >= 3f)
         }
     }
 }
