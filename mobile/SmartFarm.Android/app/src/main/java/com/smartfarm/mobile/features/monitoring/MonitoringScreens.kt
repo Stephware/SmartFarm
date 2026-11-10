@@ -232,6 +232,7 @@ fun MonitoringScreen(
                 photoId = photo.id,
                 label = "${observation.observedAtUtc.take(10)} · ${observation.growthStage ?: "Inspection"}",
                 onThumbnail = onThumbnail,
+                enabled = !state.busy,
                 onOpen = { openPhoto(photo.id) })
         }
         item(key = "observations-heading") {
@@ -254,6 +255,7 @@ fun MonitoringScreen(
                         photoId = photo.id,
                         label = "Uploaded ${photo.uploadedAtUtc.take(10)}",
                         onThumbnail = onThumbnail,
+                        enabled = !state.busy,
                         onOpen = { openPhoto(photo.id) })
                 }
                 if (state.canRecord) {
@@ -326,6 +328,7 @@ private fun ObservationPhotoRow(
     photoId: String,
     label: String,
     onThumbnail: suspend (String) -> ByteArray,
+    enabled: Boolean,
     onOpen: () -> Unit
 ) {
     var retry by remember(photoId) { mutableStateOf(0) }
@@ -360,7 +363,9 @@ private fun ObservationPhotoRow(
         }
         Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(6.dp)) {
             Text(label, style = MaterialTheme.typography.bodyMedium)
-            OutlinedButton(onClick = onOpen) { Text("Enlarge photo") }
+            OutlinedButton(onClick = onOpen, enabled = enabled) {
+                Text("Enlarge photo")
+            }
         }
     }
 }
