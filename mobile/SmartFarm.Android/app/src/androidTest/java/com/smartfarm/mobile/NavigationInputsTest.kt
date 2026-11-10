@@ -71,7 +71,7 @@ class NavigationInputsTest {
     @Test fun activityChoicesExposeTheirSelectedState() {
         compose.setContent {
             SmartFarmTheme { MonitoringScreen(MonitoringUiState(canRecord = true), {}, { _, _ -> },
-                { _, _, _, _ -> }, { _, _ -> }, {}) }
+                { _, _, _, _ -> }, { _, _ -> }, {}, { byteArrayOf() }, {}) }
         }
         compose.onNodeWithText("Fertilizing").performScrollTo().performClick().assertIsSelected()
     }
