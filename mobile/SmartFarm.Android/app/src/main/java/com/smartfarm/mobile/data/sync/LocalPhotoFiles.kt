@@ -82,5 +82,26 @@ class LocalPhotoFiles(context: Context) {
             }
         }
 
+    /**
+     * Remove only stale staging files or orphaned optimized files.
+     * Never touch a queued file, including files belonging to other accounts.
+     * A grace period prevents racing a foreground photo currently being prepared.
+     */
+    suspend fun pruneAbandoned(queuedPhotoIds: Set<String>) = withContext(Dispatchers.IO) {
+        val cutoff = System.currentTimeMillis() - 24L * 60 * 60 * 1000
+        directory.listFiles()?.forEach { candidate ->
+            if (!candidate.isFile || candidate.lastModified() >= cutoff) return@forEach
+            val name = candidate.name
+            when {
+                name.matches(Regex("[0-9a-fA-F-]{36}\\.source")) ->
+                    candidate.delete()
+                name.matches(Regex("[0-9a-fA-F-]{36}\\.image")) -> {
+                    val photoId = name.removeSuffix(".image")
+                    if (photoId !in queuedPhotoIds) candidate.delete()
+                }
+            }
+        }
+    }
+
     suspend fun delete(id: String) = withContext(Dispatchers.IO) { file(id).delete() }
 }
