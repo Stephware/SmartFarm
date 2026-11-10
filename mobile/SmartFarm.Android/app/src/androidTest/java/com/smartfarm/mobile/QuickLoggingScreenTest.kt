@@ -18,6 +18,7 @@ class QuickLoggingScreenTest {
             MonitoringScreen(MonitoringUiState(farmId = "farm", cycleId = "crop", canRecord = true),
                 onBack = {}, onActivity = { type, notes -> saved = type to notes },
                 onObservation = { _, _, _, _ -> }, onUpload = { _, _ -> }, onPreview = {},
+                onThumbnail = { byteArrayOf() }, onDismissPreview = {},
                 quick = "watering")
         } }
         compose.onNodeWithText("Quick log: Watering").assertExists()
@@ -33,6 +34,7 @@ class QuickLoggingScreenTest {
             MonitoringScreen(MonitoringUiState(farmId = "farm", cycleId = "crop", canRecord = true),
                 onBack = {}, onActivity = { _, _ -> },
                 onObservation = { _, _, _, _ -> }, onUpload = { _, _ -> }, onPreview = {},
+                onThumbnail = { byteArrayOf() }, onDismissPreview = {},
                 quick = "inspection")
         } }
         compose.onNodeWithText("Quick log: Inspection").assertExists()

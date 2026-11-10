@@ -53,8 +53,7 @@ jobs:
           SDKMANAGER="$(find "$ANDROID_HOME/cmdline-tools" -path '*/bin/sdkmanager' -print -quit)"
           test -n "$SDKMANAGER"
           "$SDKMANAGER" "platforms;android-36" "build-tools;36.0.0"
-      - name: Build Android and run unit tests
+      - name: Build Android, compile device tests and run unit tests
         working-directory: mobile/SmartFarm.Android
-        run: bash ./gradlew --no-daemon :app:assembleDebug :app:testDebugUnitTest
-      # Device/Room instrumentation tests are run locally with an emulator;
-      # the CI job only claims the Android build and JVM unit-test coverage.
+        run: bash ./gradlew --no-daemon :app:assembleDebug :app:assembleAndroidTest :app:testDebugUnitTest
+      # Instrumentation tests are compiled in CI, but need an emulator to execute.

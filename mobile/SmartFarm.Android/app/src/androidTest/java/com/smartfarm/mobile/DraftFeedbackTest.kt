@@ -41,7 +41,7 @@ class DraftFeedbackTest {
                     onActivity = { _, _ -> saved = {
                         state.value = state.value.copy(saveReceipts = mapOf("farm/crop/activity" to "saved"))
                     } },
-                    onObservation = { _, _, _, _ -> }, onUpload = { _, _ -> }, onPreview = {})
+                    onObservation = { _, _, _, _ -> }, onUpload = { _, _ -> }, onPreview = {}, onThumbnail = { byteArrayOf() }, onDismissPreview = {})
             }
         }
         compose.onNodeWithText("Notes (optional)").performScrollTo().performTextInput("Watered north field")
@@ -71,7 +71,7 @@ class DraftFeedbackTest {
                         onObservation = { _, _, _, _ -> saved = {
                             state.value = state.value.copy(saveReceipts = mapOf("farm/crop/observation" to "saved"))
                         } },
-                        onUpload = { _, _ -> }, onPreview = {})
+                        onUpload = { _, _ -> }, onPreview = {}, onThumbnail = { byteArrayOf() }, onDismissPreview = {})
                 }
             }
         }
@@ -89,7 +89,7 @@ class DraftFeedbackTest {
             SmartFarmTheme {
                 MonitoringScreen(state.value, onBack = {},
                     onActivity = { _, _ -> state.value = state.value.copy(busy = true) },
-                    onObservation = { _, _, _, _ -> }, onUpload = { _, _ -> }, onPreview = {})
+                    onObservation = { _, _, _, _ -> }, onUpload = { _, _ -> }, onPreview = {}, onThumbnail = { byteArrayOf() }, onDismissPreview = {})
             }
         }
         compose.onNodeWithText("Save activity").performScrollTo().performClick()
