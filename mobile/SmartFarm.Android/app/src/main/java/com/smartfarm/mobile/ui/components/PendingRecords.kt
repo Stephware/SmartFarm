@@ -1,6 +1,12 @@
 package com.smartfarm.mobile.ui.components
 
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.dp
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -29,11 +35,27 @@ fun PendingRecords(operations: List<PendingOperation>, farmId: String, targetId:
         }.getOrDefault(false)
     }
     if (pending.isEmpty()) return
-    Text("Saved on this device", style = MaterialTheme.typography.titleMedium)
-    Text("These records are not server-confirmed and are not included in the totals above.")
-    pending.forEach { operation ->
-        Text(pendingRecordDescription(operation) + if (operation.status == "review") " · Needs review" else " · Waiting to sync")
-        operation.errorMessage?.let { Text(it, color = MaterialTheme.colorScheme.error) }
+    FarmSectionCard(
+        "Saved on this device",
+        subtitle = "These records are not server-confirmed and are not included in the totals above."
+    ) {
+        pending.forEach { operation ->
+            Column(
+                modifier = Modifier.fillMaxWidth(),
+                verticalArrangement = Arrangement.spacedBy(6.dp)
+            ) {
+                FarmStatusChip(
+                    if (operation.status == "review") "Needs review" else "Waiting to sync",
+                    if (operation.status == "review") FarmStatusTone.Warning else FarmStatusTone.Planned
+                )
+                Text(pendingRecordDescription(operation), style = MaterialTheme.typography.bodyMedium)
+                operation.errorMessage?.let {
+                    Text(it, color = MaterialTheme.colorScheme.error, style = MaterialTheme.typography.bodySmall)
+                }
+            }
+        }
+        OutlinedButton(onClick = onSync, modifier = Modifier.fillMaxWidth()) {
+            Text("Review sync status")
+        }
     }
-    OutlinedButton(onClick = onSync) { Text("Review sync status") }
 }
