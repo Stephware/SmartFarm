@@ -79,6 +79,7 @@ class AppContainer(context: Context) {
     val syncRepository: SyncRepository by lazy {
         SyncRepository(authRepository, database.pendingOperationDao(),
             database.pendingPhotoDao(), LocalPhotoFiles(appContext),
+            com.smartfarm.mobile.data.sync.OfflineObservationQueue(database),
             { retrofit.create(SyncApi::class.java) },
             { retrofit.create(MonitoringApi::class.java) },
             { retrofit.create(InventoryApi::class.java) }, workManager)
