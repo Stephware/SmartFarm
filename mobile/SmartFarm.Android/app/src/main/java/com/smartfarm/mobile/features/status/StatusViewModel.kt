@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import com.smartfarm.mobile.data.repository.StatusRepository
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
@@ -26,8 +27,10 @@ class StatusViewModel(private val repository: StatusRepository) : ViewModel() {
                     StatusUiState(message = "Backend reachable")
                 else
                     StatusUiState(message = "Unexpected backend response")
+            } catch (cancelled: CancellationException) {
+                throw cancelled
             } catch (_: Exception) {
-                StatusUiState(message = "Cannot connect. Start the AniGo API on port 5081.")
+                StatusUiState(message = "Cannot connect. Check your API connection.")
             }
         }
     }

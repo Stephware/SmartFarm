@@ -6,6 +6,7 @@ import androidx.lifecycle.viewModelScope
 import com.smartfarm.mobile.data.remote.api.TaskDto
 import com.smartfarm.mobile.data.remote.api.NotificationDto
 import com.smartfarm.mobile.data.repository.TaskRepository
+import com.smartfarm.mobile.data.repository.NetworkErrorMessages
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -34,9 +35,10 @@ class TaskViewModel(private val repository: TaskRepository) : ViewModel() {
                 mutable.value = if (farmId == null) TaskUiState(notifications = repository.notifications())
                     else TaskUiState(farmId = farmId, tasks = repository.tasks(farmId))
             } catch (cancelled: CancellationException) { throw cancelled }
-            catch (_: Exception) {
+            catch (error: Exception) {
                 mutable.value = mutable.value.copy(busy = false,
-                    error = "Could not refresh these records. Check your connection and try again before repeating an update.")
+                    error = NetworkErrorMessages.forMutation(error,
+                        "Could not refresh these records. Check your connection and try again before repeating an update."))
             }
         }
     }

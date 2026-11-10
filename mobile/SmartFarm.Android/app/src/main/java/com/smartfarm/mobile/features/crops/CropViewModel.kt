@@ -11,6 +11,8 @@ import com.smartfarm.mobile.data.remote.dto.CropTypeInputDto
 import com.smartfarm.mobile.data.remote.dto.PlotDto
 import com.smartfarm.mobile.data.repository.CropRepository
 import com.smartfarm.mobile.data.repository.FarmRepository
+import com.smartfarm.mobile.data.repository.NetworkErrorMessages
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
@@ -49,8 +51,11 @@ class CropViewModel(
                     plots = plots.value, cycles = cycles.value, offline = cached,
                     cachedAtUtcMillis = listOf(types, plots, cycles)
                         .filter { it.offline }.minOfOrNull { it.savedAtUtcMillis })
-            } catch (_: Exception) {
-                mutable.value = CropUiState(farmId, error = "Could not load crops. Check farm access and connection.")
+            } catch (cancelled: CancellationException) {
+                throw cancelled
+            } catch (error: Exception) {
+                mutable.value = CropUiState(farmId, error = NetworkErrorMessages.forRequest(
+                    error, "Could not load crops. Check farm access and connection."))
             }
         }
     }
@@ -64,9 +69,12 @@ class CropViewModel(
                 block(farmId)
                 mutable.value = mutable.value.copy(
                     types = crops.types(farmId), cycles = crops.cycles(farmId))
-            } catch (_: Exception) {
+            } catch (cancelled: CancellationException) {
+                throw cancelled
+            } catch (error: Exception) {
                 mutable.value = mutable.value.copy(
-                    error = "Could not save. Check dates, permissions, crop status and connection; reload if the record changed.")
+                    error = NetworkErrorMessages.forMutation(error,
+                        "Could not save. Check dates, permissions, crop status and connection; reload if the record changed."))
             } finally {
                 mutable.value = mutable.value.copy(busy = false)
             }

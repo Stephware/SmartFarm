@@ -5,6 +5,8 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import com.smartfarm.mobile.data.remote.dto.*
 import com.smartfarm.mobile.data.repository.InventoryRepository
+import com.smartfarm.mobile.data.repository.NetworkErrorMessages
+import kotlinx.coroutines.CancellationException
 import com.smartfarm.mobile.data.sync.SyncRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -49,8 +51,11 @@ class InventoryViewModel(private val repo: InventoryRepository,
                 mutable.value = mutable.value.copy(workspace = snapshot.value,
                     offline = snapshot.offline,
                     cachedAtUtcMillis = snapshot.savedAtUtcMillis.takeIf { snapshot.offline })
-            } catch (_: Exception) {
-                mutable.value = mutable.value.copy(error = "Could not load inventory.")
+            } catch (cancelled: CancellationException) {
+                throw cancelled
+            } catch (error: Exception) {
+                mutable.value = mutable.value.copy(error = NetworkErrorMessages.forRequest(
+                    error, "Could not load inventory."))
             } finally { mutable.value = mutable.value.copy(busy = false) }
         }
     }
@@ -73,8 +78,11 @@ class InventoryViewModel(private val repo: InventoryRepository,
                     offline = cached,
                     cachedAtUtcMillis = snapshots.filter { it.offline }
                         .minOfOrNull { it.savedAtUtcMillis })
-            } catch (_: Exception) {
-                mutable.value = mutable.value.copy(error = "Could not load inventory item.")
+            } catch (cancelled: CancellationException) {
+                throw cancelled
+            } catch (error: Exception) {
+                mutable.value = mutable.value.copy(error = NetworkErrorMessages.forRequest(
+                    error, "Could not load inventory item."))
             } finally { mutable.value = mutable.value.copy(busy = false) }
         }
     }
@@ -93,6 +101,8 @@ class InventoryViewModel(private val repo: InventoryRepository,
                         transactions = repo.history(snapshot.farmId, snapshot.itemId))
                 }
                 after?.invoke()
+            } catch (cancelled: CancellationException) {
+                throw cancelled
             } catch (_: Exception) {
                 mutable.value = mutable.value.copy(
                     error = "Stock change failed. Check values and permissions; reload if inventory has changed.")
@@ -135,6 +145,8 @@ class InventoryViewModel(private val repo: InventoryRepository,
                     "Stock change queued. Do not record it again; check offline sync status.")
             } catch (invalid: IllegalArgumentException) {
                 mutable.value = mutable.value.copy(error = invalid.message)
+            } catch (cancelled: CancellationException) {
+                throw cancelled
             } catch (_: Exception) {
                 mutable.value = mutable.value.copy(error = "Could not save the change on this device.")
             } finally {
