@@ -197,7 +197,9 @@ fun SmartFarmNavHost(auth: AuthViewModel, farms: FarmViewModel, crops: CropViewM
                 onUpload = { observationId, uri ->
                     monitoring.uploadPhoto(observationId, uri, resolver)
                 },
-                onPreview = { monitoring.preview(it) }, pending = pending,
+                onPreview = { monitoring.preview(it) },
+                onThumbnail = { monitoring.thumbnail(it) },
+                onDismissPreview = { monitoring.dismissPreview() }, pending = pending,
                 onSync = { navController.navigate("sync") },
                 onRetry = { monitoring.load(farmId, cycleId) },
                 quick = entry.arguments?.getString("quick").orEmpty())
