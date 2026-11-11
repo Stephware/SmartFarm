@@ -155,7 +155,13 @@ fun SmartFarmNavHost(auth: AuthViewModel, farms: FarmViewModel, crops: CropViewM
         composable("farm/{farmId}") { entry ->
             val farmId = entry.arguments?.getString("farmId").orEmpty()
             val farmState by farms.state.collectAsStateWithLifecycle()
-            LaunchedEffect(farmId) { farms.loadDetail(farmId) }
+            val homeTasks by tasks.state.collectAsStateWithLifecycle()
+            val homeCrops by crops.state.collectAsStateWithLifecycle()
+            LaunchedEffect(farmId) {
+                farms.loadDetail(farmId)
+                tasks.load(farmId)
+                crops.load(farmId)
+            }
             FarmDetailScreen(farmState,
                 onBack = { navController.popBackStack() },
                 onSaveFarm = { name, location, zone, latitude, longitude ->
@@ -170,7 +176,8 @@ fun SmartFarmNavHost(auth: AuthViewModel, farms: FarmViewModel, crops: CropViewM
                 onChangeRole = { member, role -> farms.changeRole(member, role) },
                 onRemoveMember = { farms.remove(it) },
                 onTasks = { navController.navigate("tasks/$farmId") }, onRetry = { farms.loadDetail(farmId) },
-                onRegenerateCode = farms::regenerateJoinCode)
+                onRegenerateCode = farms::regenerateJoinCode,
+                homeTasks = homeTasks, homeCrops = homeCrops, actorId = state.account?.id)
         }
         composable("tasks/{farmId}") { entry ->
             val farmId = entry.arguments?.getString("farmId").orEmpty()

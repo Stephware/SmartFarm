@@ -201,7 +201,10 @@ fun FarmDetailScreen(state: FarmUiState, onBack: () -> Unit,
     onInventory: () -> Unit,
     onDecision: (String, Boolean) -> Unit,
     onChangeRole: (FarmMemberDto, Int) -> Unit, onRemoveMember: (FarmMemberDto) -> Unit,
-    onTasks: () -> Unit = {}, onRetry: () -> Unit = {}, onRegenerateCode: (String) -> Unit = {}) {
+    onTasks: () -> Unit = {}, onRetry: () -> Unit = {}, onRegenerateCode: (String) -> Unit = {},
+    homeTasks: com.smartfarm.mobile.features.tasks.TaskUiState? = null,
+    homeCrops: com.smartfarm.mobile.features.crops.CropUiState? = null,
+    actorId: String? = null) {
     val farm = state.selected
     val canManage = !state.offline && farm?.role in listOf("Owner", "Manager")
     val isOwner = !state.offline && farm?.role == "Owner"
@@ -231,13 +234,9 @@ fun FarmDetailScreen(state: FarmUiState, onBack: () -> Unit,
                 }
             }
             if (visibleSection == "Overview") {
+            FarmHomeOverview(state, homeTasks, homeCrops, actorId, onTasks, onCrops, onInventory)
             if (farm.role == "Owner") EnrollmentPanel(state, onDecision, onRetry, onRegenerateCode)
-            FarmSectionCard("Farm workspace", subtitle = "Choose where you'd like to work.") {
-                Button(onClick = onTasks, modifier = Modifier.fillMaxWidth()) { Text("Farm tasks") }
-                OutlinedButton(onClick = onCrops, modifier = Modifier.fillMaxWidth()) { Text("Crop management") }
-                OutlinedButton(onClick = onInventory, modifier = Modifier.fillMaxWidth()) { Text("Inventory") }
-            }
-            FarmSectionCard("Weather forecast and advisories",
+            FarmSectionCard("Saved forecast details",
                 subtitle = "Latest saved forecast. Not real-time weather.") {
             val weather = state.weather
             if (state.weatherOffline) {
