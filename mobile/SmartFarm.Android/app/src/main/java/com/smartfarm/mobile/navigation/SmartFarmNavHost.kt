@@ -237,7 +237,14 @@ fun SmartFarmNavHost(auth: AuthViewModel, farms: FarmViewModel, crops: CropViewM
             val farmId = entry.arguments?.getString("farmId").orEmpty()
             val cycleId = entry.arguments?.getString("cycleId").orEmpty()
             val monitoringState by monitoring.state.collectAsStateWithLifecycle()
-            LaunchedEffect(farmId, cycleId) { monitoring.load(farmId, cycleId) }
+            val farmState by farms.state.collectAsStateWithLifecycle()
+            val taskState by tasks.state.collectAsStateWithLifecycle()
+            val manager = farmState.selected?.id == farmId &&
+                farmState.selected?.role in listOf("Owner", "Manager")
+            LaunchedEffect(farmId, cycleId) {
+                monitoring.load(farmId, cycleId)
+                if (manager) tasks.load(farmId)
+            }
             MonitoringScreen(monitoringState,
                 onBack = { navController.popBackStack() },
                 onActivity = { kind, notes -> monitoring.logActivity(kind, notes) },
@@ -252,7 +259,16 @@ fun SmartFarmNavHost(auth: AuthViewModel, farms: FarmViewModel, crops: CropViewM
                 onDismissPreview = { monitoring.dismissPreview() }, pending = pending,
                 onSync = { navController.navigate("sync") },
                 onRetry = { monitoring.load(farmId, cycleId) },
-                quick = entry.arguments?.getString("quick").orEmpty())
+                quick = entry.arguments?.getString("quick").orEmpty(),
+                onIssueObservation = { health, growth, notes, category, severity, photo ->
+                    monitoring.observeIssue(health, growth, notes,
+                        category, severity, photo, resolver)
+                },
+                canManageIssues = manager,
+                taskOptions = taskState.tasks,
+                onFollowUp = { observation, status, taskId ->
+                    monitoring.updateFollowUp(observation, status, taskId)
+                })
         }
         composable("inventory/{farmId}") { entry ->
             val farmId = entry.arguments?.getString("farmId").orEmpty()
