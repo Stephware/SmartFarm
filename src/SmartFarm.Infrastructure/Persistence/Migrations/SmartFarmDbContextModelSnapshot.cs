@@ -385,6 +385,53 @@ namespace SmartFarm.Infrastructure.Persistence.Migrations
                         });
                 });
 
+            modelBuilder.Entity("SmartFarm.Core.Entities.AdminAuditLog", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Action")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<string>("ActorSource")
+                        .IsRequired()
+                        .HasMaxLength(40)
+                        .HasColumnType("nvarchar(40)");
+
+                    b.Property<Guid?>("ActorUserId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("OccurredAtUtc")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetime2(3)")
+                        .HasDefaultValueSql("SYSUTCDATETIME()", "DF_AdminAuditLog_OccurredAt");
+
+                    b.Property<string>("Reason")
+                        .HasMaxLength(300)
+                        .HasColumnType("nvarchar(300)");
+
+                    b.Property<Guid?>("TargetId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("TargetType")
+                        .IsRequired()
+                        .HasMaxLength(80)
+                        .HasColumnType("nvarchar(80)");
+
+                    b.HasKey("Id")
+                        .HasName("PK_AdminAuditLog");
+
+                    b.HasIndex("OccurredAtUtc")
+                        .HasDatabaseName("IX_AdminAuditLog_OccurredAt");
+
+                    b.HasIndex("ActorUserId", "OccurredAtUtc")
+                        .HasDatabaseName("IX_AdminAuditLog_Actor_Date");
+
+                    b.ToTable("AdminAuditLog", "dbo");
+                });
+
             modelBuilder.Entity("SmartFarm.Core.Entities.Farm", b =>
                 {
                     b.Property<Guid>("Id")
@@ -1460,6 +1507,15 @@ namespace SmartFarm.Infrastructure.Persistence.Migrations
                         .OnDelete(DeleteBehavior.NoAction)
                         .IsRequired()
                         .HasConstraintName("FK_Farm_OwnerUser");
+                });
+
+            modelBuilder.Entity("SmartFarm.Core.Entities.AdminAuditLog", b =>
+                {
+                    b.HasOne("SmartFarm.Infrastructure.Identity.SmartFarmUser", null)
+                        .WithMany()
+                        .HasForeignKey("ActorUserId")
+                        .OnDelete(DeleteBehavior.NoAction)
+                        .HasConstraintName("FK_AdminAuditLog_Actor");
                 });
 
             modelBuilder.Entity("SmartFarm.Core.Entities.FarmFinanceEntry", b =>
