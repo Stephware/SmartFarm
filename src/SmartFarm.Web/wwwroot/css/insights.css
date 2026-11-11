@@ -1,0 +1,44 @@
+/* Phase 6: Pine and Gold reporting, saved-weather and manual finance UI */
+.ani-insight-links { display:flex; gap:9px; flex-wrap:wrap; margin:14px 0 19px; }
+.ani-insight-links a { min-height:44px; display:inline-flex; align-items:center; justify-content:center; padding:9px 14px;
+  border:1px solid var(--divider); border-radius:11px; background:var(--soft); color:var(--text); text-decoration:none; font-size:.84rem; font-weight:700; }
+.ani-insight-links a:hover { background:var(--secondary-soft); border-color:var(--farm-gold); }
+.ani-insight-note { color:var(--muted); font-size:.9rem; line-height:1.55; max-width:72ch; }
+.ani-weather-hero,.ani-report-hero,.ani-finance-hero,.ani-weather-advisories,
+.ani-report-charts,.ani-report-table,.ani-finance-insights,.ani-finance-entry,.ani-finance-history {
+ border-radius:19px; border:1px solid var(--divider); box-shadow:var(--shadow-card); }
+.ani-weather-summary { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:12px; margin:22px 0; }
+.ani-weather-summary>div { padding:18px; background:var(--soft); border:1px solid var(--divider); border-radius:15px; display:grid; gap:5px; }
+.ani-weather-summary span { color:var(--muted); font-size:.81rem; font-weight:700; }
+.ani-weather-summary strong { font-size:1.55rem; letter-spacing:-.035em; font-variant-numeric:tabular-nums; }
+.ani-weather-summary small { color:var(--muted); font-size:.76rem; }
+.ani-weather-days { gap:13px; }
+.ani-weather-days .sf-weather-card { background:var(--surface); border:1px solid var(--divider); border-radius:16px; padding:18px; }
+.ani-weather-days .ani-weather-next { border-top:4px solid var(--farm-gold); }
+.ani-next-label { border-radius:40px; color:var(--on-secondary-soft); background:var(--secondary-soft); font-size:.74rem; padding:5px 9px; }
+.ani-weather-days .sf-weather-temps strong { font-size:1.55rem; font-variant-numeric:tabular-nums; }
+.ani-weather-advisories .sf-weather-alert-list>li { border-left:4px solid var(--farm-gold); border-radius:12px; }
+.ani-report-counts { gap:12px; }
+.ani-report-counts>div { background:var(--soft); padding:16px; border:1px solid var(--divider); border-radius:14px; }
+.ani-report-chart { background:var(--soft); padding:16px; border-radius:14px; border:1px solid var(--divider); }
+.ani-report-chart .harvest-bar-track { background:var(--divider); border-radius:30px; overflow:hidden; }
+.ani-report-chart .harvest-bar-fill { background:linear-gradient(90deg,var(--farm-pine-mid),var(--farm-gold)); border-radius:30px; }
+.ani-report-table .table-scroll { border-radius:13px; }
+.ani-report-table .data-table th { color:var(--text); background:var(--soft); }
+.ani-finance-overview { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:12px; }
+.ani-finance-overview>div { min-width:0; padding:19px; border:1px solid var(--divider); border-top:4px solid var(--farm-gold);
+  background:var(--soft); border-radius:15px; }
+.ani-finance-overview>div:first-child { border-top-color:var(--farm-pine-mid); }
+.ani-finance-overview>.sf-finance-net { border-top-color:var(--farm-pine); }
+.ani-finance-overview strong { font-variant-numeric:tabular-nums; letter-spacing:-.025em; }
+.ani-cash-notice { padding:13px 16px; color:var(--on-secondary-soft); background:var(--secondary-soft); border-radius:12px; font-size:.84rem; }
+.ani-finance-insights .sf-cash-bar--income { background:var(--farm-pine-mid); }
+.ani-finance-insights .sf-cash-bar--expense { background:var(--farm-gold); }
+.ani-finance-entry .sf-ops-form input,.ani-finance-entry .sf-ops-form select { min-height:45px; }
+.ani-finance-history .sf-finance-row { border-left:3px solid var(--farm-gold); padding-left:13px; }
+@media (max-width:720px) {
+ .ani-weather-summary,.ani-finance-overview { grid-template-columns:minmax(0,1fr); }
+ .ani-weather-summary>div { padding:13px 16px; }
+ .ani-insight-links>a { flex:1 1 40%; text-align:center; }
+ .ani-report-chart { padding:11px; }
+}
