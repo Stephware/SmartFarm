@@ -98,6 +98,28 @@ public sealed class MonitoringController : Controller
     }
 
     [HttpPost, ValidateAntiForgeryToken]
+    public async Task<IActionResult> FollowUp(Guid farmId, Guid cycleId, Guid observationId,
+        UpdateObservationFollowUpInput input, CancellationToken ct)
+    {
+        if (!ModelState.IsValid)
+        {
+            TempData["Error"] = "Choose a valid follow-up status and task.";
+            return RedirectToAction(nameof(Index), new { farmId, cycleId });
+        }
+        try
+        {
+            await _monitoring.UpdateFollowUpAsync(
+                farmId, cycleId, observationId, Actor, input, ct);
+        }
+        catch (FarmOperationException error)
+        {
+            if (error.Error == FarmError.NotFound) return NotFound();
+            TempData["Error"] = error.Message;
+        }
+        return RedirectToAction(nameof(Index), new { farmId, cycleId });
+    }
+
+    [HttpPost, ValidateAntiForgeryToken]
     [RequestSizeLimit(6 * 1024 * 1024)]
     [RequestFormLimits(MultipartBodyLengthLimit = 6 * 1024 * 1024)]
     public async Task<IActionResult> Upload(Guid farmId, Guid cycleId, Guid observationId,
