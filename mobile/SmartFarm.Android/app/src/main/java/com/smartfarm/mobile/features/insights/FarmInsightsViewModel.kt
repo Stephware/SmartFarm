@@ -11,6 +11,7 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import kotlin.coroutines.coroutineContext
 
 data class FarmInsightsUiState(
     val farmId: String = "", val loading: Boolean = false,
@@ -56,7 +57,10 @@ class FarmInsightsViewModel(private val repo: FarmInsightsRepository) : ViewMode
             } catch (cancelled: CancellationException) {
                 throw cancelled
             } finally {
-                mutable.value = mutable.value.copy(loading = false, loaded = true)
+                // A cancelled request must never overwrite a newer farm, period, or logout.
+                if (job === coroutineContext[Job]) {
+                    mutable.value = mutable.value.copy(loading = false, loaded = true)
+                }
             }
         }
     }
