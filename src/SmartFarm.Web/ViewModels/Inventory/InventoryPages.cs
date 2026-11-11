@@ -3,7 +3,11 @@ using SmartFarm.Core.Contracts.Inventory;
 
 namespace SmartFarm.Web.ViewModels.Inventory;
 
-public sealed record InventoryPage(FarmDetails Farm, InventoryWorkspace Workspace);
+public sealed record InventoryPage(FarmDetails Farm, InventoryWorkspace Workspace)
+{
+    public string Search { get; init; } = "";
+    public string SelectedFilter { get; init; } = "all";
+}
 
 public sealed record InventoryItemPage(
     FarmDetails Farm, InventoryItemDetails Item,

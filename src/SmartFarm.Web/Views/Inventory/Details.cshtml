@@ -16,7 +16,11 @@
             <p><a asp-action="Index" asp-route-farmId="@Model.Farm.Id">← Inventory</a></p>
             <p class="sf-kicker">SUPPLY DETAILS</p>
             <h1 id="stock-heading">@item.Name</h1>
-            <p class="sf-muted">@item.Category · @item.Unit</p>
+            <p class="sf-muted">@item.CategoryName · @item.Unit</p>
+            @if (item.ReorderLevel.HasValue)
+            {
+                <p class="ani-stock-threshold">Low-stock alert at @item.ReorderLevel.Value.ToString("N3") @item.Unit</p>
+            }
         </div>
         <div class="sf-stock-hero-balance">
             <span>Available stock</span>
@@ -45,12 +49,14 @@
     <section class="panel sf-stock-movement" aria-labelledby="stock-movement-heading">
         <p class="sf-kicker">TRACK STOCK</p>
         <h2 id="stock-movement-heading">Stock movement</h2>
-        <p>Receipts add stock. Consumption subtracts stock and must reference a crop activity.
-           Adjustments may add or remove stock with a reason.</p>
+        <p>Use <strong>Receipt</strong> when supplies arrive, <strong>Consumption</strong> when they were used for recorded crop work, and <strong>Adjustment</strong> to correct a stock count. Every change is saved in the transaction history.</p>
+        <div class="ani-stock-movement-guide" role="note">
+            <span>+ Receipt</span><span>− Consumption</span><span>± Adjustment</span>
+        </div>
         <form class="sf-ops-form" asp-action="Post" asp-route-farmId="@Model.Farm.Id" asp-route-itemId="@item.Id" method="post">
             <input type="hidden" name="RowVersion" value="@item.RowVersion" />
             <label for="kind">Movement type</label>
-            <select id="kind" name="TransactionType">
+            <select id="kind" name="TransactionType" aria-describedby="movement-hint">
                 @if (canManage)
                 {
                     <option value="2">Receipt (+)</option>
@@ -59,7 +65,7 @@
                 <option value="3">Consumption (-)</option>
             </select>
             <label for="quantity">Quantity (@item.Unit)</label>
-            <p class="hint">Enter a positive quantity for receipts or consumption. Adjustments may be positive or negative.</p>
+            <p id="movement-hint" class="hint">Use a positive amount for receipts or consumption. Adjustments allow a plus or minus sign. Maximum 3 decimal places.</p>
             <input id="quantity" name="QuantityChange" type="number" step="0.001" required />
             <label for="cropActivity">Crop activity for consumption</label>
             <select id="cropActivity" name="CropActivityId">
@@ -72,6 +78,7 @@
             <label for="reason">Reason (required for adjustments)</label>
             <input id="reason" name="Reason" maxlength="300" />
             <button type="submit">Save stock movement</button>
+            <p class="ani-stock-guidance">The updated stock balance is shown after the server confirms this entry.</p>
         </form>
     </section>
 }

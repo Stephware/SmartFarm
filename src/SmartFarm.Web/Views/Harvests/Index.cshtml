@@ -1,3 +1,4 @@
+@using SmartFarm.Web.Presentation
 @model SmartFarm.Web.ViewModels.Harvests.HarvestPage
 @{
     ViewData["Title"] = "Harvests";
@@ -13,7 +14,11 @@
             <h1 id="harvests-heading">Harvests · @cycle.CropTypeName</h1>
             <p class="sf-muted">@cycle.PlotName · Crop status: <strong>@cycle.Status</strong></p>
         </div>
-        <a class="sf-button-outline" asp-controller="Reports" asp-action="Harvests" asp-route-farmId="@cycle.FarmId">Farm-wide harvest report</a>
+        <div class="ani-harvest-identity">
+            <img src="@Url.Content("~/images/crops/" + CropArtwork.FileName(cycle.CropTypeName))"
+                 width="120" height="120" alt="" />
+            <a class="sf-button-outline" asp-controller="Reports" asp-action="Harvests" asp-route-farmId="@cycle.FarmId">Farm-wide report</a>
+        </div>
     </div>
     <div class="sf-harvest-metrics" aria-label="Recorded harvest totals">
         <div class="sf-harvest-main-number">
@@ -38,13 +43,16 @@
     <section class="panel sf-harvest-record" id="record-harvest" aria-labelledby="record-harvest-heading">
         <p class="sf-kicker">NEW RECORD</p>
         <h2 id="record-harvest-heading">Record partial harvest</h2>
-        <p class="sf-muted">Enter the amount collected. You can record multiple harvests while this crop cycle remains active.</p>
+        <p class="sf-muted">Enter the amount collected today. Each partial harvest becomes a separate record; your crop stays active until you complete its cycle.</p>
+        <p class="ani-harvest-form-notice">Only confirmed server harvests count toward the total shown above. On Android, offline entries show as pending until synced.</p>
         <form class="sf-ops-form" asp-action="Record" asp-route-farmId="@cycle.FarmId" asp-route-cycleId="@cycle.Id" method="post">
             <label for="quantity">Harvested quantity (@overview.Unit)</label>
-            <input id="quantity" name="Quantity" type="number" step="0.001" min="0.001" required />
+            <input id="quantity" name="Quantity" type="number" step="0.001" min="0.001" max="999999999999999.999"
+                   inputmode="decimal" required aria-describedby="harvest-quantity-hint" />
+            <p class="hint" id="harvest-quantity-hint">Use a positive amount, up to three decimal places.</p>
             <label for="notes">Notes (optional)</label>
             <textarea id="notes" name="Notes" rows="3" maxlength="1000"></textarea>
-            <button type="submit">Record harvest</button>
+            <button type="submit">Save partial harvest</button>
         </form>
     </section>
 }
@@ -68,11 +76,12 @@ else
     }
     else
     {
-        <ul class="sf-harvest-list">
+        <ul class="sf-harvest-list ani-harvest-timeline">
         @foreach (var entry in overview.Entries)
         {
             <li class="sf-harvest-entry @(entry.IsVoided ? "sf-harvest-voided" : "")">
                 <div class="sf-harvest-entry-heading">
+                    <span class="ani-harvest-timeline-icon" aria-hidden="true">✳</span>
                     <div>
                         <strong>@entry.Quantity.ToString("N3") @entry.Unit</strong>
                         <time datetime="@entry.HarvestedAtUtc.ToString("yyyy-MM-ddTHH:mm:ssZ")">@entry.HarvestedAtUtc.ToString("MMM d, yyyy HH:mm") UTC</time>

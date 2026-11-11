@@ -3,6 +3,21 @@
 @{
     ViewData["Title"] = "Inventory";
     var canManage = Model.Farm.Role is "Owner" or "Manager";
+    var visibleItems = Model.Workspace.Items
+        .Where(i => Model.SelectedFilter switch
+        {
+            "low" => i.IsLowStock,
+            "seeds" => i.Category == InventoryCategory.Seeds,
+            "fertilizers" => i.Category == InventoryCategory.Fertilizers,
+            "pesticides" => i.Category == InventoryCategory.Pesticides,
+            "other" => i.Category == InventoryCategory.Other,
+            _ => true
+        })
+        .Where(i => string.IsNullOrWhiteSpace(Model.Search) ||
+            i.Name.Contains(Model.Search, StringComparison.OrdinalIgnoreCase))
+        .OrderByDescending(i => i.IsLowStock).ThenBy(i => i.Name)
+        .ToList();
+    var inStock = Model.Workspace.Items.Count(i => !i.IsLowStock);
 }
 <partial name="_FarmNavigation" model="Model.Farm.Id" />
 <section class="panel sf-ops-hero" aria-labelledby="inventory-heading">
@@ -15,19 +30,48 @@
         </div>
         @if (canManage) { <a class="button" href="#add-item">Add inventory item</a> }
     </div>
-    <div class="sf-ops-summary" aria-label="Inventory summary">
+    <div class="sf-ops-summary ani-inventory-metrics" aria-label="Inventory summary">
         <div><strong>@Model.Workspace.Items.Count</strong><span>Active supplies</span></div>
         <div class="@(Model.Workspace.LowStockCount > 0 ? "sf-summary-warning" : "")">
             <strong>@Model.Workspace.LowStockCount</strong><span>Low stock</span>
         </div>
+        <div><strong>@inStock</strong><span>Above low-stock threshold</span></div>
     </div>
+    @if (Model.Workspace.LowStockCount > 0)
+    {
+        <a class="ani-inventory-alert" asp-action="Index" asp-route-farmId="@Model.Farm.Id" asp-route-filter="low">
+            <strong>@Model.Workspace.LowStockCount low-stock supply @(Model.Workspace.LowStockCount == 1 ? "item" : "items")</strong>
+            <span>Review items that need replenishment →</span>
+        </a>
+    }
     @if (TempData["Error"] is string error) { <p role="alert" class="error form-error">@error</p> }
 </section>
 <section class="panel sf-inventory-panel" aria-labelledby="inventory-list-heading">
     <div class="sf-section-line">
         <h2 id="inventory-list-heading">Available supplies</h2>
-        <span>Farm-wide stock</span>
+        <span>Farm-wide stock · @visibleItems.Count shown</span>
     </div>
+    <form class="ani-inventory-filter" asp-action="Index" asp-route-farmId="@Model.Farm.Id" method="get">
+        <input type="hidden" name="farmId" value="@Model.Farm.Id" />
+        <div>
+            <label for="inventory-search">Find a supply</label>
+            <input id="inventory-search" name="search" value="@Model.Search" type="search"
+                   maxlength="120" placeholder="Search by item name" />
+        </div>
+        <div>
+            <label for="inventory-filter">Show supplies</label>
+            <select id="inventory-filter" name="filter">
+                <option value="all" selected="@(Model.SelectedFilter == "all")">All items</option>
+                <option value="low" selected="@(Model.SelectedFilter == "low")">Low stock only</option>
+                <option value="seeds" selected="@(Model.SelectedFilter == "seeds")">Seeds</option>
+                <option value="fertilizers" selected="@(Model.SelectedFilter == "fertilizers")">Fertilizers</option>
+                <option value="pesticides" selected="@(Model.SelectedFilter == "pesticides")">Pesticides</option>
+                <option value="other" selected="@(Model.SelectedFilter == "other")">Other</option>
+            </select>
+        </div>
+        <button type="submit">Apply</button>
+        <a class="sf-button-outline" asp-action="Index" asp-route-farmId="@Model.Farm.Id">Clear</a>
+    </form>
     @if (Model.Workspace.Items.Count == 0)
     {
         <div class="sf-empty-state">
@@ -35,21 +79,33 @@
             <p>Supplies you add to your farm will appear here.</p>
         </div>
     }
+    else if (visibleItems.Count == 0)
+    {
+        <div class="sf-empty-state">
+            <strong>No matching supplies.</strong>
+            <p>Try a different search or remove the selected filter.</p>
+            <a asp-action="Index" asp-route-farmId="@Model.Farm.Id">Show all supplies →</a>
+        </div>
+    }
     else
     {
-        <ul class="sf-inventory-list">
-        @foreach (var item in Model.Workspace.Items.OrderByDescending(item => item.IsLowStock).ThenBy(item => item.Name))
+        <ul class="sf-inventory-list ani-stock-grid">
+        @foreach (var item in visibleItems)
         {
             <li class="sf-inventory-row @(item.IsLowStock ? "sf-stock-low" : "")">
-                <span class="sf-stock-avatar" aria-hidden="true">S</span>
+                <span class="sf-stock-avatar ani-stock-icon" aria-hidden="true">@(item.Category == InventoryCategory.Seeds ? "✳" : item.Category == InventoryCategory.Fertilizers ? "◈" : item.Category == InventoryCategory.Pesticides ? "◉" : "▣")</span>
                 <div class="sf-stock-info">
                     <a asp-action="Details" asp-route-farmId="@Model.Farm.Id" asp-route-itemId="@item.Id">
                         <strong>@item.Name</strong>
                     </a>
-                    <span>@item.Category</span>
+                    <span>@item.CategoryName</span>
+                    @if (item.ReorderLevel.HasValue)
+                    {
+                        <small>Low-stock threshold: @item.ReorderLevel.Value.ToString("N3") @item.Unit</small>
+                    }
                 </div>
                 <div class="sf-stock-balance">
-                    <strong>@item.QuantityOnHand @item.Unit</strong>
+                    <strong>@item.QuantityOnHand.ToString("N3") <small>@item.Unit</small></strong>
                     @if (item.IsLowStock)
                     {
                         <span class="sf-status-chip sf-status-chip--warning">Low stock</span>

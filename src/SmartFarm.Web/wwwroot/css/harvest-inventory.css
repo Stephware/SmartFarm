@@ -1,0 +1,51 @@
+/* Phase 5 — Harvest Gold + Pine supply and harvest screens. */
+.ani-inventory-metrics { grid-template-columns:repeat(3,minmax(0,1fr)); }
+.ani-inventory-alert { display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:10px;
+    min-height:50px; padding:15px 18px; border-radius:13px; background:var(--warning-soft);
+    border:1px solid rgb(181 138 50 / 30%); text-decoration:none; color:var(--on-warning-soft); margin-top:14px; }
+.ani-inventory-alert:hover { color:var(--on-warning-soft); filter:brightness(.97); }
+.ani-inventory-alert span { font-size:.87rem; }
+.ani-inventory-filter { display:flex; flex-wrap:wrap; align-items:end; gap:12px; margin:14px 0 22px;
+    padding:16px; border-radius:14px; background:var(--soft); border:1px solid var(--divider); }
+.ani-inventory-filter > div { display:grid; gap:6px; flex:1 1 195px; min-width:0; }
+.ani-inventory-filter label { font-size:.83rem; font-weight:700; }
+.ani-inventory-filter input, .ani-inventory-filter select { width:100%; min-height:44px; }
+.ani-inventory-filter > button, .ani-inventory-filter > a { min-height:44px; display:inline-flex; align-items:center; justify-content:center; }
+.ani-stock-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(min(100%,300px),1fr)); gap:12px; list-style:none; padding:0; margin:0; }
+.ani-stock-grid .sf-inventory-row { display:grid; grid-template-columns:50px minmax(0,1fr); gap:10px 14px;
+    align-items:start; background:var(--surface); padding:17px; border:1px solid var(--divider);
+    border-radius:16px; box-shadow:var(--shadow-card); min-width:0; }
+.ani-stock-grid .sf-stock-avatar { grid-column:1; grid-row:1; }
+.ani-stock-grid .sf-stock-info { grid-column:2; grid-row:1; }
+.ani-stock-grid .sf-stock-balance { grid-column:1/-1; display:flex; align-items:center; justify-content:space-between;
+    flex-wrap:wrap; gap:8px; background:var(--soft); border-radius:11px; padding:12px; }
+.ani-stock-grid .sf-stock-balance strong { font-size:1.25rem; color:var(--text); font-variant-numeric:tabular-nums; }
+.ani-stock-grid .sf-stock-balance strong small { font-size:.8rem; color:var(--muted); }
+.ani-stock-grid .sf-stock-info small { display:block; color:var(--muted); font-size:.75rem; margin-top:4px; }
+.ani-stock-grid .sf-row-link { grid-column:1/-1; min-height:44px; display:flex; align-items:center; justify-content:flex-end; font-weight:700; }
+.ani-stock-grid .sf-stock-low { border-color:rgba(181,138,50,.6); border-top:3px solid var(--farm-gold); }
+.ani-stock-icon { display:grid; place-items:center; width:50px; height:50px; border-radius:12px; background:var(--secondary-soft);
+    color:var(--farm-gold-ink); font-weight:800; font-size:1.6rem; }
+.ani-stock-threshold { font-size:.85rem; font-weight:650; color:var(--muted); }
+.ani-stock-movement-guide { display:flex; flex-wrap:wrap; gap:8px; margin:12px 0 16px; }
+.ani-stock-movement-guide span { color:var(--text); background:var(--soft); border:1px solid var(--divider);
+    padding:7px 12px; border-radius:20px; font-size:.83rem; font-weight:650; }
+.ani-stock-guidance { color:var(--muted); font-size:.82rem; }
+.ani-harvest-identity { display:flex; align-items:center; flex-wrap:wrap; gap:10px; }
+.ani-harvest-identity img { display:block; width:84px; height:84px; object-fit:contain; padding:4px;
+    background:#e9f0df; border:1px solid var(--divider); border-radius:14px; }
+.ani-harvest-form-notice { background:var(--secondary-soft); color:var(--on-secondary-soft);
+    border-radius:11px; padding:11px 15px; font-size:.84rem; }
+.ani-harvest-timeline { position:relative; }
+.ani-harvest-timeline .sf-harvest-entry { position:relative; border-left:3px solid var(--farm-gold);
+    margin-left:12px; padding-left:22px; }
+.ani-harvest-timeline-icon { display:grid; position:absolute; left:-17px; top:12px;
+    width:31px; height:31px; border:3px solid var(--surface); place-items:center; border-radius:50%;
+    color:#153d2d; background:var(--farm-gold); }
+@media (max-width:700px) {
+    .ani-inventory-metrics { grid-template-columns:repeat(3,minmax(0,1fr)); }
+    .ani-inventory-filter > div { flex:1 1 100%; }
+    .ani-inventory-filter > button, .ani-inventory-filter > a { flex:1 1 45%; }
+    .ani-stock-grid { grid-template-columns:minmax(0,1fr); }
+}
+@media (prefers-color-scheme:dark) { .ani-harvest-identity img { background:#344a37; } }

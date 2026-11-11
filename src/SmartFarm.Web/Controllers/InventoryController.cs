@@ -33,11 +33,16 @@ public sealed class InventoryController : Controller
     private Guid Actor => Guid.TryParse(_users.GetUserId(User), out var id) ? id : Guid.Empty;
 
     [HttpGet]
-    public async Task<IActionResult> Index(Guid farmId, CancellationToken ct)
+    public async Task<IActionResult> Index(Guid farmId, CancellationToken ct, string? filter = null, string? search = null)
     {
         var farm = await _farms.GetAsync(farmId, Actor, ct);
         if (farm is null) return NotFound();
-        return View(new InventoryPage(farm, await _inventory.ListAsync(farmId, Actor, ct)));
+        return View(new InventoryPage(farm, await _inventory.ListAsync(farmId, Actor, ct))
+        {
+            Search = (search ?? "").Trim()[..Math.Min((search ?? "").Trim().Length, 120)],
+            SelectedFilter = filter is "low" or "seeds" or "fertilizers" or "pesticides" or "other"
+                ? filter : "all"
+        });
     }
 
     [HttpGet]
