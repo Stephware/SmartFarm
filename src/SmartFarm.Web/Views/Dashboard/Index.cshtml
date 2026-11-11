@@ -97,7 +97,7 @@
                             <small>@(task.DueDate < farm.FarmToday ? "Overdue" : "Due today") · @task.DueDate.ToString("MMM d")</small>
                         </div>
                         <a asp-controller="Tasks" asp-action="Index" asp-route-farmId="@farm.FarmId"
-                           asp-fragment="@("task-" + task.Id)">Open <span class="visually-hidden">@task.TaskTypeName task</span> →</a>
+                           asp-route-view="upcoming" asp-fragment="@("task-" + task.Id)">Open <span class="visually-hidden">@task.TaskTypeName task</span> →</a>
                     </li>
                 }
                 </ul>

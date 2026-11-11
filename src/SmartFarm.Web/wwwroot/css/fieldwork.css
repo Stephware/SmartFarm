@@ -1,0 +1,57 @@
+/* AniGo Phase 4 — Tasks + Monitoring, responsive Pine/Gold fieldwork styling. */
+.ani-task-tabs { display:flex; align-items:stretch; gap:8px; overflow-x:auto; padding:3px 2px 15px; margin-top:12px; scrollbar-width:thin; }
+.ani-task-tabs a { display:inline-flex; gap:8px; align-items:center; justify-content:center;
+    min-height:45px; padding:8px 14px; border-radius:12px; border:1px solid var(--divider);
+    white-space:nowrap; text-decoration:none; background:var(--soft); color:var(--text); font-weight:700; font-size:.87rem; }
+.ani-task-tabs a span { border-radius:50px; background:var(--surface); color:var(--muted); font-variant-numeric:tabular-nums; padding:2px 8px; font-size:.75rem; }
+.ani-task-tabs a:hover { border-color:var(--farm-gold); }
+.ani-task-tabs a.is-selected { background:var(--farm-pine); border-color:var(--farm-pine); color:white; }
+.ani-task-tabs a.is-selected span { background:#fff2d8; color:#153d2d; }
+.sf-ops-today { color:var(--muted); font-size:.85rem; padding-top:8px; }
+.sf-task-item { scroll-margin-top:20px; }
+.sf-task-open .sf-task-symbol { color:var(--farm-pine); background:var(--farm-gold-soft); }
+.ani-task-crop-link { display:inline-block; font-size:.86rem; font-weight:700; padding:4px 0; }
+.sf-task-actions { display:flex; flex-wrap:wrap; align-items:start; gap:10px; }
+.sf-task-actions button { min-height:44px; }
+.ani-task-other { min-width:175px; border:1px solid var(--divider); border-radius:12px; padding:11px; }
+.ani-task-other summary { cursor:pointer; font-weight:700; color:var(--text); }
+.ani-task-other form { display:grid; gap:9px; margin-top:10px; }
+.ani-task-other select { min-width:140px; }
+.ani-monitoring-hero .sf-page-header { align-items:center; }
+.ani-monitoring-status { display:flex; flex-wrap:wrap; gap:8px; margin-top:12px; }
+.ani-monitoring-status a { display:inline-flex; align-items:center; padding:9px 13px; min-height:44px; text-decoration:none;
+    border-radius:10px; background:var(--soft); color:var(--text); font-weight:700; }
+.ani-monitoring-status a:hover { background:var(--secondary-soft); }
+.ani-monitoring-stats { display:flex; gap:12px; flex-wrap:wrap; margin:18px 0 0; }
+.ani-monitoring-stats > div { display:grid; gap:3px; min-width:110px; flex:1; background:var(--soft); padding:12px 14px; border-radius:13px; }
+.ani-monitoring-stats strong { font-size:1.4rem; line-height:1.2; font-variant-numeric:tabular-nums; }
+.ani-monitoring-stats span { font-size:.83rem; color:var(--muted); }
+.ani-inspection-form-intro { background:var(--secondary-soft); color:var(--on-secondary-soft); padding:13px 16px;
+    border-radius:12px; font-size:.87rem; margin-bottom:18px; }
+.ani-photo-attach { padding:14px; border:1px solid var(--divider); border-radius:14px; background:var(--soft); }
+.ani-photo-attach label { display:block; font-weight:700; }
+.ani-photo-attach input[type=file] { width:100%; max-width:100%; background:var(--surface); }
+.ani-photo-preview { display:block; width:100%; max-width:340px; max-height:240px; object-fit:contain;
+    background:var(--surface); border:1px solid var(--divider); border-radius:11px; margin:12px 0; }
+.ani-photo-preview[hidden] { display:none; }
+.ani-photo-error { font-weight:650; color:var(--on-warning-soft); background:var(--warning-soft);
+    padding:10px 12px; border-radius:10px; }
+.ani-photo-error[hidden] { display:none; }
+.ani-upload-hint { font-size:.78rem; color:var(--muted); }
+@media (max-width:650px) {
+    .ani-task-tabs a { padding:10px 11px; font-size:.81rem; }
+    .ani-monitoring-status { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); }
+    .ani-monitoring-status a { justify-content:center; font-size:.83rem; text-align:center; }
+    .ani-monitoring-stats { gap:8px; }
+    .ani-monitoring-stats > div { min-width:85px; padding:10px; }
+    .sf-task-actions { align-items:stretch; }
+    .sf-task-actions form, .sf-task-actions form button { width:100%; }
+    .ani-task-other { width:100%; }
+}
+
+.ani-monitoring-art { flex:0 0 auto; display:flex; flex-direction:column; align-items:center; gap:7px;
+    background:var(--soft); border:1px solid var(--divider); border-radius:16px; padding:8px 16px; }
+.ani-monitoring-art img { display:block; width:88px; height:88px; object-fit:contain; }
+.ani-photo-attach { margin:8px 0; }
+@media (max-width:650px) { .ani-monitoring-art { flex-direction:row; width:100%; justify-content:flex-start; }
+    .ani-monitoring-art img { width:70px; height:70px; } }

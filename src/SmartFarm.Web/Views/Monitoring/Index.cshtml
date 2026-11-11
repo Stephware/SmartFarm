@@ -1,12 +1,14 @@
+@using SmartFarm.Web.Presentation
 @using SmartFarm.Core.Enums
 @model SmartFarm.Web.ViewModels.Monitoring.MonitoringWorkspaceViewModel
 @{
     ViewData["Title"] = "Crop monitoring";
     var cycle = Model.Cycle;
     var monitoring = Model.Monitoring;
+    var photoCount = monitoring.Observations.Sum(o => o.Photos.Count);
 }
 <partial name="_FarmNavigation" model="Model.Cycle.FarmId" />
-<section class="panel sf-ops-hero" aria-labelledby="monitoring-heading">
+<section class="panel sf-ops-hero ani-monitoring-hero" aria-labelledby="monitoring-heading">
     <div class="sf-page-header">
         <div>
             <p><a asp-controller="Crops" asp-action="Index"
@@ -16,7 +18,11 @@
             <p class="sf-muted">Log watering, fertilization, pesticide use, weeding, or other activities.
                 Inspections are saved as crop observations.</p>
         </div>
-        <span class="sf-status-chip @(monitoring.CanRecord ? "sf-status-chip--active" : "sf-status-chip--neutral")">@cycle.Status</span>
+        <div class="ani-monitoring-art">
+            <img src="@Url.Content("~/images/crops/" + CropArtwork.FileName(cycle.CropTypeName))" alt=""
+                 width="120" height="120" />
+            <span class="sf-status-chip @(monitoring.CanRecord ? "sf-status-chip--active" : "sf-status-chip--neutral")">@cycle.Status</span>
+        </div>
     </div>
     <nav class="sf-page-jump-nav" aria-label="Monitoring sections">
         @if (monitoring.CanRecord)
@@ -28,6 +34,20 @@
         <a href="#photo-progress-heading">Photo progress</a>
         <a href="#observation-history">Observations</a>
     </nav>
+    <div class="ani-monitoring-stats" aria-label="Crop record totals">
+        <div><strong>@monitoring.Activities.Count</strong><span>Field activities</span></div>
+        <div><strong>@monitoring.Observations.Count</strong><span>Inspections</span></div>
+        <div><strong>@photoCount</strong><span>Private photos</span></div>
+    </div>
+    @if (monitoring.CanRecord)
+    {
+        <nav class="ani-monitoring-status" aria-label="Quick recording actions">
+            <a href="#record-activity">Record fieldwork</a>
+            <a href="#record-inspection">New inspection</a>
+            <a href="#photo-progress-heading">View photos</a>
+            <a href="#observation-history">Inspection history</a>
+        </nav>
+    }
     @if (!monitoring.CanRecord)
     {
         <p class="sf-ops-hint">Historical records remain available. New activity and observation entries require an active crop cycle.</p>
@@ -71,7 +91,7 @@
     <section class="panel sf-monitoring-form" id="record-inspection">
         <p class="sf-kicker">CROP HEALTH</p>
         <h2>Record crop observation / inspection</h2>
-        <p class="sf-muted">Capture crop condition, growth stage, and notes for future comparison.</p>
+        <p class="ani-inspection-form-intro">Record what you actually observed. Health and issue labels are field observations, not confirmed diagnoses. Add photos from an inspection record below.</p>
         <form class="sf-ops-form" asp-action="Observation" asp-route-farmId="@cycle.FarmId"
               asp-route-cycleId="@cycle.Id" method="post">
             <label asp-for="Observation.HealthStatus">Crop health</label>
@@ -100,8 +120,7 @@
                 <option value="3">High</option>
             </select>
             <span asp-validation-for="Observation.IssueSeverity" class="error"></span>
-            <p class="hint">For a specific issue, select Needs attention or Critical health,
-                and a nonzero issue category and severity. Labels are observations, not confirmed diagnoses.</p>
+            <p class="hint">For a specific issue, select Needs attention or Critical health and choose an issue category and severity.</p>
             <label asp-for="Observation.GrowthStage">Growth stage (optional)</label>
             <input asp-for="Observation.GrowthStage" maxlength="40" /><span asp-validation-for="Observation.GrowthStage" class="error"></span>
             <label asp-for="Observation.Notes">Observation notes (optional)</label>
@@ -252,12 +271,20 @@
                 <form class="sf-photo-upload sf-ops-form" asp-action="Upload" asp-route-farmId="@cycle.FarmId"
                       asp-route-cycleId="@cycle.Id" asp-route-observationId="@observation.Id"
                       method="post" enctype="multipart/form-data">
-                    <label for="photo-@observation.Id">Attach photo (JPEG, PNG or WebP, maximum 5 MB)</label>
-                    <input id="photo-@observation.Id" type="file" name="photo" accept="image/jpeg,image/png,image/webp" required />
-                    <button type="submit">Upload photo</button>
+                    <div class="ani-photo-attach">
+                        <label for="photo-@observation.Id">Take or select a photo</label>
+                        <p class="ani-upload-hint">JPEG, PNG or WebP · 5 MB maximum · this photo is private to authorized farm members.</p>
+                        <input id="photo-@observation.Id" data-field-photo type="file" name="photo"
+                               accept="image/jpeg,image/png,image/webp" required />
+                        <img class="ani-photo-preview" alt="Selected photo preview" hidden />
+                        <p class="ani-photo-error" role="alert" hidden></p>
+                    </div>
+                    <button type="submit">Attach photo</button>
                 </form>
             }
         </div>
     }
 </section>
 
+
+<script src="@Url.Content("~/js/fieldwork.js")" asp-append-version="true" defer></script>
