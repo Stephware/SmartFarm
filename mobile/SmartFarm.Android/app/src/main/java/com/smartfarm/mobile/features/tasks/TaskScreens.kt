@@ -55,7 +55,7 @@ fun TaskScreen(
 ) {
     var adding by rememberSaveable(state.farmId) { mutableStateOf(false) }
     var editingId by rememberSaveable(state.farmId) { mutableStateOf<String?>(null) }
-    var showAll by rememberSaveable(state.farmId) { mutableStateOf(false) }
+    var selectedView by rememberSaveable(state.farmId) { mutableStateOf("today") }
     LaunchedEffect(state.savedCount) {
         if (state.savedCount > 0) {
             adding = false
@@ -69,6 +69,8 @@ fun TaskScreen(
     val overdue = today?.let { TaskWorkCenter.overdue(assigned, it) }.orEmpty()
     val dueToday = today?.let { TaskWorkCenter.dueToday(assigned, it) }.orEmpty()
     val upcoming = today?.let { TaskWorkCenter.upcoming(assigned, it) }.orEmpty()
+    val closed = state.tasks.filter { it.status != 0 }
+        .sortedWith(compareByDescending<TaskDto> { it.dueDate }.thenBy { it.id })
     val isTasks = state.farmId != null
     RecordPage {
         item(key = "header") {
@@ -95,8 +97,23 @@ fun TaskScreen(
             }
         }
 
-        if (isTasks && state.error == null || isTasks && state.tasks.isNotEmpty()) {
-            item(key = "today-summary") {
+        if (isTasks && (state.error == null || state.tasks.isNotEmpty())) {
+            item(key = "task-tabs") {
+                Row(Modifier.horizontalScroll(rememberScrollState()),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    listOf(
+                        "today" to "Today / overdue",
+                        "upcoming" to "Upcoming",
+                        "completed" to "Closed",
+                        "all" to "All farm tasks"
+                    ).forEach { (key, label) ->
+                        FilterChip(selected = selectedView == key,
+                            onClick = { selectedView = key },
+                            label = { Text(label) })
+                    }
+                }
+            }
+            if (selectedView == "today" || selectedView == "upcoming") item(key = "today-summary") {
                 FarmSectionCard("My work", subtitle = if (today != null)
                     "Farm date: $today · ${state.timeZoneId}"
                 else "Farm time zone unavailable. Refresh before planning work.") {
@@ -108,28 +125,33 @@ fun TaskScreen(
                     Text("${upcoming.size} upcoming assigned task(s)",
                         style = MaterialTheme.typography.bodyMedium)
                 }
-                if (today != null && assigned.isEmpty() && !state.busy) {
-                    FarmEmptyState("No assigned work right now",
-                        "New assignments will appear here after a refresh.")
+                if (today == null) {
+                    FarmEmptyState("Farm time zone unavailable",
+                        "Refresh before planning work or completing dated tasks.")
+                } else if (!state.busy && selectedView == "today" &&
+                    overdue.isEmpty() && dueToday.isEmpty()) {
+                    FarmEmptyState("Nothing due today", "There is no overdue or due-today assigned work.")
+                } else if (!state.busy && selectedView == "upcoming" && upcoming.isEmpty()) {
+                    FarmEmptyState("No upcoming assignments", "New work will appear after a refresh.")
                 }
             }
             if (today != null) {
-                if (overdue.isNotEmpty()) item(key = "overdue-heading") {
+                if (selectedView == "today" && overdue.isNotEmpty()) item(key = "overdue-heading") {
                     FarmSectionHeader("Overdue", "Open work past the farm's local due date.")
                 }
-                items(overdue.size, key = { "overdue-${overdue[it].id}" }) { index ->
+                if (selectedView == "today") items(overdue.size, key = { "overdue-${overdue[it].id}" }) { index ->
                     TodayTaskCard(overdue[index], state, canManage, actorId, onComplete, onOpenCrop)
                 }
-                if (dueToday.isNotEmpty()) item(key = "today-heading") {
+                if (selectedView == "today" && dueToday.isNotEmpty()) item(key = "today-heading") {
                     FarmSectionHeader("Due today", "Work scheduled for the farm's current date.")
                 }
-                items(dueToday.size, key = { "today-${dueToday[it].id}" }) { index ->
+                if (selectedView == "today") items(dueToday.size, key = { "today-${dueToday[it].id}" }) { index ->
                     TodayTaskCard(dueToday[index], state, canManage, actorId, onComplete, onOpenCrop)
                 }
-                if (upcoming.isNotEmpty()) item(key = "upcoming-heading") {
+                if (selectedView == "upcoming" && upcoming.isNotEmpty()) item(key = "upcoming-heading") {
                     FarmSectionHeader("Upcoming", "Your next scheduled assignments.")
                 }
-                items(upcoming.take(4).size, key = { "upcoming-${upcoming[it].id}" }) { index ->
+                if (selectedView == "upcoming") items(upcoming.size, key = { "upcoming-${upcoming[it].id}" }) { index ->
                     TodayTaskCard(upcoming[index], state, canManage, actorId, onComplete, onOpenCrop)
                 }
             }
@@ -152,12 +174,23 @@ fun TaskScreen(
                         color = MaterialTheme.colorScheme.onSurfaceVariant)
                 }
             }
-            item(key = "all-tasks-toggle") {
-                OutlinedButton(onClick = { showAll = !showAll }, modifier = Modifier.fillMaxWidth()) {
-                    Text(if (showAll) "Hide full task list" else "View all farm tasks (${state.tasks.size})")
+            if (selectedView == "completed") {
+                if (closed.isEmpty()) item(key = "no-closed") {
+                    FarmEmptyState("No closed tasks", "Completed, skipped and cancelled tasks will appear here.")
+                }
+                items(closed.size, key = { "closed-${closed[it].id}" }) { index ->
+                    val task = closed[index]
+                    FarmSectionCard(taskNames.getOrElse(task.taskType) { "Farm task" },
+                        subtitle = "Due ${task.dueDate}") {
+                        FarmStatusChip(statuses.getOrElse(task.status) { "Closed" }, FarmStatusTone.Neutral)
+                        task.description?.let { Text(it) }
+                        Text("Read-only history. No new task is created here.",
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    }
                 }
             }
-            if (showAll) {
+            if (selectedView == "all") {
                 if (state.tasks.isEmpty()) item(key = "empty-tasks") {
                     FarmEmptyState("No tasks scheduled yet", "Managers can add a task above.")
                 }
