@@ -1,0 +1,18 @@
+@model SmartFarm.Web.ViewModels.Auth.AdminMfaInput
+@{
+    ViewData["Title"] = "Two-factor sign in";
+}
+<section class="panel narrow admin-login-panel" aria-labelledby="mfa-heading">
+    <p class="sf-kicker">PROTECTED SIGN IN</p>
+    <h1 id="mfa-heading">Authenticator verification</h1>
+    <p>Enter the six-digit code from your authenticator app to finish signing in.</p>
+    <form asp-action="TwoFactor" method="post">
+        <div asp-validation-summary="All" class="validation-summary" role="alert"></div>
+        <input asp-for="ReturnUrl" type="hidden" />
+        <label asp-for="Code">Authenticator code</label>
+        <input asp-for="Code" autocomplete="one-time-code" inputmode="numeric"
+               maxlength="12" minlength="6" required autofocus />
+        <button type="submit">Verify and sign in</button>
+    </form>
+    <p><a asp-action="RecoveryCode" asp-route-returnUrl="@Model.ReturnUrl">Use a recovery code</a></p>
+</section>
