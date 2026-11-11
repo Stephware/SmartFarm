@@ -268,6 +268,9 @@ fun SmartFarmNavHost(auth: AuthViewModel, farms: FarmViewModel, crops: CropViewM
                 taskOptions = taskState.tasks,
                 onFollowUp = { observation, status, taskId ->
                     monitoring.updateFollowUp(observation, status, taskId)
+                },
+                onActivityWithStock = { type, notes, item, quantity ->
+                    monitoring.logActivityWithStock(type, notes, item, quantity)
                 })
         }
         composable("inventory/{farmId}") { entry ->
