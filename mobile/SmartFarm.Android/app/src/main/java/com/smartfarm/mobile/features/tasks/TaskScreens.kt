@@ -50,7 +50,7 @@ fun TaskScreen(
     state: TaskUiState, canManage: Boolean, actorId: String?, onBack: () -> Unit,
     onRetry: () -> Unit, onComplete: (TaskDto) -> Unit, onRead: (String) -> Unit,
     isOwner: Boolean = false, onCreate: (TaskCreateInput) -> Unit = {},
-    onUpdate: (TaskDto, TaskUpdateInput) -> Unit = {},
+    onUpdate: (TaskDto, TaskUpdateInput) -> Unit = { _, _ -> },
     onOpenCrop: (TaskDto) -> Unit = {}
 ) {
     var adding by rememberSaveable(state.farmId) { mutableStateOf(false) }
