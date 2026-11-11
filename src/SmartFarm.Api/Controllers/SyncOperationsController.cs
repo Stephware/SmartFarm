@@ -28,6 +28,7 @@ public sealed class SyncWriteInput
     public Guid TargetId { get; set; }
     public string OperationType { get; set; } = "";
     public RecordActivityInput? Activity { get; set; }
+    public RecordActivityWithStockInput? ActivityStock { get; set; }
     public RecordObservationInput? Observation { get; set; }
     public InventoryMovementInput? Movement { get; set; }
     public RecordHarvestInput? Harvest { get; set; }
@@ -43,6 +44,7 @@ public sealed class SyncOperationsController(
     SmartFarmDbContext db,
     IFarmAccessService access,
     IMonitoringService monitoring,
+    IFieldworkStockService fieldwork,
     IInventoryService inventory,
     IHarvestService harvests) : FarmApiControllerBase(users)
 {
@@ -53,7 +55,7 @@ public sealed class SyncOperationsController(
         {
             if (operationId == Guid.Empty || input.FarmId == Guid.Empty || input.TargetId == Guid.Empty)
                 return BadRequest(new { message = "Valid operation, farm and target IDs are required." });
-            if (input.OperationType is not ("activity" or "observation" or "inventory" or "harvest"))
+            if (input.OperationType is not ("activity" or "activity_stock" or "observation" or "inventory" or "harvest"))
                 return BadRequest(new { message = "Unsupported sync operation." });
 
             // Never reveal another farm's ledger or apply writes under another account.
@@ -62,14 +64,16 @@ public sealed class SyncOperationsController(
 
             var valid = input.OperationType switch
             {
-                "activity" => input.Activity is not null && input.Observation is null &&
-                    input.Movement is null && input.Harvest is null,
+                "activity" => input.Activity is not null && input.ActivityStock is null &&
+                    input.Observation is null && input.Movement is null && input.Harvest is null,
+                "activity_stock" => input.ActivityStock is not null && input.Activity is null &&
+                    input.Observation is null && input.Movement is null && input.Harvest is null,
                 "observation" => input.Observation is not null && input.Activity is null &&
-                    input.Movement is null && input.Harvest is null,
+                    input.ActivityStock is null && input.Movement is null && input.Harvest is null,
                 "inventory" => input.Movement is not null && input.Activity is null &&
-                    input.Observation is null && input.Harvest is null,
+                    input.ActivityStock is null && input.Observation is null && input.Harvest is null,
                 _ => input.Harvest is not null && input.Activity is null &&
-                    input.Observation is null && input.Movement is null
+                    input.ActivityStock is null && input.Observation is null && input.Movement is null
             };
             if (!valid)
                 return BadRequest(new { message = "Provide exactly one matching operation payload." });
@@ -100,6 +104,8 @@ public sealed class SyncOperationsController(
             {
                 "activity" => await monitoring.RecordActivityAsync(
                     input.FarmId, input.TargetId, ActorId, input.Activity!, ct),
+                "activity_stock" => await fieldwork.RecordAsync(
+                    input.FarmId, input.TargetId, ActorId, input.ActivityStock!, ct),
                 "observation" => await monitoring.RecordObservationAsync(
                     input.FarmId, input.TargetId, ActorId, input.Observation!, ct),
                 "inventory" => await inventory.PostAsync(
