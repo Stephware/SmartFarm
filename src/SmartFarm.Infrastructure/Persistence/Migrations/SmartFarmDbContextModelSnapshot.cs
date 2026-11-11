@@ -274,12 +274,30 @@ namespace SmartFarm.Infrastructure.Persistence.Migrations
                     b.Property<Guid>("CropCycleId")
                         .HasColumnType("uniqueidentifier");
 
+                    b.Property<Guid?>("FollowUpTaskId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<byte>("FollowUpStatus")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("tinyint")
+                        .HasDefaultValue((byte)0, "DF_CropObservation_FollowUpStatus");
+
                     b.Property<string>("GrowthStage")
                         .HasMaxLength(40)
                         .HasColumnType("nvarchar(40)");
 
                     b.Property<byte>("HealthStatus")
                         .HasColumnType("tinyint");
+
+                    b.Property<byte>("IssueCategory")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("tinyint")
+                        .HasDefaultValue((byte)0, "DF_CropObservation_IssueCategory");
+
+                    b.Property<byte>("IssueSeverity")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("tinyint")
+                        .HasDefaultValue((byte)0, "DF_CropObservation_IssueSeverity");
 
                     b.Property<string>("Notes")
                         .HasMaxLength(1000)
@@ -296,8 +314,17 @@ namespace SmartFarm.Infrastructure.Persistence.Migrations
                     b.Property<Guid>("RecordedByUserId")
                         .HasColumnType("uniqueidentifier");
 
+                    b.Property<byte[]>("RowVersion")
+                        .IsConcurrencyToken()
+                        .IsRequired()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("rowversion");
+
                     b.HasKey("Id")
                         .HasName("PK_CropObservation");
+
+                    b.HasIndex("FollowUpTaskId")
+                        .HasDatabaseName("IX_CropObservation_FollowUpTask");
 
                     b.HasIndex("RecordedByUserId")
                         .HasDatabaseName("IX_CropObservation_User");
@@ -308,6 +335,7 @@ namespace SmartFarm.Infrastructure.Persistence.Migrations
                     b.ToTable("CropObservation", "dbo", t =>
                         {
                             t.HasCheckConstraint("CK_CropObservation_Health", "HealthStatus BETWEEN 0 AND 3");
+                            t.HasCheckConstraint("CK_CropObservation_Issue", "(IssueCategory = 0 AND IssueSeverity = 0 AND FollowUpStatus = 0 AND FollowUpTaskId IS NULL) OR (IssueCategory BETWEEN 1 AND 5 AND IssueSeverity BETWEEN 1 AND 3 AND FollowUpStatus BETWEEN 1 AND 2 AND HealthStatus IN (2,3))");
                         });
                 });
 
