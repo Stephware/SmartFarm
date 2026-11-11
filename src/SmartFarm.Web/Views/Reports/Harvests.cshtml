@@ -79,6 +79,44 @@
 </section>
 <section class="panel sf-report-analytics" aria-labelledby="harvest-analytics-heading">
     <h2 id="harvest-analytics-heading">Harvest analytics</h2>
+    <p class="hint">Compare individual planting cycles without mixing different units or combining
+        repeated plantings on the same plot. Multiple partial harvests add to their own cycle total.</p>
+    @if (Model.CycleCharts.Count == 0)
+    {
+        <p>No crop cycles with valid harvests match the selected filters.</p>
+    }
+    @foreach (var chart in Model.CycleCharts)
+    {
+        <h3>Recorded yield by planting cycle · @chart.Unit</h3>
+        <div class="harvest-chart sf-report-chart" role="group"
+             aria-label="Cycle yield comparison in @chart.Unit">
+        @foreach (var bar in chart.Bars)
+        {
+            <div class="harvest-bar-row">
+                <span>@bar.Label</span>
+                <div class="harvest-bar-track" role="img"
+                     aria-label="@bar.Label: @bar.Quantity.ToString("N3") @chart.Unit from @bar.HarvestCount harvests">
+                    <span class="harvest-bar-fill" style="width:@(bar.WidthPercent.ToString("0.##", System.Globalization.CultureInfo.InvariantCulture))%"></span>
+                </div>
+                <div>
+                    <strong>@bar.Quantity.ToString("N3") @chart.Unit</strong>
+                    @if (bar.YieldPerSquareMeter is { } perSquareMeter)
+                    {
+                        <small> @perSquareMeter.ToString("N3") @chart.Unit/m²</small>
+                    }
+                </div>
+            </div>
+        }
+        </div>
+        @if (chart.TotalRows > chart.Bars.Count)
+        {
+            <p class="hint">Showing the top @chart.Bars.Count of @chart.TotalRows cycles in this unit;
+                the table below includes all matching cycles.</p>
+        }
+    }
+    <p class="hint">Comparisons reflect recorded harvests within the selected dates,
+        including partial harvests. They do not predict future yields.
+        Per-area estimates use the plot's current recorded area.</p>
     <p class="hint">Charts follow your current date, plot, and crop filters. Voided harvests are excluded. Each unit has its own scale.</p>
     @if (Model.MonthlyCharts.Count == 0)
     {
@@ -133,6 +171,44 @@
         }
     }
     <p class="hint">Yield per square meter uses the plot's current recorded area; it is a historical estimate if the area changed.</p>
+</section>
+<section class="panel sf-report-table-panel" aria-labelledby="report-by-cycle">
+    <div class="sf-section-line">
+        <h2 id="report-by-cycle">Yield by planting cycle</h2>
+        <span>@report.CycleTotals.Count cycle / unit groups</span>
+    </div>
+    @if (report.CycleTotals.Count == 0)
+    {
+        <p>No valid harvests are available for cycle comparisons.</p>
+    }
+    else
+    {
+        <div class="table-scroll" tabindex="0" role="region" aria-label="Yield comparison by cycle">
+            <table class="data-table">
+                <caption class="visually-hidden">Individual planting cycles and harvest totals by unit</caption>
+                <thead><tr>
+                    <th scope="col">Crop / plot</th>
+                    <th scope="col">First harvest</th>
+                    <th scope="col">Last harvest</th>
+                    <th scope="col">Partial harvests</th>
+                    <th scope="col">Recorded quantity</th>
+                </tr></thead>
+                <tbody>
+                @foreach (var cycle in report.CycleTotals)
+                {
+                    <tr>
+                        <td><strong>@cycle.CropTypeName</strong> · @cycle.PlotName
+                            <small>Cycle @cycle.CycleId.ToString("N")[..6]</small></td>
+                        <td>@cycle.FirstHarvestDate.ToString("yyyy-MM-dd")</td>
+                        <td>@cycle.LastHarvestDate.ToString("yyyy-MM-dd")</td>
+                        <td>@cycle.HarvestCount</td>
+                        <td>@cycle.Quantity.ToString("N3") @cycle.Unit</td>
+                    </tr>
+                }
+                </tbody>
+            </table>
+        </div>
+    }
 </section>
 <section class="panel sf-report-table-panel" aria-labelledby="report-by-plot">
     <h2 id="report-by-plot">Harvest by crop and plot</h2>
