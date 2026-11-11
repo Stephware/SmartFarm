@@ -11,21 +11,15 @@ public sealed class CropIssueFollowUps : Migration
 {
     protected override void Up(MigrationBuilder migrationBuilder)
     {
-        migrationBuilder.AddColumn<byte>(
-            name: "IssueCategory", schema: "dbo", table: "CropObservation",
-            type: "tinyint", nullable: false, defaultValue: (byte)0);
-        migrationBuilder.AddColumn<byte>(
-            name: "IssueSeverity", schema: "dbo", table: "CropObservation",
-            type: "tinyint", nullable: false, defaultValue: (byte)0);
-        migrationBuilder.AddColumn<byte>(
-            name: "FollowUpStatus", schema: "dbo", table: "CropObservation",
-            type: "tinyint", nullable: false, defaultValue: (byte)0);
-        migrationBuilder.AddColumn<Guid>(
-            name: "FollowUpTaskId", schema: "dbo", table: "CropObservation",
-            type: "uniqueidentifier", nullable: true);
-        migrationBuilder.AddColumn<byte[]>(
-            name: "RowVersion", schema: "dbo", table: "CropObservation",
-            type: "rowversion", rowVersion: true, nullable: false);
+        // Name SQL defaults consistently with the SQL-first deployment schema.
+        migrationBuilder.Sql("""
+            ALTER TABLE dbo.CropObservation ADD
+                IssueCategory TINYINT NOT NULL CONSTRAINT DF_CropObservation_IssueCategory DEFAULT (0) WITH VALUES,
+                IssueSeverity TINYINT NOT NULL CONSTRAINT DF_CropObservation_IssueSeverity DEFAULT (0) WITH VALUES,
+                FollowUpStatus TINYINT NOT NULL CONSTRAINT DF_CropObservation_FollowUpStatus DEFAULT (0) WITH VALUES,
+                FollowUpTaskId UNIQUEIDENTIFIER NULL,
+                RowVersion ROWVERSION NOT NULL;
+            """);
 
         migrationBuilder.AddCheckConstraint(
             name: "CK_CropObservation_Issue", schema: "dbo", table: "CropObservation",
