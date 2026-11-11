@@ -43,6 +43,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import com.smartfarm.mobile.data.remote.dto.InventoryTransactionDto
+import com.smartfarm.mobile.data.remote.dto.InventoryItemDto
+import java.math.BigDecimal
 import com.smartfarm.mobile.data.local.entity.PendingOperation
 import com.smartfarm.mobile.ui.components.PendingRecords
 import com.smartfarm.mobile.ui.components.OfflineDataNotice
@@ -75,22 +77,69 @@ fun InventoryListScreen(
     var reorder by rememberSaveable { mutableStateOf("") }
 
     var creating by rememberSaveable(state.farmId) { mutableStateOf(false) }
+    var search by rememberSaveable(state.farmId) { mutableStateOf("") }
+    var filter by rememberSaveable(state.farmId) { mutableStateOf("all") }
+    val visibleItems = inventoryVisibleItems(state.workspace.items, filter, search)
+    val openingValid = opening.trim().toBigDecimalOrNull()?.let {
+        it >= BigDecimal.ZERO && it.stripTrailingZeros().scale() <= 3 &&
+            it <= BigDecimal("999999999999999.999")
+    } == true
+    val reorderValid = reorder.isBlank() || reorder.trim().toBigDecimalOrNull()?.let {
+        it >= BigDecimal.ZERO && it.stripTrailingZeros().scale() <= 3 &&
+            it <= BigDecimal("999999999999999.999")
+    } == true
     RecordPage {
         item(key = "header") {
             Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
                 FarmHero("Inventory", "Track farm-wide supplies and stock movements.")
                 OutlinedButton(onClick = onBack) { Text("Back to farm") }
                 Feedback(state, onRetry)
-                FarmSectionCard("Stock overview") {
-                    FarmStatusChip("Low-stock items: ${state.workspace.lowStockCount}",
-                        if (state.workspace.lowStockCount > 0) FarmStatusTone.Warning else FarmStatusTone.Active)
-                    Text("${state.workspace.items.size} available supply items",
-                        color = MaterialTheme.colorScheme.onSurfaceVariant)
+                FarmSectionCard("Stock overview",
+                    subtitle = "Farm-wide balances, excluding changes awaiting server confirmation.") {
+                    Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+                        Column(Modifier.weight(1f)) {
+                            Text("${state.workspace.items.size}", style = MaterialTheme.typography.headlineSmall)
+                            Text("Active supplies", style = MaterialTheme.typography.bodySmall)
+                        }
+                        Column(Modifier.weight(1f)) {
+                            Text("${state.workspace.lowStockCount}", style = MaterialTheme.typography.headlineSmall,
+                                color = if (state.workspace.lowStockCount > 0)
+                                    MaterialTheme.colorScheme.secondary else MaterialTheme.colorScheme.onSurface)
+                            Text("Low stock", style = MaterialTheme.typography.bodySmall)
+                        }
+                    }
+                    if (state.workspace.lowStockCount > 0) {
+                        FarmStatusChip("Review supplies needing replenishment", FarmStatusTone.Warning)
+                        OutlinedButton(onClick = { filter = "low" },
+                            modifier = Modifier.fillMaxWidth()) { Text("Show low-stock supplies") }
+                    }
                 }
+                OutlinedTextField(search, { search = it },
+                    label = { Text("Find a supply") }, singleLine = true,
+                    placeholder = { Text("Search by name") }, modifier = Modifier.fillMaxWidth())
+                Row(Modifier.horizontalScroll(rememberScrollState()),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    listOf("all" to "All", "low" to "Low stock", "seeds" to "Seeds",
+                        "fertilizers" to "Fertilizers", "pesticides" to "Pesticides", "other" to "Other")
+                        .forEach { (key, label) ->
+                            FilterChip(selected = filter == key, onClick = { filter = key },
+                                label = { Text(label) })
+                        }
+                }
+                Text("${visibleItems.size} of ${state.workspace.items.size} supplies shown",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant)
                 if (state.workspace.items.isEmpty() && !state.busy && state.error == null)
                     FarmEmptyState("No inventory items yet.", "Create a supply record to start tracking farm stock.")
+                if (state.workspace.items.isNotEmpty() && visibleItems.isEmpty() && !state.busy) {
+                    FarmEmptyState("No matching supplies", "Change the search or category to see more supplies.")
+                    OutlinedButton(onClick = { search = ""; filter = "all" },
+                        modifier = Modifier.fillMaxWidth()) { Text("Clear filters") }
+                }
                 if (canManage && !state.offline)
-                    Button(onClick = { creating = !creating }) { Text(if (creating) "Close item form" else "Add stock item") }
+                    Button(onClick = { creating = !creating }, modifier = Modifier.fillMaxWidth()) {
+                        Text(if (creating) "Close new supply form" else "Add supply")
+                    }
             }
         }
         if (creating && canManage && !state.offline) item(key = "create") {
@@ -111,19 +160,32 @@ fun InventoryListScreen(
                 OutlinedTextField(reorder, { reorder = it }, enabled = !state.busy, label = { Text("Low-stock threshold (optional)") },
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal))
                 Button(onClick = { onCreate(name, category, unit, opening, reorder) },
-                    enabled = !state.busy && name.isNotBlank() && unit.isNotBlank()
-                        && opening.isNotBlank()) { Text("Add inventory item") }
+                    enabled = !state.busy && name.trim().length in 2..120 &&
+                        unit.isNotBlank() && unit.length <= 20 && openingValid && reorderValid) {
+                    Text("Create supply")
+                }
             }
         }
-        items(state.workspace.items, key = { "stock-${it.id}" }) { item ->
+        items(visibleItems, key = { "stock-${it.id}" }) { item ->
             OutlinedCard(onClick = { onOpen(item.id) }, modifier = Modifier.fillMaxWidth().testTag("record-card")) {
                 Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
-                    Text(item.name, style = MaterialTheme.typography.titleLarge)
-                    Text("${item.quantityOnHand} ${item.unit}",
+                    Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+                        Column(Modifier.weight(1f)) {
+                            Text(item.name, style = MaterialTheme.typography.titleLarge)
+                            Text(inventoryCategoryName(item.category), style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant)
+                        }
+                        FarmStatusChip(if (item.isLowStock) "Low stock" else "In stock",
+                            if (item.isLowStock) FarmStatusTone.Warning else FarmStatusTone.Active)
+                    }
+                    Text("${item.quantityOnHand.toPlainString()} ${item.unit}",
                         style = MaterialTheme.typography.headlineSmall)
-                    FarmStatusChip(if (item.isLowStock) "Low stock" else "In stock",
-                        if (item.isLowStock) FarmStatusTone.Warning else FarmStatusTone.Active)
-                    Text("View stock history →",
+                    item.reorderLevel?.let {
+                        Text("Low-stock threshold: ${it.toPlainString()} ${item.unit}",
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    }
+                    Text("View stock balance and history →",
                         style = MaterialTheme.typography.labelLarge,
                         color = MaterialTheme.colorScheme.primary)
                 }
@@ -173,9 +235,15 @@ fun InventoryItemScreen(
         OutlinedButton(onClick = onBack) { Text("Inventory list") }
         Feedback(state, onRetry)
         if (item != null) {
-            FarmSectionCard("Available stock") {
-                Text("${item.quantityOnHand} ${item.unit}",
-                    style = MaterialTheme.typography.headlineSmall)
+            FarmSectionCard("Available stock",
+                subtitle = "${inventoryCategoryName(item.category)} · ${item.unit}") {
+                Text("${item.quantityOnHand.toPlainString()} ${item.unit}",
+                    style = MaterialTheme.typography.headlineMedium)
+                item.reorderLevel?.let {
+                    Text("Low-stock threshold: ${it.toPlainString()} ${item.unit}",
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant)
+                }
                 FarmStatusChip(
                     if (item.archivedAtUtc != null) "Archived — read only"
                     else if (item.isLowStock) "Low stock" else "In stock",
@@ -213,16 +281,26 @@ fun InventoryItemScreen(
                 HorizontalDivider()
                 FarmSectionHeader("Stock movement",
                     "Record a receipt, supply use, or adjustment. Saved offline entries are not yet confirmed by the server.")
-                if (canManage) {
-                    listOf(2 to "Receipt", 4 to "Adjustment").forEach { (type, label) ->
-                        FilterChip(selected = movementType == type, onClick = { movementType = type },
-                        enabled = !state.busy, label = { Text(label) })
+                Row(Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    (if (canManage) listOf(2 to "Receipt +", 3 to "Consumption −", 4 to "Adjustment ±")
+                    else listOf(3 to "Consumption −")).forEach { (type, label) ->
+                        FilterChip(selected = movementType == type, onClick = {
+                            movementType = type
+                            selectedActivity = null
+                            amount = ""
+                        }, enabled = !state.busy, label = { Text(label) })
                     }
                 }
-                FilterChip(selected = movementType == 3, onClick = { movementType = 3 },
-                        enabled = !state.busy, label = { Text("Consumption") })
-                OutlinedTextField(amount, { amount = it }, enabled = !state.busy, label = { Text(if (movementType == 4) "Adjustment quantity (+/- ${item.unit})" else "Quantity (${item.unit})") },
+                val amountValid = runCatching { inventoryMovementQuantity(movementType, amount.trim()) }.isSuccess
+                OutlinedTextField(amount, { amount = it }, enabled = !state.busy,
+                    isError = amount.isNotBlank() && !amountValid,
+                    label = { Text(if (movementType == 4) "Adjustment (+/- ${item.unit})" else "Quantity (${item.unit})") },
+                    singleLine = true,
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal))
+                if (amount.isNotBlank() && !amountValid)
+                    Text("Enter a valid nonzero quantity with no more than 3 decimals.",
+                        style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.error)
                 Text(if (movementType == 3) "Enter the positive amount used; it will be subtracted from stock." else if (movementType == 2) "Enter the positive amount received." else "Positive adds stock; negative removes stock.")
                 if (movementType == 3) {
                     Text("Choose the related active-crop activity:")
@@ -235,11 +313,19 @@ fun InventoryItemScreen(
                 Button(onClick = {
                     onMovement(movementType, amount,
                         if (movementType == 3) selectedActivity else null, reason)
-                }, enabled = !state.busy && amount.isNotBlank() &&
+                }, enabled = !state.busy && amountValid &&
                     (movementType != 3 || selectedActivity != null) &&
-                    (movementType != 4 || reason.isNotBlank())) {
-                    Text("Record stock movement")
+                    (movementType != 4 || reason.trim().length in 3..300),
+                    modifier = Modifier.fillMaxWidth()) {
+                    Text(when (movementType) {
+                        2 -> "Record received stock"
+                        3 -> "Record supply use"
+                        else -> "Save stock adjustment"
+                    })
                 }
+                Text("Saved on this device first. Stock totals update after server confirmation.",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant)
             }
             HorizontalDivider()
             FarmSectionHeader("Transaction history", "Existing stock movements and queued local changes.")

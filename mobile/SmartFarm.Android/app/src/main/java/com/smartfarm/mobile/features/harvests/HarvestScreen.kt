@@ -2,6 +2,8 @@ package com.smartfarm.mobile.features.harvests
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -12,6 +14,8 @@ import androidx.compose.material3.AlertDialog
 import androidx.compose.foundation.lazy.items
 import com.smartfarm.mobile.ui.components.RecordPage
 import com.smartfarm.mobile.ui.components.FarmHero
+import com.smartfarm.mobile.ui.components.CropArtworkImage
+import java.math.BigDecimal
 import com.smartfarm.mobile.ui.components.FarmSectionCard
 import com.smartfarm.mobile.ui.components.FarmSectionHeader
 import com.smartfarm.mobile.ui.components.FarmStatusChip
@@ -65,6 +69,11 @@ fun HarvestScreen(
         }
     }
     val overview = state.overview
+    val validQuantity = quantity.trim().toBigDecimalOrNull()?.let {
+        it > BigDecimal.ZERO && it.stripTrailingZeros().scale() <= 3 &&
+            it <= BigDecimal("999999999999999.999")
+    } == true
+    val validNotes = notes.length <= 1000
 
     RecordPage {
         item(key = "form") {
@@ -81,36 +90,56 @@ fun HarvestScreen(
 
             if (overview != null) {
                 FarmSectionCard("${overview.cropName} · ${overview.plotName}",
-                    subtitle = "Server-confirmed harvest totals for this crop.") {
-                    Text("Total yield: ${overview.totalQuantity.toPlainString()} ${overview.unit}",
-                        style = MaterialTheme.typography.titleLarge)
-                    Text("${overview.validHarvestCount} valid · ${overview.voidedHarvestCount} voided",
-                        style = MaterialTheme.typography.bodyMedium)
-                    Text("Harvesting does not automatically complete the crop cycle.",
+                    subtitle = "Server-confirmed totals. Unsynced local records are shown separately.") {
+                    Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                        CropArtworkImage(overview.cropName, Modifier.size(92.dp))
+                        Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                            Text("${overview.totalQuantity.toPlainString()} ${overview.unit}",
+                                style = MaterialTheme.typography.headlineMedium)
+                            Text("Total valid harvest quantity",
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant)
+                        }
+                    }
+                    Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+                        FarmStatusChip("${overview.validHarvestCount} valid", FarmStatusTone.Active)
+                        FarmStatusChip("${overview.voidedHarvestCount} voided", FarmStatusTone.Neutral)
+                    }
+                    Text("Multiple partial harvests are allowed. Recording does not finish the crop cycle.",
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant)
                 }
+                PendingRecords(pending, state.farmId, state.cycleId, setOf("harvest"), onSync)
 
                 if (overview.canRecord) {
                     FarmSectionCard("Record partial harvest",
                         subtitle = "Each saved quantity becomes a separate record; the crop cycle remains active.") {
-                    OutlinedTextField(quantity, { quantity = it }, enabled = !state.busy, label = { Text("Quantity (${overview.unit})") },
+                    OutlinedTextField(quantity, { quantity = it }, enabled = !state.busy,
+                        isError = quantity.isNotBlank() && !validQuantity,
+                        label = { Text("Harvested quantity (${overview.unit})") },
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
-                        modifier = Modifier.fillMaxWidth())
-                    OutlinedTextField(notes, { notes = it }, enabled = !state.busy, label = { Text("Notes (optional)") },
-                        modifier = Modifier.fillMaxWidth())
-                    Button(onClick = { onRecord(quantity, notes) },
-                        enabled = !state.busy && quantity.isNotBlank(), modifier = Modifier.fillMaxWidth()) {
-                        Text("Record harvest")
+                        singleLine = true, modifier = Modifier.fillMaxWidth())
+                    if (quantity.isNotBlank() && !validQuantity)
+                        Text("Enter a positive quantity with at most three decimal places.",
+                            style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.error)
+                    OutlinedTextField(notes, { notes = it }, enabled = !state.busy,
+                        isError = !validNotes, label = { Text("Notes (optional)") },
+                        minLines = 2, modifier = Modifier.fillMaxWidth())
+                    Text("This harvest will be saved on your device before syncing to the server.",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    Button(onClick = { onRecord(quantity.trim(), notes) },
+                        enabled = !state.busy && validQuantity && validNotes,
+                        modifier = Modifier.fillMaxWidth()) {
+                        Text("Save partial harvest")
                     }
                     }
                 } else {
                     Text("Only active crop cycles can accept new harvest entries.")
                 }
 
-                FarmSectionHeader("Harvest history", "Past valid and voided harvest entries for this crop.")
-                PendingRecords(pending, state.farmId, state.cycleId,
-                    setOf("harvest"), onSync)
+                FarmSectionHeader("Harvest history",
+                    "Server-confirmed entries. Voided records remain visible but are excluded from yield totals.")
                 if (overview.entries.isEmpty())
                     FarmEmptyState("No harvests recorded yet.", "Saved harvests will appear here.")
             }
