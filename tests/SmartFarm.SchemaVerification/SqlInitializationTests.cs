@@ -84,7 +84,7 @@ public sealed class SqlInitializationTests
 
         Assert.Equal(24, Regex.Matches(schema, @"\bCREATE TABLE dbo\.",
             RegexOptions.IgnoreCase).Count);
-        Assert.Equal(48, Regex.Matches(schema, @"\bCREATE (?:UNIQUE )?INDEX\b",
+        Assert.Equal(49, Regex.Matches(schema, @"\bCREATE (?:UNIQUE )?INDEX\b",
             RegexOptions.IgnoreCase).Count);
     }
 
@@ -96,10 +96,10 @@ public sealed class SqlInitializationTests
         Assert.Contains("IF DB_NAME() <> N'SmartFarmDB'", script);
         Assert.Contains("24 + @financeTable", script);
         Assert.Contains("Unexpected SmartFarm table count.", script);
-        Assert.Contains("Expected 48 application indexes.", script);
-        Assert.Contains("Expected 42 foreign keys.", script);
-        Assert.Contains("Expected 38 check constraints.", script);
-        Assert.Contains("Expected five SQL rowversion columns.", script);
+        Assert.Contains("Expected 49 application indexes.", script);
+        Assert.Contains("Expected 43 foreign keys.", script);
+        Assert.Contains("Expected 39 check constraints.", script);
+        Assert.Contains("Expected six SQL rowversion columns.", script);
         Assert.Contains("UX_FarmTask_Dedupe", script);
         Assert.Contains("UX_Notification_User_Dedupe", script);
         Assert.Contains("UX_CropCycle_OneActivePerPlot", script);
