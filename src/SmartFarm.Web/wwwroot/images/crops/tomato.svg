@@ -1,11 +1,1 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" role="img" aria-label="tomato crop illustration">
-  <path d="M26 106 Q56 111 94 106" fill="#C5AC86" stroke="#28543e" stroke-opacity=".13" stroke-width="1.5"/>
-  <path d="M60 95 Q59 69 61 32" fill="#2F6845" stroke="#28543e" stroke-opacity=".13" stroke-width="1.5"/>
-  <path d="M59 55 Q39 30 24 34 Q31 60 60 66Z" fill="#659D61" stroke="#28543e" stroke-opacity=".13" stroke-width="1.5"/>
-  <path d="M62 45 Q79 25 98 34 Q91 58 64 61Z" fill="#8CB66D" stroke="#28543e" stroke-opacity=".13" stroke-width="1.5"/>
-  <path d="M36 83 C25 68 31 54 45 52 C58 49 68 62 65 78 C62 94 47 98 36 83Z" fill="#CE5A41" stroke="#28543e" stroke-opacity=".13" stroke-width="1.5"/>
-  <path d="M75 95 C60 86 60 67 72 62 C87 55 103 66 99 82 C96 96 83 100 75 95Z" fill="#DE7351" stroke="#28543e" stroke-opacity=".13" stroke-width="1.5"/>
-  <path d="M42 54 L46 43 L51 56 L61 54 L53 62 L46 67 L40 62 L31 58Z" fill="#356F45" stroke="#28543e" stroke-opacity=".13" stroke-width="1.5"/>
-  <path d="M77 62 L81 54 L86 64 L96 63 L89 70 L84 76 L79 70 L69 69Z" fill="#356F45" stroke="#28543e" stroke-opacity=".13" stroke-width="1.5"/>
-  <path d="M37 70 Q37 61 43 58 M72 79 Q71 72 77 68" fill="none" stroke="#F19B73" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"/>
-</svg>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 130 115" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M64 71c-2-30 7-45 19-58" stroke="#417746" stroke-width="6" stroke-linecap="round"/><path d="M71 36C40 41 35 15 33 8c31 0 42 15 38 28Z" fill="#5C965A"/><path d="M80 24C93 7 111 9 116 12 110 32 98 36 80 24Z" fill="#619E5B"/><path d="M66 47C53 31 33 35 29 39c6 18 20 21 37 8Z" fill="#76A86D"/><path d="M63 58c-7-10-26-14-37-6-17 12-12 34-1 42 10 7 28 6 38-6 11 11 29 13 39 3 12-11 10-32-2-39-13-7-29-4-37 6Z" fill="#D64D35"/><path d="M39 59c7-1 14 1 20 7l2-14 7 13c7-7 16-8 24-6-4 6-12 9-20 10l-10 9-10-11c-7 0-11-3-13-8Z" fill="#367D49"/><path d="M35 67c-7 10-6 18 0 22" stroke="#F38C72" stroke-width="5" stroke-linecap="round"/><path d="M77 85c13 5 19-2 19-10" stroke="#B9362C" stroke-width="5" stroke-linecap="round"/></svg>

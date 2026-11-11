@@ -2,6 +2,9 @@ package com.smartfarm.mobile
 
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithText
+import androidx.compose.ui.test.onNodeWithTag
+import androidx.compose.ui.test.hasText
+import androidx.compose.ui.test.performScrollToNode
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollTo
 import com.smartfarm.mobile.data.remote.api.TaskCreateInput
@@ -34,6 +37,19 @@ class DailyWorkScreenTest {
         compose.onNodeWithText("Today's farm work").assertExists()
         compose.onNodeWithText("1 due today").assertExists()
         compose.onNodeWithText("Create and assign task").assertDoesNotExist()
+    }
+
+    @Test fun calendarShowsRealAssignmentsForTheSelectedFarmDate() {
+        compose.setContent {
+            SmartFarmTheme {
+                TaskScreen(TaskUiState(farmId = "farm", tasks = listOf(todayTask()),
+                    timeZoneId = "Asia/Manila"), false, "worker", {}, {}, {}, {})
+            }
+        }
+        compose.onNodeWithText("Calendar").performScrollTo().performClick()
+        compose.onNodeWithText("Assignments on " + TaskWorkCenter.today("Asia/Manila")).performScrollTo().assertExists()
+        compose.onNodeWithTag("record-list").performScrollToNode(hasText("Inspect the rows"))
+        compose.onNodeWithText("Inspect the rows").assertExists()
     }
 
     @Test fun managerCanCreateTaskUsingExistingCallback() {

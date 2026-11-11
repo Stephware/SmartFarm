@@ -75,7 +75,8 @@ class DraftFeedbackTest {
                 }
             }
         }
-        compose.onNodeWithText("Select photo").performScrollTo().performClick()
+        compose.onNodeWithText("Inspection").performScrollTo().performClick()
+        compose.onNodeWithText("Choose photo").performScrollTo().performClick()
         compose.onNodeWithText("Save observation").performScrollTo().performClick()
         restoration.emulateSavedInstanceStateRestore()
         compose.onNodeWithText("Photo selected for offline upload").performScrollTo().assertIsDisplayed()
@@ -105,16 +106,17 @@ class DraftFeedbackTest {
                     "farm", "crop", setOf("harvest")) {} }
             }
         }
-        compose.onNodeWithText("Harvest quantity: 3 · Waiting to sync").assertIsDisplayed()
+        compose.onNodeWithText("Harvest quantity: 3").assertIsDisplayed()
+        compose.onNodeWithText("Waiting to sync").assertIsDisplayed()
         compose.onNodeWithText("Review sync status").assertIsDisplayed()
     }
 
     @Test fun registrationSubmitCanBeScrolledAboveTheKeyboard() {
         compose.setContent { SmartFarmTheme { RegisterScreen(AuthUiState(), { _, _, _ -> }, {}) } }
         compose.onNodeWithText("Password").performScrollTo().performTextInput("Password2026")
-        compose.onNodeWithText("Register").performScrollTo()
+        compose.onNodeWithText("Create account").performScrollTo()
         // The system keyboard animates outside Compose's idling clock.
-        compose.waitUntil(5000) { compose.onNodeWithText("Register").isDisplayed() }
-        compose.onNodeWithText("Register").assertIsDisplayed()
+        compose.waitUntil(5000) { compose.onNodeWithText("Create account").isDisplayed() }
+        compose.onNodeWithText("Create account").assertIsDisplayed()
     }
 }

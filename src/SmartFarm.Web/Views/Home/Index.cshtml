@@ -3,7 +3,7 @@
 }
 <section class="landing-hero panel">
     <div class="landing-copy">
-        <p class="landing-eyebrow"><span aria-hidden="true"></span> FOR THE WORK THAT GROWS</p>
+
         <h1>Every farm, crop, and harvest in one place.</h1>
         <p class="landing-lede">Plan planting, keep track of daily fieldwork, monitor supplies, and understand your harvests with AniGo.</p>
         <div class="landing-actions">
@@ -74,9 +74,9 @@
 
 <section class="ani-landing-last panel" aria-labelledby="ani-landing-last-title">
     <div>
-        <p class="sf-kicker">READY FOR FIELDWORK?</p>
+
         <h2 id="ani-landing-last-title">Start with your farm. Keep every season organized.</h2>
-        <p>Set up a farm, invite your team, and record work from planting through harvest.</p>
+        <p>Set up a farm, approve team join requests, and record work from planting through harvest.</p>
     </div>
     <a class="button" asp-controller="@(User.Identity?.IsAuthenticated == true ? "Farms" : "Account")"
        asp-action="@(User.Identity?.IsAuthenticated == true ? "Index" : "Register")">

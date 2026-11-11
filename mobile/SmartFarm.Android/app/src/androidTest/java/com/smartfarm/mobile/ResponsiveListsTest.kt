@@ -42,7 +42,7 @@ class ResponsiveListsTest {
         val farms = (1..200).map { FarmDto("farm-$it", "Farm $it", "Location", "Asia/Manila", null, null, "Owner") }
         compose.setContent { SmartFarmTheme { FarmListScreen(FarmUiState(farms = farms), {}, { _, _, _, _, _ -> }, {}, {}) } }
         compose.onNodeWithText("Add a farm").performClick()
-        compose.onNodeWithText("Name").assertIsDisplayed()
+        compose.onNodeWithText("Name").performScrollTo().assertIsDisplayed()
     }
 
     @Test fun inventoryCreationOpensBeforeExistingRecords() {
@@ -50,8 +50,8 @@ class ResponsiveListsTest {
             BigDecimal.TEN, null, false, null, "version") }
         val state = InventoryUiState(farmId = "farm", workspace = InventoryWorkspaceDto(items, 0))
         compose.setContent { SmartFarmTheme { InventoryListScreen(state, true, {}, {}, { _, _, _, _, _ -> }) } }
-        compose.onNodeWithText("Add stock item").performClick()
-        compose.onNodeWithText("Name").assertIsDisplayed()
+        compose.onNodeWithText("Add supply").performScrollTo().performClick()
+        compose.onNodeWithText("Name").performScrollTo().assertIsDisplayed()
     }
 
     @Test fun longFarmListsComposeOnlyNearbyRecordsAndReachTheEnd() {
@@ -71,7 +71,7 @@ class ResponsiveListsTest {
                 }
             }
         }
-        compose.onNodeWithText("Register").performScrollTo().assertIsDisplayed()
+        compose.onNodeWithText("Create account").performScrollTo().assertIsDisplayed()
         compose.onNodeWithText("Full name").performScrollTo().assertIsDisplayed()
         savePreview("registration-dark-large-text.png")
     }
@@ -82,7 +82,7 @@ class ResponsiveListsTest {
                 SmartFarmTheme { RegisterScreen(AuthUiState(), { _, _, _ -> }, {}) }
             }
         }
-        compose.onNodeWithText("Register").performScrollTo().assertIsDisplayed()
+        compose.onNodeWithText("Create account").performScrollTo().assertIsDisplayed()
         savePreview("registration-landscape.png")
     }
 

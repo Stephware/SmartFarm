@@ -7,13 +7,14 @@
     var monitoring = Model.Monitoring;
     var photoCount = monitoring.Observations.Sum(o => o.Photos.Count);
 }
+<div class="reference-screen reference-screen-monitoring">
 <partial name="_FarmNavigation" model="Model.Cycle.FarmId" />
-<section class="panel sf-ops-hero ani-monitoring-hero" aria-labelledby="monitoring-heading">
-    <div class="sf-page-header">
+<section class="panel card sf-ops-hero ani-monitoring-hero" aria-labelledby="monitoring-heading">
+    <div class="sf-page-header page-hero">
         <div>
             <p><a asp-controller="Crops" asp-action="Index"
                   asp-route-farmId="@cycle.FarmId">← Crop management</a></p>
-            <p class="sf-kicker">FIELD MONITORING</p>
+
             <h1 id="monitoring-heading">@cycle.CropTypeName — @cycle.PlotName</h1>
             <p class="sf-muted">Log watering, fertilization, pesticide use, weeding, or other activities.
                 Inspections are saved as crop observations.</p>
@@ -57,9 +58,10 @@
 </section>
 @if (monitoring.CanRecord)
 {
-    <section class="panel sf-monitoring-form" id="record-activity">
-        <p class="sf-kicker">FIELDWORK</p>
-        <h2>Record activity</h2>
+    <div class="responsive-two reference-recording-grid">
+    <section class="panel card sf-monitoring-form" id="record-activity" data-form-dialog>
+
+        <header class="reference-panel-heading"><h2>Record activity</h2></header>
         <p class="sf-muted">Save completed work against this active crop cycle.</p>
         <form class="sf-ops-form" asp-action="Activity" asp-route-farmId="@cycle.FarmId"
               asp-route-cycleId="@cycle.Id" method="post">
@@ -88,9 +90,9 @@
         </form>
         <p class="hint">Recorded at the server's current UTC time.</p>
     </section>
-    <section class="panel sf-monitoring-form" id="record-inspection">
-        <p class="sf-kicker">CROP HEALTH</p>
-        <h2>Record crop observation / inspection</h2>
+    <section class="panel card sf-monitoring-form" id="record-inspection" data-form-dialog>
+
+        <header class="reference-panel-heading"><h2>Record crop observation / inspection</h2></header>
         <p class="ani-inspection-form-intro">Record what you actually observed. Health and issue labels are field observations, not confirmed diagnoses. Add photos from an inspection record below.</p>
         <form class="sf-ops-form" asp-action="Observation" asp-route-farmId="@cycle.FarmId"
               asp-route-cycleId="@cycle.Id" method="post">
@@ -128,9 +130,10 @@
             <button type="submit">Save observation</button>
         </form>
     </section>
+    </div>
 }
-<section class="panel sf-monitoring-history" id="activity-history">
-    <div class="sf-section-line">
+<section class="panel card sf-monitoring-history" id="activity-history">
+    <div class="sf-section-line card-head">
         <h2>Activity history</h2>
         <span>@monitoring.Activities.Count record(s)</span>
     </div>
@@ -168,8 +171,8 @@
         .ThenBy(p => p.Photo.UploadedAtUtc)
         .ToList();
 }
-<section class="panel sf-photo-gallery" aria-labelledby="photo-progress-heading">
-    <h2 id="photo-progress-heading">Crop photo progress</h2>
+<section class="panel card sf-photo-gallery" aria-labelledby="photo-progress-heading">
+    <header class="reference-panel-heading"><h2 id="photo-progress-heading">Crop photo progress</h2></header>
     <p class="hint">Compare inspection photos from earliest to latest. Only authorized farm members can open these private images.</p>
     @if (progressPhotos.Count == 0)
     {
@@ -198,8 +201,8 @@
         </div>
     }
 </section>
-<section class="panel sf-monitoring-observations" id="observation-history">
-    <div class="sf-section-line">
+<section class="panel card sf-monitoring-observations" id="observation-history">
+    <div class="sf-section-line card-head">
         <h2>Observations and photos</h2>
         <span>@monitoring.Observations.Count inspection(s)</span>
     </div>
@@ -288,3 +291,5 @@
 
 
 <script src="@Url.Content("~/js/fieldwork.js")" asp-append-version="true" defer></script>
+
+</div>

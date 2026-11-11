@@ -25,6 +25,7 @@ import androidx.compose.material3.FilterChip
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.OutlinedCard
 import androidx.compose.ui.platform.testTag
+import com.smartfarm.mobile.ui.components.FarmAppBar
 import com.smartfarm.mobile.ui.components.FarmHero
 import com.smartfarm.mobile.ui.components.FarmSectionCard
 import com.smartfarm.mobile.ui.components.FarmSectionHeader
@@ -66,9 +67,9 @@ import java.time.format.DateTimeFormatter
 
 @Composable
 private fun FarmPage(title: String, content: @Composable () -> Unit) {
-    Scaffold { padding ->
+    Scaffold(topBar = { FarmAppBar() }) { padding ->
         Box(Modifier.fillMaxSize().padding(padding).consumeWindowInsets(padding).imePadding(), contentAlignment = Alignment.TopCenter) {
-            Column(Modifier.widthIn(max = 840.dp).fillMaxSize().verticalScroll(rememberScrollState()).padding(20.dp),
+            Column(Modifier.widthIn(max = 840.dp).fillMaxSize().verticalScroll(rememberScrollState()).padding(16.dp),
                 verticalArrangement = Arrangement.spacedBy(16.dp)) {
             FarmHero(title, "Track your farm activity, growing areas, and team.")
             content()

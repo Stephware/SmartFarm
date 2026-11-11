@@ -3,6 +3,8 @@ package com.smartfarm.mobile
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.compose.ui.test.onNodeWithText
+import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performScrollTo
 import org.junit.Rule
 import org.junit.Test
 
@@ -11,7 +13,8 @@ class WelcomeScreenTest {
 
     @Test fun welcomeScreenIsDisplayed() {
         compose.onNodeWithText("Welcome to AniGo").assertIsDisplayed()
-        compose.onNodeWithText("Check backend").assertIsDisplayed()
+        compose.onNodeWithText("Developer diagnostics").performScrollTo().performClick()
+        compose.onNodeWithText("Check backend").performScrollTo().assertIsDisplayed()
     }
 }
 

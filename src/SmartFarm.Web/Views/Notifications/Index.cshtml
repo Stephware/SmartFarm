@@ -3,11 +3,12 @@
     ViewData["Title"] = "Notifications";
     var unreadCount = Model.Count(notification => notification.ReadAtUtc is null);
 }
-<section class="panel sf-notifications-hero" aria-labelledby="notifications-heading">
-    <div class="sf-page-header">
+<div class="reference-screen reference-screen-notifications">
+<section class="panel card sf-notifications-hero" aria-labelledby="notifications-heading">
+    <div class="sf-page-header page-hero">
         <div>
             <p><a asp-controller="Farms" asp-action="Index">← My farms</a></p>
-            <p class="sf-kicker">FARM UPDATES</p>
+
             <h1 id="notifications-heading">Notifications</h1>
             <p class="sf-muted">Task reminders and farm weather advisories appear here.</p>
         </div>
@@ -18,8 +19,8 @@
     </div>
     <p class="sf-ops-hint">Notifications appear here when created by the farm's existing task and weather processes. They are not push notifications.</p>
 </section>
-<section class="panel sf-notifications-panel" aria-labelledby="notifications-list-heading">
-    <div class="sf-section-line">
+<section class="panel card sf-notifications-panel" aria-labelledby="notifications-list-heading">
+    <div class="sf-section-line card-head">
         <h2 id="notifications-list-heading">Recent notifications</h2>
         <span>@Model.Count total</span>
     </div>
@@ -32,11 +33,11 @@
     }
     else
     {
-        <ul class="sf-notifications-list">
+        <ul class="sf-notifications-list list-grid">
         @foreach (var notification in Model)
         {
-            <li class="sf-notification @(notification.ReadAtUtc is null ? "sf-notification-unread" : "sf-notification-read")">
-                <div class="sf-notification-marker" aria-hidden="true"></div>
+            <li class="sf-notification list-card @(notification.ReadAtUtc is null ? "sf-notification-unread" : "sf-notification-read")">
+                <span class="sf-notification-marker reference-notification-icon" aria-hidden="true"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9M10 21h4" /></svg></span>
                 <div class="sf-notification-body">
                     <div class="sf-notification-heading">
                         <strong>@notification.Title</strong>
@@ -59,3 +60,5 @@
         </ul>
     }
 </section>
+
+</div>

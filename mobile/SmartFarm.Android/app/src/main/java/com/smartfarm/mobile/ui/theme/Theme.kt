@@ -1,6 +1,10 @@
 package com.smartfarm.mobile.ui.theme
 
-import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.compose.runtime.compositionLocalOf
+import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Shapes
@@ -8,6 +12,9 @@ import androidx.compose.material3.Typography
 import androidx.compose.material3.darkColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.SideEffect
+import androidx.compose.ui.platform.LocalView
+import androidx.core.view.WindowCompat
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
@@ -26,7 +33,7 @@ internal object AniGoPalette {
 }
 
 internal val LightColors = lightColorScheme(
-    primary = AniGoPalette.pine, onPrimary = Color.White,
+    primary = AniGoPalette.pineMid, onPrimary = Color.White,
     primaryContainer = Color(0xFFE5F1E8), onPrimaryContainer = Color(0xFF153D2D),
     secondary = AniGoPalette.goldInk, onSecondary = Color.White,
     secondaryContainer = AniGoPalette.goldSoft, onSecondaryContainer = Color(0xFF574016),
@@ -40,7 +47,7 @@ internal val LightColors = lightColorScheme(
     surfaceContainerLowest = Color.White, surfaceContainerLow = Color(0xFFFAFBF8),
     surfaceContainer = Color(0xFFF3F6F0), surfaceContainerHigh = Color(0xFFEBF0E9),
     surfaceContainerHighest = Color(0xFFE5ECE3),
-    outline = Color(0xFF728076), outlineVariant = Color(0xFFC5D3C8),
+    outline = Color(0xFF728076), outlineVariant = Color(0xFFE4E9E2),
     error = Color(0xFFA10B22), onError = Color.White,
     errorContainer = Color(0xFFFFF0F1), onErrorContainer = Color(0xFF730F1E)
 )
@@ -66,10 +73,10 @@ internal val DarkColors = darkColorScheme(
 )
 
 internal val FarmTypography = Typography(
-    headlineLarge = TextStyle(fontFamily = FontFamily.SansSerif, fontSize = 30.sp, lineHeight = 38.sp, fontWeight = FontWeight.Bold),
-    headlineMedium = TextStyle(fontFamily = FontFamily.SansSerif, fontSize = 26.sp, lineHeight = 34.sp, fontWeight = FontWeight.Bold),
+    headlineLarge = TextStyle(fontFamily = FontFamily.SansSerif, fontSize = 29.sp, lineHeight = 36.sp, fontWeight = FontWeight.Bold),
+    headlineMedium = TextStyle(fontFamily = FontFamily.SansSerif, fontSize = 25.sp, lineHeight = 32.sp, fontWeight = FontWeight.Bold),
     headlineSmall = TextStyle(fontFamily = FontFamily.SansSerif, fontSize = 22.sp, lineHeight = 30.sp, fontWeight = FontWeight.SemiBold),
-    titleLarge = TextStyle(fontFamily = FontFamily.SansSerif, fontSize = 20.sp, lineHeight = 28.sp, fontWeight = FontWeight.SemiBold),
+    titleLarge = TextStyle(fontFamily = FontFamily.SansSerif, fontSize = 18.sp, lineHeight = 26.sp, fontWeight = FontWeight.SemiBold),
     titleMedium = TextStyle(fontFamily = FontFamily.SansSerif, fontSize = 16.sp, lineHeight = 24.sp, fontWeight = FontWeight.SemiBold),
     titleSmall = TextStyle(fontFamily = FontFamily.SansSerif, fontSize = 14.sp, lineHeight = 20.sp, fontWeight = FontWeight.SemiBold),
     bodyLarge = TextStyle(fontFamily = FontFamily.SansSerif, fontSize = 16.sp, lineHeight = 24.sp),
@@ -83,16 +90,37 @@ internal val FarmShapes = Shapes(
     extraSmall = RoundedCornerShape(6.dp),
     small = RoundedCornerShape(10.dp),
     medium = RoundedCornerShape(14.dp),
-    large = RoundedCornerShape(18.dp),
-    extraLarge = RoundedCornerShape(24.dp)
+    large = RoundedCornerShape(14.dp),
+    extraLarge = RoundedCornerShape(18.dp)
 )
+
+/** Appearance is the only persisted preference here; authentication stays memory-only. */
+data class FarmAppearance(val dark: Boolean, val selectDark: (Boolean) -> Unit)
+val LocalFarmAppearance = compositionLocalOf { FarmAppearance(false) {} }
 
 @Composable
 fun SmartFarmTheme(content: @Composable () -> Unit) {
-    MaterialTheme(
-        colorScheme = if (isSystemInDarkTheme()) DarkColors else LightColors,
-        typography = FarmTypography,
-        shapes = FarmShapes,
-        content = content
-    )
+    val context = LocalContext.current
+    val preferences = remember(context) { context.getSharedPreferences("appearance", android.content.Context.MODE_PRIVATE) }
+    val dark = remember { mutableStateOf(preferences.getBoolean("dark", false)) }
+    val view = LocalView.current
+    SideEffect {
+        (context as? android.app.Activity)?.let { activity ->
+            WindowCompat.getInsetsController(activity.window, view).apply {
+                isAppearanceLightStatusBars = !dark.value
+                isAppearanceLightNavigationBars = !dark.value
+            }
+        }
+    }
+    CompositionLocalProvider(LocalFarmAppearance provides FarmAppearance(dark.value) { selected ->
+        dark.value = selected
+        preferences.edit().putBoolean("dark", selected).apply()
+    }) {
+        MaterialTheme(
+            colorScheme = if (dark.value) DarkColors else LightColors,
+            typography = FarmTypography,
+            shapes = FarmShapes,
+            content = content
+        )
+    }
 }

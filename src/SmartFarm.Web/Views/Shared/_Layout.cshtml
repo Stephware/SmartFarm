@@ -2,14 +2,17 @@
     var signedIn = User.Identity?.IsAuthenticated == true;
     var currentController = ViewContext.RouteData.Values["controller"]?.ToString();
     var currentAction = ViewContext.RouteData.Values["action"]?.ToString();
+    var accountName = User.Identity?.Name ?? "Your account";
+    var initial = string.IsNullOrWhiteSpace(accountName) ? "A" : accountName[..1].ToUpperInvariant();
 }
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-color-mode="light" data-theme="gold">
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="theme-color" content="#153D2D" />
     <title>@ViewData["Title"] - AniGo</title>
+    <script src="~/js/color-mode.js" asp-append-version="true"></script>
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/css/dashboard.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/css/crop-art.css" asp-append-version="true" />
@@ -17,94 +20,101 @@
     <link rel="stylesheet" href="~/css/harvest-inventory.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/css/insights.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/css/access-polish.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/reference-ui.css" asp-append-version="true" />
     <script src="~/js/site.js" asp-append-version="true" defer></script>
     <script src="~/js/access-polish.js" asp-append-version="true" defer></script>
 </head>
 <body class="@(signedIn ? "is-authenticated" : "is-guest")">
-    <a class="skip-link" href="#main-content">Skip to content</a>
-    @if (signedIn)
-    {
-        <div class="app-shell">
-            <aside class="app-sidebar" aria-label="Workspace navigation">
-                <a class="brand sidebar-brand" asp-controller="Farms" asp-action="Index">
-                    <span class="brand-badge" aria-hidden="true">A</span>
-                    <span>AniGo<small>Farm management</small></span>
-                </a>
-                <p class="sidebar-caption">WORKSPACE</p>
-                <nav class="sidebar-links" aria-label="Account and farm selection">
-                    <a asp-controller="Farms" asp-action="Index" data-nav-icon="farms"
-                       aria-current="@(currentController == "Farms" && currentAction == "Index" ? "page" : null)">My farms</a>
-                    <a asp-controller="Notifications" asp-action="Index" data-nav-icon="notifications"
-                       aria-current="@(currentController == "Notifications" ? "page" : null)">Notifications</a>
-                    <a asp-controller="Account" asp-action="Profile" data-nav-icon="account"
-                       aria-current="@(currentController == "Account" && currentAction == "Profile" ? "page" : null)">My account</a>
-                </nav>
-                @* The farm links come from _FarmNavigation, not duplicated route definitions. *@
-                <div id="sidebar-farm-group" class="sidebar-farm-group" hidden>
-                    <p class="sidebar-caption">FARM MANAGEMENT</p>
-                    <nav id="sidebar-farm-links" class="sidebar-links" aria-label="Current farm sections"></nav>
-                </div>
-                <div class="sidebar-bottom">
-                    <a class="sf-farm-switch" asp-controller="Farms" asp-action="Index">
-                        <span aria-hidden="true">↔</span> Switch farm
+<a class="skip-link" href="#main-content">Skip to content</a>
+@if (signedIn)
+{
+    <div class="app-shell">
+        <aside class="app-sidebar sidebar" aria-label="Workspace navigation">
+            <a class="logo brand sidebar-brand" asp-controller="Farms" asp-action="Index">
+                <span class="logo-mark"><partial name="_Icon" model='@("leaf")' /></span>
+                <span>AniGo<small>Farm management</small></span>
+            </a>
+            <div class="sidebar-workspace">
+                <p class="side-group-label">Workspace</p>
+                <nav class="side-group sidebar-links" aria-label="Account and farm selection">
+                    <a class="nav-link" asp-controller="Farms" asp-action="Index" data-nav-icon="farms"
+                       id="sidebar-my-farms" aria-current="@(currentController == "Farms" && currentAction == "Index" ? "page" : null)">
+                        <partial name="_Icon" model='@("grid")' /><span>My farms</span>
                     </a>
+                </nav>
+                <div id="sidebar-farm-group" class="sidebar-farm-group" hidden>
+                    <nav id="sidebar-farm-links" class="side-group sidebar-links" aria-label="Current farm sections"></nav>
+                </div>
+            </div>
+            <div>
+                <p class="side-group-label">Insights &amp; account</p>
+                <nav id="sidebar-insight-links" class="side-group sidebar-links" aria-label="Insights and account">
+                    <a class="nav-link" asp-controller="Notifications" asp-action="Index" data-nav-icon="notifications"
+                       aria-current="@(currentController == "Notifications" ? "page" : null)">
+                        <partial name="_Icon" model='@("bell")' /><span>Notifications</span>
+                    </a>
+                    <a class="nav-link" asp-controller="Account" asp-action="Profile" data-nav-icon="account"
+                       aria-current="@(currentController == "Account" ? "page" : null)">
+                        <partial name="_Icon" model='@("settings")' /><span>Account &amp; settings</span>
+                    </a>
+                </nav>
+            </div>
+            <div class="side-footer sidebar-bottom">
+                <a class="person-row" asp-controller="Account" asp-action="Profile">
+                    <span class="avatar" aria-hidden="true">@initial</span>
+                    <span><strong>@accountName</strong><small>My AniGo account</small></span>
+                </a>
+                <div class="sidebar-footer-actions">
+                    <a asp-controller="Farms" asp-action="Index">Switch farm</a>
                     <form method="post" asp-controller="Account" asp-action="Logout" class="logout-form">
-                        <button type="submit" class="sidebar-logout">Log out</button>
+                        <button type="submit" class="sidebar-logout"><partial name="_Icon" model='@("logout")' />Log out</button>
                     </form>
                 </div>
-            </aside>
-            <div class="app-body">
-                <header class="site-header app-topbar">
-                    <div class="app-topbar-title">
-                        <a class="mobile-brand" asp-controller="Farms" asp-action="Index">
-                            <span class="brand-badge" aria-hidden="true">A</span>AniGo
-                        </a>
-                        <span class="topbar-label">AniGo / Farm workspace</span>
-                        <strong>@(ViewData["Title"] ?? "Overview")</strong>
-                    </div>
-                    <nav class="app-topbar-actions" aria-label="Quick account links">
-                        <a asp-controller="Notifications" asp-action="Index" data-nav-icon="notifications">Notifications</a>
-                        <a asp-controller="Account" asp-action="Profile" data-nav-icon="account">Account</a>
-                    </nav>
-                    <details class="mobile-nav" id="mobile-workspace-menu">
-                        <summary>Menu</summary>
-                        <nav aria-label="Mobile workspace navigation">
-                            <div id="mobile-farm-links" class="mobile-farm-links" hidden></div>
-                            <a asp-controller="Farms" asp-action="Index">My farms</a>
-                            <a asp-controller="Notifications" asp-action="Index">Notifications</a>
-                            <a asp-controller="Account" asp-action="Profile">My account</a>
-                            <form method="post" asp-controller="Account" asp-action="Logout" class="logout-form">
-                                <button type="submit" class="link-button">Log out</button>
-                            </form>
-                        </nav>
-                    </details>
-                </header>
-                <main class="page app-page" id="main-content" tabindex="-1">
-                    <partial name="_ValidationSummary" />
-                    @RenderBody()
-                </main>
             </div>
-            <nav class="mobile-workspace-bar" id="mobile-workspace-bar" aria-label="Farm quick navigation" hidden>
-                <div id="mobile-workspace-links" class="mobile-workspace-links"></div>
-                <button type="button" class="mobile-more-button" id="mobile-more-button" aria-label="More farm sections">More</button>
-            </nav>
+        </aside>
+        <div class="app-body content-shell">
+            <header class="site-header app-topbar topbar">
+                <div class="crumb"><span>Workspace</span><span aria-hidden="true">/</span><strong>@(ViewData["Title"] ?? "Overview")</strong></div>
+                <a class="mobile-brand mobile-title" asp-controller="Farms" asp-action="Index"><partial name="_Icon" model='@("leaf")' />AniGo</a>
+                <nav class="top-actions app-topbar-actions" aria-label="Quick account links">
+                    <a class="farm-picker" asp-controller="Farms" asp-action="Index"><partial name="_Icon" model='@("leaf")' /><span>@(ViewData["FarmName"] ?? "My farms")</span><partial name="_Icon" model='@("down")' /></a>
+                    <button class="icon-button color-mode-toggle" type="button" data-color-mode-toggle aria-label="Use dark appearance" aria-pressed="false"><partial name="_Icon" model='@("sun")' /></button>
+                    <a class="icon-button" asp-controller="Notifications" asp-action="Index" aria-label="Notifications"><partial name="_Icon" model='@("bell")' /></a>
+                    <a class="top-avatar" asp-controller="Account" asp-action="Profile" aria-label="My account">@initial</a>
+                </nav>
+                <details class="mobile-nav" id="mobile-workspace-menu">
+                    <summary aria-label="More workspace sections"><partial name="_Icon" model='@("more")' /><span>Menu</span></summary>
+                    <nav aria-label="Mobile workspace navigation">
+                        <div id="mobile-farm-links" class="mobile-farm-links" hidden></div>
+                        <a asp-controller="Farms" asp-action="Index">My farms</a>
+                        <a asp-controller="Notifications" asp-action="Index">Notifications</a>
+                        <a asp-controller="Account" asp-action="Profile">Account &amp; settings</a>
+                        <form method="post" asp-controller="Account" asp-action="Logout" class="logout-form"><button type="submit" class="link-button">Log out</button></form>
+                    </nav>
+                </details>
+            </header>
+            <main class="page app-page app-main" id="main-content" tabindex="-1">
+                <partial name="_ValidationSummary" />
+                @RenderBody()
+            </main>
         </div>
-    }
-    else
-    {
-        <header class="site-header guest-topbar">
-            <a class="brand" asp-controller="Home" asp-action="Index">
-                <span class="brand-badge" aria-hidden="true">A</span>AniGo
-            </a>
-            <nav aria-label="Main navigation">
-                <a asp-controller="Account" asp-action="Login">Log in</a>
-                <a class="button guest-nav-cta" asp-controller="Account" asp-action="Register">Create account</a>
-            </nav>
-        </header>
-        <main class="page guest-page" id="main-content" tabindex="-1">
-            <partial name="_ValidationSummary" />
-            @RenderBody()
-        </main>
-    }
+        <nav class="mobile-workspace-bar bottom-nav" id="mobile-workspace-bar" aria-label="Farm quick navigation" hidden>
+            <div id="mobile-workspace-links" class="mobile-workspace-links"></div>
+            <button type="button" class="mobile-more-button" id="mobile-more-button" aria-label="More farm sections" aria-controls="mobile-workspace-menu"><partial name="_Icon" model='@("more")' /><span>More</span></button>
+        </nav>
+    </div>
+}
+else
+{
+    <header class="site-header guest-topbar">
+        <a class="brand guest-logo" asp-controller="Home" asp-action="Index"><span class="logo-mark"><partial name="_Icon" model='@("leaf")' /></span>AniGo</a>
+        <nav aria-label="Main navigation">
+            <button class="icon-button" type="button" data-color-mode-toggle aria-label="Use dark appearance" aria-pressed="false"><partial name="_Icon" model='@("sun")' /></button>
+            <a asp-controller="Account" asp-action="Login">Log in</a>
+            <a class="button guest-nav-cta" asp-controller="Account" asp-action="Register">Create account</a>
+        </nav>
+    </header>
+    <main class="page guest-page" id="main-content" tabindex="-1"><partial name="_ValidationSummary" />@RenderBody()</main>
+}
 </body>
 </html>

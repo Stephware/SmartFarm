@@ -2,15 +2,16 @@
 @{
     ViewData["Title"] = "Create farm";
 }
+<div class="reference-screen reference-screen-farms">
 <div class="farm-create-heading">
     <a class="farm-back-link" asp-action="Index">← Back to my farms</a>
-    <p class="section-kicker">GETTING STARTED</p>
+
     <h1>Create a farm</h1>
     <p class="sf-muted">Add the farm's name and location so you can organize plots, crops, and fieldwork.</p>
 </div>
 <div class="farm-create-layout">
-    <section class="panel farm-create-panel" aria-labelledby="farm-details-heading">
-        <h2 id="farm-details-heading">Farm details</h2>
+    <section class="panel card farm-create-panel" aria-labelledby="farm-details-heading">
+        <header class="reference-panel-heading"><h2 id="farm-details-heading">Farm details</h2></header>
         <p class="sf-muted">You can add plots and invite people after creating the farm.</p>
         <form asp-action="Create" method="post" class="farm-create-form">
             <div class="form-field">
@@ -54,8 +55,8 @@
         </form>
     </section>
     <aside class="farm-create-side">
-        <div class="panel farm-setup-guide">
-            <p class="section-kicker">NEXT STEPS</p>
+        <div class="panel card farm-setup-guide">
+
             <h2>What happens next?</h2>
             <ol>
                 <li><strong>Add your plots.</strong><span>Record each growing area and its size.</span></li>
@@ -74,3 +75,5 @@
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin="" defer></script>
 <script src="~/js/farm-location-picker.js" defer></script>
+
+</div>

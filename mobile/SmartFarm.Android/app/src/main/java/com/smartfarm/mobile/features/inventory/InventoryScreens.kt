@@ -13,6 +13,8 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.OutlinedCard
 import androidx.compose.ui.platform.testTag
 import com.smartfarm.mobile.ui.components.RecordPage
+import com.smartfarm.mobile.ui.components.FarmSymbol
+import com.smartfarm.mobile.ui.components.FarmLineIcon
 import com.smartfarm.mobile.ui.components.FarmHero
 import com.smartfarm.mobile.ui.components.FarmSectionCard
 import com.smartfarm.mobile.ui.components.FarmSectionHeader
@@ -168,26 +170,23 @@ fun InventoryListScreen(
         }
         items(visibleItems, key = { "stock-${it.id}" }) { item ->
             OutlinedCard(onClick = { onOpen(item.id) }, modifier = Modifier.fillMaxWidth().testTag("record-card")) {
-                Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
-                    Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-                        Column(Modifier.weight(1f)) {
-                            Text(item.name, style = MaterialTheme.typography.titleLarge)
-                            Text(inventoryCategoryName(item.category), style = MaterialTheme.typography.bodySmall,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant)
-                        }
+                Row(Modifier.fillMaxWidth().padding(14.dp),
+                    verticalAlignment = androidx.compose.ui.Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                    FarmLineIcon(FarmSymbol.Stock)
+                    Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                        Text(item.name, style = MaterialTheme.typography.titleMedium)
+                        Text(inventoryCategoryName(item.category), style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant)
                         FarmStatusChip(if (item.isLowStock) "Low stock" else "In stock",
                             if (item.isLowStock) FarmStatusTone.Warning else FarmStatusTone.Active)
                     }
-                    Text("${item.quantityOnHand.toPlainString()} ${item.unit}",
-                        style = MaterialTheme.typography.headlineSmall)
-                    item.reorderLevel?.let {
-                        Text("Low-stock threshold: ${it.toPlainString()} ${item.unit}",
-                            style = MaterialTheme.typography.bodySmall,
+                    Column(horizontalAlignment = androidx.compose.ui.Alignment.End,
+                        verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                        Text(item.quantityOnHand.toPlainString(), style = MaterialTheme.typography.titleLarge)
+                        Text(item.unit, style = MaterialTheme.typography.bodySmall,
                             color = MaterialTheme.colorScheme.onSurfaceVariant)
                     }
-                    Text("View stock balance and history →",
-                        style = MaterialTheme.typography.labelLarge,
-                        color = MaterialTheme.colorScheme.primary)
                 }
             }
         }

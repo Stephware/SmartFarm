@@ -1,13 +1,14 @@
 @model Guid
 @{ var current = ViewContext.RouteData.Values["controller"]?.ToString(); }
 <nav class="farm-navigation" aria-label="Farm sections">
-    <a asp-controller="Farms" asp-action="Details" asp-route-id="@Model" aria-current="@(current == "Farms" ? "page" : null)">Farm overview</a>
-    <a asp-controller="Dashboard" asp-action="Index" asp-route-farmId="@Model" aria-current="@(current == "Dashboard" ? "page" : null)">Dashboard</a>
-    <a asp-controller="Tasks" asp-action="Index" asp-route-farmId="@Model" aria-current="@(current == "Tasks" ? "page" : null)">Tasks</a>
-    <a asp-controller="Crops" asp-action="Index" asp-route-farmId="@Model" aria-current="@(current is "Crops" or "Monitoring" or "Harvests" ? "page" : null)">Crops</a>
-    <a asp-controller="PlotLayout" asp-action="Index" asp-route-farmId="@Model" aria-current="@(current == "PlotLayout" ? "page" : null)">Plot layout</a>
-    <a asp-controller="FarmFinance" asp-action="Index" asp-route-farmId="@Model" aria-current="@(current == "FarmFinance" ? "page" : null)">Finances</a>
-    <a asp-controller="Inventory" asp-action="Index" asp-route-farmId="@Model" aria-current="@(current == "Inventory" ? "page" : null)">Inventory</a>
-    <a asp-controller="Weather" asp-action="Index" asp-route-farmId="@Model" aria-current="@(current == "Weather" ? "page" : null)">Weather</a>
-    <a asp-controller="Reports" asp-action="Harvests" asp-route-farmId="@Model" aria-current="@(current == "Reports" ? "page" : null)">Reports</a>
+    <a asp-controller="Farms" asp-action="Details" asp-route-id="@Model" aria-current="@(current == "Farms" ? "page" : null)" data-nav-section="farm"><partial name="_Icon" model='@("settings")' /><span>Farm overview</span></a>
+    <a asp-controller="Dashboard" asp-action="Index" asp-route-farmId="@Model" aria-current="@(current == "Dashboard" ? "page" : null)" data-nav-section="dashboard"><partial name="_Icon" model='@("home")' /><span>Dashboard</span></a>
+    <a asp-controller="Tasks" asp-action="Index" asp-route-farmId="@Model" aria-current="@(current == "Tasks" ? "page" : null)" data-nav-section="tasks"><partial name="_Icon" model='@("checkSquare")' /><span>Tasks</span></a>
+    <a asp-controller="Crops" asp-action="Index" asp-route-farmId="@Model" aria-current="@(current is "Crops" or "Monitoring" or "Harvests" ? "page" : null)" data-nav-section="crops"><partial name="_Icon" model='@("sprout")' /><span>Crops</span></a>
+    <a asp-controller="PlotLayout" asp-action="Index" asp-route-farmId="@Model" aria-current="@(current == "PlotLayout" ? "page" : null)" data-nav-section="plots"><partial name="_Icon" model='@("grid")' /><span>Plot layout</span></a>
+    <a asp-controller="FarmFinance" asp-action="Index" asp-route-farmId="@Model" aria-current="@(current == "FarmFinance" ? "page" : null)" data-nav-section="finance"><partial name="_Icon" model='@("coins")' /><span>Finances</span></a>
+    <a asp-controller="Inventory" asp-action="Index" asp-route-farmId="@Model" aria-current="@(current == "Inventory" ? "page" : null)" data-nav-section="inventory"><partial name="_Icon" model='@("box")' /><span>Inventory</span></a>
+    <a asp-controller="Reports" asp-action="Harvests" asp-route-farmId="@Model" asp-fragment="report-history-heading" data-nav-section="harvests"><partial name="_Icon" model='@("basket")' /><span>Harvests</span></a>
+    <a asp-controller="Weather" asp-action="Index" asp-route-farmId="@Model" aria-current="@(current == "Weather" ? "page" : null)" data-nav-section="weather"><partial name="_Icon" model='@("cloud")' /><span>Weather</span></a>
+    <a asp-controller="Reports" asp-action="Harvests" asp-route-farmId="@Model" aria-current="@(current == "Reports" ? "page" : null)" data-nav-section="reports"><partial name="_Icon" model='@("chart")' /><span>Reports</span></a>
 </nav>

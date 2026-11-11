@@ -2,6 +2,13 @@ package com.smartfarm.mobile.features.crops
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.height
+import androidx.compose.ui.Alignment
+import androidx.compose.material3.OutlinedCard
+import androidx.compose.material3.Surface
+import androidx.compose.ui.platform.testTag
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.size
@@ -61,6 +68,7 @@ fun CropScreen(
     onRetry: () -> Unit = {},
     onQuickMonitoring: (CropCycleDto, String) -> Unit = { cycle, _ -> onMonitoring(cycle) }
 ) {
+    var selectedCycleId by rememberSaveable(state.farmId) { mutableStateOf<String?>(null) }
     var typeName by rememberSaveable { mutableStateOf("") }
     var unit by rememberSaveable { mutableStateOf("kg") }
     var growth by rememberSaveable { mutableStateOf("") }
@@ -92,9 +100,38 @@ fun CropScreen(
                 }
             }
         }
-        items(currentCycles, key = { "current-${it.id}" }) { cycle ->
-            CycleCard(cycle, canManage && !state.offline, state.busy, onUpdatePlan,
-                onTransition, onMonitoring, onHarvests, onQuickMonitoring)
+        items(currentCycles.chunked(2), key = { "crop-row-${it.first().id}" }) { row ->
+            Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+                row.forEach { cycle ->
+                    OutlinedCard(onClick = { selectedCycleId = cycle.id },
+                        modifier = Modifier.weight(1f).testTag("crop-summary-${cycle.id}")) {
+                        Column(Modifier.padding(10.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                            Surface(color = MaterialTheme.colorScheme.primaryContainer,
+                                shape = MaterialTheme.shapes.small) {
+                                Box(Modifier.fillMaxWidth().height(106.dp), contentAlignment = Alignment.Center) {
+                                    CropArtworkImage(cycle.cropTypeName, Modifier.size(100.dp))
+                                }
+                            }
+                            Text(cycle.cropTypeName, style = MaterialTheme.typography.titleMedium)
+                            Text(cycle.plotName, style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant)
+                            FarmStatusChip(cycle.statusName,
+                                if (cycle.status == 1) FarmStatusTone.Active else FarmStatusTone.Planned)
+                            Text("Harvest: " + (cycle.expectedHarvestDate ?: "Not set"),
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant)
+                        }
+                    }
+                }
+                if (row.size == 1) Spacer(Modifier.weight(1f))
+            }
+            row.firstOrNull { it.id == selectedCycleId }?.let { cycle ->
+                Column(Modifier.padding(top = 12.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                    TextButton(onClick = { selectedCycleId = null }) { Text("Close crop details") }
+                    CycleCard(cycle, canManage && !state.offline, state.busy, onUpdatePlan,
+                        onTransition, onMonitoring, onHarvests, onQuickMonitoring)
+                }
+            }
         }
         item(key = "planning") {
             Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {

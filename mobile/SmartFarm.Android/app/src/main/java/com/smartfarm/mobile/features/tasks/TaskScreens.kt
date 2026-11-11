@@ -7,6 +7,13 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.material3.DatePicker
+import androidx.compose.material3.DatePickerDefaults
+import androidx.compose.material3.rememberDatePickerState
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Surface
+import java.time.Instant
+import java.time.ZoneOffset
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DropdownMenu
@@ -45,6 +52,7 @@ private val taskNames = listOf("Unknown", "Planting", "Watering", "Fertilizing",
     "Inspection", "Harvest", "Other")
 private val statuses = listOf("Pending", "Completed", "Skipped", "Cancelled")
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TaskScreen(
     state: TaskUiState, canManage: Boolean, actorId: String?, onBack: () -> Unit,
@@ -65,6 +73,8 @@ fun TaskScreen(
     val today = state.timeZoneId?.let { zone ->
         runCatching { TaskWorkCenter.today(zone) }.getOrNull()
     }
+    val calendar = rememberDatePickerState(initialSelectedDateMillis = today?.atStartOfDay(ZoneOffset.UTC)?.toInstant()?.toEpochMilli())
+    val calendarDate = calendar.selectedDateMillis?.let { Instant.ofEpochMilli(it).atZone(ZoneOffset.UTC).toLocalDate() }
     val assigned = TaskWorkCenter.myOpenTasks(state.tasks, actorId, isOwner)
     val overdue = today?.let { TaskWorkCenter.overdue(assigned, it) }.orEmpty()
     val dueToday = today?.let { TaskWorkCenter.dueToday(assigned, it) }.orEmpty()
@@ -104,6 +114,7 @@ fun TaskScreen(
                     listOf(
                         "today" to "Today / overdue",
                         "upcoming" to "Upcoming",
+                        "calendar" to "Calendar",
                         "completed" to "Closed",
                         "all" to "All farm tasks"
                     ).forEach { (key, label) ->
@@ -111,6 +122,26 @@ fun TaskScreen(
                             onClick = { selectedView = key },
                             label = { Text(label) })
                     }
+                }
+            }
+            if (selectedView == "calendar") {
+                item(key = "calendar") {
+                    Surface(shape = MaterialTheme.shapes.medium, color = MaterialTheme.colorScheme.surface) {
+                        DatePicker(state = calendar, showModeToggle = false,
+                            title = null, headline = null,
+                            colors = DatePickerDefaults.colors(containerColor = MaterialTheme.colorScheme.surface))
+                    }
+                }
+                item(key = "calendar-heading") {
+                    FarmSectionHeader("Assignments on " + (calendarDate?.toString() ?: "selected date"),
+                        "Your open work, using the farm's local dates.")
+                }
+                val calendarTasks = assigned.filter { TaskWorkCenter.dueDate(it) == calendarDate }
+                if (calendarTasks.isEmpty()) item(key = "calendar-empty") {
+                    FarmEmptyState("No assignments on this date", "Choose another date to review scheduled work.")
+                }
+                items(calendarTasks.size, key = { "calendar-${calendarTasks[it].id}" }) { index ->
+                    TodayTaskCard(calendarTasks[index], state, canManage, actorId, onComplete, onOpenCrop)
                 }
             }
             if (selectedView == "today" || selectedView == "upcoming") item(key = "today-summary") {

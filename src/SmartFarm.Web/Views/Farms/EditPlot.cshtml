@@ -2,8 +2,9 @@
 @{
     ViewData["Title"] = "Edit plot";
 }
-<section class="panel sf-edit-form-panel">
-    <p class="sf-kicker">FARM PLOTS</p>
+<div class="reference-screen reference-screen-farms">
+<section class="panel card sf-edit-form-panel">
+
     <h1>Edit plot</h1>
     <form class="sf-crop-form" asp-action="EditPlot" asp-route-id="@Model.FarmId" asp-route-plotId="@Model.PlotId" method="post">
         <input asp-for="Input.RowVersion" type="hidden" />
@@ -14,3 +15,5 @@
     </form>
 </section>
 
+
+</div>

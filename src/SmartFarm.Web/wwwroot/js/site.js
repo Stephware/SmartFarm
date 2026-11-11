@@ -34,87 +34,134 @@ for (const button of document.querySelectorAll("[data-copy-target]")) {
 }
 
 
-/* Harvest Gold + Pine navigation enhancement.
-   The original _FarmNavigation is always usable without JavaScript. */
+// Appearance is independent from the operating system so the default stays light.
 (() => {
-    const icons = {
-        farms: '<rect x="3" y="7" width="18" height="14" rx="2"/><path d="M3 12h18M7 7V4h10v3"/>',
-        overview: '<path d="m3 11 9-8 9 8"/><path d="M5 10v11h14V10M9 21v-7h6v7"/>',
-        dashboard: '<rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/>',
-        tasks: '<rect x="4" y="4" width="16" height="17" rx="2"/><path d="m8 12 3 3 5-6"/>',
-        crops: '<path d="M12 21v-9"/><path d="M12 14C5 14 4 9 4 6c6 0 8 3 8 8ZM12 12c0-5 3-8 8-8 0 4-1 8-8 8Z"/>',
-        plots: '<path d="M3 7 9 3l6 4 6-4v14l-6 4-6-4-6 4V7Z"/><path d="M9 3v14m6-10v14"/>',
-        finance: '<rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 9h18"/><circle cx="12" cy="14" r="2"/>',
-        inventory: '<path d="M3 7 12 3l9 4v11l-9 4-9-4Z"/><path d="m3 7 9 5 9-5M12 12v10"/>',
-        weather: '<path d="M8 18H6a4 4 0 1 1 1.2-7.8A6 6 0 0 1 19 12a3 3 0 0 1 0 6H8Z"/>',
-        reports: '<path d="M4 20V4m0 16h16M8 16v-5m5 5V7m5 9V9"/>',
-        notifications: '<path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9ZM10 21h4"/>',
-        account: '<circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/>',
-        more: '<circle cx="5" cy="12" r="1"/><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/>'
+    const toggles = document.querySelectorAll("[data-color-mode-toggle]");
+    if (!toggles.length) return;
+    const root = document.documentElement;
+    const update = mode => {
+        root.dataset.colorMode = mode;
+        for (const toggle of toggles) {
+            toggle.setAttribute("aria-pressed", String(mode === "dark"));
+            toggle.setAttribute("aria-label", mode === "dark" ? "Use light appearance" : "Use dark appearance");
+            const status = document.querySelector("[data-color-mode-status]");
+            if (status) status.textContent = mode === "dark" ? "Dark appearance" : "Light appearance";
+        }
     };
-    const farmIconNames = {
-        "Farm overview": "overview", "Dashboard": "dashboard", "Tasks": "tasks",
-        "Crops": "crops", "Plot layout": "plots", "Finances": "finance",
-        "Inventory": "inventory", "Weather": "weather", "Reports": "reports"
-    };
-    const ns = "http://www.w3.org/2000/svg";
-    const icon = name => {
-        const svg = document.createElementNS(ns, "svg");
-        svg.setAttribute("viewBox", "0 0 24 24");
-        svg.setAttribute("fill", "none");
-        svg.setAttribute("stroke", "currentColor");
-        svg.setAttribute("stroke-width", "1.8");
-        svg.setAttribute("stroke-linecap", "round");
-        svg.setAttribute("stroke-linejoin", "round");
-        svg.setAttribute("aria-hidden", "true");
-        svg.setAttribute("focusable", "false");
-        svg.classList.add("sf-nav-icon");
-        svg.innerHTML = icons[name] || icons.overview;
-        return svg;
-    };
-    const addIcon = (a, name) => {
-        if (!a || a.querySelector(".sf-nav-icon")) return;
-        a.prepend(icon(name));
-    };
-    for (const link of document.querySelectorAll("[data-nav-icon]")) {
-        addIcon(link, link.dataset.navIcon);
-    }
+    update(root.dataset.colorMode === "dark" ? "dark" : "light");
+    for (const toggle of toggles) toggle.addEventListener("click", () => {
+        const mode = root.dataset.colorMode === "dark" ? "light" : "dark";
+        update(mode);
+        try { localStorage.setItem("anigo-color-mode", mode); } catch { /* Choice still works without storage. */ }
+    });
+})();
 
+// Build all enhanced navigation from the authorized, server-rendered farm links.
+(() => {
     const source = document.querySelector("main .farm-navigation");
     const desktop = document.getElementById("sidebar-farm-links");
-    const sidebarGroup = document.getElementById("sidebar-farm-group");
+    const group = document.getElementById("sidebar-farm-group");
     const mobile = document.getElementById("mobile-farm-links");
     const bottom = document.getElementById("mobile-workspace-links");
-    const bottomBar = document.getElementById("mobile-workspace-bar");
+    const bar = document.getElementById("mobile-workspace-bar");
     const menu = document.getElementById("mobile-workspace-menu");
-    if (!source || !desktop || !sidebarGroup || !mobile || !bottom || !bottomBar || !menu) return;
-
+    if (!source || !desktop || !group || !mobile || !bottom || !bar || !menu) return;
     const links = Array.from(source.querySelectorAll("a[href]"));
     if (!links.length) return;
-    const duplicate = (original, withIcon = true) => {
-        const link = original.cloneNode(true);
-        if (withIcon) addIcon(link, farmIconNames[original.textContent.trim()] || "overview");
-        return link;
+    const bySection = new Map(links.map(link => [link.dataset.navSection, link]));
+    const copy = link => {
+        const clone = link.cloneNode(true);
+        clone.classList.add("nav-link");
+        return clone;
     };
-    for (const link of links) {
-        desktop.append(duplicate(link));
-        mobile.append(duplicate(link, false));
+    const myFarms = document.getElementById("sidebar-my-farms");
+    const insights = document.getElementById("sidebar-insight-links");
+    for (const section of ["dashboard", "plots", "crops", "tasks", "inventory", "harvests", "weather", "reports", "finance", "farm"]) {
+        const original = bySection.get(section);
+        if (!original) continue;
+        const clone = copy(original);
+        if (["reports", "finance", "farm"].includes(section) && insights) insights.prepend(clone);
+        else desktop.append(clone);
+        if (section === "dashboard" && myFarms) desktop.append(myFarms);
     }
-    const shortcuts = ["Dashboard", "Tasks", "Crops", "Inventory"];
-    for (const label of shortcuts) {
-        const original = links.find(link => link.textContent.trim() === label);
-        if (original) bottom.append(duplicate(original));
+    for (const original of links) mobile.append(copy(original));
+    for (const section of ["dashboard", "tasks", "crops", "inventory"]) {
+        const original = bySection.get(section);
+        if (!original) continue;
+        const clone = copy(original);
+        if (section === "dashboard") clone.querySelector("span").textContent = "Home";
+        bottom.append(clone);
     }
     const more = document.getElementById("mobile-more-button");
-    if (more) {
-        more.prepend(icon("more"));
-        more.addEventListener("click", () => {
-            menu.open = true;
-            menu.querySelector("summary")?.focus();
-        });
-    }
-    sidebarGroup.hidden = false;
+    if (more) more.addEventListener("click", () => {
+        menu.open = true;
+        menu.querySelector("summary")?.focus();
+        more.setAttribute("aria-expanded", "true");
+    });
+    menu.addEventListener("toggle", () => more?.setAttribute("aria-expanded", String(menu.open)));
+    document.addEventListener("keydown", event => {
+        if (event.key === "Escape" && menu.open) {
+            menu.open = false;
+            if (more) more.focus();
+        }
+    });
+    group.hidden = false;
     mobile.hidden = false;
-    bottomBar.hidden = false;
+    bar.hidden = false;
     document.body.classList.add("farm-nav-enhanced");
+})();
+
+// Native dialogs retain the original POST forms, draft values and inline no-JS fallback.
+(() => {
+    const sections = document.querySelectorAll("section[data-form-dialog]");
+    for (const section of typeof HTMLDialogElement === "undefined" ? [] : sections) {
+        if (!section.querySelector("form")) continue;
+        const heading = section.querySelector("h2");
+        const triggers = Array.from(document.querySelectorAll("a[href]")).filter(a =>
+            a.getAttribute("href") === "#" + section.id ||
+            (heading?.id && a.getAttribute("href") === "#" + heading.id));
+        if (!triggers.length) continue;
+        const dialog = document.createElement("dialog");
+        dialog.className = "reference-screen reference-form-dialog";
+        if (heading) {
+            if (!heading.id) heading.id = section.id + "-heading";
+            dialog.setAttribute("aria-labelledby", heading.id);
+        }
+        const toolbar = document.createElement("div");
+        toolbar.className = "dialog-toolbar";
+        const close = document.createElement("button");
+        close.type = "button";
+        close.textContent = "×";
+        close.setAttribute("aria-label", "Close " + (heading?.textContent.trim() || "form"));
+        toolbar.append(close);
+        dialog.append(toolbar);
+        section.before(dialog);
+        dialog.append(section);
+        let opener;
+        for (const trigger of triggers) {
+            trigger.setAttribute("aria-haspopup", "dialog");
+            trigger.addEventListener("click", event => {
+                event.preventDefault();
+                opener = trigger;
+                dialog.showModal();
+            });
+        }
+        close.addEventListener("click", () => dialog.close());
+        dialog.addEventListener("close", () => opener?.focus());
+        if (section.querySelector('[aria-invalid="true"],.input-validation-error')) dialog.showModal();
+    }
+    const revealHash = () => {
+        if (!window.location?.hash) return;
+        let id;
+        try { id = decodeURIComponent(window.location.hash.slice(1)); } catch { return; }
+        const target = document.getElementById(id);
+        if (!target) return;
+        const dialog = target.closest("dialog");
+        if (dialog && !dialog.open) dialog.showModal();
+        for (let parent = target.parentElement; parent; parent = parent.parentElement) {
+            if (parent.tagName === "DETAILS") parent.open = true;
+        }
+    };
+    window.addEventListener?.("hashchange", revealHash);
+    revealHash();
 })();

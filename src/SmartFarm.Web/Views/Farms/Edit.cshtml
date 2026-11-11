@@ -2,15 +2,16 @@
 @{
     ViewData["Title"] = "Edit farm";
 }
+<div class="reference-screen reference-screen-farms">
 <div class="sf-settings-heading">
     <a asp-action="Details" asp-route-id="@Model.FarmId">← Back to farm</a>
-    <p class="sf-kicker">FARM SETTINGS</p>
+
     <h1>Edit farm</h1>
     <p class="sf-muted">Update the farm's name, location, and time zone. Existing plots, members, and records stay associated with this farm.</p>
 </div>
 <div class="sf-settings-layout">
-<section class="panel sf-edit-form-panel sf-edit-farm-panel">
-    <h2>Farm details</h2>
+<section class="panel card sf-edit-form-panel sf-edit-farm-panel">
+    <header class="reference-panel-heading"><h2>Farm details</h2></header>
     <form class="sf-crop-form" asp-action="Edit" asp-route-id="@Model.FarmId" method="post">
         <input asp-for="Input.RowVersion" type="hidden" />
         <label asp-for="Input.Name">Farm name</label><input asp-for="Input.Name" required /><span asp-validation-for="Input.Name" class="error"></span>
@@ -38,14 +39,14 @@
     </form>
 </section>
 <aside class="sf-settings-side" aria-label="Settings guidance">
-    <div class="panel">
-        <p class="sf-kicker">LOCATION & FORECASTS</p>
+    <div class="panel card">
+
         <h2>Check your farm location</h2>
         <p>A map pin helps identify the farm for saved weather forecasts. The address remains a separate editable label.</p>
         <p class="sf-muted">Choose a location only with your permission. Weather depends on available forecast data and scheduled checks.</p>
     </div>
-    <div class="panel">
-        <p class="sf-kicker">DATE SETTINGS</p>
+    <div class="panel card">
+
         <h2>Choose the correct time zone</h2>
         <p>The selected time zone affects local farm dates used in tasks, crop calendars, and reports.</p>
     </div>
@@ -56,3 +57,5 @@
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin="" defer></script>
 <script src="~/js/farm-location-picker.js" defer></script>
+
+</div>
