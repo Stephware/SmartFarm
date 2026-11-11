@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using SmartFarm.Core.Contracts.Farms;
 using SmartFarm.Core.Contracts.Monitoring;
 using SmartFarm.Core.Interfaces.Crops;
+using SmartFarm.Core.Interfaces.Farms;
 using SmartFarm.Core.Interfaces.Monitoring;
 using SmartFarm.Core.Interfaces.Tasks;
 using SmartFarm.Infrastructure.Identity;
@@ -18,17 +19,20 @@ public sealed class MonitoringController : Controller
 {
     private readonly UserManager<SmartFarmUser> _users;
     private readonly ICropManagementService _crops;
+    private readonly IFarmManagementService _farms;
     private readonly IMonitoringService _monitoring;
     private readonly IFarmTaskService _tasks;
 
     public MonitoringController(
         UserManager<SmartFarmUser> users,
         ICropManagementService crops,
+        IFarmManagementService farms,
         IMonitoringService monitoring,
         IFarmTaskService tasks)
     {
         _users = users;
         _crops = crops;
+        _farms = farms;
         _monitoring = monitoring;
         _tasks = tasks;
     }
@@ -51,10 +55,13 @@ public sealed class MonitoringController : Controller
         {
             var cycle = await _crops.GetCycleAsync(farmId, cycleId, Actor, ct);
             if (cycle is null) return NotFound();
+            var farm = await _farms.GetAsync(farmId, Actor, ct);
+            if (farm is null) return NotFound();
             return View("Index", new MonitoringWorkspaceViewModel(cycle,
                 await _monitoring.GetAsync(farmId, cycleId, Actor, ct),
                 await _tasks.ListAsync(farmId, Actor, ct))
             {
+                CanManageIssues = farm.Role is "Owner" or "Manager",
                 Activity = activity ?? new() { ActivityType = 1 }, Observation = observation ?? new()
             });
         }
