@@ -54,6 +54,7 @@ public sealed class BusinessEndpointTests : IClassFixture<WebApplicationFactory<
                 { "GET", $"{farm}/weather" },
                 { "GET", $"{farm}/dashboard" },
                 { "GET", $"{farm}/reports/harvests" },
+                { "GET", $"{farm}/finance/insights" },
                 { "PUT", farm },
                 { "DELETE", farm },
                 { "GET", plots },
