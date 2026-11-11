@@ -33,8 +33,8 @@ public sealed class CropsController : Controller
     private Guid Actor => Guid.TryParse(_users.GetUserId(User), out var id) ? id : Guid.Empty;
 
     [HttpGet]
-    public Task<IActionResult> Index(Guid farmId, CancellationToken ct, string? month = null) =>
-        Workspace(farmId, ct, month: month);
+    public Task<IActionResult> Index(Guid farmId, CancellationToken ct, string? month = null,
+        Guid? plotId = null) => Workspace(farmId, ct, plotId: plotId, month: month);
 
     private async Task<IActionResult> Workspace(Guid farmId, CancellationToken ct,
         CropTypeInput? cropType = null, CropCyclePlanInput? plan = null, Guid? plotId = null,

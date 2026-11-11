@@ -5,7 +5,7 @@ using SmartFarm.Core.Enums;
 namespace SmartFarm.Web.ViewModels.Farms;
 
 public sealed record PlotLayoutTile(Guid PlotId, string Name, decimal AreaSqMeters,
-    string? CropName, CropCycleStatus? CropStatus);
+    string? CropName, CropCycleStatus? CropStatus, Guid? CycleId = null);
 
 public sealed record PlotLayoutPage(FarmDetails Farm, IReadOnlyList<PlotDetails> Plots,
     IReadOnlyList<CropCycleDetails> Cycles)
@@ -18,6 +18,6 @@ public sealed record PlotLayoutPage(FarmDetails Farm, IReadOnlyList<PlotDetails>
             .ThenByDescending(c => c.PlantedDate ?? c.PlannedPlantingDate)
             .FirstOrDefault();
         return new PlotLayoutTile(p.Id, p.Name, p.AreaSqMeters,
-            current?.CropTypeName, current?.Status);
+            current?.CropTypeName, current?.Status, current?.Id);
     }).ToList();
 }
