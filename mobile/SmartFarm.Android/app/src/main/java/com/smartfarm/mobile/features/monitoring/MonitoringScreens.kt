@@ -279,7 +279,7 @@ fun MonitoringScreen(
             FarmSectionHeader("Activity history",
                 "Previous fieldwork records for this crop cycle.")
             PendingRecords(pending, state.farmId, state.cycleId,
-                setOf("activity", "observation"), onSync)
+                setOf("activity", "activity_stock", "observation"), onSync)
             if (state.activities.isEmpty())
                 FarmEmptyState("No activities recorded.", "Saved fieldwork will appear here.")
             }
