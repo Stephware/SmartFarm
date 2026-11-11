@@ -45,7 +45,8 @@ class TaskApiContractTest {
             val updateBody = JsonParser.parseString(updated.body.readUtf8()).asJsonObject
             assertEquals("version", updateBody.get("rowVersion").asString)
             assertEquals("2026-11-13", updateBody.get("dueDate").asString)
-            assertEquals(true, updateBody.get("assignedToUserId").isJsonNull)
+            // Gson omits nullable properties by default; the API binds an omitted value as null.
+            assertEquals(false, updateBody.has("assignedToUserId"))
         } finally {
             server.shutdown()
         }
