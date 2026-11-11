@@ -179,8 +179,17 @@ fun MonitoringScreen(
                             enabled = !state.busy, label = { Text(label) })
                     }
                 }
+                // Editable note guides: never save guessed work or invent inspection findings.
+                val noteGuide = when (activityType) {
+                    1 -> "Area watered, amount or soil condition"
+                    2 -> "Fertilizer used, quantity and application area"
+                    3 -> "Product used, quantity and treatment area"
+                    4 -> "Area weeded and observations"
+                    else -> "Work performed, affected area and observations"
+                }
                 OutlinedTextField(activityNotes, { activityNotes = it }, enabled = !state.busy,
-                    label = { Text("Notes (optional)") }, modifier = Modifier.fillMaxWidth())
+                    label = { Text("Notes (optional)") },
+                    placeholder = { Text(noteGuide) }, modifier = Modifier.fillMaxWidth())
                 Button(onClick = { onActivity(activityType, activityNotes) },
                     enabled = !state.busy, modifier = Modifier.fillMaxWidth()) { Text("Save activity") }
                 }
@@ -197,7 +206,9 @@ fun MonitoringScreen(
                         }
                 }
                 OutlinedTextField(stage, { stage = it }, enabled = !state.busy,
-                    label = { Text("Growth stage") }, modifier = Modifier.fillMaxWidth())
+                    label = { Text("Growth stage") }, placeholder = {
+                        Text("Vegetative, flowering, fruiting, or observed stage")
+                    }, modifier = Modifier.fillMaxWidth())
                 OutlinedTextField(observationNotes, { observationNotes = it }, enabled = !state.busy,
                     label = { Text("Observation notes") }, modifier = Modifier.fillMaxWidth())
                 Text("Optional photo — saved locally with this observation.")
