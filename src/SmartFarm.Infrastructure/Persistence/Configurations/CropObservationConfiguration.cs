@@ -25,9 +25,9 @@ internal sealed class CropObservationConfiguration : IEntityTypeConfiguration<Cr
         builder.Property(entity => entity.RecordedAtUtc).HasColumnType("datetime2(3)").HasDefaultValueSql("SYSUTCDATETIME()", "DF_CropObservation_RecordedAt");
         builder.Property(entity => entity.RecordedByUserId).HasColumnType("uniqueidentifier");
         builder.Property(entity => entity.Notes).HasColumnType("nvarchar(1000)").IsRequired(false).HasMaxLength(1000);
-        builder.Property(entity => entity.IssueCategory).HasColumnType("tinyint").HasDefaultValue((byte)0);
-        builder.Property(entity => entity.IssueSeverity).HasColumnType("tinyint").HasDefaultValue((byte)0);
-        builder.Property(entity => entity.FollowUpStatus).HasColumnType("tinyint").HasDefaultValue((byte)0);
+        builder.Property(entity => entity.IssueCategory).HasColumnType("tinyint").HasDefaultValue((byte)0, "DF_CropObservation_IssueCategory");
+        builder.Property(entity => entity.IssueSeverity).HasColumnType("tinyint").HasDefaultValue((byte)0, "DF_CropObservation_IssueSeverity");
+        builder.Property(entity => entity.FollowUpStatus).HasColumnType("tinyint").HasDefaultValue((byte)0, "DF_CropObservation_FollowUpStatus");
         builder.Property(entity => entity.FollowUpTaskId).HasColumnType("uniqueidentifier").IsRequired(false);
         builder.Property(entity => entity.RowVersion).HasColumnType("rowversion").IsRowVersion();
         builder.HasKey(entity => entity.Id).HasName("PK_CropObservation");
