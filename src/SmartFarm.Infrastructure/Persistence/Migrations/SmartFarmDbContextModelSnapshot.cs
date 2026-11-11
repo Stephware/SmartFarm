@@ -1438,6 +1438,12 @@ namespace SmartFarm.Infrastructure.Persistence.Migrations
                         .IsRequired()
                         .HasConstraintName("FK_CropObservation_CropCycle");
 
+                    b.HasOne("SmartFarm.Core.Entities.FarmTask", null)
+                        .WithMany()
+                        .HasForeignKey("FollowUpTaskId")
+                        .OnDelete(DeleteBehavior.NoAction)
+                        .HasConstraintName("FK_CropObservation_FollowUpTask");
+
                     b.HasOne("SmartFarm.Infrastructure.Identity.SmartFarmUser", null)
                         .WithMany()
                         .HasForeignKey("RecordedByUserId")
