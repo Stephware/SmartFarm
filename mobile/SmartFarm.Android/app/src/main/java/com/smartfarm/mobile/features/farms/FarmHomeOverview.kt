@@ -39,7 +39,8 @@ internal fun farmHomeTaskPreview(
 @Composable
 internal fun FarmHomeOverview(
     state: FarmUiState, tasks: TaskUiState?, crops: CropUiState?, actorId: String?,
-    onTasks: () -> Unit, onCrops: () -> Unit, onInventory: () -> Unit
+    onTasks: () -> Unit, onCrops: () -> Unit, onInventory: () -> Unit,
+    onWeather: () -> Unit, onInsights: () -> Unit
 ) {
     val farm = state.selected ?: return
     val today = runCatching { TaskWorkCenter.today(farm.timeZoneId) }.getOrNull()
@@ -161,11 +162,15 @@ internal fun FarmHomeOverview(
             FarmStatusChip(weather.advisories.count { it.status == 0 }.toString() +
                 " saved advisories", FarmStatusTone.Warning)
         }
+        OutlinedButton(onClick = onWeather, modifier = Modifier.fillMaxWidth()) {
+            Text("View full saved forecast")
+        }
     }
 
     FarmSectionCard("Quick actions", subtitle = "Go directly to your fieldwork.") {
         OutlinedButton(onClick = onTasks, modifier = Modifier.fillMaxWidth()) { Text("Review tasks") }
         OutlinedButton(onClick = onCrops, modifier = Modifier.fillMaxWidth()) { Text("Crop monitoring") }
         OutlinedButton(onClick = onInventory, modifier = Modifier.fillMaxWidth()) { Text("Check inventory") }
+        OutlinedButton(onClick = onInsights, modifier = Modifier.fillMaxWidth()) { Text("Harvest reports & finances") }
     }
 }

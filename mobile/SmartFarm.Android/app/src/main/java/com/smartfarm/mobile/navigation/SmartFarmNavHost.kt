@@ -30,6 +30,8 @@ import com.smartfarm.mobile.features.inventory.InventoryListScreen
 import com.smartfarm.mobile.features.inventory.InventoryItemScreen
 import com.smartfarm.mobile.features.harvests.HarvestViewModel
 import com.smartfarm.mobile.features.harvests.HarvestScreen
+import com.smartfarm.mobile.features.insights.FarmInsightsViewModel
+import com.smartfarm.mobile.features.insights.FarmInsightsScreen
 import com.smartfarm.mobile.features.syncstatus.SyncStatusViewModel
 import com.smartfarm.mobile.features.syncstatus.SyncStatusScreen
 import androidx.compose.ui.platform.LocalContext
@@ -38,7 +40,7 @@ import com.smartfarm.mobile.features.farms.FarmListScreen
 import com.smartfarm.mobile.features.farms.FarmDetailScreen
 
 @Composable
-fun SmartFarmNavHost(auth: AuthViewModel, farms: FarmViewModel, crops: CropViewModel, monitoring: MonitoringViewModel, inventory: InventoryViewModel, harvests: HarvestViewModel, status: StatusViewModel, sync: SyncStatusViewModel, tasks: com.smartfarm.mobile.features.tasks.TaskViewModel) {
+fun SmartFarmNavHost(auth: AuthViewModel, farms: FarmViewModel, crops: CropViewModel, monitoring: MonitoringViewModel, inventory: InventoryViewModel, harvests: HarvestViewModel, status: StatusViewModel, sync: SyncStatusViewModel, tasks: com.smartfarm.mobile.features.tasks.TaskViewModel, insights: FarmInsightsViewModel) {
     val navController = rememberNavController()
     val currentEntry by navController.currentBackStackEntryAsState()
     val currentRoute = currentEntry?.destination?.route
@@ -115,6 +117,7 @@ fun SmartFarmNavHost(auth: AuthViewModel, farms: FarmViewModel, crops: CropViewM
                 Glide.get(appContext).clearMemory()
                 inventory.clear()
                 harvests.clear()
+                insights.clear()
                 sync.clear()
                 tasks.clear()
                 navController.navigate("welcome") { popUpTo("welcome") { inclusive = true } }
@@ -175,7 +178,9 @@ fun SmartFarmNavHost(auth: AuthViewModel, farms: FarmViewModel, crops: CropViewM
                 onDecision = farms::decideJoinRequest,
                 onChangeRole = { member, role -> farms.changeRole(member, role) },
                 onRemoveMember = { farms.remove(it) },
-                onTasks = { navController.navigate("tasks/$farmId") }, onRetry = { farms.loadDetail(farmId) },
+                onTasks = { navController.navigate("tasks/$farmId") },
+                onInsights = { navController.navigate("insights/$farmId") },
+                onRetry = { farms.loadDetail(farmId) },
                 onRegenerateCode = farms::regenerateJoinCode,
                 homeTasks = homeTasks, homeCrops = homeCrops, actorId = state.account?.id)
         }
@@ -314,6 +319,18 @@ fun SmartFarmNavHost(auth: AuthViewModel, farms: FarmViewModel, crops: CropViewM
                 onReverse = { transactionId, reason -> inventory.reverse(transactionId, reason) },
                 pending = pending, onSync = { navController.navigate("sync") },
                 onRetry = { inventory.loadItem(farmId, itemId) })
+        }
+        composable("insights/{farmId}") { entry ->
+            val farmId = entry.arguments?.getString("farmId").orEmpty()
+            val insightState by insights.state.collectAsStateWithLifecycle()
+            val farmState by farms.state.collectAsStateWithLifecycle()
+            LaunchedEffect(farmId) { insights.load(farmId) }
+            FarmInsightsScreen(
+                state = insightState,
+                farmTimeZone = farmState.selected?.takeIf { it.id == farmId }?.timeZoneId,
+                onBack = { navController.popBackStack() },
+                onReload = { from, to -> insights.load(farmId, from, to) }
+            )
         }
         composable("harvests/{farmId}/{cycleId}") { entry ->
             val farmId = entry.arguments?.getString("farmId").orEmpty()

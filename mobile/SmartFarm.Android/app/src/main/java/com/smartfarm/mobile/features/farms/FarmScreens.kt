@@ -201,7 +201,8 @@ fun FarmDetailScreen(state: FarmUiState, onBack: () -> Unit,
     onInventory: () -> Unit,
     onDecision: (String, Boolean) -> Unit,
     onChangeRole: (FarmMemberDto, Int) -> Unit, onRemoveMember: (FarmMemberDto) -> Unit,
-    onTasks: () -> Unit = {}, onRetry: () -> Unit = {}, onRegenerateCode: (String) -> Unit = {},
+    onTasks: () -> Unit = {}, onInsights: () -> Unit = {},
+    onRetry: () -> Unit = {}, onRegenerateCode: (String) -> Unit = {},
     homeTasks: com.smartfarm.mobile.features.tasks.TaskUiState? = null,
     homeCrops: com.smartfarm.mobile.features.crops.CropUiState? = null,
     actorId: String? = null) {
@@ -229,60 +230,17 @@ fun FarmDetailScreen(state: FarmUiState, onBack: () -> Unit,
                 FarmStatusChip(farm.role, FarmStatusTone.Planned)
             }
             Row(Modifier.horizontalScroll(rememberScrollState()), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                (listOf("Overview", "Plots", "Members") + if (canManage) listOf("Settings") else emptyList()).forEach { item ->
+                (listOf("Overview", "Weather", "Plots", "Members") + if (canManage) listOf("Settings") else emptyList()).forEach { item ->
                     FilterChip(selected = visibleSection == item, onClick = { section = item }, label = { Text(item) })
                 }
             }
             if (visibleSection == "Overview") {
-            FarmHomeOverview(state, homeTasks, homeCrops, actorId, onTasks, onCrops, onInventory)
+            FarmHomeOverview(state, homeTasks, homeCrops, actorId, onTasks, onCrops, onInventory,
+                onWeather = { section = "Weather" }, onInsights = onInsights)
             if (farm.role == "Owner") EnrollmentPanel(state, onDecision, onRetry, onRegenerateCode)
-            FarmSectionCard("Saved forecast details",
-                subtitle = "Latest saved forecast. Not real-time weather.") {
-            val weather = state.weather
-            if (state.weatherOffline) {
-                val cachedAt = state.weatherCachedAtUtcMillis?.let {
-                    DateTimeFormatter.ofPattern("MMM d, yyyy h:mm a")
-                        .withZone(ZoneId.systemDefault())
-                        .format(Instant.ofEpochMilli(it))
-                } ?: "a previous visit"
-                Text("Weather is from an offline copy saved $cachedAt. " +
-                    "Refresh when connected for updated forecasts.",
-                    color = MaterialTheme.colorScheme.tertiary,
-                    style = MaterialTheme.typography.bodyMedium)
             }
-            if (weather == null) {
-                Text(state.weatherMessage ?: "Weather information has not been loaded.")
-            } else if (!weather.hasCoordinates) {
-                Text("An owner or manager can choose a farm pin in Settings to enable weather forecasts.")
-            } else {
-                Text("Forecast time zone: ${weather.timeZoneId}. Latest saved forecast.")
-                if (WeatherFreshness.isStale(weather.days)) {
-                    Text("Weather forecast is over 12 hours old or has an invalid update time. " +
-                        "Conditions and advisories may have changed. Check a current weather source.",
-                        color = MaterialTheme.colorScheme.error,
-                        modifier = Modifier.semantics { liveRegion = LiveRegionMode.Polite })
-                }
-                if (weather.days.isEmpty()) {
-                    Text("No recent forecast is available. Try again later.")
-                } else {
-                    weather.days.forEach { day ->
-                        Text("${day.date}: ${day.minTemperatureC ?: "—"}–${day.maxTemperatureC ?: "—"} °C, " +
-                            "${day.rainfallMm ?: "—"} mm rain, " +
-                            "${day.maxPrecipitationProbability ?: "—"}% rain chance, " +
-                            "${day.maxWindKph ?: "—"} km/h wind",
-                            style = MaterialTheme.typography.bodyMedium)
-                        Text("Checked ${day.retrievedAtUtc} (UTC)",
-                            style = MaterialTheme.typography.bodySmall)
-                    }
-                }
-                val active = weather.advisories.filter { it.status == 0 }
-                if (active.isEmpty()) Text("No active weather warnings.")
-                active.forEach { advisory ->
-                    Text("${advisory.date} · Severity ${advisory.severity}: ${advisory.message}",
-                        color = MaterialTheme.colorScheme.error)
-                }
-            }
-            }
+            if (visibleSection == "Weather") {
+                FarmWeatherDetails(state)
             }
             if (canManage && visibleSection == "Settings") {
                 FarmSectionCard("Edit farm", subtitle = "Update this farm's address, location pin and local time zone.") {

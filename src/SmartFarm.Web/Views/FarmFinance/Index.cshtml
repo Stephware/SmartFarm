@@ -4,19 +4,20 @@
     var canManage = Model.Farm.Role is "Owner" or "Manager";
 }
 <partial name="_FarmNavigation" model="Model.Farm.Id" />
-<section class="panel sf-finance-hero" aria-labelledby="finance-heading">
+<section class="panel sf-finance-hero ani-finance-hero" aria-labelledby="finance-heading">
     <div class="sf-page-header">
         <div>
             <p><a asp-controller="Farms" asp-action="Details" asp-route-id="@Model.Farm.Id">← @Model.Farm.Name</a></p>
             <p class="sf-kicker">MANUAL CASH RECORDS</p>
             <h1 id="finance-heading">Farm finances</h1>
             <p class="sf-muted">Optional manual income and expense tracking in Philippine pesos (PHP).</p>
+            <p class="ani-insight-note">Understand money received, money spent, and the net of manually recorded cash transactions.</p>
         </div>
         @if (canManage) { <a class="button" href="#add-finance-entry">Add transaction</a> }
     </div>
     @if (TempData["Error"] is string error) { <p class="error form-error" role="alert">@error</p> }
     @if (TempData["Message"] is string message) { <p class="form-notice" role="status">@message</p> }
-    <div class="sf-finance-stats" aria-label="Recorded finance totals">
+    <div class="sf-finance-stats ani-finance-overview" aria-label="Recorded finance totals">
         <div>
             <span>Recorded income</span>
             <strong>₱@Model.Finance.IncomePhp.ToString("N2")</strong>
@@ -30,11 +31,11 @@
             <strong>₱@Model.Finance.NetPhp.ToString("N2")</strong>
         </div>
     </div>
-    <p class="sf-finance-disclaimer">Harvest quantities are not assumed to be sales, and inventory transactions are not automatically counted as expenses. These totals represent recorded entries, not complete farm profit or accounting statements.</p>
+    <p class="sf-finance-disclaimer ani-cash-notice">Harvest quantities are not assumed to be sales, and inventory transactions are not automatically counted as expenses. These totals represent recorded entries, not complete farm profit or accounting statements.</p>
 </section>
 @if (Model.Insights is { } insights)
 {
-    <section class="panel sf-finance-insights" aria-labelledby="finance-insights-heading">
+    <section class="panel sf-finance-insights ani-finance-insights" aria-labelledby="finance-insights-heading">
         <div class="sf-section-line">
             <div>
                 <p class="sf-kicker">RECORDED CASH TRENDS</p>
@@ -180,10 +181,11 @@
 }
 @if (canManage)
 {
-    <section class="panel sf-finance-entry-panel" id="add-finance-entry" aria-labelledby="finance-add-heading">
+    <section class="panel sf-finance-entry-panel ani-finance-entry" id="add-finance-entry" aria-labelledby="finance-add-heading">
         <p class="sf-kicker">RECORD MONEY IN OR OUT</p>
         <h2 id="finance-add-heading">Add income or expense</h2>
-        <p class="sf-muted">Enter the amount, farm date, and category. Link a crop only when relevant.</p>
+        <p class="sf-muted">Record confirmed money in or out. Enter the actual amount and date; link to a crop only when relevant.</p>
+        <p class="ani-cash-notice">A harvest is not automatically a sale, and inventory use is not automatically an expense.</p>
         <form asp-action="Record" asp-route-farmId="@Model.Farm.Id" method="post" class="sf-ops-form sf-finance-entry-form">
             <div>
                 <label for="kind">Entry type</label>
@@ -224,7 +226,7 @@
         </form>
     </section>
 }
-<section class="panel sf-finance-history" aria-labelledby="finance-history-heading">
+<section class="panel sf-finance-history ani-finance-history" aria-labelledby="finance-history-heading">
     <div class="sf-section-line">
         <div>
             <p class="sf-kicker">RECENT RECORDS</p>

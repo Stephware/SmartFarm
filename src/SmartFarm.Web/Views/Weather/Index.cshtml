@@ -7,15 +7,30 @@
     var stale = Model.Days.Any(day => day.RetrievedAtUtc < nowUtc.AddHours(-12)
         || day.RetrievedAtUtc > nowUtc.AddMinutes(5));
     var activeAdvisories = Model.Advisories.Where(a => a.Status == 0).ToList();
+    DateOnly? farmToday = null;
+    try
+    {
+        farmToday = DateOnly.FromDateTime(TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow,
+            TimeZoneInfo.FindSystemTimeZoneById(Model.TimeZoneId)));
+    }
+    catch (Exception error) when (error is TimeZoneNotFoundException or InvalidTimeZoneException) { }
+    var forecast = Model.Days.OrderBy(d => d.Date).ToList();
+    var next = farmToday is { } today
+        ? forecast.FirstOrDefault(d => d.Date >= today)
+        : forecast.FirstOrDefault();
 }
 <partial name="_FarmNavigation" model="Model.FarmId" />
-<section class="panel sf-weather-hero" aria-labelledby="weather-heading">
+<section class="panel sf-weather-hero ani-weather-hero" aria-labelledby="weather-heading">
     <div class="sf-page-header">
         <div>
             <p><a asp-controller="Farms" asp-action="Details" asp-route-id="@Model.FarmId">← Back to farm</a></p>
             <p class="sf-kicker">FARM CONDITIONS</p>
             <h1 id="weather-heading">Farm weather</h1>
-            <p class="sf-muted">Forecast dates use @Model.TimeZoneId. This page shows the latest saved forecast, not live weather.</p>
+            <p class="sf-muted">Forecast dates use @Model.TimeZoneId. This page displays saved forecasts, not live observations.</p>
+            <nav class="ani-insight-links" aria-label="Weather page sections">
+                <a href="#saved-forecast">Saved forecast</a>
+                <a href="#weather-alerts-heading">Advisories (@activeAdvisories.Count)</a>
+            </nav>
         </div>
         <span class="sf-status-chip @(stale ? "sf-status-chip--warning" : "sf-status-chip--neutral")">
             @(Model.Days.Count == 0 ? "No saved forecast" : stale ? "Update overdue" : "Saved forecast")
@@ -45,14 +60,24 @@
                 <p>Weather data is over 12 hours old or has an invalid update time. Conditions and advisories may have changed. Check a current weather source.</p>
             </div>
         }
-        <h2>Latest saved forecast</h2>
+        <div class="ani-weather-summary" aria-label="Saved forecast overview">
+            <div><span>Next available day</span><strong>@(next?.Date.ToString("ddd, MMM d") ?? "—")</strong>
+                <small>@(next is null ? "No upcoming forecast" : "Saved daily forecast")</small></div>
+            <div><span>Rain chance</span><strong>@(next?.MaxPrecipitationProbability?.ToString("0.#") ?? "—")%</strong><small>Forecast, not measured rainfall</small></div>
+            <div><span>Saved advisories</span><strong>@activeAdvisories.Count</strong><small>Check current official warnings</small></div>
+        </div>
+        <h2 id="saved-forecast">Saved daily forecast</h2>
         <p class="sf-muted">Check times are displayed in UTC. Forecast dates follow your farm's time zone.</p>
-        <ul class="sf-weather-grid">
-        @foreach (var day in Model.Days)
+        <ul class="sf-weather-grid ani-weather-days">
+        @foreach (var day in forecast)
         {
-            <li class="sf-weather-card">
+            <li class="sf-weather-card @(next is not null && day.Date == next.Date ? "ani-weather-next" : "")">
                 <div class="sf-weather-card-top">
                     <time datetime="@day.Date.ToString("yyyy-MM-dd")">@day.Date.ToString("ddd, MMM d")</time>
+                    @if (next is not null && day.Date == next.Date)
+                    {
+                        <span class="ani-next-label">Next available</span>
+                    }
                     <span>@day.Provider</span>
                 </div>
                 <div class="sf-weather-temps">
@@ -70,7 +95,7 @@
         </ul>
     }
 </section>
-<section class="panel sf-weather-advisories" aria-labelledby="weather-alerts-heading">
+<section class="panel sf-weather-advisories ani-weather-advisories" aria-labelledby="weather-alerts-heading">
     <div class="sf-section-line">
         <div>
             <p class="sf-kicker">FARM AWARENESS</p>
