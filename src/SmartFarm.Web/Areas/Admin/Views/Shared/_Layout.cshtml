@@ -1,0 +1,68 @@
+@{
+    var account = User.Identity?.Name ?? "Administrator";
+    var initial = account.Length == 0 ? "A" : account[..1].ToUpperInvariant();
+}
+<!DOCTYPE html>
+<html lang="en" data-color-mode="light" data-theme="gold">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#153D2D" />
+    <title>@ViewData["Title"] - AniGo Administration</title>
+    <script src="~/js/color-mode.js" asp-append-version="true"></script>
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/reference-ui.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/admin.css" asp-append-version="true" />
+    <script src="~/js/site.js" asp-append-version="true" defer></script>
+</head>
+<body class="is-authenticated">
+<a class="skip-link" href="#main-content">Skip to content</a>
+<div class="app-shell admin-shell">
+    <aside class="sidebar app-sidebar" aria-label="Platform administration">
+        <a class="logo brand sidebar-brand" asp-area="Admin" asp-controller="Dashboard" asp-action="Index">
+            <span class="logo-mark"><partial name="~/Views/Shared/_Icon.cshtml" model='@("leaf")' /></span>
+            <span>AniGo<small>Platform administration</small></span>
+        </a>
+        <div class="sidebar-workspace">
+            <p class="side-group-label">Administration</p>
+            <nav class="side-group sidebar-links" aria-label="Admin sections">
+                <a class="nav-link" asp-area="Admin" asp-controller="Dashboard" asp-action="Index">
+                    <partial name="~/Views/Shared/_Icon.cshtml" model='@("grid")' /><span>Overview</span>
+                </a>
+                <a class="nav-link" asp-area="Admin" asp-controller="Security" asp-action="Setup">
+                    <partial name="~/Views/Shared/_Icon.cshtml" model='@("settings")' /><span>Security</span>
+                </a>
+            </nav>
+            <p class="admin-nav-hint">User management, support and monitoring arrive in later phases.</p>
+        </div>
+        <div class="side-footer sidebar-bottom">
+            <div class="person-row">
+                <span class="avatar" aria-hidden="true">@initial</span>
+                <span><strong>@account</strong><small>Super Admin</small></span>
+            </div>
+            <div class="sidebar-footer-actions">
+                <a asp-area="" asp-controller="Farms" asp-action="Index">Farm workspace</a>
+                <form asp-area="" asp-controller="Account" asp-action="Logout" method="post">
+                    <button type="submit" class="sidebar-logout">Log out</button>
+                </form>
+            </div>
+        </div>
+    </aside>
+    <div class="app-body content-shell">
+        <header class="site-header app-topbar topbar">
+            <div class="crumb"><span>AniGo</span><span aria-hidden="true">/</span><strong>@(ViewData["Title"] ?? "Administration")</strong></div>
+            <nav class="top-actions app-topbar-actions" aria-label="Administration settings">
+                <button class="icon-button color-mode-toggle" type="button" data-color-mode-toggle
+                        aria-label="Use dark appearance" aria-pressed="false">
+                    <partial name="~/Views/Shared/_Icon.cshtml" model='@("sun")' />
+                </button>
+                <a class="farm-picker" asp-area="" asp-controller="Farms" asp-action="Index">Back to farms</a>
+            </nav>
+        </header>
+        <main class="page app-page app-main" id="main-content" tabindex="-1">
+            @RenderBody()
+        </main>
+    </div>
+</div>
+</body>
+</html>
