@@ -1,14 +1,16 @@
 @model SmartFarm.Web.ViewModels.Reports.HarvestReportPage
 @{
     ViewData["Title"] = "Harvest reports";
+    ViewData["FarmName"] = Model.Report.FarmName;
     var report = Model.Report;
 }
+<div class="reference-screen reference-screen-reports">
 <partial name="_FarmNavigation" model="Model.Report.FarmId" />
-<section class="panel sf-report-hero ani-report-hero" aria-labelledby="reports-heading">
-    <div class="sf-page-header">
+<section class="panel card sf-report-hero ani-report-hero" aria-labelledby="reports-heading">
+    <div class="sf-page-header page-hero">
         <div>
             <p><a asp-controller="Dashboard" asp-action="Index" asp-route-farmId="@report.FarmId">← Farm dashboard</a></p>
-            <p class="sf-kicker">FARM PERFORMANCE</p>
+
             <h1 id="reports-heading">Harvest reports</h1>
             <p class="sf-muted">@report.FarmName · Dates use the farm's @report.TimeZoneId time zone.</p>
             <p class="ani-insight-note">Recorded yields only. Keep different harvest units separate and exclude voided entries from totals.</p>
@@ -90,8 +92,8 @@
     }
     <p class="hint">Totals in different units are shown separately; voided entries do not contribute to totals.</p>
 </section>
-<section class="panel sf-report-analytics ani-report-charts" aria-labelledby="harvest-analytics-heading">
-    <h2 id="harvest-analytics-heading">Harvest analytics</h2>
+<section class="panel card sf-report-analytics ani-report-charts" aria-labelledby="harvest-analytics-heading">
+    <header class="reference-panel-heading"><h2 id="harvest-analytics-heading">Harvest analytics</h2></header>
     <p class="hint">Compare individual planting cycles without mixing different units or combining
         repeated plantings on the same plot. Multiple partial harvests add to their own cycle total.</p>
     @if (Model.CycleCharts.Count == 0)
@@ -100,6 +102,7 @@
     }
     @foreach (var chart in Model.CycleCharts)
     {
+        <div class="reference-chart-block">
         <h3>Recorded yield by planting cycle · @chart.Unit</h3>
         <div class="harvest-chart sf-report-chart ani-report-chart" role="group"
              aria-label="Cycle yield comparison in @chart.Unit">
@@ -126,6 +129,7 @@
             <p class="hint">Showing the top @chart.Bars.Count of @chart.TotalRows cycles in this unit;
                 the table below includes all matching cycles.</p>
         }
+        </div>
     }
     <p class="hint">Comparisons reflect recorded harvests within the selected dates,
         including partial harvests. They do not predict future yields.
@@ -137,6 +141,7 @@
     }
     @foreach (var chart in Model.MonthlyCharts)
     {
+        <div class="reference-chart-block">
         <h3>Monthly yield · @chart.Unit</h3>
         <div class="harvest-chart sf-report-chart ani-report-chart" role="group" aria-label="Monthly harvest in @chart.Unit">
         @foreach (var bar in chart.Bars)
@@ -155,9 +160,11 @@
         {
             <p class="hint">Showing the most recent @chart.Bars.Count of @chart.TotalRows months for this unit.</p>
         }
+        </div>
     }
     @foreach (var chart in Model.CropPlotCharts)
     {
+        <div class="reference-chart-block">
         <h3>Yield by crop and plot · @chart.Unit</h3>
         <div class="harvest-chart sf-report-chart ani-report-chart" role="group" aria-label="Yield by crop and plot in @chart.Unit">
         @foreach (var bar in chart.Bars)
@@ -182,11 +189,12 @@
         {
             <p class="hint">Showing the top @chart.Bars.Count of @chart.TotalRows crop/plot totals for this unit.</p>
         }
+        </div>
     }
     <p class="hint">Yield per square meter uses the plot's current recorded area; it is a historical estimate if the area changed.</p>
 </section>
-<section class="panel sf-report-table-panel ani-report-table" aria-labelledby="report-by-cycle">
-    <div class="sf-section-line">
+<section class="panel card sf-report-table-panel ani-report-table" aria-labelledby="report-by-cycle">
+    <div class="sf-section-line card-head">
         <h2 id="report-by-cycle">Yield by planting cycle</h2>
         <span>@report.CycleTotals.Count cycle / unit groups</span>
     </div>
@@ -223,8 +231,8 @@
         </div>
     }
 </section>
-<section class="panel sf-report-table-panel ani-report-table" aria-labelledby="report-by-plot">
-    <h2 id="report-by-plot">Harvest by crop and plot</h2>
+<section class="panel card sf-report-table-panel ani-report-table" aria-labelledby="report-by-plot">
+    <header class="reference-panel-heading"><h2 id="report-by-plot">Harvest by crop and plot</h2></header>
     @if (report.CropPlotTotals.Count == 0) { <p>No matching totals.</p> }
     else
     {
@@ -246,8 +254,8 @@
         </div>
     }
 </section>
-<section class="panel sf-report-table-panel ani-report-table" aria-labelledby="monthly-yield-table">
-    <h2 id="monthly-yield-table">Monthly yield</h2>
+<section class="panel card sf-report-table-panel ani-report-table" aria-labelledby="monthly-yield-table">
+    <header class="reference-panel-heading"><h2 id="monthly-yield-table">Monthly yield</h2></header>
     @if (report.MonthlyTotals.Count == 0) { <p>No monthly harvest data.</p> }
     else
     {
@@ -266,8 +274,8 @@
         </div>
     }
 </section>
-<section class="panel sf-report-table-panel ani-report-table" aria-labelledby="report-history-heading">
-    <h2 id="report-history-heading">Harvest record history</h2>
+<section class="panel card sf-report-table-panel ani-report-table" aria-labelledby="report-history-heading">
+    <header class="reference-panel-heading"><h2 id="report-history-heading">Harvest record history</h2></header>
     <p class="hint">Showing the latest 100 entries. Export CSV to see every matching record, including voided records.</p>
     @if (report.Entries.Count == 0) { <p>No records match your filters.</p> }
     else
@@ -291,3 +299,5 @@
         </div>
     }
 </section>
+
+</div>

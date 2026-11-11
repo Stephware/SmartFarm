@@ -1,10 +1,1 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" role="img" aria-label="eggplant crop illustration">
-  <path d="M22 105 Q58 111 96 105" fill="#C4AB86" stroke="#28543e" stroke-opacity=".13" stroke-width="1.5"/>
-  <path d="M53 100 Q43 82 58 61 Q70 48 83 48 Q97 50 95 69 Q92 90 76 101 Q64 107 53 100Z" fill="#75558E" stroke="#28543e" stroke-opacity=".13" stroke-width="1.5"/>
-  <path d="M61 94 Q49 82 66 63" fill="none" stroke="#B8A3CE" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"/>
-  <path d="M74 53 Q61 54 59 44 L69 39 Q75 48 84 44 L91 53 Q81 60 74 53Z" fill="#558A51" stroke="#28543e" stroke-opacity=".13" stroke-width="1.5"/>
-  <path d="M73 44 Q61 30 51 25" fill="none" stroke="#326747" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"/>
-  <path d="M61 38 Q40 35 31 19 Q53 17 63 33Z" fill="#70A367" stroke="#28543e" stroke-opacity=".13" stroke-width="1.5"/>
-  <path d="M76 36 Q94 18 109 30 Q99 45 77 44Z" fill="#659756" stroke="#28543e" stroke-opacity=".13" stroke-width="1.5"/>
-  <path d="M23 85 Q28 75 39 70 M35 91 Q35 83 43 78" fill="none" stroke="#5D884D" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"/>
-</svg>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 130 115" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M65 39c-5-13-5-23 6-34M65 33C46 12 24 20 21 25c17 19 34 22 44 8Zm0 1c5-19 24-25 42-21-8 21-27 28-42 21Z" stroke="#3B7043" stroke-width="5" stroke-linecap="round" fill="#75A86A"/><path d="M50 46c-22-7-38 7-40 20-5 26 18 39 37 24 12-11 15-31 13-44m25 0c21-6 37 7 36 24-1 25-24 32-39 17-12-13-7-28 3-41" fill="#60427D"/><path d="M47 45c-16 0-20-4-27-10 0 12 9 20 22 20l4 10 7-13 10-6" fill="#5C9A58"/><path d="M87 45c14-2 24-8 25-16-11 5-20 5-27 4l-5 16-4 7 15-4" fill="#679D58"/><path d="M27 63c-6 14 0 23 4 26M98 66c1 11-3 15-8 18" stroke="#A68ABB" stroke-width="5" stroke-linecap="round"/></svg>

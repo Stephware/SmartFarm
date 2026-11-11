@@ -9,12 +9,13 @@
     var reversedIds = Model.Transactions.Where(x => x.ReversesTransactionId is not null)
         .Select(x => x.ReversesTransactionId!.Value).ToHashSet();
 }
+<div class="reference-screen reference-screen-inventory">
 <partial name="_FarmNavigation" model="Model.Farm.Id" />
-<section class="panel sf-ops-hero sf-stock-hero" aria-labelledby="stock-heading">
-    <div class="sf-page-header">
+<section class="panel card sf-ops-hero sf-stock-hero" aria-labelledby="stock-heading">
+    <div class="sf-page-header page-hero">
         <div>
             <p><a asp-action="Index" asp-route-farmId="@Model.Farm.Id">← Inventory</a></p>
-            <p class="sf-kicker">SUPPLY DETAILS</p>
+
             <h1 id="stock-heading">@item.Name</h1>
             <p class="sf-muted">@item.CategoryName · @item.Unit</p>
             @if (item.ReorderLevel.HasValue)
@@ -46,9 +47,9 @@
 </section>
 @if (active)
 {
-    <section class="panel sf-stock-movement" aria-labelledby="stock-movement-heading">
-        <p class="sf-kicker">TRACK STOCK</p>
-        <h2 id="stock-movement-heading">Stock movement</h2>
+    <section class="panel card sf-stock-movement" aria-labelledby="stock-movement-heading">
+
+        <header class="reference-panel-heading"><h2 id="stock-movement-heading">Stock movement</h2></header>
         <p>Use <strong>Receipt</strong> when supplies arrive, <strong>Consumption</strong> when they were used for recorded crop work, and <strong>Adjustment</strong> to correct a stock count. Every change is saved in the transaction history.</p>
         <div class="ani-stock-movement-guide" role="note">
             <span>+ Receipt</span><span>− Consumption</span><span>± Adjustment</span>
@@ -82,8 +83,8 @@
         </form>
     </section>
 }
-<section class="panel sf-stock-history" aria-labelledby="transaction-heading">
-    <div class="sf-section-line">
+<section class="panel card sf-stock-history" aria-labelledby="transaction-heading">
+    <div class="sf-section-line card-head">
         <h2 id="transaction-heading">Transaction history</h2>
         <span>@Model.Transactions.Count entry/entries</span>
     </div>
@@ -115,3 +116,5 @@
     </ul>
 </section>
 
+
+</div>

@@ -3,6 +3,9 @@ package com.smartfarm.mobile.ui.components
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.size
+import androidx.compose.ui.Alignment
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.MaterialTheme
@@ -29,16 +32,17 @@ fun OfflineDataNotice(offline: Boolean, savedAtUtcMillis: Long?) {
         border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant),
         shape = MaterialTheme.shapes.medium
     ) {
-        Column(
-            modifier = Modifier.padding(16.dp),
-            verticalArrangement = Arrangement.spacedBy(6.dp)
-        ) {
+        Row(Modifier.padding(13.dp), horizontalArrangement = Arrangement.spacedBy(12.dp),
+            verticalAlignment = Alignment.Top) {
+        FarmLineIcon(FarmSymbol.Offline, Modifier.size(24.dp), MaterialTheme.colorScheme.onTertiaryContainer)
+        Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(5.dp)) {
             Text("Viewing saved offline data", style = MaterialTheme.typography.titleSmall)
             Text(
                 "Offline copy from $saved. Details may have changed on the server. " +
                     "Only queued field records work offline; edits to farm and crop settings need internet.",
                 style = MaterialTheme.typography.bodyMedium
             )
+        }
         }
     }
 }

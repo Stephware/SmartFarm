@@ -3,11 +3,12 @@
     ViewData["Title"] = "Crop timeline";
     var cycle = Model.Cycle;
 }
+<div class="reference-screen reference-screen-croptimeline">
 <partial name="_FarmNavigation" model="cycle.FarmId" />
-<section class="panel sf-timeline-hero">
+<section class="panel card sf-timeline-hero">
     <p><a asp-controller="Crops" asp-action="Index" asp-route-farmId="@cycle.FarmId">← Crop management</a></p>
-    <p class="sf-kicker">CROP ACTIVITY HISTORY</p>
-    <div class="sf-page-header">
+
+    <div class="sf-page-header page-hero">
         <div>
             <h1>@cycle.CropTypeName · @cycle.PlotName</h1>
             <p>Crop timeline · <span class="sf-status-chip sf-status-chip--neutral">@cycle.StatusName</span></p>
@@ -21,8 +22,8 @@
            asp-route-cycleId="@cycle.Id">Harvests</a>
     </div>
 </section>
-<section class="panel sf-timeline-history">
-    <h2>History and upcoming milestones</h2>
+<section class="panel card sf-timeline-history">
+    <header class="reference-panel-heading"><h2>History and upcoming milestones</h2></header>
     @if (Model.Entries.Count == 0)
     {
         <p>No events are available for this crop yet.</p>
@@ -57,3 +58,5 @@
         </ol>
     }
 </section>
+
+</div>

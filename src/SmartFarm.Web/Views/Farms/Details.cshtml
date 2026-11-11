@@ -1,15 +1,17 @@
 @model SmartFarm.Web.ViewModels.Farms.FarmWorkspaceViewModel
 @{
     ViewData["Title"] = Model.Farm.Name;
+    ViewData["FarmName"] = Model.Farm.Name;
     var canManage = Model.Farm.Role == "Owner" || Model.Farm.Role == "Manager";
     var isOwner = Model.Farm.Role == "Owner";
 }
+<div class="reference-screen reference-screen-farms">
 <partial name="_FarmNavigation" model="Model.Farm.Id" />
-<section class="panel sf-farm-hero" aria-labelledby="farm-heading">
-    <div class="sf-page-header">
+<section class="panel card sf-farm-hero" aria-labelledby="farm-heading">
+    <div class="sf-page-header page-hero">
         <div>
             <p><a asp-action="Index">← My farms</a></p>
-            <p class="sf-kicker">FARM OVERVIEW</p>
+
             <h1 id="farm-heading">@Model.Farm.Name</h1>
             <div class="sf-farm-identity">
                 <span>@Model.Farm.LocationText</span>
@@ -38,8 +40,8 @@
     }
 </section>
 <div class="sf-farm-management-grid">
-    <section class="panel sf-farm-plots" aria-labelledby="plots-heading">
-        <div class="sf-section-line">
+    <section class="panel card sf-farm-plots" aria-labelledby="plots-heading">
+        <div class="sf-section-line card-head">
             <div>
                 <h2 id="plots-heading">Plots</h2>
                 <p class="sf-muted">Manage your farm's growing spaces.</p>
@@ -88,8 +90,8 @@
             </div>
         }
     </section>
-    <section class="panel sf-farm-members" aria-labelledby="members-heading">
-        <div class="sf-section-line">
+    <section class="panel card sf-farm-members" aria-labelledby="members-heading">
+        <div class="sf-section-line card-head">
             <div>
                 <h2 id="members-heading">Members</h2>
                 <p class="sf-muted">See who has access to this farm.</p>
@@ -137,3 +139,5 @@
 {
     <partial name="_FarmEnrollment" model="Model.Enrollment" />
 }
+
+</div>

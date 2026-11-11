@@ -18,7 +18,7 @@ class EnrollmentScreenTest {
     @Test fun registrationOnlyAsksForNameEmailAndPassword() {
         compose.setContent { SmartFarmTheme { RegisterScreen(AuthUiState(), { _, _, _ -> }, {}) } }
         compose.onNodeWithText("Full name").assertExists()
-        compose.onNodeWithText("Email").assertExists()
+        compose.onNodeWithText("Email address").assertExists()
         compose.onNodeWithText("Password").assertExists()
         compose.onNodeWithText("Confirm password").assertDoesNotExist()
         compose.onNodeWithText("Farm code").assertDoesNotExist()
@@ -31,11 +31,11 @@ class EnrollmentScreenTest {
         compose.setContent { SmartFarmTheme { RegisterScreen(AuthUiState(), { name, email, password ->
             submitted = listOf(name, email, password)
         }, {}) } }
-        compose.onNodeWithText("Register").performScrollTo().assertIsNotEnabled()
+        compose.onNodeWithText("Create account").performScrollTo().assertIsNotEnabled()
         compose.onNodeWithText("Full name").performScrollTo().performTextInput("Sam")
-        compose.onNodeWithText("Email").performScrollTo().performTextInput("sam@example.com")
+        compose.onNodeWithText("Email address").performScrollTo().performTextInput("sam@example.com")
         compose.onNodeWithText("Password").performScrollTo().performTextInput("Password2026")
-        compose.onNodeWithText("Register").performScrollTo().performClick()
+        compose.onNodeWithText("Create account").performScrollTo().performClick()
         compose.runOnIdle { assertEquals(listOf("Sam", "sam@example.com", "Password2026"), submitted) }
     }
 
@@ -46,8 +46,8 @@ class EnrollmentScreenTest {
             { sent = it; state.value = state.value.copy(error = "Code not recognized") }, {}) } }
         compose.onNodeWithText("North farm: Pending · Awaiting owner approval").assertExists()
         compose.onNodeWithText("Join a farm").performClick()
-        compose.onNodeWithText("Farm code").performTextInput("ABCD12345678")
-        compose.onNodeWithText("Request access").performClick()
+        compose.onNodeWithText("Farm code").performScrollTo().performTextInput("ABCD12345678")
+        compose.onNodeWithText("Request access").performScrollTo().performClick()
         compose.runOnIdle { assertEquals("ABCD12345678", sent) }
         compose.onNodeWithText("Farm code").assertTextContains("ABCD12345678")
         compose.onNodeWithText("Code not recognized").assertExists()

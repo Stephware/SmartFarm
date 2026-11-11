@@ -5,7 +5,7 @@
         ? "A" : Model.FullName.Trim()[0].ToString().ToUpperInvariant();
 }
 <section class="panel sf-account-hero ani-account-hero" aria-labelledby="account-heading">
-    <p class="sf-kicker">ACCOUNT OVERVIEW</p>
+
     <h1 id="account-heading">My account</h1>
     <p class="sf-muted">Your AniGo account details and quick links to your farm workspace.</p>
     <div class="sf-account-identity">
@@ -31,4 +31,9 @@
         <a asp-controller="Notifications" asp-action="Index"><strong>Notifications</strong><span>Read farm reminders and advisories →</span></a>
         <a asp-controller="Home" asp-action="Index"><strong>About AniGo</strong><span>Review the farm management tools →</span></a>
     </div>
+</section>
+
+<section class="panel appearance-setting" aria-labelledby="appearance-heading">
+    <div><h2 id="appearance-heading">Appearance</h2><p>Light is the default. Your choice is saved on this browser.</p></div>
+    <button type="button" data-color-mode-toggle aria-pressed="false" aria-label="Use dark appearance"><span data-color-mode-status>Light appearance</span><partial name="_Icon" model='@("sun")' /></button>
 </section>

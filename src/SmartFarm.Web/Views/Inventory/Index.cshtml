@@ -2,6 +2,7 @@
 @model SmartFarm.Web.ViewModels.Inventory.InventoryPage
 @{
     ViewData["Title"] = "Inventory";
+    ViewData["FarmName"] = Model.Farm.Name;
     var canManage = Model.Farm.Role is "Owner" or "Manager";
     var visibleItems = Model.Workspace.Items
         .Where(i => Model.SelectedFilter switch
@@ -19,12 +20,13 @@
         .ToList();
     var inStock = Model.Workspace.Items.Count(i => !i.IsLowStock);
 }
+<div class="reference-screen reference-screen-inventory">
 <partial name="_FarmNavigation" model="Model.Farm.Id" />
-<section class="panel sf-ops-hero" aria-labelledby="inventory-heading">
-    <div class="sf-page-header">
+<section class="panel card sf-ops-hero" aria-labelledby="inventory-heading">
+    <div class="sf-page-header page-hero">
         <div>
             <p><a asp-controller="Farms" asp-action="Details" asp-route-id="@Model.Farm.Id">← @Model.Farm.Name</a></p>
-            <p class="sf-kicker">FARM SUPPLIES</p>
+
             <h1 id="inventory-heading">Inventory</h1>
             <p class="sf-muted">Track available supplies, check low stock, and open each item's movement history.</p>
         </div>
@@ -46,8 +48,8 @@
     }
     @if (TempData["Error"] is string error) { <p role="alert" class="error form-error">@error</p> }
 </section>
-<section class="panel sf-inventory-panel" aria-labelledby="inventory-list-heading">
-    <div class="sf-section-line">
+<section class="panel card sf-inventory-panel" aria-labelledby="inventory-list-heading">
+    <div class="sf-section-line card-head">
         <h2 id="inventory-list-heading">Available supplies</h2>
         <span>Farm-wide stock · @visibleItems.Count shown</span>
     </div>
@@ -89,43 +91,34 @@
     }
     else
     {
-        <ul class="sf-inventory-list ani-stock-grid">
+        <div class="table-wrap table-scroll" tabindex="0" role="region" aria-label="Available farm supplies">
+        <table class="data-table reference-inventory-table">
+            <caption class="visually-hidden">Available supplies and current stock balances</caption>
+            <thead><tr><th scope="col">Supply</th><th scope="col">Category</th><th scope="col">Available stock</th><th scope="col">Status</th><th scope="col">Actions</th></tr></thead>
+            <tbody>
         @foreach (var item in visibleItems)
         {
-            <li class="sf-inventory-row @(item.IsLowStock ? "sf-stock-low" : "")">
-                <span class="sf-stock-avatar ani-stock-icon" aria-hidden="true">@(item.Category == InventoryCategory.Seeds ? "✳" : item.Category == InventoryCategory.Fertilizers ? "◈" : item.Category == InventoryCategory.Pesticides ? "◉" : "▣")</span>
-                <div class="sf-stock-info">
-                    <a asp-action="Details" asp-route-farmId="@Model.Farm.Id" asp-route-itemId="@item.Id">
-                        <strong>@item.Name</strong>
-                    </a>
-                    <span>@item.CategoryName</span>
+            <tr class="sf-inventory-row @(item.IsLowStock ? "sf-stock-low" : "")">
+                <td><a class="table-name" asp-action="Details" asp-route-farmId="@Model.Farm.Id" asp-route-itemId="@item.Id">@item.Name</a>
                     @if (item.ReorderLevel.HasValue)
-                    {
-                        <small>Low-stock threshold: @item.ReorderLevel.Value.ToString("N3") @item.Unit</small>
-                    }
-                </div>
-                <div class="sf-stock-balance">
-                    <strong>@item.QuantityOnHand.ToString("N3") <small>@item.Unit</small></strong>
-                    @if (item.IsLowStock)
-                    {
-                        <span class="sf-status-chip sf-status-chip--warning">Low stock</span>
-                    }
-                    else
-                    {
-                        <span class="sf-status-chip sf-status-chip--active">In stock</span>
-                    }
-                </div>
-                <a class="sf-row-link" asp-action="Details" asp-route-farmId="@Model.Farm.Id" asp-route-itemId="@item.Id">View item →</a>
-            </li>
+                    { <small class="table-sub">Low-stock threshold: @item.ReorderLevel.Value.ToString("N3") @item.Unit</small> }
+                </td>
+                <td>@item.CategoryName</td>
+                <td class="reference-quantity"><strong>@item.QuantityOnHand.ToString("N3")</strong> @item.Unit</td>
+                <td><span class="sf-status-chip @(item.IsLowStock ? "sf-status-chip--warning" : "sf-status-chip--active")">@(item.IsLowStock ? "Low stock" : "In stock")</span></td>
+                <td><a class="sf-button-outline btn small" asp-action="Details" asp-route-farmId="@Model.Farm.Id" asp-route-itemId="@item.Id">View item →</a></td>
+            </tr>
         }
-        </ul>
+            </tbody>
+        </table>
+        </div>
     }
 </section>
 @if (canManage)
 {
-    <section class="panel sf-inventory-create" id="add-item" aria-labelledby="add-inventory-heading">
-        <p class="sf-kicker">NEW SUPPLY</p>
-        <h2 id="add-inventory-heading">Add inventory item</h2>
+    <section class="panel card sf-inventory-create" id="add-item" data-form-dialog aria-labelledby="add-inventory-heading">
+
+        <header class="reference-panel-heading"><h2 id="add-inventory-heading">Add inventory item</h2></header>
         <p class="sf-muted">Create a supply record with its opening balance and optional low-stock threshold.</p>
         <form asp-action="Create" asp-route-farmId="@Model.Farm.Id" method="post" class="sf-ops-form sf-inventory-form">
             <div>
@@ -163,3 +156,5 @@
         </form>
     </section>
 }
+
+</div>

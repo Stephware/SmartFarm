@@ -2,8 +2,9 @@
 @{
     ViewData["Title"] = "Edit inventory item";
 }
-<section class="panel sf-edit-form-panel sf-ops-edit-panel">
-    <p class="sf-kicker">INVENTORY DETAILS</p>
+<div class="reference-screen reference-screen-inventory">
+<section class="panel card sf-edit-form-panel sf-ops-edit-panel">
+
     <h1>Edit inventory item</h1>
     <p class="sf-muted">Update the supply details without changing its transaction history.</p>
     <form class="sf-ops-form" asp-action="Edit" asp-route-farmId="@Model.Farm.Id" asp-route-itemId="@Model.ItemId" method="post">
@@ -23,3 +24,5 @@
     </form>
 </section>
 
+
+</div>

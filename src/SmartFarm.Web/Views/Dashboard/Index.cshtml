@@ -3,6 +3,7 @@
 @model SmartFarm.Web.ViewModels.Farms.FarmDashboardViewModel
 @{
     ViewData["Title"] = "Farm dashboard";
+    ViewData["FarmName"] = Model.Report.FarmName;
     var farm = Model.Report;
     var total = farm.PlannedCrops + farm.ActiveCrops + farm.CompletedCrops;
     var completedPercent = total == 0 ? 0 : Math.Round(farm.CompletedCrops * 100m / total);
@@ -21,105 +22,25 @@
 <partial name="_FarmNavigation" model="farm.FarmId" />
 @if (TempData["Message"] is string message) { <p class="form-notice" role="status">@message</p> }
 @if (TempData["Error"] is string error) { <p class="error form-error" role="alert">@error</p> }
-
-<section class="sf-home-hero" aria-labelledby="dashboard-heading">
-    <div class="sf-home-hero-copy">
-        <p class="sf-home-eyebrow"><span aria-hidden="true"></span> FARM WORKSPACE · @farm.FarmToday.ToString("ddd, MMM d, yyyy")</p>
-        <h1 id="dashboard-heading">@farm.FarmName</h1>
-        <p>See what needs attention today, check your crops, and keep fieldwork moving.</p>
-        <div class="sf-home-hero-buttons">
-            <a class="button sf-home-primary-action" asp-controller="Tasks" asp-action="Index"
-               asp-route-farmId="@farm.FarmId">View today's work <span aria-hidden="true">→</span></a>
-            <a class="sf-home-hero-outline" asp-controller="Farms" asp-action="Details"
-               asp-route-id="@farm.FarmId">Farm settings &amp; team</a>
-        </div>
-    </div>
-    <div class="sf-home-hero-art" aria-hidden="true">
-        <span class="sf-home-sun"></span><span class="sf-home-hill hill-back"></span>
-        <span class="sf-home-hill hill-front"></span>
-        <span class="sf-home-furrow"></span><span class="sf-home-furrow"></span><span class="sf-home-furrow"></span>
-        <span class="sf-home-seedling s1"></span><span class="sf-home-seedling s2"></span>
-        <span class="sf-home-seedling s3"></span><span class="sf-home-seedling s4"></span>
-    </div>
+<section class="page-hero reference-dashboard-hero" aria-labelledby="dashboard-heading">
+    <div><h1 id="dashboard-heading">@farm.FarmName</h1><p>Keep your farm running smoothly, one day at a time.</p><time class="dashboard-date" datetime="@farm.FarmToday.ToString("yyyy-MM-dd")">@farm.FarmToday.ToString("dddd, MMMM d, yyyy")</time></div>
+    <a class="button" asp-controller="Crops" asp-action="Index" asp-route-farmId="@farm.FarmId"><partial name="_Icon" model='@("plus")' />Record activity</a>
 </section>
-
-<section class="sf-home-summary" aria-labelledby="farm-summary-heading">
-    <div class="sf-home-section-heading">
-        <div><p class="sf-kicker">YOUR FARM AT A GLANCE</p><h2 id="farm-summary-heading">Farm summary</h2></div>
-        <span>From current farm records</span>
-    </div>
-    <div class="sf-home-metrics">
-        <a asp-controller="PlotLayout" asp-action="Index" asp-route-farmId="@farm.FarmId" class="sf-home-metric">
-            <span class="sf-home-metric-icon" aria-hidden="true">▦</span>
-            <span>Active plots</span><strong>@farm.ActivePlots</strong><small>Growing areas</small>
-        </a>
-        <a asp-controller="Crops" asp-action="Index" asp-route-farmId="@farm.FarmId" class="sf-home-metric">
-            <span class="sf-home-metric-icon" aria-hidden="true">✳</span>
-            <span>Active crops</span><strong>@farm.ActiveCrops</strong><small>@farm.PlannedCrops planned · @farm.CompletedCrops completed</small>
-        </a>
-        <a asp-controller="Tasks" asp-action="Index" asp-route-farmId="@farm.FarmId" class="sf-home-metric">
-            <span class="sf-home-metric-icon" aria-hidden="true">☑</span>
-            <span>Open tasks</span><strong>@farm.OpenTasks</strong><small>Assigned and scheduled work</small>
-        </a>
-        <a asp-controller="Tasks" asp-action="Index" asp-route-farmId="@farm.FarmId"
-           class="sf-home-metric @(farm.OverdueTasks > 0 ? "sf-home-metric-attention" : "")">
-            <span class="sf-home-metric-icon" aria-hidden="true">!</span>
-            <span>Overdue work</span><strong>@farm.OverdueTasks</strong>
-            <small>@(farm.OverdueTasks > 0 ? "Review overdue tasks" : "Nothing overdue")</small>
-        </a>
-    </div>
-</section>
-
-<div class="sf-home-columns">
-    <div class="sf-home-primary-column">
-        <section class="panel sf-home-card" aria-labelledby="today-heading">
-            <div class="sf-home-card-header">
-                <div><p class="sf-kicker">FIELDWORK</p><h2 id="today-heading">Today's work</h2></div>
-                <a asp-controller="Tasks" asp-action="Index" asp-route-farmId="@farm.FarmId">All tasks →</a>
-            </div>
-            @if (todayTasks.Count == 0)
-            {
-                <div class="sf-home-calm">
-                    <strong>Nothing overdue or due today.</strong>
-                    <p>Upcoming tasks will appear here as their due dates approach.</p>
-                </div>
-            }
-            else
-            {
-                <ul class="sf-home-task-list">
-                @foreach (var task in todayTasks)
-                {
-                    <li>
-                        <span class="sf-home-task-check" aria-hidden="true"></span>
-                        <div>
-                            <strong>@task.TaskTypeName</strong>
-                            @if (!string.IsNullOrWhiteSpace(task.Description)) { <p>@task.Description</p> }
-                            <small>@(task.DueDate < farm.FarmToday ? "Overdue" : "Due today") · @task.DueDate.ToString("MMM d")</small>
-                        </div>
-                        <a asp-controller="Tasks" asp-action="Index" asp-route-farmId="@farm.FarmId"
-                           asp-route-view="upcoming" asp-fragment="@("task-" + task.Id)">Open <span class="visually-hidden">@task.TaskTypeName task</span> →</a>
-                    </li>
-                }
-                </ul>
-            }
-            @if (upcomingTasks.Count > 0)
-            {
-                <div class="sf-home-upcoming">
-                    <h3>Coming up</h3>
-                    @foreach (var task in upcomingTasks)
-                    {
-                        <a asp-controller="Tasks" asp-action="Index" asp-route-farmId="@farm.FarmId"
-                           asp-fragment="@("task-" + task.Id)">
-                            <span>@task.TaskTypeName</span><time datetime="@task.DueDate.ToString("yyyy-MM-dd")">@task.DueDate.ToString("MMM d")</time>
-                        </a>
-                    }
-                </div>
-            }
-        </section>
-
+@if (Model.Weather?.Advisories.FirstOrDefault(a => a.Status == 0) is { } advisory)
+{
+    <div class="notice reference-weather-notice" role="status"><span class="notice-icon"><partial name="_Icon" model='@("alert")' /></span><div><strong>@advisory.TypeName</strong><p>@advisory.Message</p></div><a asp-controller="Weather" asp-action="Index" asp-route-farmId="@farm.FarmId">See forecast <span aria-hidden="true">›</span></a></div>
+}
+<div class="metrics reference-dashboard-metrics" aria-label="Farm summary">
+    <a class="card metric" asp-controller="PlotLayout" asp-action="Index" asp-route-farmId="@farm.FarmId"><span class="metric-icon"><partial name="_Icon" model='@("grid")' /></span><span><strong>@farm.ActivePlots</strong><span>Active plots</span></span></a>
+    <a class="card metric" asp-controller="Tasks" asp-action="Index" asp-route-farmId="@farm.FarmId"><span class="metric-icon gold"><partial name="_Icon" model='@("checkSquare")' /></span><span><strong>@farm.OpenTasks</strong><span>Open tasks</span></span></a>
+    <a class="card metric" asp-controller="Inventory" asp-action="Index" asp-route-farmId="@farm.FarmId"><span class="metric-icon gold"><partial name="_Icon" model='@("box")' /></span><span><strong>@farm.LowStockItems</strong><span>Low-stock items</span></span></a>
+    <a class="card metric" asp-controller="Crops" asp-action="Index" asp-route-farmId="@farm.FarmId"><span class="metric-icon"><partial name="_Icon" model='@("sprout")' /></span><span><strong>@farm.ActiveCrops</strong><span>Active crops · @farm.PlannedCrops planned</span></span></a>
+</div>
+<div class="dashboard-grid reference-dashboard-grid">
+    <div class="stack">
         <section class="panel sf-home-card" aria-labelledby="plots-heading">
             <div class="sf-home-card-header">
-                <div><p class="sf-kicker">YOUR GROWING AREAS</p><h2 id="plots-heading">Plots &amp; crops</h2></div>
+                <div><h2 id="plots-heading">Plots &amp; crops</h2></div>
                 <a asp-controller="PlotLayout" asp-action="Index" asp-route-farmId="@farm.FarmId">View all plots →</a>
             </div>
             <p class="sf-home-note">Illustrative crop rows — not actual field boundaries, growth or crop health.</p>
@@ -156,12 +77,56 @@
                 </div>
             }
         </section>
-    </div>
+        <section class="panel sf-home-card" aria-labelledby="today-heading">
+            <div class="sf-home-card-header">
+                <div><h2 id="today-heading">Today's work</h2></div>
+                <a asp-controller="Tasks" asp-action="Index" asp-route-farmId="@farm.FarmId">All tasks →</a>
+            </div>
+            @if (todayTasks.Count == 0)
+            {
+                <div class="sf-home-calm">
+                    <strong>Nothing overdue or due today.</strong>
+                    <p>Upcoming tasks will appear here as their due dates approach.</p>
+                </div>
+            }
+            else
+            {
+                <ul class="sf-home-task-list">
+                @foreach (var task in todayTasks)
+                {
+                    <li>
+                        <span class="task-record-marker" aria-hidden="true"><partial name="_Icon" model='@("checkSquare")' /></span>
+                        <div>
+                            <strong>@task.TaskTypeName</strong>
+                            @if (!string.IsNullOrWhiteSpace(task.Description)) { <p>@task.Description</p> }
+                            <small>@(task.DueDate < farm.FarmToday ? "Overdue" : "Due today") · @task.DueDate.ToString("MMM d")</small>
+                        </div>
+                        <a asp-controller="Tasks" asp-action="Index" asp-route-farmId="@farm.FarmId"
+                           asp-route-view="upcoming" asp-fragment="@("task-" + task.Id)">Open <span class="visually-hidden">@task.TaskTypeName task</span> →</a>
+                    </li>
+                }
+                </ul>
+            }
+            @if (upcomingTasks.Count > 0)
+            {
+                <div class="sf-home-upcoming">
+                    <h3>Coming up</h3>
+                    @foreach (var task in upcomingTasks)
+                    {
+                        <a asp-controller="Tasks" asp-action="Index" asp-route-farmId="@farm.FarmId"
+                           asp-fragment="@("task-" + task.Id)">
+                            <span>@task.TaskTypeName</span><time datetime="@task.DueDate.ToString("yyyy-MM-dd")">@task.DueDate.ToString("MMM d")</time>
+                        </a>
+                    }
+                </div>
+            }
+        </section>
 
-    <div class="sf-home-secondary-column">
+    </div>
+    <div class="stack">
         <section class="panel sf-home-card sf-home-weather" aria-labelledby="weather-heading">
             <div class="sf-home-card-header">
-                <div><p class="sf-kicker">SAVED FORECAST</p><h2 id="weather-heading">Farm weather</h2></div>
+                <div><h2 id="weather-heading">Farm weather</h2></div>
                 <a asp-controller="Weather" asp-action="Index" asp-route-farmId="@farm.FarmId">Details →</a>
             </div>
             @if (Model.Weather is null)
@@ -179,7 +144,7 @@
             else
             {
                 <div class="sf-home-weather-main">
-                    <span class="sf-home-weather-symbol" aria-hidden="true">☁</span>
+                    <span class="sf-home-weather-symbol" aria-hidden="true"><partial name="_Icon" model='@("cloud")' /></span>
                     <div>
                         <strong>@(savedWeather.MinTemperatureC?.ToString("0.#") ?? "—")–@(savedWeather.MaxTemperatureC?.ToString("0.#") ?? "—")°C</strong>
                         <span>Forecast for @savedWeather.Date.ToString("ddd, MMM d")</span>
@@ -203,9 +168,18 @@
             }
         </section>
 
+<section class="panel sf-home-card reference-quick-card" aria-labelledby="quick-heading">
+    <div class="sf-home-card-header"><h2 id="quick-heading">Quick actions</h2></div>
+    <nav class="quick-grid" aria-label="Farm quick actions">
+        <a asp-controller="Crops" asp-action="Index" asp-route-farmId="@farm.FarmId"><span class="mini"><partial name="_Icon" model='@("edit")' /></span>Record activity</a>
+        <a asp-controller="Tasks" asp-action="Index" asp-route-farmId="@farm.FarmId" asp-fragment="add-task"><span class="mini"><partial name="_Icon" model='@("checkSquare")' /></span>Create / review tasks</a>
+        <a asp-controller="Crops" asp-action="Index" asp-route-farmId="@farm.FarmId"><span class="mini"><partial name="_Icon" model='@("basket")' /></span>Harvest records</a>
+        <a asp-controller="Inventory" asp-action="Index" asp-route-farmId="@farm.FarmId"><span class="mini"><partial name="_Icon" model='@("box")' /></span>Check supplies</a>
+    </nav>
+</section>
         <section class="panel sf-home-card" aria-labelledby="attention-heading">
             <div class="sf-home-card-header">
-                <div><p class="sf-kicker">DON'T MISS</p><h2 id="attention-heading">Needs attention</h2></div>
+                <div><h2 id="attention-heading">Needs attention</h2></div>
             </div>
             <div class="sf-home-attention-counts">
                 <a asp-controller="Inventory" asp-action="Index" asp-route-farmId="@farm.FarmId">
@@ -249,21 +223,11 @@
             }
         </section>
 
-        <section class="panel sf-home-card" aria-labelledby="quick-heading">
-            <div class="sf-home-card-header"><div><p class="sf-kicker">SHORTCUTS</p><h2 id="quick-heading">Quick actions</h2></div></div>
-            <nav class="sf-home-shortcuts" aria-label="Farm quick actions">
-                <a asp-controller="Tasks" asp-action="Index" asp-route-farmId="@farm.FarmId" asp-fragment="add-task">Create / review tasks <span>→</span></a>
-                <a asp-controller="Crops" asp-action="Index" asp-route-farmId="@farm.FarmId">Manage crops <span>→</span></a>
-                <a asp-controller="Inventory" asp-action="Index" asp-route-farmId="@farm.FarmId">Check supplies <span>→</span></a>
-                <a asp-controller="Reports" asp-action="Harvests" asp-route-farmId="@farm.FarmId">Harvest reports <span>→</span></a>
-            </nav>
-        </section>
     </div>
 </div>
-
 <section class="panel sf-home-card sf-home-harvest" aria-labelledby="harvest-heading">
     <div class="sf-home-card-header">
-        <div><p class="sf-kicker">YOUR RESULTS</p><h2 id="harvest-heading">Recent harvests</h2></div>
+        <div><h2 id="harvest-heading">Recent harvests</h2></div>
         <a asp-controller="Reports" asp-action="Harvests" asp-route-farmId="@farm.FarmId">View reports →</a>
     </div>
     <p class="sf-home-note">Last 30 farm days · quantities shown separately by unit</p>

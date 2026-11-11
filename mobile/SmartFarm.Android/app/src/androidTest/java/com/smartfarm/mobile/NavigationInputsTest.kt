@@ -99,6 +99,7 @@ class NavigationInputsTest {
         compose.setContent { SmartFarmTheme {
             TaskScreen(state.value, false, "me", {}, {}, { completed = it.id }, {})
         } }
+        compose.onNodeWithText("All farm tasks").performScrollTo().performClick()
         compose.onNodeWithText("Mark completed").assertDoesNotExist()
         compose.runOnIdle { state.value = state.value.copy(tasks = listOf(task.copy(assignedToUserId = "me"))) }
         compose.onNodeWithText("Mark completed").performScrollTo().performClick()

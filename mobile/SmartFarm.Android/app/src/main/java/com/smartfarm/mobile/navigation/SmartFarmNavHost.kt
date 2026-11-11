@@ -1,6 +1,9 @@
 package com.smartfarm.mobile.navigation
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
+import com.smartfarm.mobile.ui.components.LocalFarmHeaderNavigation
+import com.smartfarm.mobile.ui.components.FarmHeaderNavigation
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.LaunchedEffect
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -11,6 +14,9 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.ui.Modifier
@@ -52,34 +58,44 @@ fun SmartFarmNavHost(auth: AuthViewModel, farms: FarmViewModel, crops: CropViewM
     val resolver = appContext.contentResolver
     val state by auth.state.collectAsStateWithLifecycle()
     val pending by sync.operations.collectAsStateWithLifecycle()
+    val headerFarm by farms.state.collectAsStateWithLifecycle()
     LaunchedEffect(state.account?.id) {
         farms.clear()
         if (state.account != null) sync.load()
     }
+    val expandedWorkspace = LocalConfiguration.current.screenWidthDp >= 600
+    val navigateWorkspace: (String) -> Unit = { destination ->
+        if (destination == "account") {
+            navController.navigate("account") { launchSingleTop = true }
+        } else {
+            val route = destination.replace("{farmId}", currentFarmId)
+            navController.navigate(route) {
+                launchSingleTop = true
+                restoreState = true
+                popUpTo("farm/$currentFarmId") { saveState = true }
+            }
+        }
+    }
     Scaffold(
         contentWindowInsets = WindowInsets(0, 0, 0, 0),
         bottomBar = {
-            if (state.account != null && showFarmTabs) {
-                FarmWorkspaceBar(selectedRoute = currentRoute.orEmpty()) { destination ->
-                    if (destination == "account") {
-                        navController.navigate("account") { launchSingleTop = true }
-                    } else {
-                        val route = destination.replace("{farmId}", currentFarmId)
-                        navController.navigate(route) {
-                            // Keep the active farm as the shared root of all workspace tabs.
-                            launchSingleTop = true
-                            restoreState = true
-                            popUpTo("farm/$currentFarmId") { saveState = true }
-                        }
-                    }
-                }
+            if (state.account != null && showFarmTabs && !expandedWorkspace) {
+                FarmWorkspaceBar(selectedRoute = currentRoute.orEmpty(), onNavigate = navigateWorkspace)
             }
         }
     ) { workspacePadding ->
+    CompositionLocalProvider(LocalFarmHeaderNavigation provides if (state.account == null) null else
+        FarmHeaderNavigation(headerFarm.selected?.name,
+            onFarms = { navController.navigate("farms") { launchSingleTop = true } },
+            onNotifications = { navController.navigate("notifications") { launchSingleTop = true } })) {
+    Row(Modifier.fillMaxSize().padding(workspacePadding)) {
+    if (state.account != null && showFarmTabs && expandedWorkspace) {
+        FarmWorkspaceBar(selectedRoute = currentRoute.orEmpty(), onNavigate = navigateWorkspace, expanded = true)
+    }
     NavHost(
         navController = navController,
         startDestination = "welcome",
-        modifier = Modifier.padding(workspacePadding)
+        modifier = Modifier.weight(1f)
     ) {
         composable("welcome") {
             val statusState by status.state.collectAsStateWithLifecycle()
@@ -346,6 +362,8 @@ fun SmartFarmNavHost(auth: AuthViewModel, farms: FarmViewModel, crops: CropViewM
                 onRetry = { harvests.load(farmId, cycleId) }
             )
         }
+    }
+    }
     }
     }
 }

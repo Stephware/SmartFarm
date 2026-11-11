@@ -3,6 +3,21 @@ package com.smartfarm.mobile.features.farms
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.background
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.draw.clip
+import androidx.compose.material3.Surface
+import androidx.compose.material3.TextButton
+import androidx.compose.material3.HorizontalDivider
+import com.smartfarm.mobile.ui.components.FarmSymbol
+import com.smartfarm.mobile.ui.components.FarmLineIcon
+import com.smartfarm.mobile.ui.components.FarmQuickAction
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
@@ -56,23 +71,71 @@ internal fun FarmHomeOverview(
 
     Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
         Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-            FarmMetricCard("Active plots", state.plots.size.toString(), "Growing areas",
-                modifier = Modifier.weight(1f))
+            FarmMetricCard("Active plots", state.plots.size.toString(), null,
+                modifier = Modifier.weight(1f), symbol = FarmSymbol.Plots)
             FarmMetricCard("Active crops", activeCrops?.toString() ?: "—",
-                if (visibleCrops?.offline == true) "Saved crop records" else "Currently planted",
+                if (visibleCrops?.offline == true) "Saved records" else null,
                 modifier = Modifier.weight(1f))
         }
         Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
             FarmMetricCard("My open tasks", myWork?.size?.toString() ?: "—",
-                if (myWork == null) "Connect to load" else "Assigned to you",
-                modifier = Modifier.weight(1f))
+                if (myWork == null) "Connect to load" else null,
+                modifier = Modifier.weight(1f), symbol = FarmSymbol.Tasks)
             FarmMetricCard("Overdue", overdue?.toString() ?: "—",
                 if (dueToday == null) "Connect to load" else dueToday.toString() + " due today",
-                modifier = Modifier.weight(1f))
+                modifier = Modifier.weight(1f), symbol = FarmSymbol.Clock)
         }
     }
 
-    FarmSectionCard("Today's work", subtitle = "Your assignments due today or overdue.") {
+    FarmSectionCard("My farm plots") {
+        if (state.plots.isEmpty()) {
+            FarmEmptyState("No plots yet", "Add a plot in the Plots tab.")
+        } else {
+            Surface(shape = MaterialTheme.shapes.medium,
+                color = MaterialTheme.colorScheme.primaryContainer) {
+                Column(Modifier.padding(10.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                    state.plots.take(4).chunked(2).forEach { plots ->
+                        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                            plots.forEach { plot ->
+                                val crop = visibleCrops?.cycles?.firstOrNull {
+                                    it.plotId == plot.id && it.status == 1
+                                } ?: visibleCrops?.cycles?.firstOrNull {
+                                    it.plotId == plot.id && it.status == 0
+                                }
+                                Box(Modifier.weight(1f).clip(MaterialTheme.shapes.medium)
+                                    .clickable(onClick = onCrops)) {
+                                    FarmPlotPreview(cropName = crop?.cropTypeName,
+                                        modifier = Modifier.height(132.dp))
+                                    Surface(Modifier.align(Alignment.TopStart).padding(8.dp),
+                                        shape = MaterialTheme.shapes.extraSmall,
+                                        color = MaterialTheme.colorScheme.surface) {
+                                        Text(plot.name, Modifier.padding(horizontal = 7.dp, vertical = 4.dp),
+                                            style = MaterialTheme.typography.labelMedium)
+                                    }
+                                    Column(Modifier.align(Alignment.BottomStart).padding(10.dp)) {
+                                        Text(crop?.cropTypeName ?: if (visibleCrops == null)
+                                            "Crop unavailable" else "No current crop",
+                                            color = Color.White, style = MaterialTheme.typography.titleSmall)
+                                        Text("${plot.areaSqMeters} m²" + (crop?.let { " · ${it.statusName}" } ?: ""),
+                                            color = Color.White, style = MaterialTheme.typography.bodySmall)
+                                    }
+                                }
+                            }
+                            if (plots.size == 1) Spacer(Modifier.weight(1f))
+                        }
+                    }
+                }
+            }
+            Text("Illustrative layout · not a geographic map.",
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant)
+        }
+        TextButton(onClick = onCrops, modifier = Modifier.fillMaxWidth()) {
+            Text("Manage crops and plots")
+        }
+    }
+
+    FarmSectionCard("Today's fieldwork") {
         val due = myWork.orEmpty().filter { task ->
             val date = TaskWorkCenter.dueDate(task)
             today != null && date != null && !date.isAfter(today)
@@ -86,7 +149,8 @@ internal fun FarmHomeOverview(
             myWork == null -> Text("Task dates unavailable. Check the farm time zone.")
             due.isEmpty() -> FarmEmptyState("Nothing due today",
                 "Upcoming assignments are available in Tasks.")
-            else -> due.forEach { task ->
+            else -> due.forEachIndexed { index, task ->
+                if (index > 0) HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
                 Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
                     Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(3.dp)) {
                         Text(taskTypes.getOrElse(task.taskType) { "Task" },
@@ -104,32 +168,6 @@ internal fun FarmHomeOverview(
         Button(onClick = onTasks, modifier = Modifier.fillMaxWidth()) { Text("Open all tasks") }
     }
 
-    FarmSectionCard("Growing areas",
-        subtitle = "Schematic rows, not real plot geometry or crop health.") {
-        if (state.plots.isEmpty()) {
-            FarmEmptyState("No plots yet", "Add a plot in the Plots tab.")
-        } else {
-            state.plots.take(2).forEach { plot ->
-                val crop = visibleCrops?.cycles?.firstOrNull {
-                    it.plotId == plot.id && it.status == 1
-                } ?: visibleCrops?.cycles?.firstOrNull {
-                    it.plotId == plot.id && it.status == 0
-                }
-                Column(verticalArrangement = Arrangement.spacedBy(5.dp)) {
-                    FarmPlotPreview(cropName = crop?.cropTypeName)
-                    Text(plot.name, style = MaterialTheme.typography.titleMedium)
-                    Text((crop?.cropTypeName ?: if (visibleCrops == null) "Crop data unavailable" else "No current crop")
-                        + " · " + plot.areaSqMeters + " m²",
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant)
-                }
-            }
-        }
-        OutlinedButton(onClick = onCrops, modifier = Modifier.fillMaxWidth()) {
-            Text("Manage crops and plots")
-        }
-    }
-
     FarmSectionCard("Saved weather", subtitle = "Forecast data, not live conditions.") {
         val weather = state.weather
         val date = today
@@ -142,9 +180,13 @@ internal fun FarmHomeOverview(
             !weather.hasCoordinates -> Text("Set the farm's location pin to enable forecasts.")
             day == null -> Text("No saved forecast for today or later.")
             else -> {
+                Row(verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                FarmLineIcon(FarmSymbol.Weather, Modifier.height(44.dp))
                 Text((day.minTemperatureC?.toPlainString() ?: "—") + "–" +
                     (day.maxTemperatureC?.toPlainString() ?: "—") + " °C",
                     style = MaterialTheme.typography.headlineSmall)
+                }
                 Text("For " + day.date + " · " +
                     (day.maxPrecipitationProbability?.toPlainString() ?: "—") +
                     "% rain chance · " + (day.rainfallMm?.toPlainString() ?: "—") + " mm rain")
@@ -168,9 +210,13 @@ internal fun FarmHomeOverview(
     }
 
     FarmSectionCard("Quick actions", subtitle = "Go directly to your fieldwork.") {
-        OutlinedButton(onClick = onTasks, modifier = Modifier.fillMaxWidth()) { Text("Review tasks") }
-        OutlinedButton(onClick = onCrops, modifier = Modifier.fillMaxWidth()) { Text("Crop monitoring") }
-        OutlinedButton(onClick = onInventory, modifier = Modifier.fillMaxWidth()) { Text("Check inventory") }
-        OutlinedButton(onClick = onInsights, modifier = Modifier.fillMaxWidth()) { Text("Harvest reports & finances") }
+        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            FarmQuickAction("Review tasks", FarmSymbol.Tasks, onTasks, Modifier.weight(1f))
+            FarmQuickAction("Crop monitoring", FarmSymbol.Crop, onCrops, Modifier.weight(1f))
+        }
+        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            FarmQuickAction("Inventory", FarmSymbol.Stock, onInventory, Modifier.weight(1f))
+            FarmQuickAction("Reports & finances", FarmSymbol.Reports, onInsights, Modifier.weight(1f))
+        }
     }
 }

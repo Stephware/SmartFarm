@@ -3,6 +3,7 @@
 @model SmartFarm.Web.ViewModels.Crops.CropWorkspaceViewModel
 @{
     ViewData["Title"] = "Crops";
+    ViewData["FarmName"] = Model.Farm.Name;
     var canManage = Model.Farm.Role is "Owner" or "Manager";
     var currentCrops = Model.Cycles
         .Where(c => c.Status is CropCycleStatus.Active or CropCycleStatus.Planned)
@@ -10,16 +11,20 @@
         .ThenBy(c => c.ExpectedHarvestDate ?? DateOnly.MaxValue)
         .Take(6).ToList();
 }
+<div class="reference-screen reference-screen-crops">
 <partial name="_FarmNavigation" model="Model.Farm.Id" />
-<section class="panel sf-crop-hero">
+<section class="panel card sf-crop-hero">
     <p><a asp-controller="Farms" asp-action="Details" asp-route-id="@Model.Farm.Id">← @Model.Farm.Name</a></p>
-    <p class="sf-kicker">CROP MANAGEMENT</p>
-    <div class="sf-page-header">
+
+    <div class="sf-page-header page-hero">
         <div>
             <h1>Crop management</h1>
             <p class="sf-muted">Plan planting, track active crops, and review crop history.</p>
         </div>
-        <a class="sf-button-outline" asp-controller="PlotLayout" asp-action="Index" asp-route-farmId="@Model.Farm.Id">View plots</a>
+        <div class="hero-actions">
+            <a class="sf-button-outline" asp-controller="PlotLayout" asp-action="Index" asp-route-farmId="@Model.Farm.Id">View plots</a>
+            @if (canManage) { <a class="button" href="#planting-plans-heading"><partial name="_Icon" model='@("plus")' />Add crop plan</a> }
+        </div>
     </div>
     <nav class="sf-page-jump-nav" aria-label="Crop page sections">
         @if (Model.Agenda is not null) { <a href="#crop-calendar-heading">Calendar</a> }
@@ -31,10 +36,10 @@
     @if (TempData["Error"] is string error) { <p class="error form-error" role="alert">@error</p> }
 </section>
  
-<section class="panel ani-current-crops" aria-labelledby="ani-current-heading">
-    <div class="sf-section-line">
+<section class="panel card ani-current-crops" aria-labelledby="ani-current-heading">
+    <div class="sf-section-line card-head">
         <div>
-            <p class="sf-kicker">YOUR CURRENT PLANTINGS</p>
+
             <h2 id="ani-current-heading">Growing and planned</h2>
             <p class="sf-muted">These are recorded crop-cycle statuses, not predictions of plant maturity or health.</p>
         </div>
@@ -50,16 +55,16 @@
     }
     else
     {
-        <div class="ani-current-grid">
+        <div class="ani-current-grid crop-grid">
         @foreach (var crop in currentCrops)
         {
-            <a class="ani-current-card" asp-controller="Crops" asp-action="Index"
+            <a class="ani-current-card crop-card" asp-controller="Crops" asp-action="Index"
                asp-route-farmId="@Model.Farm.Id" asp-fragment="@("crop-cycle-" + crop.Id)">
-                <div class="ani-current-art" aria-hidden="true">
+                <div class="ani-current-art crop-visual" aria-hidden="true">
                     <img src="@Url.Content("~/images/crops/" + CropArtwork.FileName(crop.CropTypeName))"
                          loading="lazy" alt="" width="120" height="120" />
                 </div>
-                <div class="ani-current-copy">
+                <div class="ani-current-copy crop-info">
                     <span class="sf-status-chip @(crop.Status == CropCycleStatus.Active ? "sf-status-chip--active" : "sf-status-chip--planned")">@crop.StatusName</span>
                     <strong>@crop.CropTypeName</strong>
                     <span>@crop.PlotName</span>
@@ -74,8 +79,8 @@
 
 @if (Model.Agenda is { } agenda)
 {
-<section class="panel sf-crop-calendar" aria-labelledby="crop-calendar-heading">
-    <h2 id="crop-calendar-heading">Crop calendar</h2>
+<section class="panel card sf-crop-calendar" aria-labelledby="crop-calendar-heading">
+    <header class="reference-panel-heading"><h2 id="crop-calendar-heading">Crop calendar</h2></header>
     <p class="hint">Planting, projected watering, and expected harvest dates for @Model.Farm.Name. Dates use @Model.Farm.TimeZoneId; check farm tasks for completion status.</p>
     <nav class="crop-agenda-nav" aria-label="Calendar month">
         <a asp-controller="Crops" asp-action="Index" asp-route-farmId="@Model.Farm.Id"
@@ -84,32 +89,46 @@
         <a asp-controller="Crops" asp-action="Index" asp-route-farmId="@Model.Farm.Id"
            asp-route-month="@agenda.NextMonth.ToString("yyyy-MM")" aria-label="Next month">Next →</a>
     </nav>
-    @if (agenda.Days.Count == 0)
+    <div class="reference-calendar" role="group" aria-label="@agenda.FirstDay.ToString("MMMM yyyy") crop calendar">
+        <div class="calendar-grid reference-calendar-week" aria-hidden="true">
+            @foreach (var weekday in new[] { "Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat" }) { <span>@weekday</span> }
+        </div>
+        <div class="calendar-grid">
+            @for (var empty = 0; empty < (int)agenda.FirstDay.DayOfWeek; empty++) { <div class="cal-cell outside" aria-hidden="true"></div> }
+            @for (var day = 1; day <= DateTime.DaysInMonth(agenda.FirstDay.Year, agenda.FirstDay.Month); day++)
+            {
+                var date = new DateOnly(agenda.FirstDay.Year, agenda.FirstDay.Month, day);
+                var scheduled = agenda.Days.FirstOrDefault(d => d.Date == date);
+                <div class="cal-cell @(scheduled is not null ? "has-events" : "")">
+                    @if (scheduled is not null)
+                    {
+                        <a href="#agenda-date-@date.ToString("yyyy-MM-dd")" aria-label="@date.ToString("MMMM d"), @scheduled.Entries.Count scheduled entries"><time datetime="@date.ToString("yyyy-MM-dd")">@day</time><span class="calendar-event-dot" aria-hidden="true"></span></a>
+                    }
+                    else { <time datetime="@date.ToString("yyyy-MM-dd")">@day</time> }
+                </div>
+            }
+        </div>
+    </div>
+    @if (agenda.Days.Count > 0)
     {
-        <p>No planting, watering, or harvest dates scheduled for this month.</p>
+        <details class="crop-agenda-details">
+            <summary>Month schedule · @agenda.Days.Sum(d => d.Entries.Count) entries</summary>
+            <ol class="crop-agenda-list">
+            @foreach (var day in agenda.Days)
+            {
+                <li id="agenda-date-@day.Date.ToString("yyyy-MM-dd")"><time datetime="@day.Date.ToString("yyyy-MM-dd")">@day.Date.ToString("dddd, MMM d")</time><ul>
+                @foreach (var entry in day.Entries) { <li><strong>@entry.Kind</strong> · @entry.CropName · @entry.PlotName</li> }
+                </ul></li>
+            }
+            </ol>
+        </details>
     }
-    else
-    {
-        <ol class="crop-agenda-list">
-        @foreach (var day in agenda.Days)
-        {
-            <li>
-                <time datetime="@day.Date.ToString("yyyy-MM-dd")">@day.Date.ToString("ddd, MMM d")</time>
-                <ul>
-                @foreach (var entry in day.Entries)
-                {
-                    <li><strong>@entry.Kind</strong> · @entry.CropName <span>— @entry.PlotName</span></li>
-                }
-                </ul>
-            </li>
-        }
-        </ol>
-    }
+    @if (agenda.Days.Count == 0) { <p class="hint">No planting, watering, or harvest dates scheduled for this month.</p> }
     <p><a asp-controller="Tasks" asp-action="Index" asp-route-farmId="@Model.Farm.Id">View assigned tasks and reminders →</a></p>
 </section>
 }
-<section class="panel sf-crop-types" aria-labelledby="crop-types-heading">
-    <h2 id="crop-types-heading">Crop types</h2>
+<section class="panel card sf-crop-types" aria-labelledby="crop-types-heading">
+    <header class="reference-panel-heading"><h2 id="crop-types-heading">Crop types</h2></header>
     @if (Model.CropTypes.Count == 0) { <p>No crop types available yet.</p> }
     else
     {
@@ -142,8 +161,8 @@
         </form>
     }
 </section>
-<section class="panel sf-crop-plan" aria-labelledby="planting-plans-heading">
-    <h2 id="planting-plans-heading">Planting plans</h2>
+<section id="planting-plans" data-form-dialog class="panel card sf-crop-plan" aria-labelledby="planting-plans-heading">
+    <header class="reference-panel-heading"><h2 id="planting-plans-heading">Planting plans</h2></header>
     @if (canManage && Model.Plots.Count > 0 && Model.CropTypes.Count > 0)
     {
         <form class="sf-crop-form" asp-action="Plan" asp-route-farmId="@Model.Farm.Id" method="post">
@@ -175,8 +194,8 @@
     else if (Model.CropTypes.Count == 0) { <p>Add a crop type before planning a crop.</p> }
     else { <p>You have read-only access to planting plans.</p> }
 </section>
-<section class="panel sf-crop-history" aria-labelledby="rotation-heading">
-    <h2 id="rotation-heading">Plot crop rotation history</h2>
+<section class="panel card sf-crop-history" aria-labelledby="rotation-heading">
+    <header class="reference-panel-heading"><h2 id="rotation-heading">Plot crop rotation history</h2></header>
     <p class="hint">See previous and current crop cycles per plot, including completed, failed, and cancelled plantings. This is a record of your farm history, not a rotation recommendation.</p>
     @if (Model.Cycles.Count == 0) { <p>No planting history recorded yet.</p> }
     @foreach (var plotHistory in Model.Cycles.GroupBy(c => new { c.PlotId, c.PlotName }).OrderBy(g => g.Key.PlotName))
@@ -197,10 +216,10 @@
         </details>
     }
 </section>
-<section class="panel sf-crop-cycles" aria-labelledby="crop-cycles-heading">
-    <div class="sf-section-line"><h2 id="crop-cycles-heading">Crop cycles and history</h2><span class="sf-muted">@Model.Cycles.Count record(s)</span></div>
+<section class="panel card sf-crop-cycles" aria-labelledby="crop-cycles-heading">
+    <div class="sf-section-line card-head"><h2 id="crop-cycles-heading">Crop cycles and history</h2><span class="sf-muted">@Model.Cycles.Count record(s)</span></div>
     @if (Model.Cycles.Count == 0) { <p>No crop cycles have been planned yet.</p> }
-    <div class="sf-crop-card-grid">
+    <div class="sf-crop-card-grid reference-cycle-grid">
     @foreach (var cycle in Model.Cycles)
     {
         <article class="crop-cycle sf-crop-record ani-crop-record" id="crop-cycle-@cycle.Id">
@@ -241,6 +260,10 @@
             }
             @if (cycle.TerminationReason is not null)
             { <p>Reason: @cycle.TerminationReason</p> }
+            @if (canManage && cycle.Status is CropCycleStatus.Planned or CropCycleStatus.Active)
+            {
+            <details class="reference-cycle-management" open="@(Model.TransitionCycleId == cycle.Id)">
+                <summary>Manage crop cycle</summary>
             @if (canManage && cycle.Status == CropCycleStatus.Planned)
             {
                 <a asp-action="EditPlan" asp-route-farmId="@Model.Farm.Id" asp-route-cycleId="@cycle.Id">Edit plan</a>
@@ -281,7 +304,11 @@
                     <button class="button-danger" type="submit">Mark failed</button>
                 </form>
             }
+            </details>
+            }
         </article>
     }
     </div>
 </section>
+
+</div>

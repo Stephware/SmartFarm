@@ -2,13 +2,15 @@
 @model SmartFarm.Web.ViewModels.Farms.PlotLayoutPage
 @{
     ViewData["Title"] = "Plot layout";
+    ViewData["FarmName"] = Model.Farm.Name;
 }
+<div class="reference-screen reference-screen-plotlayout">
 <partial name="_FarmNavigation" model="Model.Farm.Id" />
-<section class="panel sf-plot-overview" aria-labelledby="plot-layout-heading">
-    <div class="sf-page-header">
+<section class="panel card sf-plot-overview" aria-labelledby="plot-layout-heading">
+    <div class="sf-page-header page-hero">
         <div>
             <p><a asp-controller="Farms" asp-action="Details" asp-route-id="@Model.Farm.Id">← @Model.Farm.Name</a></p>
-            <p class="sf-kicker">YOUR GROWING SPACES</p>
+
             <h1 id="plot-layout-heading">Visual plot layout</h1>
             <p class="sf-muted">Browse plots, check recorded crops, and open their management pages.</p>
         </div>
@@ -25,16 +27,15 @@
     }
     else
     {
-        <div class="plot-layout-grid sf-plot-grid" role="list" aria-label="Farm plot overview">
+        <div class="plot-layout-grid sf-plot-grid plot-board" role="list" aria-label="Farm plot overview">
         @foreach (var plot in Model.Tiles)
         {
-            <a role="listitem" class="plot-layout-tile sf-plot-tile ani-plot-tile @(plot.CropName is null ? "sf-plot-empty" : "sf-plot-growing")"
+            <a role="listitem" class="plot-layout-tile sf-plot-tile ani-plot-tile plot-tile @(plot.CropName is null ? "sf-plot-empty" : "sf-plot-growing")"
                asp-controller="Crops" asp-action="Index" asp-route-farmId="@Model.Farm.Id"
                asp-route-plotId="@plot.PlotId"
                asp-fragment="@(plot.CycleId.HasValue ? "crop-cycle-" + plot.CycleId : "planting-plans-heading")"
                aria-label="@plot.Name, @plot.AreaSqMeters square meters, @(plot.CropName ?? "No current crop")">
                 <div class="sf-plot-field ani-plot-art" aria-hidden="true">
-                    <span></span><span></span><span></span>
                     @if (plot.CropName is not null)
                     {
                         <img src="@Url.Content("~/images/crops/" + CropArtwork.FileName(plot.CropName))" loading="lazy" alt="" width="120" height="120" />
@@ -59,3 +60,5 @@
     }
     <p class="sf-overview-footer"><a asp-controller="Crops" asp-action="Index" asp-route-farmId="@Model.Farm.Id">Open crop records and planting plans →</a></p>
 </section>
+
+</div>

@@ -2,6 +2,11 @@
 @model SmartFarm.Web.ViewModels.Tasks.TaskPage
 @{
     ViewData["Title"] = "Farm tasks";
+    ViewData["FarmName"] = Model.Farm.Name;
+    DateOnly? calendarMonth = Model.FarmToday is { } farmDate ? new DateOnly(farmDate.Year, farmDate.Month, 1) : null;
+    if (calendarMonth is not null && DateOnly.TryParseExact(Context.Request.Query["month"] + "-01", "yyyy-MM-dd",
+        System.Globalization.CultureInfo.InvariantCulture, System.Globalization.DateTimeStyles.None, out var selectedMonth)
+        && selectedMonth.Year is >= 2000 and <= 2100) calendarMonth = selectedMonth;
     var canManage = Model.Farm.Role is "Owner" or "Manager";
     var actorId = Guid.TryParse(User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value, out var userId)
         ? userId : Guid.Empty;
@@ -24,12 +29,13 @@
     };
     var ordered = shown.OrderBy(t => t.Status == 0 ? 0 : 1).ThenBy(t => t.DueDate).ToList();
 }
+<div class="reference-screen reference-screen-tasks">
 <partial name="_FarmNavigation" model="Model.Farm.Id" />
-<section class="panel sf-ops-hero" aria-labelledby="tasks-heading">
-    <div class="sf-page-header">
+<section class="panel card sf-ops-hero" aria-labelledby="tasks-heading">
+    <div class="sf-page-header page-hero">
         <div>
             <p><a asp-controller="Farms" asp-action="Details" asp-route-id="@Model.Farm.Id">← @Model.Farm.Name</a></p>
-            <p class="sf-kicker">FIELD OPERATIONS</p>
+
             <h1 id="tasks-heading">Farm tasks</h1>
             <p class="sf-muted">See what needs doing, who's assigned, and when work is due.</p>
         </div>
@@ -47,12 +53,13 @@
     <p class="sf-ops-today">Farm date: @(Model.FarmToday?.ToString("ddd, MMM d, yyyy") ?? "Unavailable — check the farm time zone") · @Model.Farm.TimeZoneId</p>
     @if (TempData["Error"] is string error) { <p class="error form-error" role="alert">@error</p> }
 </section>
-<section class="panel sf-task-panel" aria-labelledby="task-list-heading">
-    <div class="sf-section-line">
+<div class="reference-task-workspace">
+<section class="panel card sf-task-panel" aria-labelledby="task-list-heading">
+    <div class="sf-section-line card-head">
         <h2 id="task-list-heading">Your farm work</h2>
         <span>@shown.Count visible of @Model.Tasks.Count</span>
     </div>
-    <nav class="ani-task-tabs" aria-label="Filter farm tasks">
+    <nav class="ani-task-tabs filter-row" aria-label="Filter farm tasks">
         <a class="@(Model.SelectedView == "today" ? "is-selected" : "")"
            aria-current="@(Model.SelectedView == "today" ? "page" : null)"
            asp-controller="Tasks" asp-action="Index" asp-route-farmId="@Model.Farm.Id" asp-route-view="today">
@@ -101,15 +108,17 @@
     }
     else
     {
-        <ul class="sf-task-list">
+        <ul class="sf-task-list checklist">
         @foreach (var task in ordered)
         {
             <li id="task-@task.Id" class="sf-task-item @(task.Status == 0 ? "sf-task-open" : "sf-task-closed")">
                 <div class="sf-task-main">
-                    <span class="sf-task-symbol" aria-hidden="true">@(task.Status != 0 ? "✓" : task.DueDate < Model.FarmToday ? "!" : "•")</span>
+                    <span class="sf-task-symbol reference-task-check @(task.Status != 0 ? "is-closed" : "")" aria-hidden="true"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="4" />@if (task.Status != 0) { <path d="m7 12 3 3 7-7" /> }</svg></span>
                     <div class="sf-task-content">
                         <div class="sf-task-title">
                             <h3>@task.TaskTypeName</h3>
+                            @if (task.Status == 0 && Model.FarmToday is { } today && task.DueDate < today)
+                            { <span class="sf-status-chip sf-status-chip--warning">Overdue</span> }
                             <span class="sf-status-chip @(task.Status == 0 ? "sf-status-chip--active" : "sf-status-chip--neutral")">@task.StatusName</span>
                         </div>
                         <div class="sf-task-meta">
@@ -189,12 +198,40 @@
         </ul>
     }
 </section>
+@if (calendarMonth is { } month)
+{
+    <section class="panel card reference-task-calendar" aria-labelledby="task-calendar-heading">
+        <header class="reference-panel-heading"><h2 id="task-calendar-heading">Task calendar</h2></header>
+        <nav class="crop-agenda-nav" aria-label="Task calendar month">
+            @if (month.Year > 2000 || month.Month > 1) { <a asp-action="Index" asp-route-farmId="@Model.Farm.Id" asp-route-view="@Model.SelectedView" asp-route-month="@month.AddMonths(-1).ToString("yyyy-MM")" aria-label="Previous task month">‹</a> }
+            <strong>@month.ToString("MMMM yyyy")</strong>
+            @if (month.Year < 2100 || month.Month < 12) { <a asp-action="Index" asp-route-farmId="@Model.Farm.Id" asp-route-view="@Model.SelectedView" asp-route-month="@month.AddMonths(1).ToString("yyyy-MM")" aria-label="Next task month">›</a> }
+        </nav>
+        <div class="reference-calendar" role="group" aria-label="Task dates in @month.ToString("MMMM yyyy")">
+            <div class="calendar-grid reference-calendar-week" aria-hidden="true">@foreach (var day in new[] { "Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat" }) { <span>@day</span> }</div>
+            <div class="calendar-grid">
+                @for (var blank = 0; blank < (int)month.DayOfWeek; blank++) { <div class="cal-cell outside" aria-hidden="true"></div> }
+                @for (var day = 1; day <= DateTime.DaysInMonth(month.Year, month.Month); day++)
+                {
+                    var date = new DateOnly(month.Year, month.Month, day);
+                    var due = Model.Tasks.Where(t => t.DueDate == date).OrderBy(t => t.Id).ToList();
+                    <div class="cal-cell @(due.Count > 0 ? "has-events" : "") @(date == Model.FarmToday ? "is-today" : "")">
+                    @if (due.Count > 0) { <a asp-action="Index" asp-route-farmId="@Model.Farm.Id" asp-route-view="all" asp-route-month="@month.ToString("yyyy-MM")" asp-fragment="@("task-" + due[0].Id)" aria-label="@date.ToString("MMMM d"), @due.Count tasks"><time datetime="@date.ToString("yyyy-MM-dd")">@day</time><span class="calendar-event-dot" aria-hidden="true"></span></a> }
+                    else { <time datetime="@date.ToString("yyyy-MM-dd")">@day</time> }
+                    </div>
+                }
+            </div>
+        </div>
+        <p class="hint">Dates use @Model.Farm.TimeZoneId. Select a marked date to open its task records.</p>
+    </section>
+}
+</div>
 @if (canManage)
 {
-    <section class="panel sf-task-create" id="add-task" aria-labelledby="add-task-heading">
-        <div class="sf-section-line">
+    <section class="panel card sf-task-create" id="add-task" data-form-dialog aria-labelledby="add-task-heading">
+        <div class="sf-section-line card-head">
             <div>
-                <p class="sf-kicker">PLAN THE NEXT JOB</p>
+
                 <h2 id="add-task-heading">Add a task</h2>
             </div>
         </div>
@@ -243,3 +280,5 @@
         </form>
     </section>
 }
+
+</div>

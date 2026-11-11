@@ -42,3 +42,82 @@
  .ani-insight-links>a { flex:1 1 40%; text-align:center; }
  .ani-report-chart { padding:11px; }
 }
+
+/* Forecast strips and separate, unit-safe report panels mirror the reference. */
+.reference-screen .sf-weather-hero { border:0; background:transparent; padding:0; }
+.reference-screen .reference-weather-overview { display:flex; align-items:center; justify-content:space-between; gap:20px; margin:0 0 18px; padding:20px; border:1px solid var(--stroke,var(--divider)); border-radius:14px; background:var(--card,var(--surface)); }
+.reference-screen .reference-weather-now { display:flex; align-items:center; gap:16px; }
+.reference-screen .reference-weather-icon { color:var(--accent,var(--primary)); }
+.reference-screen .reference-weather-now strong { font-size:32px; line-height:1.2; letter-spacing:-.035em; font-variant-numeric:tabular-nums; }
+.reference-screen .reference-weather-now span:not(.reference-weather-icon) { display:block; font-size:11px; color:var(--muted); margin-top:5px; }
+.reference-screen .weather-pills { display:flex; flex-wrap:wrap; gap:8px; }
+.reference-screen .reference-forecast-card { border:1px solid var(--stroke,var(--divider)); border-radius:14px; background:var(--card,var(--surface)); margin-bottom:18px; }
+.reference-screen .reference-forecast-card > .card-head { padding:19px 20px 0; margin:0; }
+.reference-screen .reference-forecast-card > .card-body { padding:18px 20px; }
+.reference-screen .reference-forecast-card .card-head > span { font-size:11px; }
+.reference-screen .forecast { display:grid; grid-template-columns:repeat(auto-fit,minmax(145px,1fr)); gap:0; list-style:none; margin:15px 0 0; padding:0; }
+.reference-screen .forecast .sf-weather-card { border:0; border-right:1px solid var(--stroke,var(--divider)); border-radius:0; padding:12px 14px; background:transparent; text-align:center; }
+.reference-screen .forecast .sf-weather-card:last-child { border-right:0; }
+.reference-screen .forecast .ani-weather-next { background:var(--mint,var(--soft)); border-radius:10px; }
+.reference-screen .forecast .sf-weather-card-top { display:grid; justify-content:center; gap:7px; }
+.reference-screen .forecast .sf-weather-card-top time { font-size:12px; }
+.reference-screen .forecast .sf-weather-card-top > span { font-size:10px; text-align:center; }
+.reference-screen .forecast .ani-next-label { background:var(--card,var(--surface)); color:var(--pine,var(--farm-pine)); padding:3px 7px; }
+.reference-screen .forecast .sf-weather-temps { margin:16px 0 12px; padding:0 0 12px; gap:7px; }
+.reference-screen .forecast .sf-weather-temps strong { font-size:19px; }
+.reference-screen .forecast .sf-weather-temps span { font-size:10px; }
+.reference-screen .forecast .sf-weather-facts { margin:0 0 12px; gap:7px; }
+.reference-screen .forecast .sf-weather-facts > div { justify-content:center; gap:5px; font-size:10px; }
+.reference-screen .forecast .sf-weather-card > small { font-size:9px; line-height:1.6; }
+.reference-screen .sf-weather-stale { border-width:1px; padding:14px 17px; margin-bottom:18px; font-size:12px; }
+.reference-screen .sf-weather-alert-list > li { border:0; border-radius:10px; font-size:12px; }
+.reference-screen .sf-weather-alert-title time { font-size:11px; }
+.reference-screen .ani-report-chart { border:0; border-radius:0; background:transparent; padding:0; }
+.reference-screen .sf-report-analytics { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:18px; padding:0; border:0; background:transparent; }
+.reference-screen .sf-report-analytics > :not(.reference-chart-block) { grid-column:1/-1; margin:0; }
+.reference-screen .reference-chart-block { min-width:0; padding:20px; border:1px solid var(--stroke,var(--divider)); border-radius:14px; background:var(--card,var(--surface)); }
+.reference-screen .reference-chart-block h3 { margin:0 0 22px; font-size:15px; }
+.reference-screen .reference-chart-block .harvest-bar-row { display:grid; grid-template-columns:1fr auto; gap:8px; margin:0 0 18px; font-size:11px; }
+.reference-screen .reference-chart-block .harvest-bar-row > span { grid-column:1; grid-row:1; font-weight:700; }
+.reference-screen .reference-chart-block .harvest-bar-row > div:last-child,
+.reference-screen .reference-chart-block .harvest-bar-row > strong { grid-column:2; grid-row:1; text-align:right; }
+.reference-screen .reference-chart-block .harvest-bar-row > .harvest-bar-track { grid-column:1/-1; grid-row:2; height:10px; min-height:10px; border-radius:30px; overflow:hidden; background:var(--bg,var(--soft)); }
+.reference-screen .reference-chart-block .harvest-bar-fill { background:var(--pine,var(--farm-pine)); border-radius:30px; }
+.reference-screen .reference-chart-block .harvest-bar-row:nth-child(even) .harvest-bar-fill { background:var(--accent,var(--primary)); }
+.reference-screen .sf-report-filters { border:0; background:transparent; padding:0; gap:12px; }
+.reference-screen .sf-report-filters label { font-size:11px; }
+.reference-screen .sf-report-filter-header h2 { margin:0 0 4px; }
+.reference-screen .sf-report-actions { gap:9px; font-size:11px; margin-bottom:20px; }
+.reference-screen .sf-report-counts { display:flex; flex-wrap:wrap; gap:14px; margin:0 0 20px; }
+.reference-screen .sf-report-counts > div { border:1px solid var(--stroke,var(--divider)); border-radius:14px; background:var(--card,var(--surface)); padding:17px; min-width:165px; }
+.reference-screen .sf-report-counts strong { font-size:24px; }
+.reference-screen .sf-report-counts span { font-size:11px; }
+.reference-screen .sf-report-unit-totals { margin-bottom:15px; }
+.reference-screen .sf-report-unit-totals .stat { border:1px solid var(--stroke,var(--divider)); border-radius:14px; box-shadow:none; background:var(--card,var(--surface)); padding:17px; }
+.reference-screen .sf-report-unit-totals .stat strong { font-size:24px; }
+.reference-screen .sf-finance-stats > div { border:1px solid var(--stroke,var(--divider)); border-radius:14px; background:var(--card,var(--surface)); padding:17px; }
+.reference-screen .sf-finance-stats span { font-size:11px; }
+.reference-screen .sf-finance-stats strong { font-size:25px; margin-top:8px; }
+.reference-screen .sf-finance-stats .sf-finance-net { color:var(--pine,var(--farm-pine)); background:var(--mint,var(--soft)); }
+.reference-screen .ani-finance-overview { margin-top:0; }
+.reference-screen .sf-finance-list { gap:0; }
+.reference-screen .sf-finance-row { border:0; border-top:1px solid var(--stroke,var(--divider)); border-radius:0; padding:18px 0; background:transparent; }
+.reference-screen .sf-finance-row:first-child { border-top:0; }
+.reference-screen .sf-finance-row-head time { font-size:10px; }
+.reference-screen .sf-finance-row-head > div > strong, .reference-screen .sf-finance-amount strong { font-size:14px; }
+.reference-screen .sf-finance-row > p { font-size:12px; }
+.reference-screen .sf-finance-month-row { font-size:11px; }
+.reference-screen .sf-finance-month-chart { border:0; background:transparent; padding:0; }
+.reference-screen .sf-finance-insight-tables { gap:18px; }
+@media(max-width:770px) {
+    .reference-screen .reference-weather-overview { align-items:start; flex-direction:column; gap:16px; padding:17px; }
+    .reference-screen .forecast { grid-template-columns:repeat(3,minmax(0,1fr)); row-gap:18px; }
+    .reference-screen .forecast .sf-weather-card { padding:10px 7px; }
+    .reference-screen .forecast .sf-weather-card:nth-child(3n) { border-right:0; }
+    .reference-screen .forecast .sf-weather-temps strong { font-size:16px; }
+    .reference-screen .sf-report-analytics { grid-template-columns:minmax(0,1fr); }
+    .reference-screen .sf-finance-stats { grid-template-columns:repeat(2,minmax(0,1fr)); gap:10px; }
+    .reference-screen .sf-finance-stats strong { font-size:21px; }
+    .reference-screen .reference-chart-block { padding:17px; }
+}
+@media(max-width:450px) { .reference-screen .forecast { grid-template-columns:repeat(2,minmax(0,1fr)); } .reference-screen .forecast .sf-weather-card:nth-child(3n) { border-right:1px solid var(--stroke,var(--divider)); } .reference-screen .forecast .sf-weather-card:nth-child(2n) { border-right:0; } }

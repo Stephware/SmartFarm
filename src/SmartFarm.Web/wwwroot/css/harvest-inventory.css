@@ -49,3 +49,49 @@
     .ani-stock-grid { grid-template-columns:minmax(0,1fr); }
 }
 @media (prefers-color-scheme:dark) { .ani-harvest-identity img { background:#344a37; } }
+
+/* The live stock and harvest ledgers use the reference's horizontal table strips. */
+.reference-screen .sf-inventory-panel { padding-bottom:0; }
+.reference-screen .ani-inventory-filter { gap:12px; border:0; border-radius:0; background:transparent; padding:0; margin:0 0 20px; }
+.reference-screen .ani-inventory-filter > div { flex:1 1 220px; }
+.reference-screen .ani-inventory-filter label { font-size:11px; }
+.reference-screen .ani-inventory-filter input, .reference-screen .ani-inventory-filter select { font-size:12px; border-radius:9px; min-height:42px; }
+.reference-screen .ani-inventory-alert { border:1px solid var(--stroke,var(--divider)); background:var(--accent-soft,var(--warning-soft)); color:var(--on-secondary-soft); padding:14px 17px; font-size:12px; border-radius:12px; margin:0 0 18px; }
+.reference-screen .ani-inventory-alert span { font-size:11px; }
+.reference-screen .table-wrap { overflow-x:auto; max-width:100%; scrollbar-width:thin; }
+.reference-screen .data-table { border-collapse:collapse; width:100%; min-width:560px; border:0; }
+.reference-screen .data-table th { background:var(--bg,var(--soft)); color:var(--muted); padding:13px 17px; font-size:10px; font-weight:750; white-space:nowrap; text-align:left; }
+.reference-screen .data-table td { font-size:12px; line-height:1.5; padding:16px 17px; border:0; border-top:1px solid var(--stroke,var(--divider)); background:transparent; vertical-align:middle; }
+.reference-screen .data-table tbody tr:hover td { background:var(--bg,var(--soft)); }
+.reference-screen .data-table .table-sub { display:block; font-size:10px; color:var(--muted); margin-top:4px; }
+.reference-screen .data-table .table-name { font-weight:750; text-decoration:none; }
+.reference-screen .reference-quantity { white-space:nowrap; font-variant-numeric:tabular-nums; }
+.reference-screen .reference-inventory-table .sf-inventory-row { display:table-row; border:0; padding:0; box-shadow:none; border-radius:0; }
+.reference-screen .reference-inventory-table .sf-stock-low { border:0; }
+.reference-screen .reference-inventory-table .sf-row-link { font-size:11px; }
+.reference-screen .reference-inventory-table td:last-child { text-align:right; }
+.reference-screen .reference-inventory-table td .sf-button-outline { min-height:36px; font-size:11px; padding:7px 10px; border-radius:8px; }
+.reference-screen .sf-harvest-history { padding-bottom:0; }
+.reference-screen .reference-harvest-table .sf-harvest-entry { border:0; padding:0; margin:0; }
+.reference-screen .reference-harvest-table .sf-harvest-entry time { font-size:11px; }
+.reference-screen .reference-harvest-table .sf-edit-disclosure { min-width:140px; border:0; margin:5px 0 0; }
+.reference-screen .reference-harvest-table .sf-edit-disclosure > summary { min-height:36px; }
+.reference-screen .reference-harvest-table .sf-edit-disclosure[open] { min-width:235px; }
+.reference-screen .reference-harvest-table .sf-edit-disclosure form { display:grid; gap:7px; }
+.reference-screen .reference-harvest-table .sf-edit-disclosure form button { justify-self:start; }
+.reference-screen .sf-harvest-metrics { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:14px; margin:0 0 18px; padding:0; background:transparent; border:0; }
+.reference-screen .sf-harvest-metrics > div { padding:17px; background:var(--card,var(--surface)); border:1px solid var(--stroke,var(--divider)); border-radius:14px; margin:0; }
+.reference-screen .sf-harvest-metrics strong { font-size:24px; font-variant-numeric:tabular-nums; }
+.reference-screen .sf-harvest-metrics span, .reference-screen .sf-harvest-metrics small { font-size:11px; }
+.reference-screen .ani-harvest-identity img { width:64px; height:64px; border:0; padding:4px; background:var(--mint,var(--soft)); border-radius:11px; }
+.reference-screen .ani-harvest-form-notice { font-size:11px; }
+.reference-screen .sf-stock-transactions > li { border:0; border-radius:0; border-bottom:1px solid var(--stroke,var(--divider)); padding:16px 0; background:transparent; }
+.reference-screen .sf-stock-transactions time { font-size:11px; }
+.reference-screen .sf-reverse-form { display:flex; flex-wrap:wrap; gap:9px; padding:13px 0 0; border:0; background:transparent; font-size:12px; }
+.reference-screen .sf-reverse-form label { width:100%; }
+@media(max-width:650px) {
+    .reference-screen .sf-harvest-metrics { grid-template-columns:repeat(2,minmax(0,1fr)); gap:10px; }
+    .reference-screen .sf-harvest-metrics > div { padding:13px; }
+    .reference-screen .ani-harvest-identity { width:100%; }
+    .reference-screen .ani-harvest-identity img { display:none; }
+}

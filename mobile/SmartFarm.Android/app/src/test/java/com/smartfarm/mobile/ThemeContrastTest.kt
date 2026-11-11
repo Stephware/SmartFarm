@@ -5,6 +5,7 @@ import androidx.compose.ui.graphics.luminance
 import com.smartfarm.mobile.ui.theme.LightColors
 import com.smartfarm.mobile.ui.theme.DarkColors
 import org.junit.Assert.assertTrue
+import org.junit.Assert.assertEquals
 import org.junit.Test
 import kotlin.math.max
 import kotlin.math.min
@@ -13,6 +14,14 @@ class ThemeContrastTest {
     private fun contrast(first: Color, second: Color): Float {
         val a = first.luminance(); val b = second.luminance()
         return (max(a, b) + .05f) / (min(a, b) + .05f)
+    }
+
+    @Test fun lightWorkspaceUsesThePinnedReferencePalette() {
+        assertEquals(Color(0xFF28503C), LightColors.primary)
+        assertEquals(Color(0xFF153D2D), LightColors.onPrimaryContainer)
+        assertEquals(Color(0xFFFFF2D8), LightColors.secondaryContainer)
+        assertEquals(Color.White, LightColors.surface)
+        assertEquals(Color(0xFFF7F8F4), LightColors.background)
     }
 
     @Test fun textAndControlsRemainReadableInBothThemes() {

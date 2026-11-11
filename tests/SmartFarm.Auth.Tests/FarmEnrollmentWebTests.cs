@@ -40,7 +40,7 @@ public sealed class FarmEnrollmentWebTests
         var html = await client.GetStringAsync($"/Farms/Details?id={FarmId}");
 
         Assert.Contains("class=\"app-shell\"", html);
-        Assert.Contains("class=\"app-sidebar\"", html);
+        Assert.Matches("<aside[^>]+class=\"[^\"]*\\bapp-sidebar\\b[^\"]*\"", html);
         Assert.Contains("class=\"mobile-nav\"", html);
         Assert.Contains("aria-label=\"Mobile workspace navigation\"", html);
         Assert.Contains("aria-label=\"Farm sections\"", html);
@@ -106,7 +106,7 @@ public sealed class FarmEnrollmentWebTests
         Assert.Contains("Today's work", html);
         Assert.Contains("Plots &amp; crops", html);
         Assert.Contains("Farm weather", html);
-        Assert.Contains("SAVED FORECAST", html);
+        Assert.Contains("aria-labelledby=\"weather-heading\"", html);
         Assert.Contains("Open tasks", html);
         Assert.Contains("No plots yet", html);
         Assert.Contains("Set the farm's map pin", html);

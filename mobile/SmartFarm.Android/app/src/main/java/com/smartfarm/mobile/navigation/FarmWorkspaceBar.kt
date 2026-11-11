@@ -3,6 +3,9 @@ package com.smartfarm.mobile.navigation
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.NavigationRail
+import androidx.compose.material3.NavigationRailItem
+import androidx.compose.material3.NavigationRailItemDefaults
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.NavigationBarItemDefaults
@@ -57,13 +60,13 @@ private fun FarmNavIcon(symbol: FarmNavSymbol, tint: Color) {
                 line(12f, 21f, 12f, 9f)
                 val left = Path().apply {
                     moveTo(12f * unit, 15f * unit)
-                    quadraticBezierTo(4f * unit, 16f * unit, 4f * unit, 7f * unit)
-                    quadraticBezierTo(12f * unit, 7f * unit, 12f * unit, 15f * unit)
+                    quadraticTo(4f * unit, 16f * unit, 4f * unit, 7f * unit)
+                    quadraticTo(12f * unit, 7f * unit, 12f * unit, 15f * unit)
                 }
                 val right = Path().apply {
                     moveTo(12f * unit, 12f * unit)
-                    quadraticBezierTo(20f * unit, 12f * unit, 20f * unit, 4f * unit)
-                    quadraticBezierTo(13f * unit, 4f * unit, 12f * unit, 12f * unit)
+                    quadraticTo(20f * unit, 12f * unit, 20f * unit, 4f * unit)
+                    quadraticTo(13f * unit, 4f * unit, 12f * unit, 12f * unit)
                 }
                 drawPath(left, tint, style = Stroke(width = width))
                 drawPath(right, tint, style = Stroke(width = width))
@@ -89,6 +92,7 @@ private fun FarmNavIcon(symbol: FarmNavSymbol, tint: Color) {
 @Composable
 internal fun FarmWorkspaceBar(
     selectedRoute: String,
+    expanded: Boolean = false,
     onNavigate: (String) -> Unit
 ) {
     val tabs = listOf(
@@ -99,9 +103,26 @@ internal fun FarmWorkspaceBar(
         FarmNavTab("account", "Account", FarmNavSymbol.Account)
     )
     val colors = MaterialTheme.colorScheme
+    if (expanded) {
+        NavigationRail(containerColor = colors.surface,
+            modifier = Modifier.testTag("farm-navigation-rail")) {
+            tabs.forEach { tab ->
+                val selected = selectedRoute == tab.route
+                NavigationRailItem(selected = selected,
+                    onClick = { if (!selected) onNavigate(tab.route) },
+                    icon = { FarmNavIcon(tab.symbol, if (selected) colors.onPrimaryContainer else colors.onSurfaceVariant) },
+                    label = { Text(tab.title) },
+                    colors = NavigationRailItemDefaults.colors(
+                        indicatorColor = colors.primaryContainer,
+                        selectedTextColor = colors.primary,
+                        unselectedTextColor = colors.onSurfaceVariant))
+            }
+        }
+        return
+    }
     NavigationBar(
         modifier = Modifier.testTag("farm-bottom-navigation"),
-        containerColor = colors.surfaceContainerLow,
+        containerColor = colors.surface,
         tonalElevation = 0.dp
     ) {
         tabs.forEach { tab ->
@@ -119,7 +140,7 @@ internal fun FarmWorkspaceBar(
                 colors = NavigationBarItemDefaults.colors(
                     selectedIconColor = colors.onSecondaryContainer,
                     selectedTextColor = colors.onSecondaryContainer,
-                    indicatorColor = colors.secondaryContainer,
+                    indicatorColor = colors.primaryContainer,
                     unselectedIconColor = colors.onSurfaceVariant,
                     unselectedTextColor = colors.onSurfaceVariant
                 )

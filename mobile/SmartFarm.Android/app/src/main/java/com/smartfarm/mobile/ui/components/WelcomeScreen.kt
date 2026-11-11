@@ -39,19 +39,19 @@ fun WelcomeScreen(
     onRegister: () -> Unit = {}
 ) {
     var showDiagnostics by rememberSaveable { mutableStateOf(false) }
-    Scaffold { padding ->
+    Scaffold(topBar = { FarmAppBar() }) { padding ->
         Box(Modifier.fillMaxSize().padding(padding), contentAlignment = Alignment.TopCenter) {
             Column(Modifier.widthIn(max = 560.dp).fillMaxWidth().verticalScroll(rememberScrollState())
                 .padding(22.dp), verticalArrangement = Arrangement.spacedBy(18.dp)) {
-                FarmHero("Welcome to AniGo",
-                    "Your farms, fieldwork and harvests—organized in one place.")
-                Card(colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.secondaryContainer),
+                Card(colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primary),
                     shape = MaterialTheme.shapes.large, modifier = Modifier.fillMaxWidth()) {
                     Column(Modifier.fillMaxWidth().padding(16.dp),
                         verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                        Text("GROW SOMETHING GREAT",
-                            style = MaterialTheme.typography.labelMedium,
-                            color = MaterialTheme.colorScheme.onSecondaryContainer)
+                        Text("Welcome to AniGo", style = MaterialTheme.typography.headlineLarge,
+                            color = MaterialTheme.colorScheme.onPrimary)
+                        Text("Your farms, fieldwork and harvests—organized in one place.",
+                            style = MaterialTheme.typography.bodyLarge,
+                            color = MaterialTheme.colorScheme.onPrimary)
                         Row(Modifier.fillMaxWidth(),
                             verticalAlignment = Alignment.CenterVertically,
                             horizontalArrangement = Arrangement.SpaceEvenly) {
@@ -60,11 +60,8 @@ fun WelcomeScreen(
                             CropArtworkImage("Eggplant", Modifier.weight(1f).padding(5.dp))
                         }
                         Text("Plan crops · Record fieldwork · Track harvests",
-                            color = MaterialTheme.colorScheme.onSecondaryContainer,
+                            color = MaterialTheme.colorScheme.onPrimary,
                             style = MaterialTheme.typography.bodyMedium)
-                        Text("Crop artwork is illustrative, not a prediction of crop health.",
-                            color = MaterialTheme.colorScheme.onSecondaryContainer,
-                            style = MaterialTheme.typography.bodySmall)
                     }
                 }
                 FarmSectionCard("Your farm workspace", subtitle = "Quick to learn and designed for work in the field.") {

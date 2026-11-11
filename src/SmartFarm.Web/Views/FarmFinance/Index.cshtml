@@ -1,14 +1,16 @@
 @model SmartFarm.Web.ViewModels.Finance.FarmFinancePage
 @{
     ViewData["Title"] = "Farm finance";
+    ViewData["FarmName"] = Model.Farm.Name;
     var canManage = Model.Farm.Role is "Owner" or "Manager";
 }
+<div class="reference-screen reference-screen-farmfinance">
 <partial name="_FarmNavigation" model="Model.Farm.Id" />
-<section class="panel sf-finance-hero ani-finance-hero" aria-labelledby="finance-heading">
-    <div class="sf-page-header">
+<section class="panel card sf-finance-hero ani-finance-hero" aria-labelledby="finance-heading">
+    <div class="sf-page-header page-hero">
         <div>
             <p><a asp-controller="Farms" asp-action="Details" asp-route-id="@Model.Farm.Id">← @Model.Farm.Name</a></p>
-            <p class="sf-kicker">MANUAL CASH RECORDS</p>
+
             <h1 id="finance-heading">Farm finances</h1>
             <p class="sf-muted">Optional manual income and expense tracking in Philippine pesos (PHP).</p>
             <p class="ani-insight-note">Understand money received, money spent, and the net of manually recorded cash transactions.</p>
@@ -35,10 +37,10 @@
 </section>
 @if (Model.Insights is { } insights)
 {
-    <section class="panel sf-finance-insights ani-finance-insights" aria-labelledby="finance-insights-heading">
-        <div class="sf-section-line">
+    <section class="panel card sf-finance-insights ani-finance-insights" aria-labelledby="finance-insights-heading">
+        <div class="sf-section-line card-head">
             <div>
-                <p class="sf-kicker">RECORDED CASH TRENDS</p>
+
                 <h2 id="finance-insights-heading">Financial insights</h2>
             </div>
             <span>@insights.EntryCount non-voided entries</span>
@@ -181,9 +183,9 @@
 }
 @if (canManage)
 {
-    <section class="panel sf-finance-entry-panel ani-finance-entry" id="add-finance-entry" aria-labelledby="finance-add-heading">
-        <p class="sf-kicker">RECORD MONEY IN OR OUT</p>
-        <h2 id="finance-add-heading">Add income or expense</h2>
+    <section class="panel card sf-finance-entry-panel ani-finance-entry" id="add-finance-entry" aria-labelledby="finance-add-heading">
+
+        <header class="reference-panel-heading"><h2 id="finance-add-heading">Add income or expense</h2></header>
         <p class="sf-muted">Record confirmed money in or out. Enter the actual amount and date; link to a crop only when relevant.</p>
         <p class="ani-cash-notice">A harvest is not automatically a sale, and inventory use is not automatically an expense.</p>
         <form asp-action="Record" asp-route-farmId="@Model.Farm.Id" method="post" class="sf-ops-form sf-finance-entry-form">
@@ -226,10 +228,10 @@
         </form>
     </section>
 }
-<section class="panel sf-finance-history ani-finance-history" aria-labelledby="finance-history-heading">
-    <div class="sf-section-line">
+<section class="panel card sf-finance-history ani-finance-history" aria-labelledby="finance-history-heading">
+    <div class="sf-section-line card-head">
         <div>
-            <p class="sf-kicker">RECENT RECORDS</p>
+
             <h2 id="finance-history-heading">Finance history</h2>
         </div>
         <span>@Model.Finance.Entries.Count displayed</span>
@@ -279,3 +281,5 @@
         </ul>
     }
 </section>
+
+</div>

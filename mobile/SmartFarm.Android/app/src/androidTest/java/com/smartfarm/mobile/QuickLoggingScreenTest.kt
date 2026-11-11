@@ -21,12 +21,13 @@ class QuickLoggingScreenTest {
                 onThumbnail = { byteArrayOf() }, onDismissPreview = {},
                 quick = "watering")
         } }
-        compose.onNodeWithText("Quick log: Watering").assertExists()
+        compose.onNodeWithText("Activity").assertIsSelected()
+        compose.onNodeWithText("Watering").assertIsSelected()
         compose.onNodeWithText("Record inspection / observation").assertDoesNotExist()
-        compose.onNodeWithText("Save activity").performClick()
+        compose.onNodeWithText("Save activity").performScrollTo().performClick()
         compose.runOnIdle { assertEquals(1 to "", saved) }
-        compose.onNodeWithText("Show all logging options").performClick()
-        compose.onNodeWithText("Record inspection / observation").assertExists()
+        compose.onNodeWithText("Inspection").performScrollTo().performClick()
+        compose.onNodeWithText("Save observation").assertExists()
     }
 
     @Test fun inspectionShortcutShowsOnlyInspectionFirst() {
@@ -37,7 +38,7 @@ class QuickLoggingScreenTest {
                 onThumbnail = { byteArrayOf() }, onDismissPreview = {},
                 quick = "inspection")
         } }
-        compose.onNodeWithText("Quick log: Inspection").assertExists()
+        compose.onNodeWithText("Inspection").assertIsSelected()
         compose.onNodeWithText("Record farm activity").assertDoesNotExist()
         compose.onNodeWithText("Save observation").assertExists()
     }

@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.foundation.selection.toggleable
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
@@ -37,9 +38,14 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.heading
+import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.liveRegion
 import androidx.compose.ui.semantics.LiveRegionMode
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.unit.dp
+import com.smartfarm.mobile.ui.theme.LocalFarmAppearance
+import androidx.compose.material3.Switch
+import com.smartfarm.mobile.ui.components.FarmAppBar
 import com.smartfarm.mobile.ui.components.FarmHero
 import com.smartfarm.mobile.ui.components.CropArtworkImage
 import com.smartfarm.mobile.ui.components.FarmSectionCard
@@ -152,6 +158,16 @@ fun AccountScreen(state: AuthUiState, onLogout: () -> Unit, onFarms: () -> Unit,
                 Text("Offline sync status")
             }
         }
+        FarmSectionCard("Appearance", subtitle = "Choose the display that suits your surroundings.") {
+            val appearance = LocalFarmAppearance.current
+            Row(Modifier.fillMaxWidth().toggleable(value = appearance.dark, role = Role.Switch,
+                    onValueChange = appearance.selectDark).semantics { contentDescription = "Dark theme" }
+                    .padding(vertical = 4.dp), verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween) {
+                Text("Dark theme", style = MaterialTheme.typography.bodyLarge)
+                Switch(checked = appearance.dark, onCheckedChange = null)
+            }
+        }
         OutlinedButton(onClick = onLogout, modifier = Modifier.fillMaxWidth()) {
             Text("Log out")
         }
@@ -191,7 +207,7 @@ private fun Feedback(state: AuthUiState) {
 @Composable
 private fun AuthScaffold(title: String, subtitle: String,
     content: @Composable () -> Unit) {
-    Scaffold { padding ->
+    Scaffold(topBar = { FarmAppBar() }) { padding ->
         Box(Modifier.fillMaxSize().padding(padding).consumeWindowInsets(padding).imePadding(),
             contentAlignment = Alignment.TopCenter) {
             Column(Modifier.widthIn(max = 560.dp).fillMaxWidth()
