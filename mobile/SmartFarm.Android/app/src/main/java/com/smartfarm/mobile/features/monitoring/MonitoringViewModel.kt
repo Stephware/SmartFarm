@@ -12,6 +12,7 @@ import com.smartfarm.mobile.data.repository.MonitoringRepository
 import com.smartfarm.mobile.data.sync.SyncRepository
 import com.smartfarm.mobile.data.remote.dto.ActivityInputDto
 import com.smartfarm.mobile.data.remote.dto.ObservationInputDto
+import com.smartfarm.mobile.data.remote.dto.ObservationFollowUpInputDto
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.currentCoroutineContext
@@ -134,11 +135,49 @@ class MonitoringViewModel(private val repository: MonitoringRepository,
     }
 
     fun observe(health: Int, growth: String, notes: String,
-        uri: Uri?, resolver: ContentResolver) = submit("observation") { farmId, cycleId ->
-        val input = ObservationInputDto(health,
-            growth.trim().ifBlank { null }, notes.trim().ifBlank { null })
-        if (uri == null) sync.queueObservation(farmId, cycleId, input)
-        else sync.queueObservationWithPhoto(farmId, cycleId, input, uri, resolver)
+        uri: Uri?, resolver: ContentResolver) =
+        observeIssue(health, growth, notes, 0, 0, uri, resolver)
+
+    fun observeIssue(health: Int, growth: String, notes: String,
+        category: Int, severity: Int, uri: Uri?, resolver: ContentResolver) =
+        submit("observation") { farmId, cycleId ->
+            require(category in 0..5 && severity in 0..3 &&
+                (category == 0 && severity == 0 ||
+                    category > 0 && severity > 0 && health in 2..3))
+            val input = ObservationInputDto(health,
+                growth.trim().ifBlank { null }, notes.trim().ifBlank { null },
+                category, severity)
+            if (uri == null) sync.queueObservation(farmId, cycleId, input)
+            else sync.queueObservationWithPhoto(farmId, cycleId, input, uri, resolver)
+        }
+
+    // Follow-up changes are online-only. Do not turn them into unverified offline claims.
+    fun updateFollowUp(observation: ObservationDto, status: Int, taskId: String?) {
+        val snapshot = mutable.value
+        if (snapshot.busy || snapshot.offline || snapshot.farmId.isBlank() ||
+            status !in 1..2 || observation.issueCategory == 0 ||
+            observation.rowVersion.isBlank()) return
+        mutable.value = snapshot.copy(busy = true, error = null, notice = null)
+        viewModelScope.launch {
+            try {
+                repository.followUp(snapshot.farmId, snapshot.cycleId, observation.id,
+                    ObservationFollowUpInputDto(status, taskId, observation.rowVersion))
+                if (mutable.value.farmId == snapshot.farmId && mutable.value.cycleId == snapshot.cycleId) {
+                    refresh(snapshot.farmId, snapshot.cycleId)
+                    mutable.value = mutable.value.copy(
+                        notice = "Follow-up saved on the server.")
+                }
+            } catch (cancelled: CancellationException) {
+                throw cancelled
+            } catch (_: Exception) {
+                if (mutable.value.farmId == snapshot.farmId && mutable.value.cycleId == snapshot.cycleId)
+                    mutable.value = mutable.value.copy(
+                        error = "Follow-up could not be confirmed. Refresh before retrying.")
+            } finally {
+                if (mutable.value.farmId == snapshot.farmId && mutable.value.cycleId == snapshot.cycleId)
+                    mutable.value = mutable.value.copy(busy = false)
+            }
+        }
     }
 
     // Attach to an existing observation even without a connection.
