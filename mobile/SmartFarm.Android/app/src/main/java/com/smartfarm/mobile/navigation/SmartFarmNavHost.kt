@@ -178,9 +178,24 @@ fun SmartFarmNavHost(auth: AuthViewModel, farms: FarmViewModel, crops: CropViewM
             val farmState by farms.state.collectAsStateWithLifecycle()
             LaunchedEffect(farmId) { tasks.load(farmId) }
             com.smartfarm.mobile.features.tasks.TaskScreen(taskState,
-                canManage = farmState.selected?.id == farmId && farmState.selected?.role in listOf("Owner", "Manager"),
-                actorId = state.account?.id, onBack = { navController.popBackStack() },
-                onRetry = { tasks.load(farmId) }, onComplete = tasks::complete, onRead = tasks::read)
+                canManage = farmState.selected?.id == farmId &&
+                    farmState.selected?.role in listOf("Owner", "Manager"),
+                actorId = state.account?.id,
+                isOwner = farmState.selected?.id == farmId && farmState.selected?.role == "Owner",
+                onBack = { navController.popBackStack() },
+                onRetry = { tasks.load(farmId) }, onComplete = tasks::complete, onRead = tasks::read,
+                onCreate = tasks::create, onUpdate = tasks::update,
+                onOpenCrop = { task ->
+                    val cycleId = task.cropCycleId
+                    if (cycleId != null && taskState.cycles.any { it.id == cycleId && it.status == 1 }) {
+                        when (task.taskType) {
+                            5 -> navController.navigate("harvests/$farmId/$cycleId")
+                            2 -> navController.navigate("monitor/$farmId/$cycleId?quick=watering")
+                            4 -> navController.navigate("monitor/$farmId/$cycleId?quick=inspection")
+                            else -> navController.navigate("monitor/$farmId/$cycleId")
+                        }
+                    }
+                })
         }
         composable("notifications") {
             val taskState by tasks.state.collectAsStateWithLifecycle()
