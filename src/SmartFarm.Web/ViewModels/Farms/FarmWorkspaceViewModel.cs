@@ -14,7 +14,13 @@ public sealed record FarmIndexViewModel(IReadOnlyList<FarmSummary> Farms,
     string? RequestError = null);
 
 public sealed record FarmDashboardViewModel(SmartFarm.Core.Contracts.Reports.FarmDashboard Report,
-    FarmEnrollmentPanel? Enrollment);
+    FarmEnrollmentPanel? Enrollment)
+{
+    public IReadOnlyList<PlotDetails> Plots { get; init; } = [];
+    public IReadOnlyList<SmartFarm.Core.Contracts.Crops.CropCycleDetails> Cycles { get; init; } = [];
+    public IReadOnlyList<SmartFarm.Core.Contracts.Tasks.FarmTaskDetails> Tasks { get; init; } = [];
+    public SmartFarm.Core.Contracts.Weather.WeatherOverview? Weather { get; init; }
+}
 
 public sealed record FarmEditViewModel(Guid FarmId, FarmInput Input);
 public sealed record PlotEditViewModel(Guid FarmId, Guid PlotId, PlotInput Input);
