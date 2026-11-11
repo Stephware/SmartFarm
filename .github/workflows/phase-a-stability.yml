@@ -1,0 +1,30 @@
+name: Phase A recovery and verification checks
+
+on:
+  pull_request:
+    branches: [dev, main]
+  push:
+    branches: [dev]
+
+permissions:
+  contents: read
+
+jobs:
+  safe-recovery-checks:
+    name: Read-only backup checks
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Check safety scripts syntax
+        run: |
+          bash -n scripts/verify-phase-a.sh
+          bash -n scripts/verify_sql_backup.sh
+          python3 -m py_compile scripts/verify_photo_backup.py
+      - name: Test photo-backup failure and success cases
+        run: python3 -m unittest discover -s scripts/tests -v
+      - name: Recheck SQL schema verifier
+        run: python3 -m unittest discover -s database/verification -v
