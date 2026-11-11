@@ -10,8 +10,14 @@ using System.Reflection;
 using System.Security.Claims;
 using SmartFarm.Core.Contracts.Farms;
 using SmartFarm.Core.Contracts.Reports;
+using SmartFarm.Core.Contracts.Crops;
+using SmartFarm.Core.Contracts.Tasks;
+using SmartFarm.Core.Contracts.Weather;
 using SmartFarm.Core.Interfaces.Farms;
 using SmartFarm.Core.Interfaces.Reports;
+using SmartFarm.Core.Interfaces.Crops;
+using SmartFarm.Core.Interfaces.Tasks;
+using SmartFarm.Core.Interfaces.Weather;
 using SmartFarm.Core.Enums;
 using Xunit;
 
@@ -89,6 +95,21 @@ public sealed class FarmEnrollmentWebTests
                 Assert.DoesNotContain("applicant@example.test", html);
             }
         }
+    }
+
+    [Fact]
+    public async Task DashboardShowsOnlySavedFarmInformationAndKeepsQuickLinks()
+    {
+        using var app = App();
+        using var client = app.CreateClient();
+        var html = await client.GetStringAsync($"/Dashboard?farmId={FarmId}");
+        Assert.Contains("Today's work", html);
+        Assert.Contains("Plots &amp; crops", html);
+        Assert.Contains("Farm weather", html);
+        Assert.Contains("Saved weather", html);
+        Assert.Contains("Open tasks", html);
+        Assert.Contains("No plots yet", html);
+        Assert.Contains("Set the farm's map pin", html);
     }
 
     [Fact]
@@ -346,6 +367,14 @@ public sealed class FarmEnrollmentWebTests
             }));
             services.AddScoped(_ => Stub<IFarmReportService>((_, _) => Task.FromResult(
                 new FarmDashboard(FarmId, "Green Farm", new DateOnly(2026,10,27), 0,0,0,0,0,0,0,0,[],[]))));
+            // The dashboard reads crop, task and saved-weather summaries as well as the report.
+            services.AddScoped(_ => Stub<ICropManagementService>((name, _) => name == "ListCyclesAsync"
+                ? Task.FromResult<IReadOnlyList<CropCycleDetails>>([]) : throw new NotSupportedException(name)));
+            services.AddScoped(_ => Stub<IFarmTaskService>((name, _) => name == "ListAsync"
+                ? Task.FromResult<IReadOnlyList<FarmTaskDetails>>([]) : throw new NotSupportedException(name)));
+            services.AddScoped(_ => Stub<IFarmWeatherService>((name, _) => name == "GetAsync"
+                ? Task.FromResult(new WeatherOverview(FarmId, false, "Asia/Manila", [], []))
+                : throw new NotSupportedException(name)));
             services.AddScoped(_ => Stub<IFarmEnrollmentService>(enroll ?? ((name, _) => name switch
             {
                 "OwnerOverviewAsync" => role == "Owner" ? Task.FromResult(new FarmEnrollmentOverview("ABCD12345678", [Pending])) : throw new InvalidOperationException("Non-owner must not request applicants"),
