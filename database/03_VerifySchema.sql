@@ -19,24 +19,24 @@ IF (SELECT COUNT(*) FROM sys.tables
 IF (SELECT COUNT(*) FROM sys.indexes AS i
     JOIN sys.tables AS t ON t.object_id = i.object_id
     WHERE t.schema_id = SCHEMA_ID(N'dbo') AND t.name <> N'__EFMigrationsHistory'
-        AND i.is_primary_key = 0 AND i.name IS NOT NULL) <> 48 + (3 * @financeTable)
-    THROW 50013, 'Expected 48 application indexes.', 1;
+        AND i.is_primary_key = 0 AND i.name IS NOT NULL) <> 49 + (3 * @financeTable)
+    THROW 50013, 'Expected 49 application indexes.', 1;
 
 IF (SELECT COUNT(*) FROM sys.foreign_keys AS fk
     JOIN sys.tables AS t ON t.object_id = fk.parent_object_id
-    WHERE t.schema_id = SCHEMA_ID(N'dbo') AND t.name <> N'__EFMigrationsHistory') <> 42 + (4 * @financeTable)
-    THROW 50014, 'Expected 42 foreign keys.', 1;
+    WHERE t.schema_id = SCHEMA_ID(N'dbo') AND t.name <> N'__EFMigrationsHistory') <> 43 + (4 * @financeTable)
+    THROW 50014, 'Expected 43 foreign keys.', 1;
 
 IF (SELECT COUNT(*) FROM sys.check_constraints AS ck
     JOIN sys.tables AS t ON t.object_id = ck.parent_object_id
-    WHERE t.schema_id = SCHEMA_ID(N'dbo') AND t.name <> N'__EFMigrationsHistory') <> 38 + (3 * @financeTable)
-    THROW 50015, 'Expected 38 check constraints.', 1;
+    WHERE t.schema_id = SCHEMA_ID(N'dbo') AND t.name <> N'__EFMigrationsHistory') <> 39 + (3 * @financeTable)
+    THROW 50015, 'Expected 39 check constraints.', 1;
 
 IF (SELECT COUNT(*) FROM sys.columns AS c
     JOIN sys.tables AS t ON t.object_id = c.object_id
     WHERE t.schema_id = SCHEMA_ID(N'dbo') AND t.name <> N'__EFMigrationsHistory'
-        AND c.system_type_id = TYPE_ID(N'timestamp')) <> 5
-    THROW 50016, 'Expected five SQL rowversion columns.', 1;
+        AND c.system_type_id = TYPE_ID(N'timestamp')) <> 6
+    THROW 50016, 'Expected six SQL rowversion columns.', 1;
 
 -- Disabled or untrusted constraints can look present while not protecting data.
 IF EXISTS (
@@ -87,10 +87,10 @@ IF EXISTS (
 
 SELECT N'PASS' AS SchemaCheck, DB_NAME() AS ConnectedDatabase,
        24 + @financeTable AS AppAndIdentityTables,
-       48 + 3 * @financeTable AS AppIndexes,
-       42 + 4 * @financeTable AS ForeignKeys,
-       38 + 3 * @financeTable AS CheckConstraints,
-       5 AS RowVersionColumns;
+       49 + 3 * @financeTable AS AppIndexes,
+       43 + 4 * @financeTable AS ForeignKeys,
+       39 + 3 * @financeTable AS CheckConstraints,
+       6 AS RowVersionColumns;
 
 SELECT name AS TableName
 FROM sys.tables
