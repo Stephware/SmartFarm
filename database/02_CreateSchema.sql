@@ -278,10 +278,20 @@ BEGIN TRY
         RecordedAtUtc DATETIME2(3) NOT NULL CONSTRAINT DF_CropObservation_RecordedAt DEFAULT (SYSUTCDATETIME()),
         RecordedByUserId UNIQUEIDENTIFIER NOT NULL,
         Notes NVARCHAR(1000) NULL,
+        IssueCategory TINYINT NOT NULL CONSTRAINT DF_CropObservation_IssueCategory DEFAULT (0),
+        IssueSeverity TINYINT NOT NULL CONSTRAINT DF_CropObservation_IssueSeverity DEFAULT (0),
+        FollowUpStatus TINYINT NOT NULL CONSTRAINT DF_CropObservation_FollowUpStatus DEFAULT (0),
+        FollowUpTaskId UNIQUEIDENTIFIER NULL,
+        RowVersion ROWVERSION NOT NULL,
         CONSTRAINT PK_CropObservation PRIMARY KEY (Id),
         CONSTRAINT FK_CropObservation_CropCycle FOREIGN KEY (CropCycleId) REFERENCES dbo.CropCycle(Id) ON DELETE NO ACTION,
         CONSTRAINT FK_CropObservation_User FOREIGN KEY (RecordedByUserId) REFERENCES dbo.AspNetUsers(Id) ON DELETE NO ACTION,
-        CONSTRAINT CK_CropObservation_Health CHECK (HealthStatus BETWEEN 0 AND 3)
+        CONSTRAINT FK_CropObservation_FollowUpTask FOREIGN KEY (FollowUpTaskId) REFERENCES dbo.FarmTask(Id) ON DELETE NO ACTION,
+        CONSTRAINT CK_CropObservation_Health CHECK (HealthStatus BETWEEN 0 AND 3),
+        CONSTRAINT CK_CropObservation_Issue CHECK (
+            (IssueCategory = 0 AND IssueSeverity = 0 AND FollowUpStatus = 0 AND FollowUpTaskId IS NULL)
+            OR (IssueCategory BETWEEN 1 AND 5 AND IssueSeverity BETWEEN 1 AND 3
+                AND FollowUpStatus BETWEEN 1 AND 2 AND HealthStatus IN (2,3)))
     );
 
     /* 9: OBSERVATION PHOTO */
@@ -492,6 +502,7 @@ BEGIN TRY
     CREATE INDEX IX_CropActivity_User ON dbo.CropActivity(RecordedByUserId);
     CREATE INDEX IX_CropObservation_Cycle_Time ON dbo.CropObservation(CropCycleId, ObservedAtUtc);
     CREATE INDEX IX_CropObservation_User ON dbo.CropObservation(RecordedByUserId);
+    CREATE INDEX IX_CropObservation_FollowUpTask ON dbo.CropObservation(FollowUpTaskId);
     CREATE INDEX IX_ObservationPhoto_Observation ON dbo.ObservationPhoto(CropObservationId);
     CREATE INDEX IX_ObservationPhoto_User ON dbo.ObservationPhoto(UploadedByUserId);
     CREATE INDEX IX_InventoryItem_Farm_Archived ON dbo.InventoryItem(FarmId, ArchivedAtUtc);
