@@ -11,6 +11,7 @@ import com.smartfarm.mobile.features.farms.FarmViewModel
 import com.smartfarm.mobile.features.crops.CropViewModel
 import com.smartfarm.mobile.features.inventory.InventoryViewModel
 import com.smartfarm.mobile.features.harvests.HarvestViewModel
+import com.smartfarm.mobile.features.insights.FarmInsightsViewModel
 import com.smartfarm.mobile.features.monitoring.MonitoringViewModel
 import com.smartfarm.mobile.features.syncstatus.SyncStatusViewModel
 import com.smartfarm.mobile.navigation.SmartFarmNavHost
@@ -49,6 +50,10 @@ class MainActivity : ComponentActivity() {
             (application as SmartFarmApplication).container.syncRepository)
     }
 
+    private val insights: FarmInsightsViewModel by viewModels {
+        FarmInsightsViewModel.Factory((application as SmartFarmApplication).container.insightsRepository)
+    }
+
     private val harvests: HarvestViewModel by viewModels {
         HarvestViewModel.Factory((application as SmartFarmApplication).container.harvestRepository,
             (application as SmartFarmApplication).container.syncRepository)
@@ -65,7 +70,7 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
-        setContent { SmartFarmTheme { SmartFarmNavHost(authentication, farms, crops, monitoring, inventory, harvests, status, syncStatus, tasks) } }
+        setContent { SmartFarmTheme { SmartFarmNavHost(authentication, farms, crops, monitoring, inventory, harvests, status, syncStatus, tasks, insights) } }
     }
 }
 

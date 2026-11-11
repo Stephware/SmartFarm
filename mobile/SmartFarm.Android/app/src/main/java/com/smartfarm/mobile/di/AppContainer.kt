@@ -26,6 +26,8 @@ import com.smartfarm.mobile.data.repository.MonitoringRepository
 import com.smartfarm.mobile.data.remote.api.FarmApi
 import com.smartfarm.mobile.data.remote.api.WeatherApi
 import com.smartfarm.mobile.data.repository.WeatherRepository
+import com.smartfarm.mobile.data.remote.api.FarmInsightsApi
+import com.smartfarm.mobile.data.repository.FarmInsightsRepository
 
 class AppContainer(context: Context) {
     val taskRepository by lazy {
@@ -50,6 +52,10 @@ class AppContainer(context: Context) {
     }
     val weatherRepository: WeatherRepository by lazy {
         WeatherRepository(authRepository, offlineCache) { retrofit.create(WeatherApi::class.java) }
+    }
+
+    val insightsRepository: FarmInsightsRepository by lazy {
+        FarmInsightsRepository(authRepository) { retrofit.create(FarmInsightsApi::class.java) }
     }
 
     val farmRepository: FarmRepository by lazy {
