@@ -20,18 +20,25 @@ public sealed class FarmFinanceController(
     private Guid Actor => Guid.TryParse(users.GetUserId(User), out var id) ? id : Guid.Empty;
 
     [HttpGet]
-    public async Task<IActionResult> Index(Guid farmId, CancellationToken ct)
+    public async Task<IActionResult> Index(Guid farmId, CancellationToken ct,
+        DateOnly? from = null, DateOnly? to = null)
     {
         try
         {
             var farm = await farms.GetAsync(farmId, Actor, ct);
             if (farm is null) return NotFound();
-            return View(new FarmFinancePage(farm,
-                await finance.ListAsync(farmId, Actor, ct),
-                await crops.ListCyclesAsync(farmId, Actor, ct)));
+            var overview = await finance.ListAsync(farmId, Actor, ct);
+            var insights = await finance.InsightsAsync(farmId, Actor, from, to, ct);
+            return View(new FarmFinancePage(farm, overview,
+                await crops.ListCyclesAsync(farmId, Actor, ct))
+            {
+                Insights = insights
+            });
         }
         catch (FarmOperationException e) when (e.Error == FarmError.NotFound)
         { return NotFound(); }
+        catch (FarmOperationException e) when (e.Error == FarmError.InvalidInput)
+        { return BadRequest(e.Message); }
     }
 
     [HttpPost, ValidateAntiForgeryToken]
