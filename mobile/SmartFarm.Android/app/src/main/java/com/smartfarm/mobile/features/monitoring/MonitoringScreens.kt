@@ -6,6 +6,10 @@ import androidx.compose.ui.platform.LocalContext
 import java.io.File
 import java.util.UUID
 import com.smartfarm.mobile.data.local.entity.PendingOperation
+import com.smartfarm.mobile.data.remote.api.TaskDto
+import com.smartfarm.mobile.data.remote.dto.ObservationDto
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import com.smartfarm.mobile.ui.components.PendingRecords
 import com.smartfarm.mobile.ui.components.OfflineDataNotice
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -74,7 +78,11 @@ fun MonitoringScreen(
     pending: List<PendingOperation> = emptyList(),
     onSync: () -> Unit = {},
     onRetry: () -> Unit = {},
-    quick: String = ""
+    quick: String = "",
+    onIssueObservation: (Int, String, String, Int, Int, Uri?) -> Unit = { _, _, _, _, _, _ -> },
+    canManageIssues: Boolean = false,
+    taskOptions: List<TaskDto> = emptyList(),
+    onFollowUp: (ObservationDto, Int, String?) -> Unit = { _, _, _ -> }
 ) {
     // Quick modes only change presentation; the same offline-capable handlers save data.
     var showAll by rememberSaveable(state.farmId, state.cycleId, quick) {
@@ -83,6 +91,8 @@ fun MonitoringScreen(
     var activityType by rememberSaveable(state.farmId, state.cycleId) { mutableStateOf(1) }
     var activityNotes by rememberSaveable(state.farmId, state.cycleId) { mutableStateOf("") }
     var health by rememberSaveable(state.farmId, state.cycleId) { mutableStateOf(0) }
+    var issueCategory by rememberSaveable(state.farmId, state.cycleId) { mutableStateOf(0) }
+    var issueSeverity by rememberSaveable(state.farmId, state.cycleId) { mutableStateOf(0) }
     var stage by rememberSaveable(state.farmId, state.cycleId) { mutableStateOf("") }
     var observationNotes by rememberSaveable(state.farmId, state.cycleId) { mutableStateOf("") }
     var targetObservation by rememberSaveable(state.farmId, state.cycleId) { mutableStateOf<String?>(null) }
@@ -109,6 +119,7 @@ fun MonitoringScreen(
     LaunchedEffect(observationReceipt) {
         if (observationReceipt != null && observationReceipt != handledObservation) {
             newPhoto = null; observationNotes = ""; stage = ""
+            issueCategory = 0; issueSeverity = 0
             handledObservation = observationReceipt
         }
     }
@@ -205,6 +216,34 @@ fun MonitoringScreen(
                                 enabled = !state.busy, label = { Text(label) })
                         }
                 }
+                Text("Observed issue (optional)",
+                    style = MaterialTheme.typography.labelLarge)
+                Row(Modifier.horizontalScroll(rememberScrollState()),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    listOf("None", "Pest", "Disease", "Nutrient", "Environment", "Other")
+                        .forEachIndexed { index, label ->
+                            FilterChip(selected = issueCategory == index,
+                                onClick = {
+                                    issueCategory = index
+                                    if (index == 0) issueSeverity = 0
+                                }, enabled = !state.busy,
+                                label = { Text(label) })
+                        }
+                }
+                if (issueCategory != 0) {
+                    Text("Issue severity", style = MaterialTheme.typography.labelLarge)
+                    Row(Modifier.horizontalScroll(rememberScrollState()),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                        listOf("Low", "Moderate", "High").forEachIndexed { index, label ->
+                            FilterChip(selected = issueSeverity == index + 1,
+                                onClick = { issueSeverity = index + 1 }, enabled = !state.busy,
+                                label = { Text(label) })
+                        }
+                    }
+                    Text("Choose Needs attention or Critical health when recording a specific issue. " +
+                        "Descriptions are observations, not confirmed diagnoses.",
+                        style = MaterialTheme.typography.bodySmall)
+                }
                 OutlinedTextField(stage, { stage = it }, enabled = !state.busy,
                     label = { Text("Growth stage") }, placeholder = {
                         Text("Vegetative, flowering, fruiting, or observed stage")
@@ -224,9 +263,15 @@ fun MonitoringScreen(
                         Modifier.fillMaxWidth().height(220.dp))
                     OutlinedButton(onClick = { newPhoto = null }, enabled = !state.busy) { Text("Remove selected photo") }
                 }
+                val issueValid = issueCategory == 0 && issueSeverity == 0 ||
+                    issueCategory in 1..5 && issueSeverity in 1..3 && health in 2..3
                 Button(onClick = {
-                    onObservation(health, stage, observationNotes, newPhoto)
-                }, enabled = !state.busy, modifier = Modifier.fillMaxWidth()) { Text("Save observation") }
+                    if (issueCategory == 0) onObservation(health, stage, observationNotes, newPhoto)
+                    else onIssueObservation(health, stage, observationNotes,
+                        issueCategory, issueSeverity, newPhoto)
+                }, enabled = !state.busy && issueValid, modifier = Modifier.fillMaxWidth()) {
+                    Text("Save observation")
+                }
                 }
                 }
             }
@@ -283,6 +328,63 @@ fun MonitoringScreen(
                     2, 3 -> FarmStatusTone.Warning
                     else -> FarmStatusTone.Neutral
                 })
+                if (observation.issueCategory != 0) {
+                    val label = listOf("None", "Pest", "Suspected disease",
+                        "Suspected nutrient deficiency", "Environmental stress", "Other")
+                        .getOrElse(observation.issueCategory) { "Issue" }
+                    Text("Issue: $label")
+                    FarmStatusChip(
+                        "Severity: " + listOf("None", "Low", "Moderate", "High")
+                            .getOrElse(observation.issueSeverity) { "Unknown" },
+                        if (observation.issueSeverity >= 2) FarmStatusTone.Warning
+                        else FarmStatusTone.Planned
+                    )
+                    FarmStatusChip(
+                        if (observation.followUpStatus == 2) "Resolved after checking"
+                        else "Needs follow-up",
+                        if (observation.followUpStatus == 2) FarmStatusTone.Active
+                        else FarmStatusTone.Warning
+                    )
+                    observation.followUpTaskId?.let { Text("Linked task: $it") }
+                    if (canManageIssues && !state.offline && observation.rowVersion.isNotBlank()) {
+                        var followStatus by rememberSaveable(observation.id) {
+                            mutableStateOf(observation.followUpStatus)
+                        }
+                        var followTask by rememberSaveable(observation.id) {
+                            mutableStateOf(observation.followUpTaskId)
+                        }
+                        var chooseTask by rememberSaveable(observation.id) { mutableStateOf(false) }
+                        Text("Manager follow-up", style = MaterialTheme.typography.titleSmall)
+                        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                            FilterChip(selected = followStatus == 1,
+                                onClick = { followStatus = 1 }, label = { Text("Open") })
+                            FilterChip(selected = followStatus == 2,
+                                onClick = { followStatus = 2 }, label = { Text("Resolved") })
+                        }
+                        val eligible = taskOptions.filter {
+                            it.cropCycleId == state.cycleId && it.taskType in listOf(4, 6)
+                        }
+                        OutlinedButton(onClick = { chooseTask = true }) {
+                            Text(eligible.firstOrNull { it.id == followTask }?.let {
+                                "Task due ${it.dueDate}"
+                            } ?: "No linked inspection task")
+                        }
+                        DropdownMenu(expanded = chooseTask, onDismissRequest = { chooseTask = false }) {
+                            DropdownMenuItem(text = { Text("No linked task") }, onClick = {
+                                followTask = null; chooseTask = false
+                            })
+                            eligible.forEach { task ->
+                                DropdownMenuItem(
+                                    text = { Text("${task.dueDate} · ${task.description ?: "Inspection"}") },
+                                    onClick = { followTask = task.id; chooseTask = false })
+                            }
+                        }
+                        Button(onClick = { onFollowUp(observation, followStatus, followTask) },
+                            enabled = !state.busy) { Text("Save issue follow-up") }
+                        Text("Completing an inspection task does not automatically mark a crop issue resolved.",
+                            style = MaterialTheme.typography.bodySmall)
+                    }
+                }
                 observation.growthStage?.let { Text("Stage: $it") }
                 observation.notes?.let { Text(it) }
                 observation.photos.forEach { photo ->
