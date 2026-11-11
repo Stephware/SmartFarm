@@ -32,7 +32,12 @@ public sealed class BusinessWorkflowSqlTests
     {
         var connection = Environment.GetEnvironmentVariable("SMARTFARM_TEST_CONNECTION");
         if (string.IsNullOrWhiteSpace(connection))
-            return; // Offline test runs do not require a SQL Server instance.
+        {
+            // Offline suites may skip SQL; explicitly requested acceptance runs must fail.
+            Assert.False(Environment.GetEnvironmentVariable("SMARTFARM_REQUIRE_SQL_TESTS") == "1",
+                "Phase A SQL acceptance requires SMARTFARM_TEST_CONNECTION pointing to an initialized disposable database.");
+            return;
+        }
 
         var database = new SqlConnectionStringBuilder(connection).InitialCatalog;
         Assert.True(database.StartsWith("SmartFarmEnrollmentTest_", StringComparison.Ordinal) || database.StartsWith("SmartFarmEnrollmentBackend_", StringComparison.Ordinal), "SQL workflow tests require a separately initialized disposable enrollment database.");
