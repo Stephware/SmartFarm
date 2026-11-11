@@ -7,6 +7,11 @@
         <p class="auth-kicker">GROW WITH ANIGO</p>
         <h2>A simpler way to manage your farm.</h2>
         <p>Set up your own farm or request to join an existing farm using its owner's code.</p>
+        <div class="ani-auth-illustration" aria-hidden="true">
+            <img src="@Url.Content("~/images/crops/sprout.svg")" alt="" width="120" height="120" />
+            <img src="@Url.Content("~/images/crops/corn.svg")" alt="" width="120" height="120" />
+            <img src="@Url.Content("~/images/crops/rice.svg")" alt="" width="120" height="120" />
+        </div>
         <div class="auth-intro-foot">One account can access multiple farms.</div>
     </aside>
     <section class="panel auth-card" aria-labelledby="register-heading">
@@ -18,22 +23,29 @@
         <form method="post" asp-action="Register" asp-controller="Account" class="auth-form">
             <div class="form-field">
                 <label asp-for="FullName">Full name</label>
-                <input asp-for="FullName" autocomplete="name" />
+                <input asp-for="FullName" autocomplete="name" required />
                 <span asp-validation-for="FullName" class="error"></span>
             </div>
             <div class="form-field">
                 <label asp-for="Email"></label>
-                <input asp-for="Email" type="email" autocomplete="email" />
+                <input asp-for="Email" type="email" autocomplete="email" inputmode="email"
+                       autocapitalize="none" spellcheck="false" required />
                 <span asp-validation-for="Email" class="error"></span>
             </div>
             <div class="form-field">
                 <label asp-for="Password"></label>
-                <input asp-for="Password" type="password" autocomplete="new-password" aria-describedby="password-guidance" />
+                <div class="ani-password-field">
+                    <input asp-for="Password" type="password" autocomplete="new-password"
+                           aria-describedby="password-guidance" required minlength="10" />
+                    <button type="button" class="ani-password-toggle" data-password-toggle
+                            aria-controls="Password" aria-pressed="false">Show</button>
+                </div>
                 <span asp-validation-for="Password" class="error"></span>
                 <p class="hint" id="password-guidance">Use at least 10 characters, including uppercase, lowercase, and a number.</p>
             </div>
             <button class="auth-submit" type="submit">Create account</button>
         </form>
+        <p class="ani-auth-fineprint">After registration, sign in to create a farm or request to join an existing one.</p>
         <p class="auth-switch">Already have an account? <a asp-controller="Account" asp-action="Login">Log in</a>.</p>
     </section>
 </div>
