@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" role="img" aria-label="corn crop illustration">
+  <path d="M27 106 Q58 112 94 106" fill="#C7AC82" stroke="#28543e" stroke-opacity=".13" stroke-width="1.5"/>
+  <path d="M61 105 Q59 84 60 30" fill="none" stroke="#327346" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M59 70 Q27 70 23 46 Q48 45 63 62Z" fill="#5E9554" stroke="#28543e" stroke-opacity=".13" stroke-width="1.5"/>
+  <path d="M63 62 Q88 40 106 46 Q104 72 62 77Z" fill="#74A764" stroke="#28543e" stroke-opacity=".13" stroke-width="1.5"/>
+  <path d="M55 83 Q43 67 49 49 Q56 33 70 37 Q86 43 82 68 Q79 91 65 94 Q58 94 55 83Z" fill="#E6BB58" stroke="#28543e" stroke-opacity=".13" stroke-width="1.5"/>
+  <path d="M54 49 Q61 39 70 42 M52 60 L79 65 M54 72 L78 76 M58 84 L72 86" fill="none" stroke="#F9DC82" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M55 90 Q42 76 37 63 Q55 67 61 90Z" fill="#397B4D" stroke="#28543e" stroke-opacity=".13" stroke-width="1.5"/>
+  <path d="M73 94 Q91 79 97 61 Q78 64 69 91Z" fill="#60975C" stroke="#28543e" stroke-opacity=".13" stroke-width="1.5"/>
+  <path d="M63 37 Q59 22 68 15 M67 34 Q72 22 79 18" fill="none" stroke="#A48039" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>

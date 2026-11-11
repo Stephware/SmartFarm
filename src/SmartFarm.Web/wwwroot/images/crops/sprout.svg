@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" role="img" aria-label="sprout crop illustration">
+  <path d="M28 105 C46 109 76 109 94 105 C76 111 44 113 28 105Z" fill="#BCA27C" stroke="#28543e" stroke-opacity=".13" stroke-width="1.5"/>
+  <path d="M59 105 Q57 85 60 63 Q62 46 62 31" fill="#285F43" stroke="#28543e" stroke-opacity=".13" stroke-width="1.5"/>
+  <path d="M60 76 Q30 78 19 52 Q43 48 60 67Z" fill="#548953" stroke="#28543e" stroke-opacity=".13" stroke-width="1.5"/>
+  <path d="M62 57 Q86 33 105 43 Q102 68 62 68Z" fill="#78A867" stroke="#28543e" stroke-opacity=".13" stroke-width="1.5"/>
+  <path d="M62 60 Q75 52 93 48" fill="none" stroke="#285F43" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M59 73 Q39 62 27 57" fill="none" stroke="#285F43" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M52 106 Q49 98 41 93 M67 106 Q70 98 77 95" fill="none" stroke="#285F43" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>
