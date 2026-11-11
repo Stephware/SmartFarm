@@ -16,7 +16,6 @@ internal fun meetsPasswordGuidance(password: String): Boolean =
         password.any { it.isLowerCase() } &&
         password.any { it.isDigit() }
 
-internal fun registrationReady(name: String, email: String, password: String,
-    confirmation: String): Boolean =
+internal fun registrationReady(name: String, email: String, password: String): Boolean =
     name.trim().length in 2..120 && looksLikeEmail(email) &&
-        meetsPasswordGuidance(password) && password == confirmation
+        meetsPasswordGuidance(password)

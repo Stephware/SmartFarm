@@ -16,10 +16,10 @@ class AuthPresentationTest {
     }
 
     @Test fun registrationNeedsMatchingAndWellFormedPasswords() {
-        assertTrue(registrationReady("Farm Manager", "hello@example.com", "StrongPass123", "StrongPass123"))
-        assertFalse(registrationReady("F", "hello@example.com", "StrongPass123", "StrongPass123"))
-        assertFalse(registrationReady("Farm Manager", "hello@example.com", "strongpass123", "strongpass123"))
-        assertFalse(registrationReady("Farm Manager", "hello@example.com", "StrongPass123", "StrongPass124"))
+        assertTrue(registrationReady("Farm Manager", "hello@example.com", "StrongPass123"))
+        assertFalse(registrationReady("F", "hello@example.com", "StrongPass123"))
+        assertFalse(registrationReady("Farm Manager", "hello@example.com", "strongpass123"))
+        assertFalse(registrationReady("Farm Manager", "hello@example.com", "short"))
     }
 
     @Test fun passwordLengthAndCaseRequired() {

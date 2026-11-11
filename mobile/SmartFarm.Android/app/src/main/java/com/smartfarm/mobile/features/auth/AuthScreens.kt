@@ -81,8 +81,7 @@ fun RegisterScreen(state: AuthUiState, onSubmit: (String, String, String) -> Uni
     var email by rememberSaveable { mutableStateOf("") }
     // Passwords are intentionally never stored with rememberSaveable.
     var password by remember { mutableStateOf("") }
-    var confirmation by remember { mutableStateOf("") }
-    val canCreate = registrationReady(name, email, password, confirmation)
+    val canCreate = registrationReady(name, email, password)
     AuthScaffold("Grow with AniGo", "Create an account to manage your farm or join a team.") {
         FarmSectionCard("Create your account", subtitle = "One account can work with multiple farms.") {
             OutlinedTextField(name, { name = it }, label = { Text("Full name") },
@@ -102,12 +101,6 @@ fun RegisterScreen(state: AuthUiState, onSubmit: (String, String, String) -> Uni
             Text("Use 10–128 characters with uppercase, lowercase and a number.",
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 style = MaterialTheme.typography.bodySmall)
-            PasswordInput("Confirm password", confirmation, { confirmation = it },
-                imeAction = ImeAction.Done,
-                error = confirmation.isNotBlank() && confirmation != password)
-            if (confirmation.isNotBlank() && confirmation != password)
-                Text("Passwords do not match.", color = MaterialTheme.colorScheme.error,
-                    style = MaterialTheme.typography.bodySmall)
             Feedback(state)
             Button(onClick = { onSubmit(name.trim(), email.trim(), password) },
                 enabled = !state.busy && canCreate, modifier = Modifier.fillMaxWidth()) {
