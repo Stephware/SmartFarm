@@ -1,8 +1,14 @@
+@using SmartFarm.Web.Presentation
 @using SmartFarm.Core.Enums
 @model SmartFarm.Web.ViewModels.Crops.CropWorkspaceViewModel
 @{
     ViewData["Title"] = "Crops";
     var canManage = Model.Farm.Role is "Owner" or "Manager";
+    var currentCrops = Model.Cycles
+        .Where(c => c.Status is CropCycleStatus.Active or CropCycleStatus.Planned)
+        .OrderByDescending(c => c.Status == CropCycleStatus.Active)
+        .ThenBy(c => c.ExpectedHarvestDate ?? DateOnly.MaxValue)
+        .Take(6).ToList();
 }
 <partial name="_FarmNavigation" model="Model.Farm.Id" />
 <section class="panel sf-crop-hero">
@@ -24,6 +30,48 @@
     </nav>
     @if (TempData["Error"] is string error) { <p class="error form-error" role="alert">@error</p> }
 </section>
+ 
+<section class="panel ani-current-crops" aria-labelledby="ani-current-heading">
+    <div class="sf-section-line">
+        <div>
+            <p class="sf-kicker">YOUR CURRENT PLANTINGS</p>
+            <h2 id="ani-current-heading">Growing and planned</h2>
+            <p class="sf-muted">These are recorded crop-cycle statuses, not predictions of plant maturity or health.</p>
+        </div>
+        <a asp-controller="PlotLayout" asp-action="Index" asp-route-farmId="@Model.Farm.Id">See all plots →</a>
+    </div>
+    @if (currentCrops.Count == 0)
+    {
+        <div class="sf-empty-state">
+            <strong>No active or planned crops</strong>
+            <p>Create a planting plan below to populate the farm overview.</p>
+            <a href="#planting-plans-heading">Go to planting plans →</a>
+        </div>
+    }
+    else
+    {
+        <div class="ani-current-grid">
+        @foreach (var crop in currentCrops)
+        {
+            <a class="ani-current-card" asp-controller="Crops" asp-action="Index"
+               asp-route-farmId="@Model.Farm.Id" asp-fragment="@("crop-cycle-" + crop.Id)">
+                <div class="ani-current-art" aria-hidden="true">
+                    <img src="@Url.Content("~/images/crops/" + CropArtwork.FileName(crop.CropTypeName))"
+                         loading="lazy" alt="" width="120" height="120" />
+                </div>
+                <div class="ani-current-copy">
+                    <span class="sf-status-chip @(crop.Status == CropCycleStatus.Active ? "sf-status-chip--active" : "sf-status-chip--planned")">@crop.StatusName</span>
+                    <strong>@crop.CropTypeName</strong>
+                    <span>@crop.PlotName</span>
+                    <small>@(crop.Status == CropCycleStatus.Active ? "Planted" : "Planned") ·
+                        @((crop.PlantedDate ?? crop.PlannedPlantingDate).ToString("MMM d, yyyy"))</small>
+                </div>
+            </a>
+        }
+        </div>
+    }
+</section>
+
 @if (Model.Agenda is { } agenda)
 {
 <section class="panel sf-crop-calendar" aria-labelledby="crop-calendar-heading">
@@ -68,8 +116,13 @@
         <ul class="farm-list">
         @foreach (var type in Model.CropTypes)
         {
-            <li><strong>@type.Name</strong> · @type.DefaultHarvestUnit
-                @if (type.DefaultGrowthDays is not null) { <span>Growth: @type.DefaultGrowthDays days</span> }
+            <li class="ani-crop-type-row">
+                <img src="@Url.Content("~/images/crops/" + CropArtwork.FileName(type.Name))" loading="lazy" width="64" height="64" alt="" />
+                <div>
+                    <strong>@type.Name</strong>
+                    <span class="sf-muted">Harvest unit: @type.DefaultHarvestUnit</span>
+                    @if (type.DefaultGrowthDays is not null) { <span class="sf-muted">Typical growth: @type.DefaultGrowthDays days</span> }
+                </div>
             </li>
         }
         </ul>
@@ -150,14 +203,22 @@
     <div class="sf-crop-card-grid">
     @foreach (var cycle in Model.Cycles)
     {
-        <article class="crop-cycle sf-crop-record">
+        <article class="crop-cycle sf-crop-record ani-crop-record" id="crop-cycle-@cycle.Id">
             <div class="sf-crop-card-heading">
-                <span class="sf-crop-decoration" aria-hidden="true"><i></i></span>
+                <span class="ani-crop-record-art" aria-hidden="true">
+                    <img src="@Url.Content("~/images/crops/" + CropArtwork.FileName(cycle.CropTypeName))" loading="lazy"
+                         width="120" height="120" alt="" />
+                </span>
                 <div>
                     <h3>@cycle.CropTypeName</h3>
                     <p class="sf-muted">@cycle.PlotName</p>
                 </div>
                 <span class="sf-status-chip @(cycle.Status == CropCycleStatus.Active ? "sf-status-chip--active" : cycle.Status == CropCycleStatus.Planned ? "sf-status-chip--planned" : cycle.Status == CropCycleStatus.Failed ? "sf-status-chip--failed" : "sf-status-chip--neutral")">@cycle.Status</span>
+            </div>
+            <div class="ani-crop-dates" aria-label="Crop cycle dates">
+                <div><span>Planned planting</span><strong>@cycle.PlannedPlantingDate.ToString("MMM d, yyyy")</strong></div>
+                <div><span>Actual planting</span><strong>@(cycle.PlantedDate?.ToString("MMM d, yyyy") ?? "Not planted")</strong></div>
+                <div><span>Expected harvest</span><strong>@(cycle.ExpectedHarvestDate?.ToString("MMM d, yyyy") ?? "Not set")</strong></div>
             </div>
             <p><a asp-controller="Harvests" asp-action="Index"
                   asp-route-farmId="@Model.Farm.Id" asp-route-cycleId="@cycle.Id">Harvest records →</a></p>
@@ -178,11 +239,6 @@
                        asp-route-cycleId="@cycle.Id" asp-fragment="record-harvest">Record harvest</a>
                 </div>
             }
-            <p><strong>@cycle.Status</strong> · Planned: @cycle.PlannedPlantingDate.ToString("yyyy-MM-dd")
-                @if (cycle.PlantedDate is not null) { <span> · Planted: @cycle.PlantedDate.Value.ToString("yyyy-MM-dd")</span> }
-            </p>
-            @if (cycle.ExpectedHarvestDate is not null)
-            { <p>Expected harvest: @cycle.ExpectedHarvestDate.Value.ToString("yyyy-MM-dd")</p> }
             @if (cycle.TerminationReason is not null)
             { <p>Reason: @cycle.TerminationReason</p> }
             @if (canManage && cycle.Status == CropCycleStatus.Planned)
