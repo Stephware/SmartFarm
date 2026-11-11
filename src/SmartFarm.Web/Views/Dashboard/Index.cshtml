@@ -1,3 +1,4 @@
+@using SmartFarm.Web.Presentation
 @using SmartFarm.Core.Enums
 @model SmartFarm.Web.ViewModels.Farms.FarmDashboardViewModel
 @{
@@ -134,9 +135,16 @@
                         var current = Model.Cycles.FirstOrDefault(c => c.PlotId == plot.Id && c.Status == CropCycleStatus.Active)
                             ?? Model.Cycles.FirstOrDefault(c => c.PlotId == plot.Id && c.Status == CropCycleStatus.Planned);
                         <a class="sf-home-plot" asp-controller="Crops" asp-action="Index" asp-route-farmId="@farm.FarmId"
+                           asp-route-plotId="@plot.Id"
+                           asp-fragment="@(current is null ? "planting-plans-heading" : "crop-cycle-" + current.Id)"
                            aria-label="@plot.Name, @(current?.CropTypeName ?? "No active or planned crop")">
-                            <div class="sf-home-plot-art @(current is null ? "sf-home-plot-empty" : "")" aria-hidden="true">
+                            <div class="sf-home-plot-art ani-dashboard-plot-art @(current is null ? "sf-home-plot-empty" : "")" aria-hidden="true">
                                 <span></span><span></span><span></span><span></span>
+                                @if (current is not null)
+                                {
+                                    <img src="@Url.Content("~/images/crops/" + CropArtwork.FileName(current.CropTypeName))"
+                                         loading="lazy" width="120" height="120" alt="" />
+                                }
                             </div>
                             <div class="sf-home-plot-copy">
                                 <strong>@plot.Name</strong>

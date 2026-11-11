@@ -321,7 +321,11 @@ fun FarmDetailScreen(state: FarmUiState, onBack: () -> Unit,
                                 onClick = onCrops
                             ) {
                                 Column(Modifier.padding(12.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                                    FarmPlotPreview()
+                                    val cropName = homeCrops?.takeIf { it.farmId == farm.id && it.error == null }?.cycles
+                                        ?.firstOrNull { it.plotId == plot.id && it.status == 1 }?.cropTypeName
+                                        ?: homeCrops?.takeIf { it.farmId == farm.id && it.error == null }?.cycles
+                                            ?.firstOrNull { it.plotId == plot.id && it.status == 0 }?.cropTypeName
+                                    FarmPlotPreview(cropName = cropName)
                                     Text(plot.name, style = MaterialTheme.typography.titleMedium)
                                     Text("${plot.areaSqMeters} m²",
                                         color = MaterialTheme.colorScheme.onSurfaceVariant)

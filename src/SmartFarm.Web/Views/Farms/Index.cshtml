@@ -29,7 +29,10 @@
             @foreach (var farm in Model.Farms)
             {
                 <li class="farm-select-card">
-                    <div class="farm-card-decor" aria-hidden="true"><span></span><span></span><span></span></div>
+                    <div class="farm-card-decor ani-farm-decor" aria-hidden="true">
+                        <span></span><span></span><span></span>
+                        <img src="@Url.Content("~/images/crops/sprout.svg")" loading="lazy" width="120" height="120" alt="" />
+                    </div>
                     <div class="farm-card-body">
                         <span class="farm-role-badge">@farm.Role</span>
                         <h2><a asp-action="Details" asp-route-id="@farm.Id">@farm.Name</a></h2>

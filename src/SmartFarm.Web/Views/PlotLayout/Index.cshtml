@@ -1,3 +1,4 @@
+@using SmartFarm.Web.Presentation
 @model SmartFarm.Web.ViewModels.Farms.PlotLayoutPage
 @{
     ViewData["Title"] = "Plot layout";
@@ -27,10 +28,18 @@
         <div class="plot-layout-grid sf-plot-grid" role="list" aria-label="Farm plot overview">
         @foreach (var plot in Model.Tiles)
         {
-            <a role="listitem" class="plot-layout-tile sf-plot-tile @(plot.CropName is null ? "sf-plot-empty" : "sf-plot-growing")"
+            <a role="listitem" class="plot-layout-tile sf-plot-tile ani-plot-tile @(plot.CropName is null ? "sf-plot-empty" : "sf-plot-growing")"
                asp-controller="Crops" asp-action="Index" asp-route-farmId="@Model.Farm.Id"
+               asp-route-plotId="@plot.PlotId"
+               asp-fragment="@(plot.CycleId.HasValue ? "crop-cycle-" + plot.CycleId : "planting-plans-heading")"
                aria-label="@plot.Name, @plot.AreaSqMeters square meters, @(plot.CropName ?? "No current crop")">
-                <div class="sf-plot-field" aria-hidden="true"><span></span><span></span><span></span></div>
+                <div class="sf-plot-field ani-plot-art" aria-hidden="true">
+                    <span></span><span></span><span></span>
+                    @if (plot.CropName is not null)
+                    {
+                        <img src="@Url.Content("~/images/crops/" + CropArtwork.FileName(plot.CropName))" loading="lazy" alt="" width="120" height="120" />
+                    }
+                </div>
                 <div class="sf-plot-tile-info">
                     <strong>@plot.Name</strong>
                     <span>@plot.AreaSqMeters.ToString("N2") m²</span>

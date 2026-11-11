@@ -4,6 +4,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
@@ -14,6 +15,7 @@ import androidx.compose.material3.FilterChip
 import androidx.compose.foundation.lazy.items
 import com.smartfarm.mobile.ui.components.RecordPage
 import com.smartfarm.mobile.ui.components.FarmHero
+import com.smartfarm.mobile.ui.components.CropArtworkImage
 import com.smartfarm.mobile.ui.components.FarmSectionCard
 import com.smartfarm.mobile.ui.components.FarmSectionHeader
 import com.smartfarm.mobile.ui.components.FarmStatusChip
@@ -68,8 +70,13 @@ fun CropScreen(
     var plannedDate by rememberSaveable { mutableStateOf("") }
     var harvestDate by rememberSaveable { mutableStateOf("") }
 
+    val currentCycles = state.cycles.filter { it.status == 0 || it.status == 1 }
+        .sortedWith(compareByDescending<CropCycleDto> { it.status == 1 }
+            .thenBy { it.expectedHarvestDate ?: "9999-12-31" })
+    val historyCycles = state.cycles.filter { it.status != 0 && it.status != 1 }
+        .sortedByDescending { it.plantedDate ?: it.plannedPlantingDate }
     RecordPage {
-        item(key = "forms") {
+        item(key = "overview") {
             Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
             FarmHero("Crop management", "Plan planting, monitor fieldwork and keep crop histories organized.")
             OutlinedButton(onClick = onBack) { Text("Back to farm") }
@@ -79,16 +86,39 @@ fun CropScreen(
                 OutlinedButton(onClick = onRetry, enabled = !state.busy) { Text("Try again") }
             }
             OfflineDataNotice(state.offline, state.cachedAtUtcMillis)
-
+                FarmSectionHeader("Growing and planned", "Recorded active and upcoming crop cycles.")
+                if (currentCycles.isEmpty() && !state.busy && state.error == null) {
+                    FarmEmptyState("No current crops", "Create a planting plan below to begin.")
+                }
+            }
+        }
+        items(currentCycles, key = { "current-${it.id}" }) { cycle ->
+            CycleCard(cycle, canManage && !state.offline, state.busy, onUpdatePlan,
+                onTransition, onMonitoring, onHarvests, onQuickMonitoring)
+        }
+        item(key = "planning") {
+            Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                HorizontalDivider()
+                FarmSectionHeader("Crop types and planting", "Choose a crop and growing area to create a plan.")
             FarmSectionHeader("Available crop types", "Shared crop options for planting and harvest planning.")
             if (state.types.isEmpty()) FarmEmptyState("No crop types yet", "Add a crop type before planning.")
             state.types.forEach { type ->
-                FarmSectionCard(type.name, subtitle = "Default harvest unit: ${type.defaultHarvestUnit}") {}
+                FarmSectionCard(type.name, subtitle = "Default harvest unit: ${type.defaultHarvestUnit}") {
+                    Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                        CropArtworkImage(type.name, Modifier.size(72.dp))
+                        Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                            Text("Crop illustration", style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant)
+                            type.defaultGrowthDays?.let {
+                                Text("Typical growth: $it days", style = MaterialTheme.typography.bodyMedium)
+                            }
+                        }
+                    }
+                }
             }
 
             if (canManage && !state.offline) {
-                HorizontalDivider()
-                Text("Add crop type", style = MaterialTheme.typography.titleMedium)
+                    Text("Add crop type", style = MaterialTheme.typography.titleMedium)
                 OutlinedTextField(typeName, { typeName = it }, label = { Text("Crop name") },
                     modifier = Modifier.fillMaxWidth())
                 OutlinedTextField(unit, { unit = it }, label = { Text("Harvest unit (e.g., kg)") },
@@ -133,6 +163,11 @@ fun CropScreen(
                         && plannedDate.isNotBlank()) { Text("Create planting plan") }
             }
             HorizontalDivider()
+            }
+        }
+        item(key = "history") {
+            Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                HorizontalDivider()
             FarmSectionHeader("Plot crop rotation history", "Review previous plantings by plot.")
             Text("Previous crop cycles per plot; includes completed, failed and cancelled crops.")
             if (state.cycles.isEmpty()) Text("No planting history yet.")
@@ -151,11 +186,14 @@ fun CropScreen(
                 }
             }
             HorizontalDivider()
-            FarmSectionHeader("Crop cycles and history", "See growing cycles and record fieldwork.")
-            if (state.cycles.isEmpty()) FarmEmptyState("No crop cycles yet", "Create a planting plan to begin.")
+                FarmSectionHeader("Completed and previous cycles",
+                    "Historical crop records remain available for reference.")
+                if (historyCycles.isEmpty() && !state.busy && state.error == null) {
+                    FarmEmptyState("No past cycles yet", "Completed, failed and cancelled cycles will appear here.")
+                }
             }
         }
-        items(state.cycles, key = { "cycle-${it.id}" }) { cycle ->
+        items(historyCycles, key = { "past-${it.id}" }) { cycle ->
             CycleCard(cycle, canManage && !state.offline, state.busy, onUpdatePlan,
                 onTransition, onMonitoring, onHarvests, onQuickMonitoring)
         }
@@ -181,12 +219,21 @@ private fun CycleCard(
 
     FarmSectionCard("${cycle.cropTypeName} · ${cycle.plotName}",
         subtitle = "Planned planting: ${cycle.plannedPlantingDate}") {
-    FarmStatusChip(cycle.statusName, when (cycle.status) {
-        0 -> FarmStatusTone.Planned
-        1 -> FarmStatusTone.Active
-        3 -> FarmStatusTone.Failed
-        else -> FarmStatusTone.Neutral
-    })
+    Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+        CropArtworkImage(cycle.cropTypeName, Modifier.size(92.dp))
+        Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(7.dp)) {
+            FarmStatusChip(cycle.statusName, when (cycle.status) {
+                0 -> FarmStatusTone.Planned
+                1 -> FarmStatusTone.Active
+                3 -> FarmStatusTone.Failed
+                else -> FarmStatusTone.Neutral
+            })
+            Text("Plot: " + cycle.plotName, style = MaterialTheme.typography.bodyMedium)
+            Text("Expected harvest: " + (cycle.expectedHarvestDate ?: "Not set"),
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant)
+        }
+    }
     OutlinedButton(onClick = { onMonitoring(cycle) }, modifier = Modifier.fillMaxWidth()) { Text("Activities, inspections & photos") }
     OutlinedButton(onClick = { onHarvests(cycle) }, modifier = Modifier.fillMaxWidth()) { Text("Harvest records") }
     if (cycle.status == 1) {

@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" role="img" aria-label="rice crop illustration">
+  <path d="M25 105 Q58 111 98 105" fill="#C3A47A" stroke="#28543e" stroke-opacity=".13" stroke-width="1.5"/>
+  <path d="M41 103 Q48 73 41 29 M63 105 Q62 70 66 18 M78 104 Q75 68 91 29" fill="none" stroke="#39734B" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M49 79 Q24 75 13 51 Q40 51 50 71Z" fill="#5E9259" stroke="#28543e" stroke-opacity=".13" stroke-width="1.5"/>
+  <path d="M58 74 Q85 63 107 67 Q93 84 62 84Z" fill="#7DA868" stroke="#28543e" stroke-opacity=".13" stroke-width="1.5"/>
+  <path d="M79 69 Q93 50 110 48 Q106 68 81 78Z" fill="#619451" stroke="#28543e" stroke-opacity=".13" stroke-width="1.5"/>
+  <path d="M41 36 Q25 26 28 16 M41 44 Q23 40 19 31 M67 24 Q59 12 54 9 M67 33 Q84 17 86 8 M88 36 Q100 22 104 18" fill="none" stroke="#C99D3E" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M26 16 L31 16 L32 23 L27 24Z M19 31 L25 30 L26 37 L20 39Z M54 9 L60 9 L62 16 L57 19Z M85 8 L90 10 L89 17 L84 17Z M103 18 L109 21 L106 29 L101 26Z" fill="#E4BB5B" stroke="#28543e" stroke-opacity=".13" stroke-width="1.5"/>
+  <path d="M44 37 L50 39 L48 45 L42 43Z M63 39 L69 39 L69 46 L64 46Z M86 44 L92 43 L93 50 L87 51Z" fill="#D9A745" stroke="#28543e" stroke-opacity=".13" stroke-width="1.5"/>
+</svg>
