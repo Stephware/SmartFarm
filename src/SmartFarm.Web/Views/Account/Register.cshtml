@@ -43,6 +43,17 @@
                 <span asp-validation-for="Password" class="error"></span>
                 <p class="hint" id="password-guidance">Use at least 10 characters, including uppercase, lowercase, and a number.</p>
             </div>
+            <div class="form-field">
+                <label asp-for="ConfirmPassword">Confirm password</label>
+                <div class="ani-password-field">
+                    <input asp-for="ConfirmPassword" type="password" autocomplete="new-password" required
+                           minlength="10" aria-describedby="confirm-guidance" />
+                    <button type="button" class="ani-password-toggle" data-password-toggle
+                            aria-controls="ConfirmPassword" aria-pressed="false">Show</button>
+                </div>
+                <span asp-validation-for="ConfirmPassword" class="error"></span>
+                <p class="hint" id="confirm-guidance">Re-enter your password to check for typing mistakes.</p>
+            </div>
             <button class="auth-submit" type="submit">Create account</button>
         </form>
         <p class="ani-auth-fineprint">After registration, sign in to create a farm or request to join an existing one.</p>
