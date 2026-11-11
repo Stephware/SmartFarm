@@ -22,7 +22,7 @@ interface PendingOperationDao {
     suspend fun find(id: String, userId: String): PendingOperation?
 
     // Rebase only after the user has reviewed the latest server stock.
-    @Query("UPDATE pending_operations SET payloadJson = :payload, status = 'pending', errorMessage = NULL WHERE operationId = :id AND userId = :userId AND status = 'review' AND operationType = 'inventory'")
+    @Query("UPDATE pending_operations SET payloadJson = :payload, status = 'pending', errorMessage = NULL WHERE operationId = :id AND userId = :userId AND status = 'review' AND operationType IN ('inventory', 'activity_stock')")
     suspend fun rebaseInventory(id: String, userId: String, payload: String): Int
 
     @Query("DELETE FROM pending_operations WHERE operationId = :id AND userId = :userId")
