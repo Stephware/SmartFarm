@@ -7,6 +7,9 @@ namespace SmartFarm.Web.ViewModels.Finance;
 public sealed record FarmFinancePage(FarmDetails Farm, FarmFinanceOverview Finance,
     IReadOnlyList<CropCycleDetails> Crops)
 {
+    // Period-scoped aggregates are independent from the latest 500 history rows.
+    public FarmFinanceInsights? Insights { get; init; }
+
     public DateOnly FarmToday
     {
         get
