@@ -1,5 +1,6 @@
 package com.smartfarm.mobile
 
+import com.google.gson.JsonParser
 import com.smartfarm.mobile.data.remote.api.ApiClientFactory
 import com.smartfarm.mobile.data.remote.api.TaskApi
 import com.smartfarm.mobile.data.remote.api.TaskCloseInput
@@ -29,9 +30,9 @@ class TaskApiContractTest {
             assertEquals("POST", created.method)
             assertEquals("/api/farms/farm-1/tasks", created.path)
             assertEquals("Bearer manager", created.getHeader("Authorization"))
-            val createBody = created.body.readUtf8()
-            assertEquals(true, createBody.contains(""""taskType":4"""))
-            assertEquals(true, createBody.contains("\\\"assignedToUserId\\\":\\\"member-1\\\""))
+            val createBody = JsonParser.parseString(created.body.readUtf8()).asJsonObject
+            assertEquals(4, createBody.get("taskType").asInt)
+            assertEquals("member-1", createBody.get("assignedToUserId").asString)
 
             server.enqueue(MockResponse().setResponseCode(200).setBody(response)
                 .addHeader("Content-Type", "application/json"))
@@ -41,10 +42,10 @@ class TaskApiContractTest {
             assertEquals("PUT", updated.method)
             assertEquals("/api/farms/farm-1/tasks/task-1", updated.path)
             assertEquals("Bearer manager", updated.getHeader("Authorization"))
-            val updateBody = updated.body.readUtf8()
-            assertEquals(true, updateBody.contains("\\\"rowVersion\\\":\\\"version\\\""))
-            assertEquals(true, updateBody.contains("\\\"dueDate\\\":\\\"2026-11-13\\\""))
-            assertEquals(true, updateBody.contains(""""assignedToUserId":null"""))
+            val updateBody = JsonParser.parseString(updated.body.readUtf8()).asJsonObject
+            assertEquals("version", updateBody.get("rowVersion").asString)
+            assertEquals("2026-11-13", updateBody.get("dueDate").asString)
+            assertEquals(true, updateBody.get("assignedToUserId").isJsonNull)
         } finally {
             server.shutdown()
         }
