@@ -32,6 +32,21 @@ public static class HarvestAnalyticsBuilder
             .OrderByDescending(m => m.Month)
             .Select(m => (m.Unit, m.Month, m.Quantity, m.HarvestCount, (decimal?)null)), 12);
 
+    public static IReadOnlyList<HarvestChart> CropCycles(HarvestReport report,
+        IReadOnlyList<PlotDetails> plots)
+    {
+        var area = plots.ToDictionary(p => p.Id, p => p.AreaSqMeters);
+        return MakeCharts(report.CycleTotals
+            .OrderByDescending(c => c.Quantity).ThenBy(c => c.CycleId)
+            .Select(c => (c.Unit,
+                c.CropTypeName + " · " + c.PlotName + " · " +
+                    c.FirstHarvestDate.ToString("yyyy-MM-dd") +
+                    " · " + c.CycleId.ToString("N")[..6],
+                c.Quantity, c.HarvestCount,
+                area.TryGetValue(c.PlotId, out var sqm) && sqm > 0
+                    ? (decimal?)(c.Quantity / sqm) : null)), 10);
+    }
+
     public static IReadOnlyList<HarvestChart> CropAndPlot(HarvestReport report,
         IReadOnlyList<PlotDetails> plots)
     {
