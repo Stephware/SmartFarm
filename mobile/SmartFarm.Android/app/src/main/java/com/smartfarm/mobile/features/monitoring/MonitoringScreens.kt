@@ -8,6 +8,8 @@ import java.util.UUID
 import com.smartfarm.mobile.data.local.entity.PendingOperation
 import com.smartfarm.mobile.data.remote.api.TaskDto
 import com.smartfarm.mobile.data.remote.dto.ObservationDto
+import com.smartfarm.mobile.data.remote.dto.InventoryItemDto
+import java.math.BigDecimal
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import com.smartfarm.mobile.ui.components.PendingRecords
@@ -82,7 +84,8 @@ fun MonitoringScreen(
     onIssueObservation: (Int, String, String, Int, Int, Uri?) -> Unit = { _, _, _, _, _, _ -> },
     canManageIssues: Boolean = false,
     taskOptions: List<TaskDto> = emptyList(),
-    onFollowUp: (ObservationDto, Int, String?) -> Unit = { _, _, _ -> }
+    onFollowUp: (ObservationDto, Int, String?) -> Unit = { _, _, _ -> },
+    onActivityWithStock: (Int, String, InventoryItemDto, String) -> Unit = { _, _, _, _ -> }
 ) {
     // Quick modes only change presentation; the same offline-capable handlers save data.
     var showAll by rememberSaveable(state.farmId, state.cycleId, quick) {
@@ -90,6 +93,9 @@ fun MonitoringScreen(
     }
     var activityType by rememberSaveable(state.farmId, state.cycleId) { mutableStateOf(1) }
     var activityNotes by rememberSaveable(state.farmId, state.cycleId) { mutableStateOf("") }
+    var useStock by rememberSaveable(state.farmId, state.cycleId) { mutableStateOf(false) }
+    var supplyId by rememberSaveable(state.farmId, state.cycleId) { mutableStateOf<String?>(null) }
+    var stockQuantity by rememberSaveable(state.farmId, state.cycleId) { mutableStateOf("") }
     var health by rememberSaveable(state.farmId, state.cycleId) { mutableStateOf(0) }
     var issueCategory by rememberSaveable(state.farmId, state.cycleId) { mutableStateOf(0) }
     var issueSeverity by rememberSaveable(state.farmId, state.cycleId) { mutableStateOf(0) }
@@ -107,13 +113,25 @@ fun MonitoringScreen(
         onPreview(photoId)
     }
     val activityReceipt = state.saveReceipts["${state.farmId}/${state.cycleId}/activity"]
+    val stockReceipt = state.saveReceipts["${state.farmId}/${state.cycleId}/activity_stock"]
     val observationReceipt = state.saveReceipts["${state.farmId}/${state.cycleId}/observation"]
     var handledActivity by rememberSaveable(state.farmId, state.cycleId) { mutableStateOf(activityReceipt) }
     var handledObservation by rememberSaveable(state.farmId, state.cycleId) { mutableStateOf(observationReceipt) }
+    var handledStockReceipt by rememberSaveable(state.farmId, state.cycleId) {
+        mutableStateOf(stockReceipt)
+    }
     LaunchedEffect(activityReceipt) {
         if (activityReceipt != null && activityReceipt != handledActivity) {
             activityNotes = ""
             handledActivity = activityReceipt
+        }
+    }
+    LaunchedEffect(stockReceipt) {
+        if (stockReceipt != null && stockReceipt != handledStockReceipt) {
+            activityNotes = ""
+            stockQuantity = ""
+            useStock = false
+            handledStockReceipt = stockReceipt
         }
     }
     LaunchedEffect(observationReceipt) {
@@ -201,8 +219,89 @@ fun MonitoringScreen(
                 OutlinedTextField(activityNotes, { activityNotes = it }, enabled = !state.busy,
                     label = { Text("Notes (optional)") },
                     placeholder = { Text(noteGuide) }, modifier = Modifier.fillMaxWidth())
-                Button(onClick = { onActivity(activityType, activityNotes) },
-                    enabled = !state.busy, modifier = Modifier.fillMaxWidth()) { Text("Save activity") }
+                val mayUseStock = activityType in 2..3
+                if (mayUseStock) {
+                    FilterChip(
+                        selected = useStock,
+                        onClick = { useStock = !useStock },
+                        enabled = !state.busy,
+                        label = { Text("Deduct supply from farm inventory") }
+                    )
+                    if (useStock) {
+                        val category = if (activityType == 2) 2 else 3
+                        val available = state.supplies.filter {
+                            it.category == category && it.archivedAtUtc == null
+                        }
+                        var selectSupply by rememberSaveable(state.farmId, state.cycleId) {
+                            mutableStateOf(false)
+                        }
+                        val selected = available.firstOrNull { it.id == supplyId }
+                        state.supplyError?.let {
+                            Text(it, color = MaterialTheme.colorScheme.error,
+                                style = MaterialTheme.typography.bodySmall)
+                        }
+                        if (state.suppliesOffline) {
+                            Text("Using saved inventory balances. The server will check stock " +
+                                "and may require review when syncing.",
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant)
+                        }
+                        if (available.isEmpty()) {
+                            FarmEmptyState("No matching supplies",
+                                "Add fertilizer or pesticide inventory before recording linked use.")
+                        } else {
+                            Text("Supply to consume", style = MaterialTheme.typography.labelLarge)
+                            OutlinedButton(onClick = { selectSupply = true },
+                                enabled = !state.busy) {
+                                Text(selected?.let { "${it.name} · ${it.quantityOnHand} ${it.unit}" }
+                                    ?: "Choose supply")
+                            }
+                            DropdownMenu(
+                                expanded = selectSupply,
+                                onDismissRequest = { selectSupply = false }
+                            ) {
+                                available.forEach { item ->
+                                    DropdownMenuItem(
+                                        text = { Text("${item.name} · ${item.quantityOnHand} ${item.unit}") },
+                                        onClick = {
+                                            supplyId = item.id
+                                            stockQuantity = ""
+                                            selectSupply = false
+                                        }
+                                    )
+                                }
+                            }
+                            OutlinedTextField(stockQuantity, { stockQuantity = it },
+                                label = { Text("Quantity used (${selected?.unit ?: "item unit"})") },
+                                placeholder = { Text("Example: 1.5") },
+                                modifier = Modifier.fillMaxWidth(), enabled = !state.busy,
+                                singleLine = true)
+                            Text("This activity and its stock deduction will be queued as one " +
+                                "change. The balance is not reduced until the server confirms it.",
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant)
+                        }
+                    }
+                }
+                val selectedStock = state.supplies.firstOrNull {
+                    it.id == supplyId &&
+                        it.category == if (activityType == 2) 2 else 3
+                }
+                val amount = stockQuantity.trim().toBigDecimalOrNull()
+                val needsStock = mayUseStock && useStock
+                val validStock = !needsStock || (selectedStock != null &&
+                    amount != null && amount > BigDecimal.ZERO &&
+                    amount.scale() <= 3 && amount <= selectedStock.quantityOnHand)
+                Button(onClick = {
+                    if (needsStock) {
+                        selectedStock?.let {
+                            onActivityWithStock(activityType, activityNotes, it, stockQuantity)
+                        }
+                    } else onActivity(activityType, activityNotes)
+                }, enabled = !state.busy && validStock,
+                    modifier = Modifier.fillMaxWidth()) {
+                    Text(if (needsStock) "Save activity and supply use" else "Save activity")
+                }
                 }
                 }
                 if (showAll || quick != "watering") {
@@ -279,7 +378,7 @@ fun MonitoringScreen(
             FarmSectionHeader("Activity history",
                 "Previous fieldwork records for this crop cycle.")
             PendingRecords(pending, state.farmId, state.cycleId,
-                setOf("activity", "observation"), onSync)
+                setOf("activity", "activity_stock", "observation"), onSync)
             if (state.activities.isEmpty())
                 FarmEmptyState("No activities recorded.", "Saved fieldwork will appear here.")
             }

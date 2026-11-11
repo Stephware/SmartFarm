@@ -38,8 +38,10 @@ class MainActivity : ComponentActivity() {
     }
 
     private val monitoring: MonitoringViewModel by viewModels {
-        MonitoringViewModel.Factory((application as SmartFarmApplication).container.monitoringRepository,
-            (application as SmartFarmApplication).container.syncRepository)
+        val container = (application as SmartFarmApplication).container
+        MonitoringViewModel.Factory(
+            container.monitoringRepository, container.syncRepository, container.inventoryRepository
+        )
     }
 
     private val inventory: InventoryViewModel by viewModels {

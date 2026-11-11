@@ -97,7 +97,7 @@ fun SyncStatusScreen(
                 Text(pendingRecordDescription(operation))
                 operation.errorMessage?.let { Text(it, color = MaterialTheme.colorScheme.error, modifier = Modifier.semantics { liveRegion = LiveRegionMode.Assertive }) }
                 if (operation.status == "review") {
-                    if (operation.operationType == "inventory") {
+                    if (operation.operationType in setOf("inventory", "activity_stock")) {
                         OutlinedButton(onClick = { onReviewStock(operation.operationId) }) {
                             Text("Check latest stock")
                         }
@@ -148,6 +148,9 @@ fun SyncStatusScreen(
                 Text("${preview.itemName}\nCurrent stock: ${preview.currentBalance}\n" +
                     "Queued change: ${preview.change}\n" +
                     "Stock after change: ${preview.expectedBalance}\n" +
+                    (if (preview.includesFieldActivity)
+                        "The field activity and supply consumption will be saved together. "
+                    else "") +
                     "Only retry if this movement still reflects actual farm work.")
             },
             confirmButton = {

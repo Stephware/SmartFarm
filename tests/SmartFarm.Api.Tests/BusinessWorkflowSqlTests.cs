@@ -298,6 +298,80 @@ public sealed class BusinessWorkflowSqlTests
         }))
             Assert.Equal(HttpStatusCode.Conflict, changedPayload.StatusCode);
 
+        // Phase C2: one stable ID must cover fieldwork, the linked task and stock.
+        // A failed stock deduction must roll back the inserted activity and task closure.
+        var fertilizingTask = await PostAsync<FarmTaskDetails>(client, taskPath,
+            new FarmTaskInput(3, planting, "Apply fertilizer", planned.Id, null));
+        var beforeCombined = await GetAsync<InventoryItemDetails>(client, itemPath);
+        var beforeActivityCount = (await GetAsync<MonitoringDetails>(client, monitoring))
+            .Activities.Count;
+        var tooMuch = new SyncWriteInput
+        {
+            FarmId = createdFarm.Id, TargetId = planned.Id, OperationType = "activity_stock",
+            ActivityStock = new RecordActivityWithStockInput
+            {
+                Activity = new RecordActivityInput
+                    { ActivityType = 2, FarmTaskId = fertilizingTask.Id },
+                InventoryItemId = item.Id, QuantityUsed = 100m,
+                RowVersion = beforeCombined.RowVersion
+            }
+        };
+        using (var failed = await client.PostAsJsonAsync(
+            $"/api/sync/operations/{Guid.NewGuid()}", tooMuch))
+            Assert.Equal(HttpStatusCode.Conflict, failed.StatusCode);
+        Assert.Equal(beforeActivityCount,
+            (await GetAsync<MonitoringDetails>(client, monitoring)).Activities.Count);
+        Assert.Equal((byte)0, (await GetAsync<List<FarmTaskDetails>>(client, taskPath))
+            .Single(task => task.Id == fertilizingTask.Id).Status);
+        Assert.Equal(beforeCombined.QuantityOnHand,
+            (await GetAsync<InventoryItemDetails>(client, itemPath)).QuantityOnHand);
+
+        var combinedId = Guid.NewGuid();
+        var combinedInput = new SyncWriteInput
+        {
+            FarmId = createdFarm.Id, TargetId = planned.Id, OperationType = "activity_stock",
+            ActivityStock = new RecordActivityWithStockInput
+            {
+                Activity = new RecordActivityInput
+                    { ActivityType = 2, FarmTaskId = fertilizingTask.Id },
+                InventoryItemId = item.Id, QuantityUsed = 1.500m,
+                RowVersion = beforeCombined.RowVersion
+            }
+        };
+        var combinedRoute = $"/api/sync/operations/{combinedId}";
+        var firstCombined = await PostAsync<SyncWriteResult>(client, combinedRoute, combinedInput);
+        var replayCombined = await PostAsync<SyncWriteResult>(client, combinedRoute, combinedInput);
+        Assert.False(firstCombined.Replayed);
+        Assert.True(replayCombined.Replayed);
+        Assert.Equal(firstCombined.Result.GetRawText(), replayCombined.Result.GetRawText());
+
+        var newActivityId = firstCombined.Result.GetProperty("activity")
+            .GetProperty("id").GetGuid();
+        Assert.Equal(item.Id, firstCombined.Result.GetProperty("inventory")
+            .GetProperty("id").GetGuid());
+        Assert.Equal(beforeActivityCount + 1,
+            (await GetAsync<MonitoringDetails>(client, monitoring)).Activities.Count);
+        Assert.Equal((byte)1, (await GetAsync<List<FarmTaskDetails>>(client, taskPath))
+            .Single(task => task.Id == fertilizingTask.Id).Status);
+        Assert.Equal(beforeCombined.QuantityOnHand - 1.500m,
+            (await GetAsync<InventoryItemDetails>(client, itemPath)).QuantityOnHand);
+        var linkedTransactions = await GetAsync<List<InventoryTransactionDetails>>(
+            client, itemPath + "/transactions");
+        Assert.Single(linkedTransactions.Where(t => t.CropActivityId == newActivityId));
+        Assert.Equal(5, linkedTransactions.Count);
+
+        using (var tampered = await client.PostAsJsonAsync(combinedRoute, new SyncWriteInput
+        {
+            FarmId = createdFarm.Id, TargetId = planned.Id, OperationType = "activity_stock",
+            ActivityStock = new RecordActivityWithStockInput
+            {
+                Activity = new RecordActivityInput { ActivityType = 2 },
+                InventoryItemId = item.Id, QuantityUsed = 2m,
+                RowVersion = beforeCombined.RowVersion
+            }
+        }))
+            Assert.Equal(HttpStatusCode.Conflict, tampered.StatusCode);
+
         var harvestSyncId = Guid.NewGuid();
         var harvestSync = new SyncWriteInput
         {

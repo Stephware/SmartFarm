@@ -39,7 +39,8 @@ data class StockRetryPreview(
     val currentBalance: BigDecimal,
     val change: BigDecimal,
     val expectedBalance: BigDecimal,
-    val currentRowVersion: String
+    val currentRowVersion: String,
+    val includesFieldActivity: Boolean = false
 )
 
 class SyncRepository(
@@ -64,6 +65,15 @@ class SyncRepository(
 
     suspend fun queueActivity(farmId: String, cycleId: String, input: ActivityInputDto): String =
         queue(SyncWriteRequest(farmId, cycleId, "activity", activity = input))
+
+    suspend fun queueActivityWithStock(
+        farmId: String, cycleId: String, input: ActivityStockInputDto
+    ): String {
+        require(input.activity.activityType in 2..3)
+        require(input.quantityUsed > BigDecimal.ZERO && input.quantityUsed.scale() <= 3)
+        require(input.inventoryItemId.isNotBlank() && input.rowVersion.isNotBlank())
+        return queue(SyncWriteRequest(farmId, cycleId, "activity_stock", activityStock = input))
+    }
 
     suspend fun queueObservation(farmId: String, cycleId: String, input: ObservationInputDto): String =
         queue(SyncWriteRequest(farmId, cycleId, "observation", observation = input))
@@ -173,7 +183,8 @@ class SyncRepository(
     suspend fun retry(id: String) {
         val user = auth.currentUserId ?: return
         val operation = dao.find(id, user) ?: return
-        if (operation.operationType == "inventory") return // Explicit stock review is required.
+        if (operation.operationType in setOf("inventory", "activity_stock"))
+            return // Explicit stock review is required.
         dao.retryAfterReview(id, user)
         schedule()
     }
@@ -201,34 +212,67 @@ class SyncRepository(
         files.delete(id)
     }
 
-    // Never silently rebase. The user must first see and accept the latest stock total.
+    // Never silently rebase. The user must review the latest stock total first.
     suspend fun previewStockRetry(id: String): StockRetryPreview {
         val user = requireNotNull(auth.currentUserId) { "Sign in first." }
         val row = requireNotNull(dao.find(id, user)) { "Operation not found." }
-        require(row.status == "review" && row.operationType == "inventory")
+        require(row.status == "review" &&
+            row.operationType in setOf("inventory", "activity_stock"))
         val input = gson.fromJson(row.payloadJson, SyncWriteRequest::class.java)
-        val movement = requireNotNull(input.movement)
-        val latest = auth.authorized { inventoryApi().item(it, input.farmId, input.targetId) }
-        require(latest.archivedAtUtc == null) { "This inventory item is archived." }
-        val next = latest.quantityOnHand + movement.quantityChange
+        val combined = input.activityStock
+        val itemId = if (row.operationType == "activity_stock") {
+            requireNotNull(combined).inventoryItemId
+        } else input.targetId
+        val change = if (row.operationType == "activity_stock") {
+            requireNotNull(combined).quantityUsed.negate()
+        } else requireNotNull(input.movement).quantityChange
+        val latest = auth.authorized { inventoryApi().item(it, input.farmId, itemId) }
+        require(latest.archivedAtUtc == null) { "This supply is archived." }
+        if (combined != null) {
+            val expectedCategory = if (combined.activity.activityType == 2) 2 else 3
+            require(combined.activity.activityType in 2..3 &&
+                latest.category == expectedCategory) {
+                "The chosen stock item no longer matches this activity."
+            }
+        }
+        val next = latest.quantityOnHand + change
         require(next >= BigDecimal.ZERO && next <= BigDecimal("999999999999999.999")) {
             "Not enough stock, or the quantity is too large."
         }
         return StockRetryPreview(id, latest.name, latest.quantityOnHand,
-            movement.quantityChange, next, latest.rowVersion)
+            change, next, latest.rowVersion,
+            includesFieldActivity = row.operationType == "activity_stock")
     }
 
     suspend fun confirmStockRetry(preview: StockRetryPreview) {
         val user = requireNotNull(auth.currentUserId) { "Sign in first." }
         val row = requireNotNull(dao.find(preview.operationId, user))
-        require(row.operationType == "inventory" && row.status == "review")
+        require(row.status == "review" &&
+            row.operationType in setOf("inventory", "activity_stock"))
         val input = gson.fromJson(row.payloadJson, SyncWriteRequest::class.java)
-        val fresh = auth.authorized { inventoryApi().item(it, input.farmId, input.targetId) }
+        val combined = input.activityStock
+        val itemId = if (row.operationType == "activity_stock") {
+            requireNotNull(combined).inventoryItemId
+        } else input.targetId
+        val fresh = auth.authorized { inventoryApi().item(it, input.farmId, itemId) }
         require(fresh.rowVersion == preview.currentRowVersion && fresh.archivedAtUtc == null) {
             "Stock changed again. Check the latest balance."
         }
-        val movement = requireNotNull(input.movement)
-        val updated = input.copy(movement = movement.copy(rowVersion = fresh.rowVersion))
+        val change = if (row.operationType == "activity_stock") {
+            val details = requireNotNull(combined)
+            val expectedCategory = if (details.activity.activityType == 2) 2 else 3
+            require(details.activity.activityType in 2..3 &&
+                fresh.category == expectedCategory) { "Supply category changed." }
+            details.quantityUsed.negate()
+        } else requireNotNull(input.movement).quantityChange
+        require(fresh.quantityOnHand + change >= BigDecimal.ZERO) {
+            "Not enough stock. Check the latest balance."
+        }
+        val updated = if (row.operationType == "activity_stock") {
+            input.copy(activityStock = requireNotNull(combined).copy(rowVersion = fresh.rowVersion))
+        } else {
+            input.copy(movement = requireNotNull(input.movement).copy(rowVersion = fresh.rowVersion))
+        }
         check(dao.rebaseInventory(row.operationId, user, gson.toJson(updated)) == 1)
         schedule()
     }
@@ -260,6 +304,12 @@ class SyncRepository(
                             response, operation.operationId, operation.operationType)) {
                         dao.needsReview(operation.operationId, user,
                             "Unexpected sync confirmation. Review before retrying.")
+                        continue
+                    }
+                    if (operation.operationType == "activity_stock" &&
+                        !SyncReceiptValidator.activityStockMatches(response, input.activityStock)) {
+                        dao.needsReview(operation.operationId, user,
+                            "Unexpected activity and stock confirmation. Review before retrying.")
                         continue
                     }
                     if (operation.operationType == "observation") {

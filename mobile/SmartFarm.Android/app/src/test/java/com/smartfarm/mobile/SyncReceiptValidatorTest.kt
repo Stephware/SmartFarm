@@ -4,6 +4,9 @@ import com.google.gson.JsonObject
 import com.smartfarm.mobile.data.local.entity.PendingPhoto
 import com.smartfarm.mobile.data.remote.dto.ObservationPhotoDto
 import com.smartfarm.mobile.data.remote.dto.SyncWriteResponse
+import com.smartfarm.mobile.data.remote.dto.ActivityStockInputDto
+import com.smartfarm.mobile.data.remote.dto.ActivityInputDto
+import java.math.BigDecimal
 import com.smartfarm.mobile.data.sync.SyncReceiptValidator
 import java.util.UUID
 import org.junit.Assert.assertEquals
@@ -35,6 +38,32 @@ class SyncReceiptValidatorTest {
         assertNull(SyncReceiptValidator.observationId(receipt(result = JsonObject())))
         assertNull(SyncReceiptValidator.observationId(
             receipt(result = JsonObject().apply { addProperty("id", "not-a-guid") })))
+    }
+
+    @Test fun combinedFieldAndStockReceiptRequiresTwoMatchingIds() {
+        val activityId = UUID.randomUUID().toString()
+        val itemId = UUID.randomUUID().toString()
+        val input = ActivityStockInputDto(ActivityInputDto(2, "Applied fertilizer"),
+            itemId, BigDecimal("1.500"), "stock-row")
+        val valid = JsonObject().apply {
+            add("activity", JsonObject().apply { addProperty("id", activityId) })
+            add("inventory", JsonObject().apply { addProperty("id", itemId) })
+        }
+        assertTrue(SyncReceiptValidator.activityStockMatches(
+            receipt(type = "activity_stock", result = valid), input))
+        assertFalse(SyncReceiptValidator.activityStockMatches(
+            receipt(type = "activity_stock", result = valid), input.copy(
+                inventoryItemId = UUID.randomUUID().toString())))
+        assertFalse(SyncReceiptValidator.activityStockMatches(
+            receipt(type = "activity_stock", result = JsonObject()), input))
+        val corrupted = JsonObject().apply {
+            add("activity", JsonObject().apply { addProperty("id", "not-a-guid") })
+            add("inventory", JsonObject().apply { addProperty("id", itemId) })
+        }
+        assertFalse(SyncReceiptValidator.activityStockMatches(
+            receipt(type = "activity_stock", result = corrupted), input))
+        assertFalse(SyncReceiptValidator.activityStockMatches(
+            receipt(type = "activity_stock", result = valid), null))
     }
 
     @Test fun onlyMatchingPhotoReceiptMayRemoveLocalPhoto() {

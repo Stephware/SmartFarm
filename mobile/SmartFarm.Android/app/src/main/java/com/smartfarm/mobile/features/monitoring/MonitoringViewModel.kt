@@ -9,6 +9,10 @@ import androidx.lifecycle.viewModelScope
 import com.smartfarm.mobile.data.remote.dto.ActivityDto
 import com.smartfarm.mobile.data.remote.dto.ObservationDto
 import com.smartfarm.mobile.data.repository.MonitoringRepository
+import com.smartfarm.mobile.data.repository.InventoryRepository
+import com.smartfarm.mobile.data.remote.dto.InventoryItemDto
+import com.smartfarm.mobile.data.remote.dto.ActivityStockInputDto
+import java.math.BigDecimal
 import com.smartfarm.mobile.data.sync.SyncRepository
 import com.smartfarm.mobile.data.remote.dto.ActivityInputDto
 import com.smartfarm.mobile.data.remote.dto.ObservationInputDto
@@ -39,11 +43,15 @@ data class MonitoringUiState(
     val preview: ByteArray? = null,
     val previewPhotoId: String? = null,
     val offline: Boolean = false,
-    val cachedAtUtcMillis: Long? = null
+    val cachedAtUtcMillis: Long? = null,
+    val supplies: List<InventoryItemDto> = emptyList(),
+    val suppliesOffline: Boolean = false,
+    val supplyError: String? = null
 )
 
 class MonitoringViewModel(private val repository: MonitoringRepository,
-    private val sync: SyncRepository) : ViewModel() {
+    private val sync: SyncRepository,
+    private val inventory: InventoryRepository) : ViewModel() {
     private val mutable = MutableStateFlow(MonitoringUiState())
     val state = mutable.asStateFlow()
     // Bounded in-memory cache for already-authorized private photo responses.
@@ -83,6 +91,19 @@ class MonitoringViewModel(private val repository: MonitoringRepository,
         loadJob = viewModelScope.launch {
             try {
                 refresh(farmId, cycleId)
+                try {
+                    val stock = inventory.listSnapshot(farmId)
+                    if (mutable.value.farmId == farmId && mutable.value.cycleId == cycleId) {
+                        mutable.value = mutable.value.copy(
+                            supplies = stock.value.items.filter { it.archivedAtUtc == null },
+                            suppliesOffline = stock.offline)
+                    }
+                } catch (cancelled: CancellationException) { throw cancelled }
+                catch (_: Exception) {
+                    if (mutable.value.farmId == farmId && mutable.value.cycleId == cycleId)
+                        mutable.value = mutable.value.copy(
+                            supplyError = "Supplies unavailable. You can still log an activity without stock.")
+                }
             } catch (cancelled: CancellationException) {
                 throw cancelled
             } catch (_: Exception) {
@@ -132,6 +153,22 @@ class MonitoringViewModel(private val repository: MonitoringRepository,
 
     fun logActivity(kind: Int, notes: String) = submit("activity") { farmId, cycleId ->
         sync.queueActivity(farmId, cycleId, ActivityInputDto(kind, notes.trim().ifBlank { null }))
+    }
+
+    fun logActivityWithStock(
+        kind: Int, notes: String, item: InventoryItemDto, quantity: String
+    ) = submit("activity_stock") { farmId, cycleId ->
+        val used = quantity.trim().toBigDecimal()
+        require(kind in 2..3 &&
+            item.category == if (kind == 2) 2 else 3)
+        require(item.farmId == farmId && item.archivedAtUtc == null &&
+            used > BigDecimal.ZERO && used.scale() <= 3 &&
+            used <= item.quantityOnHand && item.rowVersion.isNotBlank())
+        sync.queueActivityWithStock(farmId, cycleId, ActivityStockInputDto(
+            ActivityInputDto(kind, notes.trim().ifBlank { null }),
+            inventoryItemId = item.id, quantityUsed = used,
+            rowVersion = item.rowVersion
+        ))
     }
 
     fun observe(health: Int, growth: String, notes: String,
@@ -257,10 +294,11 @@ class MonitoringViewModel(private val repository: MonitoringRepository,
     }
 
     class Factory(private val repository: MonitoringRepository,
-        private val sync: SyncRepository) : ViewModelProvider.Factory {
+        private val sync: SyncRepository,
+        private val inventory: InventoryRepository) : ViewModelProvider.Factory {
         @Suppress("UNCHECKED_CAST")
         override fun <T : ViewModel> create(modelClass: Class<T>): T =
-            MonitoringViewModel(repository, sync) as T
+            MonitoringViewModel(repository, sync, inventory) as T
     }
 }
 

@@ -18,6 +18,9 @@ fun pendingRecordDescription(operation: PendingOperation): String = try {
     when (operation.operationType) {
         "harvest" -> "Harvest quantity: " + json.getAsJsonObject("harvest").get("quantity").asString
         "inventory" -> "Stock quantity change: " + json.getAsJsonObject("movement").get("quantityChange").asString
+        "activity_stock" -> "Field activity + supply used: " +
+            json.getAsJsonObject("activityStock").get("quantityUsed").asString +
+            " (both save together after sync)"
         "activity" -> listOf("Watering", "Fertilizing", "Pesticide", "Weeding", "Other")
             .getOrElse(json.getAsJsonObject("activity").get("activityType").asInt - 1) { "Activity" }
         "observation" -> "Observation: " + listOf("Not assessed", "Healthy", "Needs attention", "Critical")
