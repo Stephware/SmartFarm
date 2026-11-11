@@ -7,4 +7,5 @@ public interface ICropObservationRepository
 Task<IReadOnlyList<CropObservation>> ListForCycleAsync(Guid cycleId, CancellationToken ct = default);
     Task<CropObservation?> GetByIdAsync(Guid cycleId, Guid observationId, CancellationToken ct = default);
     void Add(CropObservation observation);
+    void SetOriginalRowVersion(CropObservation observation, byte[] version);
 }

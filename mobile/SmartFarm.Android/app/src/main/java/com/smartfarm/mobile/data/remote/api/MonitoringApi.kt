@@ -5,6 +5,7 @@ import com.smartfarm.mobile.data.remote.dto.ActivityInputDto
 import com.smartfarm.mobile.data.remote.dto.MonitoringDto
 import com.smartfarm.mobile.data.remote.dto.ObservationDto
 import com.smartfarm.mobile.data.remote.dto.ObservationInputDto
+import com.smartfarm.mobile.data.remote.dto.ObservationFollowUpInputDto
 import com.smartfarm.mobile.data.remote.dto.ObservationPhotoDto
 import okhttp3.MultipartBody
 import okhttp3.ResponseBody
@@ -32,6 +33,12 @@ interface MonitoringApi {
     suspend fun observation(@Header("Authorization") auth: String,
         @Path("farmId") farmId: String, @Path("cycleId") cycleId: String,
         @Body input: ObservationInputDto): ObservationDto
+
+    @PUT("api/farms/{farmId}/crop-cycles/{cycleId}/monitoring/observations/{observationId}/follow-up")
+    suspend fun followUp(@Header("Authorization") auth: String,
+        @Path("farmId") farmId: String, @Path("cycleId") cycleId: String,
+        @Path("observationId") observationId: String,
+        @Body input: ObservationFollowUpInputDto): ObservationDto
 
     @Multipart
     @POST("api/farms/{farmId}/crop-cycles/{cycleId}/monitoring/observations/{observationId}/photos")

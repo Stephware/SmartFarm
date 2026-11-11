@@ -82,6 +82,26 @@
                 }
             </select>
             <span asp-validation-for="Observation.HealthStatus" class="error"></span>
+            <label asp-for="Observation.IssueCategory">Observed issue (optional)</label>
+            <select asp-for="Observation.IssueCategory">
+                <option value="0">None / no specific issue</option>
+                <option value="1">Pest</option>
+                <option value="2">Disease (suspected)</option>
+                <option value="3">Nutrient deficiency (suspected)</option>
+                <option value="4">Environmental stress</option>
+                <option value="5">Other</option>
+            </select>
+            <span asp-validation-for="Observation.IssueCategory" class="error"></span>
+            <label asp-for="Observation.IssueSeverity">Issue severity</label>
+            <select asp-for="Observation.IssueSeverity">
+                <option value="0">None</option>
+                <option value="1">Low</option>
+                <option value="2">Moderate</option>
+                <option value="3">High</option>
+            </select>
+            <span asp-validation-for="Observation.IssueSeverity" class="error"></span>
+            <p class="hint">For a specific issue, select Needs attention or Critical health,
+                and a nonzero issue category and severity. Labels are observations, not confirmed diagnoses.</p>
             <label asp-for="Observation.GrowthStage">Growth stage (optional)</label>
             <input asp-for="Observation.GrowthStage" maxlength="40" /><span asp-validation-for="Observation.GrowthStage" class="error"></span>
             <label asp-for="Observation.Notes">Observation notes (optional)</label>
@@ -174,6 +194,46 @@
                 <span class="sf-status-chip sf-status-chip--neutral">@health</span>
                 <time datetime="@observation.ObservedAtUtc.ToString("yyyy-MM-ddTHH:mm:ssZ")">@observation.ObservedAtUtc.ToString("MMM d, yyyy HH:mm") UTC</time>
             </div>
+            @if (observation.IssueCategory != 0)
+            {
+                <p><strong>Issue:</strong> @observation.IssueCategoryName
+                    · @observation.IssueSeverityName severity
+                    · @(observation.FollowUpStatus == 2 ? "Resolved" : "Needs follow-up")</p>
+                @if (observation.FollowUpTaskId is not null)
+                {
+                    <p class="hint">Linked follow-up task: @observation.FollowUpTaskId</p>
+                }
+                @if (Model.CanManageIssues)
+                {
+                    <details class="sf-edit-disclosure">
+                        <summary>Manage issue follow-up</summary>
+                        <form class="sf-ops-form" asp-action="FollowUp"
+                              asp-route-farmId="@cycle.FarmId" asp-route-cycleId="@cycle.Id"
+                              asp-route-observationId="@observation.Id" method="post">
+                            <input type="hidden" name="RowVersion" value="@observation.RowVersion" />
+                            <label for="follow-status-@observation.Id">Follow-up status</label>
+                            <select id="follow-status-@observation.Id" name="FollowUpStatus" required>
+                                <option selected="@(observation.FollowUpStatus == 1)" value="1">Needs follow-up</option>
+                                <option selected="@(observation.FollowUpStatus == 2)" value="2">Resolved after checking</option>
+                            </select>
+                            <label for="follow-task-@observation.Id">Inspection task (optional)</label>
+                            <select id="follow-task-@observation.Id" name="FollowUpTaskId">
+                                <option value="">No linked task</option>
+                                @foreach (var task in Model.Tasks.Where(t =>
+                                    t.CropCycleId == cycle.Id && (t.TaskType == 4 || t.TaskType == 6)))
+                                {
+                                    <option value="@task.Id" selected="@(observation.FollowUpTaskId == task.Id)">
+                                        @task.TaskTypeName · @task.DueDate.ToString("yyyy-MM-dd") · @task.Description
+                                    </option>
+                                }
+                            </select>
+                            <p class="hint">Create and assign inspection tasks in Farm tasks.
+                                Completing a task does not automatically resolve a crop issue.</p>
+                            <button type="submit">Save follow-up</button>
+                        </form>
+                    </details>
+                }
+            }
             @if (observation.GrowthStage is not null) { <p>Stage: @observation.GrowthStage</p> }
             @if (observation.Notes is not null) { <p>@observation.Notes</p> }
             @foreach (var photo in observation.Photos)

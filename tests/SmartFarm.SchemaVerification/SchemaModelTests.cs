@@ -45,11 +45,11 @@ public sealed class SchemaModelTests
         using var context = new SmartFarmDbContextFactory().CreateDbContext([]);
         var entities = context.GetService<IDesignTimeModel>().Model.GetEntityTypes().ToArray();
         Assert.Equal(25, entities.Length); // Includes seven Identity tables and optional finance ledger.
-        Assert.Equal(214, entities.Sum(entity => entity.GetProperties().Count())); // Includes 13 finance ledger columns.
-        Assert.Equal(46, entities.Sum(entity => entity.GetForeignKeys().Count()));
-        Assert.Equal(51, entities.Sum(entity => entity.GetIndexes().Count()));
-        Assert.Equal(41, entities.Sum(entity => entity.GetCheckConstraints().Count()));
-        Assert.Equal(31, entities.SelectMany(entity => entity.GetProperties()).Count(property =>
+        Assert.Equal(219, entities.Sum(entity => entity.GetProperties().Count())); // Includes 13 finance ledger columns.
+        Assert.Equal(47, entities.Sum(entity => entity.GetForeignKeys().Count()));
+        Assert.Equal(52, entities.Sum(entity => entity.GetIndexes().Count()));
+        Assert.Equal(42, entities.Sum(entity => entity.GetCheckConstraints().Count()));
+        Assert.Equal(34, entities.SelectMany(entity => entity.GetProperties()).Count(property =>
             property.GetDefaultValueSql() is not null || property.TryGetDefaultValue(out _)));
         Assert.All(entities, entity => Assert.Equal("dbo", entity.GetSchema()));
     }
@@ -64,7 +64,7 @@ public sealed class SchemaModelTests
         Assert.All(guidKeys, property => Assert.Equal(ValueGenerated.Never, property.ValueGenerated));
         var rowVersions = entities.SelectMany(entity => entity.GetProperties())
             .Where(property => property.Name == "RowVersion").ToArray();
-        Assert.Equal(5, rowVersions.Length);
+        Assert.Equal(6, rowVersions.Length);
         Assert.All(rowVersions, property =>
         {
             Assert.True(property.IsConcurrencyToken);
@@ -96,7 +96,7 @@ public sealed class SchemaModelTests
         using var context = new SmartFarmDbContextFactory().CreateDbContext([]);
         Assert.False(context.Database.HasPendingModelChanges());
         var assembly = context.GetService<IMigrationsAssembly>();
-        Assert.Equal(3, assembly.Migrations.Count);
+        Assert.Equal(4, assembly.Migrations.Count);
         var migrationType = assembly.Migrations.Single(entry => entry.Key.EndsWith("_ExistingSchemaBaseline", StringComparison.Ordinal)).Value;
         var migration = assembly.CreateMigration(migrationType, context.Database.ProviderName!);
         Assert.Empty(migration.UpOperations);

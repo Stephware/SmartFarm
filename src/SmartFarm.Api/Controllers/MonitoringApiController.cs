@@ -38,6 +38,12 @@ public sealed class MonitoringApiController(
             return StatusCode(StatusCodes.Status201Created, observation);
         });
 
+    [HttpPut("observations/{observationId:guid}/follow-up")]
+    public Task<IActionResult> UpdateFollowUp(Guid farmId, Guid cycleId, Guid observationId,
+        [FromBody] UpdateObservationFollowUpInput input, CancellationToken ct) =>
+        Result(async () => Ok(await monitoring.UpdateFollowUpAsync(
+            farmId, cycleId, observationId, ActorId, input, ct)));
+
     [HttpPost("observations/{observationId:guid}/photos")]
     [RequestSizeLimit(6 * 1024 * 1024)]
     [RequestFormLimits(MultipartBodyLengthLimit = 6 * 1024 * 1024)]
