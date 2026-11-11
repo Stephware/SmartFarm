@@ -22,13 +22,26 @@ public sealed class TasksController(
     private Guid Actor => Guid.TryParse(users.GetUserId(User), out var id) ? id : Guid.Empty;
 
     [HttpGet]
-    public async Task<IActionResult> Index(Guid farmId, CancellationToken ct)
+    public async Task<IActionResult> Index(Guid farmId, CancellationToken ct, string? view = null)
     {
         var farm = await farms.GetAsync(farmId, Actor, ct);
         if (farm is null) return NotFound();
+        DateOnly? today = null;
+        try
+        {
+            var zone = TimeZoneInfo.FindSystemTimeZoneById(farm.TimeZoneId);
+            today = DateOnly.FromDateTime(TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, zone));
+        }
+        catch (TimeZoneNotFoundException) { /* Don't guess the farm's local day. */ }
+        catch (InvalidTimeZoneException) { /* Dates are unavailable until farm zone is fixed. */ }
+        var selected = view is "today" or "upcoming" or "completed" or "all" ? view : "today";
         return View(new TaskPage(farm, await tasks.ListAsync(farmId, Actor, ct),
             await farms.MembersAsync(farmId, Actor, ct),
-            await crops.ListCyclesAsync(farmId, Actor, ct)));
+            await crops.ListCyclesAsync(farmId, Actor, ct))
+        {
+            FarmToday = today,
+            SelectedView = selected
+        });
     }
 
     [HttpPost, ValidateAntiForgeryToken]

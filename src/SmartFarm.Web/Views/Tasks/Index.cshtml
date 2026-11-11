@@ -6,6 +6,23 @@
     var actorId = Guid.TryParse(User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value, out var userId)
         ? userId : Guid.Empty;
     var openCount = Model.Tasks.Count(task => task.Status == 0);
+    var todayCount = Model.FarmToday is { } localDate
+        ? Model.Tasks.Count(t => t.Status == 0 && t.DueDate <= localDate) : 0;
+    var upcomingCount = Model.FarmToday is { } nextDate
+        ? Model.Tasks.Count(t => t.Status == 0 && t.DueDate > nextDate) : 0;
+    var closedCount = Model.Tasks.Count(t => t.Status != 0);
+    var shown = Model.SelectedView switch
+    {
+        "today" => Model.FarmToday is { } date
+            ? Model.Tasks.Where(t => t.Status == 0 && t.DueDate <= date).ToList()
+            : new List<SmartFarm.Core.Contracts.Tasks.FarmTaskDetails>(),
+        "upcoming" => Model.FarmToday is { } date
+            ? Model.Tasks.Where(t => t.Status == 0 && t.DueDate > date).ToList()
+            : new List<SmartFarm.Core.Contracts.Tasks.FarmTaskDetails>(),
+        "completed" => Model.Tasks.Where(t => t.Status != 0).ToList(),
+        _ => Model.Tasks.ToList()
+    };
+    var ordered = shown.OrderBy(t => t.Status == 0 ? 0 : 1).ThenBy(t => t.DueDate).ToList();
 }
 <partial name="_FarmNavigation" model="Model.Farm.Id" />
 <section class="panel sf-ops-hero" aria-labelledby="tasks-heading">
@@ -27,13 +44,36 @@
         <div><strong>@Model.Tasks.Count</strong><span>Total tasks</span></div>
     </div>
     <p class="hint">Scheduled planting, watering, and harvest tasks are added automatically when the worker is enabled.</p>
+    <p class="sf-ops-today">Farm date: @(Model.FarmToday?.ToString("ddd, MMM d, yyyy") ?? "Unavailable — check the farm time zone") · @Model.Farm.TimeZoneId</p>
     @if (TempData["Error"] is string error) { <p class="error form-error" role="alert">@error</p> }
 </section>
 <section class="panel sf-task-panel" aria-labelledby="task-list-heading">
     <div class="sf-section-line">
-        <h2 id="task-list-heading">Task list</h2>
-        <span>Open tasks appear first</span>
+        <h2 id="task-list-heading">Your farm work</h2>
+        <span>@shown.Count visible of @Model.Tasks.Count</span>
     </div>
+    <nav class="ani-task-tabs" aria-label="Filter farm tasks">
+        <a class="@(Model.SelectedView == "today" ? "is-selected" : "")"
+           aria-current="@(Model.SelectedView == "today" ? "page" : null)"
+           asp-controller="Tasks" asp-action="Index" asp-route-farmId="@Model.Farm.Id" asp-route-view="today">
+            Due / overdue <span>@todayCount</span>
+        </a>
+        <a class="@(Model.SelectedView == "upcoming" ? "is-selected" : "")"
+           aria-current="@(Model.SelectedView == "upcoming" ? "page" : null)"
+           asp-controller="Tasks" asp-action="Index" asp-route-farmId="@Model.Farm.Id" asp-route-view="upcoming">
+            Upcoming <span>@upcomingCount</span>
+        </a>
+        <a class="@(Model.SelectedView == "completed" ? "is-selected" : "")"
+           aria-current="@(Model.SelectedView == "completed" ? "page" : null)"
+           asp-controller="Tasks" asp-action="Index" asp-route-farmId="@Model.Farm.Id" asp-route-view="completed">
+            Closed <span>@closedCount</span>
+        </a>
+        <a class="@(Model.SelectedView == "all" ? "is-selected" : "")"
+           aria-current="@(Model.SelectedView == "all" ? "page" : null)"
+           asp-controller="Tasks" asp-action="Index" asp-route-farmId="@Model.Farm.Id" asp-route-view="all">
+            All <span>@Model.Tasks.Count</span>
+        </a>
+    </nav>
     @if (Model.Tasks.Count == 0)
     {
         <div class="sf-empty-state">
@@ -41,14 +81,32 @@
             <p>Farm work and reminders will appear here once tasks have been added.</p>
         </div>
     }
+    else if (Model.FarmToday is null && Model.SelectedView is "today" or "upcoming")
+    {
+        <div class="sf-empty-state" role="status">
+            <strong>Farm time zone unavailable.</strong>
+            <p>Open All tasks until the farm time zone is corrected.</p>
+            <a asp-action="Index" asp-route-farmId="@Model.Farm.Id" asp-route-view="all">View all tasks →</a>
+        </div>
+    }
+    else if (shown.Count == 0)
+    {
+        <div class="sf-empty-state">
+            <strong>No tasks in this view.</strong>
+            <p>@(Model.SelectedView == "today" ? "Nothing is overdue or due today." :
+                 Model.SelectedView == "upcoming" ? "No upcoming work is scheduled." :
+                 "No tasks have been closed yet.")</p>
+            <a asp-action="Index" asp-route-farmId="@Model.Farm.Id" asp-route-view="all">View all tasks →</a>
+        </div>
+    }
     else
     {
         <ul class="sf-task-list">
-        @foreach (var task in Model.Tasks.OrderBy(t => t.Status == 0 ? 0 : 1).ThenBy(t => t.DueDate))
+        @foreach (var task in ordered)
         {
             <li id="task-@task.Id" class="sf-task-item @(task.Status == 0 ? "sf-task-open" : "sf-task-closed")">
                 <div class="sf-task-main">
-                    <span class="sf-task-symbol" aria-hidden="true">✓</span>
+                    <span class="sf-task-symbol" aria-hidden="true">@(task.Status != 0 ? "✓" : task.DueDate < Model.FarmToday ? "!" : "•")</span>
                     <div class="sf-task-content">
                         <div class="sf-task-title">
                             <h3>@task.TaskTypeName</h3>
@@ -69,6 +127,17 @@
                         {
                             <p class="sf-task-description">@task.Description</p>
                         }
+                        @if (task.CropCycleId is { } cropId)
+                        {
+                            var crop = Model.Cycles.FirstOrDefault(c => c.Id == cropId);
+                            if (crop is not null)
+                            {
+                                <a class="ani-task-crop-link" asp-controller="Monitoring" asp-action="Index"
+                                   asp-route-farmId="@Model.Farm.Id" asp-route-cycleId="@crop.Id">
+                                    @crop.CropTypeName · @crop.PlotName — Open fieldwork →
+                                </a>
+                            }
+                        }
                     </div>
                 </div>
                 @if (task.Status == 0 && (canManage || task.AssignedToUserId == actorId))
@@ -76,14 +145,21 @@
                     <div class="sf-task-actions">
                         <form asp-action="Close" asp-route-farmId="@Model.Farm.Id" asp-route-taskId="@task.Id" method="post">
                             <input type="hidden" name="RowVersion" value="@task.RowVersion" />
-                            <label class="visually-hidden" for="close-status-@task.Id">Task status</label>
-                            <select id="close-status-@task.Id" name="Status" aria-label="Update task status">
-                                <option value="1">Completed</option>
-                                <option value="2">Skipped</option>
-                                <option value="3">Cancelled</option>
-                            </select>
-                            <button type="submit">Update task</button>
+                            <button type="submit" name="Status" value="1">Mark completed</button>
                         </form>
+                        <details class="ani-task-other">
+                            <summary>Other status</summary>
+                            <form asp-action="Close" asp-route-farmId="@Model.Farm.Id" asp-route-taskId="@task.Id"
+                                  method="post" data-confirm="Close this task without marking it completed?">
+                                <input type="hidden" name="RowVersion" value="@task.RowVersion" />
+                                <label for="close-status-@task.Id">Status</label>
+                                <select id="close-status-@task.Id" name="Status">
+                                    <option value="2">Skipped</option>
+                                    <option value="3">Cancelled</option>
+                                </select>
+                                <button type="submit" class="sf-button-outline">Apply status</button>
+                            </form>
+                        </details>
                     </div>
                 }
                 @if (task.Status == 0 && canManage)
