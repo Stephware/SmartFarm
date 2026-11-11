@@ -27,7 +27,7 @@ public sealed class FarmFinanceInsightRulesTests
         Assert.Equal(250m, report.Categories.Single(x => x.Category == "Fertilizer")
             .AmountPhp);
         Assert.Equal(1400m, report.Months.Single(x => x.Month == "2026-10").IncomePhp);
-        Assert.Equal(-20m, report.Months.Single(x => x.Month == "2026-11").NetPhp + 30m);
+        Assert.Equal(30m, report.Months.Single(x => x.Month == "2026-11").NetPhp);
         var assigned = report.CropTotals.Single(x => x.CycleId == crop);
         Assert.Equal(1400m, assigned.IncomePhp);
         Assert.Equal(250m, assigned.ExpensesPhp);
