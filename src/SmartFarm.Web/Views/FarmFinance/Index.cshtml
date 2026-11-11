@@ -32,6 +32,152 @@
     </div>
     <p class="sf-finance-disclaimer">Harvest quantities are not assumed to be sales, and inventory transactions are not automatically counted as expenses. These totals represent recorded entries, not complete farm profit or accounting statements.</p>
 </section>
+@if (Model.Insights is { } insights)
+{
+    <section class="panel sf-finance-insights" aria-labelledby="finance-insights-heading">
+        <div class="sf-section-line">
+            <div>
+                <p class="sf-kicker">RECORDED CASH TRENDS</p>
+                <h2 id="finance-insights-heading">Financial insights</h2>
+            </div>
+            <span>@insights.EntryCount non-voided entries</span>
+        </div>
+        <p class="sf-muted">Compare manual cash entries by farm date, category, and crop cycle.
+            The totals below reflect the selected period; the summary above is all-time.</p>
+        <form method="get" asp-action="Index" class="report-filters sf-report-filters">
+            <input type="hidden" name="farmId" value="@Model.Farm.Id" />
+            <div>
+                <label for="finance-from">From</label>
+                <input id="finance-from" type="date" name="from"
+                       value="@(insights.FromDate?.ToString("yyyy-MM-dd"))"
+                       min="2000-01-01" max="2100-12-30" />
+            </div>
+            <div>
+                <label for="finance-to">To</label>
+                <input id="finance-to" type="date" name="to"
+                       value="@(insights.ToDate?.ToString("yyyy-MM-dd"))"
+                       min="2000-01-01" max="2100-12-30" />
+            </div>
+            <button type="submit">Apply dates</button>
+        </form>
+        <div class="action-links sf-report-actions">
+            <a asp-action="Index" asp-route-farmId="@Model.Farm.Id">All dates</a>
+            <a class="button" asp-action="ExportInsightsCsv" asp-route-farmId="@Model.Farm.Id"
+               asp-route-from="@(insights.FromDate?.ToString("yyyy-MM-dd"))"
+               asp-route-to="@(insights.ToDate?.ToString("yyyy-MM-dd"))">Export insights CSV</a>
+        </div>
+        <p class="hint">Period: @(insights.FromDate?.ToString("yyyy-MM-dd") ?? "First recorded entry")
+            to @(insights.ToDate?.ToString("yyyy-MM-dd") ?? "Latest recorded entry").</p>
+        <div class="sf-finance-stats" aria-label="Selected period cash totals">
+            <div><span>Period income</span><strong>₱@insights.IncomePhp.ToString("N2")</strong></div>
+            <div><span>Period expenses</span><strong>₱@insights.ExpensesPhp.ToString("N2")</strong></div>
+            <div class="sf-finance-net">
+                <span>Net recorded cash</span><strong>₱@insights.NetPhp.ToString("N2")</strong>
+            </div>
+        </div>
+        <p class="hint">Net recorded cash = entered income minus entered expenses.
+            Harvested crops are not assumed to be sold; farm inventory consumption does not automatically create an expense.</p>
+
+        <h3>Monthly income and expenses (PHP)</h3>
+        @{
+            var recentMonths = insights.Months.OrderBy(x => x.Month).TakeLast(12).ToList();
+            var cashMax = recentMonths.Count == 0 ? 0m :
+                recentMonths.Max(x => Math.Max(x.IncomePhp, x.ExpensesPhp));
+        }
+        @if (recentMonths.Count == 0)
+        {
+            <p>No recorded cash entries match these dates.</p>
+        }
+        else
+        {
+            <div class="sf-finance-month-chart" role="group" aria-label="Monthly cash income and expense comparison">
+                <p class="hint"><span class="sf-cash-legend sf-cash-legend--income"></span> Income
+                    <span class="sf-cash-legend sf-cash-legend--expense"></span> Expenses</p>
+                @foreach (var month in recentMonths)
+                {
+                    var incomeWidth = cashMax > 0 ? month.IncomePhp * 100m / cashMax : 0m;
+                    var expenseWidth = cashMax > 0 ? month.ExpensesPhp * 100m / cashMax : 0m;
+                    <div class="sf-finance-month-row">
+                        <strong>@month.Month</strong>
+                        <div class="sf-finance-month-bars">
+                            <div class="harvest-bar-track" role="img"
+                                 aria-label="@month.Month income ₱@month.IncomePhp.ToString("N2")">
+                                <span class="sf-cash-bar sf-cash-bar--income"
+                                      style="width:@(incomeWidth.ToString("0.##", System.Globalization.CultureInfo.InvariantCulture))%"></span>
+                            </div>
+                            <div class="harvest-bar-track" role="img"
+                                 aria-label="@month.Month expenses ₱@month.ExpensesPhp.ToString("N2")">
+                                <span class="sf-cash-bar sf-cash-bar--expense"
+                                      style="width:@(expenseWidth.ToString("0.##", System.Globalization.CultureInfo.InvariantCulture))%"></span>
+                            </div>
+                        </div>
+                        <div class="sf-finance-month-values">
+                            <span>In ₱@month.IncomePhp.ToString("N2")</span>
+                            <span>Out ₱@month.ExpensesPhp.ToString("N2")</span>
+                        </div>
+                    </div>
+                }
+            </div>
+            @if (insights.Months.Count > recentMonths.Count)
+            {
+                <p class="hint">Showing the most recent 12 months. Export CSV for every matching month.</p>
+            }
+        }
+
+        <div class="sf-finance-insight-tables">
+            <div>
+                <h3>Cash by category</h3>
+                @if (insights.Categories.Count == 0) { <p>No category totals to display.</p> }
+                else
+                {
+                    <div class="table-scroll" tabindex="0" role="region" aria-label="Cash by category">
+                        <table class="data-table">
+                            <caption class="visually-hidden">Cash category totals for selected dates</caption>
+                            <thead><tr><th scope="col">Type</th><th scope="col">Category</th>
+                                <th scope="col">Entries</th><th scope="col">PHP total</th></tr></thead>
+                            <tbody>
+                            @foreach (var category in insights.Categories.Take(20))
+                            {
+                                <tr><td>@category.Kind</td><td>@category.Category</td>
+                                    <td>@category.EntryCount</td><td>₱@category.AmountPhp.ToString("N2")</td></tr>
+                            }
+                            </tbody>
+                        </table>
+                    </div>
+                    @if (insights.Categories.Count > 20)
+                    { <p class="hint">Showing 20 of @insights.Categories.Count categories; export CSV for all.</p> }
+                }
+            </div>
+            <div>
+                <h3>Cash by linked crop cycle</h3>
+                @if (insights.CropTotals.Count == 0) { <p>No crop-linked or farm-wide cash entries yet.</p> }
+                else
+                {
+                    <div class="table-scroll" tabindex="0" role="region" aria-label="Cash by crop cycle">
+                        <table class="data-table">
+                            <caption class="visually-hidden">Cash amounts by linked planting cycle</caption>
+                            <thead><tr><th scope="col">Crop / allocation</th>
+                                <th scope="col">Income</th><th scope="col">Expenses</th><th scope="col">Net cash</th></tr></thead>
+                            <tbody>
+                            @foreach (var crop in insights.CropTotals.Take(20))
+                            {
+                                <tr><td>@crop.Label</td>
+                                    <td>₱@crop.IncomePhp.ToString("N2")</td>
+                                    <td>₱@crop.ExpensesPhp.ToString("N2")</td>
+                                    <td>₱@crop.NetPhp.ToString("N2")</td></tr>
+                            }
+                            </tbody>
+                        </table>
+                    </div>
+                    @if (insights.CropTotals.Count > 20)
+                    { <p class="hint">Showing 20 of @insights.CropTotals.Count allocations; export CSV for all.</p> }
+                }
+            </div>
+        </div>
+        <p class="hint">Farm-wide entries are not assigned to individual crop cycles.
+            Cash comparisons are incomplete if sales or expenses were never entered.</p>
+    </section>
+}
 @if (canManage)
 {
     <section class="panel sf-finance-entry-panel" id="add-finance-entry" aria-labelledby="finance-add-heading">

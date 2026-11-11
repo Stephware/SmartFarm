@@ -1191,3 +1191,30 @@ input:not([type=checkbox]):not([type=radio]):disabled, select:disabled, textarea
     .sf-account-details dl > div { grid-template-columns: minmax(0,1fr); gap: 4px; }
     .sf-notifications-count { padding: 12px 16px; }
 }
+
+/* Phase D: financial insights; responsive recorded-cash comparisons. */
+.sf-finance-insights > .sf-section-line { align-items: flex-start; }
+.sf-finance-insights .sf-report-filters { margin: 18px 0 10px; }
+.sf-finance-insights .sf-finance-stats { margin: 20px 0 12px; }
+.sf-finance-insights h3 { margin: 26px 0 12px; font-size: 1.05rem; }
+.sf-finance-month-chart { display: grid; gap: 13px; min-width: 0; }
+.sf-finance-month-row { display: grid; grid-template-columns: 84px minmax(0,1fr) minmax(155px,auto); gap: 16px; align-items: center; }
+.sf-finance-month-row > strong { font-variant-numeric: tabular-nums; font-size: .87rem; }
+.sf-finance-month-bars { display: grid; gap: 6px; }
+.sf-finance-month-bars .harvest-bar-track { min-width: 0; height: 13px; }
+.sf-finance-month-values { display: grid; gap: 4px; font-size: .81rem; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.sf-cash-bar { display: block; height: 100%; min-width: 0; border-radius: inherit; }
+.sf-cash-bar--income, .sf-cash-legend--income { background: var(--primary); }
+.sf-cash-bar--expense, .sf-cash-legend--expense { background: var(--secondary); }
+.sf-cash-legend { display: inline-block; width: 12px; height: 12px; border-radius: 3px; vertical-align: middle; margin: 0 4px 0 12px; }
+.sf-finance-insight-tables { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 20px; }
+.sf-finance-insight-tables > div { min-width: 0; }
+.sf-finance-insight-tables .table-scroll { max-height: 400px; }
+.sf-finance-insight-tables table { min-width: 440px; }
+@media (max-width: 960px) {
+    .sf-finance-insight-tables { grid-template-columns: minmax(0,1fr); }
+}
+@media (max-width: 650px) {
+    .sf-finance-month-row { grid-template-columns: minmax(0,1fr); gap: 5px; padding: 10px 0; border-bottom: 1px solid var(--divider); }
+    .sf-finance-month-values { display: flex; justify-content: space-between; flex-wrap: wrap; white-space: normal; }
+}

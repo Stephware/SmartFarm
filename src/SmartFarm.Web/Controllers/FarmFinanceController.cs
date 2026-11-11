@@ -1,3 +1,4 @@
+using System.Text;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -9,6 +10,7 @@ using SmartFarm.Core.Interfaces.Crops;
 using SmartFarm.Infrastructure.Identity;
 using SmartFarm.Web.Authentication;
 using SmartFarm.Web.ViewModels.Finance;
+using SmartFarm.Web.Clients;
 
 namespace SmartFarm.Web.Controllers;
 
@@ -20,18 +22,42 @@ public sealed class FarmFinanceController(
     private Guid Actor => Guid.TryParse(users.GetUserId(User), out var id) ? id : Guid.Empty;
 
     [HttpGet]
-    public async Task<IActionResult> Index(Guid farmId, CancellationToken ct)
+    public async Task<IActionResult> Index(Guid farmId, CancellationToken ct,
+        DateOnly? from = null, DateOnly? to = null)
     {
         try
         {
             var farm = await farms.GetAsync(farmId, Actor, ct);
             if (farm is null) return NotFound();
-            return View(new FarmFinancePage(farm,
-                await finance.ListAsync(farmId, Actor, ct),
-                await crops.ListCyclesAsync(farmId, Actor, ct)));
+            var overview = await finance.ListAsync(farmId, Actor, ct);
+            var insights = await finance.InsightsAsync(farmId, Actor, from, to, ct);
+            return View(new FarmFinancePage(farm, overview,
+                await crops.ListCyclesAsync(farmId, Actor, ct))
+            {
+                Insights = insights
+            });
         }
         catch (FarmOperationException e) when (e.Error == FarmError.NotFound)
         { return NotFound(); }
+        catch (FarmOperationException e) when (e.Error == FarmError.InvalidInput)
+        { return BadRequest(e.Message); }
+    }
+
+    [HttpGet]
+    public async Task<IActionResult> ExportInsightsCsv(Guid farmId, CancellationToken ct,
+        DateOnly? from = null, DateOnly? to = null)
+    {
+        if (!ModelState.IsValid) return BadRequest();
+        try
+        {
+            var report = await finance.InsightsAsync(farmId, Actor, from, to, ct);
+            return File(Encoding.UTF8.GetBytes(FinanceInsightsCsv.Build(report)),
+                "text/csv; charset=utf-8", $"smartfarm-finance-{farmId:N}.csv");
+        }
+        catch (FarmOperationException e) when (e.Error == FarmError.NotFound)
+        { return NotFound(); }
+        catch (FarmOperationException e) when (e.Error == FarmError.InvalidInput)
+        { return BadRequest(e.Message); }
     }
 
     [HttpPost, ValidateAntiForgeryToken]

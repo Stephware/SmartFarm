@@ -5,6 +5,9 @@ namespace SmartFarm.Core.Interfaces.Finance;
 public interface IFarmFinanceService
 {
     Task<FarmFinanceOverview> ListAsync(Guid farmId, Guid actor, CancellationToken ct = default);
+    Task<FarmFinanceInsights> InsightsAsync(Guid farmId, Guid actor,
+        DateOnly? from = null, DateOnly? to = null,
+        CancellationToken ct = default);
     Task<FarmFinanceEntryDetails> RecordAsync(Guid farmId, Guid actor, FarmFinanceInput input,
         CancellationToken ct = default);
     Task VoidAsync(Guid farmId, Guid entryId, Guid actor, FarmFinanceVoidInput input,
