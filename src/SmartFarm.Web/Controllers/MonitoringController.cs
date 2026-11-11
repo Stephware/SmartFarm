@@ -1,3 +1,4 @@
+using System.Data.Common;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -55,13 +56,22 @@ public sealed class MonitoringController : Controller
         {
             var cycle = await _crops.GetCycleAsync(farmId, cycleId, Actor, ct);
             if (cycle is null) return NotFound();
-            var farm = await _farms.GetAsync(farmId, Actor, ct);
-            if (farm is null) return NotFound();
-            return View("Index", new MonitoringWorkspaceViewModel(cycle,
-                await _monitoring.GetAsync(farmId, cycleId, Actor, ct),
-                await _tasks.ListAsync(farmId, Actor, ct))
+            var monitoring = await _monitoring.GetAsync(farmId, cycleId, Actor, ct);
+            var taskList = await _tasks.ListAsync(farmId, Actor, ct);
+            // An optional manager control must not take all monitoring offline
+            // when the separate farm-details service is temporarily unavailable.
+            bool canManageIssues = false;
+            try
             {
-                CanManageIssues = farm.Role is "Owner" or "Manager",
+                var farm = await _farms.GetAsync(farmId, Actor, ct);
+                canManageIssues = farm?.Role is "Owner" or "Manager";
+            }
+            catch (DbException) { /* Read-only monitoring remains available. */ }
+            catch (HttpRequestException) { /* API role lookup unavailable. */ }
+            return View("Index", new MonitoringWorkspaceViewModel(cycle,
+                monitoring, taskList)
+            {
+                CanManageIssues = canManageIssues,
                 Activity = activity ?? new() { ActivityType = 1 }, Observation = observation ?? new()
             });
         }
