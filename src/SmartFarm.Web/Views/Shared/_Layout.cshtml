@@ -1,13 +1,14 @@
 @{
     var signedIn = User.Identity?.IsAuthenticated == true;
     var currentController = ViewContext.RouteData.Values["controller"]?.ToString();
+    var currentAction = ViewContext.RouteData.Values["action"]?.ToString();
 }
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <meta name="theme-color" content="#2d6c45" />
+    <meta name="theme-color" content="#153D2D" />
     <title>@ViewData["Title"] - AniGo</title>
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <script src="~/js/site.js" asp-append-version="true" defer></script>
@@ -23,13 +24,23 @@
                     <span>AniGo<small>Farm management</small></span>
                 </a>
                 <p class="sidebar-caption">WORKSPACE</p>
-                <nav class="sidebar-links" aria-label="Account sections">
-                    <a asp-controller="Farms" asp-action="Index" aria-current="@(currentController == "Farms" ? "page" : null)">My farms</a>
-                    <a asp-controller="Notifications" asp-action="Index" aria-current="@(currentController == "Notifications" ? "page" : null)">Notifications</a>
-                    <a asp-controller="Account" asp-action="Profile" aria-current="@(currentController == "Account" ? "page" : null)">My account</a>
+                <nav class="sidebar-links" aria-label="Account and farm selection">
+                    <a asp-controller="Farms" asp-action="Index" data-nav-icon="farms"
+                       aria-current="@(currentController == "Farms" && currentAction == "Index" ? "page" : null)">My farms</a>
+                    <a asp-controller="Notifications" asp-action="Index" data-nav-icon="notifications"
+                       aria-current="@(currentController == "Notifications" ? "page" : null)">Notifications</a>
+                    <a asp-controller="Account" asp-action="Profile" data-nav-icon="account"
+                       aria-current="@(currentController == "Account" && currentAction == "Profile" ? "page" : null)">My account</a>
                 </nav>
+                @* The farm links come from _FarmNavigation, not duplicated route definitions. *@
+                <div id="sidebar-farm-group" class="sidebar-farm-group" hidden>
+                    <p class="sidebar-caption">FARM MANAGEMENT</p>
+                    <nav id="sidebar-farm-links" class="sidebar-links" aria-label="Current farm sections"></nav>
+                </div>
                 <div class="sidebar-bottom">
-                    <p>Plan crops, manage plots, and record fieldwork in one place.</p>
+                    <a class="sf-farm-switch" asp-controller="Farms" asp-action="Index">
+                        <span aria-hidden="true">↔</span> Switch farm
+                    </a>
                     <form method="post" asp-controller="Account" asp-action="Logout" class="logout-form">
                         <button type="submit" class="sidebar-logout">Log out</button>
                     </form>
@@ -41,12 +52,17 @@
                         <a class="mobile-brand" asp-controller="Farms" asp-action="Index">
                             <span class="brand-badge" aria-hidden="true">A</span>AniGo
                         </a>
-                        <span class="topbar-label">Farm workspace</span>
+                        <span class="topbar-label">AniGo / Farm workspace</span>
                         <strong>@(ViewData["Title"] ?? "Overview")</strong>
                     </div>
-                    <details class="mobile-nav">
+                    <nav class="app-topbar-actions" aria-label="Quick account links">
+                        <a asp-controller="Notifications" asp-action="Index" data-nav-icon="notifications">Notifications</a>
+                        <a asp-controller="Account" asp-action="Profile" data-nav-icon="account">Account</a>
+                    </nav>
+                    <details class="mobile-nav" id="mobile-workspace-menu">
                         <summary>Menu</summary>
                         <nav aria-label="Mobile workspace navigation">
+                            <div id="mobile-farm-links" class="mobile-farm-links" hidden></div>
                             <a asp-controller="Farms" asp-action="Index">My farms</a>
                             <a asp-controller="Notifications" asp-action="Index">Notifications</a>
                             <a asp-controller="Account" asp-action="Profile">My account</a>
@@ -61,6 +77,10 @@
                     @RenderBody()
                 </main>
             </div>
+            <nav class="mobile-workspace-bar" id="mobile-workspace-bar" aria-label="Farm quick navigation" hidden>
+                <div id="mobile-workspace-links" class="mobile-workspace-links"></div>
+                <button type="button" class="mobile-more-button" id="mobile-more-button" aria-label="More farm sections">More</button>
+            </nav>
         </div>
     }
     else
