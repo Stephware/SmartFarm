@@ -19,6 +19,11 @@ public sealed class FarmFinanceController(
     public Task<IActionResult> List(Guid farmId, CancellationToken ct) =>
         Result(async () => Ok(await finance.ListAsync(farmId, ActorId, ct)));
 
+    [HttpGet("insights")]
+    public Task<IActionResult> Insights(Guid farmId,
+        [FromQuery] DateOnly? from, [FromQuery] DateOnly? to, CancellationToken ct) =>
+        Result(async () => Ok(await finance.InsightsAsync(farmId, ActorId, from, to, ct)));
+
     [HttpPost]
     public Task<IActionResult> Record(Guid farmId, [FromBody] FarmFinanceInput input,
         CancellationToken ct) =>
