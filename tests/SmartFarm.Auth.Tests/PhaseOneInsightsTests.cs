@@ -82,6 +82,41 @@ public sealed class PhaseOneInsightsTests
     }
 
     [Fact]
+    public void CycleYieldChartsUseSeparateUnitsAndCurrentPlotAreaAsEstimate()
+    {
+        var farmId = Guid.NewGuid();
+        var plotId = Guid.NewGuid();
+        var cropId = Guid.NewGuid();
+        var cycleId = Guid.NewGuid();
+        var report = new HarvestReport(farmId, "Farm", "Asia/Manila",
+            null, null, null, null, 3, 0, [], [], [], [])
+        {
+            CycleTotals = [
+                new HarvestCycleTotal(cycleId, cropId, "Rice", plotId, "North",
+                    "kg", 12m, 2, new DateOnly(2026, 10, 1),
+                    new DateOnly(2026, 10, 8)),
+                new HarvestCycleTotal(Guid.NewGuid(), cropId, "Rice", plotId, "North",
+                    "kg", 6m, 1, new DateOnly(2026, 11, 1),
+                    new DateOnly(2026, 11, 1)),
+                new HarvestCycleTotal(Guid.NewGuid(), cropId, "Rice", plotId, "North",
+                    "bundles", 7m, 1, new DateOnly(2026, 11, 1),
+                    new DateOnly(2026, 11, 1))
+            ]
+        };
+        var charts = HarvestAnalyticsBuilder.CropCycles(report,
+            [new PlotDetails(plotId, farmId, "North", 4m, "version")]);
+        Assert.Equal(2, charts.Count);
+        var kilos = Assert.Single(charts.Where(x => x.Unit == "kg"));
+        Assert.Equal(2, kilos.Bars.Count);
+        Assert.Equal(12m, kilos.Bars[0].Quantity);
+        Assert.Equal(100m, kilos.Bars[0].WidthPercent);
+        Assert.Equal(50m, kilos.Bars[1].WidthPercent);
+        Assert.Equal(3m, kilos.Bars[0].YieldPerSquareMeter);
+        Assert.Equal(7m, Assert.Single(charts.Where(x => x.Unit == "bundles"))
+            .Bars.Single().Quantity);
+    }
+
+    [Fact]
     public void HarvestChartsKeepUnitsSeparateAndNeverUseVoidedData()
     {
         var plotId = Guid.NewGuid();

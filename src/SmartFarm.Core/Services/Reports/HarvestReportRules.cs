@@ -26,8 +26,21 @@ public static class HarvestReportRules
             .Select(g => new HarvestMonthlyTotal(g.Key.Month, g.Key.Unit,
                 g.Sum(h => h.Quantity), g.Count()))
             .OrderByDescending(g => g.Month).ThenBy(g => g.Unit).ToList();
+        var cycles = valid.GroupBy(h => new
+            { h.CycleId, h.CropTypeId, h.CropTypeName, h.PlotId, h.PlotName, h.Unit })
+            .Select(g => new HarvestCycleTotal(
+                g.Key.CycleId, g.Key.CropTypeId, g.Key.CropTypeName,
+                g.Key.PlotId, g.Key.PlotName, g.Key.Unit,
+                g.Sum(h => h.Quantity), g.Count(),
+                g.Min(h => h.FarmDate), g.Max(h => h.FarmDate)))
+            .OrderBy(c => c.Unit).ThenBy(c => c.CropTypeName)
+            .ThenByDescending(c => c.LastHarvestDate).ThenBy(c => c.CycleId)
+            .ToList();
         return new HarvestReport(farmId, farmName, timeZoneId,
             from, to, plotId, cropTypeId, valid.Count, entries.Count - valid.Count,
-            units, crops, monthly, entries);
+            units, crops, monthly, entries)
+        {
+            CycleTotals = cycles
+        };
     }
 }
