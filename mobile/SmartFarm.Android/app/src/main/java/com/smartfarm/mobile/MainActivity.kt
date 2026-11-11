@@ -18,7 +18,10 @@ import com.smartfarm.mobile.ui.theme.SmartFarmTheme
 
 class MainActivity : ComponentActivity() {
     private val tasks: com.smartfarm.mobile.features.tasks.TaskViewModel by viewModels {
-        com.smartfarm.mobile.features.tasks.TaskViewModel.Factory((application as SmartFarmApplication).container.taskRepository)
+        val container = (application as SmartFarmApplication).container
+        com.smartfarm.mobile.features.tasks.TaskViewModel.Factory(
+            container.taskRepository, container.farmRepository, container.cropRepository
+        )
     }
     private val authentication: AuthViewModel by viewModels {
         AuthViewModel.Factory((application as SmartFarmApplication).container.authRepository)
