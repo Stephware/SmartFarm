@@ -106,7 +106,7 @@ public sealed class FarmEnrollmentWebTests
         Assert.Contains("Today's work", html);
         Assert.Contains("Plots &amp; crops", html);
         Assert.Contains("Farm weather", html);
-        Assert.Contains("Saved weather", html);
+        Assert.Contains("SAVED FORECAST", html);
         Assert.Contains("Open tasks", html);
         Assert.Contains("No plots yet", html);
         Assert.Contains("Set the farm's map pin", html);
