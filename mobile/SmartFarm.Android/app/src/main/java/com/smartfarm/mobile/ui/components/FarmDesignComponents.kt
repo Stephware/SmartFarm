@@ -4,6 +4,8 @@ import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.size
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.StrokeCap
@@ -186,24 +188,28 @@ fun FarmMetricCard(label: String, value: String, note: String? = null, modifier:
  * or a signal of crop health.
  */
 @Composable
-fun FarmPlotPreview(modifier: Modifier = Modifier) {
-    val furrowColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.70f)
-    Canvas(
-        modifier = modifier.fillMaxWidth().height(72.dp)
+fun FarmPlotPreview(modifier: Modifier = Modifier, cropName: String? = null) {
+    val furrowColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.44f)
+    Box(
+        modifier = modifier.fillMaxWidth().height(96.dp)
             .clip(MaterialTheme.shapes.medium)
-            .background(MaterialTheme.colorScheme.secondaryContainer)
+            .background(MaterialTheme.colorScheme.secondaryContainer),
+        contentAlignment = Alignment.Center
     ) {
-        val inset = 18.dp.toPx()
-        val stroke = 7.dp.toPx()
-        for (row in 1..3) {
-            val y = size.height * row / 4f
-            drawLine(
-                color = furrowColor,
-                start = Offset(inset, y),
-                end = Offset(size.width - inset, y),
-                strokeWidth = stroke,
-                cap = StrokeCap.Round
-            )
+        Canvas(Modifier.fillMaxSize()) {
+            val inset = 18.dp.toPx()
+            val stroke = 7.dp.toPx()
+            for (row in 1..3) {
+                val y = size.height * row / 4f
+                drawLine(
+                    color = furrowColor,
+                    start = Offset(inset, y),
+                    end = Offset(size.width - inset, y),
+                    strokeWidth = stroke,
+                    cap = StrokeCap.Round
+                )
+            }
         }
+        if (!cropName.isNullOrBlank()) CropArtworkImage(cropName, Modifier.size(90.dp))
     }
 }

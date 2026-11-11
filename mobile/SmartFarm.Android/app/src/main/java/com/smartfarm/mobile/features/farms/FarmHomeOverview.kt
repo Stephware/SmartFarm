@@ -115,7 +115,7 @@ internal fun FarmHomeOverview(
                     it.plotId == plot.id && it.status == 0
                 }
                 Column(verticalArrangement = Arrangement.spacedBy(5.dp)) {
-                    FarmPlotPreview()
+                    FarmPlotPreview(cropName = crop?.cropTypeName)
                     Text(plot.name, style = MaterialTheme.typography.titleMedium)
                     Text((crop?.cropTypeName ?: if (visibleCrops == null) "Crop data unavailable" else "No current crop")
                         + " · " + plot.areaSqMeters + " m²",

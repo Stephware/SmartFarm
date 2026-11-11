@@ -1,6 +1,10 @@
 package com.smartfarm.mobile.ui.components
 
 import androidx.annotation.DrawableRes
+import androidx.compose.foundation.Image
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.painterResource
 import com.smartfarm.mobile.R
 import java.util.Locale
 
@@ -25,4 +29,11 @@ fun cropArtworkRes(name: String?): Int = when (cropArtworkKind(name)) {
     CropArtworkKind.Rice -> R.drawable.crop_rice
     CropArtworkKind.Corn -> R.drawable.crop_corn
     CropArtworkKind.Generic -> R.drawable.crop_sprout
+}
+
+/** Decorative only: crop name and status remain explicit text for accessibility. */
+@Composable
+fun CropArtworkImage(name: String?, modifier: Modifier = Modifier) {
+    Image(painter = painterResource(id = cropArtworkRes(name)),
+        contentDescription = null, modifier = modifier)
 }
