@@ -8,6 +8,10 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.width
+import androidx.compose.ui.Alignment
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -23,6 +27,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
+import com.smartfarm.mobile.ui.theme.AniGoPalette
 
 // Spacing is shared by field forms, dashboards and future farm-management screens.
 object FarmSpacing {
@@ -64,7 +69,8 @@ fun FarmSectionCard(
         modifier = modifier,
         shape = MaterialTheme.shapes.large,
         border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant),
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
     ) {
         Column(
             modifier = Modifier.fillMaxWidth().padding(FarmSpacing.large),
@@ -122,7 +128,7 @@ fun FarmEmptyState(title: String, description: String, modifier: Modifier = Modi
     }
 }
 
-/** Friendly intro card for farm dashboards and selection, with readable contrast in both themes. */
+/** Consistent Pine hero with a restrained Harvest Gold accent. */
 @Composable
 fun FarmHero(title: String, subtitle: String, modifier: Modifier = Modifier) {
     Surface(
@@ -131,13 +137,46 @@ fun FarmHero(title: String, subtitle: String, modifier: Modifier = Modifier) {
         contentColor = MaterialTheme.colorScheme.onPrimaryContainer,
         shape = MaterialTheme.shapes.large
     ) {
-        Column(
+        Row(
             modifier = Modifier.padding(FarmSpacing.large),
-            verticalArrangement = Arrangement.spacedBy(FarmSpacing.small)
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(FarmSpacing.medium)
         ) {
-            Text(title, style = MaterialTheme.typography.headlineMedium,
-                modifier = Modifier.semantics { heading() })
-            Text(subtitle, style = MaterialTheme.typography.bodyMedium)
+            Box(
+                modifier = Modifier.width(5.dp).height(72.dp)
+                    .clip(RoundedCornerShape(50))
+                    .background(AniGoPalette.harvestGold)
+            )
+            Column(verticalArrangement = Arrangement.spacedBy(FarmSpacing.small)) {
+                Text(
+                    title, style = MaterialTheme.typography.headlineMedium,
+                    modifier = Modifier.semantics { heading() }
+                )
+                Text(subtitle, style = MaterialTheme.typography.bodyMedium)
+            }
+        }
+    }
+}
+
+/** A compact metric container, ready for the Phase 2 dashboard. */
+@Composable
+fun FarmMetricCard(label: String, value: String, note: String? = null, modifier: Modifier = Modifier) {
+    Surface(
+        modifier = modifier,
+        shape = MaterialTheme.shapes.large,
+        color = MaterialTheme.colorScheme.surface,
+        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant),
+        shadowElevation = 2.dp
+    ) {
+        Column(
+            modifier = Modifier.padding(FarmSpacing.medium),
+            verticalArrangement = Arrangement.spacedBy(FarmSpacing.extraSmall)
+        ) {
+            Text(label, style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+            Text(value, style = MaterialTheme.typography.headlineSmall, color = MaterialTheme.colorScheme.onSurface)
+            if (!note.isNullOrBlank()) {
+                Text(note, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+            }
         }
     }
 }
