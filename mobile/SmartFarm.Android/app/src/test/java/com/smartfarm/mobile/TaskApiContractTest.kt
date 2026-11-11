@@ -3,6 +3,8 @@ package com.smartfarm.mobile
 import com.smartfarm.mobile.data.remote.api.ApiClientFactory
 import com.smartfarm.mobile.data.remote.api.TaskApi
 import com.smartfarm.mobile.data.remote.api.TaskCloseInput
+import com.smartfarm.mobile.data.remote.api.TaskCreateInput
+import com.smartfarm.mobile.data.remote.api.TaskUpdateInput
 import kotlinx.coroutines.runBlocking
 import okhttp3.mockwebserver.MockResponse
 import okhttp3.mockwebserver.MockWebServer
@@ -10,6 +12,44 @@ import org.junit.Assert.assertEquals
 import org.junit.Test
 
 class TaskApiContractTest {
+    @Test fun managerCreatesAndUpdatesTasksWithExistingServerContracts() = runBlocking {
+        val server = MockWebServer()
+        server.start()
+        try {
+            val api = ApiClientFactory.create(server.url("/").toString(), true)
+                .create(TaskApi::class.java)
+            val response = """{"id":"task-1","farmId":"farm-1","taskType":4,
+                "dueDate":"2026-11-12","status":0,"rowVersion":"version"}"""
+            server.enqueue(MockResponse().setResponseCode(200).setBody(response)
+                .addHeader("Content-Type", "application/json"))
+            api.create("Bearer manager", "farm-1", TaskCreateInput(
+                4, "2026-11-12", "Inspect leaves", null, "member-1"
+            ))
+            val created = server.takeRequest()
+            assertEquals("POST", created.method)
+            assertEquals("/api/farms/farm-1/tasks", created.path)
+            assertEquals("Bearer manager", created.getHeader("Authorization"))
+            val createBody = created.body.readUtf8()
+            assertEquals(true, createBody.contains(""""taskType":4"""))
+            assertEquals(true, createBody.contains("\\\"assignedToUserId\\\":\\\"member-1\\\""))
+
+            server.enqueue(MockResponse().setResponseCode(200).setBody(response)
+                .addHeader("Content-Type", "application/json"))
+            api.update("Bearer manager", "farm-1", "task-1",
+                TaskUpdateInput("2026-11-13", "Reassigned inspection", null, "version"))
+            val updated = server.takeRequest()
+            assertEquals("PUT", updated.method)
+            assertEquals("/api/farms/farm-1/tasks/task-1", updated.path)
+            assertEquals("Bearer manager", updated.getHeader("Authorization"))
+            val updateBody = updated.body.readUtf8()
+            assertEquals(true, updateBody.contains("\\\"rowVersion\\\":\\\"version\\\""))
+            assertEquals(true, updateBody.contains("\\\"dueDate\\\":\\\"2026-11-13\\\""))
+            assertEquals(true, updateBody.contains(""""assignedToUserId":null"""))
+        } finally {
+            server.shutdown()
+        }
+    }
+
     @Test fun tasksAndNotificationsUseAuthenticatedExistingEndpoints() = runBlocking {
         val server = MockWebServer()
         server.start()
