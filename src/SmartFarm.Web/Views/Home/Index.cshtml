@@ -18,22 +18,43 @@
                 <a class="sf-button-outline" asp-controller="Account" asp-action="Login">Log in</a>
             }
         </div>
-        <p class="landing-reassurance">Keep your farm organized with a workspace for owners, managers, and field workers.</p>
+        <p class="landing-reassurance">Keep your farm organized with tools for owners, managers, and field workers. One account can access multiple farms.</p>
+        <div class="ani-landing-points" aria-label="AniGo benefits">
+            <span><strong>01</strong> Plan your planting</span>
+            <span><strong>02</strong> Record fieldwork</span>
+            <span><strong>03</strong> Track every harvest</span>
+        </div>
     </div>
-    <div class="landing-visual" aria-label="Illustration of organized farm plots" role="img">
+    <div class="landing-visual ani-landing-visual" aria-label="Illustrative farm plots with tomato, eggplant, rice, and corn crops" role="img">
         <div class="visual-head">
             <span>Farm plots</span><small>Illustrative overview</small>
         </div>
         <div class="visual-fields" aria-hidden="true">
-            <div class="visual-field field-a"><span class="field-name">Plot A</span><div class="field-furrows"><i></i><i></i><i></i></div></div>
-            <div class="visual-field field-b"><span class="field-name">Plot B</span><div class="field-furrows"><i></i><i></i><i></i></div></div>
-            <div class="visual-field field-c"><span class="field-name">Plot C</span><div class="field-furrows"><i></i><i></i><i></i></div></div>
-            <div class="visual-field field-d"><span class="field-name">Plot D</span><div class="field-furrows"><i></i><i></i><i></i></div></div>
+            <div class="visual-field field-a">
+                <span class="field-name">Plot A</span>
+                <img src="@Url.Content("~/images/crops/tomato.svg")" alt="" width="120" height="120" loading="eager" />
+                <strong>Tomato</strong>
+            </div>
+            <div class="visual-field field-b">
+                <span class="field-name">Plot B</span>
+                <img src="@Url.Content("~/images/crops/eggplant.svg")" alt="" width="120" height="120" loading="lazy" />
+                <strong>Eggplant</strong>
+            </div>
+            <div class="visual-field field-c">
+                <span class="field-name">Plot C</span>
+                <img src="@Url.Content("~/images/crops/rice.svg")" alt="" width="120" height="120" loading="lazy" />
+                <strong>Rice</strong>
+            </div>
+            <div class="visual-field field-d">
+                <span class="field-name">Plot D</span>
+                <img src="@Url.Content("~/images/crops/corn.svg")" alt="" width="120" height="120" loading="lazy" />
+                <strong>Corn</strong>
+            </div>
         </div>
-        <p class="visual-footnote">A clearer way to organize your growing spaces.</p>
+        <p class="visual-footnote">Illustrative plot cards · real crop records stay in your farm workspace.</p>
     </div>
 </section>
-<section class="landing-features" aria-label="What you can do with AniGo">
+<section class="landing-features ani-landing-features" aria-label="What you can do with AniGo">
     <article class="panel">
         <div class="feature-index">01</div>
         <h2>Plan with confidence</h2>
@@ -49,4 +70,16 @@
         <h2>Stay informed</h2>
         <p>Review farm tasks, available weather advisories, and harvest reports in one workspace.</p>
     </article>
+</section>
+
+<section class="ani-landing-last panel" aria-labelledby="ani-landing-last-title">
+    <div>
+        <p class="sf-kicker">READY FOR FIELDWORK?</p>
+        <h2 id="ani-landing-last-title">Start with your farm. Keep every season organized.</h2>
+        <p>Set up a farm, invite your team, and record work from planting through harvest.</p>
+    </div>
+    <a class="button" asp-controller="@(User.Identity?.IsAuthenticated == true ? "Farms" : "Account")"
+       asp-action="@(User.Identity?.IsAuthenticated == true ? "Index" : "Register")">
+        @(User.Identity?.IsAuthenticated == true ? "Open my farms" : "Create an account")
+    </a>
 </section>

@@ -7,6 +7,11 @@
         <p class="auth-kicker">WELCOME BACK</p>
         <h2>Good farm management starts with a clear view.</h2>
         <p>Open your farms, check upcoming work, and keep crop records organized from planting to harvest.</p>
+        <div class="ani-auth-illustration" aria-hidden="true">
+            <img src="@Url.Content("~/images/crops/rice.svg")" alt="" width="120" height="120" />
+            <img src="@Url.Content("~/images/crops/tomato.svg")" alt="" width="120" height="120" />
+            <img src="@Url.Content("~/images/crops/eggplant.svg")" alt="" width="120" height="120" />
+        </div>
         <div class="auth-intro-foot">Your farm information, in one place.</div>
     </aside>
     <section class="panel auth-card" aria-labelledby="login-heading">
@@ -19,16 +24,21 @@
         <form method="post" asp-action="Login" asp-controller="Account" asp-route-returnUrl="@ViewData["ReturnUrl"]" class="auth-form">
             <div class="form-field">
                 <label asp-for="Email"></label>
-                <input asp-for="Email" autocomplete="username" />
+                <input asp-for="Email" type="email" autocomplete="username" inputmode="email"
+                       autocapitalize="none" spellcheck="false" required />
                 <span asp-validation-for="Email" class="error"></span>
             </div>
             <div class="form-field">
                 <label asp-for="Password"></label>
-                <input asp-for="Password" type="password" autocomplete="current-password" />
+                <div class="ani-password-field">
+                    <input asp-for="Password" type="password" autocomplete="current-password" required />
+                    <button type="button" class="ani-password-toggle" data-password-toggle
+                            aria-controls="Password" aria-pressed="false">Show</button>
+                </div>
                 <span asp-validation-for="Password" class="error"></span>
             </div>
             <label class="check auth-remember"><input asp-for="RememberMe" /> Remember me</label>
-            <button class="auth-submit" type="submit">Log in</button>
+            <button class="auth-submit" type="submit">Log in to my farms</button>
         </form>
         <p class="auth-switch">New to AniGo? <a asp-controller="Account" asp-action="Register">Create an account</a>.</p>
     </section>

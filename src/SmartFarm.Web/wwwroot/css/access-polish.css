@@ -1,0 +1,73 @@
+/* Phase 7 — unified guest, account and accessible responsive polish. */
+html { scroll-padding-top: 22px; }
+.ani-landing-visual { transform: none; box-shadow: 10px 10px 0 rgb(181 138 50 / 13%); }
+.ani-landing-visual .visual-fields { gap:10px; }
+.ani-landing-visual .visual-field { position:relative; min-height:176px; display:flex; flex-direction:column;
+    align-items:center; justify-content:space-between; gap:5px; padding:11px; overflow:hidden;
+    background:linear-gradient(145deg,#dfedcf 0%,#c3d7ae 100%); border:1px solid #a8bd97; }
+.ani-landing-visual .visual-field.field-b { background:linear-gradient(145deg,#e6e6ca,#c8d2a4); }
+.ani-landing-visual .visual-field.field-c { background:linear-gradient(145deg,#f1e5c3,#d8d09f); }
+.ani-landing-visual .visual-field.field-d { background:linear-gradient(145deg,#dfeacc,#bed3aa); }
+.ani-landing-visual .visual-field img { width:100%; height:96px; max-width:126px; object-fit:contain;
+    filter:drop-shadow(0 3px 4px rgb(28 60 39 / 13%)); }
+.ani-landing-visual .visual-field .field-name { align-self:flex-start; }
+.ani-landing-visual .visual-field strong { color:#254630; font-size:.85rem; }
+.ani-landing-points { display:flex; flex-wrap:wrap; gap:8px; margin-top:18px; }
+.ani-landing-points span { display:inline-flex; align-items:center; gap:7px; padding:8px 11px;
+    font-size:.79rem; font-weight:700; color:var(--text); background:var(--soft); border:1px solid var(--divider); border-radius:11px; }
+.ani-landing-points strong { color:var(--farm-gold-ink); font-size:.74rem; }
+.ani-landing-features .panel { border-top:3px solid var(--farm-gold); min-height:160px; }
+.ani-landing-last { display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:18px;
+    background:var(--soft); margin-top:24px; padding:clamp(20px,4vw,32px); }
+.ani-landing-last h2 { font-size:clamp(1.25rem,2.4vw,1.75rem); line-height:1.25; margin:4px 0 10px; max-width:55ch; }
+.ani-landing-last p { max-width:65ch; margin:0; color:var(--muted); }
+.ani-landing-last .sf-kicker { margin-bottom:8px; }
+.ani-landing-last>.button { min-height:48px; white-space:normal; text-align:center; }
+.ani-auth-illustration { display:flex; justify-content:space-between; gap:7px; margin-top:26px;
+    padding:17px 12px; background:rgb(255 255 255 / 7%); border:1px solid rgb(255 255 255 / 12%); border-radius:16px; }
+.ani-auth-illustration img { width:30%; max-width:105px; height:95px; object-fit:contain; }
+.ani-password-field { display:flex; align-items:stretch; position:relative; gap:8px; }
+.ani-password-field input { flex:1; min-width:0; }
+.ani-password-toggle { flex:0 0 68px; min-height:48px; padding:9px 8px; color:var(--primary);
+    background:var(--soft); border:1px solid var(--divider); border-radius:10px; font-size:.84rem; font-weight:700; }
+.ani-password-toggle:hover { background:var(--secondary-soft); color:var(--text); }
+.ani-auth-fineprint { color:var(--muted); font-size:.84rem; line-height:1.6; }
+.ani-account-hero { background:linear-gradient(100deg,var(--surface) 55%,var(--soft)); }
+.ani-account-avatar { font-size:1.7rem; font-weight:900; color:#153d2d; background:#fff2d8;
+    border:2px solid #e0b958; }
+.sf-account-links .sf-account-link-grid a { min-height:102px; padding:18px; transition:border-color .15s ease; }
+.ani-access-actions { display:flex; flex-wrap:wrap; gap:10px; }
+.ani-access-actions>a { min-height:46px; }
+@media(max-width:780px) {
+    .ani-auth-illustration { margin-top:12px; padding:9px; }
+    .ani-auth-illustration img { height:61px; }
+    .ani-landing-last>.button { width:100%; }
+    .landing-visual.ani-landing-visual { max-width:none; }
+}
+@media(max-width:560px) {
+    .guest-topbar { flex-direction:row; align-items:center; flex-wrap:wrap; }
+    .guest-topbar nav { margin-left:auto; }
+    .guest-page.page { margin-bottom:30px; }
+    .landing-hero.panel { gap:23px; }
+    .landing-copy h1 { font-size:clamp(2rem,8vw,2.6rem); }
+    .landing-actions > a { flex:1 1 140px; justify-content:center; text-align:center; }
+    .ani-landing-visual .visual-field { min-height:137px; padding:8px; }
+    .ani-landing-visual .visual-field img { height:72px; }
+    .ani-landing-visual .visual-field strong { font-size:.78rem; }
+    .auth-intro { padding:22px; }
+    .auth-intro h2 { font-size:1.6rem; }
+    .auth-card.panel { padding:22px 18px; }
+    .auth-form { gap:17px; }
+    .sf-account-identity { align-items:flex-start; }
+}
+@media(max-width:360px) {
+    .guest-topbar .guest-nav-cta { padding:7px; }
+    .ani-landing-visual .visual-field { min-height:129px; }
+    .ani-password-toggle { flex-basis:60px; }
+}
+@media(prefers-color-scheme:dark) {
+    .ani-landing-features .panel { border-top-color:var(--farm-gold); }
+    .ani-account-avatar { color:#153d2d; }
+    .ani-password-toggle { color:var(--text); }
+}
+@media(prefers-reduced-motion:reduce) { .sf-account-links .sf-account-link-grid a { transition:none; } }
