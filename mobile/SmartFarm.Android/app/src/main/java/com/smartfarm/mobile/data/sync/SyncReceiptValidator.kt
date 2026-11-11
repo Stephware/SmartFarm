@@ -3,6 +3,7 @@ package com.smartfarm.mobile.data.sync
 import com.smartfarm.mobile.data.local.entity.PendingPhoto
 import com.smartfarm.mobile.data.remote.dto.ObservationPhotoDto
 import com.smartfarm.mobile.data.remote.dto.SyncWriteResponse
+import com.smartfarm.mobile.data.remote.dto.ActivityStockInputDto
 import java.util.UUID
 
 /** Never remove queued changes unless their server receipts identify those changes. */
@@ -14,6 +15,17 @@ internal object SyncReceiptValidator {
     fun observationId(response: SyncWriteResponse): String? = runCatching {
         UUID.fromString(response.result.get("id")?.asString).toString()
     }.getOrNull()
+
+    fun activityStockMatches(
+        response: SyncWriteResponse, input: ActivityStockInputDto?
+    ): Boolean = runCatching {
+        val payload = requireNotNull(input)
+        val activityId = response.result.getAsJsonObject("activity").get("id").asString
+        val inventoryId = response.result.getAsJsonObject("inventory").get("id").asString
+        UUID.fromString(activityId)
+        UUID.fromString(inventoryId)
+        inventoryId.equals(payload.inventoryItemId, ignoreCase = true)
+    }.getOrDefault(false)
 
     fun photoMatches(response: ObservationPhotoDto, photo: PendingPhoto): Boolean =
         response.id.equals(photo.photoId, ignoreCase = true) &&
