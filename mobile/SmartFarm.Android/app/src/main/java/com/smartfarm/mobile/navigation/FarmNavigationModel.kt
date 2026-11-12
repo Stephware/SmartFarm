@@ -24,3 +24,7 @@ internal fun quickRecordRoute(farmId: String, action: String, cycleId: String?):
         else -> null
     }
 }
+
+/** Warn before leaving screens that can contain an unfinished field entry. */
+internal fun requiresExitConfirmation(route: String?): Boolean =
+    route !in setOf("farm/{farmId}", "more/{farmId}", "farms")

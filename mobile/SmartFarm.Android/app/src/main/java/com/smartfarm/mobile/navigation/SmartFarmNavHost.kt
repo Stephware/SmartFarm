@@ -23,6 +23,9 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.ui.Modifier
 import com.smartfarm.mobile.features.auth.AccountScreen
 import com.smartfarm.mobile.features.auth.AuthViewModel
@@ -66,9 +69,11 @@ fun SmartFarmNavHost(auth: AuthViewModel, farms: FarmViewModel, crops: CropViewM
     val cropState by crops.state.collectAsStateWithLifecycle()
     var showFarmSwitcher by rememberSaveable { mutableStateOf(false) }
     var recordForFarm by rememberSaveable { mutableStateOf<String?>(null) }
+    var pendingFarmSwitch by rememberSaveable { mutableStateOf<String?>(null) }
     LaunchedEffect(state.account?.id) {
         showFarmSwitcher = false
         recordForFarm = null
+        pendingFarmSwitch = null
         farms.clear()
         if (state.account != null) sync.load()
     }
@@ -85,6 +90,25 @@ fun SmartFarmNavHost(auth: AuthViewModel, farms: FarmViewModel, crops: CropViewM
                 popUpTo("farm/$currentFarmId") { saveState = true }
             }
         }
+    }
+
+    fun completeFarmSwitch(target: String) {
+        showFarmSwitcher = false
+        pendingFarmSwitch = null
+        if (target == "__all__") {
+            navController.navigate("farms") { launchSingleTop = true }
+        } else if (target != currentFarmId) {
+            navController.navigate("farm/$target") {
+                popUpTo("farms") { inclusive = false }
+                launchSingleTop = true
+            }
+        }
+    }
+    fun requestFarmSwitch(target: String) {
+        showFarmSwitcher = false
+        if (requiresExitConfirmation(currentRoute)) {
+            pendingFarmSwitch = target
+        } else completeFarmSwitch(target)
     }
 
     // Both home and dedicated farm subpages use the existing data/actions.
@@ -417,20 +441,27 @@ fun SmartFarmNavHost(auth: AuthViewModel, farms: FarmViewModel, crops: CropViewM
         FarmSwitcherSheet(
             farms = headerFarm.farms, currentFarmId = currentFarmId,
             onSelect = { farmId ->
-                showFarmSwitcher = false
-                if (farmId != currentFarmId) {
-                    // Remove old farm destinations from the navigation stack.
-                    navController.navigate("farm/$farmId") {
-                        popUpTo("farms") { inclusive = false }
-                        launchSingleTop = true
-                    }
-                }
+                if (farmId == currentFarmId) showFarmSwitcher = false
+                else requestFarmSwitch(farmId)
             },
-            onAllFarms = {
-                showFarmSwitcher = false
-                navController.navigate("farms") { launchSingleTop = true }
-            },
+            onAllFarms = { requestFarmSwitch("__all__") },
             onDismiss = { showFarmSwitcher = false }
+        )
+    }
+    if (state.account != null && pendingFarmSwitch != null) {
+        AlertDialog(
+            onDismissRequest = { pendingFarmSwitch = null },
+            title = { Text("Leave this screen?") },
+            text = { Text("Save any unfinished form details before switching. Saved offline records will remain on this device.") },
+            confirmButton = {
+                TextButton(onClick = {
+                    val target = pendingFarmSwitch
+                    if (target != null) completeFarmSwitch(target)
+                }) { Text("Leave screen") }
+            },
+            dismissButton = {
+                TextButton(onClick = { pendingFarmSwitch = null }) { Text("Keep working") }
+            }
         )
     }
     if (state.account != null && !recordForFarm.isNullOrBlank()) {

@@ -2,6 +2,7 @@ package com.smartfarm.mobile
 
 import com.smartfarm.mobile.navigation.safeFarmSection
 import com.smartfarm.mobile.navigation.quickRecordRoute
+import com.smartfarm.mobile.navigation.requiresExitConfirmation
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNull
 import org.junit.Test
@@ -12,6 +13,13 @@ class FarmNavigationModelTest {
         assertEquals("members", safeFarmSection("members"))
         assertEquals("overview", safeFarmSection("unknown"))
         assertEquals("overview", safeFarmSection("../inventory"))
+    }
+    @Test fun changingFarmsWarnsBeforeLeavingAForm() {
+        assertEquals(false, requiresExitConfirmation("farm/{farmId}"))
+        assertEquals(false, requiresExitConfirmation("more/{farmId}"))
+        assertEquals(true, requiresExitConfirmation("monitor/{farmId}/{cycleId}?quick={quick}"))
+        assertEquals(true, requiresExitConfirmation("crops/{farmId}"))
+        assertEquals(true, requiresExitConfirmation("farm/{farmId}/{section}"))
     }
     @Test fun shortcutsUseExistingRecordsAndRespectActiveCycleSelection() {
         assertEquals("monitor/farm/cycle?quick=watering",quickRecordRoute("farm","watering","cycle"))
