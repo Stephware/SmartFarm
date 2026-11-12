@@ -8,6 +8,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithText
+import androidx.compose.ui.test.onNodeWithTag
+import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollTo
 import androidx.compose.ui.test.performTextInput
@@ -44,7 +46,8 @@ class NavigationInputsTest {
     @Test fun datePickerReturnsAnIsoDateForTheExistingApi() {
         var selected = ""
         compose.setContent { SmartFarmTheme { DateInput("", "Planting date", { selected = it }) } }
-        compose.onNodeWithText("Choose date").performClick()
+        compose.onNodeWithContentDescription("Planting date: No date selected. Choose date")
+            .performClick()
         onView(isAssignableFrom(DatePicker::class.java)).perform(object : ViewAction {
             override fun getConstraints() = isAssignableFrom(DatePicker::class.java)
             override fun getDescription() = "Choose October 26, 2026"
@@ -86,9 +89,10 @@ class NavigationInputsTest {
                     { _, _ -> }, { _, _ -> }, {}, section = current.value)
             }
         }
-        compose.onAllNodesWithText("Plot name")[0].performScrollTo().performTextReplacement("Draft plot")
+        compose.onNodeWithTag("plot-card-plot").performScrollTo().performClick()
+        compose.onNodeWithText("Plot name").performScrollTo().performTextReplacement("Draft plot")
         compose.runOnIdle { current.value = "Members" }
-        compose.onNodeWithText("Members").assertExists()
+        compose.onNodeWithText("Team & access").assertExists()
         compose.runOnIdle { current.value = "Plots" }
         compose.onNodeWithText("Draft plot").performScrollTo().assertIsDisplayed()
         compose.onNodeWithText("Weather").assertDoesNotExist()

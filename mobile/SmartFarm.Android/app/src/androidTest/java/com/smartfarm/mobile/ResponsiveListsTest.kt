@@ -42,7 +42,7 @@ class ResponsiveListsTest {
         val farms = (1..200).map { FarmDto("farm-$it", "Farm $it", "Location", "Asia/Manila", null, null, "Owner") }
         compose.setContent { SmartFarmTheme { FarmListScreen(FarmUiState(farms = farms), {}, { _, _, _, _, _ -> }, {}, {}) } }
         compose.onNodeWithText("Add a farm").performClick()
-        compose.onNodeWithText("Name").performScrollTo().assertIsDisplayed()
+        compose.onNodeWithText("Farm name").performScrollTo().assertIsDisplayed()
     }
 
     @Test fun inventoryCreationOpensBeforeExistingRecords() {
