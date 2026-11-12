@@ -58,6 +58,10 @@
                         <a class="nav-link" asp-area="Admin" asp-controller="Dashboard" asp-action="Index"
                            aria-label="Super Admin portal"><partial name="_Icon" model='@("settings")' /><span>Super Admin</span></a>
                     }
+                    <a class="nav-link" asp-area="" asp-controller="Support" asp-action="Index"
+                       aria-current="@(currentController == "Support" ? "page" : null)">
+                        <partial name="_Icon" model='@("bell")' /><span>Help &amp; support</span>
+                    </a>
                     <a class="nav-link" asp-controller="Account" asp-action="Profile" data-nav-icon="account"
                        aria-current="@(currentController == "Account" ? "page" : null)">
                         <partial name="_Icon" model='@("settings")' /><span>Account &amp; settings</span>
@@ -93,6 +97,7 @@
                         <div id="mobile-farm-links" class="mobile-farm-links" hidden></div>
                         <a asp-controller="Farms" asp-action="Index">My farms</a>
                         <a asp-controller="Notifications" asp-action="Index">Notifications</a>
+                        <a asp-area="" asp-controller="Support" asp-action="Index">Help &amp; support</a>
                         <a asp-controller="Account" asp-action="Profile">Account &amp; settings</a>
                         @if (User.IsInRole("SuperAdmin"))
                         {

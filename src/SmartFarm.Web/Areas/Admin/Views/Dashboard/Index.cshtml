@@ -23,6 +23,9 @@
         <span>Archived farms</span><strong>@Model.ArchivedFarms</strong><small>View archived farms</small>
     </a>
     <div class="admin-stat panel"><span>Active plots</span><strong>@Model.ActivePlots</strong><small>Across the platform</small></div>
+    <a class="admin-stat panel" asp-area="Admin" asp-controller="Support" asp-action="Index">
+        <span>Unresolved support</span><strong>@Model.PendingSupport</strong><small>Open or in progress</small>
+    </a>
 </section>
 <section class="panel admin-directory-panel" aria-labelledby="recent-farms-heading">
     <div class="admin-section-heading">
@@ -52,6 +55,9 @@
 <div class="admin-shortcuts">
     <a class="panel admin-shortcut" asp-area="Admin" asp-controller="Users" asp-action="Index">
         <strong>Manage users</strong><span>Search accounts and review access status.</span>
+    </a>
+    <a class="panel admin-shortcut" asp-area="Admin" asp-controller="Support" asp-action="Index">
+        <strong>Support cases</strong><span>Review requests, respond and track resolutions.</span>
     </a>
     <a class="panel admin-shortcut" asp-area="Admin" asp-controller="Farms" asp-action="Index">
         <strong>Manage farms</strong><span>Find farms and review archive status.</span>

@@ -1,0 +1,44 @@
+@model SmartFarm.Web.ViewModels.Support.SupportDetailsPage
+@{
+    ViewData["Title"] = "Support request";
+}
+<a class="admin-back" asp-area="" asp-controller="Support" asp-action="Index">← My requests</a>
+<div class="page-heading admin-page-heading">
+    <div><p class="sf-kicker">@Model.Ticket.Category.ToUpperInvariant() SUPPORT</p><h1>@Model.Ticket.Title</h1>
+        <p class="sf-muted">Sent @Model.Ticket.CreatedAtUtc.ToString("MMM d, yyyy") UTC
+            @(Model.Ticket.FarmName is null ? "" : $"· {Model.Ticket.FarmName}")</p></div>
+    <span class="sf-status-chip @(Model.Ticket.Status is "Open" or "InProgress" ? "sf-status-chip--planned" : "sf-status-chip--active")">@Model.Ticket.Status</span>
+</div>
+@if (TempData["Message"] is string message) { <p class="form-notice" role="status">@message</p> }
+@if (TempData["Error"] is string error) { <p class="error form-error" role="alert">@error</p> }
+<section class="panel admin-directory-panel">
+    <h2>Original request</h2>
+    <p class="admin-support-text">@Model.Description</p>
+</section>
+<section class="panel admin-directory-panel" aria-labelledby="support-updates-heading">
+    <h2 id="support-updates-heading">Updates &amp; replies</h2>
+    @if (Model.Messages.Count == 0) { <p class="admin-empty">No replies yet. We will respond here when there is an update.</p> }
+    else {
+        <div class="admin-support-thread">
+            @foreach (var reply in Model.Messages) {
+                <article class="admin-support-message">
+                    <div class="admin-support-message-meta"><strong>@reply.AuthorName</strong><time>@reply.CreatedAtUtc.ToString("MMM d, yyyy HH:mm") UTC</time></div>
+                    <p class="admin-support-text">@reply.Body</p>
+                </article>
+            }
+        </div>
+    }
+</section>
+@if (Model.Ticket.Status != "Closed")
+{
+    <section class="panel admin-support-form-panel" aria-labelledby="reply-heading">
+        <h2 id="reply-heading">Add a reply</h2>
+        <p class="sf-muted">If you reply to a resolved request, it will reopen automatically.</p>
+        <form method="post" asp-area="" asp-controller="Support" asp-action="Reply" asp-route-id="@Model.Ticket.Id" class="admin-action-form">
+            <label for="support-reply">Your message</label>
+            <textarea id="support-reply" name="body" minlength="2" maxlength="1200" rows="4" required></textarea>
+            <button type="submit">Send reply</button>
+        </form>
+    </section>
+}
+else { <p class="sf-muted">This request is closed. Create a new request if you need more help.</p> }

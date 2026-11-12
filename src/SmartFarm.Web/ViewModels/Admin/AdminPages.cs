@@ -14,7 +14,7 @@ public sealed record AdminUserRow(
 
 public sealed record AdminOverviewPage(
     int TotalUsers, int ActiveUsers, int DisabledUsers,
-    int TotalFarms, int ActiveFarms, int ArchivedFarms, int ActivePlots,
+    int TotalFarms, int ActiveFarms, int ArchivedFarms, int ActivePlots, int PendingSupport,
     IReadOnlyList<AdminFarmRow> RecentFarms);
 
 public sealed record AdminUserIndexPage(

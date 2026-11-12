@@ -1,0 +1,31 @@
+@model SmartFarm.Web.ViewModels.Support.SupportListPage
+@{
+    ViewData["Title"] = "My support requests";
+}
+<div class="page-heading admin-page-heading">
+    <div><p class="sf-kicker">HELP &amp; SUPPORT</p><h1>My support requests</h1>
+        <p class="sf-muted">Report a problem and follow replies from the AniGo team.</p></div>
+    <a class="button" asp-area="" asp-controller="Support" asp-action="Create">New request</a>
+</div>
+@if (TempData["Message"] is string message) { <p class="form-notice" role="status">@message</p> }
+<section class="panel admin-directory-panel" aria-label="My requests">
+    @if (Model.Tickets.Count == 0)
+    {
+        <div class="admin-empty"><h2>No requests yet</h2><p>Tell us if you need help with your account, farm, or mobile app.</p>
+            <a class="button" asp-area="" asp-controller="Support" asp-action="Create">Get support</a></div>
+    }
+    else
+    {
+        <div class="admin-record-list">
+            @foreach (var ticket in Model.Tickets)
+            {
+                <a class="admin-record" asp-area="" asp-controller="Support" asp-action="Details" asp-route-id="@ticket.Id">
+                    <span class="admin-record-main"><strong>@ticket.Title</strong>
+                        <small>@ticket.Category @(ticket.FarmName is null ? "" : $"· {ticket.FarmName}")</small>
+                        <small>Updated @ticket.UpdatedAtUtc.ToString("MMM d, yyyy") UTC</small></span>
+                    <span class="sf-status-chip @(ticket.Status is "Open" or "InProgress" ? "sf-status-chip--planned" : "sf-status-chip--active")">@ticket.Status</span>
+                </a>
+            }
+        </div>
+    }
+</section>

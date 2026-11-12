@@ -1,0 +1,55 @@
+@model SmartFarm.Web.ViewModels.Support.AdminSupportListPage
+@{
+    ViewData["Title"] = "Support";
+}
+<div class="page-heading admin-page-heading">
+    <div><p class="sf-kicker">PLATFORM SUPPORT</p><h1>Support requests</h1>
+        <p class="sf-muted">Review user issues, prioritize cases, and respond in one place.</p></div>
+</div>
+<section class="admin-stats" aria-label="Support totals">
+    <a class="admin-stat panel" asp-area="Admin" asp-controller="Support" asp-action="Index" asp-route-status="Open"><span>Open</span><strong>@Model.OpenCount</strong><small>Waiting for review</small></a>
+    <a class="admin-stat panel" asp-area="Admin" asp-controller="Support" asp-action="Index" asp-route-status="InProgress"><span>In progress</span><strong>@Model.InProgressCount</strong><small>Being handled</small></a>
+    <a class="admin-stat panel" asp-area="Admin" asp-controller="Support" asp-action="Index" asp-route-status="Resolved"><span>Resolved</span><strong>@Model.ResolvedCount</strong><small>Awaiting closure</small></a>
+</section>
+<section class="panel admin-directory-panel" aria-label="Support queue">
+    <form class="admin-filters" method="get" asp-area="Admin" asp-controller="Support" asp-action="Index">
+        <div class="admin-filter-search"><label for="support-search">Find a request</label>
+            <input id="support-search" name="search" type="search" maxlength="100" value="@Model.Search" placeholder="Title or user email" /></div>
+        <div><label for="support-status">Status</label><select id="support-status" name="status">
+            <option value="All" selected="@(Model.Status == "All")">All statuses</option>
+            @foreach (var status in SmartFarm.Web.ViewModels.Support.SupportRules.Statuses) {
+                <option value="@status" selected="@(Model.Status == status)">@status</option>
+            }
+        </select></div>
+        <div><label for="support-priority">Priority</label><select id="support-priority" name="priority">
+            <option value="All" selected="@(Model.Priority == "All")">All priorities</option>
+            @foreach (var priority in SmartFarm.Web.ViewModels.Support.SupportRules.Priorities) {
+                <option value="@priority" selected="@(Model.Priority == priority)">@priority</option>
+            }
+        </select></div>
+        <button type="submit">Filter</button>
+        <a class="admin-reset" asp-area="Admin" asp-controller="Support" asp-action="Index">Clear</a>
+    </form>
+    <p class="admin-results-count">@Model.Total @(Model.Total == 1 ? "request" : "requests") found</p>
+    @if (Model.Tickets.Count == 0) { <div class="admin-empty"><strong>No matching requests</strong><p>Try changing the filters.</p></div> }
+    else {
+        <div class="admin-record-list">
+            @foreach (var ticket in Model.Tickets) {
+                <a class="admin-record" asp-area="Admin" asp-controller="Support" asp-action="Details" asp-route-id="@ticket.Id">
+                    <span class="admin-record-main"><strong>@ticket.Title</strong>
+                        <small>@ticket.UserName · @ticket.UserEmail</small>
+                        <small>@ticket.Category @(ticket.FarmName is null ? "" : $"· {ticket.FarmName}") · Updated @ticket.UpdatedAtUtc.ToString("MMM d") UTC</small></span>
+                    <span class="admin-record-meta">
+                        @if (ticket.Priority == "High") { <span class="sf-status-chip sf-status-chip--planned">High priority</span> }
+                        <span class="sf-status-chip @(ticket.Status is "Open" or "InProgress" ? "sf-status-chip--planned" : "sf-status-chip--active")">@ticket.Status</span>
+                    </span>
+                </a>
+            }
+        </div>
+        <nav class="admin-pagination" aria-label="Support pages">
+            @if (Model.HasPrevious) { <a asp-area="Admin" asp-controller="Support" asp-action="Index" asp-route-search="@Model.Search" asp-route-status="@Model.Status" asp-route-priority="@Model.Priority" asp-route-page="@(Model.Page - 1)">Previous</a> }
+            <span>Page @Model.Page of @((Model.Total + SmartFarm.Web.ViewModels.Support.AdminSupportListPage.PageSize - 1) / SmartFarm.Web.ViewModels.Support.AdminSupportListPage.PageSize)</span>
+            @if (Model.HasNext) { <a asp-area="Admin" asp-controller="Support" asp-action="Index" asp-route-search="@Model.Search" asp-route-status="@Model.Status" asp-route-priority="@Model.Priority" asp-route-page="@(Model.Page + 1)">Next</a> }
+        </nav>
+    }
+</section>
