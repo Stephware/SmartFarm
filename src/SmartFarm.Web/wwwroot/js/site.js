@@ -1,10 +1,23 @@
+// Open native disclosures and dialogs before focusing an error or deep-linked field.
+const revealConcealedTarget = target => {
+    const dialog = target.closest?.("dialog");
+    if (dialog && !dialog.open) dialog.showModal();
+    for (let parent = target.parentElement; parent; parent = parent.parentElement) {
+        if (parent.tagName === "DETAILS") parent.open = true;
+    }
+};
+
 const errorSummary = document.querySelector("[data-error-summary]");
 if (errorSummary) {
     for (const link of errorSummary.querySelectorAll('a[href^="#"]')) {
         const field = document.getElementById(link.hash.slice(1));
         if (field && field.type !== "hidden") {
             field.setAttribute("aria-invalid", "true");
-            link.addEventListener("click", () => field.focus());
+            link.addEventListener("click", () => {
+                revealConcealedTarget(field);
+                if (window.requestAnimationFrame) window.requestAnimationFrame(() => field.focus());
+                else field.focus();
+            });
         } else {
             link.replaceWith(document.createTextNode(link.textContent));
         }
@@ -88,7 +101,7 @@ for (const button of document.querySelectorAll("[data-copy-target]")) {
             trigger.addEventListener("click", event => {
                 event.preventDefault();
                 opener = trigger;
-                dialog.showModal();
+                if (!dialog.open) dialog.showModal();
             });
         }
         close.addEventListener("click", () => dialog.close());
@@ -101,11 +114,7 @@ for (const button of document.querySelectorAll("[data-copy-target]")) {
         try { id = decodeURIComponent(window.location.hash.slice(1)); } catch { return; }
         const target = document.getElementById(id);
         if (!target) return;
-        const dialog = target.closest("dialog");
-        if (dialog && !dialog.open) dialog.showModal();
-        for (let parent = target.parentElement; parent; parent = parent.parentElement) {
-            if (parent.tagName === "DETAILS") parent.open = true;
-        }
+        revealConcealedTarget(target);
     };
     window.addEventListener?.("hashchange", revealHash);
     revealHash();
