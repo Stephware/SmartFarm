@@ -86,7 +86,11 @@ public sealed class MonitoringController : Controller
         {
             return await Workspace(farmId, cycleId, ct, activity: input);
         }
-        try { await _monitoring.RecordActivityAsync(farmId, cycleId, Actor, input, ct); }
+        try
+        {
+            await _monitoring.RecordActivityAsync(farmId, cycleId, Actor, input, ct);
+            TempData["Notice"] = "Activity saved to this crop's history.";
+        }
         catch (FarmOperationException error)
         {
             if (error.Error == FarmError.NotFound) return NotFound();
@@ -104,7 +108,12 @@ public sealed class MonitoringController : Controller
         {
             return await Workspace(farmId, cycleId, ct, observation: input);
         }
-        try { await _monitoring.RecordObservationAsync(farmId, cycleId, Actor, input, ct); }
+        try
+        {
+            await _monitoring.RecordObservationAsync(farmId, cycleId, Actor, input, ct);
+            TempData["Notice"] = "Inspection saved. You can now attach photos to the inspection below.";
+            TempData["NextStep"] = "photos";
+        }
         catch (FarmOperationException error)
         {
             if (error.Error == FarmError.NotFound) return NotFound();
@@ -152,6 +161,7 @@ public sealed class MonitoringController : Controller
             await using var fileStream = photo.OpenReadStream();
             await _monitoring.AddPhotoAsync(farmId, cycleId, observationId,
                 Actor, fileStream, photo.Length, photo.ContentType, ct);
+            TempData["Notice"] = "Photo attached to this inspection.";
         }
         catch (FarmOperationException error)
         {

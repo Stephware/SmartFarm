@@ -13,11 +13,15 @@ using SmartFarm.Core.Contracts.Reports;
 using SmartFarm.Core.Contracts.Crops;
 using SmartFarm.Core.Contracts.Tasks;
 using SmartFarm.Core.Contracts.Weather;
+using SmartFarm.Core.Contracts.Monitoring;
+using SmartFarm.Core.Contracts.Harvests;
 using SmartFarm.Core.Interfaces.Farms;
 using SmartFarm.Core.Interfaces.Reports;
 using SmartFarm.Core.Interfaces.Crops;
 using SmartFarm.Core.Interfaces.Tasks;
 using SmartFarm.Core.Interfaces.Weather;
+using SmartFarm.Core.Interfaces.Monitoring;
+using SmartFarm.Core.Interfaces.Harvests;
 using SmartFarm.Core.Enums;
 using Xunit;
 
@@ -354,6 +358,99 @@ public sealed class FarmEnrollmentWebTests
         Assert.Contains("Add crop type", html);
         Assert.DoesNotContain("Save planting plan", html);
     }
+
+    [Fact]
+    public async Task AssignedTaskFilterShowsOnlyMyOpenTasksAndPreservesCompletionView()
+    {
+        var assigned = new FarmTaskDetails(Guid.NewGuid(), FarmId, null, Actor,
+            1, new DateOnly(2026, 11, 12), 0, "Check North field",
+            DateTime.UtcNow, null, "v");
+        var other = assigned with { Id = Guid.NewGuid(), AssignedToUserId = Guid.NewGuid(),
+            Description = "Other worker task" };
+        using var app = App("FieldWorker", taskList: [assigned, other]);
+        using var client = app.CreateClient(new() { AllowAutoRedirect = false });
+        var path = $"/Tasks?farmId={FarmId}&view=mine";
+        var html = await client.GetStringAsync(path);
+        Assert.Contains("Assigned to me", html);
+        Assert.Contains("task-" + assigned.Id, html);
+        Assert.DoesNotContain("task-" + other.Id, html);
+        Assert.Contains("name=\"returnView\" value=\"mine\"", html);
+        using var response = await client.PostAsync(
+            $"/Tasks/Close?farmId={FarmId}&taskId={assigned.Id}",
+            Form(html, ("Status", "1"), ("RowVersion", assigned.RowVersion), ("returnView", "mine")));
+        Assert.Equal(HttpStatusCode.Redirect, response.StatusCode);
+        Assert.Contains("view=mine", response.Headers.Location?.ToString());
+        var after = await client.GetStringAsync(response.Headers.Location!);
+        Assert.Contains("Task marked completed.", after);
+    }
+
+    [Theory]
+    [InlineData(true)]
+    [InlineData(false)]
+    public async Task FieldworkViewExplainsSaveThenPhotoStepsOnlyForActiveCrops(bool canRecord)
+    {
+        var cycle = new CropCycleDetails(Guid.NewGuid(), FarmId, Guid.NewGuid(), "North field",
+            Guid.NewGuid(), "Tomato", canRecord ? CropCycleStatus.Active : CropCycleStatus.Completed,
+            new DateOnly(2026, 10, 2), new DateOnly(2026, 10, 3),
+            new DateOnly(2026, 12, 1), "kg", 4, null, null, "v");
+        var monitoring = new MonitoringDetails(FarmId, cycle.Id, canRecord, [], []);
+        using var app = App("FieldWorker", cycles: [cycle], monitoring: monitoring);
+        using var client = app.CreateClient();
+        var html = await client.GetStringAsync($"/Monitoring?farmId={FarmId}&cycleId={cycle.Id}");
+        Assert.Contains("Activity history", html);
+        Assert.Contains("Inspections &amp; photos", html);
+        Assert.Contains("Harvests", html);
+        Assert.Contains("record-harvest", html);
+        if (canRecord)
+        {
+            Assert.Contains("Save activity", html);
+            Assert.Contains("Save inspection", html);
+            Assert.Contains("Attach photos", html);
+            Assert.Contains("Optional growth stage", html);
+        }
+        else
+        {
+            Assert.DoesNotContain("Save activity", html);
+            Assert.DoesNotContain("Save inspection", html);
+            Assert.Contains("Historical records remain available", html);
+        }
+    }
+
+    [Theory]
+    [InlineData(true)]
+    [InlineData(false)]
+    public async Task HarvestViewPlacesRecordingBeforeHistoryWithoutChangingTotalsOrPermissions(bool canRecord)
+    {
+        var cycle = new CropCycleDetails(Guid.NewGuid(), FarmId, Guid.NewGuid(), "South field",
+            Guid.NewGuid(), "Rice", canRecord ? CropCycleStatus.Active : CropCycleStatus.Completed,
+            new DateOnly(2026, 10, 2), new DateOnly(2026, 10, 3),
+            new DateOnly(2026, 12, 1), "kg", 5, null, null, "v");
+        var entry = new HarvestEntry(Guid.NewGuid(), cycle.Id, 12.5m, "kg",
+            DateTime.UtcNow, DateTime.UtcNow, Actor, "First cut",
+            false, null, null, null);
+        var harvest = new HarvestOverview(FarmId, cycle.Id, cycle.CropTypeName,
+            cycle.PlotName, "kg", (byte)cycle.Status, canRecord, false, 12.5m, 1, 0, [entry]);
+        using var app = App("FieldWorker", cycles: [cycle], harvest: harvest);
+        using var client = app.CreateClient();
+        var html = await client.GetStringAsync($"/Harvests?farmId={FarmId}&cycleId={cycle.Id}");
+        Assert.Contains("Confirmed harvest total", html);
+        Assert.Contains("12.500", html);
+        Assert.Contains("First cut", html);
+        Assert.Contains("crop cycle", html);
+        Assert.Contains("Saved harvest records", html);
+        if (canRecord)
+        {
+            Assert.Contains("Save partial harvest", html);
+            Assert.True(html.IndexOf("id=\"record-harvest\"", StringComparison.Ordinal) <
+                        html.IndexOf("id=\"harvest-history-heading\"", StringComparison.Ordinal));
+        }
+        else
+        {
+            Assert.DoesNotContain("id=\"record-harvest\"", html);
+            Assert.Contains("New harvests can only be recorded", html);
+        }
+    }
+
     [Fact]
     public async Task DashboardShowsOnlySavedFarmInformationAndKeepsQuickLinks()
     {
@@ -612,7 +709,8 @@ public sealed class FarmEnrollmentWebTests
 
     private static WebApplicationFactory<Program> App(string role = "Owner", Func<string, object?[]?, object>? enroll = null, IReadOnlyList<FarmSummary>? farms = null, IReadOnlyList<PlotDetails>? plots = null,
         IReadOnlyList<CropCycleDetails>? cycles = null, IReadOnlyList<FarmTaskDetails>? taskList = null,
-        IReadOnlyList<CropTypeDetails>? cropTypes = null) =>
+        IReadOnlyList<CropTypeDetails>? cropTypes = null,
+        MonitoringDetails? monitoring = null, HarvestOverview? harvest = null) =>
         new WebApplicationFactory<Program>().WithWebHostBuilder(builder => builder.ConfigureTestServices(services =>
         {
             services.AddSingleton<IAuthenticationService, SignedIn>();
@@ -627,14 +725,37 @@ public sealed class FarmEnrollmentWebTests
             services.AddScoped(_ => Stub<IFarmReportService>((_, _) => Task.FromResult(
                 new FarmDashboard(FarmId, "Green Farm", new DateOnly(2026,10,27), 0,0,0,0,0,0,0,0,[],[]))));
             // The dashboard reads crop, task and saved-weather summaries as well as the report.
-            services.AddScoped(_ => Stub<ICropManagementService>((name, _) => name switch
+            services.AddScoped(_ => Stub<ICropManagementService>((name, args) => name switch
             {
                 "ListCyclesAsync" => Task.FromResult<IReadOnlyList<CropCycleDetails>>(cycles ?? []),
                 "ListCropTypesAsync" => Task.FromResult<IReadOnlyList<CropTypeDetails>>(cropTypes ?? []),
+                "GetCycleAsync" => Task.FromResult<CropCycleDetails?>(
+                    cycles?.FirstOrDefault(c => c.Id == (Guid)args![1]!)),
                 _ => throw new NotSupportedException(name)
             }));
-            services.AddScoped(_ => Stub<IFarmTaskService>((name, _) => name == "ListAsync"
-                ? Task.FromResult<IReadOnlyList<FarmTaskDetails>>(taskList ?? []) : throw new NotSupportedException(name)));
+            services.AddScoped(_ => Stub<IFarmTaskService>((name, args) => name switch
+            {
+                "ListAsync" => Task.FromResult<IReadOnlyList<FarmTaskDetails>>(taskList ?? []),
+                "CloseAsync" => Task.FromResult((taskList ?? [])
+                    .First(t => t.Id == (Guid)args![1]!) with { Status = 1 }),
+                _ => throw new NotSupportedException(name)
+            }));
+            if (monitoring is not null)
+            {
+                services.AddScoped(_ => Stub<IMonitoringService>((name, _) => name switch
+                {
+                    "GetAsync" => Task.FromResult(monitoring),
+                    _ => throw new NotSupportedException(name)
+                }));
+            }
+            if (harvest is not null)
+            {
+                services.AddScoped(_ => Stub<IHarvestService>((name, _) => name switch
+                {
+                    "GetAsync" => Task.FromResult(harvest),
+                    _ => throw new NotSupportedException(name)
+                }));
+            }
             services.AddScoped(_ => Stub<IFarmWeatherService>((name, _) => name == "GetAsync"
                 ? Task.FromResult(new WeatherOverview(FarmId, false, "Asia/Manila", [], []))
                 : throw new NotSupportedException(name)));

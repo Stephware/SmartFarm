@@ -16,8 +16,7 @@
                   asp-route-farmId="@cycle.FarmId">← Crop management</a></p>
 
             <h1 id="monitoring-heading">@cycle.CropTypeName — @cycle.PlotName</h1>
-            <p class="sf-muted">Log watering, fertilization, pesticide use, weeding, or other activities.
-                Inspections are saved as crop observations.</p>
+            <p class="sf-muted">Record completed fieldwork or inspect this crop. Attach photos after saving an inspection.</p>
         </div>
         <div class="ani-monitoring-art">
             <img src="@Url.Content("~/images/crops/" + CropArtwork.FileName(cycle.CropTypeName))" alt=""
@@ -25,15 +24,17 @@
             <span class="sf-status-chip @(monitoring.CanRecord ? "sf-status-chip--active" : "sf-status-chip--neutral")">@cycle.Status</span>
         </div>
     </div>
-    <nav class="sf-page-jump-nav" aria-label="Monitoring sections">
+    <nav class="sf-page-jump-nav ani-fieldwork-jumps" aria-label="Monitoring sections">
         @if (monitoring.CanRecord)
         {
             <a href="#record-activity">Record activity</a>
             <a href="#record-inspection">Record inspection</a>
         }
+        <a asp-controller="Harvests" asp-action="Index"
+           asp-route-farmId="@cycle.FarmId" asp-route-cycleId="@cycle.Id"
+           asp-fragment="record-harvest">Harvests</a>
         <a href="#activity-history">Activity history</a>
-        <a href="#photo-progress-heading">Photo progress</a>
-        <a href="#observation-history">Observations</a>
+        <a href="#observation-history">Inspections &amp; photos</a>
     </nav>
     <div class="ani-monitoring-stats" aria-label="Crop record totals">
         <div><strong>@monitoring.Activities.Count</strong><span>Field activities</span></div>
@@ -45,27 +46,47 @@
         <nav class="ani-monitoring-status" aria-label="Quick recording actions">
             <a href="#record-activity">Record fieldwork</a>
             <a href="#record-inspection">New inspection</a>
-            <a href="#photo-progress-heading">View photos</a>
-            <a href="#observation-history">Inspection history</a>
+            <a asp-controller="Harvests" asp-action="Index" asp-route-farmId="@cycle.FarmId"
+               asp-route-cycleId="@cycle.Id" asp-fragment="record-harvest">Record harvest</a>
+            <a href="#observation-history">Attach photo</a>
         </nav>
     }
     @if (!monitoring.CanRecord)
     {
         <p class="sf-ops-hint">Historical records remain available. New activity and observation entries require an active crop cycle.</p>
     }
+    @if (TempData["Notice"] is string notice)
+    {
+        <div class="form-notice ani-save-feedback" role="status">
+            <strong>@notice</strong>
+            @if (TempData["NextStep"] is string nextStep && nextStep == "photos")
+            {
+                <a href="#observation-history">Find your inspection &amp; attach a photo →</a>
+            }
+        </div>
+    }
+    @if (!ViewData.ModelState.IsValid)
+    {
+        <div asp-validation-summary="ModelOnly" class="error form-error" role="alert"></div>
+    }
     @if (TempData["Error"] is string error)
     { <p class="error form-error" role="alert">@error</p> }
 </section>
 @if (monitoring.CanRecord)
 {
-    <div class="responsive-two reference-recording-grid">
+    <div class="ani-fieldwork-recording-intro">
+        <div><strong>1. Choose what to record</strong><span>Fieldwork or an inspection</span></div>
+        <div><strong>2. Save the record</strong><span>The server confirms the entry</span></div>
+        <div><strong>3. Attach photos</strong><span>Optional, after saving an inspection</span></div>
+    </div>
+    <div class="responsive-two reference-recording-grid ani-phase6-recording-grid">
     <section class="panel card sf-monitoring-form" id="record-activity" data-form-dialog>
 
-        <header class="reference-panel-heading"><h2>Record activity</h2></header>
-        <p class="sf-muted">Save completed work against this active crop cycle.</p>
+        <header class="reference-panel-heading"><h2>Record fieldwork</h2></header>
+        <p class="sf-muted">What work did you finish for @cycle.CropTypeName on @cycle.PlotName?</p>
         <form class="sf-ops-form" asp-action="Activity" asp-route-farmId="@cycle.FarmId"
               asp-route-cycleId="@cycle.Id" method="post">
-            <label asp-for="Activity.ActivityType">Type</label>
+            <label asp-for="Activity.ActivityType">Work completed</label>
             <select asp-for="Activity.ActivityType" required>
                 @foreach (var option in FarmCodeLabels.Activities)
                 {
@@ -73,7 +94,7 @@
                 }
             </select>
             <span asp-validation-for="Activity.ActivityType" class="error"></span>
-            <label asp-for="Activity.FarmTaskId">Related task (optional)</label>
+            <label asp-for="Activity.FarmTaskId">Task to complete (optional)</label>
             <select asp-for="Activity.FarmTaskId">
                 <option value="">Match my oldest due task automatically</option>
                 @foreach (var task in Model.Tasks.Where(t => t.CropCycleId == cycle.Id &&
@@ -83,17 +104,17 @@
                     <option value="@task.Id">@taskName — @task.DueDate.ToString("yyyy-MM-dd") — @task.Description</option>
                 }
             </select>
-            <p class="hint">Select a matching watering or fertilizing task to complete it with this activity.</p>
+            <p class="hint">If there's a matching open watering or fertilizing task, it can be completed with this entry. Check the task list afterward.</p>
             <label asp-for="Activity.Notes">Notes (optional)</label>
             <textarea asp-for="Activity.Notes" maxlength="1000" rows="3"></textarea><span asp-validation-for="Activity.Notes" class="error"></span>
             <button type="submit">Save activity</button>
+            <p class="hint">Saves to the server using UTC time. Successful activities appear in history below.</p>
         </form>
-        <p class="hint">Recorded at the server's current UTC time.</p>
     </section>
     <section class="panel card sf-monitoring-form" id="record-inspection" data-form-dialog>
 
-        <header class="reference-panel-heading"><h2>Record crop observation / inspection</h2></header>
-        <p class="ani-inspection-form-intro">Record what you actually observed. Health and issue labels are field observations, not confirmed diagnoses. Add photos from an inspection record below.</p>
+        <header class="reference-panel-heading"><h2>Record an inspection</h2></header>
+        <p class="ani-inspection-form-intro">Describe the crop's actual condition. This is an observation, not a medical or plant-disease diagnosis. Save first, then attach any photos below.</p>
         <form class="sf-ops-form" asp-action="Observation" asp-route-farmId="@cycle.FarmId"
               asp-route-cycleId="@cycle.Id" method="post">
             <label asp-for="Observation.HealthStatus">Crop health</label>
@@ -123,11 +144,19 @@
             </select>
             <span asp-validation-for="Observation.IssueSeverity" class="error"></span>
             <p class="hint">For a specific issue, select Needs attention or Critical health and choose an issue category and severity.</p>
-            <label asp-for="Observation.GrowthStage">Growth stage (optional)</label>
-            <input asp-for="Observation.GrowthStage" maxlength="40" /><span asp-validation-for="Observation.GrowthStage" class="error"></span>
-            <label asp-for="Observation.Notes">Observation notes (optional)</label>
-            <textarea asp-for="Observation.Notes" rows="3" maxlength="1000"></textarea><span asp-validation-for="Observation.Notes" class="error"></span>
-            <button type="submit">Save observation</button>
+            <details class="ani-fieldwork-optional" open="@(!ViewData.ModelState.IsValid)">
+                <summary>Optional growth stage &amp; notes</summary>
+                <div class="ani-fieldwork-extra-fields">
+                    <label asp-for="Observation.GrowthStage">Growth stage (optional)</label>
+                    <input asp-for="Observation.GrowthStage" maxlength="40" />
+                    <span asp-validation-for="Observation.GrowthStage" class="error"></span>
+                    <label asp-for="Observation.Notes">Observation notes (optional)</label>
+                    <textarea asp-for="Observation.Notes" rows="3" maxlength="1000"></textarea>
+                    <span asp-validation-for="Observation.Notes" class="error"></span>
+                </div>
+            </details>
+            <button type="submit">Save inspection</button>
+            <p class="hint">After saving, find the inspection under Observations &amp; photos to attach images.</p>
         </form>
     </section>
     </div>
@@ -138,7 +167,8 @@
         <span>@monitoring.Activities.Count record(s)</span>
     </div>
     @if (monitoring.Activities.Count == 0)
-    { <p>No activities recorded.</p> }
+    { <div class="sf-empty-state"><strong>No fieldwork recorded yet.</strong><p>Use Record fieldwork above to start an activity history for this crop.</p>
+        @if (monitoring.CanRecord) { <a href="#record-activity">Record fieldwork →</a> }</div> }
     <ul class="farm-list sf-activity-list">
         @foreach (var activity in monitoring.Activities)
         {
@@ -203,15 +233,20 @@
 </section>
 <section class="panel card sf-monitoring-observations" id="observation-history">
     <div class="sf-section-line card-head">
-        <h2>Observations and photos</h2>
+        <h2>Inspections &amp; photos</h2>
         <span>@monitoring.Observations.Count inspection(s)</span>
     </div>
     @if (monitoring.Observations.Count == 0)
-    { <p>No observations recorded.</p> }
+    {
+        <div class="sf-empty-state"><strong>No inspections saved yet.</strong>
+            <p>Save an inspection first. Then you can take or upload a photo to that record.</p>
+            @if (monitoring.CanRecord) { <a href="#record-inspection">Record inspection →</a> }
+        </div>
+    }
     @foreach (var observation in monitoring.Observations)
     {
         var health = observation.HealthStatusName;
-        <div class="crop-cycle sf-inspection-record">
+        <div class="crop-cycle sf-inspection-record" id="observation-@observation.Id">
             <div class="sf-inspection-heading">
                 <span class="sf-status-chip sf-status-chip--neutral">@health</span>
                 <time datetime="@observation.ObservedAtUtc.ToString("yyyy-MM-ddTHH:mm:ssZ")">@observation.ObservedAtUtc.ToString("MMM d, yyyy HH:mm") UTC</time>
@@ -282,7 +317,7 @@
                         <img class="ani-photo-preview" alt="Selected photo preview" hidden />
                         <p class="ani-photo-error" role="alert" hidden></p>
                     </div>
-                    <button type="submit">Attach photo</button>
+                    <button type="submit">Attach photo to inspection</button>
                 </form>
             }
         </div>
