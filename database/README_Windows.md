@@ -37,11 +37,20 @@ SELECT DB_NAME() AS CurrentDatabase;
 ```
 
 3. On a **new, empty** `SmartFarmDB`, open `database/02_CreateSchema.sql` and execute the **whole script**, not just a selected statement.
-4. Run `database/03_VerifySchema.sql`. Expect **24 dbo tables** (7 ASP.NET Core Identity + 17 SmartFarm tables), plus their foreign keys.
+4. Run `database/03_VerifySchema.sql`. Expect **25 dbo tables** (7 ASP.NET Core Identity + 18 SmartFarm tables), plus their foreign keys.
 
 Error **50001** means the SQL editor is not using `SmartFarmDB`. Error **50002** means the database contains dbo tables already—inspect and verify them before considering any change. Do **not** drop or reset an existing database without checking whether it contains important data.
 
-## 5. Connection strings for later ASP.NET Core integration
+## Current full-application schema context
+
+Publication source check: 2026-11-12 at `3c5a8b0`. Base now includes admin audit;
+finance, support and announcements extend the full EF model to 29 tables. Select
+reviewed upgrades for the actual target. The existing 03 verifier checks only
+base/finance counts and is not full extended-model acceptance. Follow the
+[central database runbook](README.md) before setup or upgrades. No database was
+changed by this documentation publication.
+
+## 5. Configure ASP.NET Core host connections
 
 Use your actual SQL Server instance name (these examples are **templates**, not application configuration to commit).
 

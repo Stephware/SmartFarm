@@ -1,100 +1,113 @@
 # SmartFarm
 
-SmartFarm is an **in-development farm-management platform** planned for a web application and an Android app. The goal is to help farm owners and field teams manage farms, plots, crop cycles, daily work, supply inventory, harvest records, and weather-related reminders. Android will support selected offline operations with synchronization when connectivity returns.
+SmartFarm is an in-development farm-management platform, displayed as **AniGo**
+on Web and Android. Full audit at `ac624be`; publication source checks on 2026-11-12 at `dev` /
+`3c5a8b0` are summarized in [current source status](.local/karpathy-wiki/wiki/project/current-source-status.md). This is
+implementation documentation, not a fresh deployment/runtime acceptance result.
 
-> **Project status:** Identity, farm/plot management, crop planning, activity/observation monitoring, inventory, and partial harvest recording/voiding now have ASP.NET Core API, MVC, and online-only Android implementations. Harvest totals and audit history use the existing SQL-first Harvest table; crop completion remains a separate operation. Tasks, production-ready media storage, automation, offline synchronization and CI/CD are still future work.
+## Current implementation
 
-## Start the minimal web and Android preview
+Accounts and owner-approved enrollment; farm/plot/member management and location
+selection; crop plans/lifecycle/agenda/history; activities, structured inspections
+and private photos; tasks/reminders; audited stock and partial harvests; saved
+OpenMeteo weather/advisories; dashboard, harvest/cycle comparisons, manually entered
+PHP cash and financial insights/CSV are implemented. Android includes farm home,
+manager tasks, read-only reports/finance insights and selected Room/WorkManager
+cached reads/queued field writes, including atomic activity-plus-stock use.
 
-Follow the [local smoke test guide](docs/local-smoke-test.md) to launch the
-web server, verify `/api/status`, run the Android emulator, and optionally
-connect to the existing SQL Server database. See the [reference alignment
-review](docs/reference-alignment.md) for verified architectural similarities
-and important differences.
+Current UI is Harvest Gold + Pine with prefixed self-hosted Tailwind utilities.
+Web also provides a separately protected Super Admin/MFA area, user support and
+announcements; see current source status for security and schema boundaries. Signup uses name/email/password; joining is a
+separate signed-in request, and pending users gain no farm access. Harvests do not
+complete crops or imply sales; quantity units and planting cycles stay separate.
+Finance is recorded cash, not full accounting profit.
 
-## Planned technology stack
+Limits include selected offline coverage, memory-only Android sessions, missing
+sync-driven refresh of some open confirmed data, mobile report/export parity,
+target-specific existing-database upgrades and unverified production/recovery
+acceptance. CI exists; automated CD does not. See [current status and history](.local/karpathy-wiki/wiki/project/progress.md)
+and [known limits](.local/karpathy-wiki/wiki/project/known-issues.md).
 
-| Layer | Technology | Purpose |
-| --- | --- | --- |
-| Backend / Web | **C# / .NET 10, ASP.NET Core MVC + Web API** | Web interface and API for the Android client |
-| Domain / Persistence | **Entity Framework Core 10** | Domain models, database access, eventual migration management |
-| Database | **Microsoft SQL Server 2022** | Central application database |
-| Authentication | **ASP.NET Core Identity** | User accounts and authorization |
-| Background work | **Hangfire** with SQL Server storage | Scheduled tasks and notifications |
-| Android | **Kotlin + Jetpack Compose** | Native mobile UI |
-| Android local data | **Room** | Offline storage |
-| API communication | **Retrofit / OkHttp** | Android-to-API calls |
-| Background synchronization | **WorkManager** | Retry and sync queued offline changes |
-| External weather | **Weather API integration (provider to be finalized)** | Forecasts and farm advisories |
-| Development | **Docker Desktop on macOS; local SQL Server on Windows** | Independent local database environments |
-| Collaboration | **Git, GitHub, pull requests, GitHub Actions (planned)** | Source control, review, eventual CI |
+## Architecture and repository navigation
 
-## Planned features
+| Area | Responsibility |
+| --- | --- |
+| `src/SmartFarm.Core` | Plain entities, contracts, interfaces, enums and pure rules |
+| `src/SmartFarm.Infrastructure` | Shared services, repositories/unit of work, EF/Identity, provider/private files |
+| `src/SmartFarm.Web` | Independent Razor MVC cookie host; shared services, charts and CSV |
+| `src/SmartFarm.Api` | Independent opaque-bearer JSON host and transactional sync ledger |
+| `src/SmartFarm.Worker` | Headless Hangfire task/stock/weather automation with separate jobs storage |
+| `mobile/SmartFarm.Android` | Compose/StateFlow/Retrofit with Room/WorkManager |
+| `tests` | Five active backend test projects plus Node UI tests; Android tests live in app source sets |
+| `database` | SQL-first creation/upgrades, read-only comparison and recovery runbooks |
+| `.github/workflows` | Backend/Android build/tests and recovery-script/schema checks |
+| `docs`, `.local/karpathy-wiki` | Development guides, engineering workflow, source-backed knowledge/evidence |
 
-- **Accounts and access:** Owner, Manager, and Field Worker roles; users may access multiple farms.
-- **Farms and plots:** Register farms, manage farm membership and plots.
-- **Crop cycles:** Track planting, active crops, progress, and completion history. At most one active crop cycle per plot.
-- **Activities and observations:** Record watering, fertilization, inspections, health observations, and photos.
-- **Supply inventory:** Track supplies and stock movements with a transaction history.
-- **Harvests:** Record multiple partial harvests; completing a crop cycle remains a separate action.
-- **Tasks and alerts:** Planned tasks, scheduled reminders, and weather advisories.
-- **Android offline support:** Queue supported field operations locally and sync them when online, including conflict and duplicate-operation handling.
+The .NET solution targets net10.0 and includes Core/Infrastructure/Web/Api/Worker
+and active tests. Android is a separate Gradle project. MVC does not call API for
+business pages; both share services/database. OpenMeteo is the current provider.
+Exact dependency pins belong in build manifests, not claims about latest releases.
 
-These are design goals; their implementation and end-to-end behavior still require development and testing.
+## Build and local run
 
-## Repository layout
+Follow [local smoke checks](docs/local-smoke-test.md) and configure SQL with
+[database connection](docs/backend-database-connection.md) first for business flows.
 
-```text
-SmartFarm/
-├── src/
-│   ├── SmartFarm.Core/           # Domain entities, contracts, interfaces
-│   ├── SmartFarm.Infrastructure/ # EF Core, persistence, external integrations
-│   ├── SmartFarm.Web/            # MVC web app + API endpoints
-│   └── SmartFarm.Worker/         # Hangfire background worker
-├── mobile/
-│   └── SmartFarm.Android/        # Kotlin / Compose / Room application
-├── tests/
-│   ├── SmartFarm.SchemaVerification/ # Offline EF model and baseline regression tests
-│   ├── SmartFarm.Weather.Tests/ # Provider-independent HTTP client tests
-│   ├── SmartFarm.Worker.Tests/  # Background processing configuration tests
-│   ├── SmartFarm.Core.Tests/
-│   └── SmartFarm.IntegrationTests/
-├── database/
-│   ├── compose.yaml
-│   ├── .env.example
-│   ├── 01_CreateDatabase.sql
-│   ├── 02_CreateSchema.sql
-│   ├── 03_VerifySchema.sql
-│   ├── README.md
-│   ├── README_macOS.md
-│   └── README_Windows.md
-├── docs/
-└── .github/workflows/
+```sh
+dotnet tool restore
+dotnet restore SmartFarm.slnx
+dotnet build SmartFarm.slnx --no-restore
+dotnet test SmartFarm.slnx --no-build
+# Separate terminals:
+dotnet run --project src/SmartFarm.Web
+dotnet run --project src/SmartFarm.Api
 ```
 
-Feature folders still contain `.gitkeep` placeholders. The .NET 10 solution includes four backend projects and foundation tests; Android includes its own Gradle project.
+Default Development URLs: Web `http://localhost:5080`, API
+`http://localhost:5081` (`/api/status` is API liveness); database health is
+Development-only. Android emulator uses `http://10.0.2.2:5081/`. See
+[Android setup](docs/android-initialization.md) for builds/device tests/release URL.
 
-## Shared private photos (separate Web and API hosts)
+**Worker defaults enabled.** Configure application and separate jobs databases
+before starting it; explicitly set `Hangfire__Enabled=false` for an idle host.
+See [Worker](docs/background-worker.md) and [weather](docs/weather-integration.md).
 
-In Development, MVC and API continue using the same `src/SmartFarm.Web/App_Data/observation-photos` folder. For separate deployed instances, mount **one durable private directory** accessible to both processes and set `ObservationPhotos__StoragePath` to that **same absolute mounted path** on **both** hosts (for example, `/mnt/anigo-photos`). Production startup rejects a missing, relative, or public `wwwroot` storage path.
+`bash scripts/verify-phase-a.sh` combines Release backend/Python/Android build and
+unit checks. SQL/device checks require explicit opt-in and disposable environments.
+CI runs Node/public Chromium/Tailwind checks and compiles device tests; it does
+not run an Android emulator, live SQL or deployment. See
+[verification guidance](.local/karpathy-wiki/wiki/project/development.md).
 
-Both hosts need read/write access; keep the mount outside any public web directory. Move existing photos into the shared directory before switching paths, since the SQL database stores photo keys rather than image bytes. Do not move or delete files from the old location until both hosts can open existing photos. A matching path string on two machines is **not** enough unless it refers to the same shared volume.
+## Database and private media
 
-## Database setup
+Use [central SQL setup](database/README.md), with [macOS](database/README_macOS.md)
+or [Windows](database/README_Windows.md) instructions. Base CREATE defines 25 tables including admin audit;
+finance, support and announcements extend the full EF model to 29 tables. Existing
+databases need reviewed workflow/issue/finance/admin/support/announcement and other
+missing changes, based on actual metadata/history. The current 03 verifier covers
+base/finance counts only; see the central runbook for extended-schema acceptance.
+Never rerun fresh-schema DDL on business data. Startup does not migrate or adopt EF
+history; [schema alignment](docs/efcore-schema-alignment.md) explains the boundary.
 
-Developers run their **own** SQL Server instances and use the same version-controlled SQL scripts:
+Development Web/API share Web/App_Data observation storage. Production requires
+an explicit absolute private non-root path outside wwwroot and the same durable
+mounted volume accessible by both hosts; matching path strings do not create shared
+storage. Verify/migrate existing files before retiring old storage. SQL stores photo
+keys, not image bytes. Protect matching Data Protection key rings, database secrets
+and HTTPS configuration. See [backup/recovery acceptance](database/RECOVERY.md).
 
-- [macOS: Docker Desktop + DBeaver](database/README_macOS.md)
-- [Windows: SQL Server + SSMS/DBeaver, no Docker required](database/README_Windows.md)
-- [Database setup overview](database/README.md)
+## Development context
 
-Run the database creation, schema creation, and verification scripts in order as described in those guides. The initial schema defines **16 SmartFarm business tables and 7 ASP.NET Core Identity tables**.
+Agents start at [AGENTS.md](AGENTS.md), then the [knowledge index](.local/karpathy-wiki/wiki/index.md).
+Use the complementary [engineering workflow](docs/superpowers/README.md):
+Karpathy → applicable Superpowers → Ponytail → Impeccable for UI → tests → knowledge.
+Source is authoritative; historical plans and tests stay dated. Documentation is
+Git-visible; private runtime artifacts/secrets/generated files remain excluded.
 
-**Important:** The schema was created manually; `__EFMigrationsHistory` is not initialized by these SQL scripts. Before using EF Core Code First migrations, create a carefully verified baseline matching the actual schema. Never run a normal generated `InitialCreate` migration over tables that already exist.
-
-Keep `.env`, database passwords, actual database files, and backups out of Git.
-
-For Phase 6 instructions, see [harvest management](docs/harvest-management.md). For Phase 5 inventory instructions, see [inventory management](docs/inventory-management.md). For Phase 3, see [crop management](docs/crop-management.md). For Phase 2 development, see [farm and plot management](docs/farm-plot-management.md). For Web connection strings and the development connectivity check, see [Backend database connection](docs/backend-database-connection.md). For mapping verification and the approval required before adopting migration history, see [EF Core schema alignment](docs/efcore-schema-alignment.md).
+Feature guides: [authentication](docs/authentication.md), [farm/plots](docs/farm-plot-management.md),
+[crops](docs/crop-management.md), [monitoring/photos](docs/crop-monitoring.md),
+[inventory](docs/inventory-management.md), [harvests](docs/harvest-management.md),
+[reports/finance](.local/karpathy-wiki/wiki/project/finance-reports.md).
 
 ## Git and pull request workflow
 
@@ -109,7 +122,7 @@ individual work              integration          stable
 - **`dev`** is the shared integration branch; create feature branches from its latest commit.
 - **`feature/<short-description>`** is a temporary branch for one logical task. Example: `feature/backend-initialization`, `feature/android-initialization`, `docs/project-readme`.
 - Do not work directly on `main` or `dev`. Do not force-push or delete protected branches.
-- The repository has branch protection for `main` and `dev`. Follow GitHub's displayed approval requirements when opening and merging a PR; another team member should review.
+- Branch protection is part of the intended `main`/`dev` workflow; its current remote configuration was not audited here. Follow GitHub's displayed approval requirements when opening and merging a PR; another team member should review.
 - Prefer **Squash and merge** if linear history is required. Delete a merged feature branch after merging, not `dev` or `main`.
 
 ### Terminal workflow (Git CLI)
@@ -195,58 +208,13 @@ This is a **documentation-only** test; it requires no running backend or databas
 
 If merging is blocked, read GitHub's displayed requirement instead of bypassing protection.
 
-## Build, run, and testing status
-
-The backend contains a **.NET 10 solution** with four application projects and foundation test projects. Install the .NET 10 SDK and run from the repository root:
-
-```bash
-dotnet --version
-dotnet sln SmartFarm.slnx list
-dotnet tool restore
-dotnet restore SmartFarm.slnx
-dotnet build SmartFarm.slnx
-dotnet test SmartFarm.slnx
-dotnet run --project src/SmartFarm.Web/SmartFarm.Web.csproj
-```
-
-Open `http://localhost:5080` to try account registration, login and logout using your configured development database. See the [authentication guide](docs/authentication.md) for API, Android and permission testing. Stop with **Ctrl+C**.
-
-To start the background host independently, run:
-
-```bash
-dotnet run --project src/SmartFarm.Worker/SmartFarm.Worker.csproj
-```
-
-The Worker starts idle by default. Enable processing only after approved jobs database and Hangfire schema provisioning. Stop with **Ctrl+C**. See the [worker setup](docs/background-worker.md) and [weather configuration](docs/weather-integration.md) guides.
-
-For Android build, emulator tests, and local setup, see [Android initialization](docs/android-initialization.md).
-
-**Not yet available:** business features and their tests, a confirmed weather provider adapter, farm background jobs, and CI.
-
-**Checks that work today:**
-
-- Follow the [database guides](database/README.md) to start or connect to SQL Server, then execute `03_VerifySchema.sql` in DBeaver/SSMS to check the database schema.
-- Validate Docker Compose configuration on the macOS setup with `cd database && docker compose config --quiet` after creating your local `.env`.
-- Test the GitHub branch/PR workflow using the documentation-only steps above.
-- Build and test the Android foundation using the [Android guide](docs/android-initialization.md).
-
-**Planned after project initialization:** business features and tests; GitHub Actions CI for pull requests targeting `dev` and `main`. CI should become a required branch check **only after workflows exist and pass**.
-
 ## Collaboration rules
 
-1. Keep changes focused; one feature or setup concern per branch/PR.
-2. Never commit production credentials, personal data, database volumes, `.env`, or build outputs.
-3. Review your own diff and test what is available before requesting review.
-4. Coordinate changes to database schemas, API contracts, and offline sync behavior before merging.
-5. Report unfinished functionality honestly in PRs and documentation.
-
-## Next milestones
-
-1. Finish and verify the repository's protected-branch and PR workflow.
-2. ~~Initialize the **.NET 10** solution (Core, Infrastructure, Web, Worker).~~ Completed; offline schema tests are available and CI remains planned.
-3. ~~Connect the .NET backend to SQL Server and reconcile EF Core with the existing SQL schema.~~ Implemented and verified; baseline history adoption requires approval.
-4. ~~Initialize the **Kotlin / Compose** Android project.~~ Foundation build and emulator checks are available.
-5. Verify Phase 6 harvest management locally. Task automation and Android offline sync are deferred; CI/CD remains deferred.
-
-
-
+Keep one focused task per branch/PR; reuse existing patterns and minimal dependencies
+without sacrificing security, validation, errors, accessibility or essential tests.
+Inspect diffs and explicit paths before staging. Keep credentials, private farmer
+data, keys/photos, database files/volumes/backups and build outputs out of Git.
+Coordinate schema/API/offline contract changes and preserve audit/idempotency rules.
+Report unfinished behavior and unrun checks honestly. Git commands above describe
+the authorized integration workflow; they do not authorize an agent to commit,
+push, merge or open PRs during documentation-only maintenance.
