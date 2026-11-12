@@ -27,3 +27,28 @@ internal fun inventoryVisibleItems(
     }.sortedWith(compareByDescending<InventoryItemDto> { it.isLowStock }
         .thenBy { it.name.lowercase(Locale.ROOT) })
 }
+
+private val inventoryMaximum = java.math.BigDecimal("999999999999999.999")
+
+/** Convert a desired physical balance to the existing signed adjustment payload. */
+internal fun inventoryCorrectionDelta(
+    confirmedBalance: java.math.BigDecimal, targetText: String
+): java.math.BigDecimal? {
+    val target = targetText.trim().toBigDecimalOrNull() ?: return null
+    if (target.signum() < 0 || target > inventoryMaximum ||
+        target.stripTrailingZeros().scale() > 3) return null
+    val difference = target.subtract(confirmedBalance)
+    return difference.takeIf { it.signum() != 0 &&
+        it.abs() <= inventoryMaximum &&
+        it.stripTrailingZeros().scale() <= 3 }
+}
+
+/** Preview uses confirmed server stock only. Pending movements are explicitly excluded. */
+internal fun inventoryBalancePreview(
+    confirmedBalance: java.math.BigDecimal, type: Int, userInput: String
+): java.math.BigDecimal? {
+    val delta = if (type == 4) inventoryCorrectionDelta(confirmedBalance, userInput)
+        else runCatching { inventoryMovementQuantity(type, userInput.trim()) }.getOrNull()
+    val next = confirmedBalance.add(delta ?: return null)
+    return next.takeIf { it.signum() >= 0 && it <= inventoryMaximum }
+}
