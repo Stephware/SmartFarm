@@ -23,6 +23,8 @@ class SyncStatusViewModel(private val repository: SyncRepository) : ViewModel() 
     val stockPreview = previewMutable.asStateFlow()
     private val errorMutable = MutableStateFlow<String?>(null)
     val error = errorMutable.asStateFlow()
+    private val noticeMutable = MutableStateFlow<String?>(null)
+    val notice = noticeMutable.asStateFlow()
     private var collector: Job? = null
 
     fun load() {
@@ -44,16 +46,58 @@ class SyncStatusViewModel(private val repository: SyncRepository) : ViewModel() 
         photoMutable.value = emptyList()
         previewMutable.value = null
         errorMutable.value = null
+        noticeMutable.value = null
     }
 
-    fun retry(id: String) = viewModelScope.launch { repository.retry(id) }
-    fun discard(id: String) = viewModelScope.launch { repository.discard(id) }
-    fun retryPhoto(id: String) = viewModelScope.launch { repository.retryPhoto(id) }
-    fun discardPhoto(id: String) = viewModelScope.launch { repository.discardPhoto(id) }
-    fun syncNow() = repository.schedule()
+    private fun act(
+        success: String, failure: String, action: suspend () -> Unit
+    ) = viewModelScope.launch {
+        errorMutable.value = null
+        noticeMutable.value = null
+        try {
+            action()
+            noticeMutable.value = success
+        } catch (cancelled: CancellationException) {
+            throw cancelled
+        } catch (_: Exception) {
+            errorMutable.value = failure
+        }
+    }
+
+    fun retry(id: String) = act(
+        "Retry scheduled. This record is not confirmed until its sync finishes.",
+        "Could not schedule the retry. Your local record is still saved.") {
+        repository.retry(id)
+    }
+    fun discard(id: String) = act(
+        "The selected unsynced record was discarded from this phone.",
+        "Could not discard the record. Your local copy remains saved.") {
+        repository.discard(id)
+    }
+    fun retryPhoto(id: String) = act(
+        "Photo retry scheduled. It is not yet confirmed by the server.",
+        "Could not schedule the photo retry. Your local photo remains saved.") {
+        repository.retryPhoto(id)
+    }
+    fun discardPhoto(id: String) = act(
+        "The selected unsynced photo was discarded from this phone.",
+        "Could not discard the photo. Your local photo remains saved.") {
+        repository.discardPhoto(id)
+    }
+    fun syncNow() {
+        errorMutable.value = null
+        noticeMutable.value = null
+        try {
+            repository.schedule()
+            noticeMutable.value = "Sync requested. Queued records will upload when a connection is available."
+        } catch (_: Exception) {
+            errorMutable.value = "Could not schedule sync. All local records remain saved."
+        }
+    }
 
     fun reviewStock(id: String) = viewModelScope.launch {
         errorMutable.value = null
+        noticeMutable.value = null
         try {
             previewMutable.value = repository.previewStockRetry(id)
         } catch (cancelled: CancellationException) {
@@ -69,6 +113,7 @@ class SyncStatusViewModel(private val repository: SyncRepository) : ViewModel() 
         try {
             repository.confirmStockRetry(preview)
             previewMutable.value = null
+            noticeMutable.value = "Stock retry scheduled. The balance remains unconfirmed until sync finishes."
         } catch (cancelled: CancellationException) {
             throw cancelled
         } catch (error: Exception) {

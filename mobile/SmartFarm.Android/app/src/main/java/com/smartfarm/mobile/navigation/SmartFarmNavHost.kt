@@ -244,6 +244,7 @@ fun SmartFarmNavHost(auth: AuthViewModel, farms: FarmViewModel, crops: CropViewM
             val photos by sync.photos.collectAsStateWithLifecycle()
             val preview by sync.stockPreview.collectAsStateWithLifecycle()
             val syncError by sync.error.collectAsStateWithLifecycle()
+            val syncNotice by sync.notice.collectAsStateWithLifecycle()
             LaunchedEffect(Unit) { sync.load() }
             SyncStatusScreen(pending, photos, preview, syncError,
                 onBack = { navController.popBackStack() },
@@ -254,7 +255,12 @@ fun SmartFarmNavHost(auth: AuthViewModel, farms: FarmViewModel, crops: CropViewM
                 onReviewStock = { sync.reviewStock(it) },
                 onApproveStock = { sync.approveStockRetry() },
                 onCancelStock = { sync.cancelReview() },
-                onSyncNow = { sync.syncNow() })
+                onSyncNow = { sync.syncNow() },
+                currentFarmId = headerFarm.selected?.id,
+                farmNames = headerFarm.farms.associate { it.id to it.name },
+                farmTimeZones = headerFarm.farms.associate { it.id to it.timeZoneId },
+                notice = syncNotice,
+                farmTimeZone = headerFarm.selected?.timeZoneId)
         }
         composable("farms") {
             val farmState by farms.state.collectAsStateWithLifecycle()

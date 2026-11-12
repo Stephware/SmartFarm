@@ -57,6 +57,7 @@ fun SyncStatusScreen(
     onSyncNow: () -> Unit,
     currentFarmId: String? = null,
     farmNames: Map<String, String> = emptyMap(),
+    farmTimeZones: Map<String, String> = emptyMap(),
     notice: String? = null,
     farmTimeZone: String? = null
 ) {
@@ -165,7 +166,8 @@ fun SyncStatusScreen(
             val isStock = operation.operationType in setOf("inventory", "activity_stock")
             FarmSectionCard(syncRecordType(operation.operationType),
                 subtitle = "${farmLabel(operation.farmId)} · " +
-                    farmDateTime(java.time.Instant.ofEpochMilli(operation.createdAtUtc).toString(), farmTimeZone)) {
+                    farmDateTime(java.time.Instant.ofEpochMilli(operation.createdAtUtc).toString(),
+                        farmTimeZones[operation.farmId] ?: farmTimeZone)) {
                 FarmStatusChip(if (needs) "Needs attention" else "Waiting to sync",
                     if (needs) FarmStatusTone.Warning else FarmStatusTone.Planned)
                 Text(pendingRecordDescription(operation))
@@ -204,7 +206,8 @@ fun SyncStatusScreen(
             val needs = syncState(photo.status, photo.errorMessage) == SyncRecordState.NEEDS_REVIEW
             FarmSectionCard("Inspection photo",
                 subtitle = "${farmLabel(photo.farmId)} · " +
-                    farmDateTime(java.time.Instant.ofEpochMilli(photo.savedAtUtcMillis).toString(), farmTimeZone)) {
+                    farmDateTime(java.time.Instant.ofEpochMilli(photo.savedAtUtcMillis).toString(),
+                        farmTimeZones[photo.farmId] ?: farmTimeZone)) {
                 FarmStatusChip(if (needs) "Needs attention" else "Waiting to sync",
                     if (needs) FarmStatusTone.Warning else FarmStatusTone.Planned)
                 if (photo.observationId == null) {
