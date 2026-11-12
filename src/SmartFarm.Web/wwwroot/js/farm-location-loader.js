@@ -39,7 +39,11 @@
             const pickerUrl = pickers[0].dataset.pickerScriptUrl;
             if (!pickerUrl) throw new Error("Missing picker script");
             await script(pickerUrl);
-        })();
+        })().catch(error => {
+            // A transient CDN failure should not block a later deliberate retry.
+            resources = null;
+            throw error;
+        });
         return resources;
     };
 
