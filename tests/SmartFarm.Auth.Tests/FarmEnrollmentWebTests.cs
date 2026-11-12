@@ -172,6 +172,71 @@ public sealed class FarmEnrollmentWebTests
         }
     }
 
+    [Theory]
+    [InlineData("Owner", true)]
+    [InlineData("Manager", true)]
+    [InlineData("FieldWorker", false)]
+    public async Task FarmerDashboardShowsPrioritiesAndRoleAppropriateActions(string role, bool canManage)
+    {
+        using var app = App(role);
+        using var client = app.CreateClient();
+        var html = await client.GetStringAsync($"/Dashboard?farmId={FarmId}");
+        Assert.Contains("Today's priorities", html);
+        Assert.Contains("Overdue tasks", html);
+        Assert.Contains("Due today", html);
+        Assert.Contains("Needs attention", html);
+        Assert.Contains("Quick actions", html);
+        Assert.True(html.IndexOf("Today's priorities", StringComparison.Ordinal) <
+                    html.IndexOf("Farm at a glance", StringComparison.Ordinal));
+        if (canManage)
+        {
+            Assert.Contains("Add a task", html);
+            Assert.Contains("Add first plot", html);
+        }
+        else
+        {
+            Assert.Contains("Review tasks", html);
+            Assert.DoesNotContain("Add a task", html);
+            Assert.DoesNotContain("Add first plot", html);
+        }
+    }
+
+    [Fact]
+    public async Task DashboardDueAndFutureTasksLinkToMatchingTaskViews()
+    {
+        var overdue = new FarmTaskDetails(Guid.NewGuid(), FarmId, null, Actor,
+            1, new DateOnly(2026, 10, 26), 0, "Check irrigation",
+            DateTime.UtcNow, null, "v");
+        var upcoming = overdue with { Id = Guid.NewGuid(), DueDate = new DateOnly(2026, 10, 29) };
+        using var app = App(taskList: [upcoming, overdue]);
+        using var client = app.CreateClient();
+        var html = await client.GetStringAsync($"/Dashboard?farmId={FarmId}");
+        Assert.Contains("Assigned to you", html);
+        Assert.Contains($"#task-{overdue.Id}", html);
+        Assert.Contains($"#task-{upcoming.Id}", html);
+        Assert.Matches(@"(?s)view=today[^""]*#task-" + overdue.Id, html);
+        Assert.Matches(@"(?s)view=upcoming[^""]*#task-" + upcoming.Id, html);
+    }
+
+    [Fact]
+    public async Task DashboardRecordActionUsesActiveCropMonitoringInsteadOfGenericCropList()
+    {
+        var cycle = new CropCycleDetails(Guid.NewGuid(), FarmId, Guid.NewGuid(), "North plot",
+            Guid.NewGuid(), "Tomato", CropCycleStatus.Active,
+            new DateOnly(2026, 10, 1), new DateOnly(2026, 10, 2),
+            new DateOnly(2026, 11, 20), "kg", 3,
+            null, null, "v");
+        using var app = App(cycles: [cycle]);
+        using var client = app.CreateClient();
+        var html = await client.GetStringAsync($"/Dashboard?farmId={FarmId}");
+        Assert.Contains("Record fieldwork", html);
+        Assert.Contains("Record activity", html);
+        Assert.Contains("Record harvest", html);
+        Assert.Contains("record-activity", html);
+        Assert.Contains("record-harvest", html);
+        Assert.Contains(cycle.Id.ToString(), html);
+    }
+
     [Fact]
     public async Task DashboardShowsOnlySavedFarmInformationAndKeepsQuickLinks()
     {
@@ -428,7 +493,8 @@ public sealed class FarmEnrollmentWebTests
         return new(fields);
     }
 
-    private static WebApplicationFactory<Program> App(string role = "Owner", Func<string, object?[]?, object>? enroll = null, IReadOnlyList<FarmSummary>? farms = null, IReadOnlyList<PlotDetails>? plots = null) =>
+    private static WebApplicationFactory<Program> App(string role = "Owner", Func<string, object?[]?, object>? enroll = null, IReadOnlyList<FarmSummary>? farms = null, IReadOnlyList<PlotDetails>? plots = null,
+        IReadOnlyList<CropCycleDetails>? cycles = null, IReadOnlyList<FarmTaskDetails>? taskList = null) =>
         new WebApplicationFactory<Program>().WithWebHostBuilder(builder => builder.ConfigureTestServices(services =>
         {
             services.AddSingleton<IAuthenticationService, SignedIn>();
@@ -444,9 +510,9 @@ public sealed class FarmEnrollmentWebTests
                 new FarmDashboard(FarmId, "Green Farm", new DateOnly(2026,10,27), 0,0,0,0,0,0,0,0,[],[]))));
             // The dashboard reads crop, task and saved-weather summaries as well as the report.
             services.AddScoped(_ => Stub<ICropManagementService>((name, _) => name == "ListCyclesAsync"
-                ? Task.FromResult<IReadOnlyList<CropCycleDetails>>([]) : throw new NotSupportedException(name)));
+                ? Task.FromResult<IReadOnlyList<CropCycleDetails>>(cycles ?? []) : throw new NotSupportedException(name)));
             services.AddScoped(_ => Stub<IFarmTaskService>((name, _) => name == "ListAsync"
-                ? Task.FromResult<IReadOnlyList<FarmTaskDetails>>([]) : throw new NotSupportedException(name)));
+                ? Task.FromResult<IReadOnlyList<FarmTaskDetails>>(taskList ?? []) : throw new NotSupportedException(name)));
             services.AddScoped(_ => Stub<IFarmWeatherService>((name, _) => name == "GetAsync"
                 ? Task.FromResult(new WeatherOverview(FarmId, false, "Asia/Manila", [], []))
                 : throw new NotSupportedException(name)));
