@@ -237,7 +237,8 @@ fun SmartFarmNavHost(auth: AuthViewModel, farms: FarmViewModel, crops: CropViewM
                 navController.navigate("welcome") { popUpTo("welcome") { inclusive = true } }
             }, onFarms = { navController.navigate("farms") },
                 onSync = { navController.navigate("sync") },
-                onNotifications = { navController.navigate("notifications") })
+                onNotifications = { navController.navigate("notifications") },
+                pendingSyncCount = accountQueue.total)
         }
         composable("sync") {
             val pending by sync.operations.collectAsStateWithLifecycle()
@@ -291,7 +292,9 @@ fun SmartFarmNavHost(auth: AuthViewModel, farms: FarmViewModel, crops: CropViewM
                 if (farms.state.value.selected?.id != farmId) farms.loadDetail(farmId)
             }
             val farm = farmState.selected?.takeIf { it.id == farmId }
-            FarmMoreScreen(farm?.name ?: "Farm", farm?.role) { choice ->
+            val currentQueue = com.smartfarm.mobile.features.syncstatus.syncQueueSummary(
+                pending, pendingPhotos, farmId, state.account?.id)
+            FarmMoreScreen(farm?.name ?: "Farm", farm?.role, onOpen = { choice ->
                 when (choice) {
                     "inventory" -> navController.navigate("inventory/$farmId")
                     "insights" -> navController.navigate("insights/$farmId")
@@ -300,7 +303,7 @@ fun SmartFarmNavHost(auth: AuthViewModel, farms: FarmViewModel, crops: CropViewM
                     "notifications", "sync", "account" -> navController.navigate(choice)
                     "switch" -> showFarmSwitcher = true
                 }
-            }
+            }, pendingSync = currentQueue.total, reviewSync = currentQueue.needsReview)
         }
         composable("tasks/{farmId}") { entry ->
             val farmId = entry.arguments?.getString("farmId").orEmpty()
