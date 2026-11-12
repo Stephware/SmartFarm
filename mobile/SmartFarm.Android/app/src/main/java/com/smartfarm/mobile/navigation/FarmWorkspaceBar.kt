@@ -9,6 +9,9 @@ import androidx.compose.material3.NavigationRailItemDefaults
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.NavigationBarItemDefaults
+import androidx.compose.material3.Surface
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -106,7 +109,14 @@ internal fun FarmWorkspaceBar(
                 val selected = selectedRoute == tab.route
                 NavigationRailItem(selected = selected,
                     onClick = { if (tab.route == "record" || !selected) onNavigate(tab.route) },
-                    icon = { FarmNavIcon(tab.symbol, if (selected) colors.onPrimaryContainer else colors.onSurfaceVariant) },
+                    icon = {
+                        if (tab.route == "record") {
+                            Surface(shape = CircleShape, color = colors.secondaryContainer) {
+                                FarmNavIcon(tab.symbol, colors.onSecondaryContainer)
+                            }
+                        } else FarmNavIcon(tab.symbol,
+                            if (selected) colors.onPrimaryContainer else colors.onSurfaceVariant)
+                    },
                     label = { Text(tab.title) },
                     colors = NavigationRailItemDefaults.colors(
                         indicatorColor = colors.primaryContainer,
@@ -128,7 +138,11 @@ internal fun FarmWorkspaceBar(
                 // Re-tapping an active tab must not reset unsaved field forms.
                 onClick = { if (tab.route == "record" || !selected) onNavigate(tab.route) },
                 icon = {
-                    FarmNavIcon(tab.symbol,
+                    if (tab.route == "record") {
+                        Surface(shape = CircleShape, color = colors.secondaryContainer) {
+                            FarmNavIcon(tab.symbol, colors.onSecondaryContainer)
+                        }
+                    } else FarmNavIcon(tab.symbol,
                         if (selected) colors.onSecondaryContainer else colors.onSurfaceVariant)
                 },
                 label = { Text(tab.title) },

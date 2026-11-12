@@ -20,6 +20,7 @@ import com.smartfarm.mobile.ui.components.FarmStatusChip
 import com.smartfarm.mobile.ui.components.FarmStatusTone
 
 /** Switch farms in one tap without changing or clearing saved work. */
+@OptIn(androidx.compose.material3.ExperimentalMaterial3Api::class)
 @Composable
 internal fun FarmSwitcherSheet(
     farms: List<FarmDto>, currentFarmId: String,

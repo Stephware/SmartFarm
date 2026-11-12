@@ -30,6 +30,7 @@ import com.smartfarm.mobile.ui.components.CropArtworkImage
 import com.smartfarm.mobile.ui.components.FarmEmptyState
 
 /** Quick action menu. Existing crop, monitoring, harvest and stock forms do the saving. */
+@OptIn(androidx.compose.material3.ExperimentalMaterial3Api::class)
 @Composable
 internal fun FarmQuickRecordSheet(
     farmId: String,
