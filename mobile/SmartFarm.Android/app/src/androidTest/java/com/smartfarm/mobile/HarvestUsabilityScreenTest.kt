@@ -39,8 +39,8 @@ class HarvestUsabilityScreenTest {
         compose.runOnIdle { assertEquals("1.5" to "", saved) }
         compose.onNodeWithText("2 kg").performScrollTo().assertExists()
         compose.onNodeWithText("History & totals").performScrollTo().performClick()
-        compose.onNodeWithText("Nov 12, 2026", substring = true).performScrollTo().assertExists()
-        compose.onNodeWithText("Voided").performScrollTo().performClick()
+        compose.onAllNodesWithText("Nov 12, 2026", substring = true)[0].performScrollTo().assertExists()
+        compose.onAllNodesWithText("Voided")[0].performScrollTo().performClick()
         compose.onNodeWithText("Duplicate entry").performScrollTo().assertExists()
     }
 
