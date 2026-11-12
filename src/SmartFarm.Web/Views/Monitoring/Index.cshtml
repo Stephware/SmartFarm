@@ -21,7 +21,9 @@
         <div class="ani-monitoring-art">
             <img src="@Url.Content("~/images/crops/" + CropArtwork.FileName(cycle.CropTypeName))" alt=""
                  width="120" height="120" />
-            <span class="sf-status-chip @(monitoring.CanRecord ? "sf-status-chip--active" : "sf-status-chip--neutral")">@cycle.Status</span>
+            <partial name="_UiStatusChip" model='@(new UiStatusChip(
+                cycle.Status.ToString(),
+                monitoring.CanRecord ? "sf-status-chip--active" : "sf-status-chip--neutral"))' />
         </div>
     </div>
     <nav class="sf-page-jump-nav ani-fieldwork-jumps" aria-label="Monitoring sections">
