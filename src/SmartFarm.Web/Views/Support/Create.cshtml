@@ -4,7 +4,7 @@
 }
 <a class="admin-back" asp-area="" asp-controller="Support" asp-action="Index">← Back to support</a>
 <div class="page-heading admin-page-heading"><div><p class="sf-kicker">HELP &amp; SUPPORT</p><h1>What do you need help with?</h1>
-    <p class="sf-muted">Describe the problem. Please don't include passwords, farm codes, or private tokens.</p></div></div>
+    <p class="sf-muted">Describe what happened so support can investigate. Do not include passwords, farm codes, private tokens, or other sensitive information.</p></div></div>
 <section class="panel admin-support-form-panel">
     <form asp-area="" asp-controller="Support" asp-action="Create" method="post" class="admin-action-form">
         <div asp-validation-summary="ModelOnly" class="error" role="alert"></div>
@@ -25,6 +25,7 @@
         <input asp-for="Input.Title" maxlength="140" minlength="5" placeholder="e.g., Cannot sync field observations" required />
         <span asp-validation-for="Input.Title" class="error"></span>
         <label asp-for="Input.Description">Describe the issue</label>
+        <p class="ani-support-hint">Include where you were in the app, what you tried, what happened, and any message shown.</p>
         <textarea asp-for="Input.Description" minlength="15" maxlength="2000" rows="7" required
                   placeholder="What happened, where did it happen, and what did you try?"></textarea>
         <span asp-validation-for="Input.Description" class="error"></span>

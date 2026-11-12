@@ -1,58 +1,100 @@
 @model SmartFarm.Web.ViewModels.Farms.FarmEnrollmentPanel
-<section class="panel sf-enrollment-panel" aria-labelledby="join-requests-heading">
-    <p class="sf-kicker">FARM ACCESS</p>
-    <h2 id="join-requests-heading">Farmer join requests</h2>
+<section class="panel sf-enrollment-panel ani-team-enrollment" aria-labelledby="join-requests-heading">
+    <p class="ani-overline">Farm access</p>
+    <h2 id="join-requests-heading">Invite &amp; approve team members</h2>
     @if (Model.Error is not null)
     {
-        <p role="alert">@Model.Error</p>
+        <p class="error form-error" role="alert">@Model.Error</p>
     }
     else if (Model.Overview is { } overview)
     {
-        <p>Share this 12-character farm code with farmers requesting access. Each request needs your approval.</p>
-        <div class="sf-enrollment-code">
-        <label for="farm-join-code">Farm code</label>
-        <input id="farm-join-code" readonly value="@overview.JoinCode" aria-describedby="farm-code-copy-status" />
-        <button type="button" data-copy-target="farm-join-code" data-copy-status="farm-code-copy-status">Copy code</button>
-        <p id="farm-code-copy-status" role="status" aria-atomic="true"></p>
+        <p class="sf-muted">Only the farm owner can review join requests. Sharing a code doesn't give access until the request is approved.</p>
+        <div class="ani-team-request-summary">
+            <strong>@overview.Requests.Count</strong>
+            <span>@(overview.Requests.Count == 1 ? "person waiting for approval" : "people waiting for approval")</span>
         </div>
-        <form asp-controller="Farms" asp-action="RegenerateCode" asp-route-id="@Model.FarmId" asp-route-dashboard="@Model.Dashboard"
-              method="post" data-confirm="Regenerate this farm code? The old code will stop accepting new requests.">
-            <input type="hidden" name="CurrentCode" value="@overview.JoinCode" />
-            <button type="submit">Regenerate code</button>
-        </form>
-        <h3 class="sf-enrollment-subheading">Pending requests</h3>
-        @if (overview.Requests.Count == 0) { <p>No pending join requests.</p> }
-        else
-        {
-            <ul class="farm-list">
-            @foreach (var request in overview.Requests)
+        <section aria-labelledby="pending-requests-heading" class="ani-team-pending">
+            <h3 id="pending-requests-heading">Pending requests</h3>
+            @if (overview.Requests.Count == 0)
             {
-                <li>
-                    <strong>@request.FullName</strong>
-                    <span>@request.Email · Requested @request.RequestedAtUtc.ToString("MMM d, yyyy HH:mm") UTC</span>
-                    <form asp-controller="Farms" asp-action="DecideJoin" asp-route-id="@Model.FarmId"
-                          asp-route-requestId="@request.Id" asp-route-dashboard="@Model.Dashboard" method="post" class="action-links">
-                        <button name="approve" value="true" type="submit">Approve @request.FullName</button>
-                        <button class="button-danger" name="approve" value="false" type="submit">Reject @request.FullName</button>
-                    </form>
-                </li>
+                <div class="sf-empty-state"><strong>No one is waiting for approval.</strong>
+                    <p>When a farmer enters your farm code, their request will appear here.</p></div>
             }
-            </ul>
-        }
-        <h3 class="sf-enrollment-subheading">Request history</h3>
-        @if (overview.History is not { Count: > 0 }) { <p>No past join requests.</p> }
-        else
-        {
-            <ul class="farm-list">
-            @foreach (var request in overview.History)
+            else
             {
-                <li>
-                    <strong>@request.FullName</strong> — @request.Status
-                    <span>@request.Email · Requested @request.RequestedAtUtc.ToString("MMM d, yyyy HH:mm") UTC</span>
-                    @if (request.ReviewedAtUtc is { } reviewed) { <span>Updated @reviewed.ToString("MMM d, yyyy HH:mm") UTC</span> }
-                </li>
+                <ul class="farm-list ani-team-request-list">
+                @foreach (var request in overview.Requests)
+                {
+                    <li>
+                        <div><strong>@request.FullName</strong>
+                            <span>@request.Email</span>
+                            <time datetime="@request.RequestedAtUtc.ToString("yyyy-MM-ddTHH:mm:ssZ")">
+                                Requested @request.RequestedAtUtc.ToString("MMM d, yyyy HH:mm") UTC
+                            </time>
+                        </div>
+                        <div class="ani-team-decision">
+                            <form asp-controller="Farms" asp-action="DecideJoin" asp-route-id="@Model.FarmId"
+                                  asp-route-requestId="@request.Id" asp-route-dashboard="@Model.Dashboard" method="post">
+                                <button name="approve" value="true" type="submit">Approve @request.FullName</button>
+                            </form>
+                            <form asp-controller="Farms" asp-action="DecideJoin" asp-route-id="@Model.FarmId"
+                                  asp-route-requestId="@request.Id" asp-route-dashboard="@Model.Dashboard" method="post"
+                                  data-confirm="Reject the join request from @request.FullName?">
+                                <button class="button-danger" name="approve" value="false" type="submit">Reject</button>
+                            </form>
+                        </div>
+                    </li>
+                }
+                </ul>
             }
-            </ul>
-        }
+        </section>
+        <details class="ani-team-share" @(overview.Requests.Count == 0 ? "open" : "")>
+            <summary><strong>Share farm joining code</strong><span>For inviting new workers</span></summary>
+            <p class="ani-inline-help">Give the 12-character code only to people you want to invite. They enter it in My Farms and request approval.</p>
+            <div class="sf-enrollment-code">
+                <label for="farm-join-code">Farm code</label>
+                <input id="farm-join-code" readonly value="@overview.JoinCode"
+                       aria-describedby="farm-code-copy-status" />
+                <button type="button" data-copy-target="farm-join-code" data-copy-status="farm-code-copy-status">Copy code</button>
+                <p id="farm-code-copy-status" role="status" aria-atomic="true"></p>
+            </div>
+            <details class="ani-team-sensitive">
+                <summary>Replace an existing farm code</summary>
+                <p>Only replace this code if it should no longer accept new join requests. Existing members keep their access.</p>
+                <form asp-controller="Farms" asp-action="RegenerateCode" asp-route-id="@Model.FarmId"
+                      asp-route-dashboard="@Model.Dashboard" method="post"
+                      data-confirm="Regenerate this farm code? The old code will stop accepting new requests.">
+                    <input type="hidden" name="CurrentCode" value="@overview.JoinCode" />
+                    <button type="submit" class="sf-button-outline">Regenerate code</button>
+                </form>
+            </details>
+        </details>
+        <details class="ani-team-history">
+            <summary>Request history (@(overview.History?.Count ?? 0))</summary>
+            @if (overview.History is not { Count: > 0 })
+            {
+                <p class="sf-muted">No reviewed join requests yet.</p>
+            }
+            else
+            {
+                <ul class="farm-list">
+                @foreach (var request in overview.History)
+                {
+                    <li><strong>@request.FullName</strong>
+                        <span>@request.Status · @request.Email</span>
+                        <time datetime="@request.RequestedAtUtc.ToString("yyyy-MM-ddTHH:mm:ssZ")">
+                            Requested @request.RequestedAtUtc.ToString("MMM d, yyyy HH:mm") UTC
+                        </time>
+                        @if (request.ReviewedAtUtc is { } reviewed)
+                        {
+                            <time datetime="@reviewed.ToString("yyyy-MM-ddTHH:mm:ssZ")">
+                                Updated @reviewed.ToString("MMM d, yyyy HH:mm") UTC
+                            </time>
+                        }
+                    </li>
+                }
+                </ul>
+            }
+        </details>
     }
 </section>
