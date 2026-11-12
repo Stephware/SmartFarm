@@ -2,6 +2,7 @@ package com.smartfarm.mobile.features.farms
 
 import android.content.ClipData
 import android.content.ClipboardManager
+import android.content.Intent
 import androidx.compose.ui.platform.LocalContext
 import com.smartfarm.mobile.data.remote.dto.FarmJoinRequestDto
 
@@ -385,26 +386,33 @@ fun FarmDetailScreen(state: FarmUiState, onBack: () -> Unit,
             }
             }
             if (visibleSection == "Members") {
-            FarmSectionHeader("Members", "Review who can access and manage this farm.")
-            if (state.members.isEmpty()) {
-                FarmEmptyState("No additional members", "An owner can share the farm code and approve join requests.")
-            }
-            state.members.forEach { member ->
-                FarmSectionCard(member.fullName, subtitle = member.role) {
-                if (isOwner) {
-                    ConfirmActionButton(if (member.role == "Manager") "Set Field Worker" else "Set Manager",
-                        "Change the role for ${member.fullName}? Their available farm actions will change.",
-                        enabled = !state.loading,
-                        onConfirm = { onChangeRole(member, if (member.role == "Manager") 2 else 1) })
-                    ConfirmActionButton("Remove member", "Remove ${member.fullName} from ${farm.name}? They will lose access.",
-                        enabled = !state.loading, onConfirm = { onRemoveMember(member) })
+                FarmSectionHeader("Team & access", "Manage who can work on this farm.")
+                if (farm.role == "Owner") {
+                    EnrollmentPanel(state, onDecision, onRetry, onRegenerateCode)
                 }
+                FarmSectionHeader("Farm members", "People who already have access.")
+                if (state.members.isEmpty()) {
+                    FarmEmptyState("No additional members",
+                        if (farm.role == "Owner")
+                            "Share the code above to invite workers. Requests require your approval."
+                        else "There are no additional team members yet.")
                 }
-            }
-            if (farm.role == "Owner") EnrollmentPanel(state, onDecision, onRetry, onRegenerateCode)
-
-            }
-        }
+                state.members.forEach { member ->
+                    FarmSectionCard(member.fullName,
+                        subtitle = if (member.role == "FieldWorker") "Field Worker" else member.role) {
+                        if (isOwner && member.role != "Owner") {
+                            ConfirmActionButton(
+                                if (member.role == "Manager") "Set Field Worker" else "Set Manager",
+                                "Change ${member.fullName}'s role? Their available farm actions will change.",
+                                enabled = !state.loading,
+                                onConfirm = { onChangeRole(member, if (member.role == "Manager") 2 else 1) })
+                            ConfirmActionButton("Remove member",
+                                "Remove ${member.fullName} from ${farm.name}? They will lose farm access.",
+                                enabled = !state.loading, onConfirm = { onRemoveMember(member) })
+                        }
+                    }
+                }
+            }        }
     }
 }
 
@@ -414,52 +422,101 @@ fun FarmDetailScreen(state: FarmUiState, onBack: () -> Unit,
 @Composable
 private fun EnrollmentPanel(state: FarmUiState, onDecision: (String, Boolean) -> Unit,
     onRetry: () -> Unit, onRegenerateCode: (String) -> Unit) {
-    Text("Farm access requests", style = MaterialTheme.typography.titleLarge,
-        modifier = Modifier.semantics { heading() })
+    FarmSectionHeader("Farm access requests",
+        "Invite field workers and approve requests before they can enter.")
     if (state.offline) {
         Text("Join requests and farm code are unavailable offline.")
         return
     }
-    state.enrollmentMessage?.let { Text(it, modifier = Modifier.semantics { liveRegion = LiveRegionMode.Polite }) }
-    OutlinedButton(onClick = onRetry, enabled = !state.loading) { Text("Refresh join requests") }
+    state.enrollmentMessage?.let {
+        Text(it, modifier = Modifier.semantics { liveRegion = LiveRegionMode.Polite })
+    }
     val overview = state.enrollment
     if (overview == null) {
-        if (state.enrollmentMessage == null) Text("Join requests and farm code are unavailable. Refresh to try again.")
+        if (state.enrollmentMessage == null)
+            Text("Join requests and farm code are unavailable. Refresh to try again.")
+        OutlinedButton(onClick = onRetry, enabled = !state.loading) {
+            Text("Refresh join requests")
+        }
         return
     }
-    Text("Share this farm code. Farmers receive Field Worker access only after you approve.")
-    SelectionContainer { Text(overview.joinCode) }
     val context = LocalContext.current
     var copied by rememberSaveable(overview.joinCode) { mutableStateOf(false) }
-    OutlinedButton(onClick = {
-        context.getSystemService(ClipboardManager::class.java)
-            .setPrimaryClip(ClipData.newPlainText("Farm code", overview.joinCode))
-        copied = true
-    }, enabled = !state.loading) { Text("Copy farm code") }
-    if (copied) Text("Farm code copied.", modifier = Modifier.semantics { liveRegion = LiveRegionMode.Polite })
-    ConfirmActionButton("Regenerate farm code",
-        "Replace the farm code? The old code will stop accepting new requests. Existing requests and memberships stay unchanged.",
-        enabled = !state.loading, onConfirm = { onRegenerateCode(overview.joinCode) })
-    val pending = overview.requests.filter { it.status == "Pending" && it.farmId == state.selected?.id }
+    FarmSectionCard("Invite field workers",
+        subtitle = "Share this code. Joining still requires your approval.") {
+        SelectionContainer {
+            Text(overview.joinCode, style = MaterialTheme.typography.headlineSmall)
+        }
+        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+            OutlinedButton(onClick = {
+                context.getSystemService(ClipboardManager::class.java)
+                    .setPrimaryClip(ClipData.newPlainText("Farm code", overview.joinCode))
+                copied = true
+            }, modifier = Modifier.weight(1f), enabled = !state.loading) {
+                Text("Copy farm code")
+            }
+            Button(onClick = {
+                val intent = Intent(Intent.ACTION_SEND).apply {
+                    type = "text/plain"
+                    putExtra(Intent.EXTRA_TEXT, "Join ${state.selected?.name ?: "my farm"} in AniGo. " +
+                        "Enter this farm code: ${overview.joinCode}. " +
+                        "The owner must approve your request.")
+                }
+                context.startActivity(Intent.createChooser(intent, "Share AniGo farm code"))
+            }, modifier = Modifier.weight(1f), enabled = !state.loading) {
+                Text("Share code")
+            }
+        }
+        if (copied) Text("Farm code copied.",
+            modifier = Modifier.semantics { liveRegion = LiveRegionMode.Polite })
+        HorizontalDivider()
+        Text("If the code was shared with the wrong person, replace it. " +
+            "Existing members and requests keep their access and status.",
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant)
+        ConfirmActionButton("Regenerate farm code",
+            "Replace the farm code? The old code will stop accepting new requests. " +
+                "Existing requests and memberships stay unchanged.",
+            enabled = !state.loading, onConfirm = { onRegenerateCode(overview.joinCode) })
+    }
+    val pending = overview.requests.filter {
+        it.status == "Pending" && it.farmId == state.selected?.id
+    }
+    FarmSectionHeader("Pending approvals (${pending.size})",
+        "Each approved request grants Field Worker access.")
+    OutlinedButton(onClick = onRetry, enabled = !state.loading) {
+        Text("Refresh join requests")
+    }
     if (pending.isEmpty()) Text("No pending join requests.")
     pending.forEach { request ->
-        Text(request.fullName, style = MaterialTheme.typography.titleMedium)
-        Text(request.email)
-        Text("Requested ${request.requestedAtUtc} (UTC)")
-        ConfirmActionButton("Approve ${request.fullName}", "Give ${request.fullName} Field Worker access?",
-            enabled = !state.loading, onConfirm = { onDecision(request.id, true) })
-        ConfirmActionButton("Reject ${request.fullName}", "Reject ${request.fullName}'s request?",
-            enabled = !state.loading, onConfirm = { onDecision(request.id, false) })
-    }
-    val history = overview.history.filter { it.farmId == state.selected?.id && it.status != "Pending" }
-    if (history.isNotEmpty()) {
-        Text("Request history", style = MaterialTheme.typography.titleMedium)
-        history.forEach { request ->
-            Text("${request.fullName}: ${request.status}")
-            Text(request.email)
-            Text("Requested ${request.requestedAtUtc} (UTC)")
-            request.reviewedAtUtc?.let { Text("Updated $it (UTC)") }
+        FarmSectionCard(request.fullName, subtitle = request.email) {
+            Text("Requested ${request.requestedAtUtc} (UTC)",
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant)
+            ConfirmActionButton("Approve ${request.fullName}",
+                "Give ${request.fullName} Field Worker access?",
+                enabled = !state.loading, onConfirm = { onDecision(request.id, true) })
+            ConfirmActionButton("Reject ${request.fullName}",
+                "Reject ${request.fullName}'s request?",
+                enabled = !state.loading, onConfirm = { onDecision(request.id, false) })
         }
     }
-
+    val history = overview.history.filter {
+        it.farmId == state.selected?.id && it.status != "Pending"
+    }
+    if (history.isNotEmpty()) {
+        FarmSectionHeader("Request history",
+            "Previously approved, rejected or canceled requests.")
+        history.forEach { request ->
+            Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                Text("${request.fullName}: ${request.status}")
+                Text(request.email, style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant)
+                Text("Requested ${request.requestedAtUtc} (UTC)",
+                    style = MaterialTheme.typography.bodySmall)
+                request.reviewedAtUtc?.let { Text("Updated $it (UTC)",
+                    style = MaterialTheme.typography.bodySmall) }
+            }
+        }
+    }
 }
