@@ -347,7 +347,8 @@ fun SmartFarmNavHost(auth: AuthViewModel, farms: FarmViewModel, crops: CropViewM
                 onHarvests = { cycle -> navController.navigate("harvests/$farmId/${cycle.id}") },
                 onTransition = { cycle, status, planted, reason ->
                     crops.transition(cycle, status, planted, reason)
-                }, onRetry = { crops.load(farmId) })
+                }, onRetry = { crops.load(farmId) },
+                onPlots = { navController.navigate("farm/$farmId/plots") })
         }
         composable("monitor/{farmId}/{cycleId}?quick={quick}",
             arguments = listOf(navArgument("quick") {

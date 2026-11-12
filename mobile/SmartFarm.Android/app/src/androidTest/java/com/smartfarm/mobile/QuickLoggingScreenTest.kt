@@ -27,7 +27,7 @@ class QuickLoggingScreenTest {
         compose.onNodeWithText("Save activity").performScrollTo().performClick()
         compose.runOnIdle { assertEquals(1 to "", saved) }
         compose.onNodeWithText("Inspection").performScrollTo().performClick()
-        compose.onNodeWithText("Save observation").assertExists()
+        compose.onNodeWithText("Save inspection").assertExists()
     }
 
     @Test fun inspectionShortcutShowsOnlyInspectionFirst() {
@@ -40,6 +40,6 @@ class QuickLoggingScreenTest {
         } }
         compose.onNodeWithText("Inspection").assertIsSelected()
         compose.onNodeWithText("Record farm activity").assertDoesNotExist()
-        compose.onNodeWithText("Save observation").assertExists()
+        compose.onNodeWithText("Save inspection").assertExists()
     }
 }

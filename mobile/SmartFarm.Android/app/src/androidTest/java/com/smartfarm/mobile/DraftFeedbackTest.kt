@@ -77,7 +77,7 @@ class DraftFeedbackTest {
         }
         compose.onNodeWithText("Inspection").performScrollTo().performClick()
         compose.onNodeWithText("Choose photo").performScrollTo().performClick()
-        compose.onNodeWithText("Save observation").performScrollTo().performClick()
+        compose.onNodeWithText("Save inspection").performScrollTo().performClick()
         restoration.emulateSavedInstanceStateRestore()
         compose.onNodeWithText("Photo selected for offline upload").performScrollTo().assertIsDisplayed()
         compose.runOnIdle { saved!!() }
