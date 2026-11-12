@@ -99,11 +99,12 @@
     </nav>
     @if (Model.Tasks.Count == 0)
     {
-        <div class="sf-empty-state">
-            <strong>No tasks yet.</strong>
-            <p>@(canManage ? "Add a task to schedule work, or plan a crop for upcoming farm reminders." : "Your farm owner or manager can assign tasks here. You can also open crops to record field observations.")</p>
-            @if (canManage) { <a href="#add-task">Add a task →</a> }
-        </div>
+        <partial name="_UiEmptyState" model='@(new UiEmptyState(
+            "No tasks yet.",
+            canManage ? "Add a task to schedule work, or plan a crop for upcoming farm reminders."
+                : "Your farm owner or manager can assign tasks here. You can also open crops to record field observations.",
+            canManage ? "Add a task →" : null,
+            canManage ? "#add-task" : null))' />
     }
     else if (Model.FarmToday is null && Model.SelectedView is "today" or "upcoming")
     {
@@ -137,7 +138,9 @@
                             <h3>@task.TaskTypeName</h3>
                             @if (task.Status == 0 && Model.FarmToday is { } today && task.DueDate < today)
                             { <span class="sf-status-chip sf-status-chip--warning">Overdue</span> }
-                            <span class="sf-status-chip @(task.Status == 0 ? "sf-status-chip--active" : "sf-status-chip--neutral")">@task.StatusName</span>
+                            <partial name="_UiStatusChip" model='@(new UiStatusChip(
+                                task.StatusName,
+                                task.Status == 0 ? "sf-status-chip--active" : "sf-status-chip--neutral"))' />
                         </div>
                         <div class="sf-task-meta">
                             <span><strong>Due:</strong> <time datetime="@task.DueDate.ToString("yyyy-MM-dd")">@task.DueDate.ToString("MMM d, yyyy")</time></span>

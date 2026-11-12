@@ -39,11 +39,12 @@
     </nav>
     @if (shown.Count == 0)
     {
-        <div class="sf-empty-state">
-            <strong>@(unreadOnly ? "You're caught up." : "No notifications yet.")</strong>
-            <p>@(unreadOnly ? "No unread reminders or advisories. You can still review older messages." : "Task reminders and weather notices will appear here when saved by the farm's existing processes.")</p>
-            @if (unreadOnly) { <a asp-action="Index">View all notifications →</a> }
-        </div>
+        <partial name="_UiEmptyState" model='@(new UiEmptyState(
+            unreadOnly ? "You're caught up." : "No notifications yet.",
+            unreadOnly ? "No unread reminders or advisories. You can still review older messages."
+                : "Task reminders and weather notices will appear here when saved by the farm's existing processes.",
+            unreadOnly ? "View all notifications →" : null,
+            unreadOnly ? Url.Action("Index", "Notifications") : null))' />
     }
     else
     {
@@ -57,7 +58,7 @@
                         <strong>@notification.Title</strong>
                         @if (notification.ReadAtUtc is null)
                         {
-                            <span class="sf-status-chip sf-status-chip--planned">Unread</span>
+                            <partial name="_UiStatusChip" model='@(new UiStatusChip("Unread", "sf-status-chip--planned"))' />
                         }
                     </div>
                     <p>@notification.Message</p>

@@ -102,7 +102,7 @@
                     <li>
                         <div class="request-title-row">
                             <strong>@request.FarmName</strong>
-                            <span class="sf-status-chip @statusClass">@request.Status</span>
+                            <partial name="_UiStatusChip" model='@(new UiStatusChip(request.Status, statusClass))' />
                         </div>
                         <p class="sf-muted request-date">Requested @request.RequestedAtUtc.ToString("MMM d, yyyy HH:mm") UTC</p>
                         @if (request.ReviewedAtUtc is { } reviewed)

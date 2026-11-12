@@ -1,0 +1,2 @@
+/*! tailwindcss v4.3.0 | MIT License | https://tailwindcss.com */
+@layer theme{:root,:host{--tw-spacing:.25rem}}@layer base,components;@layer utilities{.tw\:min-w-0{min-width:calc(var(--tw-spacing) * 0)}.tw\:rounded-ani-card{border-radius:var(--ui-card-radius)}.tw\:whitespace-nowrap{white-space:nowrap}.tw\:text-ani-text{color:var(--ink)}}

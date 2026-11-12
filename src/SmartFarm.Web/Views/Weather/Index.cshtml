@@ -124,10 +124,9 @@
     </div>
     @if (activeAdvisories.Count == 0)
     {
-        <div class="sf-empty-state">
-            <strong>No active saved advisories.</strong>
-            <p>This is not an all-clear for outdoor work. Check official local weather warnings before working during heavy rain, wind, or severe conditions.</p>
-        </div>
+        <partial name="_UiEmptyState" model='@(new UiEmptyState(
+            "No active saved advisories.",
+            "This is not an all-clear for outdoor work. Check official local weather warnings before working during heavy rain, wind, or severe conditions."))' />
     }
     else
     {

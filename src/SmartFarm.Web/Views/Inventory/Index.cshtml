@@ -94,11 +94,11 @@
     }
     else if (visibleItems.Count == 0)
     {
-        <div class="sf-empty-state">
-            <strong>No matching supplies.</strong>
-            <p>Try a different search or remove the selected filter.</p>
-            <a asp-action="Index" asp-route-farmId="@Model.Farm.Id">Show all supplies →</a>
-        </div>
+        <partial name="_UiEmptyState" model='@(new UiEmptyState(
+            "No matching supplies.",
+            "Try a different search or remove the selected filter.",
+            "Show all supplies →",
+            Url.Action("Index", "Inventory", new { farmId = Model.Farm.Id })))' />
     }
     else
     {
@@ -116,7 +116,9 @@
                 </td>
                 <td>@item.CategoryName</td>
                 <td class="reference-quantity"><strong>@item.QuantityOnHand.ToString("N3")</strong> @item.Unit</td>
-                <td><span class="sf-status-chip @(item.IsLowStock ? "sf-status-chip--warning" : "sf-status-chip--active")">@(item.IsLowStock ? "Low stock" : "In stock")</span></td>
+                <td><partial name="_UiStatusChip" model='@(new UiStatusChip(
+                    item.IsLowStock ? "Low stock" : "In stock",
+                    item.IsLowStock ? "sf-status-chip--warning" : "sf-status-chip--active"))' /></td>
                 <td><a class="sf-button-outline btn small" asp-action="Details" asp-route-farmId="@Model.Farm.Id" asp-route-itemId="@item.Id">Record movement →</a></td>
             </tr>
         }
