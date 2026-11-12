@@ -40,7 +40,7 @@
                             <form asp-controller="Farms" asp-action="DecideJoin" asp-route-id="@Model.FarmId"
                                   asp-route-requestId="@request.Id" asp-route-dashboard="@Model.Dashboard" method="post"
                                   data-confirm="Reject the join request from @request.FullName?">
-                                <button class="button-danger" name="approve" value="false" type="submit">Reject</button>
+                                <button class="button-danger" name="approve" value="false" type="submit">Reject @request.FullName</button>
                             </form>
                         </div>
                     </li>

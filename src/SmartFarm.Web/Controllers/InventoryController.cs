@@ -68,7 +68,7 @@ public sealed class InventoryController : Controller
         try
         {
             await _inventory.CreateAsync(farmId, Actor, input, ct);
-            TempData["Message"] = "Supply added to the farm inventory.";
+            if (TempData is not null) TempData["Message"] = "Supply added to the farm inventory.";
         }
         catch (FarmOperationException e)
         {
@@ -105,7 +105,7 @@ public sealed class InventoryController : Controller
         try
         {
             await _inventory.UpdateAsync(farmId, itemId, Actor, input, ct);
-            TempData["Message"] = "Supply details updated.";
+            if (TempData is not null) TempData["Message"] = "Supply details updated.";
         }
         catch (FarmOperationException e)
         {
@@ -143,7 +143,7 @@ public sealed class InventoryController : Controller
         try
         {
             await _inventory.PostAsync(farmId, itemId, Actor, input, ct);
-            TempData["Message"] = "Stock movement saved. The balance is updated.";
+            if (TempData is not null) TempData["Message"] = "Stock movement saved. The balance is updated.";
         }
         catch (FarmOperationException e)
         {
@@ -165,7 +165,7 @@ public sealed class InventoryController : Controller
         try
         {
             await _inventory.ReverseAsync(farmId, itemId, transactionId, Actor, input, ct);
-            TempData["Message"] = "Stock transaction reversed. The original entry remains in history.";
+            if (TempData is not null) TempData["Message"] = "Stock transaction reversed. The original entry remains in history.";
         }
         catch (FarmOperationException e)
         {
