@@ -51,12 +51,27 @@
     <div class="app-body content-shell">
         <header class="site-header app-topbar topbar">
             <div class="crumb"><span>AniGo</span><span aria-hidden="true">/</span><strong>@(ViewData["Title"] ?? "Administration")</strong></div>
+            <a class="mobile-brand" asp-area="Admin" asp-controller="Dashboard" asp-action="Index">AniGo Admin</a>
             <nav class="top-actions app-topbar-actions" aria-label="Administration settings">
                 <button class="icon-button color-mode-toggle" type="button" data-color-mode-toggle
                         aria-label="Use dark appearance" aria-pressed="false">
                     <partial name="~/Views/Shared/_Icon.cshtml" model='@("sun")' />
                 </button>
                 <a class="farm-picker" asp-area="" asp-controller="Farms" asp-action="Index">Back to farms</a>
+                <details class="mobile-nav admin-mobile-nav">
+                    <summary aria-label="Open admin navigation">
+                        <partial name="~/Views/Shared/_Icon.cshtml" model='@("more")' /><span>Menu</span>
+                    </summary>
+                    <nav aria-label="Mobile platform administration">
+                        <a asp-area="Admin" asp-controller="Dashboard" asp-action="Index">Admin overview</a>
+                        <a asp-area="Admin" asp-controller="Security" asp-action="Setup">Authenticator security</a>
+                        <a asp-area="" asp-controller="Farms" asp-action="Index">Farm workspace</a>
+                        <button type="button" data-color-mode-toggle aria-label="Toggle appearance">Change appearance</button>
+                        <form asp-area="" asp-controller="Account" asp-action="Logout" method="post">
+                            <button type="submit" class="link-button">Log out</button>
+                        </form>
+                    </nav>
+                </details>
             </nav>
         </header>
         <main class="page app-page app-main" id="main-content" tabindex="-1">
