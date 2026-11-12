@@ -119,26 +119,18 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
-      - name: Resolve locked stylesheet dependencies
-        run: npm install --package-lock-only --ignore-scripts --no-audit --no-fund
       - name: Compile prefixed Tailwind CSS (no Preflight)
         run: |
           npm ci --no-audit --no-fund
           npm run css:build
           test -s src/SmartFarm.Web/wwwroot/css/anigo-tailwind.css
-      - name: Export generated CSS and lock for baseline commit
+      - name: Verify committed stylesheet matches generated output
         run: |
-          node - <<'NODE'
-          const fs = require('node:fs');
-          for (const [label, file] of [
-            ['LOCK', 'package-lock.json'],
-            ['CSS', 'src/SmartFarm.Web/wwwroot/css/anigo-tailwind.css']
-          ]) {
-            const data = fs.readFileSync(file).toString('base64');
-            for (let i = 0; i < data.length; i += 3000)
-              console.log('ANIGO_' + label + '_B64:' + data.slice(i, i + 3000));
-          }
-          NODE
+          git diff --exit-code -- package-lock.json src/SmartFarm.Web/wwwroot/css/anigo-tailwind.css
+          grep -Fq '.tw\\:min-w-0' src/SmartFarm.Web/wwwroot/css/anigo-tailwind.css
+          if grep -Eq '^[[:space:]]*@import[[:space:]].*preflight' src/SmartFarm.Web/Styles/anigo-tailwind.css; then
+            echo 'Tailwind reset must remain disabled'; exit 1
+          fi
       - name: Save compiled design system
         uses: actions/upload-artifact@v4
         with:
