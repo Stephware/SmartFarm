@@ -6,6 +6,7 @@
     var canManage = Model.Farm.Role is "Owner" or "Manager";
     var active = item.ArchivedAtUtc is null;
     var canConsume = active;
+    var hasActivityOptions = Model.ActivityOptions.Count > 0;
     var reversedIds = Model.Transactions.Where(x => x.ReversesTransactionId is not null)
         .Select(x => x.ReversesTransactionId!.Value).ToHashSet();
 }
@@ -16,8 +17,9 @@
         <div>
             <p><a asp-action="Index" asp-route-farmId="@Model.Farm.Id">← Inventory</a></p>
 
+            <p class="ani-overline">Farm-wide inventory</p>
             <h1 id="stock-heading">@item.Name</h1>
-            <p class="sf-muted">@item.CategoryName · @item.Unit</p>
+            <p class="sf-muted">@item.CategoryName · measured in @item.Unit</p>
             @if (item.ReorderLevel.HasValue)
             {
                 <p class="ani-stock-threshold">Low-stock alert at @item.ReorderLevel.Value.ToString("N3") @item.Unit</p>
@@ -25,14 +27,17 @@
         </div>
         <div class="sf-stock-hero-balance">
             <span>Available stock</span>
-            <strong>@item.QuantityOnHand <small>@item.Unit</small></strong>
+            <strong>@item.QuantityOnHand.ToString("N3") <small>@item.Unit</small></strong>
             @if (item.IsLowStock) { <span class="sf-status-chip sf-status-chip--warning">Low-stock threshold reached</span> }
             else if (active) { <span class="sf-status-chip sf-status-chip--active">In stock</span> }
         </div>
     </div>
     @if (!active) { <p class="sf-ops-hint">Archived item — transaction history remains available.</p> }
     @if (item.Description is not null) { <p class="sf-muted">@item.Description</p> }
-    @if (TempData["Error"] is string error) { <p class="error form-error" role="alert">@error</p> }
+    @if (TempData["Message"] is string message) { <p class="form-notice" role="status">@message</p> }
+    @if (TempData["Error"] is string error) { <p class="error form-error" role="alert">@error
+        @if (active) { <a href="#stock-movement">Check stock movement →</a> }
+    </p> }
     @if (canManage && active)
     {
         <a asp-action="Edit" asp-route-farmId="@Model.Farm.Id" asp-route-itemId="@item.Id">Edit item</a>
@@ -47,39 +52,56 @@
 </section>
 @if (active)
 {
-    <section class="panel card sf-stock-movement" aria-labelledby="stock-movement-heading">
+    <section class="panel card sf-stock-movement ani-inventory-movement" id="stock-movement" aria-labelledby="stock-movement-heading">
 
-        <header class="reference-panel-heading"><h2 id="stock-movement-heading">Stock movement</h2></header>
-        <p>Use <strong>Receipt</strong> when supplies arrive, <strong>Consumption</strong> when they were used for recorded crop work, and <strong>Adjustment</strong> to correct a stock count. Every change is saved in the transaction history.</p>
+        <header class="reference-panel-heading"><h2 id="stock-movement-heading">Record stock movement</h2></header>
+        <p class="sf-muted">Choose the kind of change. Each saved movement updates the farm balance and keeps a history entry.</p>
         <div class="ani-stock-movement-guide" role="note">
-            <span>+ Receipt</span><span>− Consumption</span><span>± Adjustment</span>
+            <span>+ Supplies arrived</span><span>− Supplies used</span><span>± Count correction</span>
         </div>
-        <form class="sf-ops-form" asp-action="Post" asp-route-farmId="@Model.Farm.Id" asp-route-itemId="@item.Id" method="post">
+        <form class="sf-ops-form ani-movement-form" data-inventory-movement-form
+              asp-action="Post" asp-route-farmId="@Model.Farm.Id" asp-route-itemId="@item.Id" method="post">
             <input type="hidden" name="RowVersion" value="@item.RowVersion" />
-            <label for="kind">Movement type</label>
-            <select id="kind" name="TransactionType" aria-describedby="movement-hint">
+            <label for="kind">What happened?</label>
+            <select id="kind" name="TransactionType" aria-describedby="movement-hint" data-movement-kind>
                 @if (canManage)
                 {
-                    <option value="2">Receipt (+)</option>
-                    <option value="4">Adjustment (+/-)</option>
+                    <option value="2">Supplies arrived (add stock)</option>
+                    <option value="4">Correct a stock count (+ or −)</option>
                 }
-                <option value="3">Consumption (-)</option>
+                <option value="3">Supplies used for recorded crop work (subtract)</option>
             </select>
+            <p id="movement-hint" class="hint" data-movement-hint>For supplies used, enter a positive amount. The system subtracts it after a valid linked crop activity.</p>
             <label for="quantity">Quantity (@item.Unit)</label>
-            <p id="movement-hint" class="hint">Use a positive amount for receipts or consumption. Adjustments allow a plus or minus sign. Maximum 3 decimal places.</p>
-            <input id="quantity" name="QuantityChange" type="number" step="0.001" required />
-            <label for="cropActivity">Crop activity for consumption</label>
-            <select id="cropActivity" name="CropActivityId">
-                <option value="">Not applicable</option>
+            <input id="quantity" name="QuantityChange" type="number" step="0.001"
+                   inputmode="decimal" required aria-describedby="movement-hint" data-movement-quantity />
+            <div class="ani-inventory-activity-field" data-activity-field>
+                <label for="cropActivity">Recorded crop activity (required when supplies were used)</label>
+            <select id="cropActivity" name="CropActivityId" data-movement-activity>
+                <option value="">Select a saved activity</option>
                 @foreach (var activity in Model.ActivityOptions)
                 {
                     <option value="@activity.Id">@activity.Label</option>
                 }
             </select>
+                @if (!hasActivityOptions)
+                {
+                    <p class="ani-inventory-guidance" data-no-activity>
+                        No recorded crop activity is available. To log supply use, first record the corresponding fieldwork.
+                        <a asp-controller="Crops" asp-action="Index" asp-route-farmId="@Model.Farm.Id">Open crop management →</a>
+                    </p>
+                }
+                else
+                {
+                    <p class="hint">Choose the completed watering, fertilizing, or other recorded crop activity that used this supply.</p>
+                }
+            </div>
+            <div class="ani-inventory-reason-field" data-reason-field>
             <label for="reason">Reason (required for adjustments)</label>
-            <input id="reason" name="Reason" maxlength="300" />
-            <button type="submit">Save stock movement</button>
-            <p class="ani-stock-guidance">The updated stock balance is shown after the server confirms this entry.</p>
+            <input id="reason" name="Reason" maxlength="300" data-movement-reason />
+            </div>
+            <button type="submit" data-movement-submit>Save stock movement</button>
+            <p class="ani-stock-guidance">Stock updates only after the server saves the movement. Adjustments can add or subtract; stock cannot become negative.</p>
         </form>
     </section>
 }
@@ -88,7 +110,9 @@
         <h2 id="transaction-heading">Transaction history</h2>
         <span>@Model.Transactions.Count entry/entries</span>
     </div>
-    @if (Model.Transactions.Count == 0) { <p>No stock movements recorded.</p> }
+    @if (Model.Transactions.Count == 0)
+    { <div class="sf-empty-state"><strong>No stock changes recorded yet.</strong>
+        <p>Receipts, crop usage, adjustments and reversals appear here after saving.</p></div> }
     <ul class="farm-list sf-stock-transactions">
         @foreach (var transaction in Model.Transactions)
         {

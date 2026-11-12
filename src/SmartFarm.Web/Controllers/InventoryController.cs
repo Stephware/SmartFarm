@@ -65,7 +65,11 @@ public sealed class InventoryController : Controller
             TempData["Error"] = "Enter a valid inventory item, unit and opening stock.";
             return RedirectToAction(nameof(Index), new { farmId });
         }
-        try { await _inventory.CreateAsync(farmId, Actor, input, ct); }
+        try
+        {
+            await _inventory.CreateAsync(farmId, Actor, input, ct);
+            TempData["Message"] = "Supply added to the farm inventory.";
+        }
         catch (FarmOperationException e)
         {
             if (e.Error == FarmError.NotFound) return NotFound();
@@ -98,7 +102,11 @@ public sealed class InventoryController : Controller
             TempData["Error"] = "Check item name, category, unit and reorder level.";
             return RedirectToAction(nameof(Details), new { farmId, itemId });
         }
-        try { await _inventory.UpdateAsync(farmId, itemId, Actor, input, ct); }
+        try
+        {
+            await _inventory.UpdateAsync(farmId, itemId, Actor, input, ct);
+            TempData["Message"] = "Supply details updated.";
+        }
         catch (FarmOperationException e)
         {
             if (e.Error == FarmError.NotFound) return NotFound();
@@ -132,7 +140,11 @@ public sealed class InventoryController : Controller
         }
         if (input.TransactionType == StockTransactionType.Consumption && input.QuantityChange > 0)
             input.QuantityChange = -input.QuantityChange;
-        try { await _inventory.PostAsync(farmId, itemId, Actor, input, ct); }
+        try
+        {
+            await _inventory.PostAsync(farmId, itemId, Actor, input, ct);
+            TempData["Message"] = "Stock movement saved. The balance is updated.";
+        }
         catch (FarmOperationException e)
         {
             if (e.Error == FarmError.NotFound) return NotFound();
@@ -150,7 +162,11 @@ public sealed class InventoryController : Controller
             TempData["Error"] = "Provide a reversal reason and current item version.";
             return RedirectToAction(nameof(Details), new { farmId, itemId });
         }
-        try { await _inventory.ReverseAsync(farmId, itemId, transactionId, Actor, input, ct); }
+        try
+        {
+            await _inventory.ReverseAsync(farmId, itemId, transactionId, Actor, input, ct);
+            TempData["Message"] = "Stock transaction reversed. The original entry remains in history.";
+        }
         catch (FarmOperationException e)
         {
             if (e.Error == FarmError.NotFound) return NotFound();
