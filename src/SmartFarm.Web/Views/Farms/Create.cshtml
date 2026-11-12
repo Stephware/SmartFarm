@@ -36,7 +36,7 @@
             <details class="ani-farm-advanced" id="farm-advanced-settings">
                 <summary><strong>Choose an exact location on the map</strong><span>Optional</span></summary>
                 <p class="ani-inline-help">A map pin helps with local weather. You can add one later by editing your farm.</p>
-            <div class="farm-location-picker" data-farm-location-picker data-search-url="@Url.Action("Search", "FarmLocations")">
+            <div class="farm-location-picker" data-farm-location-picker data-search-url="@Url.Action("Search", "FarmLocations")" data-picker-script-url="@Url.Content("~/js/farm-location-picker.js")">
                 <h3 class="farm-map-heading">Pin your farm's location <span class="sf-muted">(optional)</span></h3>
                 <p class="hint">Find your barangay or nearby place, then position the pin on your actual farm. No coordinates to type.</p>
                 <div class="farm-location-search">
@@ -83,8 +83,6 @@
 </div>
 
 <partial name="_TimeZones" />
-<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
-<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin="" defer></script>
-<script src="~/js/farm-location-picker.js" defer></script>
+<script src="~/js/farm-location-loader.js" asp-append-version="true" defer></script>
 
 </div>

@@ -434,8 +434,8 @@ summary{cursor:pointer;min-height:42px;align-content:center;color:var(--pine);fo
 [data-color-mode="dark"] .data-table th,[data-color-mode="dark"] .data-table tr:hover td{background:var(--soft)}[data-color-mode="dark"] .crop-card,[data-color-mode="dark"] .quick-grid a,[data-color-mode="dark"] .list-card{background:var(--card)}
 [data-color-mode="dark"] .app-sidebar .sidebar-links a[aria-current="page"]{background:#e5f0dc;color:#214d36}[data-color-mode="dark"] .logo,[data-color-mode="dark"] .sidebar-brand,[data-color-mode="dark"] .auth-intro h2,[data-color-mode="dark"] .auth-intro p{color:#fff}
 [data-color-mode="dark"] .reference-dashboard-metrics .metric strong{color:var(--ink)}
-@media(min-width:771px){.mobile-workspace-bar,.mobile-nav{display:none!important}}
-@media(max-width:1000px) and (min-width:771px){.app-shell{grid-template-columns:190px minmax(0,1fr)}.app-sidebar{padding-inline:10px}.app-main.app-page{padding-inline:23px}.app-topbar{padding-inline:23px}.reference-dashboard-grid{grid-template-columns:1fr 1fr}.reference-dashboard-metrics{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(min-width:1001px){.mobile-workspace-bar,.mobile-nav{display:none!important}}
+@media(max-width:1000px) and (min-width:771px){.app-shell{grid-template-columns:minmax(0,1fr)}.app-sidebar{display:none}.app-main.app-page{padding-inline:23px}.app-topbar{padding-inline:23px}.reference-dashboard-grid{grid-template-columns:1fr 1fr}.reference-dashboard-metrics{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-width:770px){
     .app-shell{display:block;min-height:100vh}.app-sidebar{display:none}.app-topbar{height:60px;min-height:60px;padding:0 16px;gap:10px}.crumb,.app-topbar .top-avatar{display:none}.mobile-brand{display:flex;gap:8px;align-items:center;font-size:18px;font-weight:800;text-decoration:none;color:var(--pine-deep)}.mobile-brand>.ico{width:22px;height:22px}.app-topbar-actions{margin-left:auto;gap:8px}.farm-picker{max-width:160px!important;font-size:11px!important;padding:8px!important}.farm-picker .ico{width:12px;height:12px}.app-topbar .color-mode-toggle{display:none}.app-topbar .icon-button{width:36px;min-height:36px}
     .mobile-nav{display:block;position:relative;flex-shrink:0}.mobile-nav summary{display:grid;place-items:center;width:36px;height:36px;border:1px solid var(--stroke);border-radius:9px;background:var(--card);padding:6px;color:var(--ink)}.mobile-nav summary>span{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0)}.mobile-nav>nav{position:absolute;right:0;top:45px;width:min(310px,calc(100vw - 32px));background:var(--card);border:1px solid var(--stroke);border-radius:12px;padding:12px;box-shadow:0 8px 30px #153d2d22;display:grid;gap:5px;max-height:75dvh;overflow:auto}.mobile-nav>nav a{display:flex;gap:10px;align-items:center;color:var(--ink);padding:10px 12px;text-decoration:none;font-size:13px}.mobile-farm-links{display:grid}.mobile-nav>nav a[aria-current="page"]{background:var(--mint);color:var(--pine);border-radius:8px}
@@ -1464,4 +1464,98 @@ summary{cursor:pointer;min-height:42px;align-content:center;color:var(--pine);fo
     .reference-screen-reports .ani-report-counts>div {padding:11px;}
     .reference-screen-reports .ani-report-unit-totals .stat {padding:11px;}
     .reference-screen-farmfinance .ani-finance-overview {grid-template-columns:minmax(0,1fr);}
+}
+
+
+/* Phase 9: tablet navigation, small-screen readability and keyboard access.
+   Keep the existing Razor and custom CSS foundation until Phase 11. */
+@media (min-width:771px) and (max-width:1000px) {
+    /* A legacy 771px cutoff hid mobile navigation while the sidebar was hidden at 1000px. */
+    .app-shell {display:grid;grid-template-columns:minmax(0,1fr);}
+    .app-shell .app-sidebar {display:none;}
+    .app-shell .site-header.app-topbar {padding-inline:clamp(16px,2.4vw,26px);}
+    .app-shell .site-header.app-topbar .crumb {display:none;}
+    .app-shell .site-header.app-topbar .mobile-brand {display:inline-flex;flex:1 1 auto;min-width:0;}
+    .app-shell .mobile-nav {display:block!important;flex:0 0 auto;position:relative;}
+    .app-shell .mobile-nav>summary {display:flex;align-items:center;justify-content:center;
+        min-width:44px;min-height:44px;padding:8px 12px;border:1px solid var(--stroke);
+        border-radius:10px;color:var(--ink);background:var(--card);}
+    .app-shell .mobile-nav>nav {z-index:45;max-height:min(72dvh,700px);overflow:auto;}
+    .app-shell .mobile-workspace-bar:not([hidden]) {display:grid!important;}
+    .app-shell .app-main.app-page {padding-bottom:calc(100px + env(safe-area-inset-bottom));}
+    .app-shell.admin-shell .app-topbar-actions {display:flex;align-items:center;gap:10px;margin-left:auto;}
+    .app-shell.admin-shell .app-topbar-actions a.farm-picker {display:none;}
+    .app-shell.admin-shell .mobile-nav>nav {right:0;}
+}
+@media(max-width:770px) {
+    .app-shell .app-main.app-page {padding-bottom:calc(102px + env(safe-area-inset-bottom));}
+    .app-shell .mobile-nav>summary {
+        min-width:44px;min-height:44px;width:44px;height:44px;
+    }
+    .app-shell .mobile-nav>nav {z-index:45;}
+    .app-shell .mobile-nav>nav a,
+    .app-shell .mobile-nav>nav button {
+        min-height:44px;font-size:14px;line-height:1.4;
+    }
+    .app-shell .mobile-workspace-bar a,
+    .app-shell .mobile-workspace-bar .mobile-more-button {
+        min-height:48px;font-size:12px;line-height:1.2;
+    }
+    .app-shell .mobile-workspace-bar a span,
+    .app-shell .mobile-workspace-bar .mobile-more-button span {
+        font-size:11px;line-height:1.25;
+    }
+    .reference-screen :is(.sf-muted,.hint,.sf-ops-hint,.ani-insight-note,.ani-cash-notice) {
+        font-size:14px;line-height:1.55;
+    }
+    .reference-screen :is(.sf-ops-form,.sf-crop-form) label,
+    .reference-screen :is(.farm-create-form,.ani-planting-form,.ani-movement-form) label {
+        font-size:14px;line-height:1.45;
+    }
+    .reference-screen :is(.sf-ops-form,.sf-crop-form,.farm-create-form,.ani-planting-form,.ani-movement-form)
+        :is(input:not([type="checkbox"]):not([type="radio"]),select,textarea) {
+        font-size:16px;min-height:44px;max-width:100%;
+    }
+    .reference-screen .sf-task-meta,.reference-screen .sf-task-description,
+    .reference-screen .ani-task-crop-link,.reference-screen .sf-notification-body p,
+    .reference-screen .sf-notification-body time {font-size:13px;line-height:1.5;}
+    .reference-screen .sf-task-actions button,
+    .reference-screen .ani-task-tabs a,
+    .reference-screen .sf-notification-read-button {font-size:13px;min-height:44px;}
+    .reference-screen .sf-status-chip {font-size:12px;line-height:1.35;}
+    .reference-screen .sf-home-card-header a,.reference-screen .quick-grid a {font-size:13px;}
+    .reference-screen .sf-home-plot-copy small {font-size:12px;}
+}
+@media(max-width:420px) {
+    .app-shell .app-main.app-page {padding-inline:12px;}
+    .app-shell .mobile-workspace-bar .ico {width:20px;height:20px;}
+    .app-shell .mobile-workspace-bar a,
+    .app-shell .mobile-workspace-bar .mobile-more-button {padding-inline:2px;}
+    .reference-screen .panel,
+    .reference-screen .card {min-width:0;max-width:100%;}
+    .reference-screen :is(.sf-task-actions,.sf-page-header,.sf-section-line,.sf-finance-row-head) {
+        min-width:0;overflow-wrap:anywhere;
+    }
+    .reference-screen :is(.sf-ops-form,.sf-crop-form) button[type=submit] {
+        min-height:48px;white-space:normal;
+    }
+}
+/* Screen readers and keyboard users can operate tables and disclosures without losing the focus ring. */
+.app-shell :is(a,button,input,select,textarea,summary,[tabindex="0"]):focus-visible,
+.reference-form-dialog :is(a,button,input,select,textarea,summary):focus-visible {
+    outline:3px solid var(--focus);outline-offset:3px;
+}
+.table-scroll:focus-visible,.table-wrap:focus-visible {
+    outline:3px solid var(--focus);outline-offset:2px;
+}
+.reference-screen :is(.table-scroll,.table-wrap,.sf-report-table-panel,.sf-finance-history,
+    .sf-account-details,.sf-ops-hero,.ani-planting-panel,.sf-notifications-panel) {
+    min-width:0;max-width:100%;
+}
+.reference-screen :is(.table-scroll,.table-wrap) {overscroll-behavior-x:contain;}
+.reference-screen :is(h1,h2,h3,[id^="record-"],[id^="report-"],[id^="finance-"]) {
+    scroll-margin-top:90px;
+}
+@media(prefers-reduced-motion:reduce) {
+    .reference-screen * {scroll-behavior:auto!important;}
 }
