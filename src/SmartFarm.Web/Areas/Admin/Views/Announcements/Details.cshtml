@@ -1,0 +1,50 @@
+@model SmartFarm.Web.ViewModels.Announcements.AnnouncementRow
+@{
+    ViewData["Title"] = "Announcement details";
+}
+<a class="admin-back" asp-area="Admin" asp-controller="Announcements" asp-action="Index">← All announcements</a>
+<div class="page-heading admin-page-heading">
+    <div><p class="sf-kicker">@Model.Category.ToUpperInvariant()</p><h1>@Model.Title</h1>
+        <p class="sf-muted">Created @Model.CreatedAtUtc.ToString("MMM d, yyyy HH:mm") UTC</p></div>
+    <span class="sf-status-chip @(Model.State == "Published" ? "sf-status-chip--active" : "sf-status-chip--neutral")">@Model.State</span>
+</div>
+@if (TempData["Message"] is string message) { <p class="form-notice" role="status">@message</p> }
+@if (TempData["Error"] is string error) { <p class="error form-error" role="alert">@error</p> }
+<div class="admin-detail-grid">
+    <section class="panel admin-detail-panel">
+        <h2>Announcement preview</h2>
+        <p class="admin-support-text">@Model.Body</p>
+        <dl class="admin-detail-list">
+            <div><dt>Publish time</dt><dd>@(Model.PublishedAtUtc.HasValue ? Model.PublishedAtUtc.Value.ToString("MMM d, yyyy HH:mm") + " UTC" : "Not published")</dd></div>
+            <div><dt>Expiry</dt><dd>@(Model.ExpiresAtUtc.HasValue ? Model.ExpiresAtUtc.Value.ToString("MMM d, yyyy HH:mm") + " UTC" : "Until archived")</dd></div>
+        </dl>
+        @if (Model.State == "Draft") {
+            <a class="button admin-button-secondary" asp-area="Admin" asp-controller="Announcements" asp-action="Edit" asp-route-id="@Model.Id">Edit draft</a>
+        }
+    </section>
+    <section class="panel admin-detail-panel">
+        <h2>Publishing controls</h2>
+        @if (Model.State == "Archived") {
+            <p class="sf-muted">Archived announcements cannot be published again. Create a fresh draft for any new notice.</p>
+        } else {
+            <p class="sf-muted">@(Model.State == "Draft"
+                ? "Publishing displays this message to all signed-in users until its expiry or archival."
+                : "Archiving immediately removes this message from the user bulletin.")</p>
+            <form class="admin-action-form" method="post" data-confirm="Confirm this platform-wide announcement change?"
+                  asp-area="Admin" asp-controller="Announcements"
+                  asp-action="@(Model.State == "Draft" ? "Publish" : "Archive")" asp-route-id="@Model.Id">
+                <input type="hidden" name="rowVersion" value="@Model.RowVersion" />
+                <label for="announcement-reason">Reason (required)</label>
+                <textarea id="announcement-reason" name="reason" minlength="8" maxlength="300" rows="3" required
+                          placeholder="Why is this announcement needed or being archived?"></textarea>
+                <label for="announcement-admin-password">Your admin password</label>
+                <input id="announcement-admin-password" type="password" name="currentPassword"
+                       autocomplete="current-password" maxlength="1024" required />
+                <button type="submit" class="@(Model.State == "Draft" ? "button" : "button-danger")">@(Model.State == "Draft" ? "Publish to all users" : "Archive announcement")</button>
+            </form>
+            <p class="sf-muted admin-action-safety">This action requires your verified Super Admin session and password. It is recorded in the audit history.</p>
+        }
+    </section>
+</div>
+<a asp-area="Admin" asp-controller="Audit" asp-action="Index" asp-route-targetType="announcement"
+   asp-route-targetId="@Model.Id">View this announcement's audit history</a>

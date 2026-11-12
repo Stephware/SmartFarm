@@ -1,0 +1,63 @@
+@model SmartFarm.Web.ViewModels.Announcements.AdminAnnouncementIndexPage
+@{
+    ViewData["Title"] = "Announcements";
+}
+<div class="page-heading admin-page-heading">
+    <div><p class="sf-kicker">PLATFORM COMMUNICATIONS</p><h1>Announcements</h1>
+        <p class="sf-muted">Write clear updates for everyone using AniGo. Publishing is a separate, confirmed action.</p></div>
+    <a class="button" asp-area="Admin" asp-controller="Announcements" asp-action="Create">New announcement</a>
+</div>
+@if (TempData["Message"] is string message) { <p class="form-notice" role="status">@message</p> }
+<section class="admin-stats" aria-label="Announcement totals">
+    <a class="admin-stat panel" asp-area="Admin" asp-controller="Announcements" asp-action="Index" asp-route-status="Draft">
+        <span>Drafts</span><strong>@Model.DraftCount</strong><small>Not visible to users</small>
+    </a>
+    <a class="admin-stat panel" asp-area="Admin" asp-controller="Announcements" asp-action="Index" asp-route-status="Published">
+        <span>Active published</span><strong>@Model.PublishedCount</strong><small>Currently visible</small>
+    </a>
+    <a class="admin-stat panel" asp-area="" asp-controller="Announcements" asp-action="Index">
+        <span>User bulletin</span><strong><partial name="~/Views/Shared/_Icon.cshtml" model='@("bell")' /></strong><small>View as a farmer</small>
+    </a>
+</section>
+<section class="panel admin-directory-panel" aria-label="Announcement directory">
+    <form class="admin-filters" asp-area="Admin" asp-controller="Announcements" asp-action="Index" method="get">
+        <div><label for="announcement-state">Status</label><select id="announcement-state" name="status">
+            <option value="All" selected="@(Model.Status == "All")">All announcements</option>
+            @foreach (var status in new[] { "Draft", "Published", "Archived" }) {
+                <option value="@status" selected="@(Model.Status == status)">@status</option>
+            }
+        </select></div>
+        <button type="submit">Apply</button>
+        <a class="admin-reset" asp-area="Admin" asp-controller="Announcements" asp-action="Index">Clear</a>
+    </form>
+    <p class="admin-results-count">@Model.Total @(Model.Total == 1 ? "announcement" : "announcements")</p>
+    @if (Model.Announcements.Count == 0) {
+        <div class="admin-empty"><strong>No announcements</strong><p>Create a draft to share an update with your users.</p></div>
+    } else {
+        <div class="admin-record-list">
+            @foreach (var announcement in Model.Announcements) {
+                <a class="admin-record" asp-area="Admin" asp-controller="Announcements" asp-action="Details" asp-route-id="@announcement.Id">
+                    <span class="admin-record-main">
+                        <strong>@announcement.Title</strong>
+                        <small>@announcement.Category · Created @announcement.CreatedAtUtc.ToString("MMM d, yyyy") UTC</small>
+                        @if (announcement.State == "Published" && announcement.ExpiresAtUtc <= DateTime.UtcNow) {
+                            <small>Expired and hidden from users</small>
+                        }
+                    </span>
+                    <span class="sf-status-chip @(announcement.State == "Published" ? "sf-status-chip--active" : "sf-status-chip--neutral")">@announcement.State</span>
+                </a>
+            }
+        </div>
+        <nav class="admin-pagination" aria-label="Announcement pages">
+            @if (Model.HasPrevious) {
+                <a asp-area="Admin" asp-controller="Announcements" asp-action="Index"
+                   asp-route-status="@Model.Status" asp-route-page="@(Model.Page - 1)">Previous</a>
+            }
+            <span>Page @Model.Page of @((Model.Total + SmartFarm.Web.ViewModels.Announcements.AdminAnnouncementIndexPage.PageSize - 1) / SmartFarm.Web.ViewModels.Announcements.AdminAnnouncementIndexPage.PageSize)</span>
+            @if (Model.HasNext) {
+                <a asp-area="Admin" asp-controller="Announcements" asp-action="Index"
+                   asp-route-status="@Model.Status" asp-route-page="@(Model.Page + 1)">Next</a>
+            }
+        </nav>
+    }
+</section>

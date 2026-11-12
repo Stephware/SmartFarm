@@ -1,0 +1,36 @@
+@model SmartFarm.Web.ViewModels.Announcements.PublicAnnouncementIndexPage
+@{
+    ViewData["Title"] = "Announcements";
+}
+<div class="page-heading sf-announcement-heading">
+    <div><p class="sf-kicker">ANIGO UPDATES</p><h1>Announcements</h1>
+        <p class="sf-muted">Important news, service notices, and updates from the AniGo team.</p></div>
+</div>
+<section class="panel sf-announcement-panel" aria-label="Latest announcements">
+    @if (Model.Announcements.Count == 0) {
+        <div class="sf-empty-state"><strong>No announcements right now.</strong>
+            <p>Updates from the platform team will appear here when available.</p></div>
+    } else {
+        <div class="sf-announcement-list">
+            @foreach (var announcement in Model.Announcements) {
+                <a class="sf-announcement-card" asp-area="" asp-controller="Announcements" asp-action="Details" asp-route-id="@announcement.Id">
+                    <span class="sf-status-chip sf-status-chip--neutral">@announcement.Category</span>
+                    <strong>@announcement.Title</strong>
+                    <p>@(announcement.Body.Length > 180 ? announcement.Body[..180] + "…" : announcement.Body)</p>
+                    <small>Posted @announcement.PublishedAtUtc?.ToString("MMM d, yyyy HH:mm") UTC</small>
+                </a>
+            }
+        </div>
+        <nav class="admin-pagination" aria-label="Announcement pages">
+            @if (Model.HasPrevious) {
+                <a asp-area="" asp-controller="Announcements" asp-action="Index"
+                   asp-route-page="@(Model.Page - 1)">Previous</a>
+            }
+            <span>Page @Model.Page of @((Model.Total + SmartFarm.Web.ViewModels.Announcements.PublicAnnouncementIndexPage.PageSize - 1) / SmartFarm.Web.ViewModels.Announcements.PublicAnnouncementIndexPage.PageSize)</span>
+            @if (Model.HasNext) {
+                <a asp-area="" asp-controller="Announcements" asp-action="Index"
+                   asp-route-page="@(Model.Page + 1)">Next</a>
+            }
+        </nav>
+    }
+</section>

@@ -1,0 +1,38 @@
+@model SmartFarm.Web.ViewModels.Announcements.AnnouncementEditorPage
+@{
+    ViewData["Title"] = Model.IsEdit ? "Edit announcement" : "New announcement";
+}
+<a class="admin-back" asp-area="Admin" asp-controller="Announcements" asp-action="Index">← Announcements</a>
+<div class="page-heading admin-page-heading">
+    <div><p class="sf-kicker">DRAFT ANNOUNCEMENT</p><h1>@(Model.IsEdit ? "Edit draft" : "Write an announcement")</h1>
+        <p class="sf-muted">Use plain language and avoid sharing private farm or account information.</p></div>
+</div>
+<section class="panel admin-support-form-panel">
+    <form method="post" class="admin-action-form"
+          asp-area="Admin" asp-controller="Announcements" asp-action="@(Model.IsEdit ? "Edit" : "Create")"
+          asp-route-id="@Model.Id">
+        <div asp-validation-summary="ModelOnly" class="error" role="alert"></div>
+        @if (Model.IsEdit) { <input type="hidden" asp-for="Input.RowVersion" /> }
+        <label asp-for="Input.Category">Category</label>
+        <select asp-for="Input.Category">
+            <option value="General">General notice</option>
+            <option value="Maintenance">Maintenance / interruption</option>
+            <option value="Update">Feature or system update</option>
+        </select>
+        <span asp-validation-for="Input.Category" class="error"></span>
+        <label asp-for="Input.Title">Title</label>
+        <input asp-for="Input.Title" minlength="5" maxlength="140" required
+               placeholder="e.g., Planned maintenance on Saturday" />
+        <span asp-validation-for="Input.Title" class="error"></span>
+        <label asp-for="Input.Body">Message</label>
+        <textarea asp-for="Input.Body" minlength="15" maxlength="2000" rows="8" required
+                  placeholder="Tell users what is happening, when, and what they need to do."></textarea>
+        <span asp-validation-for="Input.Body" class="error"></span>
+        <label asp-for="Input.ExpiresAtUtc">Hide after (optional, UTC)</label>
+        <input asp-for="Input.ExpiresAtUtc" asp-format="{0:yyyy-MM-ddTHH:mm}"
+               type="datetime-local" />
+        <span asp-validation-for="Input.ExpiresAtUtc" class="error"></span>
+        <p class="sf-muted admin-action-safety">Leave the expiry blank to keep the announcement visible until an admin archives it. All dates are UTC.</p>
+        <button type="submit">Save draft</button>
+    </form>
+</section>
