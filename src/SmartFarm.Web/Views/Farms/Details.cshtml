@@ -58,7 +58,7 @@
                 <h2 id="plots-heading">Plots</h2>
                 <p class="sf-muted">Manage your farm's growing spaces.</p>
             </div>
-            <a asp-controller="PlotLayout" asp-action="Index" asp-route-farmId="@Model.Farm.Id">View schematic plot layout →</a>
+            <a asp-controller="PlotLayout" asp-action="Index" asp-route-farmId="@Model.Farm.Id">View illustrated plots →</a>
         </div>
         @if (Model.Plots.Count == 0)
         {
@@ -80,7 +80,9 @@
                     <div class="sf-list-icon" aria-hidden="true">P</div>
                     <div class="sf-plot-list-details">
                         <strong>@plot.Name</strong>
-                        <span class="sf-muted">@plot.AreaSqMeters m²</span>
+                        <span class="sf-muted">@plot.AreaSqMeters.ToString("N2") m²</span>
+                        <a asp-controller="Crops" asp-action="Index" asp-route-farmId="@Model.Farm.Id"
+                           asp-route-plotId="@plot.Id" asp-fragment="planting-plans-heading">Plan crop for this plot →</a>
                     </div>
                     @if (canManage)
                     {
@@ -101,7 +103,8 @@
         {
             <div class="ani-plot-next-action">
                 <div><strong>Ready to plant?</strong><p>Your plots are set up. Choose a crop and planting dates to continue.</p></div>
-                <a class="sf-button-outline" asp-controller="Crops" asp-action="Index" asp-route-farmId="@Model.Farm.Id">Plan a crop</a>
+                <a class="sf-button-outline" asp-controller="Crops" asp-action="Index" asp-route-farmId="@Model.Farm.Id"
+                   asp-fragment="planting-plans-heading">Plan a crop</a>
             </div>
         }
         @if (canManage)
