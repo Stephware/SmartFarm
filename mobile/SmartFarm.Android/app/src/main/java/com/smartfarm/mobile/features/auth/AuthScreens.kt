@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.consumeWindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.widthIn
@@ -14,6 +15,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.selection.toggleable
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
@@ -38,6 +40,7 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.heading
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.liveRegion
 import androidx.compose.ui.semantics.LiveRegionMode
@@ -123,10 +126,12 @@ fun RegisterScreen(state: AuthUiState, onSubmit: (String, String, String) -> Uni
 
 @Composable
 fun AccountScreen(state: AuthUiState, onLogout: () -> Unit, onFarms: () -> Unit,
-    onSync: () -> Unit, onNotifications: () -> Unit = {}) {
-    AuthScaffold("My account", "Your profile and shortcuts to farm operations.") {
-        FarmSectionCard("Account information", subtitle = "Signed in to AniGo") {
-            val name = state.account?.fullName.orEmpty()
+    onSync: () -> Unit, onNotifications: () -> Unit = {},
+    pendingSyncCount: Int = 0) {
+    var confirmingLogout by rememberSaveable { mutableStateOf(false) }
+    val name = state.account?.fullName.orEmpty()
+    AuthScaffold("My account", "Your details and personal app settings.") {
+        FarmSectionCard("Signed in as") {
             val initial = name.trim().firstOrNull()?.uppercaseChar()?.toString() ?: "A"
             Row(verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.spacedBy(14.dp)) {
@@ -140,37 +145,79 @@ fun AccountScreen(state: AuthUiState, onLogout: () -> Unit, onFarms: () -> Unit,
                 }
                 Column(Modifier.weight(1f)) {
                     Text(name, style = MaterialTheme.typography.titleMedium)
-                    Text(state.account?.email.orEmpty(),
-                        style = MaterialTheme.typography.bodyMedium,
+                    Text(state.account?.email.orEmpty(), style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.onSurfaceVariant)
                 }
             }
-            Text("Farm roles and team permissions are managed within each farm.",
+            Text("Farm roles and membership are managed in each farm's Team & access section.",
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant)
-        }
-        FarmSectionCard("Your workspace", subtitle = "Open your farm or review saved fieldwork.") {
-            Button(onClick = onFarms, modifier = Modifier.fillMaxWidth()) { Text("My farms") }
-            OutlinedButton(onClick = onNotifications, modifier = Modifier.fillMaxWidth()) {
-                Text("Notifications")
-            }
-            OutlinedButton(onClick = onSync, modifier = Modifier.fillMaxWidth()) {
-                Text("Offline sync status")
+            Button(onClick = onFarms,
+                modifier = Modifier.fillMaxWidth().defaultMinSize(minHeight = 48.dp)) {
+                Text("My farms")
             }
         }
-        FarmSectionCard("Appearance", subtitle = "Choose the display that suits your surroundings.") {
+        FarmSectionCard("Appearance", subtitle = "Choose a comfortable display for fieldwork.") {
             val appearance = LocalFarmAppearance.current
-            Row(Modifier.fillMaxWidth().toggleable(value = appearance.dark, role = Role.Switch,
-                    onValueChange = appearance.selectDark).semantics { contentDescription = "Dark theme" }
-                    .padding(vertical = 4.dp), verticalAlignment = Alignment.CenterVertically,
+            Row(Modifier.fillMaxWidth()
+                .toggleable(value = appearance.dark, role = Role.Switch,
+                    onValueChange = appearance.selectDark)
+                .semantics { contentDescription = "Dark theme" }
+                .padding(vertical = 8.dp),
+                verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.SpaceBetween) {
                 Text("Dark theme", style = MaterialTheme.typography.bodyLarge)
                 Switch(checked = appearance.dark, onCheckedChange = null)
             }
         }
-        OutlinedButton(onClick = onLogout, modifier = Modifier.fillMaxWidth()) {
-            Text("Log out")
+        if (pendingSyncCount > 0) {
+            FarmSectionCard("Work saved on this phone",
+                subtitle = "These records have not yet been confirmed by the server.") {
+                Text("$pendingSyncCount saved ${if (pendingSyncCount == 1) "record" else "records"} waiting or needing review.",
+                    style = MaterialTheme.typography.titleSmall)
+                Button(onClick = onSync, modifier = Modifier.fillMaxWidth()
+                    .defaultMinSize(minHeight = 48.dp)) {
+                    Text("Review offline sync")
+                }
+            }
         }
+        FarmSectionCard("Other shortcuts") {
+            OutlinedButton(onClick = onNotifications,
+                modifier = Modifier.fillMaxWidth().defaultMinSize(minHeight = 48.dp)) {
+                Text("Notifications")
+            }
+            if (pendingSyncCount == 0) {
+                OutlinedButton(onClick = onSync,
+                    modifier = Modifier.fillMaxWidth().defaultMinSize(minHeight = 48.dp)) {
+                    Text("Offline sync")
+                }
+            }
+        }
+        OutlinedButton(onClick = { confirmingLogout = true }, enabled = !state.busy,
+            modifier = Modifier.fillMaxWidth().defaultMinSize(minHeight = 48.dp)
+                .testTag("request-sign-out")) {
+            Text("Sign out")
+        }
+    }
+    if (confirmingLogout) {
+        AlertDialog(onDismissRequest = { confirmingLogout = false },
+            title = { Text("Sign out of AniGo?") },
+            text = {
+                Text(if (pendingSyncCount > 0)
+                    "$pendingSyncCount unsynced ${if (pendingSyncCount == 1) "record is" else "records are"} saved on this phone for this account. " +
+                        "They will not sync while signed out. Sign back into the same account to resume. Unsaved form changes may be lost."
+                else "Unsaved form changes may be lost. Your server-confirmed farm records will stay available when you sign back in.")
+            },
+            confirmButton = {
+                TextButton(onClick = {
+                    confirmingLogout = false
+                    onLogout()
+                }, modifier = Modifier.testTag("confirm-sign-out")) { Text("Sign out") }
+            },
+            dismissButton = {
+                TextButton(onClick = { confirmingLogout = false }) { Text("Keep working") }
+            }
+        )
     }
 }
 

@@ -88,10 +88,11 @@ fun TaskScreen(
     RecordPage {
         item(key = "header") {
             Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                if (!isTasks) OutlinedButton(onClick = onBack,
+                    modifier = Modifier.fillMaxWidth()) { Text("Back") }
                 FarmHero(if (isTasks) "My tasks" else "Notifications",
                     if (isTasks) "Start with today's work. Use Calendar for other dates."
                     else "Task reminders and farm advisories.")
-                if (!isTasks) OutlinedButton(onClick = onBack) { Text("Back") }
                 if (state.busy) CircularProgressIndicator()
                 state.error?.let {
                     Text(it, color = MaterialTheme.colorScheme.error,

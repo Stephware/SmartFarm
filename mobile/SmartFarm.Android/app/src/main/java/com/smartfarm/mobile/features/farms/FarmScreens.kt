@@ -71,11 +71,17 @@ import java.time.format.DateTimeFormatter
 
 @Composable
 private fun FarmPage(title: String, subtitle: String = "Manage your farm and team.",
-    content: @Composable () -> Unit) {
+    onBack: (() -> Unit)? = null, content: @Composable () -> Unit) {
     Scaffold(topBar = { FarmAppBar() }) { padding ->
         Box(Modifier.fillMaxSize().padding(padding).consumeWindowInsets(padding).imePadding(), contentAlignment = Alignment.TopCenter) {
             Column(Modifier.widthIn(max = 840.dp).fillMaxSize().verticalScroll(rememberScrollState()).padding(16.dp),
                 verticalArrangement = Arrangement.spacedBy(16.dp)) {
+            if (onBack != null) {
+                OutlinedButton(onClick = onBack,
+                    modifier = Modifier.defaultMinSize(minHeight = 48.dp)) {
+                    Text("Back")
+                }
+            }
             FarmHero(title, subtitle)
             content()
             }
@@ -275,12 +281,8 @@ fun FarmDetailScreen(state: FarmUiState, onBack: () -> Unit,
     FarmPage(if (visibleSection == "Overview") (farm?.name ?: "Farm") else
         "$visibleSection · ${farm?.name ?: "Farm"}",
         subtitle = if (visibleSection == "Overview") "Your daily farm work in one place."
-                   else "Review and manage this farm.") {
-        if (visibleSection != "Overview" || !hasFarmSwitcher) {
-            OutlinedButton(onClick = onBack) {
-                Text(if (visibleSection == "Overview") "All farms" else "Back")
-            }
-        }
+                   else "Review and manage this farm.",
+        onBack = if (visibleSection != "Overview" || !hasFarmSwitcher) onBack else null) {
         Progress(state, onRetry)
         if (farm != null) {
             if (visibleSection != "Overview") {
