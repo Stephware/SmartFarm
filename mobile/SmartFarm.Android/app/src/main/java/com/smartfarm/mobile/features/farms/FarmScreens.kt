@@ -332,73 +332,133 @@ fun FarmDetailScreen(state: FarmUiState, onBack: () -> Unit,
             }
             HorizontalDivider()
             if (visibleSection == "Plots") {
-            sectionState.SaveableStateProvider("plots-${farm.id}") {
-            Text("Plots", style = MaterialTheme.typography.titleLarge, modifier = Modifier.semantics { heading() })
-            Text("Schematic overview only; tiles do not represent real positions or distances.",
-                style = MaterialTheme.typography.bodySmall)
-            if (state.plots.isNotEmpty()) {
-                state.plots.chunked(2).forEach { rowPlots ->
-                    Row(horizontalArrangement = Arrangement.spacedBy(8.dp),
-                        modifier = Modifier.fillMaxWidth()) {
-                        rowPlots.forEach { plot ->
+                sectionState.SaveableStateProvider("plots-${farm.id}") {
+                    var openPlotId by rememberSaveable(farm.id) { mutableStateOf<String?>(null) }
+                    var addingPlot by rememberSaveable(farm.id) { mutableStateOf(false) }
+                    var plotFilter by rememberSaveable(farm.id) { mutableStateOf("") }
+                    FarmSectionHeader("Growing plots",
+                        "Choose a plot to view its crops. Edit one plot at a time.")
+                    Text("Plot previews are illustrations, not maps or real distances.",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    if (canManage) {
+                        Button(onClick = {
+                            addingPlot = !addingPlot
+                            if (addingPlot) openPlotId = null
+                        }, modifier = Modifier.fillMaxWidth()
+                            .defaultMinSize(minHeight = 48.dp)) {
+                            Text(if (addingPlot) "Close new plot form" else "Add growing plot")
+                        }
+                        if (addingPlot) {
+                            FarmSectionCard("New growing plot") {
+                                OutlinedTextField(plotName, { plotName = it },
+                                    label = { Text("Plot name") },
+                                    singleLine = true, modifier = Modifier.fillMaxWidth())
+                                OutlinedTextField(plotArea, { plotArea = it },
+                                    label = { Text("Area (m²)") },
+                                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
+                                    singleLine = true, modifier = Modifier.fillMaxWidth())
+                                val areaValid = plotArea.toBigDecimalOrNull()?.let {
+                                    it > java.math.BigDecimal.ZERO && it.scale() <= 2
+                                } == true
+                                Button(onClick = { onAddPlot(plotName.trim(), plotArea.trim()) },
+                                    enabled = !state.loading && plotName.isNotBlank() && areaValid,
+                                    modifier = Modifier.fillMaxWidth()) {
+                                    Text("Save new plot")
+                                }
+                            }
+                        }
+                    }
+                    if (state.plots.size > 5) {
+                        OutlinedTextField(plotFilter, { plotFilter = it },
+                            label = { Text("Find a plot") },
+                            singleLine = true, modifier = Modifier.fillMaxWidth())
+                    }
+                    val visiblePlots = state.plots.filter {
+                        it.name.contains(plotFilter.trim(), ignoreCase = true)
+                    }
+                    if (state.plots.isEmpty()) {
+                        FarmEmptyState("No growing plots yet",
+                            if (canManage) "Use Add growing plot to create the first growing area."
+                            else "Ask an owner or manager to add a growing area.")
+                    } else if (visiblePlots.isEmpty()) {
+                        FarmEmptyState("No matching plots", "Try a different plot name.")
+                    }
+                    visiblePlots.forEach { plot ->
+                        key(plot.id) {
+                            val expanded = openPlotId == plot.id
+                            val cropName = homeCrops?.takeIf {
+                                it.farmId == farm.id && it.error == null
+                            }?.cycles?.firstOrNull {
+                                it.plotId == plot.id && it.status == 1
+                            }?.cropTypeName ?: homeCrops?.takeIf {
+                                it.farmId == farm.id && it.error == null
+                            }?.cycles?.firstOrNull {
+                                it.plotId == plot.id && it.status == 0
+                            }?.cropTypeName
                             OutlinedCard(
-                                modifier = Modifier.weight(1f),
-                                onClick = onCrops
+                                onClick = { openPlotId = if (expanded) null else plot.id },
+                                modifier = Modifier.fillMaxWidth()
+                                    .defaultMinSize(minHeight = 64.dp)
+                                    .testTag("plot-card-${plot.id}")
                             ) {
-                                Column(Modifier.padding(12.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                                    val cropName = homeCrops?.takeIf { it.farmId == farm.id && it.error == null }?.cycles
-                                        ?.firstOrNull { it.plotId == plot.id && it.status == 1 }?.cropTypeName
-                                        ?: homeCrops?.takeIf { it.farmId == farm.id && it.error == null }?.cycles
-                                            ?.firstOrNull { it.plotId == plot.id && it.status == 0 }?.cropTypeName
-                                    FarmPlotPreview(cropName = cropName)
-                                    Text(plot.name, style = MaterialTheme.typography.titleMedium)
-                                    Text("${plot.areaSqMeters} m²",
-                                        color = MaterialTheme.colorScheme.onSurfaceVariant)
-                                    Text("View crop records →", style = MaterialTheme.typography.bodySmall,
+                                Row(Modifier.fillMaxWidth().padding(14.dp),
+                                    verticalAlignment = Alignment.CenterVertically,
+                                    horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+                                    Column(Modifier.weight(1f),
+                                        verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                                        Text(plot.name, style = MaterialTheme.typography.titleMedium)
+                                        Text("${plot.areaSqMeters.toPlainString()} m² · " +
+                                            (cropName ?: "No crop yet"),
+                                            style = MaterialTheme.typography.bodySmall,
+                                            color = MaterialTheme.colorScheme.onSurfaceVariant)
+                                    }
+                                    Text(if (expanded) "Close" else "Details",
+                                        style = MaterialTheme.typography.labelLarge,
                                         color = MaterialTheme.colorScheme.primary)
+                                }
+                            }
+                            if (expanded) {
+                                OutlinedButton(onClick = onCrops,
+                                    modifier = Modifier.fillMaxWidth()
+                                        .defaultMinSize(minHeight = 48.dp)) {
+                                    Text("View crops")
+                                }
+                                if (canManage) {
+                                    var editName by rememberSaveable(plot.id) {
+                                        mutableStateOf(plot.name)
+                                    }
+                                    var editArea by rememberSaveable(plot.id) {
+                                        mutableStateOf(plot.areaSqMeters.toPlainString())
+                                    }
+                                    FarmSectionCard("Edit ${plot.name}") {
+                                        OutlinedTextField(editName, { editName = it },
+                                            label = { Text("Plot name") },
+                                            singleLine = true, modifier = Modifier.fillMaxWidth())
+                                        OutlinedTextField(editArea, { editArea = it },
+                                            label = { Text("Area (m²)") },
+                                            keyboardOptions = KeyboardOptions(
+                                                keyboardType = KeyboardType.Decimal),
+                                            singleLine = true, modifier = Modifier.fillMaxWidth())
+                                        val validArea = editArea.toBigDecimalOrNull()?.let {
+                                            it > java.math.BigDecimal.ZERO && it.scale() <= 2
+                                        } == true
+                                        Button(onClick = {
+                                            onSavePlot(plot, editName.trim(), editArea.trim())
+                                        }, enabled = !state.loading && editName.isNotBlank() &&
+                                            validArea, modifier = Modifier.fillMaxWidth()) {
+                                            Text("Save plot changes")
+                                        }
+                                        ConfirmActionButton("Archive this plot",
+                                            "Archive ${plot.name}? Its crop history is retained.",
+                                            enabled = !state.loading,
+                                            onConfirm = { onArchivePlot(plot) })
+                                    }
                                 }
                             }
                         }
                     }
                 }
-            }
-            if (state.plots.isEmpty()) FarmEmptyState("No active plots", "Add a growing area to start planning crops.")
-            state.plots.forEach { plot ->
-                key(plot.id) {
-                var editName by rememberSaveable(plot.id) { mutableStateOf(plot.name) }
-                var editArea by rememberSaveable(plot.id) { mutableStateOf(plot.areaSqMeters.toPlainString()) }
-                Text("${plot.name}: ${plot.areaSqMeters} m²")
-                if (canManage) {
-                    OutlinedTextField(editName, { editName = it },
-                        label = { Text("Plot name") }, modifier = Modifier.fillMaxWidth())
-                    OutlinedTextField(editArea, { editArea = it },
-                        label = { Text("Area (m²)") },
-                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
-                        modifier = Modifier.fillMaxWidth())
-                    Button(onClick = { onSavePlot(plot, editName, editArea) },
-                        enabled = !state.loading && editName.isNotBlank() && editArea.isNotBlank()) {
-                        Text("Save plot")
-                    }
-                    ConfirmActionButton("Archive plot", "Archive ${plot.name}? Its history will be retained.",
-                        enabled = !state.loading, onConfirm = { onArchivePlot(plot) })
-                }
-                HorizontalDivider()
-                }
-            }
-            if (canManage) {
-                Text("Add plot", style = MaterialTheme.typography.titleMedium)
-                OutlinedTextField(plotName, { plotName = it }, label = { Text("Plot name") },
-                    modifier = Modifier.fillMaxWidth())
-                OutlinedTextField(plotArea, { plotArea = it }, label = { Text("Area (m²)") },
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
-                    modifier = Modifier.fillMaxWidth())
-                Button(onClick = { onAddPlot(plotName, plotArea) },
-                    enabled = !state.loading && plotName.isNotBlank() && plotArea.isNotBlank()) {
-                    Text("Add plot")
-                }
-            }
-            HorizontalDivider()
-            }
             }
             if (visibleSection == "Members") {
                 FarmSectionHeader("Team & access", "Manage who can work on this farm.")
