@@ -1,7 +1,6 @@
 package com.smartfarm.mobile.features.insights
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -9,7 +8,6 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.FilterChip
@@ -65,20 +63,30 @@ fun FarmInsightsScreen(
     onBack: () -> Unit, onReload: (String?, String?) -> Unit
 ) {
     var range by rememberSaveable(state.farmId) { mutableStateOf("all") }
+    var reportView by rememberSaveable(state.farmId) { mutableStateOf("harvest") }
     val today = runCatching { LocalDate.now(ZoneId.of(requireNotNull(farmTimeZone))) }.getOrNull()
     RecordPage {
         item(key = "intro") {
             Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
                 OutlinedButton(onClick = onBack) { Text("Back to farm") }
-                FarmHero("Farm reports", "Harvest yields and manual cash records in one place.")
+                FarmHero("Farm reports", "Choose harvest or cash summaries. All amounts are server-confirmed.")
                 Text("Server-confirmed data only. Unsynced mobile harvests are not included.",
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant)
-                Row(Modifier.horizontalScroll(rememberScrollState()),
-                    horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    listOf("all" to "All dates", "30" to "Last 30 days",
+                Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    listOf("harvest" to "Harvest", "cash" to "Cash").forEach { (key, label) ->
+                        FilterChip(selected = reportView == key,
+                            onClick = { reportView = key },
+                            modifier = Modifier.weight(1f),
+                            label = { Text(label) })
+                    }
+                }
+                Row(Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                    listOf("all" to "All", "30" to "30 days",
                         "year" to "This year").forEach { (key, label) ->
                         FilterChip(selected = range == key,
+                            modifier = Modifier.weight(1f),
                             enabled = !state.loading && (key == "all" || today != null),
                             onClick = {
                                 range = key
@@ -108,7 +116,7 @@ fun FarmInsightsScreen(
                 }
             }
         }
-        item(key = "harvest") {
+        if (reportView == "harvest") item(key = "harvest") {
             val report = state.harvest
             FarmSectionCard("Harvest summary", subtitle = "Voided records are excluded. Units remain separate.") {
                 when {
@@ -139,7 +147,7 @@ fun FarmInsightsScreen(
                 }
             }
         }
-        item(key = "harvest-chart") {
+        if (reportView == "harvest") item(key = "harvest-chart") {
             state.harvest?.let { report ->
                 FarmSectionCard("Yield by crop and plot",
                     subtitle = "Recorded quantities. Each unit is charted independently.") {
@@ -163,7 +171,7 @@ fun FarmInsightsScreen(
                 }
             }
         }
-        item(key = "monthly") {
+        if (reportView == "harvest") item(key = "monthly") {
             state.harvest?.let { report ->
                 FarmSectionCard("Monthly harvests", subtitle = "Recorded yield by month, separated by unit.") {
                     if (report.monthlyTotals.isEmpty()) {
@@ -182,7 +190,7 @@ fun FarmInsightsScreen(
                 }
             }
         }
-        item(key = "finance") {
+        if (reportView == "cash") item(key = "finance") {
             val finance = state.finance
             FarmSectionCard("Manual cash records (PHP)",
                 subtitle = "These are entered transactions, not profit or automatic harvest sales.") {
@@ -209,7 +217,7 @@ fun FarmInsightsScreen(
                 }
             }
         }
-        item(key = "finance-chart") {
+        if (reportView == "cash") item(key = "finance-chart") {
             state.finance?.let { finance ->
                 FarmSectionCard("Cash trends", subtitle = "Income and expenses by month, in PHP.") {
                     val months = finance.months.sortedBy { it.month }.takeLast(6)
