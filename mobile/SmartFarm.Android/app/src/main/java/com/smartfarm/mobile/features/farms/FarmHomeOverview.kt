@@ -3,41 +3,32 @@ package com.smartfarm.mobile.features.farms
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.background
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.draw.clip
-import androidx.compose.material3.Surface
-import androidx.compose.material3.TextButton
-import androidx.compose.material3.HorizontalDivider
-import com.smartfarm.mobile.ui.components.FarmSymbol
-import com.smartfarm.mobile.ui.components.FarmLineIcon
-import com.smartfarm.mobile.ui.components.FarmQuickAction
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.defaultMinSize
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.unit.dp
+import com.smartfarm.mobile.data.remote.api.TaskDto
 import com.smartfarm.mobile.features.crops.CropUiState
 import com.smartfarm.mobile.features.tasks.TaskUiState
 import com.smartfarm.mobile.features.tasks.TaskWorkCenter
+import com.smartfarm.mobile.ui.components.CropArtworkImage
 import com.smartfarm.mobile.ui.components.FarmEmptyState
-import com.smartfarm.mobile.ui.components.FarmMetricCard
-import com.smartfarm.mobile.ui.components.FarmPlotPreview
 import com.smartfarm.mobile.ui.components.FarmSectionCard
 import com.smartfarm.mobile.ui.components.FarmSectionHeader
 import com.smartfarm.mobile.ui.components.FarmStatusChip
 import com.smartfarm.mobile.ui.components.FarmStatusTone
-import com.smartfarm.mobile.data.remote.api.TaskDto
 import java.time.LocalDate
+import java.time.format.DateTimeFormatter
+import java.util.Locale
 
 private val taskTypes = listOf("Task", "Planting", "Watering", "Fertilizing",
     "Inspection", "Harvest", "Other")
@@ -50,173 +41,221 @@ internal fun farmHomeTaskPreview(
     return TaskWorkCenter.myOpenTasks(state.tasks, actorId, isOwner)
 }
 
-/** A read-only daily overview. All forms and crop sync remain on the original screens. */
+/** Action-first farm Home. No local record is counted as completed server work. */
 @Composable
 internal fun FarmHomeOverview(
     state: FarmUiState, tasks: TaskUiState?, crops: CropUiState?, actorId: String?,
     onTasks: () -> Unit, onCrops: () -> Unit, onInventory: () -> Unit,
-    onWeather: () -> Unit, onInsights: () -> Unit
+    onWeather: () -> Unit, onInsights: () -> Unit,
+    onRecord: () -> Unit = {}, onPlots: () -> Unit = {},
+    onSync: () -> Unit = {}, syncSummary: HomeSyncSummary = HomeSyncSummary(0, 0)
 ) {
     val farm = state.selected ?: return
     val today = runCatching { TaskWorkCenter.today(farm.timeZoneId) }.getOrNull()
-    val myWork = if (state.offline) null else farmHomeTaskPreview(tasks, farm.id, actorId, farm.role == "Owner", today)
-    val dueToday = myWork?.count { TaskWorkCenter.dueDate(it) == today }
-    val overdue = myWork?.count { TaskWorkCenter.dueDate(it)?.isBefore(today) == true }
+    val myWork = if (state.offline) null else farmHomeTaskPreview(
+        tasks, farm.id, actorId, farm.role == "Owner", today)
+    val work = if (myWork != null && today != null) homeDailyWork(myWork, today) else null
     val visibleCrops = crops?.takeIf { it.farmId == farm.id && !it.busy && it.error == null }
-    val activeCrops = visibleCrops?.cycles?.count { it.status == 1 }
+    val currentCycles = visibleCrops?.cycles.orEmpty()
+    val growing = currentCycles.filter { it.status == 1 }
+    val savedAdvisories = state.weather?.advisories?.count { it.status == 0 } ?: 0
+    val localForecast = state.weather?.takeIf { it.farmId == farm.id && it.hasCoordinates }
+    val dateText = today?.format(DateTimeFormatter.ofPattern("EEE, MMM d", Locale.getDefault()))
+        ?: "Farm date unavailable"
 
-    FarmSectionHeader("Today on your farm",
-        if (today != null) "Farm date: " + today + " · " + farm.timeZoneId
-        else "Farm time zone unavailable. Review farm settings.")
+    FarmSectionHeader("Your work today", "$dateText · ${farm.timeZoneId}")
 
-    Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
-        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-            FarmMetricCard("Active plots", state.plots.size.toString(), null,
-                modifier = Modifier.weight(1f), symbol = FarmSymbol.Plots)
-            FarmMetricCard("Active crops", activeCrops?.toString() ?: "—",
-                if (visibleCrops?.offline == true) "Saved records" else null,
-                modifier = Modifier.weight(1f))
+    Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+        Button(onClick = onRecord,
+            modifier = Modifier.weight(1f).defaultMinSize(minHeight = 52.dp)) {
+            Text("Record fieldwork")
         }
-        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-            FarmMetricCard("My open tasks", myWork?.size?.toString() ?: "—",
-                if (myWork == null) "Connect to load" else null,
-                modifier = Modifier.weight(1f), symbol = FarmSymbol.Tasks)
-            FarmMetricCard("Overdue", overdue?.toString() ?: "—",
-                if (dueToday == null) "Connect to load" else dueToday.toString() + " due today",
-                modifier = Modifier.weight(1f), symbol = FarmSymbol.Clock)
+        OutlinedButton(onClick = onTasks,
+            modifier = Modifier.weight(1f).defaultMinSize(minHeight = 52.dp)) {
+            Text("My tasks")
         }
     }
 
-    FarmSectionCard("My farm plots") {
-        if (state.plots.isEmpty()) {
-            FarmEmptyState("No plots yet", "Add a plot in the Plots tab.")
-        } else {
-            Surface(shape = MaterialTheme.shapes.medium,
-                color = MaterialTheme.colorScheme.primaryContainer) {
-                Column(Modifier.padding(10.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                    state.plots.take(4).chunked(2).forEach { plots ->
-                        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                            plots.forEach { plot ->
-                                val crop = visibleCrops?.cycles?.firstOrNull {
-                                    it.plotId == plot.id && it.status == 1
-                                } ?: visibleCrops?.cycles?.firstOrNull {
-                                    it.plotId == plot.id && it.status == 0
-                                }
-                                Box(Modifier.weight(1f).clip(MaterialTheme.shapes.medium)
-                                    .clickable(onClick = onCrops)) {
-                                    FarmPlotPreview(cropName = crop?.cropTypeName,
-                                        modifier = Modifier.height(132.dp))
-                                    Surface(Modifier.align(Alignment.TopStart).padding(8.dp),
-                                        shape = MaterialTheme.shapes.extraSmall,
-                                        color = MaterialTheme.colorScheme.surface) {
-                                        Text(plot.name, Modifier.padding(horizontal = 7.dp, vertical = 4.dp),
-                                            style = MaterialTheme.typography.labelMedium)
-                                    }
-                                    Column(Modifier.align(Alignment.BottomStart).padding(10.dp)) {
-                                        Text(crop?.cropTypeName ?: if (visibleCrops == null)
-                                            "Crop unavailable" else "No current crop",
-                                            color = Color.White, style = MaterialTheme.typography.titleSmall)
-                                        Text("${plot.areaSqMeters} m²" + (crop?.let { " · ${it.statusName}" } ?: ""),
-                                            color = Color.White, style = MaterialTheme.typography.bodySmall)
-                                    }
-                                }
-                            }
-                            if (plots.size == 1) Spacer(Modifier.weight(1f))
-                        }
-                    }
+    // Only actionable alerts appear here. Weather warnings are explicitly saved, not live.
+    val hasAlerts = (work?.overdue?.isNotEmpty() == true) ||
+        savedAdvisories > 0 || syncSummary.needsReview > 0
+    if (hasAlerts) {
+        FarmSectionCard("Needs attention", subtitle = "Check these before heading into the field.") {
+            if (work?.overdue?.isNotEmpty() == true) {
+                Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.SpaceBetween) {
+                    Text("${work.overdue.size} overdue ${if (work.overdue.size == 1) "task" else "tasks"}",
+                        style = MaterialTheme.typography.titleMedium, modifier = Modifier.weight(1f))
+                    FarmStatusChip("Overdue", FarmStatusTone.Warning)
+                }
+                OutlinedButton(onClick = onTasks, modifier = Modifier.fillMaxWidth()) {
+                    Text("Review overdue tasks")
                 }
             }
-            Text("Illustrative layout · not a geographic map.",
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant)
-        }
-        TextButton(onClick = onCrops, modifier = Modifier.fillMaxWidth()) {
-            Text("Manage crops and plots")
-        }
-    }
-
-    FarmSectionCard("Today's fieldwork") {
-        val due = myWork.orEmpty().filter { task ->
-            val date = TaskWorkCenter.dueDate(task)
-            today != null && date != null && !date.isAfter(today)
-        }.take(3)
-        when {
-            state.offline -> Text("Tasks require a connection. Offline crop inspections remain available.",
-                color = MaterialTheme.colorScheme.onSurfaceVariant)
-            tasks?.farmId != farm.id || tasks.busy -> Text("Loading tasks…")
-            tasks.error != null -> Text("Tasks unavailable. Open Tasks to refresh.",
-                color = MaterialTheme.colorScheme.error)
-            myWork == null -> Text("Task dates unavailable. Check the farm time zone.")
-            due.isEmpty() -> FarmEmptyState("Nothing due today",
-                "Upcoming assignments are available in Tasks.")
-            else -> due.forEachIndexed { index, task ->
-                if (index > 0) HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
-                Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-                    Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(3.dp)) {
-                        Text(taskTypes.getOrElse(task.taskType) { "Task" },
-                            style = MaterialTheme.typography.titleMedium)
-                        task.description?.takeIf { it.isNotBlank() }?.let { Text(it) }
-                        Text("Due " + task.dueDate, style = MaterialTheme.typography.bodySmall)
-                    }
-                    FarmStatusChip(if (TaskWorkCenter.dueDate(task)?.isBefore(today) == true)
-                        "Overdue" else "Today",
-                        if (TaskWorkCenter.dueDate(task)?.isBefore(today) == true)
-                            FarmStatusTone.Warning else FarmStatusTone.Active)
+            if (syncSummary.needsReview > 0) {
+                Text("${syncSummary.needsReview} saved ${if (syncSummary.needsReview == 1) "record needs" else "records need"} review",
+                    style = MaterialTheme.typography.titleMedium)
+                OutlinedButton(onClick = onSync, modifier = Modifier.fillMaxWidth()) {
+                    Text("Review sync issues")
+                }
+            }
+            if (savedAdvisories > 0) {
+                Text("$savedAdvisories saved weather ${if (savedAdvisories == 1) "advisory" else "advisories"}",
+                    style = MaterialTheme.typography.titleMedium)
+                Text("These may be outdated. Check official current warnings before fieldwork.",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant)
+                OutlinedButton(onClick = onWeather, modifier = Modifier.fillMaxWidth()) {
+                    Text("Review saved advisories")
                 }
             }
         }
-        Button(onClick = onTasks, modifier = Modifier.fillMaxWidth()) { Text("Open all tasks") }
     }
 
-    FarmSectionCard("Saved weather", subtitle = "Forecast data, not live conditions.") {
-        val weather = state.weather
-        val date = today
-        val day = weather?.days?.filter { d ->
-            val parsed = runCatching { LocalDate.parse(d.date) }.getOrNull()
-            parsed != null && (date == null || !parsed.isBefore(date))
-        }?.minByOrNull { it.date }
+    FarmSectionCard("Today's tasks",
+        subtitle = "Your assignments and, for owners, unassigned farm work.") {
         when {
-            weather == null -> Text(state.weatherMessage ?: "Weather unavailable.")
-            !weather.hasCoordinates -> Text("Set the farm's location pin to enable forecasts.")
-            day == null -> Text("No saved forecast for today or later.")
+            state.offline -> {
+                FarmEmptyState("Tasks need a connection",
+                    "Reconnect to load current assignments. Offline field records can still be saved.")
+            }
+            tasks?.farmId != farm.id || tasks.busy -> Text("Loading today's work…")
+            tasks.error != null -> {
+                Text("Tasks unavailable. Connect and refresh to see current assignments.",
+                    color = MaterialTheme.colorScheme.onSurfaceVariant)
+            }
+            work == null -> Text("Farm date or task list unavailable. Ask an owner to check the time zone.")
+            work.dueCount == 0 -> {
+                if (work.upcoming.isNotEmpty()) {
+                    val next = work.upcoming.first()
+                    Text("Nothing due today", style = MaterialTheme.typography.titleMedium)
+                    Text("Next: ${taskTypes.getOrElse(next.taskType) { "Task" }} · ${next.dueDate}",
+                        color = MaterialTheme.colorScheme.onSurfaceVariant)
+                } else {
+                    FarmEmptyState("No tasks due today",
+                        if (state.plots.isEmpty()) "Set up your growing areas to begin."
+                        else "You're caught up. Open Tasks to see assignments.")
+                }
+            }
             else -> {
-                Row(verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                FarmLineIcon(FarmSymbol.Weather, Modifier.height(44.dp))
-                Text((day.minTemperatureC?.toPlainString() ?: "—") + "–" +
-                    (day.maxTemperatureC?.toPlainString() ?: "—") + " °C",
-                    style = MaterialTheme.typography.headlineSmall)
+                val due = (work.overdue + work.dueToday).take(3)
+                due.forEach { task ->
+                    val isLate = TaskWorkCenter.dueDate(task)?.isBefore(today) == true
+                    Row(Modifier.fillMaxWidth().padding(vertical = 5.dp),
+                        verticalAlignment = Alignment.Top,
+                        horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+                        Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(3.dp)) {
+                            Text(taskTypes.getOrElse(task.taskType) { "Field task" },
+                                style = MaterialTheme.typography.titleMedium)
+                            task.description?.takeIf { it.isNotBlank() }?.let {
+                                Text(it, maxLines = 2,
+                                    style = MaterialTheme.typography.bodyMedium)
+                            }
+                            val crop = currentCycles.firstOrNull { it.id == task.cropCycleId }
+                            if (crop != null) {
+                                Text("${crop.cropTypeName} · ${crop.plotName}",
+                                    style = MaterialTheme.typography.bodySmall,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant)
+                            }
+                            Text("Due ${task.dueDate}", style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant)
+                        }
+                        FarmStatusChip(if (isLate) "Overdue" else "Today",
+                            if (isLate) FarmStatusTone.Warning else FarmStatusTone.Active)
+                    }
                 }
-                Text("For " + day.date + " · " +
-                    (day.maxPrecipitationProbability?.toPlainString() ?: "—") +
-                    "% rain chance · " + (day.rainfallMm?.toPlainString() ?: "—") + " mm rain")
-                if (state.weatherOffline || WeatherFreshness.isStale(weather.days)) {
-                    Text("Saved data may be outdated. Check current conditions.",
+                if (work.dueCount > 3) {
+                    Text("And ${work.dueCount - 3} more tasks due.",
                         style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.error)
+                        color = MaterialTheme.colorScheme.onSurfaceVariant)
                 }
-                Text("Checked " + day.retrievedAtUtc + " UTC",
+            }
+        }
+        OutlinedButton(onClick = onTasks,
+            modifier = Modifier.fillMaxWidth().defaultMinSize(minHeight = 48.dp)) {
+            Text("Open tasks")
+        }
+    }
+
+    if (syncSummary.pending > 0) {
+        FarmSectionCard("Saved on this phone",
+            subtitle = "Local records are not yet confirmed on the server.") {
+            FarmStatusChip("${syncSummary.pending} waiting to sync",
+                if (syncSummary.needsReview > 0) FarmStatusTone.Warning else FarmStatusTone.Planned)
+            if (syncSummary.needsReview > 0) {
+                Text("${syncSummary.needsReview} need attention before syncing.",
+                    color = MaterialTheme.colorScheme.error)
+            }
+            OutlinedButton(onClick = onSync, modifier = Modifier.fillMaxWidth()) {
+                Text("View sync status")
+            }
+        }
+    }
+
+    // Keep previews small. Never show a dashboard filled with zero-value statistic tiles.
+    if (state.plots.isNotEmpty()) {
+        FarmSectionCard("My farm plots",
+            subtitle = "A quick look at your growing areas; illustrations aren't geographic.") {
+            state.plots.take(2).forEach { plot ->
+                val crop = currentCycles.firstOrNull { it.plotId == plot.id && it.status == 1 }
+                    ?: currentCycles.firstOrNull { it.plotId == plot.id && it.status == 0 }
+                Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                    if (crop != null) {
+                        CropArtworkImage(crop.cropTypeName, Modifier.size(58.dp))
+                    }
+                    Column(Modifier.weight(1f)) {
+                        Text(plot.name, style = MaterialTheme.typography.titleMedium)
+                        Text(crop?.let { "${it.cropTypeName} · ${it.statusName}" } ?: "No current crop",
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    }
+                    Text("${plot.areaSqMeters} m²", style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant)
+                }
+            }
+            if (state.plots.size > 2) {
+                Text("+${state.plots.size - 2} more growing areas",
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant)
             }
+            Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+                OutlinedButton(onClick = onPlots, modifier = Modifier.weight(1f)) {
+                    Text("All plots")
+                }
+                OutlinedButton(onClick = onCrops, modifier = Modifier.weight(1f)) {
+                    Text("Manage crops")
+                }
+            }
         }
-        if (weather != null && weather.advisories.any { it.status == 0 }) {
-            FarmStatusChip(weather.advisories.count { it.status == 0 }.toString() +
-                " saved advisories", FarmStatusTone.Warning)
-        }
-        OutlinedButton(onClick = onWeather, modifier = Modifier.fillMaxWidth()) {
-            Text("View full saved forecast")
-        }
+    } else if (farm.role != "Owner" && farm.role != "Manager") {
+        FarmEmptyState("No growing areas yet",
+            "Ask a farm owner or manager to add a plot before recording crop work.")
     }
 
-    FarmSectionCard("Quick actions", subtitle = "Go directly to your fieldwork.") {
-        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-            FarmQuickAction("Review tasks", FarmSymbol.Tasks, onTasks, Modifier.weight(1f))
-            FarmQuickAction("Crop monitoring", FarmSymbol.Crop, onCrops, Modifier.weight(1f))
-        }
-        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-            FarmQuickAction("Inventory", FarmSymbol.Stock, onInventory, Modifier.weight(1f))
-            FarmQuickAction("Reports & finances", FarmSymbol.Reports, onInsights, Modifier.weight(1f))
+    if (localForecast != null) {
+        val day = localForecast.days.filter { day ->
+            val forecastDate = runCatching { LocalDate.parse(day.date) }.getOrNull()
+            forecastDate != null && (today == null || !forecastDate.isBefore(today))
+        }.minByOrNull { it.date }
+        FarmSectionCard("Saved weather", subtitle = "Forecast, not live observations.") {
+            if (day == null) {
+                Text("No upcoming saved forecast.",
+                    color = MaterialTheme.colorScheme.onSurfaceVariant)
+            } else {
+                Text("${day.minTemperatureC?.toPlainString() ?: "—"}–" +
+                    "${day.maxTemperatureC?.toPlainString() ?: "—"} °C · " +
+                    "${day.maxPrecipitationProbability?.toPlainString() ?: "—"}% rain chance",
+                    style = MaterialTheme.typography.titleMedium)
+                Text("Forecast for ${day.date}", style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant)
+                if (state.weatherOffline || WeatherFreshness.isStale(localForecast.days)) {
+                    FarmStatusChip("Saved forecast may be outdated", FarmStatusTone.Warning)
+                }
+            }
+            OutlinedButton(onClick = onWeather, modifier = Modifier.fillMaxWidth()) {
+                Text("View forecast")
+            }
         }
     }
 }
