@@ -7,12 +7,17 @@
     <a class="farm-back-link" asp-action="Index">← Back to my farms</a>
 
     <h1>Create a farm</h1>
-    <p class="sf-muted">Add the farm's name and location so you can organize plots, crops, and fieldwork.</p>
+    <p class="sf-muted">Start with just a farm name and nearby location. You can add plots, crops, and your team afterward.</p>
+    <ol class="ani-setup-progress" aria-label="Farm setup progress">
+        <li aria-current="step"><span>1</span> Farm details</li>
+        <li><span>2</span> Add plots</li>
+        <li><span>3</span> Plan crops</li>
+    </ol>
 </div>
 <div class="farm-create-layout">
     <section class="panel card farm-create-panel" aria-labelledby="farm-details-heading">
         <header class="reference-panel-heading"><h2 id="farm-details-heading">Farm details</h2></header>
-        <p class="sf-muted">You can add plots and invite people after creating the farm.</p>
+        <p class="sf-muted">Two details to begin. Map pin and time zone can be adjusted if needed.</p>
         <form asp-action="Create" method="post" class="farm-create-form">
             <div class="form-field">
                 <label asp-for="Name"></label>
@@ -21,11 +26,16 @@
             </div>
             <div class="form-field">
                 <label asp-for="LocationText">Farm location / nearby address</label>
-                <input asp-for="LocationText" data-farm-location-label required maxlength="250" placeholder="Barangay, municipality, province" />
+                <input asp-for="LocationText" data-farm-location-label required maxlength="250"
+                       placeholder="e.g. Barangay San Jose, Angeles City" aria-describedby="farm-location-help" />
+                <p class="hint" id="farm-location-help">A nearby area is enough to get started. You can add an exact map pin later for weather.</p>
                 <span asp-validation-for="LocationText" class="error"></span>
             </div>
             <input asp-for="Latitude" data-farm-latitude type="hidden" />
             <input asp-for="Longitude" data-farm-longitude type="hidden" />
+            <details class="ani-farm-advanced" id="farm-advanced-settings" @(!ViewData.ModelState.IsValid ? "open" : "")>
+                <summary><strong>Map pin and time zone</strong><span>Optional setup</span></summary>
+                <p class="ani-inline-help">These settings help with localized weather and scheduling. You can finish creating your farm without a map pin.</p>
             <div class="farm-location-picker" data-farm-location-picker data-search-url="@Url.Action("Search", "FarmLocations")">
                 <h3 class="farm-map-heading">Pin your farm's location <span class="sf-muted">(optional)</span></h3>
                 <p class="hint">Find your barangay or nearby place, then position the pin on your actual farm. No coordinates to type.</p>
@@ -46,10 +56,11 @@
                 <label asp-for="TimeZoneId">Time zone</label>
                 <input asp-for="TimeZoneId" list="time-zones" required maxlength="64" aria-describedby="farm-timezone-help" />
                 <span asp-validation-for="TimeZoneId" class="error"></span>
-                <p class="hint" id="farm-timezone-help">Used for local crop dates, scheduled tasks, and reports.</p>
+                <p class="hint" id="farm-timezone-help">Defaults to Asia/Manila. Used for local crop dates, scheduled tasks, and reports.</p>
             </div>
+            </details>
             <div class="farm-create-actions">
-                <button type="submit">Create farm</button>
+                <button type="submit">Create farm &amp; continue</button>
                 <a class="sf-button-outline" asp-action="Index">Cancel</a>
             </div>
         </form>
@@ -57,11 +68,11 @@
     <aside class="farm-create-side">
         <div class="panel card farm-setup-guide">
 
-            <h2>What happens next?</h2>
+            <h2>After creating your farm</h2>
             <ol>
-                <li><strong>Add your plots.</strong><span>Record each growing area and its size.</span></li>
-                <li><strong>Plan your crops.</strong><span>Choose crop types and planting dates.</span></li>
-                <li><strong>Bring your team.</strong><span>Share the farm code and approve join requests.</span></li>
+                <li><strong>Add your first plot.</strong><span>Name the field and enter its area.</span></li>
+                <li><strong>Plan a crop.</strong><span>Choose what to plant and when.</span></li>
+                <li><strong>Invite your team.</strong><span>Share your farm code and approve requests when you're ready.</span></li>
             </ol>
         </div>
         <div class="farm-setup-note">
