@@ -2,7 +2,8 @@ package com.smartfarm.mobile
 
 import androidx.compose.ui.test.*
 import androidx.compose.ui.test.junit4.createComposeRule
-import androidx.test.espresso.Espresso
+import androidx.compose.runtime.SideEffect
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import com.smartfarm.mobile.data.remote.dto.HarvestEntryDto
 import com.smartfarm.mobile.data.remote.dto.HarvestOverviewDto
 import com.smartfarm.mobile.features.harvests.HarvestScreen
@@ -27,8 +28,12 @@ class HarvestUsabilityScreenTest {
     )
 
     @Test fun quickHarvestStartsWithEntryAndPreservesConfirmedTotals() {
+        var hideKeyboard: () -> Unit = {}
         var saved: Pair<String, String>? = null
-        compose.setContent { SmartFarmTheme {
+        compose.setContent {
+            val keyboard = LocalSoftwareKeyboardController.current
+            SideEffect { hideKeyboard = { keyboard?.hide() } }
+            SmartFarmTheme {
             HarvestScreen(HarvestUiState(farmId = "farm", cycleId = "cycle",
                 overview = overview()), onBack = {},
                 onRecord = { qty, note -> saved = qty to note }, onVoid = { _, _ -> },
@@ -36,9 +41,8 @@ class HarvestUsabilityScreenTest {
         } }
         compose.onNodeWithText("Save harvested amount").assertExists()
         compose.onNodeWithText("Harvested quantity (kg)").performScrollTo().performTextInput("1.5")
-        // Dismiss the quantity keyboard before tapping the actual Save button.
-        // Otherwise an emulator tap can be consumed by the IME.
-        Espresso.closeSoftKeyboard()
+        // Dismiss the IME through Compose before tapping Save.
+        compose.runOnIdle { hideKeyboard() }
         compose.onNodeWithText("Save harvested amount").performScrollTo()
             .assertIsDisplayed().assertIsEnabled().performClick()
         compose.runOnIdle {
