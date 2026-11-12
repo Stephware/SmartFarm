@@ -28,6 +28,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.OutlinedCard
 import androidx.compose.ui.platform.testTag
 import com.smartfarm.mobile.ui.components.FarmAppBar
+import com.smartfarm.mobile.ui.components.LocalFarmHeaderNavigation
 import com.smartfarm.mobile.ui.components.FarmHero
 import com.smartfarm.mobile.ui.components.FarmSectionCard
 import com.smartfarm.mobile.ui.components.FarmSectionHeader
@@ -69,12 +70,13 @@ import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 
 @Composable
-private fun FarmPage(title: String, content: @Composable () -> Unit) {
+private fun FarmPage(title: String, subtitle: String = "Manage your farm and team.",
+    content: @Composable () -> Unit) {
     Scaffold(topBar = { FarmAppBar() }) { padding ->
         Box(Modifier.fillMaxSize().padding(padding).consumeWindowInsets(padding).imePadding(), contentAlignment = Alignment.TopCenter) {
             Column(Modifier.widthIn(max = 840.dp).fillMaxSize().verticalScroll(rememberScrollState()).padding(16.dp),
                 verticalArrangement = Arrangement.spacedBy(16.dp)) {
-            FarmHero(title, "Track your farm activity, growing areas, and team.")
+            FarmHero(title, subtitle)
             content()
             }
         }
@@ -249,7 +251,9 @@ fun FarmDetailScreen(state: FarmUiState, onBack: () -> Unit,
     homeCrops: com.smartfarm.mobile.features.crops.CropUiState? = null,
     actorId: String? = null,
     section: String = "Overview", onWeather: () -> Unit = {},
-    onPlots: () -> Unit = {}) {
+    onPlots: () -> Unit = {}, onSync: () -> Unit = {},
+    onRecord: () -> Unit = {}, onRecordAction: (String) -> Unit = {},
+    homeSync: HomeSyncSummary = HomeSyncSummary(0, 0)) {
     val farm = state.selected
     val canManage = !state.offline && farm?.role in listOf("Owner", "Manager")
     val isOwner = !state.offline && farm?.role == "Owner"
@@ -267,24 +271,33 @@ fun FarmDetailScreen(state: FarmUiState, onBack: () -> Unit,
     }
     val sectionState = rememberSaveableStateHolder()
 
+    val hasFarmSwitcher = LocalFarmHeaderNavigation.current != null
     FarmPage(if (visibleSection == "Overview") (farm?.name ?: "Farm") else
-        "$visibleSection · ${farm?.name ?: "Farm"}") {
-        OutlinedButton(onClick = onBack) {
-            Text(if (visibleSection == "Overview") "All farms" else "Back")
+        "$visibleSection · ${farm?.name ?: "Farm"}",
+        subtitle = if (visibleSection == "Overview") "Your daily farm work in one place."
+                   else "Review and manage this farm.") {
+        if (visibleSection != "Overview" || !hasFarmSwitcher) {
+            OutlinedButton(onClick = onBack) {
+                Text(if (visibleSection == "Overview") "All farms" else "Back")
+            }
         }
         Progress(state, onRetry)
         if (farm != null) {
-            Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                Text(farm.locationText, style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.weight(1f))
-                FarmStatusChip(farm.role, FarmStatusTone.Planned)
+            if (visibleSection != "Overview") {
+                Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                    Text(farm.locationText, style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.weight(1f))
+                    FarmStatusChip(farm.role, FarmStatusTone.Planned)
+                }
             }
             if (visibleSection == "Overview") {
                 if (canManage) {
                     FarmSetupGuide(farm.id, state.plots.isNotEmpty(), homeCrops, onPlots, onCrops)
                 }
                 FarmHomeOverview(state, homeTasks, homeCrops, actorId, onTasks, onCrops, onInventory,
-                    onWeather = onWeather, onInsights = onInsights)
+                    onWeather = onWeather, onInsights = onInsights,
+                    onRecord = onRecord, onRecordAction = onRecordAction,
+                    onPlots = onPlots, onSync = onSync, syncSummary = homeSync)
             }
             if (visibleSection == "Weather") {
                 FarmWeatherDetails(state)

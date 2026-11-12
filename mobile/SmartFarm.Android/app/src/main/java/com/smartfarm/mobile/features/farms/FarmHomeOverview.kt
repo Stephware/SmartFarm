@@ -47,7 +47,8 @@ internal fun FarmHomeOverview(
     state: FarmUiState, tasks: TaskUiState?, crops: CropUiState?, actorId: String?,
     onTasks: () -> Unit, onCrops: () -> Unit, onInventory: () -> Unit,
     onWeather: () -> Unit, onInsights: () -> Unit,
-    onRecord: () -> Unit = {}, onPlots: () -> Unit = {},
+    onRecord: () -> Unit = {}, onRecordAction: (String) -> Unit = {},
+    onPlots: () -> Unit = {},
     onSync: () -> Unit = {}, syncSummary: HomeSyncSummary = HomeSyncSummary(0, 0)
 ) {
     val farm = state.selected ?: return
@@ -74,6 +75,16 @@ internal fun FarmHomeOverview(
             modifier = Modifier.weight(1f).defaultMinSize(minHeight = 52.dp)) {
             Text("My tasks")
         }
+    }
+
+    Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+        listOf("Water" to "watering", "Inspect" to "inspection", "Harvest" to "harvest")
+            .forEach { (label, action) ->
+                OutlinedButton(onClick = { onRecordAction(action) },
+                    modifier = Modifier.weight(1f).defaultMinSize(minHeight = 48.dp)) {
+                    Text(label)
+                }
+            }
     }
 
     // Only actionable alerts appear here. Weather warnings are explicitly saved, not live.
@@ -140,7 +151,7 @@ internal fun FarmHomeOverview(
             else -> {
                 val due = (work.overdue + work.dueToday).take(3)
                 due.forEach { task ->
-                    val isLate = TaskWorkCenter.dueDate(task)?.isBefore(today) == true
+                    val isLate = today?.let { TaskWorkCenter.dueDate(task)?.isBefore(it) } == true
                     Row(Modifier.fillMaxWidth().padding(vertical = 5.dp),
                         verticalAlignment = Alignment.Top,
                         horizontalArrangement = Arrangement.spacedBy(10.dp)) {
