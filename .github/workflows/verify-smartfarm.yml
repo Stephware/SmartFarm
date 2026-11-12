@@ -64,7 +64,8 @@ jobs:
 
   browser-smoke:
     name: Chromium responsive web smoke tests
-    runs-on: ubuntu-latest
+    # Pin to a Playwright-supported runner; ubuntu-latest moved to 26.04.
+    runs-on: ubuntu-24.04
     timeout-minutes: 20
     steps:
       - uses: actions/checkout@v4
