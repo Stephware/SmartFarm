@@ -2,6 +2,7 @@ package com.smartfarm.mobile
 
 import androidx.compose.ui.test.*
 import androidx.compose.ui.test.junit4.createComposeRule
+import androidx.test.espresso.Espresso
 import com.smartfarm.mobile.data.remote.dto.HarvestEntryDto
 import com.smartfarm.mobile.data.remote.dto.HarvestOverviewDto
 import com.smartfarm.mobile.features.harvests.HarvestScreen
@@ -35,8 +36,14 @@ class HarvestUsabilityScreenTest {
         } }
         compose.onNodeWithText("Save harvested amount").assertExists()
         compose.onNodeWithText("Harvested quantity (kg)").performScrollTo().performTextInput("1.5")
-        compose.onNodeWithText("Save harvested amount").performScrollTo().performClick()
-        compose.runOnIdle { assertEquals("1.5" to "", saved) }
+        // Dismiss the quantity keyboard before tapping the actual Save button.
+        // Otherwise an emulator tap can be consumed by the IME.
+        Espresso.closeSoftKeyboard()
+        compose.onNodeWithText("Save harvested amount").performScrollTo()
+            .assertIsDisplayed().assertIsEnabled().performClick()
+        compose.runOnIdle {
+            assertEquals("The harvest Save action must be delivered once", "1.5" to "", saved)
+        }
         compose.onNodeWithText("2 kg").performScrollTo().assertExists()
         compose.onNodeWithText("History & totals").performScrollTo().performClick()
         compose.onAllNodesWithText("Nov 12, 2026", substring = true)[0].performScrollTo().assertExists()
