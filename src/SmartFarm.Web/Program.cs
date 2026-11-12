@@ -93,9 +93,8 @@ if (app.Environment.IsDevelopment())
 }
 
 app.MapControllers();
-app.MapControllerRoute(name: "admin-area",
-    pattern: "admin/{controller=Dashboard}/{action=Index}/{id?}",
-    defaults: new { area = "Admin" });
+// Admin controllers use explicit attribute routes; do not let area routes
+// generate /admin/* URLs for ordinary farm controllers.
 app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Home}/{action=Index}/{id?}");
