@@ -92,7 +92,7 @@ fun HarvestScreen(
     RecordPage {
         item(key = "header") {
             Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                OutlinedButton(onClick = onBack) { Text("Back to crops") }
+                OutlinedButton(onClick = onBack) { Text("Back") }
                 FarmHero(if (canRecord) "Record harvest" else "Harvest records",
                     "Save each harvest amount separately. Check confirmed totals and history.")
                 if (state.busy) CircularProgressIndicator()

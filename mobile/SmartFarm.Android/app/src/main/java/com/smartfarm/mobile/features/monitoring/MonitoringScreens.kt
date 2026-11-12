@@ -185,8 +185,8 @@ fun MonitoringScreen(
     RecordPage {
         item(key = "forms") {
             Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+            OutlinedButton(onClick = onBack) { Text("Back") }
             FarmHero("Crop monitoring", "Record today's work, inspect crops, or review past records.")
-            OutlinedButton(onClick = onBack) { Text("Back to crops") }
             if (state.busy) CircularProgressIndicator()
             state.error?.let {
                 Text(it, color = MaterialTheme.colorScheme.error, modifier = Modifier.semantics { liveRegion = LiveRegionMode.Assertive })

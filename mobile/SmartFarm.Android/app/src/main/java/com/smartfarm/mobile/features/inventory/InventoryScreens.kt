@@ -99,8 +99,8 @@ fun InventoryListScreen(
     RecordPage {
         item(key = "header") {
             Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                OutlinedButton(onClick = onBack) { Text("Back") }
                 FarmHero("Inventory", "Track farm-wide supplies and stock movements.")
-                OutlinedButton(onClick = onBack) { Text("Back to farm") }
                 Feedback(state, onRetry)
                 FarmSectionCard("Stock overview",
                     subtitle = "Farm-wide balances, excluding changes awaiting server confirmation.") {
@@ -255,8 +255,8 @@ fun InventoryItemScreen(
     RecordPage {
         item(key = "form") {
             Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                OutlinedButton(onClick = onBack) { Text("Back to inventory") }
                 FarmHero(item?.name ?: "Inventory item", "Review balances and record farm stock movement.")
-        OutlinedButton(onClick = onBack) { Text("Inventory list") }
         Feedback(state, onRetry)
         if (item != null) {
             FarmSectionCard("Available stock",
