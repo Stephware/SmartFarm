@@ -39,9 +39,11 @@ internal fun FarmQuickRecordSheet(
     onDismiss: () -> Unit,
     onSelect: (String, String) -> Unit,
     onBrowseCrops: () -> Unit,
-    onSupplies: () -> Unit
+    onSupplies: () -> Unit,
+    initialAction: String? = null
 ) {
-    var action by rememberSaveable(farmId) { mutableStateOf<String?>(null) }
+    val preferred = initialAction?.takeIf { it in setOf("watering", "fertilizing", "inspection", "harvest") }
+    var action by rememberSaveable(farmId, preferred) { mutableStateOf(preferred) }
     val available = cropState.farmId == farmId && !cropState.busy && cropState.error == null
     val growing = if (available) activeRecordCycles(cropState.cycles) else emptyList()
 

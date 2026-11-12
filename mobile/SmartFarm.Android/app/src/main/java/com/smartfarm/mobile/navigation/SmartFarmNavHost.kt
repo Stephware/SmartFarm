@@ -65,14 +65,17 @@ fun SmartFarmNavHost(auth: AuthViewModel, farms: FarmViewModel, crops: CropViewM
     val resolver = appContext.contentResolver
     val state by auth.state.collectAsStateWithLifecycle()
     val pending by sync.operations.collectAsStateWithLifecycle()
+    val pendingPhotos by sync.photos.collectAsStateWithLifecycle()
     val headerFarm by farms.state.collectAsStateWithLifecycle()
     val cropState by crops.state.collectAsStateWithLifecycle()
     var showFarmSwitcher by rememberSaveable { mutableStateOf(false) }
     var recordForFarm by rememberSaveable { mutableStateOf<String?>(null) }
+    var recordAction by rememberSaveable { mutableStateOf<String?>(null) }
     var pendingFarmSwitch by rememberSaveable { mutableStateOf<String?>(null) }
     LaunchedEffect(state.account?.id) {
         showFarmSwitcher = false
         recordForFarm = null
+        recordAction = null
         pendingFarmSwitch = null
         farms.clear()
         if (state.account != null) sync.load()
@@ -80,6 +83,7 @@ fun SmartFarmNavHost(auth: AuthViewModel, farms: FarmViewModel, crops: CropViewM
     val expandedWorkspace = LocalConfiguration.current.screenWidthDp >= 600
     val navigateWorkspace: (String) -> Unit = { destination ->
         if (destination == "record") {
+            recordAction = null
             recordForFarm = currentFarmId
             if (crops.state.value.farmId != currentFarmId) crops.load(currentFarmId)
         } else {
@@ -145,7 +149,20 @@ fun SmartFarmNavHost(auth: AuthViewModel, farms: FarmViewModel, crops: CropViewM
             homeTasks = homeTasks, homeCrops = homeCrops, actorId = state.account?.id,
             section = section,
             onWeather = { navController.navigate("farm/$farmId/weather") },
-            onPlots = { navController.navigate("farm/$farmId/plots") })
+            onPlots = { navController.navigate("farm/$farmId/plots") },
+            onSync = { navController.navigate("sync") },
+            onRecord = {
+                recordAction = null
+                recordForFarm = farmId
+                if (crops.state.value.farmId != farmId) crops.load(farmId)
+            },
+            onRecordAction = { action ->
+                recordAction = action
+                recordForFarm = farmId
+                if (crops.state.value.farmId != farmId) crops.load(farmId)
+            },
+            homeSync = com.smartfarm.mobile.features.farms.homeSyncSummary(
+                pending, pendingPhotos, farmId, state.account?.id))
     }
 
     Scaffold(
@@ -471,19 +488,23 @@ fun SmartFarmNavHost(auth: AuthViewModel, farms: FarmViewModel, crops: CropViewM
             farmId = farmId,
             farmName = headerFarm.selected?.takeIf { it.id == farmId }?.name ?: "Selected farm",
             cropState = cropState,
-            onDismiss = { recordForFarm = null },
+            onDismiss = { recordForFarm = null; recordAction = null },
             onSelect = { action, cycleId ->
                 recordForFarm = null
+                recordAction = null
                 quickRecordRoute(farmId, action, cycleId)?.let { navController.navigate(it) }
             },
             onBrowseCrops = {
                 recordForFarm = null
+                recordAction = null
                 navController.navigate("crops/$farmId")
             },
             onSupplies = {
                 recordForFarm = null
+                recordAction = null
                 navController.navigate("inventory/$farmId")
-            }
+            },
+            initialAction = recordAction
         )
     }
     } // CompositionLocalProvider
