@@ -115,6 +115,17 @@ public sealed class FarmEnrollmentWebTests
     }
 
     [Fact]
+    public async Task ExistingPlotsLeadDirectlyToCropPlanning()
+    {
+        using var app = App(plots: [new(Guid.NewGuid(), FarmId, "North field", 150m, "version")]);
+        using var client = app.CreateClient();
+        var html = await client.GetStringAsync($"/Farms/Details?id={FarmId}");
+        Assert.Contains("Ready to plant?", html);
+        Assert.Contains("Plan a crop", html);
+        Assert.DoesNotContain("Your farm is created.", html);
+    }
+
+    [Fact]
     public async Task MyFarmsShowsPendingStatusAndAcceptsCodeWithAntiforgery()
     {
         string? submitted = null;
@@ -417,7 +428,7 @@ public sealed class FarmEnrollmentWebTests
         return new(fields);
     }
 
-    private static WebApplicationFactory<Program> App(string role = "Owner", Func<string, object?[]?, object>? enroll = null, IReadOnlyList<FarmSummary>? farms = null) =>
+    private static WebApplicationFactory<Program> App(string role = "Owner", Func<string, object?[]?, object>? enroll = null, IReadOnlyList<FarmSummary>? farms = null, IReadOnlyList<PlotDetails>? plots = null) =>
         new WebApplicationFactory<Program>().WithWebHostBuilder(builder => builder.ConfigureTestServices(services =>
         {
             services.AddSingleton<IAuthenticationService, SignedIn>();
@@ -425,7 +436,7 @@ public sealed class FarmEnrollmentWebTests
             {
                 "ListAsync" => Task.FromResult<IReadOnlyList<FarmSummary>>(farms ?? []),
                 "GetAsync" => Task.FromResult<FarmDetails?>(new(FarmId, "Green Farm", "Location", "Asia/Manila", null, null, role, "version")),
-                "ListPlotsAsync" => Task.FromResult<IReadOnlyList<PlotDetails>>([]),
+                "ListPlotsAsync" => Task.FromResult<IReadOnlyList<PlotDetails>>(plots ?? []),
                 "MembersAsync" => Task.FromResult<IReadOnlyList<FarmMemberDetails>>([]),
                 _ => throw new NotSupportedException(name)
             }));

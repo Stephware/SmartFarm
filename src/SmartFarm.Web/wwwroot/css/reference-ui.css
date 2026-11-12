@@ -736,3 +736,16 @@ summary{cursor:pointer;min-height:42px;align-content:center;color:var(--pine);fo
     background:var(--success-soft);color:var(--on-success-soft);
 }
 .ani-auth-steps .ani-step-now {color:var(--on-success-soft);}
+
+.ani-plot-next-action {
+    display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap;
+    gap:14px; margin:17px 0; padding:15px 18px;
+    background:var(--soft); border:1px solid var(--stroke); border-radius:12px;
+}
+.ani-plot-next-action strong {color:var(--ink);}
+.ani-plot-next-action p {color:var(--muted);font-size:.87rem;margin:3px 0 0;}
+.ani-plot-next-action .sf-button-outline {min-height:44px;display:inline-flex;align-items:center;justify-content:center;}
+@media(max-width:450px) {
+    .ani-plot-next-action {padding:15px;}
+    .ani-plot-next-action .sf-button-outline {width:100%;}
+}
