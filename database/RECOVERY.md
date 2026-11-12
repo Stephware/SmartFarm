@@ -54,3 +54,15 @@ bash scripts/verify-phase-a.sh --sql --device     # full automated acceptance ga
 The SQL-backed API test needs `SMARTFARM_TEST_CONNECTION` to an **initialized, disposable** `SmartFarmEnrollmentTest_...` or `SmartFarmEnrollmentBackend_...` database. The test refuses the production database. Device tests require an authorized emulator/phone and Android SDK.
 
 Before the final `dev` → `main` promotion also manually test Owner, Manager and Field Worker Web flows, new and archived plots, crop transitions, weather Worker deduplication, phone/tablet large fonts/dark mode, camera/gallery uploads, loss of connectivity during sync, stock conflict review and retry, and restoration from backup. Save acceptance results outside source control when they include user or operational data.
+
+## Current source and test scope
+
+Reviewed 2026-11-11 against ac624be. Include optional finance and current issue/
+workflow schema in the recovered environment. Worker defaults processing enabled;
+set `Hangfire__Enabled=false` explicitly in recovery rehearsal configuration until
+isolated jobs/provider verification is authorized. Existing scripts check backup
+structure and photo bytes, not a completed restore. No recovery rehearsal was
+performed by this documentation-only synchronization.
+
+Current extended-schema verification scope: see [database setup](README.md#current-verification-boundary);
+the base/finance verifier alone does not validate support/announcement extensions.

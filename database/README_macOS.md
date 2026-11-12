@@ -58,9 +58,18 @@ Click **Test Connection**.
 1. In a SQL editor connected to `master`, execute all of `01_CreateDatabase.sql`.
 2. Switch the SQL editor's active database/connection context to **`SmartFarmDB`**. Check with `SELECT DB_NAME() AS CurrentDatabase;`.
 3. **Only for a new, empty database**, execute the complete `02_CreateSchema.sql` as a SQL script.
-4. Run `03_VerifySchema.sql` while connected to `SmartFarmDB`. Expect **24 dbo tables** (7 Identity + 17 SmartFarm) and the associated foreign keys.
+4. Run `03_VerifySchema.sql` while connected to `SmartFarmDB`. Expect **25 dbo tables** (7 Identity + 18 SmartFarm) and the associated foreign keys.
 
 If you get **50001**, you have the wrong database selected. If you get **50002**, dbo tables already exist; verify their contents instead of rerunning the schema or deleting anything.
+
+## Current full-application schema context
+
+Publication source check: 2026-11-12 at `3c5a8b0`. Base now includes admin audit;
+finance, support and announcements extend the full EF model to 29 tables. Select
+reviewed upgrades for the actual target. The existing 03 verifier checks only
+base/finance counts and is not full extended-model acceptance. Follow the
+[central database runbook](README.md) before setup or upgrades. No database was
+changed by this documentation publication.
 
 ## 6. Everyday container commands
 

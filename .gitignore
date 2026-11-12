@@ -62,8 +62,15 @@ local.properties
 # Local observation images stay outside the public wwwroot tree.
 **/App_Data/observation-photos/
 
-# Keep documentation local.
-/docs/
+# Development documentation is shareable; exclude unrelated artifacts.
+/docs/*
+!/docs/*.md
+!/docs/.gitkeep
+!/docs/superpowers/
+
+# Historical local verification output can contain private runtime data.
+/.local/karpathy-wiki/verification/
+/.local/karpathy-wiki/**/__pycache__/
 
 
 # AniGo Tailwind build dependencies.
