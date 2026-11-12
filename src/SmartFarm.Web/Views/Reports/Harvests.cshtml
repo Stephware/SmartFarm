@@ -3,6 +3,8 @@
     ViewData["Title"] = "Harvest reports";
     ViewData["FarmName"] = Model.Report.FarmName;
     var report = Model.Report;
+    var hasFilters = report.FromDate.HasValue || report.ToDate.HasValue
+        || report.PlotId.HasValue || report.CropTypeId.HasValue;
 }
 <div class="reference-screen reference-screen-reports">
 <partial name="_FarmNavigation" model="Model.Report.FarmId" />
@@ -11,21 +13,60 @@
         <div>
             <p><a asp-controller="Dashboard" asp-action="Index" asp-route-farmId="@report.FarmId">← Farm dashboard</a></p>
 
-            <h1 id="reports-heading">Harvest reports</h1>
-            <p class="sf-muted">@report.FarmName · Dates use the farm's @report.TimeZoneId time zone.</p>
-            <p class="ani-insight-note">Recorded yields only. Keep different harvest units separate and exclude voided entries from totals.</p>
+            <p class="ani-overline">Farm performance</p>
+            <h1 id="reports-heading">Harvest summary</h1>
+            <p class="sf-muted">@report.FarmName · Dates follow @report.TimeZoneId.</p>
+            <p class="ani-insight-note">See what was actually harvested. Quantities use their recorded units, and voided entries do not count toward totals.</p>
         </div>
         <a class="sf-button-outline" asp-controller="FarmFinance" asp-action="Index" asp-route-farmId="@report.FarmId">View farm finances</a>
     </div>
-    <nav class="ani-insight-links" aria-label="Harvest report sections">
-        <a href="#harvest-analytics-heading">Charts</a>
-        <a href="#report-by-cycle">Crop cycles</a>
+    <nav class="ani-insight-links ani-report-jump-links" aria-label="Harvest report sections">
+        <a href="#report-history-heading">Recent harvests</a>
+        <a href="#report-by-cycle">Planting cycles</a>
         <a href="#monthly-yield-table">Monthly totals</a>
-        <a href="#report-history-heading">History</a>
+        <a href="#harvest-analytics-heading">Charts &amp; comparisons</a>
     </nav>
-    <div class="sf-report-filter-header">
-        <h2>Filter harvest records</h2>
-        <p class="sf-muted">Choose dates, a plot, or a crop type to narrow the results.</p>
+    
+    <div class="ani-report-result-heading">
+        <h2>Harvests at a glance</h2>
+        <p>@(hasFilters ? "Showing filtered records only." : "Showing all recorded harvest dates, plots, and crops.")</p>
+    </div>
+    <div class="sf-report-counts ani-report-counts" aria-label="Report record counts">
+        <div><strong>@report.ValidHarvestCount</strong><span>Valid harvest records</span></div>
+        <div><strong>@report.VoidedHarvestCount</strong><span>Voided records</span></div>
+    </div>
+    <h2 class="sf-report-totals-title">Recorded yield by unit</h2>
+    @if (report.UnitTotals.Count == 0)
+    {
+        <div class="sf-empty-state">
+            <strong>No recorded harvests for this view.</strong>
+            <p>@(hasFilters ? "Try clearing the date, plot, or crop filters to see all farm records." : "Harvests will appear after a worker records a valid partial harvest on a crop.")</p>
+            @if (hasFilters) { <a asp-action="Harvests" asp-route-farmId="@report.FarmId">See all harvests →</a> }
+            else { <a asp-controller="Crops" asp-action="Index" asp-route-farmId="@report.FarmId">Open farm crops →</a> }
+        </div>
+    }
+    else
+    {
+        <div class="stat-grid sf-report-unit-totals">
+        @foreach (var total in report.UnitTotals)
+        {
+            <div class="stat">
+                <span>@total.HarvestCount valid harvests</span>
+                <strong>@total.Quantity.ToString("N3") @total.Unit</strong>
+            </div>
+        }
+        </div>
+    }
+    <p class="hint">Each unit has its own total—kg, pieces, and other units are never added together. Voided harvests are excluded.</p>
+
+    <details class="ani-report-filter-details" open="@hasFilters" id="report-filters">
+        <summary><strong>Filters &amp; downloads</strong>
+            <span>@(hasFilters ? "Filters applied · change your selection or export" : "Choose dates, fields, crops, or export CSV")</span>
+        </summary>
+        <div class="ani-report-filter-inner">
+            <div class="sf-report-filter-header">
+        <h3>Choose what to include</h3>
+        <p class="sf-muted">Use a date range, plot, or crop to narrow totals, tables, charts, and CSV downloads together.</p>
     </div>
     <form method="get" asp-action="Harvests" class="report-filters sf-report-filters">
         <input type="hidden" name="farmId" value="@report.FarmId" />
@@ -60,7 +101,7 @@
         <a class="button" asp-action="ExportCsv" asp-route-farmId="@report.FarmId"
            asp-route-from="@(report.FromDate?.ToString("yyyy-MM-dd"))" asp-route-to="@(report.ToDate?.ToString("yyyy-MM-dd"))"
            asp-route-plotId="@report.PlotId" asp-route-cropTypeId="@report.CropTypeId">
-            Export CSV
+            Export records CSV
         </a>
         <a class="sf-button-outline" asp-action="ExportCycleCsv" asp-route-farmId="@report.FarmId"
            asp-route-from="@(report.FromDate?.ToString("yyyy-MM-dd"))"
@@ -69,31 +110,110 @@
             Export cycle totals CSV
         </a>
     </div>
-    <div class="sf-report-counts ani-report-counts" aria-label="Report record counts">
-        <div><strong>@report.ValidHarvestCount</strong><span>Valid harvest records</span></div>
-        <div><strong>@report.VoidedHarvestCount</strong><span>Voided records</span></div>
-    </div>
-    <h2 class="sf-report-totals-title">Harvest quantity by unit</h2>
-    @if (report.UnitTotals.Count == 0)
+    
+        </div>
+    </details>
+</section>
+
+<section class="ani-report-main-content" aria-label="Harvest report results">
+<section class="panel card sf-report-table-panel ani-report-table" aria-labelledby="report-history-heading">
+    <header class="reference-panel-heading"><h2 id="report-history-heading">Recent harvests</h2></header>
+    <p class="hint">Latest 100 matching records, including voided entries. For the complete list, use Export records CSV in Filters &amp; downloads.</p>
+    @if (report.Entries.Count == 0)
     {
-        <p>No valid harvest quantities match your selected filters.</p>
+        <div class="sf-empty-state"><strong>No harvest entries to show.</strong>
+            <p>@(hasFilters ? "Adjust the filters or clear them to see other dates and crops." : "New harvests appear after they are saved on an active crop.")</p>
+            @if (hasFilters) { <a asp-action="Harvests" asp-route-farmId="@report.FarmId">Clear harvest filters →</a> }
+        </div>
     }
     else
     {
-        <div class="stat-grid sf-report-unit-totals">
-        @foreach (var total in report.UnitTotals)
-        {
-            <div class="stat">
-                <span>@total.HarvestCount valid harvests</span>
-                <strong>@total.Quantity.ToString("N3") @total.Unit</strong>
-            </div>
-        }
+        <div class="table-scroll" tabindex="0" role="region" aria-label="Harvest record history">
+            <table class="data-table">
+                <caption class="visually-hidden">Harvest record history</caption>
+                <thead><tr><th scope="col">Farm date</th><th scope="col">Crop / plot</th><th scope="col">Quantity</th><th scope="col">Status</th></tr></thead>
+                <tbody>
+                @foreach (var item in report.Entries.Take(100))
+                {
+                    <tr>
+                        <td>@item.FarmDate.ToString("yyyy-MM-dd")</td>
+                        <td>@item.CropTypeName · @item.PlotName</td>
+                        <td>@item.Quantity.ToString("N3") @item.Unit</td>
+                        <td>@(item.IsVoided ? "Voided" : "Valid")</td>
+                    </tr>
+                }
+                </tbody>
+            </table>
         </div>
     }
-    <p class="hint">Totals in different units are shown separately; voided entries do not contribute to totals.</p>
 </section>
+<section class="panel card sf-report-table-panel ani-report-table" aria-labelledby="report-by-cycle">
+    <div class="sf-section-line card-head">
+        <h2 id="report-by-cycle">Yield by planting cycle</h2>
+        <span>@report.CycleTotals.Count cycle / unit groups</span>
+    </div>
+    @if (report.CycleTotals.Count == 0)
+    {
+        <p>No valid harvests are available for cycle comparisons.</p>
+    }
+    else
+    {
+        <div class="table-scroll" tabindex="0" role="region" aria-label="Yield comparison by cycle">
+            <table class="data-table">
+                <caption class="visually-hidden">Individual planting cycles and harvest totals by unit</caption>
+                <thead><tr>
+                    <th scope="col">Crop / plot</th>
+                    <th scope="col">First harvest</th>
+                    <th scope="col">Last harvest</th>
+                    <th scope="col">Partial harvests</th>
+                    <th scope="col">Recorded quantity</th>
+                </tr></thead>
+                <tbody>
+                @foreach (var cycle in report.CycleTotals)
+                {
+                    <tr>
+                        <td><strong>@cycle.CropTypeName</strong> · @cycle.PlotName
+                            <small>Cycle @cycle.CycleId.ToString("N")[..6]</small></td>
+                        <td>@cycle.FirstHarvestDate.ToString("yyyy-MM-dd")</td>
+                        <td>@cycle.LastHarvestDate.ToString("yyyy-MM-dd")</td>
+                        <td>@cycle.HarvestCount</td>
+                        <td>@cycle.Quantity.ToString("N3") @cycle.Unit</td>
+                    </tr>
+                }
+                </tbody>
+            </table>
+        </div>
+    }
+</section>
+
+<section class="panel card sf-report-table-panel ani-report-table" aria-labelledby="monthly-yield-table">
+    <header class="reference-panel-heading"><h2 id="monthly-yield-table">Monthly yield</h2></header>
+    @if (report.MonthlyTotals.Count == 0) { <p>No monthly harvest data.</p> }
+    else
+    {
+        <div class="table-scroll" tabindex="0" role="region" aria-label="Monthly yield">
+            <table class="data-table">
+                <caption class="visually-hidden">Monthly yield</caption>
+                <thead><tr><th scope="col">Month</th><th scope="col">Harvests</th><th scope="col">Quantity</th></tr></thead>
+                <tbody>
+                @foreach (var item in report.MonthlyTotals)
+                {
+                    <tr><td>@item.Month</td><td>@item.HarvestCount</td>
+                        <td>@item.Quantity.ToString("N3") @item.Unit</td></tr>
+                }
+                </tbody>
+            </table>
+        </div>
+    }
+</section>
+
+</section>
+<details class="ani-report-advanced" id="report-advanced">
+    <summary><strong>Charts &amp; detailed comparisons</strong>
+        <span>Analyze yields by cycle, month, crop and plot</span></summary>
+    <div class="ani-report-advanced-inner">
 <section class="panel card sf-report-analytics ani-report-charts" aria-labelledby="harvest-analytics-heading">
-    <header class="reference-panel-heading"><h2 id="harvest-analytics-heading">Harvest analytics</h2></header>
+    <header class="reference-panel-heading"><h2 id="harvest-analytics-heading">Detailed yield comparisons</h2></header>
     <p class="hint">Compare individual planting cycles without mixing different units or combining
         repeated plantings on the same plot. Multiple partial harvests add to their own cycle total.</p>
     @if (Model.CycleCharts.Count == 0)
@@ -193,44 +313,7 @@
     }
     <p class="hint">Yield per square meter uses the plot's current recorded area; it is a historical estimate if the area changed.</p>
 </section>
-<section class="panel card sf-report-table-panel ani-report-table" aria-labelledby="report-by-cycle">
-    <div class="sf-section-line card-head">
-        <h2 id="report-by-cycle">Yield by planting cycle</h2>
-        <span>@report.CycleTotals.Count cycle / unit groups</span>
-    </div>
-    @if (report.CycleTotals.Count == 0)
-    {
-        <p>No valid harvests are available for cycle comparisons.</p>
-    }
-    else
-    {
-        <div class="table-scroll" tabindex="0" role="region" aria-label="Yield comparison by cycle">
-            <table class="data-table">
-                <caption class="visually-hidden">Individual planting cycles and harvest totals by unit</caption>
-                <thead><tr>
-                    <th scope="col">Crop / plot</th>
-                    <th scope="col">First harvest</th>
-                    <th scope="col">Last harvest</th>
-                    <th scope="col">Partial harvests</th>
-                    <th scope="col">Recorded quantity</th>
-                </tr></thead>
-                <tbody>
-                @foreach (var cycle in report.CycleTotals)
-                {
-                    <tr>
-                        <td><strong>@cycle.CropTypeName</strong> · @cycle.PlotName
-                            <small>Cycle @cycle.CycleId.ToString("N")[..6]</small></td>
-                        <td>@cycle.FirstHarvestDate.ToString("yyyy-MM-dd")</td>
-                        <td>@cycle.LastHarvestDate.ToString("yyyy-MM-dd")</td>
-                        <td>@cycle.HarvestCount</td>
-                        <td>@cycle.Quantity.ToString("N3") @cycle.Unit</td>
-                    </tr>
-                }
-                </tbody>
-            </table>
-        </div>
-    }
-</section>
+
 <section class="panel card sf-report-table-panel ani-report-table" aria-labelledby="report-by-plot">
     <header class="reference-panel-heading"><h2 id="report-by-plot">Harvest by crop and plot</h2></header>
     @if (report.CropPlotTotals.Count == 0) { <p>No matching totals.</p> }
@@ -254,50 +337,7 @@
         </div>
     }
 </section>
-<section class="panel card sf-report-table-panel ani-report-table" aria-labelledby="monthly-yield-table">
-    <header class="reference-panel-heading"><h2 id="monthly-yield-table">Monthly yield</h2></header>
-    @if (report.MonthlyTotals.Count == 0) { <p>No monthly harvest data.</p> }
-    else
-    {
-        <div class="table-scroll" tabindex="0" role="region" aria-label="Monthly yield">
-            <table class="data-table">
-                <caption class="visually-hidden">Monthly yield</caption>
-                <thead><tr><th scope="col">Month</th><th scope="col">Harvests</th><th scope="col">Quantity</th></tr></thead>
-                <tbody>
-                @foreach (var item in report.MonthlyTotals)
-                {
-                    <tr><td>@item.Month</td><td>@item.HarvestCount</td>
-                        <td>@item.Quantity.ToString("N3") @item.Unit</td></tr>
-                }
-                </tbody>
-            </table>
-        </div>
-    }
-</section>
-<section class="panel card sf-report-table-panel ani-report-table" aria-labelledby="report-history-heading">
-    <header class="reference-panel-heading"><h2 id="report-history-heading">Harvest record history</h2></header>
-    <p class="hint">Showing the latest 100 entries. Export CSV to see every matching record, including voided records.</p>
-    @if (report.Entries.Count == 0) { <p>No records match your filters.</p> }
-    else
-    {
-        <div class="table-scroll" tabindex="0" role="region" aria-label="Harvest record history">
-            <table class="data-table">
-                <caption class="visually-hidden">Harvest record history</caption>
-                <thead><tr><th scope="col">Farm date</th><th scope="col">Crop / plot</th><th scope="col">Quantity</th><th scope="col">Status</th></tr></thead>
-                <tbody>
-                @foreach (var item in report.Entries.Take(100))
-                {
-                    <tr>
-                        <td>@item.FarmDate.ToString("yyyy-MM-dd")</td>
-                        <td>@item.CropTypeName · @item.PlotName</td>
-                        <td>@item.Quantity.ToString("N3") @item.Unit</td>
-                        <td>@(item.IsVoided ? "Voided" : "Valid")</td>
-                    </tr>
-                }
-                </tbody>
-            </table>
-        </div>
-    }
-</section>
 
+    </div>
+</details>
 </div>

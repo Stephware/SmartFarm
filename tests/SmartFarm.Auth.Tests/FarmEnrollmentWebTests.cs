@@ -16,6 +16,7 @@ using SmartFarm.Core.Contracts.Weather;
 using SmartFarm.Core.Contracts.Monitoring;
 using SmartFarm.Core.Contracts.Harvests;
 using SmartFarm.Core.Contracts.Inventory;
+using SmartFarm.Core.Contracts.Finance;
 using SmartFarm.Core.Interfaces.Farms;
 using SmartFarm.Core.Interfaces.Reports;
 using SmartFarm.Core.Interfaces.Crops;
@@ -24,6 +25,7 @@ using SmartFarm.Core.Interfaces.Weather;
 using SmartFarm.Core.Interfaces.Monitoring;
 using SmartFarm.Core.Interfaces.Harvests;
 using SmartFarm.Core.Interfaces.Inventory;
+using SmartFarm.Core.Interfaces.Finance;
 using SmartFarm.Core.Enums;
 using Xunit;
 
@@ -555,6 +557,120 @@ public sealed class FarmEnrollmentWebTests
     }
 
     [Fact]
+    public async Task HarvestReportShowsUnitSeparatedSummaryBeforeRecentRecordsAndAdvancedCharts()
+    {
+        var plot = Guid.NewGuid();
+        var cycle = Guid.NewGuid();
+        var today = new DateOnly(2026, 11, 12);
+        var report = new HarvestReport(FarmId, "Green Farm", "Asia/Manila",
+            null, null, null, null, 3, 1,
+            [new HarvestUnitTotal("kg", 24.5m, 2), new HarvestUnitTotal("pieces", 3m, 1)],
+            [], [],
+            [new HarvestReportEntry(Guid.NewGuid(), cycle, plot, "North field",
+                Guid.NewGuid(), "Tomato", 24.5m, "kg", DateTime.UtcNow, today, false, null)]);
+        using var app = App(harvestReport: report);
+        using var client = app.CreateClient();
+        var html = await client.GetStringAsync($"/Reports/Harvests?farmId={FarmId}");
+        Assert.Contains("Harvests at a glance", html);
+        Assert.Contains("24.500 kg", html);
+        Assert.Contains("3.000 pieces", html);
+        Assert.Contains("Recent harvests", html);
+        Assert.Contains("Filters &amp; downloads", html);
+        Assert.Contains("Export records CSV", html);
+        Assert.Contains("id=\"report-advanced\"", html);
+        Assert.Contains("different units", html);
+        Assert.True(html.IndexOf("Harvests at a glance", StringComparison.Ordinal) <
+                    html.IndexOf("id=\"report-history-heading\"", StringComparison.Ordinal));
+        Assert.True(html.IndexOf("id=\"report-history-heading\"", StringComparison.Ordinal) <
+                    html.IndexOf("id=\"report-advanced\"", StringComparison.Ordinal));
+    }
+
+    [Fact]
+    public async Task FilteredHarvestReportKeepsDateAndPlotSelectionAndClearAction()
+    {
+        var plotId = Guid.NewGuid();
+        var from = new DateOnly(2026, 10, 1);
+        var to = new DateOnly(2026, 10, 31);
+        var report = new HarvestReport(FarmId, "Green Farm", "Asia/Manila",
+            from, to, plotId, null, 0, 0, [], [], [], []);
+        using var app = App(harvestReport: report,
+            plots: [new PlotDetails(plotId, FarmId, "North field", 130m, "v")]);
+        using var client = app.CreateClient();
+        var html = await client.GetStringAsync(
+            $"/Reports/Harvests?farmId={FarmId}&from=2026-10-01&to=2026-10-31&plotId={plotId}");
+        Assert.Contains("Filters applied", html);
+        Assert.Contains("No recorded harvests for this view", html);
+        Assert.Contains("See all harvests", html);
+        Assert.Contains("value=\"2026-10-01\"", html);
+        Assert.Contains("value=\"2026-10-31\"", html);
+        Assert.Contains("plotId=" + plotId, html);
+        Assert.Matches("(?s)class=\"ani-report-filter-details\"[^>]*open", html);
+        Assert.Contains("ExportCycleCsv", html);
+    }
+
+    [Theory]
+    [InlineData("Owner", true)]
+    [InlineData("Manager", true)]
+    [InlineData("FieldWorker", false)]
+    public async Task FarmFinanceShowsManualCashButOnlyManagersCanAddEntries(string role, bool canManage)
+    {
+        var entry = new FarmFinanceEntryDetails(Guid.NewGuid(), FarmId, null,
+            new DateOnly(2026, 10, 20), "Income", "Crop sale", 1000m, null,
+            DateTime.UtcNow, false, null);
+        var overview = new FarmFinanceOverview(FarmId, 300m, 1000m, 700m, [entry]);
+        var insights = new FarmFinanceInsights(FarmId, new DateOnly(2026, 10, 1),
+            new DateOnly(2026, 10, 31), 1000m, 300m, 700m, 2, [], [], []);
+        using var app = App(role, financeOverview: overview, financeInsights: insights);
+        using var client = app.CreateClient();
+        var html = await client.GetStringAsync($"/FarmFinance?farmId={FarmId}&from=2026-10-01&to=2026-10-31");
+        Assert.Contains("₱1,000.00", html);
+        Assert.Contains("₱300.00", html);
+        Assert.Contains("₱700.00", html);
+        Assert.Contains("A harvest is not automatically a sale", html);
+        Assert.Contains("Crop sale", html);
+        Assert.Contains("Date filters applied", html);
+        Assert.Contains("finance-advanced", html);
+        Assert.True(html.IndexOf("id=\"finance-history-heading\"", StringComparison.Ordinal) <
+                    html.IndexOf("id=\"finance-advanced\"", StringComparison.Ordinal));
+        if (canManage)
+        {
+            Assert.Contains("id=\"add-finance-entry\"", html);
+            Assert.Contains("Save cash entry", html);
+            Assert.True(html.IndexOf("id=\"add-finance-entry\"", StringComparison.Ordinal) <
+                        html.IndexOf("id=\"finance-history-heading\"", StringComparison.Ordinal));
+        }
+        else
+        {
+            Assert.DoesNotContain("id=\"add-finance-entry\"", html);
+            Assert.DoesNotContain("Save cash entry", html);
+        }
+    }
+
+    [Theory]
+    [InlineData("Owner", true)]
+    [InlineData("Manager", true)]
+    [InlineData("FieldWorker", false)]
+    public async Task FarmSettingsStayRestrictedAndMakeExactMapOptional(string role, bool canEdit)
+    {
+        using var app = App(role);
+        using var client = app.CreateClient(new() { AllowAutoRedirect = false });
+        using var response = await client.GetAsync($"/Farms/Edit?id={FarmId}");
+        if (!canEdit)
+        {
+            Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
+            return;
+        }
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        var html = await response.Content.ReadAsStringAsync();
+        Assert.Contains("Exact farm location on the map", html);
+        Assert.Contains("ani-farm-map-options", html);
+        Assert.Contains("data-farm-location-picker", html);
+        Assert.Contains("name=\"Input.TimeZoneId\"", html);
+        Assert.Contains("Save farm settings", html);
+        Assert.Contains("name=\"Input.RowVersion\"", html);
+    }
+
+    [Fact]
     public async Task DashboardShowsOnlySavedFarmInformationAndKeepsQuickLinks()
     {
         using var app = App();
@@ -815,7 +931,9 @@ public sealed class FarmEnrollmentWebTests
         IReadOnlyList<CropTypeDetails>? cropTypes = null,
         MonitoringDetails? monitoring = null, HarvestOverview? harvest = null,
         InventoryWorkspace? inventory = null, InventoryItemDetails? inventoryItem = null,
-        WeatherOverview? weather = null, IReadOnlyList<NotificationDetails>? notifications = null) =>
+        WeatherOverview? weather = null, IReadOnlyList<NotificationDetails>? notifications = null,
+        HarvestReport? harvestReport = null, FarmFinanceOverview? financeOverview = null,
+        FarmFinanceInsights? financeInsights = null) =>
         new WebApplicationFactory<Program>().WithWebHostBuilder(builder => builder.ConfigureTestServices(services =>
         {
             services.AddSingleton<IAuthenticationService, SignedIn>();
@@ -827,8 +945,16 @@ public sealed class FarmEnrollmentWebTests
                 "MembersAsync" => Task.FromResult<IReadOnlyList<FarmMemberDetails>>([]),
                 _ => throw new NotSupportedException(name)
             }));
-            services.AddScoped(_ => Stub<IFarmReportService>((_, _) => Task.FromResult(
-                new FarmDashboard(FarmId, "Green Farm", new DateOnly(2026,10,27), 0,0,0,0,0,0,0,0,[],[]))));
+            services.AddScoped(_ => Stub<IFarmReportService>((name, _) => name switch
+            {
+                "DashboardAsync" => Task.FromResult(
+                    new FarmDashboard(FarmId, "Green Farm", new DateOnly(2026,10,27),
+                        0,0,0,0,0,0,0,0,[],[])),
+                "HarvestsAsync" => Task.FromResult(harvestReport ?? new HarvestReport(
+                    FarmId, "Green Farm", "Asia/Manila",
+                    null, null, null, null, 0, 0, [], [], [], [])),
+                _ => throw new NotSupportedException(name)
+            }));
             // The dashboard reads crop, task and saved-weather summaries as well as the report.
             services.AddScoped(_ => Stub<ICropManagementService>((name, args) => name switch
             {
@@ -860,6 +986,17 @@ public sealed class FarmEnrollmentWebTests
                 services.AddScoped(_ => Stub<IHarvestService>((name, _) => name switch
                 {
                     "GetAsync" => Task.FromResult(harvest),
+                    _ => throw new NotSupportedException(name)
+                }));
+            }
+            if (financeOverview is not null || financeInsights is not null)
+            {
+                services.AddScoped(_ => Stub<IFarmFinanceService>((name, _) => name switch
+                {
+                    "ListAsync" => Task.FromResult(financeOverview ??
+                        new FarmFinanceOverview(FarmId, 0m, 0m, 0m, [])),
+                    "InsightsAsync" => Task.FromResult(financeInsights ??
+                        new FarmFinanceInsights(FarmId, null, null, 0m, 0m, 0m, 0, [], [], [])),
                     _ => throw new NotSupportedException(name)
                 }));
             }

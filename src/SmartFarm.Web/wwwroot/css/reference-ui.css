@@ -1195,3 +1195,273 @@ summary{cursor:pointer;min-height:42px;align-content:center;color:var(--pine);fo
 @media(prefers-reduced-motion:reduce) {
     .reference-screen-monitoring .ani-fieldwork-jumps a {transition:none;}
 }
+
+
+/* Web Phase 8: summary-first reporting, optional cash, and secondary settings. */
+.reference-screen-reports .ani-report-hero,
+.reference-screen-farmfinance .ani-finance-hero {
+    border:1px solid var(--stroke);background:var(--card);border-radius:var(--ui-card-radius);
+    padding:clamp(18px,2.6vw,29px);margin:0 0 19px;
+}
+.reference-screen-reports .ani-report-hero .page-hero,
+.reference-screen-farmfinance .ani-finance-hero .page-hero {
+    flex-wrap:wrap;align-items:flex-start;gap:15px;
+}
+.reference-screen-reports .ani-report-hero h1,
+.reference-screen-farmfinance .ani-finance-hero h1 {
+    font-size:clamp(1.5rem,2.5vw,2rem);margin:2px 0 7px;
+}
+.reference-screen-reports .ani-report-hero .ani-insight-note,
+.reference-screen-farmfinance .ani-finance-hero .ani-insight-note {
+    color:var(--muted);font-size:.89rem;line-height:1.6;margin:8px 0 0;max-width:75ch;
+}
+.reference-screen-reports .ani-report-jump-links {
+    display:flex;align-items:center;flex-wrap:wrap;gap:8px;margin:15px 0 18px;
+}
+.reference-screen-reports .ani-report-jump-links a {
+    display:inline-flex;align-items:center;min-height:41px;padding:8px 13px;
+    border:1px solid var(--stroke);border-radius:999px;background:var(--soft);
+    color:var(--ink);font-weight:700;font-size:.83rem;text-decoration:none;
+}
+.reference-screen-reports .ani-report-jump-links a:hover {border-color:var(--outline);background:var(--success-soft);}
+.reference-screen-reports .ani-report-result-heading {
+    margin:16px 0 13px;display:flex;align-items:baseline;gap:7px 18px;flex-wrap:wrap;
+}
+.reference-screen-reports .ani-report-result-heading h2 {font-size:1.14rem;margin:0;}
+.reference-screen-reports .ani-report-result-heading p {
+    font-size:.84rem;color:var(--muted);margin:0;
+}
+.reference-screen-reports .ani-report-counts {
+    display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;
+    margin-bottom:17px;
+}
+.reference-screen-reports .ani-report-counts>div {
+    display:grid;gap:4px;min-width:0;padding:15px 17px;
+    background:var(--soft);border-radius:12px;border:1px solid var(--stroke);
+}
+.reference-screen-reports .ani-report-counts strong {
+    font-size:clamp(1.4rem,2.1vw,1.9rem);
+    font-variant-numeric:tabular-nums;color:var(--ink);
+}
+.reference-screen-reports .ani-report-counts span {font-size:.83rem;color:var(--muted);font-weight:700;}
+.reference-screen-reports .sf-report-totals-title {
+    margin:18px 0 10px;font-size:1.04rem;
+}
+.reference-screen-reports .sf-report-unit-totals {
+    display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:10px;
+    margin:0 0 10px;
+}
+.reference-screen-reports .sf-report-unit-totals .stat {
+    display:grid;gap:5px;align-items:start;
+    background:var(--soft);border:1px solid var(--stroke);border-radius:12px;
+    min-width:0;padding:15px 17px;
+}
+.reference-screen-reports .sf-report-unit-totals .stat span {font-size:.82rem;color:var(--muted);}
+.reference-screen-reports .sf-report-unit-totals .stat strong {
+    font-size:1.21rem;font-variant-numeric:tabular-nums;overflow-wrap:anywhere;
+}
+.reference-screen-reports .ani-report-filter-details,
+.reference-screen-reports .ani-report-advanced,
+.reference-screen-farmfinance .ani-finance-advanced,
+.reference-screen-farms .ani-farm-map-options {
+    border:1px solid var(--stroke);border-radius:14px;background:var(--card);
+    min-width:0;
+}
+.reference-screen-reports .ani-report-filter-details {margin:18px 0 0;background:var(--soft);}
+.reference-screen-reports .ani-report-filter-details>summary,
+.reference-screen-reports .ani-report-advanced>summary,
+.reference-screen-farmfinance .ani-finance-advanced>summary,
+.reference-screen-farms .ani-farm-map-options>summary {
+    display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;
+    gap:6px 14px;min-height:52px;padding:15px 20px;cursor:pointer;list-style:none;
+    color:var(--ink);font-size:.94rem;
+}
+.reference-screen-reports .ani-report-filter-details>summary::-webkit-details-marker,
+.reference-screen-reports .ani-report-advanced>summary::-webkit-details-marker,
+.reference-screen-farmfinance .ani-finance-advanced>summary::-webkit-details-marker,
+.reference-screen-farms .ani-farm-map-options>summary::-webkit-details-marker {display:none;}
+.reference-screen-reports .ani-report-filter-details>summary::after,
+.reference-screen-reports .ani-report-advanced>summary::after,
+.reference-screen-farmfinance .ani-finance-advanced>summary::after,
+.reference-screen-farms .ani-farm-map-options>summary::after {
+    content:"";width:9px;height:9px;border-right:2px solid var(--ink);
+    border-bottom:2px solid var(--ink);transform:rotate(45deg);margin-right:5px;
+}
+.reference-screen-reports .ani-report-filter-details[open]>summary::after,
+.reference-screen-reports .ani-report-advanced[open]>summary::after,
+.reference-screen-farmfinance .ani-finance-advanced[open]>summary::after,
+.reference-screen-farms .ani-farm-map-options[open]>summary::after {transform:rotate(225deg);}
+.reference-screen-reports .ani-report-filter-details>summary span,
+.reference-screen-reports .ani-report-advanced>summary span,
+.reference-screen-farmfinance .ani-finance-advanced>summary span,
+.reference-screen-farms .ani-farm-map-options>summary span {
+    flex:1 1 220px;font-size:.79rem;font-weight:600;color:var(--muted);
+}
+.reference-screen-reports .ani-report-filter-details>summary strong,
+.reference-screen-reports .ani-report-advanced>summary strong,
+.reference-screen-farmfinance .ani-finance-advanced>summary strong,
+.reference-screen-farms .ani-farm-map-options>summary strong {
+    font-weight:800;white-space:normal;
+}
+.reference-screen-reports .ani-report-filter-details>summary:focus-visible,
+.reference-screen-reports .ani-report-advanced>summary:focus-visible,
+.reference-screen-farmfinance .ani-finance-advanced>summary:focus-visible,
+.reference-screen-farms .ani-farm-map-options>summary:focus-visible {
+    outline:3px solid var(--focus);outline-offset:3px;
+}
+.reference-screen-reports .ani-report-filter-details[open]>summary,
+.reference-screen-reports .ani-report-advanced[open]>summary,
+.reference-screen-farmfinance .ani-finance-advanced[open]>summary,
+.reference-screen-farms .ani-farm-map-options[open]>summary {
+    border-bottom:1px solid var(--stroke);
+}
+.reference-screen-reports .ani-report-filter-inner,
+.reference-screen-reports .ani-report-advanced-inner,
+.reference-screen-farmfinance .ani-finance-advanced-inner {
+    padding:clamp(15px,2.3vw,22px);min-width:0;
+}
+.reference-screen-reports .ani-report-filter-inner .sf-report-filter-header h3 {
+    font-size:.99rem;margin:2px 0 4px;
+}
+.reference-screen-reports .ani-report-filter-inner .sf-report-filter-header p {
+    margin:4px 0 13px;color:var(--muted);font-size:.86rem;
+}
+.reference-screen-reports .ani-report-filter-inner .sf-report-filters {
+    display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:11px;
+    margin-bottom:12px;align-items:end;
+}
+.reference-screen-reports .ani-report-filter-inner .sf-report-filters>div {
+    min-width:0;display:grid;gap:7px;
+}
+.reference-screen-reports .ani-report-filter-inner .sf-report-filters :is(input,select) {
+    width:100%;max-width:100%;min-width:0;min-height:45px;font-size:.92rem;
+}
+.reference-screen-reports .ani-report-filter-inner .sf-report-filters button {
+    min-height:45px;align-self:end;
+}
+.reference-screen-reports .ani-report-filter-inner .sf-report-actions {
+    display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:10px 0 0;
+}
+.reference-screen-reports .ani-report-filter-inner .sf-report-actions a {
+    min-height:42px;display:inline-flex;align-items:center;
+    justify-content:center;padding:8px 13px;
+}
+.reference-screen-reports .ani-report-main-content {display:grid;gap:16px;}
+.reference-screen-reports .ani-report-main-content>.ani-report-table {
+    border:1px solid var(--stroke);background:var(--card);
+    border-radius:var(--ui-card-radius);padding:clamp(17px,2.3vw,23px);
+    min-width:0;margin:0;
+}
+.reference-screen-reports .ani-report-main-content>.ani-report-table h2 {
+    font-size:1.12rem;
+}
+.reference-screen-reports .ani-report-main-content .card-head {gap:10px;flex-wrap:wrap;}
+.reference-screen-reports :is(#report-history-heading,#report-by-cycle,
+#report-by-plot,#monthly-yield-table,#harvest-analytics-heading) {scroll-margin-top:100px;}
+.reference-screen-reports .ani-report-advanced {margin:17px 0;}
+.reference-screen-reports .ani-report-advanced-inner>.sf-report-analytics {
+    margin:0 0 16px;
+}
+.reference-screen-reports .ani-report-advanced-inner>.ani-report-table {
+    border:1px solid var(--stroke);border-radius:13px;padding:18px;
+    background:var(--soft);
+}
+.reference-screen-farmfinance .ani-finance-hero .ani-finance-overview {margin:16px 0;}
+.reference-screen-farmfinance .ani-finance-hero .ani-finance-overview>div {
+    display:grid;gap:5px;min-width:0;
+}
+.reference-screen-farmfinance .ani-finance-hero .ani-finance-overview span {
+    font-size:.83rem;color:var(--muted);line-height:1.45;
+}
+.reference-screen-farmfinance .ani-finance-hero .ani-finance-overview strong {
+    font-size:clamp(1.12rem,2.4vw,1.6rem);font-variant-numeric:tabular-nums;
+    line-height:1.3;overflow-wrap:anywhere;
+}
+.reference-screen-farmfinance .ani-finance-main {display:grid;gap:17px;}
+.reference-screen-farmfinance .ani-finance-main>.ani-finance-entry,
+.reference-screen-farmfinance .ani-finance-main>.ani-finance-history {
+    margin:0;padding:clamp(18px,2.4vw,24px);border:1px solid var(--stroke);
+    border-radius:var(--ui-card-radius);background:var(--card);min-width:0;
+}
+.reference-screen-farmfinance .ani-finance-entry .reference-panel-heading {
+    margin:0 0 13px;align-items:start;
+}
+.reference-screen-farmfinance .ani-finance-entry h2 {
+    margin:0 0 5px;font-size:clamp(1.09rem,2vw,1.27rem);
+}
+.reference-screen-farmfinance .ani-finance-entry .sf-muted {line-height:1.6;font-size:.87rem;}
+.reference-screen-farmfinance .ani-finance-entry-form {
+    display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;
+}
+.reference-screen-farmfinance .ani-finance-entry-form>div {
+    display:grid;gap:7px;min-width:0;align-content:start;
+}
+.reference-screen-farmfinance .ani-finance-entry-form :is(input,select,textarea) {
+    width:100%;max-width:100%;min-height:47px;font-size:1rem;
+}
+.reference-screen-farmfinance .ani-finance-entry-form label {font-size:.87rem;font-weight:750;}
+.reference-screen-farmfinance .ani-finance-entry-form .sf-form-wide {grid-column:1/-1;}
+.reference-screen-farmfinance .ani-finance-entry-form button[type=submit] {
+    min-height:47px;justify-self:start;font-weight:750;font-size:.92rem;
+}
+.reference-screen-farmfinance .ani-finance-entry-form .hint {font-size:.81rem;color:var(--muted);line-height:1.5;margin:0;}
+.reference-screen-farmfinance .ani-finance-history {scroll-margin-top:100px;}
+.reference-screen-farmfinance .ani-finance-history .card-head {gap:9px;flex-wrap:wrap;}
+.reference-screen-farmfinance .ani-finance-history .sf-finance-row {
+    border-left:3px solid var(--accent);border-radius:11px;padding:13px 16px;
+}
+.reference-screen-farmfinance .ani-finance-advanced {margin:18px 0 20px;}
+.reference-screen-farmfinance .ani-finance-advanced-inner>.ani-finance-insights {
+    border:0;background:transparent;padding:0;margin:0;box-shadow:none;
+}
+.reference-screen-farmfinance .ani-finance-insights .sf-report-filters {
+    display:flex;gap:12px;flex-wrap:wrap;align-items:end;
+}
+.reference-screen-farmfinance .ani-finance-insights .sf-report-filters>div {flex:1 1 160px;display:grid;gap:6px;}
+.reference-screen-farmfinance .ani-finance-insights .sf-report-filters :is(input,select) {
+    min-height:45px;width:100%;
+}
+.reference-screen-farmfinance .ani-finance-insights .sf-report-filters button {min-height:45px;}
+.reference-screen-farmfinance .ani-finance-insights .sf-report-actions {gap:9px;display:flex;flex-wrap:wrap;}
+.reference-screen-farmfinance .ani-finance-insights .sf-report-actions a {min-height:44px;display:inline-flex;align-items:center;}
+.reference-screen-farms .ani-farm-map-options {margin:14px 0;background:var(--soft);}
+.reference-screen-farms .ani-farm-map-options .ani-inline-help {margin:12px 16px 4px;}
+.reference-screen-farms .ani-farm-map-options .farm-location-picker {margin:12px 15px 16px;}
+.reference-screen-farms .ani-farm-settings-actions {
+    display:flex;flex-wrap:wrap;align-items:center;gap:10px;
+    padding-top:6px;
+}
+.reference-screen-farms .ani-farm-settings-actions :is(button,a) {
+    display:inline-flex;align-items:center;justify-content:center;min-height:46px;
+    font-weight:750;text-decoration:none;
+}
+.sf-account-links .sf-account-link-grid a {min-height:95px;}
+.sf-account-links .sf-account-link-grid a:hover {border-color:var(--outline);}
+.sf-account-details .hint {max-width:72ch;line-height:1.6;}
+@media(max-width:900px) {
+    .reference-screen-reports .ani-report-filter-inner .sf-report-filters {
+        grid-template-columns:repeat(2,minmax(0,1fr));
+    }
+}
+@media(max-width:660px) {
+    .reference-screen-reports .ani-report-counts {grid-template-columns:repeat(2,minmax(0,1fr));}
+    .reference-screen-reports .ani-report-filter-inner .sf-report-filters {
+        grid-template-columns:minmax(0,1fr);
+    }
+    .reference-screen-reports .ani-report-filter-inner .sf-report-actions a {flex:1 1 130px;}
+    .reference-screen-reports .ani-report-jump-links a {flex:1 1 135px;text-align:center;}
+    .reference-screen-farmfinance .ani-finance-entry-form {grid-template-columns:minmax(0,1fr);}
+    .reference-screen-farmfinance .ani-finance-entry-form .sf-form-wide {grid-column:auto;}
+    .reference-screen-farmfinance .ani-finance-entry-form button[type=submit] {width:100%;}
+    .reference-screen-farmfinance .ani-finance-insights .sf-report-filters>div {flex:1 1 100%;}
+    .reference-screen-farms .ani-farm-map-options>summary,
+    .reference-screen-reports .ani-report-filter-details>summary,
+    .reference-screen-reports .ani-report-advanced>summary,
+    .reference-screen-farmfinance .ani-finance-advanced>summary {padding:14px 16px;}
+    .reference-screen-farms .ani-farm-settings-actions :is(button,a) {flex:1 1 120px;}
+}
+@media(max-width:380px) {
+    .reference-screen-reports .ani-report-counts>div {padding:11px;}
+    .reference-screen-reports .ani-report-unit-totals .stat {padding:11px;}
+    .reference-screen-farmfinance .ani-finance-overview {grid-template-columns:minmax(0,1fr);}
+}
