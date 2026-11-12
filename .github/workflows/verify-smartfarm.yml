@@ -61,3 +61,50 @@ jobs:
         working-directory: mobile/SmartFarm.Android
         run: bash ./gradlew --no-daemon :app:assembleDebug :app:assembleAndroidTest :app:testDebugUnitTest
       # Instrumentation tests are compiled in CI, but need an emulator to execute.
+
+  browser-smoke:
+    name: Chromium responsive web smoke tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 10.0.x
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Build the real MVC site
+        run: dotnet build src/SmartFarm.Web/SmartFarm.Web.csproj --configuration Release
+      - name: Install Chromium browser test runner
+        run: |
+          npm install --no-save --no-package-lock playwright@1.56.1
+          npx playwright install --with-deps chromium
+      - name: Start the public MVC site
+        env:
+          ASPNETCORE_ENVIRONMENT: Development
+          ASPNETCORE_URLS: http://127.0.0.1:5082
+        run: |
+          (cd src/SmartFarm.Web && dotnet bin/Release/net10.0/SmartFarm.Web.dll) > /tmp/smartfarm-web-smoke.log 2>&1 &
+          echo $! > /tmp/smartfarm-web-smoke.pid
+          for attempt in $(seq 1 60); do
+            if curl --fail --silent http://127.0.0.1:5082/ >/dev/null; then
+              exit 0
+            fi
+            sleep 1
+          done
+          cat /tmp/smartfarm-web-smoke.log
+          exit 1
+      - name: Check real-browser navigation and responsive behavior
+        env:
+          SMARTFARM_BROWSER_BASE_URL: http://127.0.0.1:5082
+        run: node tests/browser/web-smoke.cjs
+      - name: Upload browser screenshots and startup log
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: web-browser-smoke
+          if-no-files-found: ignore
+          path: |
+            tests/browser/screenshots/
+            /tmp/smartfarm-web-smoke.log
