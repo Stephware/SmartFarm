@@ -36,7 +36,8 @@ test('light and dark semantic colors preserve readable text and control boundari
         .map(match => match[1]);
     // The reference theme remains the final shared stylesheet.
     assert.equal(styles.at(-1), 'css/reference-ui.css');
-    assert.equal(styles.at(-2), 'css/farmer-operations.css');
+    assert.equal(styles.at(-2), 'css/anigo-tailwind.css');
+    assert.equal(styles.at(-3), 'css/farmer-operations.css');
     const css = styles.map(file => fs.readFileSync(path.join(web, 'wwwroot', file), 'utf8'))
         .join('\n').replace(/\/\*[\s\S]*?\*\//g, '');
     const luminance = hex => {
