@@ -45,7 +45,7 @@ public sealed class SuperAdminFoundationTests
     [Fact]
     public async Task AdminRoutesRequireAuthenticationAndDoNotExposeOnboardingToGuests()
     {
-        await using var app = new WebApplicationFactory<Program>();
+        using var app = new WebApplicationFactory<Program>();
         using var client = app.CreateClient(new() { AllowAutoRedirect = false });
         using var dashboard = await client.GetAsync("/admin");
         using var setup = await client.GetAsync("/admin/security/setup");
