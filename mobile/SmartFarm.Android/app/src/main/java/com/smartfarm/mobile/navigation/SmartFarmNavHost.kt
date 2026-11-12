@@ -310,6 +310,7 @@ fun SmartFarmNavHost(auth: AuthViewModel, farms: FarmViewModel, crops: CropViewM
                         when (task.taskType) {
                             5 -> navController.navigate("harvests/$farmId/$cycleId")
                             2 -> navController.navigate("monitor/$farmId/$cycleId?quick=watering")
+                            3 -> navController.navigate("monitor/$farmId/$cycleId?quick=fertilizing")
                             4 -> navController.navigate("monitor/$farmId/$cycleId?quick=inspection")
                             else -> navController.navigate("monitor/$farmId/$cycleId")
                         }

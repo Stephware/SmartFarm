@@ -34,7 +34,7 @@ class DailyWorkScreenTest {
                 )
             }
         }
-        compose.onNodeWithText("Today's farm work").assertExists()
+        compose.onNodeWithText("My tasks").assertExists()
         compose.onNodeWithText("1 due today").assertExists()
         compose.onNodeWithText("Create and assign task").assertDoesNotExist()
     }

@@ -96,15 +96,18 @@ class NavigationInputsTest {
 
     @Test fun fieldWorkersCanCompleteOnlyTheirAssignedTasks() {
         val task = TaskDto("task", "farm", null, "other", 2, "2026-10-26", 0, "Water north plot", "version")
-        val state = mutableStateOf(TaskUiState(farmId = "farm", tasks = listOf(task)))
+        val state = mutableStateOf(TaskUiState(farmId = "farm", tasks = listOf(task),
+            timeZoneId = "Asia/Manila"))
         var completed: String? = null
         compose.setContent { SmartFarmTheme {
             TaskScreen(state.value, false, "me", {}, {}, { completed = it.id }, {})
         } }
-        compose.onNodeWithText("All farm tasks").performScrollTo().performClick()
+        compose.onNodeWithText("All farm tasks").assertDoesNotExist()
         compose.onNodeWithText("Mark completed").assertDoesNotExist()
         compose.runOnIdle { state.value = state.value.copy(tasks = listOf(task.copy(assignedToUserId = "me"))) }
         compose.onNodeWithText("Mark completed").performScrollTo().performClick()
+        compose.runOnIdle { assertEquals(null, completed) }
+        compose.onNodeWithText("Complete task").performScrollTo().performClick()
         compose.runOnIdle { assertEquals("task", completed) }
     }
 }
