@@ -59,8 +59,9 @@ internal fun FarmHomeOverview(
     val visibleCrops = crops?.takeIf { it.farmId == farm.id && !it.busy && it.error == null }
     val currentCycles = visibleCrops?.cycles.orEmpty()
     val growing = currentCycles.filter { it.status == 1 }
-    val savedAdvisories = state.weather?.advisories?.count { it.status == 0 } ?: 0
-    val localForecast = state.weather?.takeIf { it.farmId == farm.id && it.hasCoordinates }
+    val localWeather = state.weather?.takeIf { it.farmId == farm.id }
+    val savedAdvisories = localWeather?.advisories?.count { it.status == 0 } ?: 0
+    val localForecast = localWeather?.takeIf { it.hasCoordinates }
     val dateText = today?.format(DateTimeFormatter.ofPattern("EEE, MMM d", Locale.getDefault()))
         ?: "Farm date unavailable"
 
