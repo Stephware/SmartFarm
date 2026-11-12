@@ -54,7 +54,9 @@ public sealed class DashboardController(
                 Plots = plots,
                 Cycles = cycles,
                 Tasks = scheduled,
-                Weather = savedForecast
+                Weather = savedForecast,
+                FarmRole = farm.Role,
+                ActorId = actor
             });
         }
         catch (FarmOperationException error) when (error.Error == FarmError.NotFound)

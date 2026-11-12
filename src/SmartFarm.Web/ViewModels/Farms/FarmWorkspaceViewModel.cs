@@ -20,6 +20,8 @@ public sealed record FarmDashboardViewModel(SmartFarm.Core.Contracts.Reports.Far
     public IReadOnlyList<SmartFarm.Core.Contracts.Crops.CropCycleDetails> Cycles { get; init; } = [];
     public IReadOnlyList<SmartFarm.Core.Contracts.Tasks.FarmTaskDetails> Tasks { get; init; } = [];
     public SmartFarm.Core.Contracts.Weather.WeatherOverview? Weather { get; init; }
+    public string FarmRole { get; init; } = "FieldWorker";
+    public Guid ActorId { get; init; }
 }
 
 public sealed record FarmEditViewModel(Guid FarmId, FarmInput Input);
