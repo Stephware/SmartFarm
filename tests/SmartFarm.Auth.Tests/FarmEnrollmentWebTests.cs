@@ -237,6 +237,123 @@ public sealed class FarmEnrollmentWebTests
         Assert.Contains(cycle.Id.ToString(), html);
     }
 
+
+    [Theory]
+    [InlineData("Owner", true)]
+    [InlineData("Manager", true)]
+    [InlineData("FieldWorker", false)]
+    public async Task PlotOverviewShowsCropStatusAndRoleAppropriateActions(string role, bool canManage)
+    {
+        var growingPlot = Guid.NewGuid();
+        var emptyPlot = Guid.NewGuid();
+        var planted = new CropCycleDetails(Guid.NewGuid(), FarmId, growingPlot,
+            "North field", Guid.NewGuid(), "Tomato", CropCycleStatus.Active,
+            new DateOnly(2026, 10, 10), new DateOnly(2026, 10, 11),
+            new DateOnly(2026, 12, 15), "kg", 3, null, null, "v");
+        var plots = new[]
+        {
+            new PlotDetails(growingPlot, FarmId, "North field", 120m, "v"),
+            new PlotDetails(emptyPlot, FarmId, "South field", 100m, "v")
+        };
+        using var app = App(role: role, plots: plots, cycles: [planted]);
+        using var client = app.CreateClient();
+        var html = await client.GetStringAsync($"/PlotLayout?farmId={FarmId}");
+        Assert.Contains("Your growing plots", html);
+        Assert.Contains("Illustrative layout only", html);
+        Assert.Contains("Growing", html);
+        Assert.Contains("North field", html);
+        Assert.Contains("South field", html);
+        Assert.Contains("View crop details", html);
+        Assert.Contains("plotId=" + emptyPlot, html);
+        Assert.Contains("planting-plans-heading", html);
+        Assert.Contains(planted.Id.ToString(), html);
+        if (canManage)
+        {
+            Assert.Contains("Add plot", html);
+            Assert.Contains("Plan a crop", html);
+        }
+        else
+        {
+            Assert.DoesNotContain(">Add plot</a>", html);
+            Assert.Contains("View planting plans", html);
+        }
+    }
+
+    [Fact]
+    public async Task EmptyPlotOverviewGuidesOwnerButNotWorkerToAddPlot()
+    {
+        foreach (var role in new[] { "Owner", "FieldWorker" })
+        {
+            using var app = App(role);
+            using var client = app.CreateClient();
+            var html = await client.GetStringAsync($"/PlotLayout?farmId={FarmId}");
+            Assert.Contains("No active plots yet", html);
+            if (role == "Owner")
+            {
+                Assert.Contains("Add your first plot", html);
+                Assert.Contains("add-plot", html);
+            }
+            else
+            {
+                Assert.DoesNotContain("Add your first plot", html);
+                Assert.Contains("farm owner or manager can add plots", html);
+            }
+        }
+    }
+
+    [Theory]
+    [InlineData("Owner", true)]
+    [InlineData("FieldWorker", false)]
+    public async Task CropPageGuidesPlotAndKeepsReadOnlyPermissions(string role, bool canManage)
+    {
+        var plotId = Guid.NewGuid();
+        var cropTypeId = Guid.NewGuid();
+        var active = new CropCycleDetails(Guid.NewGuid(), FarmId, plotId, "North field",
+            cropTypeId, "Tomato", CropCycleStatus.Active,
+            new DateOnly(2026, 10, 5), new DateOnly(2026, 10, 6),
+            new DateOnly(2026, 12, 10), "kg", 4, null, null, "v");
+        var plots = new[] { new PlotDetails(plotId, FarmId, "North field", 100m, "v") };
+        var cropTypes = new[] { new CropTypeDetails(cropTypeId, "Tomato", 95, 4, "kg") };
+        using var app = App(role: role, plots: plots, cycles: [active], cropTypes: cropTypes);
+        using var client = app.CreateClient();
+        var html = await client.GetStringAsync($"/Crops?farmId={FarmId}&plotId={plotId}");
+        Assert.Contains("Selected plot: North field", html);
+        Assert.Contains("Currently growing", html);
+        Assert.Contains("Plan a crop", html);
+        Assert.Contains("Crop records", html);
+        Assert.Contains("Open monitoring", html);
+        Assert.Contains("Crop types &amp; history", html);
+        Assert.Contains("crop-cycle-" + active.Id, html);
+        Assert.True(html.IndexOf("id=\"ani-current-heading\"", StringComparison.Ordinal) <
+                    html.IndexOf("id=\"planting-plans-heading\"", StringComparison.Ordinal));
+        Assert.True(html.IndexOf("id=\"planting-plans-heading\"", StringComparison.Ordinal) <
+                    html.IndexOf("id=\"crop-cycles-heading\"", StringComparison.Ordinal));
+        if (canManage)
+        {
+            Assert.Contains("Save planting plan", html);
+            Assert.Contains("Manage crop cycle", html);
+        }
+        else
+        {
+            Assert.DoesNotContain("Save planting plan", html);
+            Assert.DoesNotContain("Manage crop cycle", html);
+            Assert.DoesNotContain("Add a crop type", html);
+        }
+        Assert.Contains("Crop calendar", html);
+    }
+
+    [Fact]
+    public async Task CropPlanningWithoutTypesShowsTheNextStepAndAccessibleAdvancedTools()
+    {
+        using var app = App(role: "Owner", plots:
+            [new PlotDetails(Guid.NewGuid(), FarmId, "South field", 80m, "v")]);
+        using var client = app.CreateClient();
+        var html = await client.GetStringAsync($"/Crops?farmId={FarmId}");
+        Assert.Contains("Set up a crop type first", html);
+        Assert.Contains("id=\"crop-advanced\"", html);
+        Assert.Contains("Add crop type", html);
+        Assert.DoesNotContain("Save planting plan", html);
+    }
     [Fact]
     public async Task DashboardShowsOnlySavedFarmInformationAndKeepsQuickLinks()
     {
@@ -494,7 +611,8 @@ public sealed class FarmEnrollmentWebTests
     }
 
     private static WebApplicationFactory<Program> App(string role = "Owner", Func<string, object?[]?, object>? enroll = null, IReadOnlyList<FarmSummary>? farms = null, IReadOnlyList<PlotDetails>? plots = null,
-        IReadOnlyList<CropCycleDetails>? cycles = null, IReadOnlyList<FarmTaskDetails>? taskList = null) =>
+        IReadOnlyList<CropCycleDetails>? cycles = null, IReadOnlyList<FarmTaskDetails>? taskList = null,
+        IReadOnlyList<CropTypeDetails>? cropTypes = null) =>
         new WebApplicationFactory<Program>().WithWebHostBuilder(builder => builder.ConfigureTestServices(services =>
         {
             services.AddSingleton<IAuthenticationService, SignedIn>();
@@ -509,8 +627,12 @@ public sealed class FarmEnrollmentWebTests
             services.AddScoped(_ => Stub<IFarmReportService>((_, _) => Task.FromResult(
                 new FarmDashboard(FarmId, "Green Farm", new DateOnly(2026,10,27), 0,0,0,0,0,0,0,0,[],[]))));
             // The dashboard reads crop, task and saved-weather summaries as well as the report.
-            services.AddScoped(_ => Stub<ICropManagementService>((name, _) => name == "ListCyclesAsync"
-                ? Task.FromResult<IReadOnlyList<CropCycleDetails>>(cycles ?? []) : throw new NotSupportedException(name)));
+            services.AddScoped(_ => Stub<ICropManagementService>((name, _) => name switch
+            {
+                "ListCyclesAsync" => Task.FromResult<IReadOnlyList<CropCycleDetails>>(cycles ?? []),
+                "ListCropTypesAsync" => Task.FromResult<IReadOnlyList<CropTypeDetails>>(cropTypes ?? []),
+                _ => throw new NotSupportedException(name)
+            }));
             services.AddScoped(_ => Stub<IFarmTaskService>((name, _) => name == "ListAsync"
                 ? Task.FromResult<IReadOnlyList<FarmTaskDetails>>(taskList ?? []) : throw new NotSupportedException(name)));
             services.AddScoped(_ => Stub<IFarmWeatherService>((name, _) => name == "GetAsync"
