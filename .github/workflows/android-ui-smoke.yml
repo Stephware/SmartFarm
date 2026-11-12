@@ -49,9 +49,7 @@ jobs:
           ram-size: 3072M
           disable-animations: true
           working-directory: mobile/SmartFarm.Android
-          script: |
-            bash ./gradlew --no-daemon :app:connectedDebugAndroidTest \
-              -Pandroid.testInstrumentationRunnerArguments.class=com.smartfarm.mobile.FinalFarmerJourneysTest,com.smartfarm.mobile.NavigationInputsTest,com.smartfarm.mobile.SecondaryNavigationScreenTest
+          script: bash ./gradlew --no-daemon :app:connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.smartfarm.mobile.FinalFarmerJourneysTest,com.smartfarm.mobile.NavigationInputsTest,com.smartfarm.mobile.SecondaryNavigationScreenTest
       - name: Save Android test results
         if: always()
         uses: actions/upload-artifact@v4
