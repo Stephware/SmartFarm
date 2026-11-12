@@ -14,6 +14,8 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Surface
 import java.time.Instant
 import java.time.ZoneOffset
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DropdownMenu
@@ -46,6 +48,7 @@ import com.smartfarm.mobile.ui.components.FarmSectionHeader
 import com.smartfarm.mobile.ui.components.FarmStatusChip
 import com.smartfarm.mobile.ui.components.FarmStatusTone
 import com.smartfarm.mobile.ui.components.RecordPage
+import com.smartfarm.mobile.ui.components.DateInput
 import java.time.LocalDate
 
 private val taskNames = listOf("Unknown", "Planting", "Watering", "Fertilizing",
@@ -79,16 +82,16 @@ fun TaskScreen(
     val overdue = today?.let { TaskWorkCenter.overdue(assigned, it) }.orEmpty()
     val dueToday = today?.let { TaskWorkCenter.dueToday(assigned, it) }.orEmpty()
     val upcoming = today?.let { TaskWorkCenter.upcoming(assigned, it) }.orEmpty()
-    val closed = state.tasks.filter { it.status != 0 }
-        .sortedWith(compareByDescending<TaskDto> { it.dueDate }.thenBy { it.id })
+    val closed = TaskDisplay.myHistory(state.tasks, actorId, isOwner)
     val isTasks = state.farmId != null
+    val farmTasks = if (canManage) TaskDisplay.farmTasks(state.tasks) else emptyList()
     RecordPage {
         item(key = "header") {
             Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                FarmHero(if (isTasks) "Today's farm work" else "Notifications",
-                    if (isTasks) "Your assignments and upcoming fieldwork, using the farm's local date."
+                FarmHero(if (isTasks) "My tasks" else "Notifications",
+                    if (isTasks) "Start with today's work. Use Calendar for other dates."
                     else "Task reminders and farm advisories.")
-                OutlinedButton(onClick = onBack) { Text("Back") }
+                if (!isTasks) OutlinedButton(onClick = onBack) { Text("Back") }
                 if (state.busy) CircularProgressIndicator()
                 state.error?.let {
                     Text(it, color = MaterialTheme.colorScheme.error,
@@ -109,146 +112,152 @@ fun TaskScreen(
 
         if (isTasks && (state.error == null || state.tasks.isNotEmpty())) {
             item(key = "task-tabs") {
-                Row(Modifier.horizontalScroll(rememberScrollState()),
-                    horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    listOf(
-                        "today" to "Today / overdue",
-                        "upcoming" to "Upcoming",
-                        "calendar" to "Calendar",
-                        "completed" to "Closed",
-                        "all" to "All farm tasks"
-                    ).forEach { (key, label) ->
-                        FilterChip(selected = selectedView == key,
-                            onClick = { selectedView = key },
-                            label = { Text(label) })
+                Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                    Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                        listOf("today" to "Today", "upcoming" to "Upcoming",
+                            "completed" to "Completed").forEach { (key, title) ->
+                            FilterChip(selected = selectedView == key,
+                                onClick = { selectedView = key },
+                                modifier = Modifier.weight(1f),
+                                label = { Text(title) })
+                        }
                     }
+                    Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                        OutlinedButton(onClick = { selectedView = "calendar" },
+                            modifier = Modifier.weight(1f)) { Text("Calendar") }
+                        if (canManage) {
+                            OutlinedButton(onClick = { selectedView = "manage"; adding = false },
+                                modifier = Modifier.weight(1f)) { Text("All farm tasks") }
+                        }
+                    }
+                    if (canManage) {
+                        Button(onClick = {
+                            selectedView = "manage"
+                            adding = !adding
+                            editingId = null
+                        }, enabled = !state.busy && state.choicesReady,
+                            modifier = Modifier.fillMaxWidth()) {
+                            Text(if (adding && selectedView == "manage") "Close new task form"
+                                 else "Create and assign task")
+                        }
+                        state.choicesError?.let {
+                            Text(it, color = MaterialTheme.colorScheme.error,
+                                style = MaterialTheme.typography.bodySmall)
+                        }
+                    }
+                }
+            }
+            if (selectedView == "today") {
+                item(key = "today-summary") {
+                    FarmSectionCard("My work", subtitle = if (today != null)
+                        "Farm date: ${TaskDisplay.dueLabel(today.toString())} · ${state.timeZoneId}"
+                        else "Farm time zone unavailable. Ask an owner or manager to check settings.") {
+                        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+                            FarmStatusChip("${overdue.size} overdue",
+                                if (overdue.isEmpty()) FarmStatusTone.Neutral else FarmStatusTone.Warning)
+                            FarmStatusChip("${dueToday.size} due today", FarmStatusTone.Active)
+                        }
+                    }
+                    if (today == null) {
+                        FarmEmptyState("Farm date unavailable",
+                            "Reconnect and refresh before completing dated tasks.")
+                    } else if (!state.busy && overdue.isEmpty() && dueToday.isEmpty()) {
+                        FarmEmptyState("Nothing due today",
+                            if (upcoming.isNotEmpty()) "Your next assignment is ${TaskDisplay.dueLabel(upcoming.first().dueDate)}."
+                            else "You're caught up. Check Upcoming or refresh for new work.")
+                    }
+                }
+                if (today != null) {
+                    if (overdue.isNotEmpty()) item(key = "overdue-heading") {
+                        FarmSectionHeader("Overdue", "These tasks need attention first.")
+                    }
+                    items(overdue.size, key = { "overdue-${overdue[it].id}" }) { index ->
+                        TodayTaskCard(overdue[index], state, canManage, actorId, onComplete, onOpenCrop)
+                    }
+                    if (dueToday.isNotEmpty()) item(key = "due-today-heading") {
+                        FarmSectionHeader("Due today", "Today's assigned fieldwork.")
+                    }
+                    items(dueToday.size, key = { "today-${dueToday[it].id}" }) { index ->
+                        TodayTaskCard(dueToday[index], state, canManage, actorId, onComplete, onOpenCrop)
+                    }
+                }
+            }
+            if (selectedView == "upcoming") {
+                if (today == null) item(key = "upcoming-date-error") {
+                    FarmEmptyState("Farm date unavailable",
+                        "Reconnect and refresh to view upcoming tasks.")
+                } else if (upcoming.isEmpty()) item(key = "upcoming-empty") {
+                    FarmEmptyState("No upcoming tasks",
+                        "Your future assignments will appear here.")
+                } else item(key = "upcoming-heading") {
+                    FarmSectionHeader("Upcoming", "Your next assigned tasks.")
+                }
+                if (today != null) items(upcoming.size, key = { "upcoming-${upcoming[it].id}" }) { index ->
+                    TodayTaskCard(upcoming[index], state, canManage, actorId, onComplete, onOpenCrop)
+                }
+            }
+            if (selectedView == "completed") {
+                if (closed.isEmpty()) item(key = "history-empty") {
+                    FarmEmptyState("No completed tasks yet",
+                        "Your completed, skipped or cancelled assignments will appear here.")
+                } else item(key = "history-heading") {
+                    FarmSectionHeader("My task history",
+                        "Your closed assignments. Records cannot be edited here.")
+                }
+                items(closed.size, key = { "history-${closed[it].id}" }) { index ->
+                    TodayTaskCard(closed[index], state, canManage, actorId, onComplete, onOpenCrop)
                 }
             }
             if (selectedView == "calendar") {
                 item(key = "calendar") {
-                    Surface(shape = MaterialTheme.shapes.medium, color = MaterialTheme.colorScheme.surface) {
-                        DatePicker(state = calendar, showModeToggle = false,
-                            title = null, headline = null,
-                            colors = DatePickerDefaults.colors(containerColor = MaterialTheme.colorScheme.surface))
+                    Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                        FarmSectionHeader("Task calendar", "Choose a date to review your assignments.")
+                        Surface(shape = MaterialTheme.shapes.medium,
+                            color = MaterialTheme.colorScheme.surface) {
+                            DatePicker(state = calendar, showModeToggle = false,
+                                title = null, headline = null,
+                                colors = DatePickerDefaults.colors(
+                                    containerColor = MaterialTheme.colorScheme.surface))
+                        }
                     }
                 }
                 item(key = "calendar-heading") {
-                    FarmSectionHeader("Assignments on " + (calendarDate?.toString() ?: "selected date"),
-                        "Your open work, using the farm's local dates.")
+                    FarmSectionHeader("Assignments on " +
+                        (calendarDate?.toString() ?: "selected date"),
+                        "Open tasks for this date. Dates follow the farm's time zone.")
                 }
                 val calendarTasks = assigned.filter { TaskWorkCenter.dueDate(it) == calendarDate }
                 if (calendarTasks.isEmpty()) item(key = "calendar-empty") {
-                    FarmEmptyState("No assignments on this date", "Choose another date to review scheduled work.")
+                    FarmEmptyState("No assigned work on this date",
+                        "Choose another day or return to Today.")
                 }
                 items(calendarTasks.size, key = { "calendar-${calendarTasks[it].id}" }) { index ->
                     TodayTaskCard(calendarTasks[index], state, canManage, actorId, onComplete, onOpenCrop)
                 }
             }
-            if (selectedView == "today" || selectedView == "upcoming") item(key = "today-summary") {
-                FarmSectionCard("My work", subtitle = if (today != null)
-                    "Farm date: $today · ${state.timeZoneId}"
-                else "Farm time zone unavailable. Refresh before planning work.") {
-                    Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-                        FarmStatusChip("${overdue.size} overdue",
-                            if (overdue.isEmpty()) FarmStatusTone.Neutral else FarmStatusTone.Warning)
-                        FarmStatusChip("${dueToday.size} due today", FarmStatusTone.Active)
-                    }
-                    Text("${upcoming.size} upcoming assigned task(s)",
-                        style = MaterialTheme.typography.bodyMedium)
+            if (selectedView == "manage" && canManage) {
+                if (adding && state.choicesReady) item(key = "new-task") {
+                    NewTaskForm(state, today, onCreate)
                 }
-                if (today == null) {
-                    FarmEmptyState("Farm time zone unavailable",
-                        "Refresh before planning work or completing dated tasks.")
-                } else if (!state.busy && selectedView == "today" &&
-                    overdue.isEmpty() && dueToday.isEmpty()) {
-                    FarmEmptyState("Nothing due today", "There is no overdue or due-today assigned work.")
-                } else if (!state.busy && selectedView == "upcoming" && upcoming.isEmpty()) {
-                    FarmEmptyState("No upcoming assignments", "New work will appear after a refresh.")
+                item(key = "manage-heading") {
+                    FarmSectionHeader("All farm tasks",
+                        "Manage assignments and due dates. Existing completed records are read-only.")
                 }
-            }
-            if (today != null) {
-                if (selectedView == "today" && overdue.isNotEmpty()) item(key = "overdue-heading") {
-                    FarmSectionHeader("Overdue", "Open work past the farm's local due date.")
+                if (farmTasks.isEmpty()) item(key = "manage-empty") {
+                    FarmEmptyState("No farm tasks yet",
+                        "Create a task above to assign work to your team.")
                 }
-                if (selectedView == "today") items(overdue.size, key = { "overdue-${overdue[it].id}" }) { index ->
-                    TodayTaskCard(overdue[index], state, canManage, actorId, onComplete, onOpenCrop)
-                }
-                if (selectedView == "today" && dueToday.isNotEmpty()) item(key = "today-heading") {
-                    FarmSectionHeader("Due today", "Work scheduled for the farm's current date.")
-                }
-                if (selectedView == "today") items(dueToday.size, key = { "today-${dueToday[it].id}" }) { index ->
-                    TodayTaskCard(dueToday[index], state, canManage, actorId, onComplete, onOpenCrop)
-                }
-                if (selectedView == "upcoming" && upcoming.isNotEmpty()) item(key = "upcoming-heading") {
-                    FarmSectionHeader("Upcoming", "Your next scheduled assignments.")
-                }
-                if (selectedView == "upcoming") items(upcoming.size, key = { "upcoming-${upcoming[it].id}" }) { index ->
-                    TodayTaskCard(upcoming[index], state, canManage, actorId, onComplete, onOpenCrop)
-                }
-            }
-            if (canManage) item(key = "manager-action") {
-                Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
-                    Button(onClick = { adding = !adding }, enabled = !state.busy &&
-                        state.choicesReady, modifier = Modifier.fillMaxWidth()) {
-                        Text(if (adding) "Close new task form" else "Create and assign task")
-                    }
-                    state.choicesError?.let {
-                        Text(it, color = MaterialTheme.colorScheme.error,
-                            style = MaterialTheme.typography.bodySmall)
-                    }
-                    if (adding && state.choicesReady) {
-                        NewTaskForm(state, today, onCreate)
-                    }
-                    Text("Planting, watering and harvest reminders may already be generated by the Worker. " +
-                        "These presets fill forms only; they do not schedule extra recurring jobs.",
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant)
-                }
-            }
-            if (selectedView == "completed") {
-                if (closed.isEmpty()) item(key = "no-closed") {
-                    FarmEmptyState("No closed tasks", "Completed, skipped and cancelled tasks will appear here.")
-                }
-                items(closed.size, key = { "closed-${closed[it].id}" }) { index ->
-                    val task = closed[index]
-                    FarmSectionCard(taskNames.getOrElse(task.taskType) { "Farm task" },
-                        subtitle = "Due ${task.dueDate}") {
-                        FarmStatusChip(statuses.getOrElse(task.status) { "Closed" }, FarmStatusTone.Neutral)
-                        task.description?.let { Text(it) }
-                        Text("Read-only history. No new task is created here.",
-                            style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant)
-                    }
-                }
-            }
-            if (selectedView == "all") {
-                if (state.tasks.isEmpty()) item(key = "empty-tasks") {
-                    FarmEmptyState("No tasks scheduled yet", "Managers can add a task above.")
-                }
-                items(state.tasks.size, key = { "all-${state.tasks[it].id}" }) { index ->
-                    val task = state.tasks[index]
-                    FarmSectionCard(
-                        taskNames.getOrElse(task.taskType) { "Unknown task" },
-                        subtitle = "Due ${task.dueDate}"
-                    ) {
-                        FarmStatusChip(statuses.getOrElse(task.status) { "Unknown" },
-                            if (task.status == 0) FarmStatusTone.Planned else FarmStatusTone.Neutral)
-                        task.description?.let { Text(it) }
-                        val assignedName = state.members.firstOrNull {
-                            it.userId == task.assignedToUserId
-                        }?.fullName ?: if (task.assignedToUserId == null) "Unassigned"
-                            else if (task.assignedToUserId == actorId) "You" else "Farm owner / member"
-                        Text("Assigned: $assignedName",
-                            style = MaterialTheme.typography.bodySmall)
-                        if (task.status == 0 && (canManage ||
-                                actorId != null && task.assignedToUserId == actorId)) {
-                            Button(onClick = { onComplete(task) }, enabled = !state.busy,
-                                modifier = Modifier.fillMaxWidth()) { Text("Mark completed") }
-                        }
-                        if (task.status == 0 && canManage && state.choicesReady) {
+                items(farmTasks.size, key = { "manage-${farmTasks[it].id}" }) { index ->
+                    val task = farmTasks[index]
+                    TodayTaskCard(task, state, canManage, actorId, onComplete, onOpenCrop,
+                        showAssignee = true)
+                    if (task.status == 0 && state.choicesReady) {
+                        Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                             OutlinedButton(onClick = {
                                 editingId = if (editingId == task.id) null else task.id
-                            }) { Text(if (editingId == task.id) "Close editor" else "Edit assignment / due date") }
+                            }, modifier = Modifier.fillMaxWidth()) {
+                                Text(if (editingId == task.id) "Close task editor" else "Edit assignment")
+                            }
                             if (editingId == task.id) EditTaskForm(task, state, onUpdate)
                         }
                     }
@@ -279,27 +288,65 @@ fun TaskScreen(
 @Composable
 private fun TodayTaskCard(
     task: TaskDto, state: TaskUiState, canManage: Boolean, actorId: String?,
-    onComplete: (TaskDto) -> Unit, onOpenCrop: (TaskDto) -> Unit
+    onComplete: (TaskDto) -> Unit, onOpenCrop: (TaskDto) -> Unit,
+    showAssignee: Boolean = false
 ) {
-    FarmSectionCard(taskNames.getOrElse(task.taskType) { "Task" },
-        subtitle = "Due ${task.dueDate}") {
-        task.description?.let { Text(it, style = MaterialTheme.typography.bodyMedium) }
-        val crop = state.cycles.firstOrNull { it.id == task.cropCycleId }
-        if (crop != null) {
-            Text("${crop.cropTypeName} · ${crop.plotName}",
-                style = MaterialTheme.typography.bodySmall)
-            if (crop.status == 1 && task.taskType in 2..5) {
-                OutlinedButton(onClick = { onOpenCrop(task) },
-                    modifier = Modifier.fillMaxWidth()) {
-                    Text(if (task.taskType == 5) "Open harvest records" else "Open crop logging")
+    var confirming by rememberSaveable(task.id) { mutableStateOf(false) }
+    val cycle = state.cycles.firstOrNull { it.id == task.cropCycleId }
+    FarmSectionCard(taskNames.getOrElse(task.taskType) { "Field task" },
+        subtitle = "Due ${TaskDisplay.dueLabel(task.dueDate)}") {
+        if (task.status != 0) {
+            FarmStatusChip(statuses.getOrElse(task.status) { "Closed" }, FarmStatusTone.Neutral)
+        }
+        cycle?.let {
+            Text("${it.cropTypeName} · ${it.plotName}",
+                style = MaterialTheme.typography.titleSmall,
+                color = MaterialTheme.colorScheme.primary)
+        }
+        task.description?.takeIf { it.isNotBlank() }?.let {
+            Text(it, style = MaterialTheme.typography.bodyMedium)
+        }
+        if (showAssignee) {
+            val name = state.members.firstOrNull { it.userId == task.assignedToUserId }?.fullName
+                ?: when {
+                    task.assignedToUserId == null -> "Unassigned"
+                    task.assignedToUserId == actorId -> "You"
+                    else -> "Farm member"
                 }
+            Text("Assigned to: $name", style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant)
+        }
+        if (task.status == 0 && cycle?.status == 1 && task.taskType in 2..5) {
+            OutlinedButton(onClick = { onOpenCrop(task) },
+                modifier = Modifier.fillMaxWidth()) {
+                Text(if (task.taskType == 5) "Open harvest record" else "Record fieldwork")
             }
         }
-        if (task.status == 0 && (canManage ||
-                actorId != null && task.assignedToUserId == actorId)) {
-            Button(onClick = { onComplete(task) }, enabled = !state.busy,
+        if (TaskDisplay.canComplete(task, actorId, canManage)) {
+            Button(onClick = { confirming = true }, enabled = !state.busy,
                 modifier = Modifier.fillMaxWidth()) { Text("Mark completed") }
         }
+    }
+    if (confirming) {
+        AlertDialog(
+            onDismissRequest = { confirming = false },
+            title = { Text("Complete this task?") },
+            text = {
+                Text("Mark ${taskNames.getOrElse(task.taskType) { "this task" }} as completed? " +
+                    "This updates the server task status; it does not create a fieldwork log.")
+            },
+            confirmButton = {
+                TextButton(onClick = {
+                    confirming = false
+                    if (TaskDisplay.canComplete(task, actorId, canManage) && !state.busy) {
+                        onComplete(task)
+                    }
+                }) { Text("Complete task") }
+            },
+            dismissButton = {
+                TextButton(onClick = { confirming = false }) { Text("Keep open") }
+            }
+        )
     }
 }
 
@@ -342,17 +389,20 @@ private fun NewTaskForm(state: TaskUiState, today: LocalDate?, onCreate: (TaskCr
                     label = { Text(preset.label) })
             }
         }
-        Text("Task type", style = MaterialTheme.typography.labelLarge)
-        Row(Modifier.horizontalScroll(rememberScrollState()),
-            horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-            (1..6).forEach { code ->
-                FilterChip(selected = type == code, onClick = { type = code },
-                    label = { Text(taskNames[code]) })
+        var moreTypes by rememberSaveable(state.farmId) { mutableStateOf(false) }
+        Text("Selected: " + taskNames.getOrElse(type) { "Task" },
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant)
+        OutlinedButton(onClick = { moreTypes = true }) { Text("Other task types") }
+        DropdownMenu(expanded = moreTypes, onDismissRequest = { moreTypes = false }) {
+            listOf(1, 6).forEach { code ->
+                DropdownMenuItem(text = { Text(taskNames[code]) }, onClick = {
+                    type = code
+                    moreTypes = false
+                })
             }
         }
-        OutlinedTextField(due, { due = it }, label = { Text("Due date (YYYY-MM-DD)") },
-            singleLine = true, isError = due.isNotEmpty() && !validDate,
-            modifier = Modifier.fillMaxWidth())
+        DateInput(due, "Due date", { due = it }, enabled = !state.busy)
         CyclePicker(cycleId, state.cycles, { cycleId = it })
         TaskMemberPicker(assignee, state.members, { assignee = it }, !state.busy)
         OutlinedTextField(description, { description = it },
@@ -401,8 +451,7 @@ private fun EditTaskForm(
     var assignee by rememberSaveable(task.id) { mutableStateOf(task.assignedToUserId) }
     val validDate = runCatching { LocalDate.parse(due.trim()) }.isSuccess
     Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
-        OutlinedTextField(due, { due = it }, label = { Text("Due date (YYYY-MM-DD)") },
-            isError = due.isNotEmpty() && !validDate, modifier = Modifier.fillMaxWidth())
+        DateInput(due, "Due date", { due = it }, enabled = !state.busy)
         TaskMemberPicker(assignee, state.members, { assignee = it }, !state.busy)
         OutlinedTextField(description, { description = it },
             label = { Text("Instructions") }, modifier = Modifier.fillMaxWidth())
