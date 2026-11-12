@@ -1,0 +1,78 @@
+@model SmartFarm.Web.ViewModels.Support.SupportDetailsPage
+@{
+    ViewData["Title"] = "Support case";
+}
+<a class="admin-back" asp-area="Admin" asp-controller="Support" asp-action="Index">← Back to support queue</a>
+<div class="page-heading admin-page-heading">
+    <div><p class="sf-kicker">@Model.Ticket.Category.ToUpperInvariant() CASE</p><h1>@Model.Ticket.Title</h1>
+        <p class="sf-muted">Submitted @Model.Ticket.CreatedAtUtc.ToString("MMM d, yyyy") UTC</p></div>
+    <span class="sf-status-chip @(Model.Ticket.Status is "Open" or "InProgress" ? "sf-status-chip--planned" : "sf-status-chip--active")">@Model.Ticket.Status</span>
+</div>
+@if (TempData["Message"] is string message) { <p class="form-notice" role="status">@message</p> }
+@if (TempData["Error"] is string error) { <p class="error form-error" role="alert">@error</p> }
+<div class="admin-detail-grid">
+    <section class="panel admin-detail-panel" aria-labelledby="support-summary-heading">
+        <h2 id="support-summary-heading">Request details</h2>
+        <dl class="admin-detail-list">
+            <div><dt>Requested by</dt><dd><a asp-area="Admin" asp-controller="Users" asp-action="Details" asp-route-id="@Model.Ticket.UserId">@Model.Ticket.UserName</a></dd></div>
+            <div><dt>Contact</dt><dd>@Model.Ticket.UserEmail</dd></div>
+            <div><dt>Category</dt><dd>@Model.Ticket.Category</dd></div>
+            <div><dt>Priority</dt><dd>@Model.Ticket.Priority</dd></div>
+            <div><dt>Related farm</dt><dd>@(Model.Ticket.FarmName ?? "Not specified")</dd></div>
+        </dl>
+        <h3>Original description</h3>
+        <p class="admin-support-text">@Model.Description</p>
+    </section>
+    <section class="panel admin-detail-panel" aria-labelledby="case-action-heading">
+        <h2 id="case-action-heading">Update case</h2>
+        <p class="sf-muted">Choose the next status and priority. Explain the change so the requester can follow along.</p>
+        <form asp-area="Admin" asp-controller="Support" asp-action="ChangeStatus" asp-route-id="@Model.Ticket.Id"
+              method="post" class="admin-action-form" data-confirm="Save this support case update?">
+            <input type="hidden" name="rowVersion" value="@Model.Ticket.RowVersion" />
+            <label for="case-status">Status</label>
+            <select id="case-status" name="status">
+                @foreach (var status in SmartFarm.Web.ViewModels.Support.SupportRules.Statuses) {
+                    <option value="@status" selected="@(status == Model.Ticket.Status)">@status</option>
+                }
+            </select>
+            <label for="case-priority">Priority</label>
+            <select id="case-priority" name="priority">
+                @foreach (var priority in SmartFarm.Web.ViewModels.Support.SupportRules.Priorities) {
+                    <option value="@priority" selected="@(priority == Model.Ticket.Priority)">@priority</option>
+                }
+            </select>
+            <label for="case-reason">Reason / update to requester</label>
+            <textarea id="case-reason" name="note" minlength="8" maxlength="1200" rows="3" required
+                      placeholder="Explain the next step or resolution"></textarea>
+            <button type="submit">Save update</button>
+        </form>
+        <p class="sf-muted admin-audit-notice">Status and priority changes are audited.</p>
+    </section>
+</div>
+<section class="panel admin-directory-panel" aria-labelledby="case-thread-heading">
+    <h2 id="case-thread-heading">Conversation &amp; internal notes</h2>
+    @if (Model.Messages.Count == 0) { <p class="admin-empty">No updates yet.</p> }
+    else {
+        <div class="admin-support-thread">
+            @foreach (var reply in Model.Messages) {
+                <article class="admin-support-message @(reply.IsInternal ? "admin-support-message-internal" : "")">
+                    <div class="admin-support-message-meta"><strong>@reply.AuthorName</strong>
+                        @if (reply.IsInternal) { <span class="sf-status-chip sf-status-chip--neutral">Internal only</span> }
+                        <time>@reply.CreatedAtUtc.ToString("MMM d, yyyy HH:mm") UTC</time></div>
+                    <p class="admin-support-text">@reply.Body</p>
+                </article>
+            }
+        </div>
+    }
+</section>
+<section class="panel admin-support-form-panel" aria-labelledby="case-reply-heading">
+    <h2 id="case-reply-heading">Send reply or save a private note</h2>
+    <form method="post" asp-area="Admin" asp-controller="Support" asp-action="Reply"
+          asp-route-id="@Model.Ticket.Id" class="admin-action-form">
+        <label for="admin-support-reply">Message</label>
+        <textarea id="admin-support-reply" name="body" minlength="2" maxlength="1200" rows="4" required></textarea>
+        <label class="admin-support-checkbox"><input type="checkbox" name="isInternal" value="true" />
+            Internal note (not visible to requester)</label>
+        <button type="submit">Save message</button>
+    </form>
+</section>

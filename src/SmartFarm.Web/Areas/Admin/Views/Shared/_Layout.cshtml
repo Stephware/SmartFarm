@@ -36,11 +36,14 @@
                 <a class="nav-link" asp-area="Admin" asp-controller="Farms" asp-action="Index" aria-current="@(section == "Farms" ? "page" : null)">
                     <partial name="~/Views/Shared/_Icon.cshtml" model='@("sprout")' /><span>Farms</span>
                 </a>
+                <a class="nav-link" asp-area="Admin" asp-controller="Support" asp-action="Index" aria-current="@(section == "Support" ? "page" : null)">
+                    <partial name="~/Views/Shared/_Icon.cshtml" model='@("bell")' /><span>Support</span>
+                </a>
                 <a class="nav-link" asp-area="Admin" asp-controller="Security" asp-action="Setup">
                     <partial name="~/Views/Shared/_Icon.cshtml" model='@("settings")' /><span>Security</span>
                 </a>
             </nav>
-            <p class="admin-nav-hint">Support and monitoring tools arrive in later phases.</p>
+            <p class="admin-nav-hint">Monitoring tools arrive in later phases.</p>
         </div>
         <div class="side-footer sidebar-bottom">
             <div class="person-row">
@@ -73,6 +76,7 @@
                         <a asp-area="Admin" asp-controller="Dashboard" asp-action="Index">Admin overview</a>
                         <a asp-area="Admin" asp-controller="Users" asp-action="Index">Manage users</a>
                         <a asp-area="Admin" asp-controller="Farms" asp-action="Index">Manage farms</a>
+                        <a asp-area="Admin" asp-controller="Support" asp-action="Index">Support requests</a>
                         <a asp-area="Admin" asp-controller="Security" asp-action="Setup">Authenticator security</a>
                         <a asp-area="" asp-controller="Farms" asp-action="Index">Farm workspace</a>
                         <button type="button" data-color-mode-toggle aria-label="Toggle appearance">Change appearance</button>

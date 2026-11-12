@@ -26,6 +26,7 @@ public sealed class DashboardController(SmartFarmDbContext db) : Controller
         return View(new AdminOverviewPage(
             totalUsers, totalUsers - disabledUsers, disabledUsers,
             totalFarms, totalFarms - archivedFarms, archivedFarms, activePlots,
+            await db.SupportTickets.CountAsync(t => t.Status == "Open" || t.Status == "InProgress", ct),
             await AdminFarmDirectory.LoadAsync(db, recent, ct)));
     }
 }

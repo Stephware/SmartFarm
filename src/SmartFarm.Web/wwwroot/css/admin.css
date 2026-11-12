@@ -96,3 +96,23 @@ a.admin-stat:hover, a.admin-shortcut:hover, a.admin-record:hover { border-color:
     .admin-detail-list > div { grid-template-columns: 1fr; gap: 2px; }
     .admin-action-form button { width: 100%; }
 }
+
+/* Phase 3: support pages reuse the AniGo directory components. */
+.admin-support-form-panel { max-width: 860px; }
+.admin-support-form-panel h2 { margin: 0 0 12px; }
+.admin-support-form-panel .admin-action-form { gap: 9px; }
+.admin-support-form-panel input, .admin-support-form-panel select,
+.admin-support-form-panel textarea, .admin-detail-panel select, .admin-detail-panel textarea {
+    width: 100%; }
+.admin-support-text { white-space: pre-wrap; overflow-wrap: anywhere; line-height: 1.65; }
+.admin-support-thread { display: grid; gap: 12px; margin-top: 16px; }
+.admin-support-message { border: 1px solid var(--stroke); background: var(--soft);
+    border-radius: var(--radius-md); padding: 16px; }
+.admin-support-message-internal { border-style: dashed; }
+.admin-support-message-meta { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; }
+.admin-support-message-meta time { color: var(--muted); font-size: 12px; margin-left: auto; }
+.admin-support-checkbox { display: flex; align-items: center; gap: 10px; margin: 8px 0; }
+.admin-support-checkbox input { width: auto; margin: 0; }
+@media (max-width: 600px) {
+    .admin-support-message-meta time { margin-left: 0; flex-basis: 100%; }
+}
