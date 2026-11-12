@@ -73,7 +73,7 @@
             <div><span>Recorded failures · 7 days</span><strong>@Model.Sync.RecordedFailuresLast7Days</strong></div>
         </div>
         <p class="admin-health-foot">Last recorded receipt:
-            @(Model.Sync.LastReceiptUtc is DateTime last ? last.ToString("MMM d, yyyy HH:mm") + " UTC" : "No receipts yet")</p>
+            @(Model.Sync.LastReceiptUtc is DateTime lastReceipt ? lastReceipt.ToString("MMM d, yyyy HH:mm") + " UTC" : "No receipts yet")</p>
         <p class="sf-muted admin-monitoring-disclaimer">@Model.Sync.Message</p>
     }
 </section>
