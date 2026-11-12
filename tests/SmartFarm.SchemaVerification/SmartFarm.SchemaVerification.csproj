@@ -15,5 +15,6 @@
     <None Include="../../database/05_FarmEnrollmentWorkflow.sql" Link="Database/05_FarmEnrollmentWorkflow.sql" CopyToOutputDirectory="PreserveNewest" />
     <None Include="../../database/07_AdminFoundation.sql" Link="Database/07_AdminFoundation.sql" CopyToOutputDirectory="PreserveNewest" />
     <None Include="../../database/08_SupportManagement.sql" Link="Database/08_SupportManagement.sql" CopyToOutputDirectory="PreserveNewest" />
+    <None Include="../../database/09_PlatformAnnouncements.sql" Link="Database/09_PlatformAnnouncements.sql" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
 </Project>
