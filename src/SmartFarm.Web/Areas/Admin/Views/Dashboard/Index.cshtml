@@ -1,22 +1,59 @@
+@model SmartFarm.Web.ViewModels.Admin.AdminOverviewPage
 @{
-    ViewData["Title"] = "Admin overview";
+    ViewData["Title"] = "Platform overview";
 }
-<section class="panel admin-hero" aria-labelledby="admin-heading">
-    <p class="sf-kicker">ANIGO PLATFORM</p>
-    <h1 id="admin-heading">Super Admin workspace</h1>
-    <p class="sf-muted">Your account has verified authenticator-based two-factor authentication.
-        Platform administration is separate from farm-owner and manager permissions.</p>
-    <div class="admin-security-check">
-        <strong>Protected session active</strong>
-        <p>Additional tools for account support, farm directories, worker diagnostics,
-            and audit review will be added in subsequent phases.</p>
+<div class="page-heading admin-page-heading">
+    <div>
+        <p class="sf-kicker">ANIGO PLATFORM</p>
+        <h1>Platform overview</h1>
+        <p class="sf-muted">A simple view of your registered users and farms. Farm-level roles stay separate.</p>
     </div>
+</div>
+<section class="admin-stats" aria-label="Platform totals">
+    <a class="admin-stat panel" asp-area="Admin" asp-controller="Users" asp-action="Index">
+        <span>Registered users</span><strong>@Model.TotalUsers</strong><small>@Model.ActiveUsers active</small>
+    </a>
+    <a class="admin-stat panel" asp-area="Admin" asp-controller="Users" asp-action="Index" asp-route-status="disabled">
+        <span>Disabled accounts</span><strong>@Model.DisabledUsers</strong><small>Review accounts</small>
+    </a>
+    <a class="admin-stat panel" asp-area="Admin" asp-controller="Farms" asp-action="Index" asp-route-status="active">
+        <span>Active farms</span><strong>@Model.ActiveFarms</strong><small>@Model.TotalFarms total registered</small>
+    </a>
+    <a class="admin-stat panel" asp-area="Admin" asp-controller="Farms" asp-action="Index" asp-route-status="archived">
+        <span>Archived farms</span><strong>@Model.ArchivedFarms</strong><small>View archived farms</small>
+    </a>
+    <div class="admin-stat panel"><span>Active plots</span><strong>@Model.ActivePlots</strong><small>Across the platform</small></div>
 </section>
-<section class="panel" aria-labelledby="foundation-heading">
-    <h2 id="foundation-heading">Security foundation</h2>
-    <div class="admin-feature-grid">
-        <article><strong>Platform-only access</strong><p>Super Admin roles are not farm memberships.</p></article>
-        <article><strong>Authenticator required</strong><p>Access to this workspace requires a verified second factor.</p></article>
-        <article><strong>Audit-ready operations</strong><p>Privileged actions have a dedicated, append-only audit record.</p></article>
+<section class="panel admin-directory-panel" aria-labelledby="recent-farms-heading">
+    <div class="admin-section-heading">
+        <div>
+            <h2 id="recent-farms-heading">Recently registered farms</h2>
+            <p class="sf-muted">Open a farm to view its owner, plots, members, and status.</p>
+        </div>
+        <a class="button admin-button-secondary" asp-area="Admin" asp-controller="Farms" asp-action="Index">View all farms</a>
     </div>
+    @if (Model.RecentFarms.Count == 0)
+    {
+        <p class="admin-empty">No farms registered yet.</p>
+    }
+    else
+    {
+        <div class="admin-record-list">
+            @foreach (var farm in Model.RecentFarms)
+            {
+                <a class="admin-record" asp-area="Admin" asp-controller="Farms" asp-action="Details" asp-route-id="@farm.Id">
+                    <span class="admin-record-main"><strong>@farm.Name</strong><small>@farm.Location · @farm.OwnerName</small></span>
+                    <span class="sf-status-chip @(farm.Archived ? "sf-status-chip--neutral" : "sf-status-chip--active")">@(farm.Archived ? "Archived" : "Active")</span>
+                </a>
+            }
+        </div>
+    }
 </section>
+<div class="admin-shortcuts">
+    <a class="panel admin-shortcut" asp-area="Admin" asp-controller="Users" asp-action="Index">
+        <strong>Manage users</strong><span>Search accounts and review access status.</span>
+    </a>
+    <a class="panel admin-shortcut" asp-area="Admin" asp-controller="Farms" asp-action="Index">
+        <strong>Manage farms</strong><span>Find farms and review archive status.</span>
+    </a>
+</div>

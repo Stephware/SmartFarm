@@ -1,0 +1,58 @@
+@model SmartFarm.Web.ViewModels.Admin.AdminFarmIndexPage
+@{
+    ViewData["Title"] = "Farms";
+}
+<div class="page-heading admin-page-heading">
+    <div><p class="sf-kicker">PLATFORM DIRECTORY</p><h1>Farms</h1>
+        <p class="sf-muted">Review farms across the platform without entering their private workspace.</p></div>
+</div>
+<section class="panel admin-directory-panel" aria-label="Farm directory">
+    <form class="admin-filters" method="get" asp-area="Admin" asp-controller="Farms" asp-action="Index">
+        <div class="admin-filter-search">
+            <label for="admin-farm-search">Find a farm</label>
+            <input id="admin-farm-search" name="search" type="search" value="@Model.Search" maxlength="100"
+                   placeholder="Search farm or location" />
+        </div>
+        <div>
+            <label for="admin-farm-status">Farm status</label>
+            <select id="admin-farm-status" name="status">
+                <option value="all" selected="@(Model.Status == "all")">All farms</option>
+                <option value="active" selected="@(Model.Status == "active")">Active</option>
+                <option value="archived" selected="@(Model.Status == "archived")">Archived</option>
+            </select>
+        </div>
+        <button type="submit">Search</button>
+        <a class="admin-reset" asp-area="Admin" asp-controller="Farms" asp-action="Index">Clear</a>
+    </form>
+    <p class="admin-results-count">@Model.TotalCount @(Model.TotalCount == 1 ? "farm" : "farms") found</p>
+    @if (Model.Farms.Count == 0)
+    {
+        <div class="admin-empty"><strong>No matching farms</strong><p>Try a different name, location or status.</p></div>
+    }
+    else
+    {
+        <div class="admin-record-list">
+            @foreach (var farm in Model.Farms)
+            {
+                <a class="admin-record" asp-area="Admin" asp-controller="Farms" asp-action="Details" asp-route-id="@farm.Id">
+                    <span class="admin-record-main"><strong>@farm.Name</strong><small>@farm.Location · Owned by @farm.OwnerName</small>
+                        <small>@farm.Plots plots · @farm.Members members</small></span>
+                    <span class="sf-status-chip @(farm.Archived ? "sf-status-chip--neutral" : "sf-status-chip--active")">@(farm.Archived ? "Archived" : "Active")</span>
+                </a>
+            }
+        </div>
+        <nav class="admin-pagination" aria-label="Farm pages">
+            @if (Model.HasPrevious)
+            {
+                <a asp-area="Admin" asp-controller="Farms" asp-action="Index" asp-route-search="@Model.Search"
+                   asp-route-status="@Model.Status" asp-route-page="@(Model.Page - 1)">Previous</a>
+            }
+            <span>Page @Model.Page of @((Model.TotalCount + SmartFarm.Web.ViewModels.Admin.AdminFarmIndexPage.PageSize - 1) / SmartFarm.Web.ViewModels.Admin.AdminFarmIndexPage.PageSize)</span>
+            @if (Model.HasNext)
+            {
+                <a asp-area="Admin" asp-controller="Farms" asp-action="Index" asp-route-search="@Model.Search"
+                   asp-route-status="@Model.Status" asp-route-page="@(Model.Page + 1)">Next</a>
+            }
+        </nav>
+    }
+</section>

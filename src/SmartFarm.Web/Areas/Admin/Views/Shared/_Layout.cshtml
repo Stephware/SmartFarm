@@ -1,6 +1,7 @@
 @{
     var account = User.Identity?.Name ?? "Administrator";
     var initial = account.Length == 0 ? "A" : account[..1].ToUpperInvariant();
+    var section = ViewContext.RouteData.Values["controller"]?.ToString();
 }
 <!DOCTYPE html>
 <html lang="en" data-color-mode="light" data-theme="gold">
@@ -26,14 +27,20 @@
         <div class="sidebar-workspace">
             <p class="side-group-label">Administration</p>
             <nav class="side-group sidebar-links" aria-label="Admin sections">
-                <a class="nav-link" asp-area="Admin" asp-controller="Dashboard" asp-action="Index">
+                <a class="nav-link" asp-area="Admin" asp-controller="Dashboard" asp-action="Index" aria-current="@(section == "Dashboard" ? "page" : null)">
                     <partial name="~/Views/Shared/_Icon.cshtml" model='@("grid")' /><span>Overview</span>
+                </a>
+                <a class="nav-link" asp-area="Admin" asp-controller="Users" asp-action="Index" aria-current="@(section == "Users" ? "page" : null)">
+                    <partial name="~/Views/Shared/_Icon.cshtml" model='@("users")' /><span>Users</span>
+                </a>
+                <a class="nav-link" asp-area="Admin" asp-controller="Farms" asp-action="Index" aria-current="@(section == "Farms" ? "page" : null)">
+                    <partial name="~/Views/Shared/_Icon.cshtml" model='@("sprout")' /><span>Farms</span>
                 </a>
                 <a class="nav-link" asp-area="Admin" asp-controller="Security" asp-action="Setup">
                     <partial name="~/Views/Shared/_Icon.cshtml" model='@("settings")' /><span>Security</span>
                 </a>
             </nav>
-            <p class="admin-nav-hint">User management, support and monitoring arrive in later phases.</p>
+            <p class="admin-nav-hint">Support and monitoring tools arrive in later phases.</p>
         </div>
         <div class="side-footer sidebar-bottom">
             <div class="person-row">
@@ -64,6 +71,8 @@
                     </summary>
                     <nav aria-label="Mobile platform administration">
                         <a asp-area="Admin" asp-controller="Dashboard" asp-action="Index">Admin overview</a>
+                        <a asp-area="Admin" asp-controller="Users" asp-action="Index">Manage users</a>
+                        <a asp-area="Admin" asp-controller="Farms" asp-action="Index">Manage farms</a>
                         <a asp-area="Admin" asp-controller="Security" asp-action="Setup">Authenticator security</a>
                         <a asp-area="" asp-controller="Farms" asp-action="Index">Farm workspace</a>
                         <button type="button" data-color-mode-toggle aria-label="Toggle appearance">Change appearance</button>
