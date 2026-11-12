@@ -63,7 +63,9 @@ class SyncClarityScreenTest {
         compose.runOnIdle { assertEquals("need", requestedRetry) }
         compose.onNodeWithText("All my farms").performClick()
         compose.onNodeWithText("All").performClick()
-        compose.onNodeWithText("South Farm", substring = true).performScrollTo().assertExists()
+        // The third operation belongs to another farm and is initially offscreen.
+        compose.onNodeWithTag("record-list").performScrollToIndex(4)
+        compose.onNodeWithText("South Farm", substring = true).assertExists()
     }
 
     @Test fun dependentPhotoNeverSuggestsUnsafeRetryAndRequiresDiscardConfirmation() {
