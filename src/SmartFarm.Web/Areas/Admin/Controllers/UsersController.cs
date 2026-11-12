@@ -1,6 +1,8 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
+using SmartFarm.Infrastructure.Security;
 using Microsoft.EntityFrameworkCore;
 using SmartFarm.Infrastructure.Identity;
 using SmartFarm.Infrastructure.Persistence;
@@ -56,6 +58,7 @@ public sealed class UsersController(
     // No role edits, account deletion, password reset or farm membership mutations.
     [HttpPost("{id:guid}/status")]
     [ValidateAntiForgeryToken]
+    [EnableRateLimiting(EnrollmentRateLimiting.AdminActions)]
     public async Task<IActionResult> ChangeStatus(
         Guid id, [FromForm] bool disable, [FromForm] string? reason,
         CancellationToken ct)
@@ -79,6 +82,15 @@ public sealed class UsersController(
         if ((target.DisabledAtUtc is not null) == disable)
         {
             TempData["Message"] = "Account status is already up to date.";
+            return RedirectToAction(nameof(Details), new { id });
+        }
+
+        // MFA protects entry to /admin; a password check confirms this high-impact
+        // account change is being performed by the person at the keyboard.
+        if (!AdminActionSecurity.ValidPasswordInput(currentPassword) ||
+            !await users.CheckPasswordAsync(actor, currentPassword!))
+        {
+            TempData["Error"] = "Current admin password is incorrect. No changes were made.";
             return RedirectToAction(nameof(Details), new { id });
         }
 

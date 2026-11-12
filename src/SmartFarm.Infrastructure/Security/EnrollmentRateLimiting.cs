@@ -12,6 +12,7 @@ public static class EnrollmentRateLimiting
     public const string Registration = "registration";
     public const string Login = "login";
     public const string Enrollment = "enrollment";
+    public const string AdminActions = "admin-actions";
 
     public static IServiceCollection AddEnrollmentRateLimiting(this IServiceCollection services) =>
         services.AddRateLimiter(options =>
@@ -19,6 +20,7 @@ public static class EnrollmentRateLimiting
             AddPolicy(Registration, 5, TimeSpan.FromMinutes(10));
             AddPolicy(Login, 20, TimeSpan.FromMinutes(1));
             AddPolicy(Enrollment, 10, TimeSpan.FromMinutes(1), byUser: true);
+            AddPolicy(AdminActions, 6, TimeSpan.FromMinutes(5), byUser: true);
             options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
             options.OnRejected = async (context, ct) =>
             {

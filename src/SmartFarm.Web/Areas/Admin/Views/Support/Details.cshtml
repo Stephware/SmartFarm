@@ -47,6 +47,8 @@
             <button type="submit">Save update</button>
         </form>
         <p class="sf-muted admin-audit-notice">Status and priority changes are audited.</p>
+        <a asp-area="Admin" asp-controller="Audit" asp-action="Index"
+           asp-route-targetType="support-ticket" asp-route-targetId="@Model.Ticket.Id">View this case's audit history</a>
     </section>
 </div>
 <section class="panel admin-directory-panel" aria-labelledby="case-thread-heading">

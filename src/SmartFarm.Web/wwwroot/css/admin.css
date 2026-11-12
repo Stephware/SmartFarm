@@ -135,3 +135,21 @@ a.admin-stat:hover, a.admin-shortcut:hover, a.admin-record:hover { border-color:
     .admin-health-grid { grid-template-columns: 1fr; }
     .admin-inline-stats { grid-template-columns: 1fr 1fr; }
 }
+
+
+/* Phase 5: audit explorer and step-up confirmation for sensitive changes. */
+.admin-audit-filters > div { flex-basis: 155px; }
+.admin-audit-filters .admin-filter-search { flex-basis: 260px; }
+.admin-audit-summary { max-width: 530px; }
+.admin-audit-detail { max-width: 900px; }
+.admin-audit-detail code { white-space: normal; overflow-wrap: anywhere; font-size: 13px; }
+.admin-audit-reason { white-space: pre-wrap; overflow-wrap: anywhere; }
+.admin-audit-detail-links { display: flex; flex-wrap: wrap; align-items: center; gap: 15px; margin-top: 18px; }
+.admin-audit-context-link { margin: -4px 0 18px; font-size: 13px; }
+.admin-audit-context-link a { font-weight: 650; }
+.admin-action-safety { margin: 0; font-size: 12px; line-height: 1.6; }
+.admin-action-form input[type="password"] { width: 100%; }
+@media (max-width: 600px) {
+    .admin-audit-filters > div { flex: 1 1 100%; }
+    .admin-audit-summary { max-width: 100%; }
+}
