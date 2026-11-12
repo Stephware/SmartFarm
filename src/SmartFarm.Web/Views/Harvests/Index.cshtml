@@ -12,19 +12,23 @@
         <div>
             <p><a asp-controller="Crops" asp-action="Index" asp-route-farmId="@cycle.FarmId">← Crop management</a></p>
 
-            <h1 id="harvests-heading">Harvests · @cycle.CropTypeName</h1>
-            <p class="sf-muted">@cycle.PlotName · Crop status: <strong>@cycle.Status</strong></p>
+            <p class="ani-overline">Crop harvests</p>
+            <h1 id="harvests-heading">Record harvest · @cycle.CropTypeName</h1>
+            <p class="sf-muted">@cycle.PlotName · <strong>@cycle.Status</strong> crop
+            · Each harvest is recorded separately, without ending the crop cycle.</p>
         </div>
         <div class="ani-harvest-identity">
             @if (overview.CanRecord) { <a class="button" href="#record-harvest">Record harvest</a> }
             <img src="@Url.Content("~/images/crops/" + CropArtwork.FileName(cycle.CropTypeName))"
                  width="120" height="120" alt="" />
+            <a class="sf-button-outline" asp-controller="Monitoring" asp-action="Index"
+               asp-route-farmId="@cycle.FarmId" asp-route-cycleId="@cycle.Id">Crop fieldwork</a>
             <a class="sf-button-outline" asp-controller="Reports" asp-action="Harvests" asp-route-farmId="@cycle.FarmId">Farm-wide report</a>
         </div>
     </div>
     <div class="sf-harvest-metrics" aria-label="Recorded harvest totals">
         <div class="sf-harvest-main-number">
-            <span>Total valid harvest quantity</span>
+            <span>Confirmed harvest total</span>
             <strong>@overview.TotalQuantity.ToString("N3") <small>@overview.Unit</small></strong>
         </div>
         <div>
@@ -36,20 +40,54 @@
             <span>Voided</span>
         </div>
     </div>
-    <p class="sf-ops-hint">Multiple partial harvests are allowed. Recording a harvest does not complete the crop cycle.</p>
-    @if (TempData["HarvestError"] is string error) { <p class="error form-error" role="alert">@error</p> }
+    <p class="sf-ops-hint">Multiple partial harvests are allowed. The total includes valid server records only; voided entries are excluded. Harvests do not automatically complete the crop cycle.</p>
+    @if (TempData["HarvestError"] is string error)
+    {
+        <p class="error form-error" role="alert">@error
+            @if (overview.CanRecord) { <a href="#record-harvest">Correct the harvest entry →</a> }
+        </p>
+    }
     @if (TempData["HarvestNotice"] is string notice) { <p class="form-notice" role="status">@notice</p> }
 </section>
+@if (overview.CanRecord)
+{
+    <section class="panel card sf-harvest-record" id="record-harvest" data-form-dialog aria-labelledby="record-harvest-heading">
+
+        <header class="reference-panel-heading">
+            <div><p class="ani-overline">New entry</p><h2 id="record-harvest-heading">Record a partial harvest</h2></div>
+        </header>
+        <p class="sf-muted">Enter the actual quantity collected for @cycle.CropTypeName. You may save more than one harvest for the same crop.</p>
+        <p class="ani-harvest-form-notice">Only confirmed server harvests count toward the total shown above. On Android, offline entries show as pending until synced.</p>
+        <form class="sf-ops-form" asp-action="Record" asp-route-farmId="@cycle.FarmId" asp-route-cycleId="@cycle.Id" method="post">
+            <label for="quantity">Quantity collected <strong>(@overview.Unit)</strong></label>
+            <input id="quantity" name="Quantity" type="number" step="0.001" min="0.001" max="999999999999999.999"
+                   inputmode="decimal" required aria-describedby="harvest-quantity-hint" />
+            <p class="hint" id="harvest-quantity-hint">Enter a positive value with up to three decimal places. The unit is fixed for this crop cycle.</p>
+            <label for="notes">Notes (optional)</label>
+            <textarea id="notes" name="Notes" rows="3" maxlength="1000"></textarea>
+            <button type="submit">Save partial harvest</button>
+            <p class="hint">After saving, this amount appears in valid harvest history and the confirmed total.</p>
+        </form>
+    </section>
+}
+else
+{
+    <section class="panel card sf-harvest-unavailable" role="note">
+        <p>New harvests can only be recorded while the crop cycle is active.</p>
+    </section>
+}
+
 <section class="panel card sf-harvest-history" aria-labelledby="harvest-history-heading">
     <div class="sf-section-line card-head">
-        <h2 id="harvest-history-heading">Harvest history</h2>
+        <h2 id="harvest-history-heading">Saved harvest records</h2>
         <span>@overview.Entries.Count record(s)</span>
     </div>
     @if (overview.Entries.Count == 0)
     {
         <div class="sf-empty-state">
             <strong>No harvests recorded yet.</strong>
-            <p>Partial harvest entries will appear here after they're saved.</p>
+            <p>Partial harvest entries appear here after they're saved. Each record keeps its own quantity and date.</p>
+            @if (overview.CanRecord) { <a href="#record-harvest">Record the first harvest →</a> }
         </div>
     }
     else
@@ -91,29 +129,5 @@
         </div>
     }
 </section>
-@if (overview.CanRecord)
-{
-    <section class="panel card sf-harvest-record" id="record-harvest" data-form-dialog aria-labelledby="record-harvest-heading">
-
-        <header class="reference-panel-heading"><h2 id="record-harvest-heading">Record partial harvest</h2></header>
-        <p class="sf-muted">Enter the amount collected today. Each partial harvest becomes a separate record; your crop stays active until you complete its cycle.</p>
-        <p class="ani-harvest-form-notice">Only confirmed server harvests count toward the total shown above. On Android, offline entries show as pending until synced.</p>
-        <form class="sf-ops-form" asp-action="Record" asp-route-farmId="@cycle.FarmId" asp-route-cycleId="@cycle.Id" method="post">
-            <label for="quantity">Harvested quantity (@overview.Unit)</label>
-            <input id="quantity" name="Quantity" type="number" step="0.001" min="0.001" max="999999999999999.999"
-                   inputmode="decimal" required aria-describedby="harvest-quantity-hint" />
-            <p class="hint" id="harvest-quantity-hint">Use a positive amount, up to three decimal places.</p>
-            <label for="notes">Notes (optional)</label>
-            <textarea id="notes" name="Notes" rows="3" maxlength="1000"></textarea>
-            <button type="submit">Save partial harvest</button>
-        </form>
-    </section>
-}
-else
-{
-    <section class="panel card sf-harvest-unavailable" role="note">
-        <p>New harvests can only be recorded while the crop cycle is active.</p>
-    </section>
-}
 
 </div>
