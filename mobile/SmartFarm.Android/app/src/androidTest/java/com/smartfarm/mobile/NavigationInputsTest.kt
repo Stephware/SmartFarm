@@ -1,7 +1,5 @@
 package com.smartfarm.mobile
 
-import android.widget.DatePicker
-import android.view.View
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -17,13 +15,6 @@ import androidx.compose.ui.test.assertIsSelected
 import androidx.compose.ui.test.performTextReplacement
 import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.assertIsDisplayed
-import androidx.test.espresso.Espresso.onView
-import androidx.test.espresso.matcher.RootMatchers.isDialog
-import androidx.test.espresso.action.ViewActions.click
-import androidx.test.espresso.matcher.ViewMatchers.withId
-import androidx.test.espresso.matcher.ViewMatchers.isAssignableFrom
-import androidx.test.espresso.UiController
-import androidx.test.espresso.ViewAction
 import com.smartfarm.mobile.features.monitoring.MonitoringScreen
 import com.smartfarm.mobile.features.monitoring.MonitoringUiState
 import com.smartfarm.mobile.ui.components.DateInput
@@ -44,19 +35,33 @@ import org.junit.Test
 class NavigationInputsTest {
     @get:Rule val compose = createComposeRule()
 
-    @Test fun datePickerReturnsAnIsoDateForTheExistingApi() {
+    @Test fun datePickerConfirmsAnIsoDateForTheExistingApi() {
+        // UI Automator is required for the framework DatePickerDialog. Espresso
+        // sometimes selects an unfocused window on headless Android emulators.
+        val selectedDate = "2026-10-26"
         var selected = ""
-        compose.setContent { SmartFarmTheme { DateInput("", "Planting date", { selected = it }) } }
-        compose.onNodeWithContentDescription("Planting date: No date selected. Choose date")
-            .performClick()
-        onView(isAssignableFrom(DatePicker::class.java)).inRoot(isDialog())
-            .perform(object : ViewAction {
-            override fun getConstraints() = isAssignableFrom(DatePicker::class.java)
-            override fun getDescription() = "Choose October 26, 2026"
-            override fun perform(controller: UiController, view: View) { (view as DatePicker).updateDate(2026, 9, 26) }
-        })
-        onView(withId(android.R.id.button1)).inRoot(isDialog()).perform(click())
-        compose.runOnIdle { assertEquals("2026-10-26", selected) }
+        val formatted = java.time.LocalDate.parse(selectedDate).format(
+            java.time.format.DateTimeFormatter.ofLocalizedDate(
+                java.time.format.FormatStyle.MEDIUM))
+        compose.setContent { SmartFarmTheme {
+            DateInput(selectedDate, "Planting date", { selected = it })
+        } }
+        val device = androidx.test.uiautomator.UiDevice.getInstance(
+            androidx.test.platform.app.InstrumentationRegistry.getInstrumentation())
+        val ok = androidx.test.uiautomator.By.res("android:id/button1")
+        try {
+            compose.onNodeWithContentDescription(
+                "Planting date: $formatted. Choose date").performClick()
+            val confirm = device.wait(
+                androidx.test.uiautomator.Until.findObject(ok), 10_000L)
+            org.junit.Assert.assertNotNull("Native date picker should show its OK button", confirm)
+            confirm!!.click()
+            compose.waitUntil(5_000) { selected == selectedDate }
+            compose.runOnIdle { assertEquals(selectedDate, selected) }
+        } finally {
+            // Never leave a native dialog open for the next Compose test.
+            if (device.hasObject(ok)) device.pressBack()
+        }
     }
 
     @Test fun timeZonesCanBeFoundByCity() {
