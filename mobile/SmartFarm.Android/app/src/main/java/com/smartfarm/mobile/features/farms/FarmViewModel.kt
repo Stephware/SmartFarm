@@ -117,7 +117,8 @@ class FarmViewModel(
         actionJob?.cancel()
         mutable.value = if (mutable.value.selected?.id == farmId)
             mutable.value.copy(loading = true, error = null, enrollment = null, myRequests = emptyList(),
-                enrollmentMessage = null) else FarmUiState(loading = true)
+                enrollmentMessage = null) else FarmUiState(loading = true,
+                farms = mutable.value.farms)
         loadJob = viewModelScope.launch {
             try {
                 val farm = repo.farmSnapshot(farmId)
