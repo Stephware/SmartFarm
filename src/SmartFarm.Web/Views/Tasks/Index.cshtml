@@ -34,8 +34,8 @@
         _ => Model.Tasks.ToList()
     };
     var ordered = shown.OrderBy(t => t.Status == 0 ? 0 : 1)
-        .ThenBy(t => t.Status == 0 && t.AssignedToUserId == actorId ? 0 : 1)
-        .ThenBy(t => t.DueDate).ToList();
+        .ThenBy(t => t.DueDate)
+        .ThenBy(t => t.AssignedToUserId == actorId ? 0 : 1).ToList();
 }
 <div class="reference-screen reference-screen-tasks">
 <partial name="_FarmNavigation" model="Model.Farm.Id" />
