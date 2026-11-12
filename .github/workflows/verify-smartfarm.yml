@@ -26,6 +26,8 @@ jobs:
           dotnet-version: 10.0.x
       - name: Validate local crop illustrations
         run: python3 scripts/verify-web-visual-assets.py
+      - name: Verify web navigation behavior
+        run: node --test tests/web-ui/*.test.cjs
       - name: Restore
         run: dotnet restore SmartFarm.slnx
       - name: Build
