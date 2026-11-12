@@ -127,7 +127,7 @@ jobs:
       - name: Verify committed stylesheet matches generated output
         run: |
           git diff --exit-code -- package-lock.json src/SmartFarm.Web/wwwroot/css/anigo-tailwind.css
-          grep -Fq '.tw\\:min-w-0' src/SmartFarm.Web/wwwroot/css/anigo-tailwind.css
+          grep -Fq 'min-w-0' src/SmartFarm.Web/wwwroot/css/anigo-tailwind.css
           if grep -Eq '^[[:space:]]*@import[[:space:]].*preflight' src/SmartFarm.Web/Styles/anigo-tailwind.css; then
             echo 'Tailwind reset must remain disabled'; exit 1
           fi
