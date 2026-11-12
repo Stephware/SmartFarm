@@ -154,7 +154,11 @@ fun FarmHero(title: String, subtitle: String, modifier: Modifier = Modifier) {
     }
 }
 
-data class FarmHeaderNavigation(val farmName: String?, val onFarms: () -> Unit, val onNotifications: () -> Unit)
+data class FarmHeaderNavigation(
+    val farmName: String?, val onFarms: () -> Unit, val onNotifications: () -> Unit,
+    val queuedCount: Int = 0, val reviewCount: Int = 0,
+    val onSync: (() -> Unit)? = null
+)
 val LocalFarmHeaderNavigation = compositionLocalOf<FarmHeaderNavigation?> { null }
 
 /** Brand and screen context remain outside the scrolling workspace. */
@@ -180,6 +184,27 @@ fun FarmAppBar(modifier: Modifier = Modifier) {
                         contentPadding = androidx.compose.foundation.layout.PaddingValues(horizontal = 10.dp)) {
                         Text(navigation.farmName ?: "My farms", maxLines = 1, overflow = TextOverflow.Ellipsis,
                             style = MaterialTheme.typography.labelMedium)
+                    }
+                    if (navigation.queuedCount > 0 && navigation.onSync != null) {
+                        androidx.compose.material3.OutlinedButton(
+                            onClick = navigation.onSync,
+                            modifier = Modifier.defaultMinSize(minHeight = 48.dp)
+                                .semantics {
+                                    contentDescription = if (navigation.reviewCount > 0)
+                                        "${navigation.reviewCount} offline records need review; " +
+                                            "${navigation.queuedCount} waiting in total"
+                                    else "${navigation.queuedCount} records waiting to sync"
+                                },
+                            contentPadding = androidx.compose.foundation.layout.PaddingValues(horizontal = 10.dp),
+                            colors = androidx.compose.material3.ButtonDefaults.outlinedButtonColors(
+                                contentColor = if (navigation.reviewCount > 0)
+                                    MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.primary)
+                        ) {
+                            FarmLineIcon(FarmSymbol.Offline, Modifier.size(19.dp),
+                                if (navigation.reviewCount > 0)
+                                    MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.primary)
+                            Text(" ${navigation.queuedCount}", style = MaterialTheme.typography.labelLarge)
+                        }
                     }
                     androidx.compose.material3.IconButton(onClick = navigation.onNotifications,
                         modifier = Modifier.semantics { contentDescription = "Notifications" }) {

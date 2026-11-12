@@ -12,6 +12,8 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import com.google.gson.JsonParser
 import com.smartfarm.mobile.data.local.entity.PendingOperation
+import com.smartfarm.mobile.features.syncstatus.SyncRecordState
+import com.smartfarm.mobile.features.syncstatus.syncState
 
 fun pendingRecordDescription(operation: PendingOperation): String = try {
     val json = JsonParser.parseString(operation.payloadJson).asJsonObject
@@ -48,8 +50,10 @@ fun PendingRecords(operations: List<PendingOperation>, farmId: String, targetId:
                 verticalArrangement = Arrangement.spacedBy(6.dp)
             ) {
                 FarmStatusChip(
-                    if (operation.status == "review") "Needs review" else "Waiting to sync",
-                    if (operation.status == "review") FarmStatusTone.Warning else FarmStatusTone.Planned
+                    if (syncState(operation.status, operation.errorMessage) == SyncRecordState.NEEDS_REVIEW)
+                        "Needs attention" else "Waiting to sync",
+                    if (syncState(operation.status, operation.errorMessage) == SyncRecordState.NEEDS_REVIEW)
+                        FarmStatusTone.Warning else FarmStatusTone.Planned
                 )
                 Text(pendingRecordDescription(operation), style = MaterialTheme.typography.bodyMedium)
                 operation.errorMessage?.let {
