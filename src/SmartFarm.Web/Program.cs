@@ -15,6 +15,7 @@ using SmartFarm.Infrastructure.Services.Monitoring;
 using SmartFarm.Infrastructure.Security;
 using SmartFarm.Web.Authentication;
 using SmartFarm.Infrastructure.Services.Admin;
+using SmartFarm.Web.Services.Admin;
 using Microsoft.AspNetCore.Identity;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -27,6 +28,11 @@ builder.Services.AddSmartFarmPersistence(
 builder.Services.AddSmartFarmWebIdentity(builder.Environment);
 builder.Services.AddSuperAdminSecurity();
 builder.Services.AddScoped<AdminAuditWriter>();
+builder.Services.AddHttpClient<AdminDiagnosticsService>(client =>
+{
+    // Diagnostic probes are bounded; a down API must not hang the admin portal.
+    client.Timeout = TimeSpan.FromSeconds(5);
+});
 builder.Services.AddScoped<AccountRegistrationService>();
 
 // MVC and API run independently using the same Infrastructure business services.

@@ -116,3 +116,22 @@ a.admin-stat:hover, a.admin-shortcut:hover, a.admin-record:hover { border-color:
 @media (max-width: 600px) {
     .admin-support-message-meta time { margin-left: 0; flex-basis: 100%; }
 }
+
+/* Phase 4: calm operational health indicators and compact diagnostics. */
+.admin-health-grid { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 16px; margin-bottom: 18px; }
+.admin-health-card { min-width: 0; }
+.admin-health-title { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px; }
+.admin-health-title h2 { margin: 0; font-size: 17px; }
+.admin-health-card > p { margin-bottom: 0; }
+.admin-health-foot { font-size: 12px; color: var(--muted); margin-top: 12px; }
+.admin-inline-stats { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 12px; margin-bottom: 18px; }
+.admin-inline-stats > div { padding: 15px; background: var(--soft); border: 1px solid var(--stroke); border-radius: var(--radius-md); display: grid; gap: 7px; }
+.admin-inline-stats span { color: var(--muted); font-size: 12px; }
+.admin-inline-stats strong { font-size: clamp(23px,2.5vw,31px); }
+.admin-monitoring-disclaimer { font-size: 13px; line-height: 1.6; }
+.admin-static-record { cursor: default; }
+.admin-static-record:hover { background: transparent; }
+@media (max-width: 700px) {
+    .admin-health-grid { grid-template-columns: 1fr; }
+    .admin-inline-stats { grid-template-columns: 1fr 1fr; }
+}
