@@ -28,6 +28,18 @@
     </div>
     @if (TempData["Message"] is string message) { <p class="form-notice" role="status">@message</p> }
     @if (TempData["Error"] is string error) { <p class="error form-error" role="alert">@error</p> }
+    @if (canManage && Model.Plots.Count == 0)
+    {
+        <section class="ani-farm-next-steps" aria-labelledby="next-steps-heading">
+            <p class="ani-overline">Get your farm ready</p>
+            <h2 id="next-steps-heading">Your farm is created. Here's what to do next.</h2>
+            <ol class="ani-journey-steps">
+                <li class="ani-journey-step--current"><span aria-hidden="true">1</span><div><strong>Add your first plot</strong><p>Give the growing area a name and size.</p></div><a href="#add-plot">Add plot</a></li>
+                <li><span aria-hidden="true">2</span><div><strong>Plan a crop</strong><p>Choose what you'll grow and set planting dates after adding a plot.</p></div><a asp-controller="Crops" asp-action="Index" asp-route-farmId="@Model.Farm.Id">View crops</a></li>
+                <li><span aria-hidden="true">3</span><div><strong>Bring your team</strong><p>Share your farm code when you're ready for people to join.</p></div><a href="#members-heading">Farm members</a></li>
+            </ol>
+        </section>
+    }
     @if (isOwner)
     {
         <div class="sf-farm-danger-zone">
@@ -50,7 +62,14 @@
         </div>
         @if (Model.Plots.Count == 0)
         {
-            <div class="sf-empty-state"><strong>No active plots</strong><p>Add your first plot to start planning crops.</p></div>
+            <div class="sf-empty-state">
+                <strong>No active plots</strong>
+                <p>@(canManage ? "Add your first growing area below. Then you can create a planting plan." : "Your farm owner or manager can add plots when the farm is ready.")</p>
+                @if (canManage)
+                {
+                    <a class="sf-button-outline" href="#add-plot">Add a plot</a>
+                }
+            </div>
         }
         else
         {
@@ -78,9 +97,16 @@
             }
             </ul>
         }
+        @if (canManage && Model.Plots.Count > 0)
+        {
+            <div class="ani-plot-next-action">
+                <div><strong>Ready to plant?</strong><p>Your plots are set up. Choose a crop and planting dates to continue.</p></div>
+                <a class="sf-button-outline" asp-controller="Crops" asp-action="Index" asp-route-farmId="@Model.Farm.Id">Plan a crop</a>
+            </div>
+        }
         @if (canManage)
         {
-            <div class="sf-add-plot">
+            <div class="sf-add-plot" id="add-plot">
                 <h3>Add plot</h3>
                 <form asp-action="CreatePlot" asp-route-id="@Model.Farm.Id" method="post" class="sf-inline-form">
                     <div><label for="plotName">Name</label><input id="plotName" name="Name" required maxlength="100" minlength="2" placeholder="e.g. North field" /></div>

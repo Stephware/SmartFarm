@@ -18,7 +18,12 @@
         <div class="auth-heading">
 
             <h1 id="register-heading">Create your account</h1>
-            <p>Set up your profile to start managing or joining farms.</p>
+            <p>First, create your account. Next, choose whether to create or join a farm.</p>
+            <ol class="ani-auth-steps" aria-label="Getting started">
+                <li><strong>1. Account</strong><span class="ani-step-now">You're here</span></li>
+                <li><strong>2. Farm</strong><span>Create or request access</span></li>
+                <li><strong>3. Work</strong><span>Start managing or recording</span></li>
+            </ol>
         </div>
         <form method="post" asp-action="Register" asp-controller="Account" class="auth-form">
             <div class="form-field">
@@ -45,7 +50,7 @@
             </div>
             <button class="auth-submit" type="submit">Create account</button>
         </form>
-        <p class="ani-auth-fineprint">After registration, sign in to create a farm or request to join an existing one.</p>
+        <p class="ani-auth-fineprint">After registration, sign in and choose <strong>Create farm</strong> or <strong>Join farm</strong>. A farm owner must approve join requests.</p>
         <p class="auth-switch">Already have an account? <a asp-controller="Account" asp-action="Login">Log in</a>.</p>
     </section>
 </div>

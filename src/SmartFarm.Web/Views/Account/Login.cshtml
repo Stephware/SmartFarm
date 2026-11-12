@@ -18,7 +18,7 @@
         <div class="auth-heading">
 
             <h1 id="login-heading">Log in to AniGo</h1>
-            <p>Enter your account details to continue.</p>
+            <p>Enter your account details to open your farms and today's work.</p>
         </div>
         @if (TempData["Message"] is string message) { <p class="form-notice" role="status">@message</p> }
         <form method="post" asp-action="Login" asp-controller="Account" asp-route-returnUrl="@ViewData["ReturnUrl"]" class="auth-form">
@@ -40,6 +40,7 @@
             <label class="check auth-remember"><input asp-for="RememberMe" /> Remember me</label>
             <button class="auth-submit" type="submit">Log in to my farms</button>
         </form>
+        <p class="ani-auth-next-note"><strong>After signing in</strong>, you can open your farms, create one, or enter a farm code to request access.</p>
         <p class="auth-switch">New to AniGo? <a asp-controller="Account" asp-action="Register">Create an account</a>.</p>
     </section>
 </div>

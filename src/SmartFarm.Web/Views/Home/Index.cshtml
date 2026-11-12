@@ -54,6 +54,32 @@
         <p class="visual-footnote">Illustrative plot cards · real crop records stay in your farm workspace.</p>
     </div>
 </section>
+
+<section class="ani-start-panel" aria-labelledby="start-options-heading">
+    <div class="ani-start-heading">
+        <p class="ani-overline">A simple way to begin</p>
+        <h2 id="start-options-heading">How would you like to use AniGo?</h2>
+        <p>Start with your own farm or join a farm you're helping manage. You can do both with one account.</p>
+    </div>
+    <div class="ani-start-grid">
+        <article class="ani-start-card">
+            <div class="ani-start-card-icon" aria-hidden="true"><partial name="_Icon" model='@("sprout")' /></div>
+            <h3>I manage a farm</h3>
+            <p>Create a farm, add growing plots, plan crops, and invite your workers.</p>
+            <a class="button" asp-controller="@(User.Identity?.IsAuthenticated == true ? "Farms" : "Account")"
+               asp-action="@(User.Identity?.IsAuthenticated == true ? "Create" : "Register")">@(User.Identity?.IsAuthenticated == true ? "Create a farm" : "Create an account")</a>
+        </article>
+        <article class="ani-start-card">
+            <div class="ani-start-card-icon" aria-hidden="true"><partial name="_Icon" model='@("checkSquare")' /></div>
+            <h3>I work on a farm</h3>
+            <p>Have a farm code? Sign in, request access, and wait for the owner to approve you.</p>
+            <a class="sf-button-outline" asp-controller="@(User.Identity?.IsAuthenticated == true ? "Farms" : "Account")"
+               asp-action="@(User.Identity?.IsAuthenticated == true ? "Index" : "Register")"
+               asp-fragment="@(User.Identity?.IsAuthenticated == true ? "join-farm" : null)">@(User.Identity?.IsAuthenticated == true ? "Enter farm code" : "Create an account to join")</a>
+        </article>
+    </div>
+</section>
+
 <section class="landing-features ani-landing-features" aria-label="What you can do with AniGo">
     <article class="panel">
         <div class="feature-index">01</div>

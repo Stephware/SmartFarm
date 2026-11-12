@@ -122,7 +122,18 @@
         setStatus("Choose a complete map location or clear the pin.");
       }
     });
-    // Leaflet needs a layout calculation after the form is shown.
-    window.addEventListener("load", () => map.invalidateSize());
+    // The optional map is initially collapsed to keep farm setup short.
+    // Recalculate Leaflet's viewport after the native details element opens.
+    const disclosure = root.closest("details");
+    disclosure?.addEventListener("toggle", () => {
+      if (disclosure.open) {
+        window.requestAnimationFrame
+          ? window.requestAnimationFrame(() => map.invalidateSize())
+          : map.invalidateSize();
+      }
+    });
+    window.addEventListener("load", () => {
+      if (!disclosure || disclosure.open) map.invalidateSize();
+    });
   }
 })();

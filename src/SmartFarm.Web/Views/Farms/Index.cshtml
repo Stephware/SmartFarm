@@ -7,7 +7,7 @@
     <div>
 
         <h1>My farms</h1>
-        <p class="sf-muted">Choose a farm to manage, or get access to a new one.</p>
+        <p class="sf-muted">Open a farm below, create your own, or enter a code to join your team.</p>
     </div>
     <a class="button" asp-controller="Farms" asp-action="Create">Create farm</a>
 </div>
@@ -18,10 +18,22 @@
 <section class="farm-library" aria-label="Your available farms">
     @if (Model.Farms.Count == 0)
     {
-        <div class="sf-empty-state">
-            <h2>No farms yet</h2>
-            <p>Start by creating your own farm, or enter a code below to request access to an existing farm.</p>
-            <a class="button" asp-controller="Farms" asp-action="Create">Create my first farm</a>
+        <div class="ani-onboarding-empty panel" aria-labelledby="first-farm-heading">
+            <p class="ani-overline">Welcome to your workspace</p>
+            <h2 id="first-farm-heading">No farms yet</h2>
+            <p>Choose what you'd like to do first. Your account can belong to more than one farm.</p>
+            <div class="ani-first-actions">
+                <div>
+                    <h3>Manage your own farm</h3>
+                    <p>Start by giving your farm a name and location. You can add plots and crops next.</p>
+                    <a class="button" asp-controller="Farms" asp-action="Create">Create my first farm</a>
+                </div>
+                <div>
+                    <h3>Join an existing farm</h3>
+                    <p>Ask the owner for a farm code, enter it below, and wait for their approval.</p>
+                    <a class="sf-button-outline" href="#join-farm">I have a farm code</a>
+                </div>
+            </div>
         </div>
     }
     else
@@ -46,18 +58,27 @@
     }
 </section>
 
-<div class="farm-onboarding-grid">
+<div class="farm-onboarding-grid @(Model.JoinRequests.Count == 0 && Model.RequestError is null ? "farm-onboarding-grid--single" : "")">
     <section class="panel card join-farm-panel" id="join-farm" aria-labelledby="join-farm-heading">
 
-        <header class="reference-panel-heading"><h2 id="join-farm-heading">Join farm</h2></header>
+        <header class="reference-panel-heading">
+            <h2 id="join-farm-heading">Join farm</h2>
+            <span class="ani-optional-label">For team members</span>
+        </header>
         <p class="sf-muted">Have a farm code? Enter the code supplied by the owner. Access begins after the owner approves your request.</p>
+        <p class="ani-inline-help">No code yet? Ask your farm owner to share their 12-character code.</p>
         <form asp-action="RequestJoin" method="post" class="join-farm-form">
             <label for="FarmCode">Farm code</label>
-            <input id="FarmCode" name="FarmCode" value="@Model.Join.FarmCode" required maxlength="64" autocomplete="off" spellcheck="false" />
+            <input id="FarmCode" name="FarmCode" value="@Model.Join.FarmCode" required maxlength="64"
+                   autocomplete="off" autocapitalize="characters" spellcheck="false" inputmode="text"
+                   aria-describedby="join-code-help" placeholder="12-character farm code" />
+            <p class="hint" id="join-code-help">Submitting a code sends a request; it does not give immediate access.</p>
             @Html.ValidationMessage("FarmCode", null, new { @class = "error" })
             <button type="submit">Request to join</button>
         </form>
     </section>
+    @if (Model.RequestError is not null || Model.JoinRequests.Count > 0)
+    {
     <section class="panel card join-requests-panel" aria-labelledby="requests-heading">
 
         <header class="reference-panel-heading"><h2 id="requests-heading">Your join requests</h2></header>
@@ -105,6 +126,7 @@
             </ul>
         }
     </section>
+    }
 </div>
 
 </div>
