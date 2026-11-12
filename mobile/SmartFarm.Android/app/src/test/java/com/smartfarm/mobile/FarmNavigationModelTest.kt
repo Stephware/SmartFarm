@@ -20,6 +20,15 @@ class FarmNavigationModelTest {
         assertEquals(true, requiresExitConfirmation("monitor/{farmId}/{cycleId}?quick={quick}"))
         assertEquals(true, requiresExitConfirmation("crops/{farmId}"))
         assertEquals(true, requiresExitConfirmation("farm/{farmId}/{section}"))
+        assertEquals(false, requiresExitConfirmation("farm/{farmId}/{section}", "weather"))
+        assertEquals(false, requiresExitConfirmation("farm/{farmId}/{section}", "members"))
+        assertEquals(true, requiresExitConfirmation("farm/{farmId}/{section}", "plots"))
+        assertEquals(true, requiresExitConfirmation("farm/{farmId}/{section}", "settings"))
+        assertEquals(false, requiresExitConfirmation("insights/{farmId}"))
+        assertEquals(false, requiresExitConfirmation("sync"))
+        assertEquals(false, requiresExitConfirmation("notifications"))
+        assertEquals(true, requiresExitConfirmation("inventory/{farmId}/{itemId}"))
+        assertEquals(true, requiresExitConfirmation("tasks/{farmId}"))
     }
     @Test fun shortcutsUseExistingRecordsAndRespectActiveCycleSelection() {
         assertEquals("monitor/farm/cycle?quick=watering",quickRecordRoute("farm","watering","cycle"))

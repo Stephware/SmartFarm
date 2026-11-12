@@ -112,7 +112,8 @@ fun SmartFarmNavHost(auth: AuthViewModel, farms: FarmViewModel, crops: CropViewM
     }
     fun requestFarmSwitch(target: String) {
         showFarmSwitcher = false
-        if (requiresExitConfirmation(currentRoute)) {
+        if (requiresExitConfirmation(currentRoute,
+                currentEntry?.arguments?.getString("section"))) {
             pendingFarmSwitch = target
         } else completeFarmSwitch(target)
     }
