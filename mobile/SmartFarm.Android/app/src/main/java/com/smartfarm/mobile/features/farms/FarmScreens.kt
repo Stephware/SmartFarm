@@ -247,7 +247,8 @@ fun FarmDetailScreen(state: FarmUiState, onBack: () -> Unit,
     homeTasks: com.smartfarm.mobile.features.tasks.TaskUiState? = null,
     homeCrops: com.smartfarm.mobile.features.crops.CropUiState? = null,
     actorId: String? = null,
-    section: String = "Overview", onWeather: () -> Unit = {}) {
+    section: String = "Overview", onWeather: () -> Unit = {},
+    onPlots: () -> Unit = {}) {
     val farm = state.selected
     val canManage = !state.offline && farm?.role in listOf("Owner", "Manager")
     val isOwner = !state.offline && farm?.role == "Owner"
@@ -278,8 +279,11 @@ fun FarmDetailScreen(state: FarmUiState, onBack: () -> Unit,
                 FarmStatusChip(farm.role, FarmStatusTone.Planned)
             }
             if (visibleSection == "Overview") {
-            FarmHomeOverview(state, homeTasks, homeCrops, actorId, onTasks, onCrops, onInventory,
-                onWeather = onWeather, onInsights = onInsights)
+                if (canManage) {
+                    FarmSetupGuide(farm.id, state.plots.isNotEmpty(), homeCrops, onPlots, onCrops)
+                }
+                FarmHomeOverview(state, homeTasks, homeCrops, actorId, onTasks, onCrops, onInventory,
+                    onWeather = onWeather, onInsights = onInsights)
             }
             if (visibleSection == "Weather") {
                 FarmWeatherDetails(state)
