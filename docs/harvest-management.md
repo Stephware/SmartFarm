@@ -115,4 +115,3 @@ Test with two registered users:
     workflow; do not make unauthorized schema/history or jobs changes.
 
 Actual SQL Server and Android runtime tests must pass before merging.
-
