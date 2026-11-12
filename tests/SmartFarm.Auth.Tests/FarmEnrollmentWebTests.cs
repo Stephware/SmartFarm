@@ -374,8 +374,10 @@ public sealed class FarmEnrollmentWebTests
         var path = $"/Tasks?farmId={FarmId}&view=mine";
         var html = await client.GetStringAsync(path);
         Assert.Contains("Assigned to me", html);
-        Assert.Contains("task-" + assigned.Id, html);
-        Assert.DoesNotContain("task-" + other.Id, html);
+        // The calendar intentionally links to all farm tasks, even when the
+        // selected list is filtered to only this worker's assignments.
+        Assert.Contains("id=\"task-" + assigned.Id + "\"", html);
+        Assert.DoesNotContain("id=\"task-" + other.Id + "\"", html);
         Assert.Contains("name=\"returnView\" value=\"mine\"", html);
         using var response = await client.PostAsync(
             $"/Tasks/Close?farmId={FarmId}&taskId={assigned.Id}",
