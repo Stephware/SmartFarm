@@ -867,3 +867,182 @@ summary{cursor:pointer;min-height:42px;align-content:center;color:var(--pine);fo
 @media(prefers-reduced-motion:reduce) {
     .ani-dashboard-priority-stat { transition:none; }
 }
+
+
+/* Web Phase 5 — farm plots, planting and crop lifecycle, scoped to these screens. */
+.ani-fields-summary,.ani-crop-stage-summary {
+    display:grid; grid-template-columns:repeat(4,minmax(0,1fr));
+    gap:10px; margin:15px 0 17px;
+}
+.ani-fields-summary > div,.ani-crop-stage-summary > div {
+    display:flex; flex-direction:column; gap:4px; min-width:0;
+    padding:14px 16px; background:var(--card); border:1px solid var(--stroke); border-radius:12px;
+}
+.ani-fields-summary strong,.ani-crop-stage-summary strong {
+    color:var(--ink); font-size:clamp(1.35rem,2.4vw,1.75rem);
+    line-height:1.15; font-weight:800; font-variant-numeric:tabular-nums;
+}
+.ani-fields-summary span,.ani-crop-stage-summary span {
+    color:var(--muted); font-size:.82rem; font-weight:600;
+}
+.ani-field-journey {
+    display:flex; flex-wrap:wrap; align-items:center; gap:9px;
+    color:var(--muted); font-size:.84rem; margin:14px 0;
+}
+.ani-field-journey > span:nth-child(odd) {
+    display:inline-flex; align-items:center; background:var(--soft);
+    color:var(--ink); min-height:31px; border-radius:8px; padding:6px 10px; font-weight:650;
+}
+.reference-screen-plotlayout .sf-plot-grid.ani-fields-board {
+    grid-template-columns:repeat(auto-fit,minmax(min(100%,240px),1fr)); gap:14px;
+    background:var(--soft); border:1px solid var(--stroke); padding:15px; margin:12px 0;
+}
+.reference-screen-plotlayout .ani-fields-board .sf-plot-tile {
+    min-height:200px; border-radius:13px; padding:16px; color:#fff;
+    border:1px solid rgb(255 255 255 / 25%);
+}
+.reference-screen-plotlayout .ani-fields-board .sf-plot-tile:focus-visible {
+    outline:3px solid var(--focus);outline-offset:3px;
+}
+.reference-screen-plotlayout .ani-fields-board .sf-plot-tile-info {
+    display:flex; flex-direction:column; align-items:flex-start; gap:4px;
+    color:#fff; text-shadow:0 1px 2px rgb(0 0 0 / 24%);
+}
+.reference-screen-plotlayout .ani-fields-board .sf-plot-tile-info strong {
+    font-size:1.08rem; line-height:1.25; max-width:100%; overflow-wrap:anywhere;
+}
+.reference-screen-plotlayout .ani-fields-board .sf-plot-tile-info .sf-plot-status {
+    position:static; align-self:flex-start; order:0;
+    text-shadow:none; border:1px solid rgb(255 255 255 / 30%);
+    background:var(--card); color:var(--ink);
+}
+.reference-screen-plotlayout .ani-fields-board .sf-plot-tile-info .sf-plot-crop {
+    font-weight:750; font-size:.9rem; max-width:100%;overflow-wrap:anywhere;
+}
+.ani-field-card-action {
+    display:inline-flex; align-items:center; gap:6px; margin-top:7px;
+    padding:6px 0 0; border-top:1px solid rgb(255 255 255 / 35%);
+    font-size:.82rem!important; font-weight:750;
+}
+.reference-screen-plotlayout .ani-fields-board .ani-plot-art {
+    height:105px; width:105px; top:8px;right:10px; opacity:.92;
+}
+.reference-screen-plotlayout .ani-fields-board .ani-plot-art img {
+    width:104px; height:104px; filter:drop-shadow(0 4px 6px rgb(0 0 0 / 15%));
+}
+.reference-screen-crops .sf-crop-hero {
+    padding:clamp(17px,2.3vw,24px); margin-bottom:18px;
+}
+.reference-screen-crops .ani-crop-jump-nav {
+    display:flex; flex-wrap:wrap; gap:7px; margin:14px 0 10px;
+}
+.reference-screen-crops .ani-crop-jump-nav a {
+    display:inline-flex; align-items:center; min-height:39px; border-radius:999px;
+    padding:7px 12px; border:1px solid var(--stroke); background:var(--soft);
+    color:var(--ink); font-weight:650; font-size:.82rem; text-decoration:none;
+}
+.reference-screen-crops .ani-crop-jump-nav a:hover {border-color:var(--outline); background:var(--success-soft);}
+.reference-screen-crops .ani-crop-jump-nav a:focus-visible {outline:3px solid var(--focus);outline-offset:2px;}
+.reference-screen-crops .ani-crop-stage-summary {margin:18px 0 6px;}
+.reference-screen-crops .ani-selected-plot {
+    display:flex; justify-content:space-between; gap:12px; align-items:center;
+    flex-wrap:wrap; margin:17px 0 6px; padding:13px 16px; border-radius:11px;
+    border:1px solid var(--outline); background:var(--soft);
+}
+.reference-screen-crops .ani-selected-plot strong {font-size:.92rem; color:var(--ink);}
+.reference-screen-crops .ani-selected-plot p {font-size:.85rem; margin:4px 0 0;color:var(--muted);line-height:1.5;}
+.reference-screen-crops .ani-selected-plot > a {color:var(--primary);font-weight:750;white-space:nowrap;min-height:37px;display:inline-flex;align-items:center;}
+.reference-screen-crops .ani-current-crops {margin:18px 0 20px;}
+.reference-screen-crops .ani-current-grid .ani-current-card {
+    text-decoration:none;transition:border-color .14s ease, box-shadow .14s ease;
+}
+.reference-screen-crops .ani-current-grid .ani-current-card:hover {
+    transform:none; border-color:var(--outline);box-shadow:var(--shadow);
+}
+.reference-screen-crops .ani-current-grid .ani-current-art img {height:108px;width:108px;}
+.reference-screen-crops .ani-crop-card-action {
+    font-size:.79rem!important; color:var(--primary)!important;
+    font-weight:750!important;margin-top:4px;
+}
+.reference-screen-crops .ani-planting-panel {
+    margin:0 0 20px; padding:clamp(17px,2.4vw,25px);
+    background:var(--card);border:1px solid var(--stroke); border-radius:var(--ui-card-radius);
+}
+.reference-screen-crops .ani-planting-panel > .reference-panel-heading {
+    align-items:start; margin-bottom:16px;
+}
+.reference-screen-crops .ani-planting-panel h2 {font-size:clamp(1.2rem,2vw,1.45rem);margin:0 0 5px;}
+.reference-screen-crops .ani-planting-panel .sf-muted {font-size:.89rem;line-height:1.5;max-width:70ch;}
+.reference-screen-crops .ani-planting-form {display:grid;gap:17px;}
+.reference-screen-crops .ani-plan-form-section {display:grid;gap:11px;min-width:0;}
+.reference-screen-crops .ani-plan-step {
+    display:flex;align-items:center;gap:10px;font-size:.93rem;font-weight:750;color:var(--ink);
+}
+.reference-screen-crops .ani-plan-step > span {
+    display:grid;place-items:center;flex:0 0 29px;width:29px;height:29px;
+    border-radius:50%;background:var(--success-soft);color:var(--on-success-soft);font-size:.84rem;
+}
+.reference-screen-crops .ani-plan-form-grid {display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;}
+.reference-screen-crops .ani-plan-field {display:flex;flex-direction:column;gap:7px;min-width:0;}
+.reference-screen-crops .ani-plan-field label {font-size:.87rem;font-weight:700;margin:0;}
+.reference-screen-crops .ani-plan-field input,.reference-screen-crops .ani-plan-field select {
+    width:100%;min-height:46px;max-width:100%;font-size:1rem;
+}
+.reference-screen-crops .ani-plan-field .hint {font-size:.79rem;line-height:1.5; margin:2px 0 0;}
+.reference-screen-crops .ani-plan-options {border:1px solid var(--stroke);border-radius:11px;padding:0 14px;}
+.reference-screen-crops .ani-plan-options > summary {
+    cursor:pointer;min-height:46px;display:flex;align-items:center;font-size:.87rem;
+    font-weight:750;color:var(--ink);
+}
+.reference-screen-crops .ani-plan-options > summary:focus-visible {outline:3px solid var(--focus);outline-offset:2px;}
+.reference-screen-crops .ani-plan-options .ani-plan-form-grid {padding:4px 0 15px;}
+.reference-screen-crops .ani-plan-actions {display:flex;flex-wrap:wrap;align-items:center;gap:8px 17px;}
+.reference-screen-crops .ani-plan-actions button {min-height:47px;font-size:.9rem;justify-self:start;}
+.reference-screen-crops .ani-plan-actions p {font-size:.82rem;color:var(--muted);line-height:1.5;margin:0;max-width:50ch;}
+.reference-screen-crops .sf-crop-cycles {margin-bottom:20px;}
+.reference-screen-crops .sf-crop-cycles .card-head {align-items:start;gap:12px;}
+.reference-screen-crops .sf-crop-cycles .card-head h2 {font-size:1.2rem;margin:0 0 4px;}
+.reference-screen-crops .sf-crop-cycles .card-head p {font-size:.85rem;line-height:1.4;}
+.reference-screen-crops .ani-crop-record-main-action {margin:6px 0 11px;}
+.reference-screen-crops .ani-crop-record-main-action > a {
+    display:inline-flex;align-items:center;min-height:40px;font-size:.87rem;
+    font-weight:750; color:var(--primary);
+}
+.reference-screen-crops .sf-crop-calendar {margin:0 0 20px;}
+.reference-screen-crops .ani-crop-advanced {
+    border:1px solid var(--stroke);border-radius:var(--ui-card-radius);
+    background:var(--card);margin:0 0 19px;
+}
+.reference-screen-crops .ani-crop-advanced > summary {
+    display:flex;flex-wrap:wrap;align-items:center;gap:5px 12px;
+    padding:16px 22px;min-height:53px;cursor:pointer;position:relative;
+    color:var(--ink);
+}
+.reference-screen-crops .ani-crop-advanced > summary strong {font-size:.98rem;}
+.reference-screen-crops .ani-crop-advanced > summary span {font-size:.81rem;color:var(--muted);}
+.reference-screen-crops .ani-crop-advanced > summary:focus-visible {outline:3px solid var(--focus);outline-offset:2px;}
+.reference-screen-crops .ani-crop-advanced[open] > summary {border-bottom:1px solid var(--stroke);}
+.reference-screen-crops .ani-crop-advanced-content {padding:17px;display:grid;gap:17px;}
+.reference-screen-crops .ani-crop-advanced-content > section {min-width:0;margin:0;}
+.reference-screen-crops .ani-crop-advanced-content .sf-crop-types,
+.reference-screen-crops .ani-crop-advanced-content .sf-crop-history {
+    border-radius:11px;background:var(--soft);border:1px solid var(--stroke);padding:17px;
+}
+.reference-screen-crops :is(#ani-current-heading,#planting-plans-heading,#crop-cycles-heading,
+#crop-calendar-heading,#crop-types-heading,#rotation-heading) {scroll-margin-top:92px;}
+@media(max-width:870px) {
+    .ani-fields-summary,.ani-crop-stage-summary {grid-template-columns:repeat(2,minmax(0,1fr));}
+    .reference-screen-crops .ani-plan-form-grid {grid-template-columns:minmax(0,1fr);}
+}
+@media(max-width:460px) {
+    .reference-screen-plotlayout .sf-plot-grid.ani-fields-board {grid-template-columns:minmax(0,1fr);padding:10px;}
+    .reference-screen-plotlayout .ani-fields-board .sf-plot-tile {min-height:185px;}
+    .ani-field-journey {gap:5px;}
+    .ani-field-journey>span:nth-child(odd) {font-size:.75rem;padding:6px 8px;}
+    .reference-screen-crops .ani-crop-jump-nav a {font-size:.77rem;}
+    .reference-screen-crops .ani-planting-panel {padding:16px;}
+    .reference-screen-crops .ani-plan-actions button {width:100%;}
+}
+@media(prefers-reduced-motion:reduce) {
+    .reference-screen-crops .ani-current-grid .ani-current-card {transition:none;}
+}
