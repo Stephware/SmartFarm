@@ -144,7 +144,8 @@ fun SmartFarmNavHost(auth: AuthViewModel, farms: FarmViewModel, crops: CropViewM
             onRegenerateCode = farms::regenerateJoinCode,
             homeTasks = homeTasks, homeCrops = homeCrops, actorId = state.account?.id,
             section = section,
-            onWeather = { navController.navigate("farm/$farmId/weather") })
+            onWeather = { navController.navigate("farm/$farmId/weather") },
+            onPlots = { navController.navigate("farm/$farmId/plots") })
     }
 
     Scaffold(
