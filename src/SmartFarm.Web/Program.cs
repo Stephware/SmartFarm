@@ -32,6 +32,9 @@ builder.Services.AddHttpClient<AdminDiagnosticsService>(client =>
 {
     // Diagnostic probes are bounded; a down API must not hang the admin portal.
     client.Timeout = TimeSpan.FromSeconds(5);
+}).ConfigurePrimaryHttpMessageHandler(() => new HttpClientHandler
+{
+    AllowAutoRedirect = false
 });
 builder.Services.AddScoped<AccountRegistrationService>();
 
