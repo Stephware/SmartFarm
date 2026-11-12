@@ -725,12 +725,12 @@ public sealed class FarmEnrollmentWebTests
             services.AddScoped(_ => Stub<IFarmReportService>((_, _) => Task.FromResult(
                 new FarmDashboard(FarmId, "Green Farm", new DateOnly(2026,10,27), 0,0,0,0,0,0,0,0,[],[]))));
             // The dashboard reads crop, task and saved-weather summaries as well as the report.
-            services.AddScoped(_ => Stub<ICropManagementService>((name, _) => name switch
+            services.AddScoped(_ => Stub<ICropManagementService>((name, args) => name switch
             {
                 "ListCyclesAsync" => Task.FromResult<IReadOnlyList<CropCycleDetails>>(cycles ?? []),
                 "ListCropTypesAsync" => Task.FromResult<IReadOnlyList<CropTypeDetails>>(cropTypes ?? []),
                 "GetCycleAsync" => Task.FromResult<CropCycleDetails?>(
-                    cycles?.FirstOrDefault(c => c.Id == (Guid)_[1]!)),
+                    cycles?.FirstOrDefault(c => c.Id == (Guid)args![1]!)),
                 _ => throw new NotSupportedException(name)
             }));
             services.AddScoped(_ => Stub<IFarmTaskService>((name, args) => name switch
