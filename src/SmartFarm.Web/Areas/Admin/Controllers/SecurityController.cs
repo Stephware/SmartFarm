@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.RateLimiting;
 using SmartFarm.Infrastructure.Identity;
+using SmartFarm.Infrastructure.Persistence;
 using SmartFarm.Infrastructure.Security;
 using SmartFarm.Infrastructure.Services.Admin;
 using SmartFarm.Web.Authentication;
@@ -19,6 +20,7 @@ namespace SmartFarm.Web.Areas.Admin.Controllers;
 public sealed class SecurityController(
     UserManager<SmartFarmUser> users,
     SignInManager<SmartFarmUser> signIn,
+    SmartFarmDbContext db,
     AdminAuditWriter audit) : Controller
 {
     [HttpGet("setup")]
@@ -57,10 +59,14 @@ public sealed class SecurityController(
             await users.VerifyTwoFactorTokenAsync(user,
                 TokenOptions.DefaultAuthenticatorProvider, Normalize(input.Code)))
         {
+            // Identity, recovery codes and audit must commit together: an audit
+            // failure must not leave MFA enabled without displaying recovery codes.
+            await using var tx = await db.Database.BeginTransactionAsync();
             var result = await users.SetTwoFactorEnabledAsync(user, true);
             if (!result.Succeeded) throw new InvalidOperationException("Authenticator activation failed.");
             var codes = await users.GenerateNewTwoFactorRecoveryCodesAsync(user, 8);
             await audit.RecordAsync(user.Id, "web", "admin-mfa-enabled", "user", user.Id);
+            await tx.CommitAsync();
             await signIn.SignOutAsync();
             return View("RecoveryCodes", codes?.ToArray() ?? []);
         }
