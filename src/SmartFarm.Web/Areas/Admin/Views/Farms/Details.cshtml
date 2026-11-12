@@ -41,6 +41,13 @@
                 <label for="farm-action-reason">Reason (required)</label>
                 <textarea id="farm-action-reason" name="reason" minlength="8" maxlength="300" rows="3" required
                           placeholder="Explain why this action is necessary"></textarea>
+                <label for="farm-admin-password">Your admin password (required to confirm)</label>
+                <input id="farm-admin-password" type="password" name="currentPassword"
+                       autocomplete="current-password" maxlength="1024" required
+                       aria-describedby="farm-action-safety" />
+                <p id="farm-action-safety" class="sf-muted admin-action-safety">
+                    Confirm with your current password. Never include passwords, tokens or farm access codes in the reason.
+                </p>
                 <button type="submit" class="@(Model.Farm.Archived ? "button" : "button-danger")">
                     @(Model.Farm.Archived ? "Restore farm" : "Archive farm")
                 </button>
@@ -49,3 +56,5 @@
         <p class="sf-muted admin-audit-notice">Every status change is recorded in the platform audit log.</p>
     </section>
 </div>
+<div class="admin-audit-context-link"><a asp-area="Admin" asp-controller="Audit" asp-action="Index"
+     asp-route-targetType="farm" asp-route-targetId="@Model.Farm.Id">View audit history for this farm</a></div>

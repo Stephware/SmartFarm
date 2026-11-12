@@ -1,5 +1,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
+using SmartFarm.Infrastructure.Security;
 using Microsoft.EntityFrameworkCore;
 using SmartFarm.Infrastructure.Persistence;
 using SmartFarm.Infrastructure.Services.Admin;
@@ -53,9 +55,11 @@ public sealed class FarmsController(
 
     [HttpPost("{id:guid}/status")]
     [ValidateAntiForgeryToken]
+    [EnableRateLimiting(EnrollmentRateLimiting.AdminActions)]
     public async Task<IActionResult> ChangeStatus(
         Guid id, [FromForm] bool archive, [FromForm] string? rowVersion,
-        [FromForm] string? reason, CancellationToken ct)
+        [FromForm] string? reason, [FromForm] string? currentPassword,
+        CancellationToken ct)
     {
         var actor = await users.GetUserAsync(User);
         if (actor is null || actor.DisabledAtUtc is not null) return Forbid();
@@ -93,6 +97,14 @@ public sealed class FarmsController(
                 TempData["Error"] = "Complete active crop cycles and clear remaining stock before archiving.";
                 return RedirectToAction(nameof(Details), new { id });
             }
+        }
+
+        // Never archive or restore a farm using only an existing MFA cookie.
+        if (!AdminActionSecurity.ValidPasswordInput(currentPassword) ||
+            !await users.CheckPasswordAsync(actor, currentPassword!))
+        {
+            TempData["Error"] = "Current admin password is incorrect. No changes were made.";
+            return RedirectToAction(nameof(Details), new { id });
         }
 
         await using var tx = await db.Database.BeginTransactionAsync(ct);

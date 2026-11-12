@@ -42,6 +42,10 @@
                 <a class="nav-link" asp-area="Admin" asp-controller="Monitoring" asp-action="Index" aria-current="@(section == "Monitoring" ? "page" : null)">
                     <partial name="~/Views/Shared/_Icon.cshtml" model='@("chart")' /><span>Monitoring</span>
                 </a>
+                <a class="nav-link" asp-area="Admin" asp-controller="Audit" asp-action="Index"
+                   aria-current="@(section == "Audit" ? "page" : null)">
+                    <partial name="~/Views/Shared/_Icon.cshtml" model='@("list")' /><span>Audit history</span>
+                </a>
                 <a class="nav-link" asp-area="Admin" asp-controller="Security" asp-action="Setup">
                     <partial name="~/Views/Shared/_Icon.cshtml" model='@("settings")' /><span>Security</span>
                 </a>
@@ -81,6 +85,7 @@
                         <a asp-area="Admin" asp-controller="Farms" asp-action="Index">Manage farms</a>
                         <a asp-area="Admin" asp-controller="Support" asp-action="Index">Support requests</a>
                         <a asp-area="Admin" asp-controller="Monitoring" asp-action="Index">System monitoring</a>
+                        <a asp-area="Admin" asp-controller="Audit" asp-action="Index">Audit history</a>
                         <a asp-area="Admin" asp-controller="Security" asp-action="Setup">Authenticator security</a>
                         <a asp-area="" asp-controller="Farms" asp-action="Index">Farm workspace</a>
                         <button type="button" data-color-mode-toggle aria-label="Toggle appearance">Change appearance</button>

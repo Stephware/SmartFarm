@@ -1,0 +1,94 @@
+@model SmartFarm.Web.ViewModels.Admin.AdminAuditListPage
+@{
+    ViewData["Title"] = "Audit history";
+}
+<div class="page-heading admin-page-heading">
+    <div>
+        <p class="sf-kicker">PLATFORM ACCOUNTABILITY</p>
+        <h1>Audit history</h1>
+        <p class="sf-muted">Review sensitive administrative changes and who performed them. This history is read-only.</p>
+    </div>
+</div>
+<div class="admin-inline-stats admin-audit-summary">
+    <div><span>Actions in the past 7 days</span><strong>@Model.RecentCount</strong></div>
+    <div><span>Matching records</span><strong>@Model.Total</strong></div>
+</div>
+<section class="panel admin-directory-panel" aria-label="Administrative audit history">
+    <form class="admin-filters admin-audit-filters" method="get" asp-area="Admin" asp-controller="Audit" asp-action="Index">
+        <div class="admin-filter-search">
+            <label for="audit-search">Search history</label>
+            <input id="audit-search" name="search" type="search" maxlength="100" value="@Model.Search"
+                   placeholder="Admin name, email, action or ID" />
+        </div>
+        <div>
+            <label for="audit-action">Action</label>
+            <select id="audit-action" name="action">
+                <option value="all" selected="@(Model.Action == "all")">All actions</option>
+                @foreach (var action in SmartFarm.Web.ViewModels.Admin.AdminAuditDisplay.Actions) {
+                    <option value="@action.Key" selected="@(Model.Action == action.Key)">@action.Label</option>
+                }
+            </select>
+        </div>
+        <div>
+            <label for="audit-target-type">Target</label>
+            <select id="audit-target-type" name="targetType">
+                <option value="all" selected="@(Model.TargetType == "all")">All targets</option>
+                @foreach (var target in SmartFarm.Web.ViewModels.Admin.AdminAuditDisplay.TargetTypes) {
+                    <option value="@target" selected="@(Model.TargetType == target)">@SmartFarm.Web.ViewModels.Admin.AdminAuditDisplay.TargetLabel(target)</option>
+                }
+            </select>
+        </div>
+        @if (Model.TargetId.HasValue) {
+            <input type="hidden" name="targetId" value="@Model.TargetId" />
+        }
+        <div><label for="audit-from">From (UTC)</label><input id="audit-from" name="from" type="date" value="@Model.From?.ToString("yyyy-MM-dd")" /></div>
+        <div><label for="audit-to">To (UTC)</label><input id="audit-to" name="to" type="date" value="@Model.To?.ToString("yyyy-MM-dd")" /></div>
+        <button type="submit">Apply filters</button>
+        <a class="admin-reset" asp-area="Admin" asp-controller="Audit" asp-action="Index">Clear</a>
+    </form>
+    @if (Model.Error is not null) { <p class="error form-error" role="alert">@Model.Error</p> }
+    @if (Model.TargetId.HasValue) {
+        <p class="admin-results-count">Showing activity for target ID <code>@Model.TargetId</code>.</p>
+    }
+    <p class="admin-results-count">@Model.Total @(Model.Total == 1 ? "event" : "events") found</p>
+    @if (Model.Entries.Count == 0) {
+        <div class="admin-empty">
+            <strong>No matching activity</strong>
+            <p>Try changing your filters. Events appear here after a recorded admin action.</p>
+        </div>
+    }
+    else {
+        <div class="admin-record-list">
+            @foreach (var audit in Model.Entries) {
+                <a class="admin-record" asp-area="Admin" asp-controller="Audit" asp-action="Details" asp-route-id="@audit.Id">
+                    <span class="admin-record-main">
+                        <strong>@SmartFarm.Web.ViewModels.Admin.AdminAuditDisplay.ActionLabel(audit.Action)</strong>
+                        <small>@audit.ActorName @(string.IsNullOrEmpty(audit.ActorEmail) ? "" : $"· {audit.ActorEmail}")</small>
+                        <small>@audit.OccurredAtUtc.ToString("MMM d, yyyy HH:mm") UTC</small>
+                    </span>
+                    <span class="admin-record-meta">
+                        <span class="sf-status-chip sf-status-chip--neutral">@SmartFarm.Web.ViewModels.Admin.AdminAuditDisplay.TargetLabel(audit.TargetType)</span>
+                    </span>
+                </a>
+            }
+        </div>
+        <nav class="admin-pagination" aria-label="Audit history pages">
+            @if (Model.HasPrevious) {
+                <a asp-area="Admin" asp-controller="Audit" asp-action="Index"
+                   asp-route-search="@Model.Search" asp-route-action="@Model.Action"
+                   asp-route-targetType="@Model.TargetType" asp-route-targetId="@Model.TargetId"
+                   asp-route-from="@Model.From?.ToString("yyyy-MM-dd")" asp-route-to="@Model.To?.ToString("yyyy-MM-dd")"
+                   asp-route-page="@(Model.Page - 1)">Previous</a>
+            }
+            <span>Page @Model.Page of @((Model.Total + SmartFarm.Web.ViewModels.Admin.AdminAuditListPage.PageSize - 1) / SmartFarm.Web.ViewModels.Admin.AdminAuditListPage.PageSize)</span>
+            @if (Model.HasNext) {
+                <a asp-area="Admin" asp-controller="Audit" asp-action="Index"
+                   asp-route-search="@Model.Search" asp-route-action="@Model.Action"
+                   asp-route-targetType="@Model.TargetType" asp-route-targetId="@Model.TargetId"
+                   asp-route-from="@Model.From?.ToString("yyyy-MM-dd")" asp-route-to="@Model.To?.ToString("yyyy-MM-dd")"
+                   asp-route-page="@(Model.Page + 1)">Next</a>
+            }
+        </nav>
+    }
+</section>
+<p class="sf-muted admin-monitoring-disclaimer">Audit records describe administrative actions, not ordinary farm activities. Records are retained; there are no edit or delete controls.</p>
