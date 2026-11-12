@@ -2,6 +2,8 @@ package com.smartfarm.mobile
 
 import androidx.compose.ui.test.*
 import androidx.compose.ui.test.junit4.createComposeRule
+import androidx.compose.runtime.SideEffect
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import com.smartfarm.mobile.data.remote.dto.HarvestEntryDto
 import com.smartfarm.mobile.data.remote.dto.HarvestOverviewDto
 import com.smartfarm.mobile.features.harvests.HarvestScreen
@@ -26,8 +28,12 @@ class HarvestUsabilityScreenTest {
     )
 
     @Test fun quickHarvestStartsWithEntryAndPreservesConfirmedTotals() {
+        var hideKeyboard: () -> Unit = {}
         var saved: Pair<String, String>? = null
-        compose.setContent { SmartFarmTheme {
+        compose.setContent {
+            val keyboard = LocalSoftwareKeyboardController.current
+            SideEffect { hideKeyboard = { keyboard?.hide() } }
+            SmartFarmTheme {
             HarvestScreen(HarvestUiState(farmId = "farm", cycleId = "cycle",
                 overview = overview()), onBack = {},
                 onRecord = { qty, note -> saved = qty to note }, onVoid = { _, _ -> },
@@ -35,13 +41,20 @@ class HarvestUsabilityScreenTest {
         } }
         compose.onNodeWithText("Save harvested amount").assertExists()
         compose.onNodeWithText("Harvested quantity (kg)").performScrollTo().performTextInput("1.5")
-        compose.onNodeWithText("Save harvested amount").performScrollTo().performClick()
-        compose.runOnIdle { assertEquals("1.5" to "", saved) }
+        // Dismiss the IME through Compose before tapping Save.
+        compose.runOnIdle { hideKeyboard() }
+        compose.onNodeWithText("Save harvested amount").performScrollTo()
+            .assertIsDisplayed().assertIsEnabled().performClick()
+        compose.runOnIdle {
+            assertEquals("The harvest Save action must be delivered once", "1.5" to "", saved)
+        }
         compose.onNodeWithText("2 kg").performScrollTo().assertExists()
         compose.onNodeWithText("History & totals").performScrollTo().performClick()
         compose.onAllNodesWithText("Nov 12, 2026", substring = true)[0].performScrollTo().assertExists()
         compose.onAllNodesWithText("Voided")[0].performScrollTo().performClick()
-        compose.onNodeWithText("Duplicate entry").performScrollTo().assertExists()
+        // Harvest rows live below the large form and totals header in a LazyColumn.
+        compose.onNodeWithTag("record-list").performScrollToIndex(1)
+        compose.onNodeWithText("Duplicate entry", substring = true).assertExists()
     }
 
     @Test fun finishedCropOnlyShowsHistoryNotNewHarvestForm() {

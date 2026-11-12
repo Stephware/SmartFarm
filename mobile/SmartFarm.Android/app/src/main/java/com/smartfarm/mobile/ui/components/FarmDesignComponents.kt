@@ -171,16 +171,22 @@ fun FarmAppBar(modifier: Modifier = Modifier) {
             Row(Modifier.fillMaxWidth().defaultMinSize(minHeight = 60.dp)
                 .padding(horizontal = 16.dp), verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.spacedBy(9.dp)) {
+                val compact = LocalConfiguration.current.screenWidthDp < 375
                 Surface(shape = RoundedCornerShape(10.dp),
-                    color = MaterialTheme.colorScheme.primaryContainer) {
+                    color = MaterialTheme.colorScheme.primaryContainer,
+                    modifier = Modifier.semantics { contentDescription = "AniGo" }) {
                     FarmLineIcon(FarmSymbol.Crop, Modifier.padding(8.dp).size(23.dp))
                 }
-                Text("AniGo", style = MaterialTheme.typography.titleLarge,
-                    fontWeight = FontWeight.ExtraBold)
+                if (!compact) {
+                    Text("AniGo", style = MaterialTheme.typography.titleLarge,
+                        fontWeight = FontWeight.ExtraBold)
+                }
                 Box(Modifier.weight(1f))
                 if (navigation != null) {
                     androidx.compose.material3.OutlinedButton(onClick = navigation.onFarms,
-                        modifier = Modifier.widthIn(max = if (navigation.queuedCount > 0)
+                        modifier = Modifier.semantics {
+                            contentDescription = "Switch farm: ${navigation.farmName ?: "My farms"}"
+                        }.widthIn(max = if (navigation.queuedCount > 0)
                             if (LocalConfiguration.current.screenWidthDp < 380) 74.dp else 100.dp
                             else 160.dp), shape = MaterialTheme.shapes.small,
                         border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant),

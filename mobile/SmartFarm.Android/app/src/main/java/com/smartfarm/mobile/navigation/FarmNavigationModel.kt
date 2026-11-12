@@ -26,5 +26,16 @@ internal fun quickRecordRoute(farmId: String, action: String, cycleId: String?):
 }
 
 /** Warn before leaving screens that can contain an unfinished field entry. */
-internal fun requiresExitConfirmation(route: String?): Boolean =
-    route !in setOf("farm/{farmId}", "more/{farmId}", "farms")
+internal fun requiresExitConfirmation(route: String?, section: String? = null): Boolean =
+    when (route) {
+        "farm/{farmId}", "more/{farmId}", "farms", "account", "notifications",
+        "sync", "insights/{farmId}" -> false
+        // Weather and members are informational; plot and settings forms can have drafts.
+        "farm/{farmId}/{section}" ->
+            section == null || section in setOf("plots", "settings")
+        "tasks/{farmId}", "crops/{farmId}", "inventory/{farmId}",
+        "inventory/{farmId}/{itemId}",
+        "monitor/{farmId}/{cycleId}?quick={quick}",
+        "harvests/{farmId}/{cycleId}" -> true
+        else -> true // Unknown future destinations must not discard drafts silently.
+    }
