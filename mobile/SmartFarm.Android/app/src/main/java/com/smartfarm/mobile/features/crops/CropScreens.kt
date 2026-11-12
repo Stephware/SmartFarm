@@ -161,6 +161,10 @@ fun CropScreen(
                                 else "Upcoming planting plans will appear here."
                             else -> "Previous crop cycles will appear once they are closed."
                         })
+                        if (selectedView == "growing" && planned.isNotEmpty()) {
+                            OutlinedButton(onClick = { selectedView = "planned" },
+                                modifier = Modifier.fillMaxWidth()) { Text("View planting plans") }
+                        }
                         if (selectedView != "history" && canManage) {
                             OutlinedButton(onClick = onPlots, modifier = Modifier.fillMaxWidth()) {
                                 Text("View farm plots")
@@ -346,7 +350,8 @@ private fun CycleCard(
     var editHarvest by rememberSaveable(cycle.id, cycle.rowVersion) { mutableStateOf(cycle.expectedHarvestDate.orEmpty()) }
     var plantedDate by rememberSaveable(cycle.id, cycle.rowVersion) { mutableStateOf("") }
     var reason by rememberSaveable(cycle.id, cycle.rowVersion) { mutableStateOf("") }
-    var confirmation by rememberSaveable { mutableStateOf<Int?>(null) }
+    var confirmation by rememberSaveable(cycle.id) { mutableStateOf<Int?>(null) }
+    var advanced by rememberSaveable(cycle.id) { mutableStateOf(false) }
 
     FarmSectionCard("${cycle.cropTypeName} · ${cycle.plotName}",
         subtitle = "Planned planting: ${cycle.plannedPlantingDate}") {
@@ -365,44 +370,79 @@ private fun CycleCard(
                 color = MaterialTheme.colorScheme.onSurfaceVariant)
         }
     }
-    OutlinedButton(onClick = { onMonitoring(cycle) }, modifier = Modifier.fillMaxWidth()) { Text("Activities, inspections & photos") }
-    OutlinedButton(onClick = { onHarvests(cycle) }, modifier = Modifier.fillMaxWidth()) { Text("Harvest records") }
     if (cycle.status == 1) {
-        Text("Quick field log", style = MaterialTheme.typography.labelLarge)
-        OutlinedButton(onClick = { onQuickMonitoring(cycle, "watering") }) {
-            Text("Log watering")
+        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            OutlinedButton(onClick = { onQuickMonitoring(cycle, "watering") },
+                modifier = Modifier.weight(1f).defaultMinSize(minHeight = 48.dp)) {
+                Text("Log watering")
+            }
+            OutlinedButton(onClick = { onQuickMonitoring(cycle, "inspection") },
+                modifier = Modifier.weight(1f).defaultMinSize(minHeight = 48.dp)) {
+                Text("Inspect crop")
+            }
         }
-        OutlinedButton(onClick = { onQuickMonitoring(cycle, "inspection") }) {
-            Text("Record inspection")
+        Button(onClick = { onHarvests(cycle) },
+            modifier = Modifier.fillMaxWidth().defaultMinSize(minHeight = 48.dp)) {
+            Text("Record harvest")
         }
-        OutlinedButton(onClick = { onHarvests(cycle) }) { Text("Record harvest") }
+        OutlinedButton(onClick = { onMonitoring(cycle) }, modifier = Modifier.fillMaxWidth()) {
+            Text("Activities, inspections & photos")
+        }
+    } else {
+        OutlinedButton(onClick = { onMonitoring(cycle) }, modifier = Modifier.fillMaxWidth()) {
+            Text("View activities & photos")
+        }
+        OutlinedButton(onClick = { onHarvests(cycle) }, modifier = Modifier.fillMaxWidth()) {
+            Text("View harvest records")
+        }
     }
     cycle.plantedDate?.let { Text("Planted: $it") }
-    cycle.expectedHarvestDate?.let { Text("Expected harvest: $it") }
     cycle.terminationReason?.let { Text("Reason: $it") }
 
     if (canManage && cycle.status == 0) {
-        DateInput(editDate, "Planned date", { editDate = it }, enabled = !busy)
-        DateInput(editHarvest, "Expected harvest (optional)", { editHarvest = it }, enabled = !busy)
-        OutlinedButton(onClick = { onUpdatePlan(cycle, editDate, editHarvest) },
-            enabled = !busy && editDate.isNotBlank()) { Text("Update plan") }
-        DateInput(plantedDate, "Actual planting date", { plantedDate = it }, enabled = !busy)
-        Button(onClick = { confirmation = 1 }, enabled = !busy && plantedDate.isNotBlank()) {
+        FarmSectionHeader("Start growing", "Enter the actual planting date.")
+        DateInput(plantedDate, "Date planted", { plantedDate = it }, enabled = !busy)
+        Button(onClick = { confirmation = 1 }, enabled = !busy && plantedDate.isNotBlank(),
+            modifier = Modifier.fillMaxWidth().defaultMinSize(minHeight = 48.dp)) {
             Text("Mark as planted")
         }
     }
-    if (canManage && cycle.status == 1) {
-        Button(onClick = { confirmation = 2 }, enabled = !busy) { Text("Complete cycle") }
-    }
-    if (canManage && cycle.status in listOf(0, 1)) {
-        OutlinedTextField(reason, { reason = it },
-            label = { Text("Reason to cancel or mark failed") },
-            modifier = Modifier.fillMaxWidth())
-        OutlinedButton(onClick = { confirmation = 4 },
-            enabled = !busy && reason.isNotBlank()) { Text("Cancel cycle") }
-        if (cycle.status == 1) {
-            OutlinedButton(onClick = { confirmation = 3 },
-                enabled = !busy && reason.isNotBlank()) { Text("Mark failed") }
+    if (canManage && cycle.status in 0..1) {
+        TextButton(onClick = { advanced = !advanced }) {
+            Text(if (advanced) "Close crop controls" else "More crop controls")
+        }
+        if (advanced) {
+            if (cycle.status == 0) {
+                DateInput(editDate, "Planned date", { editDate = it }, enabled = !busy)
+                DateInput(editHarvest, "Expected harvest (optional)",
+                    { editHarvest = it }, enabled = !busy)
+                val planValid = runCatching {
+                    val planting = java.time.LocalDate.parse(editDate)
+                    editHarvest.isBlank() ||
+                        !java.time.LocalDate.parse(editHarvest).isBefore(planting)
+                }.getOrDefault(false)
+                OutlinedButton(onClick = { onUpdatePlan(cycle, editDate, editHarvest) },
+                    enabled = !busy && planValid, modifier = Modifier.fillMaxWidth()) {
+                    Text("Update planting plan")
+                }
+            }
+            if (cycle.status == 1) {
+                OutlinedButton(onClick = { confirmation = 2 }, enabled = !busy,
+                    modifier = Modifier.fillMaxWidth()) { Text("Complete crop cycle") }
+            }
+            OutlinedTextField(reason, { reason = it },
+                label = { Text("Reason (required for cancellation or failure)") },
+                modifier = Modifier.fillMaxWidth())
+            OutlinedButton(onClick = { confirmation = 4 },
+                enabled = !busy && reason.isNotBlank(), modifier = Modifier.fillMaxWidth()) {
+                Text("Cancel crop cycle")
+            }
+            if (cycle.status == 1) {
+                OutlinedButton(onClick = { confirmation = 3 },
+                    enabled = !busy && reason.isNotBlank(), modifier = Modifier.fillMaxWidth()) {
+                    Text("Mark crop as failed")
+                }
+            }
         }
     }
     confirmation?.let { target ->
