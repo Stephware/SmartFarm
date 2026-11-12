@@ -39,6 +39,9 @@
             else if (Model.Entry.TargetType == "support-ticket") {
                 <a class="button admin-button-secondary" asp-area="Admin" asp-controller="Support" asp-action="Details" asp-route-id="@targetId">View support case</a>
             }
+            @if (Model.Entry.TargetType == "announcement") {
+                <a class="button admin-button-secondary" asp-area="Admin" asp-controller="Announcements" asp-action="Details" asp-route-id="@targetId">View announcement</a>
+            }
             <a asp-area="Admin" asp-controller="Audit" asp-action="Index" asp-route-targetType="@Model.Entry.TargetType" asp-route-targetId="@targetId">See all activity for this target</a>
         </div>
     }

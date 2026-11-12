@@ -1,0 +1,14 @@
+@model SmartFarm.Web.ViewModels.Announcements.AnnouncementRow
+@{
+    ViewData["Title"] = "Announcement";
+}
+<a class="admin-back" asp-area="" asp-controller="Announcements" asp-action="Index">← All announcements</a>
+<article class="panel sf-announcement-detail">
+    <p class="sf-kicker">@Model.Category.ToUpperInvariant() NOTICE</p>
+    <h1>@Model.Title</h1>
+    <p class="sf-muted">Posted @Model.PublishedAtUtc?.ToString("MMMM d, yyyy HH:mm") UTC</p>
+    <div class="sf-announcement-body">@Model.Body</div>
+    @if (Model.ExpiresAtUtc.HasValue) {
+        <p class="sf-muted sf-announcement-expiry">Visible until @Model.ExpiresAtUtc.Value.ToString("MMM d, yyyy HH:mm") UTC</p>
+    }
+</article>

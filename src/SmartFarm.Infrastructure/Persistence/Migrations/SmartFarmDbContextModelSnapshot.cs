@@ -1194,6 +1194,69 @@ namespace SmartFarm.Infrastructure.Persistence.Migrations
                     b.ToTable("SupportTicketMessage", "dbo");
                 });
 
+            modelBuilder.Entity("SmartFarm.Core.Entities.PlatformAnnouncement", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Body")
+                        .IsRequired()
+                        .HasMaxLength(2000)
+                        .HasColumnType("nvarchar(2000)");
+
+                    b.Property<string>("Category")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
+
+                    b.Property<DateTime>("CreatedAtUtc")
+                        .HasColumnType("datetime2(3)");
+
+                    b.Property<Guid>("CreatedByUserId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime?>("ExpiresAtUtc")
+                        .HasColumnType("datetime2(3)");
+
+                    b.Property<DateTime?>("PublishedAtUtc")
+                        .HasColumnType("datetime2(3)");
+
+                    b.Property<byte[]>("RowVersion")
+                        .IsConcurrencyToken()
+                        .IsRequired()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("rowversion");
+
+                    b.Property<string>("State")
+                        .IsRequired()
+                        .HasMaxLength(16)
+                        .HasColumnType("nvarchar(16)");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasMaxLength(140)
+                        .HasColumnType("nvarchar(140)");
+
+                    b.Property<DateTime>("UpdatedAtUtc")
+                        .HasColumnType("datetime2(3)");
+
+                    b.HasKey("Id")
+                        .HasName("PK_PlatformAnnouncement");
+
+                    b.HasIndex("CreatedByUserId")
+                        .HasDatabaseName("IX_PlatformAnnouncement_Creator");
+
+                    b.HasIndex("State", "PublishedAtUtc")
+                        .HasDatabaseName("IX_PlatformAnnouncement_State_Published");
+
+                    b.ToTable("PlatformAnnouncement", "dbo", t =>
+                        {
+                            t.HasCheckConstraint("CK_PlatformAnnouncement_Category", "Category IN (N'General', N'Maintenance', N'Update')");
+                            t.HasCheckConstraint("CK_PlatformAnnouncement_Published", "(State = N'Draft' AND PublishedAtUtc IS NULL) OR (State IN (N'Published', N'Archived') AND PublishedAtUtc IS NOT NULL)");
+                            t.HasCheckConstraint("CK_PlatformAnnouncement_State", "State IN (N'Draft', N'Published', N'Archived')");
+                        });
+                });
+
             modelBuilder.Entity("SmartFarm.Core.Entities.SyncOperation", b =>
                 {
                     b.Property<Guid>("OperationId")
@@ -1859,6 +1922,16 @@ namespace SmartFarm.Infrastructure.Persistence.Migrations
                         .OnDelete(DeleteBehavior.NoAction)
                         .IsRequired()
                         .HasConstraintName("FK_SupportTicketMessage_Author");
+                });
+
+            modelBuilder.Entity("SmartFarm.Core.Entities.PlatformAnnouncement", b =>
+                {
+                    b.HasOne("SmartFarm.Infrastructure.Identity.SmartFarmUser", null)
+                        .WithMany()
+                        .HasForeignKey("CreatedByUserId")
+                        .OnDelete(DeleteBehavior.NoAction)
+                        .IsRequired()
+                        .HasConstraintName("FK_PlatformAnnouncement_Creator");
                 });
 
             modelBuilder.Entity("SmartFarm.Core.Entities.SyncOperation", b =>

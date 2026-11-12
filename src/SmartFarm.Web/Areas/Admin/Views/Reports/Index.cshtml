@@ -1,0 +1,54 @@
+@model SmartFarm.Web.ViewModels.Admin.AdminPlatformReportPage
+@{
+    ViewData["Title"] = "Platform reports";
+}
+<div class="page-heading admin-page-heading">
+    <div><p class="sf-kicker">PLATFORM INSIGHTS</p><h1>Platform reports</h1>
+        <p class="sf-muted">Aggregate activity trends only. Individual farm and user records are not included.</p></div>
+    <a class="button admin-button-secondary" asp-area="Admin" asp-controller="Reports" asp-action="Csv" asp-route-days="@Model.Days">Export CSV</a>
+</div>
+<div class="admin-report-filter" aria-label="Reporting period">
+    <span>Reporting period</span>
+    @foreach (var days in new[] { 7, 30, 90 }) {
+        <a class="@(Model.Days == days ? "admin-report-period-active" : "")"
+           asp-area="Admin" asp-controller="Reports" asp-action="Index" asp-route-days="@days"
+           aria-current="@(Model.Days == days ? "true" : null)">Last @days days</a>
+    }
+</div>
+<p class="admin-results-count">UTC reporting period: @Model.StartDate.ToString("MMM d, yyyy") – @Model.EndDate.ToString("MMM d, yyyy"). Generated @Model.GeneratedAtUtc.ToString("HH:mm") UTC.</p>
+<section class="admin-stats" aria-label="Platform snapshot">
+    <div class="admin-stat panel"><span>Registered users</span><strong>@Model.RegisteredUsers</strong><small>@Model.DisabledUsers disabled</small></div>
+    <div class="admin-stat panel"><span>Active farms</span><strong>@Model.ActiveFarms</strong><small>@Model.TotalFarms total farms</small></div>
+    <div class="admin-stat panel"><span>Active plots</span><strong>@Model.ActivePlots</strong><small>Across active farms</small></div>
+    <div class="admin-stat panel"><span>Active crop cycles</span><strong>@Model.ActiveCropCycles</strong><small>Across active farms and plots</small></div>
+    <div class="admin-stat panel"><span>Unresolved support</span><strong>@Model.OpenSupportCases</strong><small>Open or in progress</small></div>
+</section>
+<section class="panel admin-directory-panel" aria-labelledby="report-period-heading">
+    <div class="admin-section-heading"><div><h2 id="report-period-heading">Activity during this period</h2>
+        <p class="sf-muted">Counts of recorded events, not quantities of crops, harvest weight, or revenue.</p></div></div>
+    <div class="admin-inline-stats admin-report-summary">
+        <div><span>Farms registered</span><strong>@Model.NewFarms</strong></div>
+        <div><span>Harvest events</span><strong>@Model.HarvestEvents</strong></div>
+        <div><span>Support requests created</span><strong>@Model.NewSupportCases</strong></div>
+        <div><span>Support cases resolved</span><strong>@Model.ResolvedSupportCases</strong></div>
+        <div><span>Successful sync receipts</span><strong>@Model.SuccessfulSyncReceipts</strong></div>
+    </div>
+</section>
+<section class="panel admin-directory-panel" aria-labelledby="report-daily-heading">
+    <div class="admin-section-heading"><div><h2 id="report-daily-heading">Daily activity</h2>
+        <p class="sf-muted">Newest first · All dates UTC · Export these figures as CSV.</p></div></div>
+    <div class="admin-report-scroll" role="region" tabindex="0" aria-label="Daily platform report data">
+        <table class="admin-report-table">
+            <thead><tr><th scope="col">Date</th><th scope="col">New farms</th>
+                <th scope="col">Harvests</th><th scope="col">Support cases</th><th scope="col">Sync receipts</th></tr></thead>
+            <tbody>
+                @foreach (var day in Model.Daily.Reverse()) {
+                    <tr><th scope="row">@day.Date.ToString("MMM d, yyyy")</th>
+                        <td>@day.Farms</td><td>@day.HarvestEvents</td>
+                        <td>@day.SupportRequests</td><td>@day.SuccessfulSyncReceipts</td></tr>
+                }
+            </tbody>
+        </table>
+    </div>
+    <p class="sf-muted admin-monitoring-disclaimer">Sync receipts represent successful server writes, not pending changes stored offline on Android devices. User registrations are an all-time snapshot because account creation dates are not stored.</p>
+</section>

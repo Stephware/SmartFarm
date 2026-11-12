@@ -31,10 +31,14 @@ public static class AdminAuditDisplay
         ("farm-restored", "Farm restored"),
         ("support-status-changed", "Support case updated"),
         ("support-replied", "Support reply sent"),
-        ("support-internal-note", "Private support note")
+        ("support-internal-note", "Private support note"),
+        ("announcement-created", "Announcement draft created"),
+        ("announcement-edited", "Announcement draft edited"),
+        ("announcement-published", "Announcement published"),
+        ("announcement-archived", "Announcement archived")
     ];
 
-    public static readonly string[] TargetTypes = ["user", "farm", "support-ticket"];
+    public static readonly string[] TargetTypes = ["user", "farm", "support-ticket", "announcement"];
 
     public static string ActionLabel(string key) =>
         Actions.FirstOrDefault(action => action.Key == key).Label ?? key.Replace('-', ' ');
@@ -47,6 +51,7 @@ public static class AdminAuditDisplay
         "user" => "User account",
         "farm" => "Farm",
         "support-ticket" => "Support case",
+        "announcement" => "Announcement",
         _ => type
     };
 }

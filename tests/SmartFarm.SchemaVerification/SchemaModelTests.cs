@@ -44,11 +44,11 @@ public sealed class SchemaModelTests
     {
         using var context = new SmartFarmDbContextFactory().CreateDbContext([]);
         var entities = context.GetService<IDesignTimeModel>().Model.GetEntityTypes().ToArray();
-        Assert.Equal(28, entities.Length); // Identity, finance, admin audit and support cases.
-        Assert.Equal(245, entities.Sum(entity => entity.GetProperties().Count())); // Includes support tickets and replies.
-        Assert.Equal(52, entities.Sum(entity => entity.GetForeignKeys().Count()));
-        Assert.Equal(58, entities.Sum(entity => entity.GetIndexes().Count()));
-        Assert.Equal(45, entities.Sum(entity => entity.GetCheckConstraints().Count()));
+        Assert.Equal(29, entities.Length); // Adds platform announcements.
+        Assert.Equal(256, entities.Sum(entity => entity.GetProperties().Count()));
+        Assert.Equal(53, entities.Sum(entity => entity.GetForeignKeys().Count()));
+        Assert.Equal(60, entities.Sum(entity => entity.GetIndexes().Count()));
+        Assert.Equal(48, entities.Sum(entity => entity.GetCheckConstraints().Count()));
         Assert.Equal(35, entities.SelectMany(entity => entity.GetProperties()).Count(property =>
             property.GetDefaultValueSql() is not null || property.TryGetDefaultValue(out _)));
         Assert.All(entities, entity => Assert.Equal("dbo", entity.GetSchema()));
@@ -64,7 +64,7 @@ public sealed class SchemaModelTests
         Assert.All(guidKeys, property => Assert.Equal(ValueGenerated.Never, property.ValueGenerated));
         var rowVersions = entities.SelectMany(entity => entity.GetProperties())
             .Where(property => property.Name == "RowVersion").ToArray();
-        Assert.Equal(7, rowVersions.Length);
+        Assert.Equal(8, rowVersions.Length);
         Assert.All(rowVersions, property =>
         {
             Assert.True(property.IsConcurrencyToken);
@@ -96,7 +96,7 @@ public sealed class SchemaModelTests
         using var context = new SmartFarmDbContextFactory().CreateDbContext([]);
         Assert.False(context.Database.HasPendingModelChanges());
         var assembly = context.GetService<IMigrationsAssembly>();
-        Assert.Equal(6, assembly.Migrations.Count);
+        Assert.Equal(7, assembly.Migrations.Count);
         var migrationType = assembly.Migrations.Single(entry => entry.Key.EndsWith("_ExistingSchemaBaseline", StringComparison.Ordinal)).Value;
         var migration = assembly.CreateMigration(migrationType, context.Database.ProviderName!);
         Assert.Empty(migration.UpOperations);

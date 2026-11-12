@@ -28,6 +28,7 @@ builder.Services.AddSmartFarmPersistence(
 builder.Services.AddSmartFarmWebIdentity(builder.Environment);
 builder.Services.AddSuperAdminSecurity();
 builder.Services.AddScoped<AdminAuditWriter>();
+builder.Services.AddScoped<AdminReportService>();
 builder.Services.AddHttpClient<AdminDiagnosticsService>(client =>
 {
     // Diagnostic probes are bounded; a down API must not hang the admin portal.
