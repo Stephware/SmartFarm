@@ -1,7 +1,8 @@
 package com.smartfarm.mobile
 
 import androidx.compose.ui.test.junit4.createComposeRule
-import androidx.test.espresso.Espresso
+import androidx.compose.runtime.SideEffect
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollTo
@@ -34,9 +35,12 @@ class DraftFeedbackTest {
     @get:Rule val compose = createComposeRule()
 
     @Test fun draftRemainsOnFailureAndClearsOnlyAfterLocalSave() {
+        var hideKeyboard: () -> Unit = {}
         var saved: (() -> Unit)? = null
         val state = mutableStateOf(MonitoringUiState(farmId = "farm", cycleId = "crop", canRecord = true))
         compose.setContent {
+            val keyboard = LocalSoftwareKeyboardController.current
+            SideEffect { hideKeyboard = { keyboard?.hide() } }
             SmartFarmTheme {
                 MonitoringScreen(state.value, onBack = {},
                     onActivity = { _, _ -> saved = {
@@ -46,9 +50,8 @@ class DraftFeedbackTest {
             }
         }
         compose.onNodeWithText("Notes (optional)").performScrollTo().performTextInput("Watered north field")
-        // A multiline notes field can leave the keyboard open on the emulator.
-        // Close it before tapping Save so the first tap reaches the action.
-        Espresso.closeSoftKeyboard()
+        // Dismiss the IME through Compose, without Espresso's window-focus dependency.
+        compose.runOnIdle { hideKeyboard() }
         compose.onNodeWithText("Save activity").performScrollTo().assertIsDisplayed().performClick()
         compose.onNodeWithText("Notes (optional)").assertTextContains("Watered north field")
         compose.runOnIdle {
