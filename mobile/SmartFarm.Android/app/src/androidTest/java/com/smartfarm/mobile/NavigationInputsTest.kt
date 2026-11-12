@@ -18,6 +18,7 @@ import androidx.compose.ui.test.performTextReplacement
 import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.test.espresso.Espresso.onView
+import androidx.test.espresso.matcher.RootMatchers.isDialog
 import androidx.test.espresso.action.ViewActions.click
 import androidx.test.espresso.matcher.ViewMatchers.withId
 import androidx.test.espresso.matcher.ViewMatchers.isAssignableFrom
@@ -48,12 +49,13 @@ class NavigationInputsTest {
         compose.setContent { SmartFarmTheme { DateInput("", "Planting date", { selected = it }) } }
         compose.onNodeWithContentDescription("Planting date: No date selected. Choose date")
             .performClick()
-        onView(isAssignableFrom(DatePicker::class.java)).perform(object : ViewAction {
+        onView(isAssignableFrom(DatePicker::class.java)).inRoot(isDialog())
+            .perform(object : ViewAction {
             override fun getConstraints() = isAssignableFrom(DatePicker::class.java)
             override fun getDescription() = "Choose October 26, 2026"
             override fun perform(controller: UiController, view: View) { (view as DatePicker).updateDate(2026, 9, 26) }
         })
-        onView(withId(android.R.id.button1)).perform(click())
+        onView(withId(android.R.id.button1)).inRoot(isDialog()).perform(click())
         compose.runOnIdle { assertEquals("2026-10-26", selected) }
     }
 
