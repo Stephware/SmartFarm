@@ -6,7 +6,7 @@
     --accent:#b58a32; --accent-ink:#80601d; --accent-soft:#fff2d8;
     --gold:#b58a32; --gold-soft:#fff2d8; --bg:#f7f8f4; --card:#fff;
     --ink:#25392f; --muted:#596b60; --stroke:#e4e9e2; --green-soft:#e5f1e7;
-    --shadow:0 3px 12px rgb(35 63 47 / 3%);
+    --shadow:0 6px 20px rgb(35 63 47 / 5%);
     --page:var(--bg); --surface:var(--card); --text:var(--ink);
     --primary:var(--pine); --primary-hover:var(--pine-deep); --on-primary:#fff;
     --secondary:var(--gold); --secondary-hover:#80601d; --on-secondary:#153d2d;
@@ -15,15 +15,16 @@
     --danger:#a10b22; --danger-soft:#fff0f1; --on-danger-soft:#730f1e;
     --success-soft:var(--green-soft); --on-success-soft:#28503c;
     --warning-soft:var(--accent-soft); --on-warning-soft:#62480f;
-    --radius-sm:10px; --radius-md:14px; --radius-lg:14px;
+    --radius-sm:10px; --radius-md:14px; --radius-lg:16px;
+    --ui-control-height:44px; --ui-field-radius:10px; --ui-card-radius:16px;
 }
 *{box-sizing:border-box}
 html{scroll-padding-top:90px}
-body{margin:0;background:var(--bg);color:var(--ink);font-family:inherit;font-size:14px;line-height:1.5}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:inherit;font-size:15px;line-height:1.55}
 button,input,select,textarea{font:inherit}
 button{cursor:pointer}button:disabled{cursor:default;opacity:.55}
 svg{flex-shrink:0}h1,h2,h3,h4{color:var(--ink);font-family:inherit;letter-spacing:-.035em;margin:0;font-weight:800}
-h1{font-size:clamp(24px,2.3vw,32px);line-height:1.2}h2{font-size:16px}h3{font-size:14px}
+h1{font-size:clamp(26px,2.3vw,34px);line-height:1.2}h2{font-size:18px}h3{font-size:16px}
 p{line-height:1.6}a{color:var(--pine);text-underline-offset:3px}
 ::selection{background:var(--accent-soft);color:var(--pine-deep)}
 input,textarea{caret-color:var(--pine)}
@@ -65,7 +66,7 @@ input,textarea{caret-color:var(--pine)}
 .page-hero h1{font-size:clamp(24px,2.3vw,32px);font-weight:800;letter-spacing:-.055em}
 .page-hero p{color:var(--muted);font-size:13px;margin-top:5px}
 .hero-actions{display:flex;gap:9px;align-items:center;flex-wrap:wrap}
-.btn{border:1px solid var(--stroke);background:#fff;color:var(--ink);padding:10px 14px;border-radius:10px;font-size:12px;font-weight:800;min-height:40px;display:inline-flex;align-items:center;justify-content:center;gap:8px;white-space:nowrap}
+.btn{border:1px solid var(--stroke);background:#fff;color:var(--ink);padding:10px 14px;border-radius:10px;font-size:13px;font-weight:700;min-height:44px;display:inline-flex;align-items:center;justify-content:center;gap:8px;white-space:nowrap}
 .btn svg{width:15px;height:15px}
 .btn:hover{border-color:#b5c5b6;background:#fafcf9}
 .btn.primary{color:#fff;background:var(--pine);border-color:var(--pine)}
@@ -476,3 +477,45 @@ summary{cursor:pointer;min-height:42px;align-content:center;color:var(--pine);fo
 [data-color-mode="dark"] .btn.primary{color:var(--on-primary)}
 [data-color-mode="dark"] .reference-screen .ani-task-tabs a.is-selected{color:var(--on-primary);background:var(--pine)}
 [data-color-mode="dark"] .reference-screen .sf-plot-tile{background:var(--pine-deep)}
+
+/* AniGo farmer-facing foundation: shared controls and feedback, not page-specific layout. */
+:where(.app-page,.guest-page) :is(.panel,.card) {
+    border-radius:var(--ui-card-radius);
+}
+:where(.app-page,.guest-page) :is(input:not([type="checkbox"]):not([type="radio"]),select,textarea) {
+    min-height:var(--ui-control-height);
+    border-radius:var(--ui-field-radius);
+    font-size:16px; /* No automatic iOS zoom when focusing a form field. */
+    background-color:var(--surface);
+    color:var(--text);
+}
+:where(.app-page,.guest-page) :is(.button,.sf-button-outline,.sf-button-secondary,.auth-submit) {
+    min-height:var(--ui-control-height);
+    border-radius:var(--radius-sm);
+    font-size:.92rem;
+    font-weight:700;
+}
+:where(.app-page,.guest-page) label:not(.check):not(.auth-remember) {
+    font-size:.9rem;
+}
+:where(.app-page,.guest-page) :is(input,select,textarea,button,a):focus-visible {
+    outline:3px solid var(--focus);
+    outline-offset:3px;
+}
+:where(.app-page,.guest-page) .form-notice,
+:where(.app-page,.guest-page) .validation-summary {
+    border-radius:var(--radius-sm);
+}
+:where(.app-page,.guest-page) :is(button,.button,.sf-button-outline,.sf-button-secondary)[disabled],
+:where(.app-page,.guest-page) :is(button,.button)[aria-disabled="true"] {
+    opacity:.58;
+    cursor:not-allowed;
+}
+:where(.app-page,.guest-page) :is(.landing-hero,.auth-layout,.sf-crop-card-grid) img[src$=".svg"] {
+    object-fit:contain;
+}
+@media (max-width:770px) {
+    :where(.app-page,.guest-page) :is(.button,.sf-button-outline,.sf-button-secondary,.auth-submit) {
+        min-height:48px;
+    }
+}

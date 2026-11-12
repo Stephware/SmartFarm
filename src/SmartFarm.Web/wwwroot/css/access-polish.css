@@ -1,15 +1,15 @@
 /* Phase 7 — unified guest, account and accessible responsive polish. */
 html { scroll-padding-top: 22px; }
-.ani-landing-visual { transform: none; box-shadow: 10px 10px 0 rgb(181 138 50 / 13%); }
+.ani-landing-visual { transform:none; box-shadow:0 16px 36px rgb(29 62 39 / 9%); }
 .ani-landing-visual .visual-fields { gap:10px; }
 .ani-landing-visual .visual-field { position:relative; min-height:176px; display:flex; flex-direction:column;
     align-items:center; justify-content:space-between; gap:5px; padding:11px; overflow:hidden;
-    background:linear-gradient(145deg,#dfedcf 0%,#c3d7ae 100%); border:1px solid #a8bd97; }
-.ani-landing-visual .visual-field.field-b { background:linear-gradient(145deg,#e6e6ca,#c8d2a4); }
-.ani-landing-visual .visual-field.field-c { background:linear-gradient(145deg,#f1e5c3,#d8d09f); }
-.ani-landing-visual .visual-field.field-d { background:linear-gradient(145deg,#dfeacc,#bed3aa); }
-.ani-landing-visual .visual-field img { width:100%; height:96px; max-width:126px; object-fit:contain;
-    filter:drop-shadow(0 3px 4px rgb(28 60 39 / 13%)); }
+    background:linear-gradient(150deg,#e5f0dc 0%,#c6d9b2 100%); border:1px solid #b4c9a7; }
+.ani-landing-visual .visual-field.field-b { background:linear-gradient(155deg,#e8eddc,#c5d3b6); }
+.ani-landing-visual .visual-field.field-c { background:linear-gradient(155deg,#f5edd3,#dccb9f); }
+.ani-landing-visual .visual-field.field-d { background:linear-gradient(155deg,#e8f0da,#c6d8ae); }
+.ani-landing-visual .visual-field img { display:block; width:100%; height:104px; max-width:136px; object-fit:contain;
+    filter:drop-shadow(0 5px 7px rgb(28 60 39 / 11%)); }
 .ani-landing-visual .visual-field .field-name { align-self:flex-start; }
 .ani-landing-visual .visual-field strong { color:#254630; font-size:.85rem; }
 .ani-landing-points { display:flex; flex-wrap:wrap; gap:8px; margin-top:18px; }
@@ -25,7 +25,7 @@ html { scroll-padding-top: 22px; }
 .ani-landing-last>.button { min-height:48px; white-space:normal; text-align:center; }
 .ani-auth-illustration { display:flex; justify-content:space-between; gap:7px; margin-top:26px;
     padding:17px 12px; background:rgb(255 255 255 / 7%); border:1px solid rgb(255 255 255 / 12%); border-radius:16px; }
-.ani-auth-illustration img { width:30%; max-width:105px; height:95px; object-fit:contain; }
+.ani-auth-illustration img { display:block; width:30%; max-width:105px; height:95px; object-fit:contain; filter:drop-shadow(0 6px 7px rgb(0 0 0 / 13%)); }
 .ani-password-field { display:flex; align-items:stretch; position:relative; gap:8px; }
 .ani-password-field input { flex:1; min-width:0; }
 .ani-password-toggle { flex:0 0 68px; min-height:48px; padding:9px 8px; color:var(--primary);
