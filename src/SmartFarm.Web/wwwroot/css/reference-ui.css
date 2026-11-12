@@ -1046,3 +1046,152 @@ summary{cursor:pointer;min-height:42px;align-content:center;color:var(--pine);fo
 @media(prefers-reduced-motion:reduce) {
     .reference-screen-crops .ani-current-grid .ani-current-card {transition:none;}
 }
+
+
+/* Web Phase 6: practical daily tasks, field recording, and harvest entry. */
+.reference-screen-tasks .ani-work-priority-summary {
+    display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:11px; margin:18px 0;
+}
+.reference-screen-tasks .ani-work-priority-summary > div {
+    min-width:0; display:flex; flex-direction:column; gap:5px;
+    border:1px solid var(--stroke); border-radius:12px;
+    background:var(--card); padding:15px;
+}
+.reference-screen-tasks .ani-work-priority-summary strong {
+    font-size:clamp(1.5rem,2.5vw,2rem);font-weight:800;line-height:1.1;
+    color:var(--ink);font-variant-numeric:tabular-nums;
+}
+.reference-screen-tasks .ani-work-priority-summary span {font-size:.82rem;font-weight:700;color:var(--muted);}
+.reference-screen-tasks .ani-work-priority-summary .ani-priority-warning {
+    background:var(--accent-soft);border-color:var(--accent);
+}
+.reference-screen-tasks .ani-work-priority-summary .ani-priority-warning strong,
+.reference-screen-tasks .ani-work-priority-summary .ani-priority-warning span {color:var(--accent-ink);}
+.reference-screen-tasks .ani-task-tabs {margin-bottom:7px;}
+.reference-screen-tasks .ani-task-tabs a:focus-visible {outline:3px solid var(--focus);outline-offset:2px;}
+.reference-screen-tasks .sf-task-list {gap:11px;}
+.reference-screen-tasks .sf-task-item {
+    scroll-margin-top:100px; border-radius:12px; min-width:0;
+    border:1px solid var(--stroke); background:var(--card);
+}
+.reference-screen-tasks .sf-task-item.ani-task-urgent {
+    border-left:4px solid var(--accent);
+}
+.reference-screen-tasks .sf-task-content {min-width:0;}
+.reference-screen-tasks .sf-task-actions > form {display:flex;align-items:center;}
+.reference-screen-tasks .sf-task-actions button[type=submit] {
+    min-height:46px; border-radius:9px; font-size:.87rem;
+}
+.reference-screen-tasks .sf-task-actions details > summary {min-height:36px;display:flex;align-items:center;}
+.ani-save-feedback {
+    border-radius:12px; display:flex; flex-wrap:wrap; align-items:center;
+    gap:8px 13px; padding:13px 16px; margin:13px 0;
+}
+.ani-save-feedback strong {font-weight:750;}
+.ani-save-feedback a {font-weight:800;color:var(--primary);text-decoration:underline;}
+.reference-screen-monitoring .ani-fieldwork-jumps {
+    display:flex;flex-wrap:wrap;gap:7px;
+}
+.reference-screen-monitoring .ani-fieldwork-jumps a {
+    min-height:39px;display:inline-flex;align-items:center;border-radius:999px;
+    font-size:.83rem;font-weight:650;border:1px solid var(--stroke);
+    padding:7px 12px;color:var(--ink);background:var(--soft);text-decoration:none;
+}
+.reference-screen-monitoring .ani-fieldwork-jumps a:hover {background:var(--success-soft);border-color:var(--outline);}
+.reference-screen-monitoring .ani-fieldwork-recording-intro {
+    display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin:17px 0;
+}
+.reference-screen-monitoring .ani-fieldwork-recording-intro > div {
+    display:grid;gap:5px;min-width:0;padding:14px 16px;
+    border:1px solid var(--stroke);background:var(--soft);border-radius:12px;
+}
+.reference-screen-monitoring .ani-fieldwork-recording-intro strong {color:var(--ink);font-size:.86rem;}
+.reference-screen-monitoring .ani-fieldwork-recording-intro span {color:var(--muted);font-size:.79rem;line-height:1.45;}
+.reference-screen-monitoring .ani-phase6-recording-grid {gap:15px;align-items:start;}
+.reference-screen-monitoring .ani-phase6-recording-grid .sf-monitoring-form {
+    border:1px solid var(--stroke);border-radius:var(--ui-card-radius);
+    background:var(--card);padding:clamp(17px,2.2vw,24px);min-width:0;
+}
+.reference-screen-monitoring .ani-phase6-recording-grid .sf-monitoring-form h2 {
+    font-size:1.12rem;margin:0 0 5px;
+}
+.reference-screen-monitoring .ani-phase6-recording-grid .sf-monitoring-form .sf-muted {
+    font-size:.87rem;line-height:1.5;
+}
+.reference-screen-monitoring .ani-phase6-recording-grid .sf-ops-form {
+    display:grid;gap:8px;
+}
+.reference-screen-monitoring .ani-phase6-recording-grid .sf-ops-form label {
+    font-size:.87rem;font-weight:750;
+}
+.reference-screen-monitoring .ani-phase6-recording-grid .sf-ops-form :is(input,select,textarea) {
+    width:100%;min-height:45px;max-width:100%;font-size:1rem;
+}
+.reference-screen-monitoring .ani-phase6-recording-grid .sf-ops-form button[type=submit] {
+    min-height:47px;justify-self:start;font-weight:750;max-width:100%;
+}
+.reference-screen-monitoring .ani-fieldwork-optional {
+    border:1px solid var(--stroke);border-radius:11px;padding:0 14px;margin:10px 0;
+}
+.reference-screen-monitoring .ani-fieldwork-optional summary {
+    display:flex;align-items:center;min-height:45px;
+    font-weight:750;cursor:pointer;font-size:.86rem;color:var(--ink);
+}
+.reference-screen-monitoring .ani-fieldwork-optional summary:focus-visible {
+    outline:3px solid var(--focus);outline-offset:2px;
+}
+.reference-screen-monitoring .ani-fieldwork-extra-fields {
+    display:grid;gap:8px;padding:4px 0 15px;
+}
+.reference-screen-monitoring .sf-monitoring-history,
+.reference-screen-monitoring .sf-monitoring-observations,
+.reference-screen-monitoring .sf-photo-gallery {scroll-margin-top:95px;}
+.reference-screen-monitoring .sf-inspection-record {
+    scroll-margin-top:95px;border:1px solid var(--stroke);border-radius:12px;
+}
+.reference-screen-monitoring .sf-photo-upload {
+    display:grid;gap:10px;margin-top:15px;
+}
+.reference-screen-monitoring .sf-photo-upload button {min-height:46px;justify-self:start;}
+.reference-screen-harvests .sf-harvest-hero {margin-bottom:16px;}
+.reference-screen-harvests .ani-harvest-identity {display:flex;flex-wrap:wrap;gap:10px;}
+.reference-screen-harvests .ani-harvest-identity :is(.button,.sf-button-outline) {
+    min-height:44px;align-items:center;justify-content:center;text-align:center;
+}
+.reference-screen-harvests .sf-harvest-record {
+    margin:0 0 19px;padding:clamp(18px,2.4vw,25px);
+    border:1px solid var(--stroke);border-radius:var(--ui-card-radius);
+    background:var(--card);scroll-margin-top:95px;
+}
+.reference-screen-harvests .sf-harvest-record h2 {font-size:1.2rem;}
+.reference-screen-harvests .sf-harvest-record .sf-ops-form {display:grid;gap:8px;max-width:620px;}
+.reference-screen-harvests .sf-harvest-record label {font-size:.88rem;font-weight:750;}
+.reference-screen-harvests .sf-harvest-record input[type=number] {
+    width:100%;max-width:100%;min-height:50px;font-size:1.1rem;
+}
+.reference-screen-harvests .sf-harvest-record button[type=submit] {
+    justify-self:start;min-height:48px;font-size:.92rem;
+}
+.reference-screen-harvests .sf-harvest-record textarea {max-width:100%;}
+.reference-screen-harvests .sf-harvest-history {margin:0 0 15px;}
+.reference-screen-harvests .sf-harvest-history .sf-empty-state a {
+    display:inline-flex;align-items:center;min-height:44px;color:var(--primary);font-weight:750;
+}
+.reference-screen-harvests .sf-harvest-hero .error a {color:inherit;font-weight:800;text-decoration:underline;}
+@media(max-width:850px) {
+    .reference-screen-tasks .ani-work-priority-summary {grid-template-columns:repeat(2,minmax(0,1fr));}
+    .reference-screen-monitoring .ani-fieldwork-recording-intro {grid-template-columns:1fr;}
+    .reference-screen-monitoring .ani-phase6-recording-grid {grid-template-columns:minmax(0,1fr);}
+}
+@media(max-width:540px) {
+    .reference-screen-tasks .ani-work-priority-summary {gap:8px;}
+    .reference-screen-tasks .ani-work-priority-summary > div {padding:12px;}
+    .reference-screen-monitoring .ani-monitoring-status {display:grid;grid-template-columns:repeat(2,minmax(0,1fr));}
+    .reference-screen-monitoring .ani-phase6-recording-grid .sf-ops-form button[type=submit],
+    .reference-screen-monitoring .sf-photo-upload button,
+    .reference-screen-harvests .sf-harvest-record button[type=submit] {width:100%;justify-self:stretch;}
+    .reference-screen-harvests .ani-harvest-identity :is(.button,.sf-button-outline) {flex:1 1 145px;}
+}
+@media(prefers-reduced-motion:reduce) {
+    .reference-screen-monitoring .ani-fieldwork-jumps a {transition:none;}
+}
