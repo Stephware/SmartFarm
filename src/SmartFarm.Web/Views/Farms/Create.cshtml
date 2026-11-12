@@ -17,7 +17,7 @@
 <div class="farm-create-layout">
     <section class="panel card farm-create-panel" aria-labelledby="farm-details-heading">
         <header class="reference-panel-heading"><h2 id="farm-details-heading">Farm details</h2></header>
-        <p class="sf-muted">Two details to begin. Map pin and time zone can be adjusted if needed.</p>
+        <p class="sf-muted">Start with a name and a nearby location. The time zone is prefilled; a map pin is optional.</p>
         <form asp-action="Create" method="post" class="farm-create-form">
             <div class="form-field">
                 <label asp-for="Name"></label>
@@ -33,9 +33,9 @@
             </div>
             <input asp-for="Latitude" data-farm-latitude type="hidden" />
             <input asp-for="Longitude" data-farm-longitude type="hidden" />
-            <details class="ani-farm-advanced" id="farm-advanced-settings" @(!ViewData.ModelState.IsValid ? "open" : "")>
-                <summary><strong>Map pin and time zone</strong><span>Optional setup</span></summary>
-                <p class="ani-inline-help">These settings help with localized weather and scheduling. You can finish creating your farm without a map pin.</p>
+            <details class="ani-farm-advanced" id="farm-advanced-settings">
+                <summary><strong>Choose an exact location on the map</strong><span>Optional</span></summary>
+                <p class="ani-inline-help">A map pin helps with local weather. You can add one later by editing your farm.</p>
             <div class="farm-location-picker" data-farm-location-picker data-search-url="@Url.Action("Search", "FarmLocations")">
                 <h3 class="farm-map-heading">Pin your farm's location <span class="sf-muted">(optional)</span></h3>
                 <p class="hint">Find your barangay or nearby place, then position the pin on your actual farm. No coordinates to type.</p>
@@ -52,13 +52,13 @@
                 <p class="farm-location-status" data-farm-location-status role="status">Tap the map or search to choose a farm position. Location services require your permission.</p>
                 <small>Map and place search: &copy; <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener noreferrer">OpenStreetMap contributors</a>. Address search runs only when you press Search.</small>
             </div>
-            <div class="form-field">
+            </details>
+            <div class="form-field ani-timezone-field">
                 <label asp-for="TimeZoneId">Time zone</label>
                 <input asp-for="TimeZoneId" list="time-zones" required maxlength="64" aria-describedby="farm-timezone-help" />
                 <span asp-validation-for="TimeZoneId" class="error"></span>
                 <p class="hint" id="farm-timezone-help">Defaults to Asia/Manila. Used for local crop dates, scheduled tasks, and reports.</p>
             </div>
-            </details>
             <div class="farm-create-actions">
                 <button type="submit">Create farm &amp; continue</button>
                 <a class="sf-button-outline" asp-action="Index">Cancel</a>
