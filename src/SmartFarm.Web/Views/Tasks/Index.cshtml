@@ -16,18 +16,26 @@
     var upcomingCount = Model.FarmToday is { } nextDate
         ? Model.Tasks.Count(t => t.Status == 0 && t.DueDate > nextDate) : 0;
     var closedCount = Model.Tasks.Count(t => t.Status != 0);
+    var overdueCount = Model.FarmToday is { } overdueDate
+        ? Model.Tasks.Count(t => t.Status == 0 && t.DueDate < overdueDate) : 0;
+    var dueTodayCount = Model.FarmToday is { } dueDate
+        ? Model.Tasks.Count(t => t.Status == 0 && t.DueDate == dueDate) : 0;
+    var mineCount = Model.Tasks.Count(t => t.Status == 0 && t.AssignedToUserId == actorId);
     var shown = Model.SelectedView switch
     {
         "today" => Model.FarmToday is { } date
             ? Model.Tasks.Where(t => t.Status == 0 && t.DueDate <= date).ToList()
             : new List<SmartFarm.Core.Contracts.Tasks.FarmTaskDetails>(),
+        "mine" => Model.Tasks.Where(t => t.Status == 0 && t.AssignedToUserId == actorId).ToList(),
         "upcoming" => Model.FarmToday is { } date
             ? Model.Tasks.Where(t => t.Status == 0 && t.DueDate > date).ToList()
             : new List<SmartFarm.Core.Contracts.Tasks.FarmTaskDetails>(),
         "completed" => Model.Tasks.Where(t => t.Status != 0).ToList(),
         _ => Model.Tasks.ToList()
     };
-    var ordered = shown.OrderBy(t => t.Status == 0 ? 0 : 1).ThenBy(t => t.DueDate).ToList();
+    var ordered = shown.OrderBy(t => t.Status == 0 ? 0 : 1)
+        .ThenBy(t => t.Status == 0 && t.AssignedToUserId == actorId ? 0 : 1)
+        .ThenBy(t => t.DueDate).ToList();
 }
 <div class="reference-screen reference-screen-tasks">
 <partial name="_FarmNavigation" model="Model.Farm.Id" />
@@ -36,27 +44,30 @@
         <div>
             <p><a asp-controller="Farms" asp-action="Details" asp-route-id="@Model.Farm.Id">← @Model.Farm.Name</a></p>
 
+            <p class="ani-overline">Daily fieldwork</p>
             <h1 id="tasks-heading">Farm tasks</h1>
-            <p class="sf-muted">See what needs doing, who's assigned, and when work is due.</p>
+            <p class="sf-muted">See the next job, complete assigned work, or record field activity for a crop.</p>
         </div>
         @if (canManage)
         {
             <a class="button" href="#add-task">Add a task</a>
         }
     </div>
-    <div class="sf-ops-summary" aria-label="Task summary">
-        <div><strong>@openCount</strong><span>Open tasks</span></div>
-        <div><strong>@(Model.Tasks.Count - openCount)</strong><span>Closed tasks</span></div>
-        <div><strong>@Model.Tasks.Count</strong><span>Total tasks</span></div>
+    <div class="sf-ops-summary ani-work-priority-summary" aria-label="Farm task priorities">
+        <div class="@(overdueCount > 0 ? "ani-priority-warning" : "")"><strong>@overdueCount</strong><span>Overdue</span></div>
+        <div><strong>@dueTodayCount</strong><span>Due today</span></div>
+        <div><strong>@mineCount</strong><span>Assigned to me</span></div>
+        <div><strong>@openCount</strong><span>All open</span></div>
     </div>
     <p class="hint">Scheduled planting, watering, and harvest tasks are added automatically when the worker is enabled.</p>
     <p class="sf-ops-today">Farm date: @(Model.FarmToday?.ToString("ddd, MMM d, yyyy") ?? "Unavailable — check the farm time zone") · @Model.Farm.TimeZoneId</p>
+    @if (TempData["Message"] is string message) { <p class="form-notice ani-save-feedback" role="status">@message</p> }
     @if (TempData["Error"] is string error) { <p class="error form-error" role="alert">@error</p> }
 </section>
 <div class="reference-task-workspace">
 <section class="panel card sf-task-panel" aria-labelledby="task-list-heading">
     <div class="sf-section-line card-head">
-        <h2 id="task-list-heading">Your farm work</h2>
+        <h2 id="task-list-heading">Work to do</h2>
         <span>@shown.Count visible of @Model.Tasks.Count</span>
     </div>
     <nav class="ani-task-tabs filter-row" aria-label="Filter farm tasks">
@@ -64,6 +75,11 @@
            aria-current="@(Model.SelectedView == "today" ? "page" : null)"
            asp-controller="Tasks" asp-action="Index" asp-route-farmId="@Model.Farm.Id" asp-route-view="today">
             Due / overdue <span>@todayCount</span>
+        </a>
+        <a class="@(Model.SelectedView == "mine" ? "is-selected" : "")"
+           aria-current="@(Model.SelectedView == "mine" ? "page" : null)"
+           asp-controller="Tasks" asp-action="Index" asp-route-farmId="@Model.Farm.Id" asp-route-view="mine">
+            Assigned to me <span>@mineCount</span>
         </a>
         <a class="@(Model.SelectedView == "upcoming" ? "is-selected" : "")"
            aria-current="@(Model.SelectedView == "upcoming" ? "page" : null)"
@@ -85,7 +101,8 @@
     {
         <div class="sf-empty-state">
             <strong>No tasks yet.</strong>
-            <p>Farm work and reminders will appear here once tasks have been added.</p>
+            <p>@(canManage ? "Add a task to schedule work, or plan a crop for upcoming farm reminders." : "Your farm owner or manager can assign tasks here. You can also open crops to record field observations.")</p>
+            @if (canManage) { <a href="#add-task">Add a task →</a> }
         </div>
     }
     else if (Model.FarmToday is null && Model.SelectedView is "today" or "upcoming")
@@ -101,6 +118,7 @@
         <div class="sf-empty-state">
             <strong>No tasks in this view.</strong>
             <p>@(Model.SelectedView == "today" ? "Nothing is overdue or due today." :
+                 Model.SelectedView == "mine" ? "No open tasks are assigned to you. Check due work or ask your farm manager about assignments." :
                  Model.SelectedView == "upcoming" ? "No upcoming work is scheduled." :
                  "No tasks have been closed yet.")</p>
             <a asp-action="Index" asp-route-farmId="@Model.Farm.Id" asp-route-view="all">View all tasks →</a>
@@ -111,7 +129,7 @@
         <ul class="sf-task-list checklist">
         @foreach (var task in ordered)
         {
-            <li id="task-@task.Id" class="sf-task-item @(task.Status == 0 ? "sf-task-open" : "sf-task-closed")">
+            <li id="task-@task.Id" class="sf-task-item @(task.Status == 0 ? "sf-task-open" : "sf-task-closed") @(task.Status == 0 && Model.FarmToday is { } date && task.DueDate < date ? "ani-task-urgent" : "")">
                 <div class="sf-task-main">
                     <span class="sf-task-symbol reference-task-check @(task.Status != 0 ? "is-closed" : "")" aria-hidden="true"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="4" />@if (task.Status != 0) { <path d="m7 12 3 3 7-7" /> }</svg></span>
                     <div class="sf-task-content">
@@ -142,8 +160,9 @@
                             if (crop is not null)
                             {
                                 <a class="ani-task-crop-link" asp-controller="Monitoring" asp-action="Index"
-                                   asp-route-farmId="@Model.Farm.Id" asp-route-cycleId="@crop.Id">
-                                    @crop.CropTypeName · @crop.PlotName — Open fieldwork →
+                                   asp-route-farmId="@Model.Farm.Id" asp-route-cycleId="@crop.Id"
+                                   asp-fragment="record-activity">
+                                    @crop.CropTypeName · @crop.PlotName — Record fieldwork →
                                 </a>
                             }
                         }
@@ -154,13 +173,16 @@
                     <div class="sf-task-actions">
                         <form asp-action="Close" asp-route-farmId="@Model.Farm.Id" asp-route-taskId="@task.Id" method="post">
                             <input type="hidden" name="RowVersion" value="@task.RowVersion" />
-                            <button type="submit" name="Status" value="1">Mark completed</button>
+                            <input type="hidden" name="returnView" value="@Model.SelectedView" />
+                            <button type="submit" name="Status" value="1"
+                                    aria-label="Mark @task.TaskTypeName task due @task.DueDate.ToString("MMM d") as completed">Mark completed</button>
                         </form>
                         <details class="ani-task-other">
                             <summary>Other status</summary>
                             <form asp-action="Close" asp-route-farmId="@Model.Farm.Id" asp-route-taskId="@task.Id"
                                   method="post" data-confirm="Close this task without marking it completed?">
                                 <input type="hidden" name="RowVersion" value="@task.RowVersion" />
+                                <input type="hidden" name="returnView" value="@Model.SelectedView" />
                                 <label for="close-status-@task.Id">Status</label>
                                 <select id="close-status-@task.Id" name="Status">
                                     <option value="2">Skipped</option>
@@ -235,7 +257,7 @@
                 <h2 id="add-task-heading">Add a task</h2>
             </div>
         </div>
-        <p class="sf-muted">Select the work, due date, and person responsible. You can leave the crop and assignee blank.</p>
+        <p class="sf-muted">Choose what needs doing and when. A crop or person can be assigned later.</p>
         <form asp-action="Create" asp-route-farmId="@Model.Farm.Id" method="post" class="sf-ops-form sf-create-task-form">
             <div>
                 <label for="taskType">Task type</label>
