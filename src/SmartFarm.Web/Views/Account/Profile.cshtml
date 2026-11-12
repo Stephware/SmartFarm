@@ -6,8 +6,9 @@
 }
 <section class="panel sf-account-hero ani-account-hero" aria-labelledby="account-heading">
 
+    <p class="ani-overline">Account &amp; preferences</p>
     <h1 id="account-heading">My account</h1>
-    <p class="sf-muted">Your AniGo account details and quick links to your farm workspace.</p>
+    <p class="sf-muted">Review your identity, open your farm workspace, and adjust your preferred appearance.</p>
     <div class="sf-account-identity">
         <span class="sf-account-avatar ani-account-avatar" aria-hidden="true">@initial</span>
         <div>
@@ -17,18 +18,19 @@
     </div>
 </section>
 <section class="panel sf-account-details" aria-labelledby="account-details-heading">
-    <h2 id="account-details-heading">Account information</h2>
+    <h2 id="account-details-heading">Your account information</h2>
     <dl>
         <div><dt>Name</dt><dd>@Model.FullName</dd></div>
         <div><dt>Email</dt><dd>@Model.Email</dd></div>
     </dl>
-    <p class="hint">Farm membership and permissions are managed within each farm. Account information is shown for reference; this page does not change your sign-in details.</p>
+    <p class="hint">This information is read-only here; this screen does not change your password or sign-in details. Farm roles and membership are managed separately inside each farm.</p>
 </section>
 <section class="panel sf-account-links" aria-labelledby="account-links-heading">
-    <h2 id="account-links-heading">Your workspace</h2>
+    <h2 id="account-links-heading">Where to go next</h2>
     <div class="sf-account-link-grid">
         <a asp-controller="Farms" asp-action="Index"><strong>My farms</strong><span>Open your farms or request access →</span></a>
         <a asp-controller="Notifications" asp-action="Index"><strong>Notifications</strong><span>Read farm reminders and advisories →</span></a>
+        <a asp-controller="Support" asp-action="Index"><strong>Help &amp; support</strong><span>Report issues and read support replies →</span></a>
         @if (User.IsInRole("SuperAdmin"))
         {
             <a asp-area="Admin" asp-controller="Dashboard" asp-action="Index">
@@ -39,6 +41,7 @@
 </section>
 
 <section class="panel appearance-setting" aria-labelledby="appearance-heading">
-    <div><h2 id="appearance-heading">Appearance</h2><p>Light is the default. Your choice is saved on this browser.</p></div>
+    <div><h2 id="appearance-heading">Display appearance</h2>
+        <p>Light is the default. Your choice is saved on this browser only, not across every device.</p></div>
     <button type="button" data-color-mode-toggle aria-pressed="false" aria-label="Use dark appearance"><span data-color-mode-status>Light appearance</span><partial name="_Icon" model='@("sun")' /></button>
 </section>
