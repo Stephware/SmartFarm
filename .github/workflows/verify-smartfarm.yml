@@ -109,3 +109,40 @@ jobs:
           path: |
             tests/browser/screenshots/
             /tmp/smartfarm-web-smoke.log
+
+  tailwind-asset:
+    name: Build AniGo Tailwind CSS
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Resolve locked stylesheet dependencies
+        run: npm install --package-lock-only --ignore-scripts --no-audit --no-fund
+      - name: Compile prefixed Tailwind CSS (no Preflight)
+        run: |
+          npm ci --no-audit --no-fund
+          npm run css:build
+          test -s src/SmartFarm.Web/wwwroot/css/anigo-tailwind.css
+      - name: Export generated CSS and lock for baseline commit
+        run: |
+          node - <<'NODE'
+          const fs = require('node:fs');
+          for (const [label, file] of [
+            ['LOCK', 'package-lock.json'],
+            ['CSS', 'src/SmartFarm.Web/wwwroot/css/anigo-tailwind.css']
+          ]) {
+            const data = fs.readFileSync(file).toString('base64');
+            for (let i = 0; i < data.length; i += 3000)
+              console.log('ANIGO_' + label + '_B64:' + data.slice(i, i + 3000));
+          }
+          NODE
+      - name: Save compiled design system
+        uses: actions/upload-artifact@v4
+        with:
+          name: anigo-tailwind-asset
+          path: |
+            package-lock.json
+            src/SmartFarm.Web/wwwroot/css/anigo-tailwind.css

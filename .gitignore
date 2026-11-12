@@ -65,3 +65,6 @@ local.properties
 # Keep documentation local.
 /docs/
 
+
+# AniGo Tailwind build dependencies.
+node_modules/
