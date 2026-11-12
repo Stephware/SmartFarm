@@ -1,0 +1,79 @@
+@model SmartFarm.Web.ViewModels.Admin.AdminMonitoringPage
+@{
+    ViewData["Title"] = "System monitoring";
+}
+<div class="page-heading admin-page-heading">
+    <div><p class="sf-kicker">SYSTEM HEALTH</p><h1>System monitoring</h1>
+        <p class="sf-muted">Read-only checks of your platform services, worker, and received mobile changes.</p></div>
+    <a class="button admin-button-secondary" asp-area="Admin" asp-controller="Monitoring" asp-action="Index">Refresh checks</a>
+</div>
+<p class="admin-results-count">Checked @Model.CheckedAtUtc.ToString("MMM d, yyyy HH:mm:ss") UTC. Refresh to see the latest status.</p>
+<section class="admin-health-grid" aria-label="Service checks">
+    <article class="panel admin-health-card">
+        <div class="admin-health-title"><h2>Web application</h2><span class="sf-status-chip sf-status-chip--active">Serving</span></div>
+        <p class="sf-muted">This authenticated admin request was served successfully. Other Web endpoints are not individually checked.</p>
+    </article>
+    <article class="panel admin-health-card">
+        <div class="admin-health-title"><h2>Application database</h2>
+            <span class="sf-status-chip @(Model.Database.State == "Available" ? "sf-status-chip--active" : "sf-status-chip--planned")">@Model.Database.State</span></div>
+        <p class="sf-muted">@Model.Database.Detail</p>
+    </article>
+    <article class="panel admin-health-card">
+        <div class="admin-health-title"><h2>API process</h2>
+            <span class="sf-status-chip @(Model.Api.State == "Available" ? "sf-status-chip--active" : "sf-status-chip--planned")">@Model.Api.State</span></div>
+        <p class="sf-muted">@Model.Api.Detail</p>
+    </article>
+    <article class="panel admin-health-card">
+        <div class="admin-health-title"><h2>Hangfire worker</h2>
+            <span class="sf-status-chip @(Model.Worker.State == "Active" ? "sf-status-chip--active" : "sf-status-chip--planned")">@Model.Worker.State</span></div>
+        <p class="sf-muted">@Model.Worker.Detail</p>
+        @if (Model.Worker.LastHeartbeatUtc is DateTime last) {
+            <p class="admin-health-foot">Last heartbeat: @last.ToString("MMM d, yyyy HH:mm") UTC</p>
+        }
+    </article>
+</section>
+<section class="panel admin-directory-panel" aria-labelledby="worker-heading">
+    <div class="admin-section-heading">
+        <div><h2 id="worker-heading">Background jobs</h2>
+            <p class="sf-muted">Read-only view of SmartFarm Hangfire jobs. Failed jobs are not retried here.</p></div>
+    </div>
+    @if (Model.Worker.State is "Not configured" or "Unavailable") {
+        <div class="admin-empty"><strong>Job history unavailable</strong><p>@Model.Worker.Detail</p></div>
+    } else {
+        <div class="admin-inline-stats">
+            <div><span>Failed in the last 7 days</span><strong>@Model.Worker.FailedJobsLast7Days</strong></div>
+            <div><span>Enqueued, scheduled or running</span><strong>@Model.Worker.WaitingJobs</strong></div>
+        </div>
+        <h3>Recent failed jobs</h3>
+        @if (Model.Worker.RecentFailures.Count == 0) {
+            <p class="sf-muted">No failed SmartFarm job entries found in the Hangfire database.</p>
+        } else {
+            <div class="admin-record-list">
+                @foreach (var job in Model.Worker.RecentFailures) {
+                    <div class="admin-record admin-static-record">
+                        <span class="admin-record-main"><strong>@job.JobType</strong><small>Failed @job.CreatedAtUtc.ToString("MMM d, yyyy HH:mm") UTC</small></span>
+                        <span class="sf-status-chip sf-status-chip--planned">Failed</span>
+                    </div>
+                }
+            </div>
+        }
+        <p class="sf-muted admin-monitoring-disclaimer">For exception details and safe retries, review the protected worker logs and Hangfire operator tools.</p>
+    }
+</section>
+<section class="panel admin-directory-panel" aria-labelledby="sync-heading">
+    <div class="admin-section-heading">
+        <div><h2 id="sync-heading">Android sync receipts</h2><p class="sf-muted">Server-recorded operations only; not a live view of offline phones.</p></div>
+        <a class="button admin-button-secondary" asp-area="Admin" asp-controller="Monitoring" asp-action="Sync">View sync history</a>
+    </div>
+    @if (!Model.Sync.Available) {
+        <p class="admin-empty">@Model.Sync.Message</p>
+    } else {
+        <div class="admin-inline-stats">
+            <div><span>Successful receipts · 7 days</span><strong>@Model.Sync.CompletedLast7Days</strong></div>
+            <div><span>Recorded failures · 7 days</span><strong>@Model.Sync.RecordedFailuresLast7Days</strong></div>
+        </div>
+        <p class="admin-health-foot">Last recorded receipt:
+            @(Model.Sync.LastReceiptUtc is DateTime lastReceipt ? lastReceipt.ToString("MMM d, yyyy HH:mm") + " UTC" : "No receipts yet")</p>
+        <p class="sf-muted admin-monitoring-disclaimer">@Model.Sync.Message</p>
+    }
+</section>
