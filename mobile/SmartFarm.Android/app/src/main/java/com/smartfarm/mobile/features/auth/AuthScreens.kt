@@ -40,6 +40,7 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.heading
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.liveRegion
 import androidx.compose.ui.semantics.LiveRegionMode
@@ -193,7 +194,8 @@ fun AccountScreen(state: AuthUiState, onLogout: () -> Unit, onFarms: () -> Unit,
             }
         }
         OutlinedButton(onClick = { confirmingLogout = true }, enabled = !state.busy,
-            modifier = Modifier.fillMaxWidth().defaultMinSize(minHeight = 48.dp)) {
+            modifier = Modifier.fillMaxWidth().defaultMinSize(minHeight = 48.dp)
+                .testTag("request-sign-out")) {
             Text("Sign out")
         }
     }
@@ -210,7 +212,7 @@ fun AccountScreen(state: AuthUiState, onLogout: () -> Unit, onFarms: () -> Unit,
                 TextButton(onClick = {
                     confirmingLogout = false
                     onLogout()
-                }) { Text("Sign out") }
+                }, modifier = Modifier.testTag("confirm-sign-out")) { Text("Sign out") }
             },
             dismissButton = {
                 TextButton(onClick = { confirmingLogout = false }) { Text("Keep working") }
