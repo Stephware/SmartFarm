@@ -47,6 +47,7 @@ import com.smartfarm.mobile.features.insights.FarmInsightsViewModel
 import com.smartfarm.mobile.features.insights.FarmInsightsScreen
 import com.smartfarm.mobile.features.syncstatus.SyncStatusViewModel
 import com.smartfarm.mobile.features.syncstatus.SyncStatusScreen
+import com.smartfarm.mobile.features.syncstatus.syncQueueSummary
 import androidx.compose.ui.platform.LocalContext
 import com.bumptech.glide.Glide
 import com.smartfarm.mobile.features.farms.FarmListScreen
@@ -68,6 +69,7 @@ fun SmartFarmNavHost(auth: AuthViewModel, farms: FarmViewModel, crops: CropViewM
     val pendingPhotos by sync.photos.collectAsStateWithLifecycle()
     val headerFarm by farms.state.collectAsStateWithLifecycle()
     val cropState by crops.state.collectAsStateWithLifecycle()
+    val accountQueue = syncQueueSummary(pending, pendingPhotos, userId = state.account?.id)
     var showFarmSwitcher by rememberSaveable { mutableStateOf(false) }
     var recordForFarm by rememberSaveable { mutableStateOf<String?>(null) }
     var recordAction by rememberSaveable { mutableStateOf<String?>(null) }
@@ -180,7 +182,10 @@ fun SmartFarmNavHost(auth: AuthViewModel, farms: FarmViewModel, crops: CropViewM
                     navController.navigate("farms") { launchSingleTop = true }
                 } else showFarmSwitcher = true
             },
-            onNotifications = { navController.navigate("notifications") { launchSingleTop = true } })) {
+            onNotifications = { navController.navigate("notifications") { launchSingleTop = true } },
+            queuedCount = accountQueue.total,
+            reviewCount = accountQueue.needsReview,
+            onSync = { navController.navigate("sync") { launchSingleTop = true } })) {
     Row(Modifier.fillMaxSize().padding(workspacePadding)) {
     if (state.account != null && showFarmTabs && expandedWorkspace) {
         FarmWorkspaceBar(selectedRoute = currentRoute.orEmpty(), onNavigate = navigateWorkspace, expanded = true)
@@ -239,6 +244,7 @@ fun SmartFarmNavHost(auth: AuthViewModel, farms: FarmViewModel, crops: CropViewM
             val photos by sync.photos.collectAsStateWithLifecycle()
             val preview by sync.stockPreview.collectAsStateWithLifecycle()
             val syncError by sync.error.collectAsStateWithLifecycle()
+            val syncNotice by sync.notice.collectAsStateWithLifecycle()
             LaunchedEffect(Unit) { sync.load() }
             SyncStatusScreen(pending, photos, preview, syncError,
                 onBack = { navController.popBackStack() },
@@ -249,7 +255,12 @@ fun SmartFarmNavHost(auth: AuthViewModel, farms: FarmViewModel, crops: CropViewM
                 onReviewStock = { sync.reviewStock(it) },
                 onApproveStock = { sync.approveStockRetry() },
                 onCancelStock = { sync.cancelReview() },
-                onSyncNow = { sync.syncNow() })
+                onSyncNow = { sync.syncNow() },
+                currentFarmId = headerFarm.selected?.id,
+                farmNames = headerFarm.farms.associate { it.id to it.name },
+                farmTimeZones = headerFarm.farms.associate { it.id to it.timeZoneId },
+                notice = syncNotice,
+                farmTimeZone = headerFarm.selected?.timeZoneId)
         }
         composable("farms") {
             val farmState by farms.state.collectAsStateWithLifecycle()

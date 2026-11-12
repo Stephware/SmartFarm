@@ -2,42 +2,44 @@ package com.smartfarm.mobile.features.syncstatus
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.AlertDialog
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.defaultMinSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.lazy.items
-import com.smartfarm.mobile.ui.components.RecordPage
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Button
+import androidx.compose.material3.FilterChip
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.semantics.LiveRegionMode
+import androidx.compose.ui.semantics.liveRegion
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.unit.dp
+import com.smartfarm.mobile.data.local.entity.PendingOperation
+import com.smartfarm.mobile.data.local.entity.PendingPhoto
+import com.smartfarm.mobile.data.sync.StockRetryPreview
+import com.smartfarm.mobile.ui.components.FarmEmptyState
 import com.smartfarm.mobile.ui.components.FarmHero
 import com.smartfarm.mobile.ui.components.FarmSectionCard
 import com.smartfarm.mobile.ui.components.FarmSectionHeader
 import com.smartfarm.mobile.ui.components.FarmStatusChip
 import com.smartfarm.mobile.ui.components.FarmStatusTone
-import com.smartfarm.mobile.ui.components.FarmEmptyState
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.material3.Button
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedButton
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
-import androidx.compose.ui.semantics.semantics
-import androidx.compose.ui.semantics.heading
-import androidx.compose.ui.semantics.liveRegion
-import androidx.compose.ui.semantics.LiveRegionMode
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.unit.dp
+import com.smartfarm.mobile.ui.components.RecordPage
 import com.smartfarm.mobile.ui.components.pendingRecordDescription
-import com.smartfarm.mobile.data.local.entity.PendingOperation
-import com.smartfarm.mobile.data.local.entity.PendingPhoto
-import com.smartfarm.mobile.data.sync.StockRetryPreview
+import com.smartfarm.mobile.ui.components.farmDateTime
 
+/**
+ * Work remains on this device until a validated server receipt removes it from Room.
+ * Do not claim an operation is uploaded merely because WorkManager was scheduled.
+ */
 @Composable
 fun SyncStatusScreen(
     operations: List<PendingOperation>,
@@ -52,90 +54,184 @@ fun SyncStatusScreen(
     onReviewStock: (String) -> Unit,
     onApproveStock: () -> Unit,
     onCancelStock: () -> Unit,
-    onSyncNow: () -> Unit
+    onSyncNow: () -> Unit,
+    currentFarmId: String? = null,
+    farmNames: Map<String, String> = emptyMap(),
+    farmTimeZones: Map<String, String> = emptyMap(),
+    notice: String? = null,
+    farmTimeZone: String? = null
 ) {
-    var discard by remember { mutableStateOf<PendingOperation?>(null) }
-    var discardPhoto by remember { mutableStateOf<PendingPhoto?>(null) }
+    var discard by rememberSaveable { mutableStateOf<String?>(null) }
+    var discardPhoto by rememberSaveable { mutableStateOf<String?>(null) }
+    var allFarms by rememberSaveable(currentFarmId) { mutableStateOf(currentFarmId.isNullOrBlank()) }
+    var statusFilter by rememberSaveable { mutableStateOf("all") }
+    val farmId = if (allFarms) null else currentFarmId
+    val shownOperations = operations.filter { farmId == null || it.farmId == farmId }
+        .filter { row ->
+            statusFilter == "all" ||
+                (syncState(row.status, row.errorMessage) == SyncRecordState.NEEDS_REVIEW) ==
+                    (statusFilter == "review")
+        }.sortedWith(compareByDescending<PendingOperation> {
+            syncState(it.status, it.errorMessage) == SyncRecordState.NEEDS_REVIEW
+        }.thenByDescending { it.createdAtUtc })
+    val shownPhotos = photos.filter { farmId == null || it.farmId == farmId }
+        .filter { photo ->
+            statusFilter == "all" ||
+                (syncState(photo.status, photo.errorMessage) == SyncRecordState.NEEDS_REVIEW) ==
+                    (statusFilter == "review")
+        }.sortedWith(compareByDescending<PendingPhoto> {
+            syncState(it.status, it.errorMessage) == SyncRecordState.NEEDS_REVIEW
+        }.thenByDescending { it.savedAtUtcMillis })
+    val summary = syncQueueSummary(operations, photos, farmId)
+    val global = syncQueueSummary(operations, photos)
+    fun farmLabel(id: String): String = farmNames[id] ?: "Farm ${id.take(8)}"
 
     RecordPage {
         item(key = "header") {
             Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-            OutlinedButton(onClick = onBack) { Text("Back") }
-            FarmHero("Offline sync", "Review changes saved on this device before they reach the server.")
-            FarmSectionCard("Sync queue", subtitle = "These are local records awaiting server confirmation.") {
-                FarmStatusChip(
-                    "Pending: " + (operations.count { it.status == "pending" } +
-                        photos.count { it.status == "pending" }),
-                    FarmStatusTone.Planned
-                )
-                FarmStatusChip(
-                    "Needs review: " + (operations.count { it.status == "review" } +
-                        photos.count { it.status == "review" }),
-                    if (operations.any { it.status == "review" } || photos.any { it.status == "review" })
-                        FarmStatusTone.Warning else FarmStatusTone.Neutral
-                )
-            }
-            error?.let { Text(it, color = MaterialTheme.colorScheme.error, modifier = Modifier.semantics { liveRegion = LiveRegionMode.Assertive }) }
-            Text("Changes stay on this device until the server confirms them. " +
-                "Check rejected records before retrying; stock may need a newer version.")
-            Button(onClick = onSyncNow, modifier = Modifier.fillMaxWidth()) { Text("Sync now") }
-            if (operations.isEmpty() && photos.isEmpty()) {
-                FarmEmptyState("All local changes are synced.",
-                    "No local field records or crop photos are waiting for upload.")
-            }
+                OutlinedButton(onClick = onBack) { Text("Back") }
+                FarmHero("Offline sync",
+                    "Review records saved on this phone before the farm server confirms them.")
+                FarmSectionCard("Sync queue", subtitle = "Saved here, not yet included in confirmed totals.") {
+                    Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                        FarmStatusChip("Pending: ${summary.waiting}", FarmStatusTone.Planned)
+                        FarmStatusChip("Needs review: ${summary.needsReview}",
+                            if (summary.needsReview > 0) FarmStatusTone.Warning
+                            else FarmStatusTone.Neutral)
+                    }
+                    Text("${summary.total} local ${if (summary.total == 1) "record" else "records"} on this view",
+                        style = MaterialTheme.typography.bodyMedium)
+                    if (global.total > summary.total) {
+                        Text("${global.total - summary.total} more saved in other farms.",
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            style = MaterialTheme.typography.bodySmall)
+                    }
+                }
+                if (currentFarmId != null) {
+                    Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                        FilterChip(selected = !allFarms, onClick = { allFarms = false },
+                            modifier = Modifier.weight(1f).defaultMinSize(minHeight = 48.dp),
+                            label = { Text("This farm") })
+                        FilterChip(selected = allFarms, onClick = { allFarms = true },
+                            modifier = Modifier.weight(1f).defaultMinSize(minHeight = 48.dp),
+                            label = { Text("All my farms") })
+                    }
+                }
+                Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                    listOf("all" to "All", "review" to "Needs review",
+                        "waiting" to "Waiting").forEach { (key, label) ->
+                        FilterChip(selected = statusFilter == key,
+                            onClick = { statusFilter = key },
+                            modifier = Modifier.weight(1f).defaultMinSize(minHeight = 48.dp),
+                            label = { Text(label) })
+                    }
+                }
+                error?.let {
+                    Text(it, color = MaterialTheme.colorScheme.error,
+                        modifier = Modifier.semantics { liveRegion = LiveRegionMode.Assertive })
+                }
+                notice?.let {
+                    Text(it, color = MaterialTheme.colorScheme.primary,
+                        modifier = Modifier.semantics { liveRegion = LiveRegionMode.Polite })
+                }
+                Text("A record is confirmed only after the server accepts it. Sync will run when a connection is available.",
+                    style = MaterialTheme.typography.bodyMedium)
+                Button(onClick = onSyncNow,
+                    modifier = Modifier.fillMaxWidth().defaultMinSize(minHeight = 48.dp)) {
+                    Text("Sync now")
+                }
+                if (shownOperations.isEmpty() && shownPhotos.isEmpty()) {
+                    FarmEmptyState(
+                        if (statusFilter == "review") "No records need review"
+                        else if (statusFilter == "waiting") "No waiting records"
+                        else if (summary.total == 0) "No records waiting on this phone"
+                        else "No matching records",
+                        if (summary.total == 0)
+                            "Previously confirmed work is available in its farm history."
+                        else "Choose another filter or view all farms to find saved records."
+                    )
+                }
+                if (operations.size >= 100 || photos.size >= 100) {
+                    Text("Showing the most recent local entries. Older records are kept on this device.",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant)
+                }
             }
         }
-        items(operations, key = { "operation-${it.operationId}" }) { operation ->
-            FarmSectionCard(
-                operation.operationType.replaceFirstChar { it.uppercase() },
-                subtitle = "Saved field record"
-            ) {
-                FarmStatusChip(
-                    if (operation.status == "review") "Needs review" else "Waiting to sync",
-                    if (operation.status == "review") FarmStatusTone.Warning else FarmStatusTone.Planned
-                )
+        if (shownOperations.isNotEmpty()) item(key = "records-heading") {
+            FarmSectionHeader("Field records", "Needs-review entries appear first.")
+        }
+        items(shownOperations, key = { "operation-${it.operationId}" }) { operation ->
+            val needs = syncState(operation.status, operation.errorMessage) == SyncRecordState.NEEDS_REVIEW
+            val isStock = operation.operationType in setOf("inventory", "activity_stock")
+            FarmSectionCard(syncRecordType(operation.operationType),
+                subtitle = "${farmLabel(operation.farmId)} · " +
+                    farmDateTime(java.time.Instant.ofEpochMilli(operation.createdAtUtc).toString(),
+                        farmTimeZones[operation.farmId] ?: farmTimeZone)) {
+                FarmStatusChip(if (needs) "Needs attention" else "Waiting to sync",
+                    if (needs) FarmStatusTone.Warning else FarmStatusTone.Planned)
                 Text(pendingRecordDescription(operation))
-                operation.errorMessage?.let { Text(it, color = MaterialTheme.colorScheme.error, modifier = Modifier.semantics { liveRegion = LiveRegionMode.Assertive }) }
-                if (operation.status == "review") {
-                    if (operation.operationType in setOf("inventory", "activity_stock")) {
-                        OutlinedButton(onClick = { onReviewStock(operation.operationId) }) {
-                            Text("Check latest stock")
-                        }
-                    } else {
-                        OutlinedButton(onClick = { onRetry(operation.operationId) }) {
-                            Text("Retry this change")
+                if (needs) {
+                    operation.errorMessage?.let {
+                        Text(it, color = MaterialTheme.colorScheme.error,
+                            modifier = Modifier.semantics { liveRegion = LiveRegionMode.Assertive })
+                    }
+                    Text(if (isStock)
+                        "Stock may have changed. Check its latest balance before retrying."
+                        else "Check the record and message before retrying.",
+                        style = MaterialTheme.typography.bodySmall)
+                    if (operation.status == "review") {
+                        if (isStock) {
+                            OutlinedButton(onClick = { onReviewStock(operation.operationId) },
+                                modifier = Modifier.fillMaxWidth().defaultMinSize(minHeight = 48.dp)) {
+                                Text("Check latest stock")
+                            }
+                        } else {
+                            OutlinedButton(onClick = { onRetry(operation.operationId) },
+                                modifier = Modifier.fillMaxWidth().defaultMinSize(minHeight = 48.dp)) {
+                                Text("Retry this change")
+                            }
                         }
                     }
-                    OutlinedButton(onClick = { discard = operation }) {
+                    TextButton(onClick = { discard = operation.operationId }) {
                         Text("Discard and re-enter")
                     }
                 }
             }
         }
-        if (photos.isNotEmpty()) item(key = "photos-heading") {
-            FarmSectionHeader("Crop photos", "Queued inspection images are uploaded after their observations.")
+        if (shownPhotos.isNotEmpty()) item(key = "photos-heading") {
+            FarmSectionHeader("Crop photos", "Photos upload after their linked inspections.")
         }
-        items(photos, key = { "photo-${it.photoId}" }) { photo ->
-            FarmSectionCard("Crop photo", subtitle = "Local inspection image") {
-                    FarmStatusChip(
-                        if (photo.status == "review") "Needs review" else "Waiting to sync",
-                        if (photo.status == "review") FarmStatusTone.Warning else FarmStatusTone.Planned
-                    )
-                    if (photo.observationId == null) {
-                        Text("Waiting for its observation to sync first.")
-                    }
+        items(shownPhotos, key = { "photo-${it.photoId}" }) { photo ->
+            val needs = syncState(photo.status, photo.errorMessage) == SyncRecordState.NEEDS_REVIEW
+            FarmSectionCard("Inspection photo",
+                subtitle = "${farmLabel(photo.farmId)} · " +
+                    farmDateTime(java.time.Instant.ofEpochMilli(photo.savedAtUtcMillis).toString(),
+                        farmTimeZones[photo.farmId] ?: farmTimeZone)) {
+                FarmStatusChip(if (needs) "Needs attention" else "Waiting to sync",
+                    if (needs) FarmStatusTone.Warning else FarmStatusTone.Planned)
+                if (photo.observationId == null) {
+                    Text("Waiting for its inspection to be accepted before uploading the photo.",
+                        style = MaterialTheme.typography.bodySmall)
+                }
+                if (needs) {
                     photo.errorMessage?.let {
-                        Text(it, color = MaterialTheme.colorScheme.error, modifier = Modifier.semantics { liveRegion = LiveRegionMode.Assertive })
+                        Text(it, color = MaterialTheme.colorScheme.error,
+                            modifier = Modifier.semantics { liveRegion = LiveRegionMode.Assertive })
                     }
-                    if (photo.status == "review") {
-                        OutlinedButton(onClick = { onRetryPhoto(photo.photoId) }) {
+                    if (canRetryPhoto(photo)) {
+                        OutlinedButton(onClick = { onRetryPhoto(photo.photoId) },
+                            modifier = Modifier.fillMaxWidth().defaultMinSize(minHeight = 48.dp)) {
                             Text("Retry photo")
                         }
+                    } else if (syncNeedsParent(photo)) {
+                        Text("Review the inspection entry above first. Retrying this photo alone cannot finish it.",
+                            style = MaterialTheme.typography.bodySmall)
                     }
-                    OutlinedButton(onClick = { discardPhoto = photo }) {
+                    TextButton(onClick = { discardPhoto = photo.photoId }) {
                         Text("Discard local photo")
                     }
-
+                }
             }
         }
     }
@@ -153,46 +249,26 @@ fun SyncStatusScreen(
                     else "") +
                     "Only retry if this movement still reflects actual farm work.")
             },
-            confirmButton = {
-                TextButton(onClick = onApproveStock) { Text("Approve and retry") }
-            },
-            dismissButton = {
-                TextButton(onClick = onCancelStock) { Text("Cancel") }
-            }
+            confirmButton = { TextButton(onClick = onApproveStock) { Text("Approve and retry") } },
+            dismissButton = { TextButton(onClick = onCancelStock) { Text("Cancel") } }
         )
     }
-
-    discardPhoto?.let { photo ->
-        AlertDialog(
-            onDismissRequest = { discardPhoto = null },
+    discardPhoto?.let { photoId ->
+        AlertDialog(onDismissRequest = { discardPhoto = null },
             title = { Text("Discard offline photo?") },
-            text = { Text("The saved picture will be permanently deleted from this device.") },
-            confirmButton = {
-                TextButton(onClick = {
-                    onDiscardPhoto(photo.photoId)
-                    discardPhoto = null
-                }) { Text("Discard photo") }
-            },
-            dismissButton = {
-                TextButton(onClick = { discardPhoto = null }) { Text("Cancel") }
-            }
-        )
+            text = { Text("The photo file will be permanently deleted from this phone. This cannot be undone.") },
+            confirmButton = { TextButton(onClick = {
+                onDiscardPhoto(photoId); discardPhoto = null
+            }) { Text("Discard photo") } },
+            dismissButton = { TextButton(onClick = { discardPhoto = null }) { Text("Cancel") } })
     }
-
-    discard?.let { operation ->
-        AlertDialog(
-            onDismissRequest = { discard = null },
+    discard?.let { operationId ->
+        AlertDialog(onDismissRequest = { discard = null },
             title = { Text("Discard unsynced change?") },
-            text = { Text("This local record will be deleted. Re-enter it after checking the latest server data.") },
-            confirmButton = {
-                TextButton(onClick = {
-                    onDiscard(operation.operationId)
-                    discard = null
-                }) { Text("Discard") }
-            },
-            dismissButton = {
-                TextButton(onClick = { discard = null }) { Text("Cancel") }
-            }
-        )
+            text = { Text("This saved local record will be permanently deleted. Linked unsynced photos may also be removed. This cannot be undone.") },
+            confirmButton = { TextButton(onClick = {
+                onDiscard(operationId); discard = null
+            }) { Text("Discard") } },
+            dismissButton = { TextButton(onClick = { discard = null }) { Text("Cancel") } })
     }
 }

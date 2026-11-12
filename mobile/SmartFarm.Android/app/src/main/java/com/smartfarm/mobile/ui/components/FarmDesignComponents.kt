@@ -36,6 +36,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.compositionLocalOf
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.semantics.heading
@@ -154,7 +155,11 @@ fun FarmHero(title: String, subtitle: String, modifier: Modifier = Modifier) {
     }
 }
 
-data class FarmHeaderNavigation(val farmName: String?, val onFarms: () -> Unit, val onNotifications: () -> Unit)
+data class FarmHeaderNavigation(
+    val farmName: String?, val onFarms: () -> Unit, val onNotifications: () -> Unit,
+    val queuedCount: Int = 0, val reviewCount: Int = 0,
+    val onSync: (() -> Unit)? = null
+)
 val LocalFarmHeaderNavigation = compositionLocalOf<FarmHeaderNavigation?> { null }
 
 /** Brand and screen context remain outside the scrolling workspace. */
@@ -175,11 +180,43 @@ fun FarmAppBar(modifier: Modifier = Modifier) {
                 Box(Modifier.weight(1f))
                 if (navigation != null) {
                     androidx.compose.material3.OutlinedButton(onClick = navigation.onFarms,
-                        modifier = Modifier.widthIn(max = 160.dp), shape = MaterialTheme.shapes.small,
+                        modifier = Modifier.widthIn(max = if (navigation.queuedCount > 0)
+                            if (LocalConfiguration.current.screenWidthDp < 380) 74.dp else 100.dp
+                            else 160.dp), shape = MaterialTheme.shapes.small,
                         border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant),
                         contentPadding = androidx.compose.foundation.layout.PaddingValues(horizontal = 10.dp)) {
                         Text(navigation.farmName ?: "My farms", maxLines = 1, overflow = TextOverflow.Ellipsis,
                             style = MaterialTheme.typography.labelMedium)
+                    }
+                    if (navigation.queuedCount > 0 && navigation.onSync != null) {
+                        androidx.compose.material3.IconButton(onClick = navigation.onSync,
+                            modifier = Modifier.semantics {
+                                contentDescription = if (navigation.reviewCount > 0)
+                                    "${navigation.reviewCount} offline records need review; " +
+                                        "${navigation.queuedCount} waiting in total"
+                                else "${navigation.queuedCount} records waiting to sync"
+                            }) {
+                            androidx.compose.material3.BadgedBox(
+                                badge = {
+                                    androidx.compose.material3.Badge(
+                                        containerColor = if (navigation.reviewCount > 0)
+                                            MaterialTheme.colorScheme.errorContainer
+                                        else MaterialTheme.colorScheme.secondaryContainer
+                                    ) {
+                                        Text(if (navigation.queuedCount > 99) "99+"
+                                            else navigation.queuedCount.toString(),
+                                            style = MaterialTheme.typography.labelSmall,
+                                            color = if (navigation.reviewCount > 0)
+                                                MaterialTheme.colorScheme.onErrorContainer
+                                            else MaterialTheme.colorScheme.onSecondaryContainer)
+                                    }
+                                }
+                            ) {
+                                FarmLineIcon(FarmSymbol.Offline, Modifier.size(24.dp),
+                                    if (navigation.reviewCount > 0)
+                                        MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.primary)
+                            }
+                        }
                     }
                     androidx.compose.material3.IconButton(onClick = navigation.onNotifications,
                         modifier = Modifier.semantics { contentDescription = "Notifications" }) {
