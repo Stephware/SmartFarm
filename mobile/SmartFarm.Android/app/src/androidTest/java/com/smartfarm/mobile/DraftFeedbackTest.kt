@@ -1,6 +1,7 @@
 package com.smartfarm.mobile
 
 import androidx.compose.ui.test.junit4.createComposeRule
+import androidx.test.espresso.Espresso
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollTo
@@ -45,9 +46,17 @@ class DraftFeedbackTest {
             }
         }
         compose.onNodeWithText("Notes (optional)").performScrollTo().performTextInput("Watered north field")
-        compose.onNodeWithText("Save activity").performScrollTo().performClick()
+        // A multiline notes field can leave the keyboard open on the emulator.
+        // Close it before tapping Save so the first tap reaches the action.
+        Espresso.closeSoftKeyboard()
+        compose.onNodeWithText("Save activity").performScrollTo().assertIsDisplayed().performClick()
         compose.onNodeWithText("Notes (optional)").assertTextContains("Watered north field")
-        compose.runOnIdle { saved!!() }
+        compose.runOnIdle {
+            val acceptSave = requireNotNull(saved) {
+                "Save activity must call onActivity before a local receipt can clear the draft"
+            }
+            acceptSave()
+        }
         compose.onNodeWithText("Watered north field").assertDoesNotExist()
     }
 
