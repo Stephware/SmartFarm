@@ -42,8 +42,8 @@ class HarvestUsabilityScreenTest {
         compose.onAllNodesWithText("Nov 12, 2026", substring = true)[0].performScrollTo().assertExists()
         compose.onAllNodesWithText("Voided")[0].performScrollTo().performClick()
         // Harvest rows live below the large form and totals header in a LazyColumn.
-        compose.onNodeWithTag("record-list").performScrollToIndex(1)
-        compose.onNodeWithText("Duplicate entry").assertExists()
+        compose.onNodeWithTag("record-list").performScrollToIndex(2)
+        compose.onNodeWithText("Duplicate entry", substring = true).assertExists()
     }
 
     @Test fun finishedCropOnlyShowsHistoryNotNewHarvestForm() {
