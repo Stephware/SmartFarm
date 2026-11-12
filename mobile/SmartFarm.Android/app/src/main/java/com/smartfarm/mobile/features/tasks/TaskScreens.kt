@@ -48,6 +48,7 @@ import com.smartfarm.mobile.ui.components.FarmSectionHeader
 import com.smartfarm.mobile.ui.components.FarmStatusChip
 import com.smartfarm.mobile.ui.components.FarmStatusTone
 import com.smartfarm.mobile.ui.components.RecordPage
+import com.smartfarm.mobile.ui.components.DateInput
 import java.time.LocalDate
 
 private val taskNames = listOf("Unknown", "Planting", "Watering", "Fertilizing",
@@ -209,13 +210,15 @@ fun TaskScreen(
             }
             if (selectedView == "calendar") {
                 item(key = "calendar") {
-                    FarmSectionHeader("Task calendar", "Select a farm-local date to view your work.")
-                    Surface(shape = MaterialTheme.shapes.medium,
-                        color = MaterialTheme.colorScheme.surface) {
-                        DatePicker(state = calendar, showModeToggle = false,
-                            title = null, headline = null,
-                            colors = DatePickerDefaults.colors(
-                                containerColor = MaterialTheme.colorScheme.surface))
+                    Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                        FarmSectionHeader("Task calendar", "Choose a date to review your assignments.")
+                        Surface(shape = MaterialTheme.shapes.medium,
+                            color = MaterialTheme.colorScheme.surface) {
+                            DatePicker(state = calendar, showModeToggle = false,
+                                title = null, headline = null,
+                                colors = DatePickerDefaults.colors(
+                                    containerColor = MaterialTheme.colorScheme.surface))
+                        }
                     }
                 }
                 item(key = "calendar-heading") {
@@ -386,17 +389,20 @@ private fun NewTaskForm(state: TaskUiState, today: LocalDate?, onCreate: (TaskCr
                     label = { Text(preset.label) })
             }
         }
-        Text("Task type", style = MaterialTheme.typography.labelLarge)
-        Row(Modifier.horizontalScroll(rememberScrollState()),
-            horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-            (1..6).forEach { code ->
-                FilterChip(selected = type == code, onClick = { type = code },
-                    label = { Text(taskNames[code]) })
+        var moreTypes by rememberSaveable(state.farmId) { mutableStateOf(false) }
+        Text("Selected: " + taskNames.getOrElse(type) { "Task" },
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant)
+        OutlinedButton(onClick = { moreTypes = true }) { Text("Other task types") }
+        DropdownMenu(expanded = moreTypes, onDismissRequest = { moreTypes = false }) {
+            listOf(1, 6).forEach { code ->
+                DropdownMenuItem(text = { Text(taskNames[code]) }, onClick = {
+                    type = code
+                    moreTypes = false
+                })
             }
         }
-        OutlinedTextField(due, { due = it }, label = { Text("Due date (YYYY-MM-DD)") },
-            singleLine = true, isError = due.isNotEmpty() && !validDate,
-            modifier = Modifier.fillMaxWidth())
+        DateInput(due, "Due date", { due = it }, enabled = !state.busy)
         CyclePicker(cycleId, state.cycles, { cycleId = it })
         TaskMemberPicker(assignee, state.members, { assignee = it }, !state.busy)
         OutlinedTextField(description, { description = it },
@@ -445,8 +451,7 @@ private fun EditTaskForm(
     var assignee by rememberSaveable(task.id) { mutableStateOf(task.assignedToUserId) }
     val validDate = runCatching { LocalDate.parse(due.trim()) }.isSuccess
     Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
-        OutlinedTextField(due, { due = it }, label = { Text("Due date (YYYY-MM-DD)") },
-            isError = due.isNotEmpty() && !validDate, modifier = Modifier.fillMaxWidth())
+        DateInput(due, "Due date", { due = it }, enabled = !state.busy)
         TaskMemberPicker(assignee, state.members, { assignee = it }, !state.busy)
         OutlinedTextField(description, { description = it },
             label = { Text("Instructions") }, modifier = Modifier.fillMaxWidth())
