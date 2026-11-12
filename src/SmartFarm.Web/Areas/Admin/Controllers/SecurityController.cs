@@ -14,7 +14,7 @@ namespace SmartFarm.Web.Areas.Admin.Controllers;
 // but cannot expose the admin dashboard until the second factor was verified.
 [Area("Admin")]
 [Route("admin/security")]
-[Authorize(AuthenticationSchemes = IdentityConstants.ApplicationScheme, Roles = SuperAdminSecurity.Role)]
+[Authorize(AuthenticationSchemes = SmartFarmAuthSchemes.Application, Roles = SuperAdminSecurity.Role)]
 [ResponseCache(Location = ResponseCacheLocation.None, NoStore = true)]
 public sealed class SecurityController(
     UserManager<SmartFarmUser> users,
