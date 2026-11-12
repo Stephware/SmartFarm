@@ -1092,6 +1092,108 @@ namespace SmartFarm.Infrastructure.Persistence.Migrations
                         });
                 });
 
+            modelBuilder.Entity("SmartFarm.Core.Entities.SupportTicket", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Category")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
+
+                    b.Property<DateTime>("CreatedAtUtc")
+                        .HasColumnType("datetime2(3)");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasMaxLength(2000)
+                        .HasColumnType("nvarchar(2000)");
+
+                    b.Property<Guid?>("FarmId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Priority")
+                        .IsRequired()
+                        .HasMaxLength(8)
+                        .HasColumnType("nvarchar(8)");
+
+                    b.Property<DateTime?>("ResolvedAtUtc")
+                        .HasColumnType("datetime2(3)");
+
+                    b.Property<byte[]>("RowVersion")
+                        .IsConcurrencyToken()
+                        .IsRequired()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("rowversion");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasMaxLength(16)
+                        .HasColumnType("nvarchar(16)");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasMaxLength(140)
+                        .HasColumnType("nvarchar(140)");
+
+                    b.Property<DateTime>("UpdatedAtUtc")
+                        .HasColumnType("datetime2(3)");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("Id")
+                        .HasName("PK_SupportTicket");
+
+                    b.HasIndex("FarmId")
+                        .HasDatabaseName("IX_SupportTicket_Farm");
+
+                    b.HasIndex("Status", "UpdatedAtUtc")
+                        .HasDatabaseName("IX_SupportTicket_Status_Updated");
+
+                    b.HasIndex("UserId", "CreatedAtUtc")
+                        .HasDatabaseName("IX_SupportTicket_User_Created");
+
+                    b.ToTable("SupportTicket", "dbo", t =>
+                        {
+                            t.HasCheckConstraint("CK_SupportTicket_Category", "Category IN (N'Account', N'Farm', N'Mobile', N'Other')");
+                            t.HasCheckConstraint("CK_SupportTicket_Priority", "Priority IN (N'Normal', N'High')");
+                            t.HasCheckConstraint("CK_SupportTicket_Status", "Status IN (N'Open', N'InProgress', N'Resolved', N'Closed')");
+                        });
+                });
+
+            modelBuilder.Entity("SmartFarm.Core.Entities.SupportTicketMessage", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("AuthorUserId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Body")
+                        .IsRequired()
+                        .HasMaxLength(1200)
+                        .HasColumnType("nvarchar(1200)");
+
+                    b.Property<DateTime>("CreatedAtUtc")
+                        .HasColumnType("datetime2(3)");
+
+                    b.Property<bool>("IsInternal")
+                        .HasColumnType("bit");
+
+                    b.Property<Guid>("TicketId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("Id")
+                        .HasName("PK_SupportTicketMessage");
+
+                    b.HasIndex("TicketId", "CreatedAtUtc")
+                        .HasDatabaseName("IX_SupportTicketMessage_Ticket_Created");
+
+                    b.ToTable("SupportTicketMessage", "dbo");
+                });
+
             modelBuilder.Entity("SmartFarm.Core.Entities.SyncOperation", b =>
                 {
                     b.Property<Guid>("OperationId")
@@ -1724,6 +1826,39 @@ namespace SmartFarm.Infrastructure.Persistence.Migrations
                         .OnDelete(DeleteBehavior.NoAction)
                         .IsRequired()
                         .HasConstraintName("FK_Plot_Farm");
+                });
+
+            modelBuilder.Entity("SmartFarm.Core.Entities.SupportTicket", b =>
+                {
+                    b.HasOne("SmartFarm.Core.Entities.Farm", null)
+                        .WithMany()
+                        .HasForeignKey("FarmId")
+                        .OnDelete(DeleteBehavior.NoAction)
+                        .HasConstraintName("FK_SupportTicket_Farm");
+
+                    b.HasOne("SmartFarm.Infrastructure.Identity.SmartFarmUser", null)
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.NoAction)
+                        .IsRequired()
+                        .HasConstraintName("FK_SupportTicket_User");
+                });
+
+            modelBuilder.Entity("SmartFarm.Core.Entities.SupportTicketMessage", b =>
+                {
+                    b.HasOne("SmartFarm.Core.Entities.SupportTicket", null)
+                        .WithMany()
+                        .HasForeignKey("TicketId")
+                        .OnDelete(DeleteBehavior.NoAction)
+                        .IsRequired()
+                        .HasConstraintName("FK_SupportTicketMessage_Ticket");
+
+                    b.HasOne("SmartFarm.Infrastructure.Identity.SmartFarmUser", null)
+                        .WithMany()
+                        .HasForeignKey("AuthorUserId")
+                        .OnDelete(DeleteBehavior.NoAction)
+                        .IsRequired()
+                        .HasConstraintName("FK_SupportTicketMessage_Author");
                 });
 
             modelBuilder.Entity("SmartFarm.Core.Entities.SyncOperation", b =>
