@@ -4,6 +4,8 @@
     var currentAction = ViewContext.RouteData.Values["action"]?.ToString();
     var accountName = User.Identity?.Name ?? "Your account";
     var initial = string.IsNullOrWhiteSpace(accountName) ? "A" : accountName[..1].ToUpperInvariant();
+    var utilityOpen = currentController is "Announcements" or "Support" or "Account"
+        || ViewContext.RouteData.Values["area"]?.ToString() == "Admin";
 }
 <!DOCTYPE html>
 <html lang="en" data-color-mode="light" data-theme="gold">
@@ -22,6 +24,7 @@
     <link rel="stylesheet" href="~/css/access-polish.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/css/reference-ui.css" asp-append-version="true" />
     <script src="~/js/site.js" asp-append-version="true" defer></script>
+    <script src="~/js/farm-navigation.js" asp-append-version="true" defer></script>
     <script src="~/js/access-polish.js" asp-append-version="true" defer></script>
 </head>
 <body class="@(signedIn ? "is-authenticated" : "is-guest")">
@@ -42,35 +45,45 @@
                         <partial name="_Icon" model='@("grid")' /><span>My farms</span>
                     </a>
                 </nav>
+                <section class="sidebar-farm-context" id="sidebar-farm-context" aria-label="Selected farm" hidden>
+                    <span>Current farm</span>
+                    <strong id="sidebar-current-farm">@(ViewData["FarmName"] ?? "Current farm")</strong>
+                    <a asp-controller="Farms" asp-action="Index">Change farm</a>
+                </section>
                 <div id="sidebar-farm-group" class="sidebar-farm-group" hidden>
                     <nav id="sidebar-farm-links" class="side-group sidebar-links" aria-label="Current farm sections"></nav>
                 </div>
             </div>
-            <div>
-                <p class="side-group-label">Insights &amp; account</p>
-                <nav id="sidebar-insight-links" class="side-group sidebar-links" aria-label="Insights and account">
-                    <a class="nav-link" asp-controller="Notifications" asp-action="Index" data-nav-icon="notifications"
+            <div class="sidebar-utilities">
+                <p class="side-group-label">Updates</p>
+                <nav class="side-group sidebar-links" aria-label="Notifications">
+                    <a class="nav-link" asp-controller="Notifications" asp-action="Index"
                        aria-current="@(currentController == "Notifications" ? "page" : null)">
                         <partial name="_Icon" model='@("bell")' /><span>Notifications</span>
                     </a>
-                    <a class="nav-link" asp-area="" asp-controller="Announcements" asp-action="Index"
-                       aria-current="@(currentController == "Announcements" ? "page" : null)">
-                        <partial name="_Icon" model='@("bell")' /><span>Announcements</span>
-                    </a>
-                    @if (User.IsInRole("SuperAdmin"))
-                    {
-                        <a class="nav-link" asp-area="Admin" asp-controller="Dashboard" asp-action="Index"
-                           aria-label="Super Admin portal"><partial name="_Icon" model='@("settings")' /><span>Super Admin</span></a>
-                    }
-                    <a class="nav-link" asp-area="" asp-controller="Support" asp-action="Index"
-                       aria-current="@(currentController == "Support" ? "page" : null)">
-                        <partial name="_Icon" model='@("bell")' /><span>Help &amp; support</span>
-                    </a>
-                    <a class="nav-link" asp-controller="Account" asp-action="Profile" data-nav-icon="account"
-                       aria-current="@(currentController == "Account" ? "page" : null)">
-                        <partial name="_Icon" model='@("settings")' /><span>Account &amp; settings</span>
-                    </a>
                 </nav>
+                <details class="sidebar-utility-menu" id="sidebar-utility-menu" open="@(utilityOpen ? "open" : null)">
+                    <summary><partial name="_Icon" model='@("settings")' /><span>Help &amp; account</span></summary>
+                    <nav id="sidebar-insight-links" class="side-group sidebar-links" aria-label="Help and account">
+                        <a class="nav-link" asp-area="" asp-controller="Announcements" asp-action="Index"
+                           aria-current="@(currentController == "Announcements" ? "page" : null)">
+                            <partial name="_Icon" model='@("bell")' /><span>Announcements</span>
+                        </a>
+                        <a class="nav-link" asp-area="" asp-controller="Support" asp-action="Index"
+                           aria-current="@(currentController == "Support" ? "page" : null)">
+                            <partial name="_Icon" model='@("settings")' /><span>Help &amp; support</span>
+                        </a>
+                        <a class="nav-link" asp-area="" asp-controller="Account" asp-action="Profile"
+                           aria-current="@(currentController == "Account" ? "page" : null)">
+                            <partial name="_Icon" model='@("settings")' /><span>Account &amp; settings</span>
+                        </a>
+                        @if (User.IsInRole("SuperAdmin"))
+                        {
+                            <a class="nav-link" asp-area="Admin" asp-controller="Dashboard" asp-action="Index"
+                               aria-label="Super Admin portal"><partial name="_Icon" model='@("settings")' /><span>Super Admin</span></a>
+                        }
+                    </nav>
+                </details>
             </div>
             <div class="side-footer sidebar-bottom">
                 <a class="person-row" asp-controller="Account" asp-action="Profile">
@@ -87,10 +100,30 @@
         </aside>
         <div class="app-body content-shell">
             <header class="site-header app-topbar topbar">
-                <div class="crumb"><span>Workspace</span><span aria-hidden="true">/</span><strong>@(ViewData["Title"] ?? "Overview")</strong></div>
+                <nav class="crumb" aria-label="Breadcrumb">
+                    @if (currentController == "Farms" && currentAction == "Index")
+                    {
+                        <strong aria-current="page">My farms</strong>
+                    }
+                    else
+                    {
+                        <a asp-controller="Farms" asp-action="Index" aria-current="@(currentController == "Farms" && currentAction == "Index" ? "page" : null)">My farms</a>
+                        <span aria-hidden="true">/</span>
+                        <span class="breadcrumb-farm" id="breadcrumb-farm" hidden>
+                            <a id="breadcrumb-farm-link" asp-controller="Farms" asp-action="Index">Farm</a>
+                            <span aria-hidden="true">/</span>
+                        </span>
+                        <strong aria-current="page">@(ViewData["Title"] ?? "Overview")</strong>
+                    }
+                </nav>
                 <a class="mobile-brand mobile-title" asp-controller="Farms" asp-action="Index"><partial name="_Icon" model='@("leaf")' />AniGo</a>
                 <nav class="top-actions app-topbar-actions" aria-label="Quick account links">
-                    <a class="farm-picker" asp-controller="Farms" asp-action="Index"><partial name="_Icon" model='@("leaf")' /><span>@(ViewData["FarmName"] ?? "My farms")</span><partial name="_Icon" model='@("down")' /></a>
+                    <a class="farm-picker" asp-controller="Farms" asp-action="Index"
+                       aria-label="Choose farm. Current: @(ViewData["FarmName"] ?? "My farms")"
+                       title="Change farm">
+                        <partial name="_Icon" model='@("leaf")' />
+                        <span>@(ViewData["FarmName"] ?? "My farms")</span><small>Switch</small>
+                    </a>
                     <button class="icon-button color-mode-toggle" type="button" data-color-mode-toggle aria-label="Use dark appearance" aria-pressed="false"><partial name="_Icon" model='@("sun")' /></button>
                     <a class="icon-button" asp-controller="Notifications" asp-action="Index" aria-label="Notifications"><partial name="_Icon" model='@("bell")' /></a>
                     <a class="top-avatar" asp-controller="Account" asp-action="Profile" aria-label="My account">@initial</a>
@@ -119,7 +152,7 @@
         </div>
         <nav class="mobile-workspace-bar bottom-nav" id="mobile-workspace-bar" aria-label="Farm quick navigation" hidden>
             <div id="mobile-workspace-links" class="mobile-workspace-links"></div>
-            <button type="button" class="mobile-more-button" id="mobile-more-button" aria-label="More farm sections" aria-controls="mobile-workspace-menu"><partial name="_Icon" model='@("more")' /><span>More</span></button>
+            <button type="button" class="mobile-more-button" id="mobile-more-button" aria-label="More farm sections" aria-controls="mobile-workspace-menu" aria-expanded="false"><partial name="_Icon" model='@("more")' /><span>More</span></button>
         </nav>
     </div>
 }

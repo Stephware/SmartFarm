@@ -56,61 +56,6 @@ for (const button of document.querySelectorAll("[data-copy-target]")) {
     });
 })();
 
-// Build all enhanced navigation from the authorized, server-rendered farm links.
-(() => {
-    const source = document.querySelector("main .farm-navigation");
-    const desktop = document.getElementById("sidebar-farm-links");
-    const group = document.getElementById("sidebar-farm-group");
-    const mobile = document.getElementById("mobile-farm-links");
-    const bottom = document.getElementById("mobile-workspace-links");
-    const bar = document.getElementById("mobile-workspace-bar");
-    const menu = document.getElementById("mobile-workspace-menu");
-    if (!source || !desktop || !group || !mobile || !bottom || !bar || !menu) return;
-    const links = Array.from(source.querySelectorAll("a[href]"));
-    if (!links.length) return;
-    const bySection = new Map(links.map(link => [link.dataset.navSection, link]));
-    const copy = link => {
-        const clone = link.cloneNode(true);
-        clone.classList.add("nav-link");
-        return clone;
-    };
-    const myFarms = document.getElementById("sidebar-my-farms");
-    const insights = document.getElementById("sidebar-insight-links");
-    for (const section of ["dashboard", "plots", "crops", "tasks", "inventory", "harvests", "weather", "reports", "finance", "farm"]) {
-        const original = bySection.get(section);
-        if (!original) continue;
-        const clone = copy(original);
-        if (["reports", "finance", "farm"].includes(section) && insights) insights.prepend(clone);
-        else desktop.append(clone);
-        if (section === "dashboard" && myFarms) desktop.append(myFarms);
-    }
-    for (const original of links) mobile.append(copy(original));
-    for (const section of ["dashboard", "tasks", "crops", "inventory"]) {
-        const original = bySection.get(section);
-        if (!original) continue;
-        const clone = copy(original);
-        if (section === "dashboard") clone.querySelector("span").textContent = "Home";
-        bottom.append(clone);
-    }
-    const more = document.getElementById("mobile-more-button");
-    if (more) more.addEventListener("click", () => {
-        menu.open = true;
-        menu.querySelector("summary")?.focus();
-        more.setAttribute("aria-expanded", "true");
-    });
-    menu.addEventListener("toggle", () => more?.setAttribute("aria-expanded", String(menu.open)));
-    document.addEventListener("keydown", event => {
-        if (event.key === "Escape" && menu.open) {
-            menu.open = false;
-            if (more) more.focus();
-        }
-    });
-    group.hidden = false;
-    mobile.hidden = false;
-    bar.hidden = false;
-    document.body.classList.add("farm-nav-enhanced");
-})();
-
 // Native dialogs retain the original POST forms, draft values and inline no-JS fallback.
 (() => {
     const sections = document.querySelectorAll("section[data-form-dialog]");

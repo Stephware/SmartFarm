@@ -47,7 +47,9 @@ public sealed class FarmEnrollmentWebTests
         Assert.Contains("href=\"#main-content\"", html);
         Assert.Contains("id=\"main-content\"", html);
         Assert.Contains("aria-current=\"page\"", html);
-        Assert.Contains("Farm overview", html);
+        Assert.Contains("Farm &amp; team", html);
+        Assert.Contains("data-nav-section=\"farm\"", html);
+        Assert.Contains("id=\"sidebar-farm-context\"", html);
     }
 
     [Fact]
