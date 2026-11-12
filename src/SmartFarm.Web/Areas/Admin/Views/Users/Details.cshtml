@@ -1,0 +1,62 @@
+@model SmartFarm.Web.ViewModels.Admin.AdminUserDetailPage
+@{
+    ViewData["Title"] = "User details";
+}
+<a class="admin-back" asp-area="Admin" asp-controller="Users" asp-action="Index">← Back to users</a>
+<div class="page-heading admin-page-heading">
+    <div><p class="sf-kicker">USER ACCOUNT</p><h1>@Model.User.Name</h1>
+        <p class="sf-muted">@Model.User.Email</p></div>
+    <span class="sf-status-chip @(Model.User.Disabled ? "sf-status-chip--neutral" : "sf-status-chip--active")">@(Model.User.Disabled ? "Disabled" : "Active")</span>
+</div>
+@if (TempData["Message"] is string message) { <p class="form-notice" role="status">@message</p> }
+@if (TempData["Error"] is string error) { <p class="error form-error" role="alert">@error</p> }
+<div class="admin-detail-grid">
+    <section class="panel admin-detail-panel" aria-labelledby="user-summary-heading">
+        <h2 id="user-summary-heading">Account summary</h2>
+        <dl class="admin-detail-list">
+            <div><dt>Account type</dt><dd>@(Model.User.IsSuperAdmin ? "Super Admin" : "Standard user")</dd></div>
+            <div><dt>Owned farms</dt><dd>@Model.User.OwnedFarms</dd></div>
+            <div><dt>Other farm memberships</dt><dd>@Model.User.ActiveMemberships</dd></div>
+            <div><dt>Account status</dt><dd>@(Model.User.Disabled ? "Disabled" : "Active")</dd></div>
+        </dl>
+    </section>
+    <section class="panel admin-detail-panel" aria-labelledby="user-actions-heading">
+        <h2 id="user-actions-heading">Account controls</h2>
+        @if (Model.User.IsSuperAdmin)
+        {
+            <p class="sf-muted">Super Admin accounts are protected. Access changes require a separate operator process.</p>
+        }
+        else
+        {
+            <p class="sf-muted">@(Model.User.Disabled
+                ? "Restoring this account allows the user to sign in again."
+                : "Disabling this account blocks sign-in. Existing sessions are invalidated on validation.")</p>
+            <form asp-area="Admin" asp-controller="Users" asp-action="ChangeStatus" asp-route-id="@Model.User.Id"
+                  method="post" class="admin-action-form" data-confirm="Confirm this account status change?">
+                <input type="hidden" name="disable" value="@(Model.User.Disabled ? "false" : "true")" />
+                <label for="user-action-reason">Reason (required)</label>
+                <textarea id="user-action-reason" name="reason" minlength="8" maxlength="300" rows="3" required
+                          placeholder="Explain why this action is necessary"></textarea>
+                <button type="submit" class="@(Model.User.Disabled ? "button" : "button-danger")">
+                    @(Model.User.Disabled ? "Restore account" : "Disable account")
+                </button>
+            </form>
+        }
+    </section>
+</div>
+<section class="panel admin-directory-panel" aria-labelledby="user-farms-heading">
+    <div class="admin-section-heading"><h2 id="user-farms-heading">Owned farms</h2><span class="sf-muted">Up to 20 recent farms</span></div>
+    @if (Model.OwnedFarms.Count == 0) { <p class="admin-empty">This user does not own a farm yet.</p> }
+    else
+    {
+        <div class="admin-record-list">
+            @foreach (var farm in Model.OwnedFarms)
+            {
+                <a class="admin-record" asp-area="Admin" asp-controller="Farms" asp-action="Details" asp-route-id="@farm.Id">
+                    <span class="admin-record-main"><strong>@farm.Name</strong><small>@farm.Location</small></span>
+                    <span class="sf-status-chip @(farm.Archived ? "sf-status-chip--neutral" : "sf-status-chip--active")">@(farm.Archived ? "Archived" : "Active")</span>
+                </a>
+            }
+        </div>
+    }
+</section>

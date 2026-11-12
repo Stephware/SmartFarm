@@ -1,0 +1,51 @@
+@model SmartFarm.Web.ViewModels.Admin.AdminFarmDetailPage
+@{
+    ViewData["Title"] = "Farm details";
+}
+<a class="admin-back" asp-area="Admin" asp-controller="Farms" asp-action="Index">← Back to farms</a>
+<div class="page-heading admin-page-heading">
+    <div><p class="sf-kicker">REGISTERED FARM</p><h1>@Model.Farm.Name</h1>
+        <p class="sf-muted">@Model.Farm.Location</p></div>
+    <span class="sf-status-chip @(Model.Farm.Archived ? "sf-status-chip--neutral" : "sf-status-chip--active")">@(Model.Farm.Archived ? "Archived" : "Active")</span>
+</div>
+@if (TempData["Message"] is string message) { <p class="form-notice" role="status">@message</p> }
+@if (TempData["Error"] is string error) { <p class="error form-error" role="alert">@error</p> }
+<div class="admin-detail-grid">
+    <section class="panel admin-detail-panel" aria-labelledby="farm-summary-heading">
+        <h2 id="farm-summary-heading">Farm summary</h2>
+        <dl class="admin-detail-list">
+            <div><dt>Owner</dt><dd>@Model.Farm.OwnerName</dd></div>
+            <div><dt>Owner email</dt><dd>@Model.Farm.OwnerEmail</dd></div>
+            <div><dt>Active plots</dt><dd>@Model.Farm.Plots</dd></div>
+            <div><dt>Active members</dt><dd>@Model.Farm.Members</dd></div>
+            <div><dt>Active crop cycles</dt><dd>@Model.ActiveCropCycles</dd></div>
+            <div><dt>Stock items with remaining quantity</dt><dd>@Model.PositiveStockItems</dd></div>
+            <div><dt>Registered</dt><dd>@Model.Farm.CreatedAtUtc.ToString("MMM d, yyyy") UTC</dd></div>
+        </dl>
+    </section>
+    <section class="panel admin-detail-panel" aria-labelledby="farm-actions-heading">
+        <h2 id="farm-actions-heading">Farm controls</h2>
+        @if (!Model.Farm.Archived && (Model.ActiveCropCycles > 0 || Model.PositiveStockItems > 0))
+        {
+            <p class="form-notice">Archive unavailable: this farm has active crop cycles or stock on hand. Ask its owner to resolve these first.</p>
+        }
+        else
+        {
+            <p class="sf-muted">@(Model.Farm.Archived
+                ? "Restore this farm so the owner and its members can access it again."
+                : "Archive this farm only when its operations are complete. This does not delete historical records.")</p>
+            <form asp-area="Admin" asp-controller="Farms" asp-action="ChangeStatus" asp-route-id="@Model.Farm.Id"
+                  method="post" class="admin-action-form" data-confirm="Confirm this farm status change?">
+                <input type="hidden" name="archive" value="@(Model.Farm.Archived ? "false" : "true")" />
+                <input type="hidden" name="rowVersion" value="@Model.Farm.RowVersion" />
+                <label for="farm-action-reason">Reason (required)</label>
+                <textarea id="farm-action-reason" name="reason" minlength="8" maxlength="300" rows="3" required
+                          placeholder="Explain why this action is necessary"></textarea>
+                <button type="submit" class="@(Model.Farm.Archived ? "button" : "button-danger")">
+                    @(Model.Farm.Archived ? "Restore farm" : "Archive farm")
+                </button>
+            </form>
+        }
+        <p class="sf-muted admin-audit-notice">Every status change is recorded in the platform audit log.</p>
+    </section>
+</div>
