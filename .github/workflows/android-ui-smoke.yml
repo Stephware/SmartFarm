@@ -49,7 +49,12 @@ jobs:
           ram-size: 3072M
           disable-animations: true
           working-directory: mobile/SmartFarm.Android
-          script: bash ./gradlew --no-daemon :app:connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.smartfarm.mobile.FinalFarmerJourneysTest,com.smartfarm.mobile.NavigationInputsTest,com.smartfarm.mobile.SecondaryNavigationScreenTest,com.smartfarm.mobile.TaskWorkspaceScreenTest,com.smartfarm.mobile.CropWorkflowScreenTest,com.smartfarm.mobile.SimpleInspectionScreenTest,com.smartfarm.mobile.InventoryUsabilityScreenTest,com.smartfarm.mobile.HarvestUsabilityScreenTest,com.smartfarm.mobile.SyncClarityScreenTest,com.smartfarm.mobile.FarmOnboardingScreenTest,com.smartfarm.mobile.QuickRecordNavigationTest,com.smartfarm.mobile.ResponsiveListsTest,com.smartfarm.mobile.ReferenceWorkspaceVisualTest,com.smartfarm.mobile.UiOverhaulNavigationTest
+          script: >-
+            bash -c 'bash ./gradlew --no-daemon :app:connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.smartfarm.mobile.FinalFarmerJourneysTest,com.smartfarm.mobile.NavigationInputsTest,com.smartfarm.mobile.SecondaryNavigationScreenTest,com.smartfarm.mobile.TaskWorkspaceScreenTest,com.smartfarm.mobile.CropWorkflowScreenTest,com.smartfarm.mobile.SimpleInspectionScreenTest,com.smartfarm.mobile.InventoryUsabilityScreenTest,com.smartfarm.mobile.HarvestUsabilityScreenTest,com.smartfarm.mobile.SyncClarityScreenTest,com.smartfarm.mobile.FarmOnboardingScreenTest,com.smartfarm.mobile.QuickRecordNavigationTest,com.smartfarm.mobile.ResponsiveListsTest,com.smartfarm.mobile.ReferenceWorkspaceVisualTest,com.smartfarm.mobile.UiOverhaulNavigationTest;
+            result=$?;
+            adb pull /sdcard/Android/data/com.smartfarm.mobile/files/
+            app/build/ui-screenshots/ >/dev/null 2>&1 || true;
+            exit "$result"'
       - name: Save Android test results
         if: always()
         uses: actions/upload-artifact@v4
@@ -59,3 +64,4 @@ jobs:
           path: |
             mobile/SmartFarm.Android/app/build/outputs/androidTest-results/connected/
             mobile/SmartFarm.Android/app/build/reports/androidTests/connected/
+            mobile/SmartFarm.Android/app/build/ui-screenshots/
