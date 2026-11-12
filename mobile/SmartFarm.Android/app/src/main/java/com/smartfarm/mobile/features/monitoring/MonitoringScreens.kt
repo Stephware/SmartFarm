@@ -24,6 +24,7 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
@@ -91,6 +92,9 @@ fun MonitoringScreen(
     var focus by rememberSaveable(state.farmId, state.cycleId, quick) {
         mutableStateOf(if (quick == "inspection") "inspection" else "activity")
     }
+    var historyTab by rememberSaveable(state.farmId, state.cycleId) { mutableStateOf("activities") }
+    var moreActivities by rememberSaveable(state.farmId, state.cycleId) { mutableStateOf(false) }
+    var showGrowthStage by rememberSaveable(state.farmId, state.cycleId) { mutableStateOf(false) }
     var activityType by rememberSaveable(state.farmId, state.cycleId, quick) {
         mutableStateOf(if (quick == "fertilizing") 2 else 1)
     }
@@ -174,12 +178,14 @@ fun MonitoringScreen(
 
     val progressPhotos = state.observations
         .flatMap { observation -> observation.photos.map { observation to it } }
-        .sortedWith(compareBy({ it.first.observedAtUtc }, { it.second.uploadedAtUtc }))
+        .sortedWith(compareByDescending<Pair<ObservationDto, com.smartfarm.mobile.data.remote.dto.ObservationPhotoDto>> {
+            it.first.observedAtUtc
+        }.thenByDescending { it.second.uploadedAtUtc })
 
     RecordPage {
         item(key = "forms") {
             Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-            FarmHero("Crop monitoring", "Choose one action. Field records can be saved offline and reviewed before syncing.")
+            FarmHero("Crop monitoring", "Record today's work, inspect crops, or review past records.")
             OutlinedButton(onClick = onBack) { Text("Back to crops") }
             if (state.busy) CircularProgressIndicator()
             state.error?.let {
@@ -188,11 +194,11 @@ fun MonitoringScreen(
             }
             state.notice?.let { Text(it, color = MaterialTheme.colorScheme.primary, modifier = Modifier.semantics { liveRegion = LiveRegionMode.Polite }) }
             OfflineDataNotice(state.offline, state.cachedAtUtcMillis)
-            Row(Modifier.horizontalScroll(rememberScrollState()),
-                horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(6.dp)) {
                 listOf("activity" to "Activity", "inspection" to "Inspection",
-                    "history" to "History & photos").forEach { (key, label) ->
+                    "history" to "History").forEach { (key, label) ->
                     FilterChip(selected = focus == key, onClick = { focus = key },
+                        modifier = Modifier.weight(1f).defaultMinSize(minHeight = 48.dp),
                         label = { Text(label) })
                 }
             }
@@ -214,11 +220,31 @@ fun MonitoringScreen(
                 FarmSectionCard("Record farm activity",
                     subtitle = "Choose an activity and save the work to this crop cycle.") {
                 val activities = listOf("Watering", "Fertilizing", "Pesticide", "Weeding", "Other")
-                Row(Modifier.horizontalScroll(rememberScrollState()),
-                    horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    activities.forEachIndexed { index, label ->
-                        FilterChip(selected = activityType == index + 1, onClick = { activityType = index + 1 },
-                            enabled = !state.busy, label = { Text(label) })
+                Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    activities.take(2).forEachIndexed { index, label ->
+                        FilterChip(selected = activityType == index + 1,
+                            onClick = { activityType = index + 1 }, enabled = !state.busy,
+                            modifier = Modifier.weight(1f).defaultMinSize(minHeight = 48.dp),
+                            label = { Text(label) })
+                    }
+                }
+                TextButton(onClick = { moreActivities = !moreActivities }, enabled = !state.busy) {
+                    Text(if (moreActivities) "Fewer activity types" else "Other activity types")
+                }
+                if (moreActivities || activityType > 2) {
+                    Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                            activities.drop(2).take(2).forEachIndexed { offset, label ->
+                                FilterChip(selected = activityType == offset + 3,
+                                    onClick = { activityType = offset + 3 }, enabled = !state.busy,
+                                    modifier = Modifier.weight(1f).defaultMinSize(minHeight = 48.dp),
+                                    label = { Text(label) })
+                            }
+                        }
+                        FilterChip(selected = activityType == 5,
+                            onClick = { activityType = 5 }, enabled = !state.busy,
+                            modifier = Modifier.defaultMinSize(minHeight = 48.dp),
+                            label = { Text("Other") })
                     }
                 }
                 // Editable note guides: never save guessed work or invent inspection findings.
@@ -320,35 +346,50 @@ fun MonitoringScreen(
                 if (focus == "inspection") {
                 FarmSectionCard("Record inspection / observation",
                     subtitle = "Check crop condition and attach a photo if available.") {
-                Row(Modifier.horizontalScroll(rememberScrollState()),
-                    horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    listOf("Not assessed", "Healthy", "Needs attention", "Critical")
-                        .forEachIndexed { index, label ->
-                            FilterChip(selected = health == index, onClick = { health = index },
-                                enabled = !state.busy, label = { Text(label) })
-                        }
-                }
-                Text("Observed issue (optional)",
-                    style = MaterialTheme.typography.labelLarge)
-                Row(Modifier.horizontalScroll(rememberScrollState()),
-                    horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    listOf("None", "Pest", "Disease", "Nutrient", "Environment", "Other")
-                        .forEachIndexed { index, label ->
-                            FilterChip(selected = issueCategory == index,
-                                onClick = {
-                                    issueCategory = index
-                                    if (index == 0) issueSeverity = 0
+                Text("How are the crops looking?", style = MaterialTheme.typography.labelLarge)
+                listOf("Not assessed", "Healthy", "Needs attention", "Critical")
+                    .chunked(2).forEachIndexed { rowIndex, options ->
+                        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                            options.forEachIndexed { index, label ->
+                                val value = rowIndex * 2 + index
+                                FilterChip(selected = health == value, onClick = {
+                                    health = value
+                                    if (value < 2) {
+                                        issueCategory = 0
+                                        issueSeverity = 0
+                                    }
                                 }, enabled = !state.busy,
-                                label = { Text(label) })
+                                    modifier = Modifier.weight(1f).defaultMinSize(minHeight = 48.dp),
+                                    label = { Text(label) })
+                            }
+                        }
+                    }
+                if (health >= 2) {
+                    Text("What did you notice? (optional)",
+                        style = MaterialTheme.typography.labelLarge)
+                    listOf("None", "Pest", "Disease", "Nutrient", "Environment", "Other")
+                        .chunked(2).forEachIndexed { rowIndex, options ->
+                            Row(Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                                options.forEachIndexed { index, label ->
+                                    val value = rowIndex * 2 + index
+                                    FilterChip(selected = issueCategory == value, onClick = {
+                                        issueCategory = value
+                                        if (value == 0) issueSeverity = 0
+                                    }, enabled = !state.busy,
+                                        modifier = Modifier.weight(1f).defaultMinSize(minHeight = 48.dp),
+                                        label = { Text(label) })
+                                }
+                            }
                         }
                 }
-                if (issueCategory != 0) {
-                    Text("Issue severity", style = MaterialTheme.typography.labelLarge)
-                    Row(Modifier.horizontalScroll(rememberScrollState()),
-                        horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                if (health >= 2 && issueCategory != 0) {
+                    Text("How serious is it?", style = MaterialTheme.typography.labelLarge)
+                    Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(6.dp)) {
                         listOf("Low", "Moderate", "High").forEachIndexed { index, label ->
                             FilterChip(selected = issueSeverity == index + 1,
                                 onClick = { issueSeverity = index + 1 }, enabled = !state.busy,
+                                modifier = Modifier.weight(1f).defaultMinSize(minHeight = 48.dp),
                                 label = { Text(label) })
                         }
                     }
@@ -356,13 +397,21 @@ fun MonitoringScreen(
                         "Descriptions are observations, not confirmed diagnoses.",
                         style = MaterialTheme.typography.bodySmall)
                 }
-                OutlinedTextField(stage, { stage = it }, enabled = !state.busy,
-                    label = { Text("Growth stage") }, placeholder = {
-                        Text("Vegetative, flowering, fruiting, or observed stage")
-                    }, modifier = Modifier.fillMaxWidth())
                 OutlinedTextField(observationNotes, { observationNotes = it }, enabled = !state.busy,
-                    label = { Text("Observation notes") }, modifier = Modifier.fillMaxWidth())
-                Text("Optional photo — choose camera or gallery. The existing compression and offline queue are used.")
+                    label = { Text("Inspection notes (optional)") },
+                    placeholder = { Text("Describe what you see; no diagnosis is needed") },
+                    modifier = Modifier.fillMaxWidth())
+                TextButton(onClick = { showGrowthStage = !showGrowthStage }, enabled = !state.busy) {
+                    Text(if (showGrowthStage) "Hide growth stage" else "Add growth stage (optional)")
+                }
+                if (showGrowthStage) {
+                    OutlinedTextField(stage, { stage = it }, enabled = !state.busy,
+                        label = { Text("Growth stage") }, placeholder = {
+                            Text("Vegetative, flowering, fruiting, or observed stage")
+                        }, modifier = Modifier.fillMaxWidth())
+                }
+                Text("Photo (optional) — attach it to this inspection in one save.",
+                    style = MaterialTheme.typography.bodyMedium)
                 Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
                     Button(onClick = { capture(null) }, enabled = !state.busy,
                         modifier = Modifier.weight(1f)) { Text("Take photo") }
@@ -386,13 +435,25 @@ fun MonitoringScreen(
                     else onIssueObservation(health, stage, observationNotes,
                         issueCategory, issueSeverity, newPhoto)
                 }, enabled = !state.busy && issueValid, modifier = Modifier.fillMaxWidth()) {
-                    Text("Save observation")
+                    Text("Save inspection")
                 }
                 }
                 }
             }
 
             if (focus == "history") {
+                Row(Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                    listOf("activities" to "Activities", "inspections" to "Inspections",
+                        "photos" to "Photos").forEach { (key, label) ->
+                        FilterChip(selected = historyTab == key,
+                            onClick = { historyTab = key },
+                            modifier = Modifier.weight(1f).defaultMinSize(minHeight = 48.dp),
+                            label = { Text(label) })
+                    }
+                }
+            }
+            if (focus == "history" && historyTab == "activities") {
                 FarmSectionHeader("Activity history",
                     "Previous fieldwork records for this crop cycle.")
                 if (state.activities.isEmpty())
@@ -400,16 +461,16 @@ fun MonitoringScreen(
             }
             }
         }
-        if (focus == "history") items(state.activities, key = { "activity-${it.id}" }) { activity ->
+        if (focus == "history" && historyTab == "activities") items(state.activities, key = { "activity-${it.id}" }) { activity ->
             val name = when (activity.activityType) {
                 1 -> "Watering"; 2 -> "Fertilizing"; 3 -> "Pesticide"
                 4 -> "Weeding"; else -> "Other"
             }
-            FarmSectionCard(name, subtitle = "Recorded ${activity.occurredAtUtc} UTC") {
+            FarmSectionCard(name, subtitle = "Recorded ${activity.occurredAtUtc.take(10)} (UTC)") {
                 activity.notes?.let { Text(it, style = MaterialTheme.typography.bodyMedium) }
             }
         }
-        if (focus == "history") item(key = "photo-progress-heading") {
+        if (focus == "history" && historyTab == "photos") item(key = "photo-progress-heading") {
             Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 HorizontalDivider()
                 FarmSectionHeader("Crop photo progress",
@@ -418,7 +479,7 @@ fun MonitoringScreen(
                     FarmEmptyState("No inspection photos yet.", "Add photos to crop observations to compare them here.")
             }
         }
-        if (focus == "history") items(progressPhotos, key = { "progress-${it.second.id}" }) { (observation, photo) ->
+        if (focus == "history" && historyTab == "photos") items(progressPhotos, key = { "progress-${it.second.id}" }) { (observation, photo) ->
             ObservationPhotoRow(
                 photoId = photo.id,
                 label = "${observation.observedAtUtc.take(10)} · ${observation.growthStage ?: "Inspection"}",
@@ -426,7 +487,7 @@ fun MonitoringScreen(
                 enabled = !state.busy,
                 onOpen = { openPhoto(photo.id) })
         }
-        if (focus == "history") item(key = "observations-heading") {
+        if (focus == "history" && historyTab == "inspections") item(key = "observations-heading") {
             Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
             HorizontalDivider()
             FarmSectionHeader("Observations and photos", "Crop health and inspection records.")
@@ -434,11 +495,11 @@ fun MonitoringScreen(
                 FarmEmptyState("No observations recorded.", "New inspection records will appear here.")
             }
         }
-        if (focus == "history") items(state.observations, key = { "observation-${it.id}" }) { observation ->
+        if (focus == "history" && historyTab == "inspections") items(state.observations, key = { "observation-${it.id}" }) { observation ->
             val status = when (observation.healthStatus) {
                 0 -> "Not assessed"; 1 -> "Healthy"; 2 -> "Needs attention"; else -> "Critical"
             }
-            FarmSectionCard("Crop observation", subtitle = "Recorded ${observation.observedAtUtc} UTC") {
+            FarmSectionCard("Crop observation", subtitle = "Recorded ${observation.observedAtUtc.take(10)} (UTC)") {
                 FarmStatusChip(status, when (observation.healthStatus) {
                     1 -> FarmStatusTone.Active
                     2, 3 -> FarmStatusTone.Warning
