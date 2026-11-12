@@ -25,8 +25,11 @@ class SecondaryNavigationScreenTest {
         compose.onNodeWithText("Farm settings").assertDoesNotExist()
         compose.onNodeWithText("Harvest & cash reports").performScrollTo().performClick()
         compose.runOnIdle { assertEquals("insights", opened) }
-        compose.onNodeWithText("1 need review").performScrollTo().assertExists()
-        compose.onNodeWithText("Offline sync").performScrollTo().performClick()
+        // Lazy rows are composed only after scrolling them into the viewport.
+        compose.onNodeWithTag("record-list").performScrollToIndex(11)
+        compose.onNodeWithText("1 need review", substring = true, useUnmergedTree = true)
+            .assertExists()
+        compose.onNodeWithText("Offline sync").performClick()
         compose.runOnIdle { assertEquals("sync", opened) }
     }
 

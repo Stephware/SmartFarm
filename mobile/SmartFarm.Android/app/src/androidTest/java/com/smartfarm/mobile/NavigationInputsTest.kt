@@ -111,7 +111,7 @@ class NavigationInputsTest {
         compose.runOnIdle { state.value = state.value.copy(tasks = listOf(task.copy(assignedToUserId = "me"))) }
         compose.onNodeWithText("Mark completed").performScrollTo().performClick()
         compose.runOnIdle { assertEquals(null, completed) }
-        compose.onNodeWithText("Complete task").performScrollTo().performClick()
+        compose.onNodeWithText("Complete task").performClick()
         compose.runOnIdle { assertEquals("task", completed) }
     }
 }
