@@ -1,1 +1,19 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 130 115" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M65 39c-5-13-5-23 6-34M65 33C46 12 24 20 21 25c17 19 34 22 44 8Zm0 1c5-19 24-25 42-21-8 21-27 28-42 21Z" stroke="#3B7043" stroke-width="5" stroke-linecap="round" fill="#75A86A"/><path d="M50 46c-22-7-38 7-40 20-5 26 18 39 37 24 12-11 15-31 13-44m25 0c21-6 37 7 36 24-1 25-24 32-39 17-12-13-7-28 3-41" fill="#60427D"/><path d="M47 45c-16 0-20-4-27-10 0 12 9 20 22 20l4 10 7-13 10-6" fill="#5C9A58"/><path d="M87 45c14-2 24-8 25-16-11 5-20 5-27 4l-5 16-4 7 15-4" fill="#679D58"/><path d="M27 63c-6 14 0 23 4 26M98 66c1 11-3 15-8 18" stroke="#A68ABB" stroke-width="5" stroke-linecap="round"/></svg>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 180 180" fill="none"><title>Eggplant</title><desc>Botanical illustration of two glossy purple eggplants with textured green sepals and mature leaves.</desc><defs><linearGradient id="leaf" x1="0" y1="0" x2=".95" y2="1"><stop stop-color="#a1bd74"/><stop offset=".38" stop-color="#609155"/><stop offset="1" stop-color="#2c653e"/></linearGradient><linearGradient id="leafDark" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#729e5c"/><stop offset="1" stop-color="#24553c"/></linearGradient>
+<linearGradient id="purple" x1=".05" y1=".15" x2=".92" y2=".95"><stop stop-color="#9e84b5"/><stop offset=".22" stop-color="#77529e"/><stop offset=".64" stop-color="#48286e"/><stop offset="1" stop-color="#281743"/></linearGradient>
+<linearGradient id="purple2" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#9a77ad"/><stop offset=".55" stop-color="#654187"/><stop offset="1" stop-color="#37204c"/></linearGradient>
+</defs><ellipse cx="90" cy="158" rx="58" ry="5.5" fill="#233d2e" opacity=".12"/>
+<path d="M89 99C85 71 92 42 107 24" stroke="#456d41" stroke-width="6" stroke-linecap="round"/>
+<path d="M86 76C65 67 50 49 47 32C72 34 89 48 86 76Z" fill="url(#leaf)" stroke="#457a4a" stroke-width="1.1"/>
+<path d="M83 72C70 58 62 47 51 38" stroke="#b4cc8e" stroke-width="2" stroke-linecap="round"/>
+<path d="M93 56C110 35 131 33 149 42C134 64 115 68 93 56Z" fill="url(#leafDark)" stroke="#497b50" stroke-width="1"/>
+<path d="M98 56C117 50 130 45 144 43" stroke="#9fc17f" stroke-width="1.8" stroke-linecap="round"/>
+<path d="M116 91C133 75 151 84 151 104C151 129 134 146 112 144C94 143 88 126 98 109Z" fill="url(#purple2)" stroke="#3c2554" stroke-width="1.3"/>
+<path d="M120 91C126 88 132 90 135 94" stroke="#d8bfe5" stroke-width="4" opacity=".5" stroke-linecap="round"/>
+<path d="M113 88L104 93L104 83L94 79L111 79L119 68L121 83L136 78L129 89L129 98L119 91Z" fill="url(#leafDark)" stroke="#34633e" stroke-width="1.1"/>
+<path d="M61 94C43 98 35 114 36 135C38 152 50 158 68 154C97 148 114 130 112 111C112 94 95 83 79 87C71 89 66 91 61 94Z" fill="url(#purple)" stroke="#342046" stroke-width="1.5"/>
+<path d="M50 118C53 106 62 100 76 97" stroke="#e1c7ee" opacity=".65" stroke-width="6" stroke-linecap="round"/>
+<path d="M43 142C45 147 49 150 55 150" stroke="#b697d1" opacity=".35" stroke-width="2.5" stroke-linecap="round"/>
+<path d="M76 89L63 99L65 88L52 83L72 83L79 74L81 84L99 83L89 93L89 106L78 96L70 105Z" fill="url(#leaf)" stroke="#32623a" stroke-width="1.4"/>
+<path d="M78 78C79 73 81 68 84 64" stroke="#467345" stroke-width="3.5" stroke-linecap="round"/>
+<path d="M84 94C98 87 108 84 119 85" stroke="#376b40" stroke-width="2" stroke-linecap="round"/>
+</svg>
