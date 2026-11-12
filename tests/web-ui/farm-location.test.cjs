@@ -25,15 +25,20 @@ function setup() {
         querySelector: name => controls[name],
         addEventListener: (name, fn) => { listeners["form:" + name] = fn; }
     };
+    const disclosure = {
+        open: false,
+        addEventListener: (name, fn) => { listeners["disclosure:" + name] = fn; }
+    };
     const root = {
-        closest: () => form,
+        closest: selector => selector === "form" ? form : selector === "details" ? disclosure : null,
         dataset: { searchUrl: "/farms/locations/search" },
         querySelector: name => controls[name]
     };
+    let invalidations = 0;
     const map = {
         setView: () => map,
         on: (name, fn) => { listeners["map:" + name] = fn; },
-        invalidateSize: () => {},
+        invalidateSize: () => { invalidations++; },
         removeLayer: () => {}
     };
     const L = {
@@ -53,7 +58,7 @@ function setup() {
                 addEventListener: function (event, cb) { this.choose = cb; }
             })
         },
-        window: { L, addEventListener: () => {} },
+        window: { L, addEventListener: () => {}, requestAnimationFrame: cb => cb() },
         L,
         navigator: {},
         fetch: async url => {
@@ -65,7 +70,7 @@ function setup() {
         encodeURIComponent
     };
     vm.runInNewContext(source, context);
-    return { listeners, controls, fetches };
+    return { listeners, controls, fetches, disclosure, invalidations: () => invalidations };
 }
 
 test("location search is only called by a deliberate user action", async () => {
@@ -91,4 +96,15 @@ test("choosing a search result fills location and six-decimal coordinates", asyn
     listeners["[data-farm-location-label]:input"]();
     assert.equal(controls["[data-farm-latitude]"].value, "");
     assert.equal(controls["[data-farm-longitude]"].value, "");
+});
+
+test("optional location map refreshes after its details panel is opened", () => {
+    const { listeners, disclosure, invalidations } = setup();
+    assert.equal(invalidations(), 0);
+    disclosure.open = true;
+    listeners["disclosure:toggle"]();
+    assert.equal(invalidations(), 1);
+    disclosure.open = false;
+    listeners["disclosure:toggle"]();
+    assert.equal(invalidations(), 1);
 });

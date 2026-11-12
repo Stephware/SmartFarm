@@ -53,6 +53,68 @@ public sealed class FarmEnrollmentWebTests
     }
 
     [Fact]
+    public async Task FirstTimeFarmerSeesCreateAndJoinOptionsWithoutEmptyRequests()
+    {
+        using var app = App(enroll: (name, _) => name == "MyRequestsAsync"
+            ? Task.FromResult<IReadOnlyList<FarmJoinRequestDetails>>([])
+            : throw new NotSupportedException(name));
+        using var client = app.CreateClient();
+        var html = await client.GetStringAsync("/Farms");
+        Assert.Contains("No farms yet", html);
+        Assert.Contains("Manage your own farm", html);
+        Assert.Contains("Join an existing farm", html);
+        Assert.Contains("Create my first farm", html);
+        Assert.Contains("href=\"#join-farm\"", html);
+        Assert.Contains("id=\"join-farm\"", html);
+        Assert.Contains("name=\"FarmCode\"", html);
+        Assert.Contains("Request to join", html);
+        Assert.DoesNotContain("id=\"requests-heading\"", html);
+        Assert.Contains("name=\"__RequestVerificationToken\"", html);
+    }
+
+    [Fact]
+    public async Task FarmCreationKeepsRequiredFieldsAndMakesMapOptional()
+    {
+        using var app = App();
+        using var client = app.CreateClient();
+        var html = await client.GetStringAsync("/Farms/Create");
+        Assert.Contains("Create farm &amp; continue", html);
+        Assert.Contains("id=\"farm-advanced-settings\"", html);
+        Assert.Contains("data-farm-location-picker", html);
+        Assert.Contains("name=\"Name\"", html);
+        Assert.Contains("name=\"LocationText\"", html);
+        Assert.Contains("name=\"TimeZoneId\"", html);
+        Assert.Contains("Asia/Manila", html);
+        Assert.Contains("name=\"__RequestVerificationToken\"", html);
+    }
+
+    [Theory]
+    [InlineData("Owner", true)]
+    [InlineData("Manager", true)]
+    [InlineData("FieldWorker", false)]
+    public async Task FirstPlotGuideRespectsFarmRole(string role, bool canManage)
+    {
+        using var app = App(role);
+        using var client = app.CreateClient();
+        var html = await client.GetStringAsync($"/Farms/Details?id={FarmId}");
+        Assert.Contains("No active plots", html);
+        if (canManage)
+        {
+            Assert.Contains("Your farm is created.", html);
+            Assert.Contains("href=\"#add-plot\"", html);
+            Assert.Contains("id=\"add-plot\"", html);
+            Assert.Contains("CreatePlot", html);
+        }
+        else
+        {
+            Assert.DoesNotContain("Your farm is created.", html);
+            Assert.DoesNotContain("id=\"add-plot\"", html);
+            Assert.DoesNotContain("CreatePlot", html);
+            Assert.Contains("Your farm owner or manager can add plots", html);
+        }
+    }
+
+    [Fact]
     public async Task MyFarmsShowsPendingStatusAndAcceptsCodeWithAntiforgery()
     {
         string? submitted = null;

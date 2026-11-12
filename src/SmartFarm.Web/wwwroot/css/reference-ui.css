@@ -730,3 +730,9 @@ summary{cursor:pointer;min-height:42px;align-content:center;color:var(--pine);fo
     .ani-setup-progress li { font-size:.74rem; }
     .ani-setup-progress li span { width:24px; height:24px; }
 }
+
+/* Phase 3 contrast: onboarding status and illustrations use semantic text on tinted surfaces. */
+.ani-start-card-icon,.ani-journey-steps li>span,.ani-auth-steps li:first-child {
+    background:var(--success-soft);color:var(--on-success-soft);
+}
+.ani-auth-steps .ani-step-now {color:var(--on-success-soft);}

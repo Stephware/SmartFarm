@@ -63,6 +63,20 @@ public sealed class UiOverhaulPageTests : IClassFixture<WebApplicationFactory<Pr
     }
 
     [Fact]
+    public async Task PublicStartChoicesExplainOwnerAndWorkerApproval()
+    {
+        var landing = await _client.GetStringAsync("/");
+        Assert.Contains("How would you like to use AniGo?", landing);
+        Assert.Contains("I manage a farm", landing);
+        Assert.Contains("I work on a farm", landing);
+        Assert.Contains("wait for the owner to approve", landing);
+        var registration = await _client.GetStringAsync("/Account/Register");
+        Assert.Contains("Getting started", registration);
+        Assert.Contains("A farm owner must approve join requests", registration);
+        Assert.DoesNotContain("name=\"FarmCode\"", registration);
+    }
+
+    [Fact]
     public async Task PublicLayoutHasNoFarmPrivateNavigation()
     {
         var html = await _client.GetStringAsync("/");
