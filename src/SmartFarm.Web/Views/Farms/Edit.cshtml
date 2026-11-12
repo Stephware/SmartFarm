@@ -26,7 +26,7 @@
 <details class="ani-farm-map-options">
     <summary><strong>Exact farm location on the map</strong><span>Optional · for local saved forecasts</span></summary>
     <p class="ani-inline-help">Only adjust this when needed. The map may ask for location permission if you select Use my current location.</p>
-<div class="farm-location-picker sf-edit-location-picker" data-farm-location-picker data-search-url="@Url.Action("Search", "FarmLocations")">
+<div class="farm-location-picker sf-edit-location-picker" data-farm-location-picker data-search-url="@Url.Action("Search", "FarmLocations")" data-picker-script-url="@Url.Content("~/js/farm-location-picker.js")">
     <p class="hint">Find your barangay or nearby place, then position the pin on your actual farm. No coordinates to type.</p>
     <div class="farm-location-search">
         <label>Search a place <input type="search" data-farm-search placeholder="Barangay, town, or address" autocomplete="off" maxlength="120" /></label>
@@ -69,8 +69,6 @@
 </div>
 
 <partial name="_TimeZones" />
-<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
-<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin="" defer></script>
-<script src="~/js/farm-location-picker.js" defer></script>
+<script src="~/js/farm-location-loader.js" asp-append-version="true" defer></script>
 
 </div>
