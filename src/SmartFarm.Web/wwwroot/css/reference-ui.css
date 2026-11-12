@@ -519,3 +519,85 @@ summary{cursor:pointer;min-height:42px;align-content:center;color:var(--pine);fo
         min-height:48px;
     }
 }
+
+
+/* Phase 2: farmers see short, grouped navigation and a clear current-farm context. */
+.sidebar-farm-context[hidden], .sidebar-farm-group[hidden], .mobile-farm-links[hidden] {
+    display:none !important;
+}
+.app-sidebar { gap:20px; }
+.sidebar-farm-context {
+    display:grid; gap:5px; margin:15px 0 13px; padding:12px 13px;
+    border:1px solid rgb(255 255 255 / 18%); border-radius:12px;
+    background:rgb(255 255 255 / 6%); min-width:0;
+}
+.sidebar-farm-context span { color:#bad5c3; font-size:11px; font-weight:650; }
+.sidebar-farm-context strong { color:#fff; font-size:14px; overflow-wrap:anywhere; line-height:1.35; }
+.sidebar-farm-context a { color:#e7deb7; font-size:12px; font-weight:700; width:max-content; max-width:100%; }
+.app-sidebar .farm-nav-disclosure { margin:2px 0; min-width:0; }
+.app-sidebar .farm-nav-disclosure > summary,
+.app-sidebar .sidebar-utility-menu > summary {
+    display:flex; align-items:center; gap:11px; min-height:44px; padding:10px 13px;
+    color:#d0e1d5; font-size:13px; font-weight:650; border-radius:10px; cursor:pointer;
+    list-style:none; user-select:none;
+}
+.app-sidebar .farm-nav-disclosure > summary::-webkit-details-marker,
+.app-sidebar .sidebar-utility-menu > summary::-webkit-details-marker { display:none; }
+.app-sidebar .farm-nav-disclosure > summary::after,
+.app-sidebar .sidebar-utility-menu > summary::after {
+    content:""; width:7px; height:7px; margin-left:auto; flex-shrink:0;
+    border-right:2px solid currentColor; border-bottom:2px solid currentColor;
+    transform:rotate(45deg); transition:transform .15s ease;
+}
+.app-sidebar .farm-nav-disclosure[open] > summary::after,
+.app-sidebar .sidebar-utility-menu[open] > summary::after { transform:rotate(225deg); }
+.app-sidebar .farm-nav-disclosure > summary:hover,
+.app-sidebar .sidebar-utility-menu > summary:hover { background:rgb(255 255 255 / 11%); color:#fff; }
+.app-sidebar .farm-nav-disclosure.has-current > summary,
+.app-sidebar .sidebar-utility-menu:has(a[aria-current="page"]) > summary {
+    background:rgb(255 255 255 / 11%); color:#fff;
+}
+.app-sidebar .farm-nav-disclosure-links,
+.app-sidebar .sidebar-utility-menu .sidebar-links {
+    display:grid; gap:2px; margin:3px 0 5px 18px; padding-left:8px;
+    border-left:1px solid rgb(255 255 255 / 18%);
+}
+.app-sidebar .farm-nav-disclosure-links a,
+.app-sidebar .sidebar-utility-menu .sidebar-links a {
+    min-height:40px; padding:9px 10px; font-size:12px; font-weight:600;
+}
+.app-sidebar :is(.farm-nav-disclosure,.sidebar-utility-menu) > summary:focus-visible,
+.sidebar-farm-context a:focus-visible { outline:3px solid #e5ca84; outline-offset:2px; }
+.sidebar-utilities { display:grid; gap:8px; }
+.sidebar-utilities > .side-group-label { margin-bottom:0; }
+.app-sidebar .sidebar-utility-menu { min-width:0; }
+.crumb { display:flex; flex-wrap:wrap; align-items:center; column-gap:9px; row-gap:2px; min-width:0; }
+.crumb a { color:var(--muted); text-decoration:none; }
+.crumb a:hover { text-decoration:underline; }
+.crumb strong { min-width:0; overflow-wrap:anywhere; }
+.crumb .breadcrumb-farm:not([hidden]) { display:contents; }
+.crumb .breadcrumb-farm[hidden] { display:none; }
+.app-topbar-actions .farm-picker { gap:9px; max-width:275px; text-decoration:none; }
+.app-topbar-actions .farm-picker small {
+    color:var(--pine); font-size:11px; padding-left:8px; border-left:1px solid var(--stroke);
+    font-weight:800; white-space:nowrap;
+}
+.app-topbar-actions .farm-picker:hover { border-color:var(--outline); background:var(--soft); }
+.mobile-workspace-bar .mobile-more-button[data-has-current="true"] {
+    background:var(--mint); color:var(--pine); 
+}
+@media(max-width:770px) {
+    .mobile-nav>nav .mobile-farm-links { display:grid; gap:4px; border-bottom:1px solid var(--stroke); margin-bottom:7px; }
+    .mobile-nav>nav .mobile-menu-section { padding:6px 2px 10px; border-bottom:1px solid var(--stroke); }
+    .mobile-nav>nav .mobile-menu-section:last-child { border-bottom:0; padding-bottom:2px; }
+    .mobile-nav>nav .mobile-menu-section h2 {
+        font-size:12px; font-weight:800; color:var(--muted); letter-spacing:.02em;
+        margin:3px 10px 5px;
+    }
+    .mobile-nav>nav .mobile-menu-section a { min-height:44px; padding:10px 12px; }
+    .app-topbar-actions .farm-picker small { display:none; }
+}
+@media(prefers-reduced-motion:reduce) {
+    .app-sidebar .farm-nav-disclosure > summary::after,
+    .app-sidebar .sidebar-utility-menu > summary::after { transition:none; }
+}
