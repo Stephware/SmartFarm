@@ -79,7 +79,7 @@ jobs:
         run: dotnet build src/SmartFarm.Web/SmartFarm.Web.csproj --configuration Release
       - name: Install Chromium browser test runner
         run: |
-          npm install --no-save --no-package-lock playwright@1.56.1
+          npm install --no-save --no-package-lock playwright@1.56.1 @axe-core/playwright@4.10.2
           npx playwright install --with-deps chromium
       - name: Start the public MVC site
         env:

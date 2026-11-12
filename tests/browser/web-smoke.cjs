@@ -6,6 +6,7 @@ const assert = require("node:assert/strict");
 const fs = require("node:fs");
 const path = require("node:path");
 const { chromium } = require("playwright");
+const AxeBuilder = require("@axe-core/playwright").default;
 
 const base = process.env.SMARTFARM_BROWSER_BASE_URL || "http://127.0.0.1:5082";
 const screenshots = path.join(__dirname, "screenshots");
@@ -32,6 +33,18 @@ async function checkPage(page, url, expectedTitle) {
         `${url}: an interactive element is missing a readable label`);
 }
 
+async function checkAccessibility(page, screen, viewport) {
+    const audit = await new AxeBuilder({ page })
+        .withTags(["wcag2a", "wcag2aa", "wcag21a", "wcag21aa"])
+        .analyze();
+    const blocking = audit.violations.filter(v =>
+        v.impact === "serious" || v.impact === "critical");
+    assert.equal(blocking.length, 0,
+        screen + " " + viewport + " accessibility violations: " +
+        blocking.map(v => v.id + ": " + v.description +
+            " [" + v.nodes.map(node => node.target.join(" ")).join(", ") + "]").join("; "));
+}
+
 (async () => {
     const browser = await chromium.launch({ headless: true });
     const results = [];
@@ -48,8 +61,12 @@ async function checkPage(page, url, expectedTitle) {
             page.on("pageerror", error => errors.push(error.message));
             try {
                 await checkPage(page, "/", "Every farm, crop, and harvest in one place.");
+                if (label === "phone" || label === "desktop")
+                    await checkAccessibility(page, "landing", label);
                 await page.screenshot({ path: path.join(screenshots, `landing-${label}.png`), fullPage: true });
                 await checkPage(page, "/Account/Login", "Log in to AniGo");
+                if (label === "phone" || label === "desktop")
+                    await checkAccessibility(page, "login", label);
                 assert.equal(await page.locator('input[name="Email"][type="email"]').count(), 1);
                 assert.equal(await page.locator('input[name="Password"][type="password"]').count(), 1);
                 assert.equal(await page.locator('input[name="__RequestVerificationToken"]').count(), 1);
@@ -60,6 +77,8 @@ async function checkPage(page, url, expectedTitle) {
                 assert.equal(await page.locator('input[name="Password"]').getAttribute("type"), "password");
 
                 await checkPage(page, "/Account/Register", "Create your account");
+                if (label === "phone" || label === "desktop")
+                    await checkAccessibility(page, "registration", label);
                 assert.equal(await page.locator('input[name="FullName"]').count(), 1);
                 assert.equal(await page.locator('input[name="__RequestVerificationToken"]').count(), 1);
                 await page.screenshot({ path: path.join(screenshots, `register-${label}.png`), fullPage: true });
