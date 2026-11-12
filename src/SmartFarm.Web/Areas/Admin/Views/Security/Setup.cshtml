@@ -1,0 +1,26 @@
+@model SmartFarm.Web.ViewModels.Auth.AdminMfaSetupPage
+@{
+    ViewData["Title"] = "Admin authenticator setup";
+}
+<section class="panel admin-security-setup" aria-labelledby="setup-title">
+    <p class="sf-kicker">REQUIRED ADMIN SECURITY</p>
+    <h1 id="setup-title">Set up your authenticator</h1>
+    <p>Super Admin access requires an authenticator app. Enter this account in
+       your authenticator using the setup key below, then confirm its six-digit code.</p>
+    <div class="admin-secret" aria-label="One-time authenticator enrollment key">
+        <span>Account</span><strong>@Model.Email</strong>
+        <span>Setup key</span><code>@Model.AuthenticatorKey</code>
+    </div>
+    <p class="hint">Keep this key private. Do not share screenshots of this page.
+       No third-party QR code service is used.</p>
+    <form asp-area="Admin" asp-controller="Security" asp-action="Setup" method="post">
+        <div asp-validation-summary="All" class="validation-summary" role="alert"></div>
+        <label for="CurrentPassword">Confirm current password</label>
+        <input type="password" id="CurrentPassword" name="CurrentPassword" autocomplete="current-password" required />
+        <label for="Code">Code from authenticator</label>
+        <input id="Code" name="Code" type="text" inputmode="numeric" autocomplete="one-time-code"
+               minlength="6" maxlength="12" required />
+        <button type="submit">Enable two-factor authentication</button>
+    </form>
+    <p class="hint">After activation, save your recovery codes and sign in again.</p>
+</section>

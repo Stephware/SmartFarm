@@ -1,0 +1,22 @@
+@{
+    ViewData["Title"] = "Admin overview";
+}
+<section class="panel admin-hero" aria-labelledby="admin-heading">
+    <p class="sf-kicker">ANIGO PLATFORM</p>
+    <h1 id="admin-heading">Super Admin workspace</h1>
+    <p class="sf-muted">Your account has verified authenticator-based two-factor authentication.
+        Platform administration is separate from farm-owner and manager permissions.</p>
+    <div class="admin-security-check">
+        <strong>Protected session active</strong>
+        <p>Additional tools for account support, farm directories, worker diagnostics,
+            and audit review will be added in subsequent phases.</p>
+    </div>
+</section>
+<section class="panel" aria-labelledby="foundation-heading">
+    <h2 id="foundation-heading">Security foundation</h2>
+    <div class="admin-feature-grid">
+        <article><strong>Platform-only access</strong><p>Super Admin roles are not farm memberships.</p></article>
+        <article><strong>Authenticator required</strong><p>Access to this workspace requires a verified second factor.</p></article>
+        <article><strong>Audit-ready operations</strong><p>Privileged actions have a dedicated, append-only audit record.</p></article>
+    </div>
+</section>

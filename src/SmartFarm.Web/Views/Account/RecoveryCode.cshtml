@@ -1,0 +1,17 @@
+@model SmartFarm.Web.ViewModels.Auth.AdminRecoveryInput
+@{
+    ViewData["Title"] = "Recovery code sign in";
+}
+<section class="panel narrow admin-login-panel" aria-labelledby="recovery-heading">
+    <p class="sf-kicker">ACCOUNT RECOVERY</p>
+    <h1 id="recovery-heading">Use a recovery code</h1>
+    <p>Use one of your saved recovery codes. Each code works only once.</p>
+    <form asp-action="RecoveryCode" method="post">
+        <div asp-validation-summary="All" class="validation-summary" role="alert"></div>
+        <input asp-for="ReturnUrl" type="hidden" />
+        <label asp-for="Code">Recovery code</label>
+        <input asp-for="Code" autocomplete="off" maxlength="32" required />
+        <button type="submit">Verify recovery code</button>
+    </form>
+    <p><a asp-action="TwoFactor" asp-route-returnUrl="@Model.ReturnUrl">Use my authenticator instead</a></p>
+</section>

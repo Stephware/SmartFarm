@@ -29,6 +29,11 @@
     <div class="sf-account-link-grid">
         <a asp-controller="Farms" asp-action="Index"><strong>My farms</strong><span>Open your farms or request access →</span></a>
         <a asp-controller="Notifications" asp-action="Index"><strong>Notifications</strong><span>Read farm reminders and advisories →</span></a>
+        @if (User.IsInRole("SuperAdmin"))
+        {
+            <a asp-area="Admin" asp-controller="Dashboard" asp-action="Index">
+                <strong>Super Admin</strong><span>Open the secure platform workspace →</span></a>
+        }
         <a asp-controller="Home" asp-action="Index"><strong>About AniGo</strong><span>Review the farm management tools →</span></a>
     </div>
 </section>

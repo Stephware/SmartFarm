@@ -1,7 +1,7 @@
 /*
   SmartFarm — Initial SQL Server schema (manual SQL-first initialization)
   Run ONLY on a new, empty SmartFarmDB database in DBeaver.
-  Includes 7 ASP.NET Core Identity tables + 17 SmartFarm business tables.
+  Includes 7 ASP.NET Core Identity tables + 17 SmartFarm business tables + admin audit.
 
   IMPORTANT FOR EF CORE:
   This SQL does not insert __EFMigrationsHistory entries. Do not later run a
@@ -524,6 +524,24 @@ BEGIN TRY
     CREATE INDEX IX_SyncOperation_Farm_Received ON dbo.SyncOperation(FarmId, ReceivedAtUtc);
     CREATE INDEX IX_SyncOperation_User ON dbo.SyncOperation(UserId);
 
+    /* SECURITY: APPEND-ONLY SUPER ADMIN AUDIT */
+    CREATE TABLE dbo.AdminAuditLog (
+        Id UNIQUEIDENTIFIER NOT NULL,
+        ActorUserId UNIQUEIDENTIFIER NULL,
+        ActorSource NVARCHAR(40) NOT NULL,
+        Action NVARCHAR(100) NOT NULL,
+        TargetType NVARCHAR(80) NOT NULL,
+        TargetId UNIQUEIDENTIFIER NULL,
+        Reason NVARCHAR(300) NULL,
+        OccurredAtUtc DATETIME2(3) NOT NULL
+            CONSTRAINT DF_AdminAuditLog_OccurredAt DEFAULT (SYSUTCDATETIME()),
+        CONSTRAINT PK_AdminAuditLog PRIMARY KEY (Id),
+        CONSTRAINT FK_AdminAuditLog_Actor FOREIGN KEY (ActorUserId)
+            REFERENCES dbo.AspNetUsers(Id) ON DELETE NO ACTION
+    );
+    CREATE INDEX IX_AdminAuditLog_OccurredAt ON dbo.AdminAuditLog(OccurredAtUtc);
+    CREATE INDEX IX_AdminAuditLog_Actor_Date ON dbo.AdminAuditLog(ActorUserId, OccurredAtUtc);
+
     COMMIT TRANSACTION;
 END TRY
 BEGIN CATCH
@@ -535,4 +553,4 @@ SELECT N'SmartFarm schema created' AS Message,
        COUNT(*) AS TableCount
 FROM sys.tables
 WHERE schema_id = SCHEMA_ID(N'dbo');
--- Expected: 24 tables (7 Identity + 17 SmartFarm).
+-- Expected: 25 tables (7 Identity + 17 farm + 1 audit).

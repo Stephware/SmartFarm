@@ -44,12 +44,12 @@ public sealed class SchemaModelTests
     {
         using var context = new SmartFarmDbContextFactory().CreateDbContext([]);
         var entities = context.GetService<IDesignTimeModel>().Model.GetEntityTypes().ToArray();
-        Assert.Equal(25, entities.Length); // Includes seven Identity tables and optional finance ledger.
-        Assert.Equal(219, entities.Sum(entity => entity.GetProperties().Count())); // Includes 13 finance ledger columns.
-        Assert.Equal(47, entities.Sum(entity => entity.GetForeignKeys().Count()));
-        Assert.Equal(52, entities.Sum(entity => entity.GetIndexes().Count()));
+        Assert.Equal(26, entities.Length); // Includes Identity, finance and admin audit.
+        Assert.Equal(227, entities.Sum(entity => entity.GetProperties().Count())); // Includes eight audit columns.
+        Assert.Equal(48, entities.Sum(entity => entity.GetForeignKeys().Count()));
+        Assert.Equal(54, entities.Sum(entity => entity.GetIndexes().Count()));
         Assert.Equal(42, entities.Sum(entity => entity.GetCheckConstraints().Count()));
-        Assert.Equal(34, entities.SelectMany(entity => entity.GetProperties()).Count(property =>
+        Assert.Equal(35, entities.SelectMany(entity => entity.GetProperties()).Count(property =>
             property.GetDefaultValueSql() is not null || property.TryGetDefaultValue(out _)));
         Assert.All(entities, entity => Assert.Equal("dbo", entity.GetSchema()));
     }
@@ -96,7 +96,7 @@ public sealed class SchemaModelTests
         using var context = new SmartFarmDbContextFactory().CreateDbContext([]);
         Assert.False(context.Database.HasPendingModelChanges());
         var assembly = context.GetService<IMigrationsAssembly>();
-        Assert.Equal(4, assembly.Migrations.Count);
+        Assert.Equal(5, assembly.Migrations.Count);
         var migrationType = assembly.Migrations.Single(entry => entry.Key.EndsWith("_ExistingSchemaBaseline", StringComparison.Ordinal)).Value;
         var migration = assembly.CreateMigration(migrationType, context.Database.ProviderName!);
         Assert.Empty(migration.UpOperations);

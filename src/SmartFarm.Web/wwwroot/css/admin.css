@@ -1,0 +1,34 @@
+/* Super Admin inherits AniGo's PR #86 palette, sidebar and responsive shell. */
+.admin-shell .sidebar { min-height: 100vh; }
+.admin-shell .sidebar a { text-decoration: none; }
+.admin-shell .admin-nav-hint { padding: 14px 12px; color: #b3cdbd; font-size: 12px; line-height: 1.6; }
+.admin-hero { margin-bottom: 20px; }
+.admin-hero > h1, .admin-security-setup > h1 { margin: 8px 0 12px; }
+.admin-security-check { margin-top: 20px; padding: 18px 20px; background: var(--green-soft);
+    border: 1px solid var(--stroke); border-radius: var(--radius-md); }
+.admin-security-check p { margin-bottom: 0; }
+.admin-feature-grid { display: grid; grid-template-columns: repeat(3, minmax(0,1fr)); gap: 14px; margin-top: 18px; }
+.admin-feature-grid article { background: var(--soft); border: 1px solid var(--stroke);
+    border-radius: var(--radius-md); padding: 17px; }
+.admin-feature-grid article p { color: var(--muted); }
+.admin-security-setup { max-width: 660px; }
+.admin-security-setup form { display: grid; gap: 10px; margin-top: 20px; }
+.admin-security-setup form input { max-width: 430px; }
+.admin-security-setup form button { justify-self: start; margin-top: 10px; }
+.admin-secret { display: grid; gap: 8px; padding: 18px; background: var(--soft);
+    border: 1px solid var(--stroke); border-radius: var(--radius-md); overflow-wrap: anywhere; }
+.admin-secret > span { color: var(--muted); font-size: 12px; }
+.admin-secret code { font-size: 17px; font-weight: 750; letter-spacing: .08em; white-space: normal; }
+.admin-recovery-list { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 10px;
+    list-style: none; padding: 0; margin: 20px 0; }
+.admin-recovery-list li { padding: 12px; border-radius: var(--radius-sm); background: var(--soft); }
+.admin-login-panel { margin: 30px auto; }
+.admin-login-panel form { display: grid; gap: 8px; margin-top: 20px; }
+@media (max-width: 760px) {
+    .admin-shell .sidebar { min-height: unset; }
+    .admin-feature-grid { grid-template-columns: 1fr; }
+}
+@media (max-width: 500px) {
+    .admin-recovery-list { grid-template-columns: 1fr; }
+    .admin-security-setup form button { width: 100%; }
+}

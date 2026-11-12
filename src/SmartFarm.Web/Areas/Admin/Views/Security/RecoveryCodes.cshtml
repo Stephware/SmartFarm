@@ -1,0 +1,18 @@
+@model string[]
+@{
+    ViewData["Title"] = "Save recovery codes";
+}
+<section class="panel admin-security-setup" aria-labelledby="codes-title">
+    <p class="sf-kicker">ONE-TIME DISPLAY</p>
+    <h1 id="codes-title">Save your recovery codes</h1>
+    <p>Authenticator protection is enabled. Each recovery code can be used once
+       if you lose access to your authenticator. These codes will not be shown again.</p>
+    <ul class="admin-recovery-list">
+    @foreach (var code in Model)
+    {
+        <li><code>@code</code></li>
+    }
+    </ul>
+    <p class="hint">Store them securely outside this browser. Your previous session has been signed out.</p>
+    <a class="button" asp-area="" asp-controller="Account" asp-action="Login">Sign in with two-factor authentication</a>
+</section>

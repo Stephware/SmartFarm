@@ -53,6 +53,11 @@
                        aria-current="@(currentController == "Notifications" ? "page" : null)">
                         <partial name="_Icon" model='@("bell")' /><span>Notifications</span>
                     </a>
+                    @if (User.IsInRole("SuperAdmin"))
+                    {
+                        <a class="nav-link" asp-area="Admin" asp-controller="Dashboard" asp-action="Index"
+                           aria-label="Super Admin portal"><partial name="_Icon" model='@("settings")' /><span>Super Admin</span></a>
+                    }
                     <a class="nav-link" asp-controller="Account" asp-action="Profile" data-nav-icon="account"
                        aria-current="@(currentController == "Account" ? "page" : null)">
                         <partial name="_Icon" model='@("settings")' /><span>Account &amp; settings</span>
@@ -89,6 +94,10 @@
                         <a asp-controller="Farms" asp-action="Index">My farms</a>
                         <a asp-controller="Notifications" asp-action="Index">Notifications</a>
                         <a asp-controller="Account" asp-action="Profile">Account &amp; settings</a>
+                        @if (User.IsInRole("SuperAdmin"))
+                        {
+                            <a asp-area="Admin" asp-controller="Dashboard" asp-action="Index">Super Admin</a>
+                        }
                         <form method="post" asp-controller="Account" asp-action="Logout" class="logout-form"><button type="submit" class="link-button">Log out</button></form>
                     </nav>
                 </details>

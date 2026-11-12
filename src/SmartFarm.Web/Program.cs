@@ -13,6 +13,9 @@ using SmartFarm.Infrastructure.Identity;
 using SmartFarm.Web.HealthChecks;
 using SmartFarm.Infrastructure.Services.Monitoring;
 using SmartFarm.Infrastructure.Security;
+using SmartFarm.Web.Authentication;
+using SmartFarm.Infrastructure.Services.Admin;
+using Microsoft.AspNetCore.Identity;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -22,6 +25,8 @@ builder.Services.AddEnrollmentRateLimiting();
 builder.Services.AddSmartFarmPersistence(
     builder.Configuration.GetConnectionString("SmartFarm"));
 builder.Services.AddSmartFarmWebIdentity(builder.Environment);
+builder.Services.AddSuperAdminSecurity();
+builder.Services.AddScoped<AdminAuditWriter>();
 builder.Services.AddScoped<AccountRegistrationService>();
 
 // MVC and API run independently using the same Infrastructure business services.
@@ -50,6 +55,13 @@ if (builder.Environment.IsDevelopment())
 }
 
 var app = builder.Build();
+
+// Explicit one-time local operator action. Never seed admins from public registration.
+if (args.Length > 0 && args[0] == "--provision-super-admin")
+{
+    await SuperAdminProvisioner.RunAsync(app.Services, args);
+    return;
+}
 
 if (!app.Environment.IsDevelopment())
 {
@@ -81,6 +93,8 @@ if (app.Environment.IsDevelopment())
 }
 
 app.MapControllers();
+// Admin controllers use explicit attribute routes; do not let area routes
+// generate /admin/* URLs for ordinary farm controllers.
 app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Home}/{action=Index}/{id?}");
