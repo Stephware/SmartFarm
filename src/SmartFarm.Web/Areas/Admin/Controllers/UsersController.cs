@@ -61,7 +61,7 @@ public sealed class UsersController(
     [EnableRateLimiting(EnrollmentRateLimiting.AdminActions)]
     public async Task<IActionResult> ChangeStatus(
         Guid id, [FromForm] bool disable, [FromForm] string? reason,
-        CancellationToken ct)
+        [FromForm] string? currentPassword, CancellationToken ct)
     {
         var actor = await users.GetUserAsync(User);
         if (actor is null || actor.DisabledAtUtc is not null) return Forbid();
