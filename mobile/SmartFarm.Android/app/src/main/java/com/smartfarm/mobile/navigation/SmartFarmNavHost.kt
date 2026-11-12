@@ -427,7 +427,8 @@ fun SmartFarmNavHost(auth: AuthViewModel, farms: FarmViewModel, crops: CropViewM
                 },
                 onReverse = { transactionId, reason -> inventory.reverse(transactionId, reason) },
                 pending = pending, onSync = { navController.navigate("sync") },
-                onRetry = { inventory.loadItem(farmId, itemId) })
+                onRetry = { inventory.loadItem(farmId, itemId) },
+                farmTimeZone = farmState.selected?.takeIf { it.id == farmId }?.timeZoneId)
         }
         composable("insights/{farmId}") { entry ->
             val farmId = entry.arguments?.getString("farmId").orEmpty()
@@ -452,7 +453,9 @@ fun SmartFarmNavHost(auth: AuthViewModel, farms: FarmViewModel, crops: CropViewM
                 onRecord = { quantity, notes -> harvests.record(quantity, notes) },
                 onVoid = { harvestId, reason -> harvests.void(harvestId, reason) },
                 pending = pending, onSync = { navController.navigate("sync") },
-                onRetry = { harvests.load(farmId, cycleId) }
+                onRetry = { harvests.load(farmId, cycleId) },
+                farmTimeZone = farms.state.collectAsStateWithLifecycle().value.selected
+                    ?.takeIf { it.id == farmId }?.timeZoneId
             )
         }
     }

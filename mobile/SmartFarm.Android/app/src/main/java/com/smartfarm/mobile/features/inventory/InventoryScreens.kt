@@ -4,11 +4,15 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.FilterChip
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.TextButton
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.OutlinedCard
 import androidx.compose.ui.platform.testTag
@@ -51,6 +55,7 @@ import com.smartfarm.mobile.data.local.entity.PendingOperation
 import com.smartfarm.mobile.ui.components.PendingRecords
 import com.smartfarm.mobile.ui.components.OfflineDataNotice
 import com.smartfarm.mobile.ui.components.ConfirmActionButton
+import com.smartfarm.mobile.ui.components.farmDateTime
 
 @Composable
 private fun Feedback(state: InventoryUiState, onRetry: () -> Unit) {
@@ -81,6 +86,7 @@ fun InventoryListScreen(
     var creating by rememberSaveable(state.farmId) { mutableStateOf(false) }
     var search by rememberSaveable(state.farmId) { mutableStateOf("") }
     var filter by rememberSaveable(state.farmId) { mutableStateOf("all") }
+    var categoryMenu by rememberSaveable(state.farmId) { mutableStateOf(false) }
     val visibleItems = inventoryVisibleItems(state.workspace.items, filter, search)
     val openingValid = opening.trim().toBigDecimalOrNull()?.let {
         it >= BigDecimal.ZERO && it.stripTrailingZeros().scale() <= 3 &&
@@ -119,14 +125,29 @@ fun InventoryListScreen(
                 OutlinedTextField(search, { search = it },
                     label = { Text("Find a supply") }, singleLine = true,
                     placeholder = { Text("Search by name") }, modifier = Modifier.fillMaxWidth())
-                Row(Modifier.horizontalScroll(rememberScrollState()),
-                    horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    listOf("all" to "All", "low" to "Low stock", "seeds" to "Seeds",
-                        "fertilizers" to "Fertilizers", "pesticides" to "Pesticides", "other" to "Other")
-                        .forEach { (key, label) ->
-                            FilterChip(selected = filter == key, onClick = { filter = key },
-                                label = { Text(label) })
+                Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    FilterChip(selected = filter == "all", onClick = { filter = "all" },
+                        modifier = Modifier.weight(1f).defaultMinSize(minHeight = 48.dp),
+                        label = { Text("All supplies") })
+                    FilterChip(selected = filter == "low", onClick = { filter = "low" },
+                        modifier = Modifier.weight(1f).defaultMinSize(minHeight = 48.dp),
+                        label = { Text("Low stock") })
+                }
+                Column {
+                    OutlinedButton(onClick = { categoryMenu = true },
+                        modifier = Modifier.fillMaxWidth().defaultMinSize(minHeight = 48.dp)) {
+                        Text(if (filter in listOf("seeds", "fertilizers", "pesticides", "other"))
+                            "Category: ${filter.replaceFirstChar { it.uppercase() }}"
+                            else "Filter by supply category")
+                    }
+                    DropdownMenu(expanded = categoryMenu, onDismissRequest = { categoryMenu = false }) {
+                        listOf("seeds" to "Seeds", "fertilizers" to "Fertilizers",
+                            "pesticides" to "Pesticides", "other" to "Other").forEach { (key, label) ->
+                            DropdownMenuItem(text = { Text(label) }, onClick = {
+                                filter = key; categoryMenu = false
+                            })
                         }
+                    }
                 }
                 Text("${visibleItems.size} of ${state.workspace.items.size} supplies shown",
                     style = MaterialTheme.typography.bodySmall,
@@ -205,7 +226,8 @@ fun InventoryItemScreen(
     onReverse: (String, String) -> Unit,
     pending: List<PendingOperation> = emptyList(),
     onSync: () -> Unit = {},
-    onRetry: () -> Unit = {}
+    onRetry: () -> Unit = {},
+    farmTimeZone: String? = null
 ) {
     val item = state.item
     var name by rememberSaveable(item?.id) { mutableStateOf(item?.name.orEmpty()) }
@@ -213,10 +235,13 @@ fun InventoryItemScreen(
     var unit by rememberSaveable(item?.id) { mutableStateOf(item?.unit.orEmpty()) }
     var description by rememberSaveable(item?.id) { mutableStateOf(item?.description.orEmpty()) }
     var reorder by rememberSaveable(item?.id) { mutableStateOf(item?.reorderLevel?.toPlainString().orEmpty()) }
-    var movementType by rememberSaveable { mutableStateOf(if (canManage) 2 else 3) }
-    var amount by rememberSaveable { mutableStateOf("") }
-    var reason by rememberSaveable { mutableStateOf("") }
-    var selectedActivity by rememberSaveable { mutableStateOf<String?>(null) }
+    var movementType by rememberSaveable(item?.id) { mutableStateOf(3) }
+    var amount by rememberSaveable(item?.id) { mutableStateOf("") }
+    var reason by rememberSaveable(item?.id) { mutableStateOf("") }
+    var selectedActivity by rememberSaveable(item?.id) { mutableStateOf<String?>(null) }
+    var activityMenu by rememberSaveable(item?.id) { mutableStateOf(false) }
+    var showAllMovements by rememberSaveable(item?.id) { mutableStateOf(false) }
+    var historyFilter by rememberSaveable(item?.id) { mutableStateOf("all") }
 
     var editingDetails by rememberSaveable(item?.id) { mutableStateOf(false) }
     val receipt = state.saveReceipts["${state.farmId}/${state.itemId}"]
@@ -278,78 +303,180 @@ fun InventoryItemScreen(
                 }
             if (item.archivedAtUtc == null) {
                 HorizontalDivider()
-                FarmSectionHeader("Stock movement",
-                    "Record a receipt, supply use, or adjustment. Saved offline entries are not yet confirmed by the server.")
-                Row(Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()),
-                    horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    (if (canManage) listOf(2 to "Receipt +", 3 to "Consumption −", 4 to "Adjustment ±")
-                    else listOf(3 to "Consumption −")).forEach { (type, label) ->
-                        FilterChip(selected = movementType == type, onClick = {
-                            movementType = type
-                            selectedActivity = null
-                            amount = ""
-                        }, enabled = !state.busy, label = { Text(label) })
+                FarmSectionHeader("Update stock",
+                    "Choose what happened to this supply. Every saved change syncs from your phone.")
+                Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    FilterChip(selected = movementType == 3, onClick = {
+                        movementType = 3; amount = ""; selectedActivity = null
+                    }, modifier = Modifier.weight(1f).defaultMinSize(minHeight = 48.dp),
+                        enabled = !state.busy, label = { Text("Use supplies") })
+                    if (canManage) {
+                        FilterChip(selected = movementType == 2, onClick = {
+                            movementType = 2; amount = ""; selectedActivity = null
+                        }, modifier = Modifier.weight(1f).defaultMinSize(minHeight = 48.dp),
+                            enabled = !state.busy, label = { Text("Add stock") })
                     }
                 }
-                val amountValid = runCatching { inventoryMovementQuantity(movementType, amount.trim()) }.isSuccess
+                if (canManage) {
+                    OutlinedButton(onClick = {
+                        movementType = 4; amount = ""; selectedActivity = null
+                    }, enabled = !state.busy,
+                        modifier = Modifier.fillMaxWidth().defaultMinSize(minHeight = 48.dp)) {
+                        Text(if (movementType == 4) "✓ Correct stock (selected)" else "Correct stock count")
+                    }
+                }
+                val projected = inventoryBalancePreview(item.quantityOnHand, movementType, amount)
+                val delta = if (movementType == 4)
+                    inventoryCorrectionDelta(item.quantityOnHand, amount) else null
                 OutlinedTextField(amount, { amount = it }, enabled = !state.busy,
-                    isError = amount.isNotBlank() && !amountValid,
-                    label = { Text(if (movementType == 4) "Adjustment (+/- ${item.unit})" else "Quantity (${item.unit})") },
-                    singleLine = true,
+                    isError = amount.isNotBlank() && projected == null,
+                    label = { Text(when (movementType) {
+                        2 -> "Quantity received (${item.unit})"
+                        3 -> "Quantity used (${item.unit})"
+                        else -> "Correct total stock (${item.unit})"
+                    }) },
+                    placeholder = { Text(if (movementType == 4) "Count all stock on hand" else "Example: 1.5") },
+                    singleLine = true, modifier = Modifier.fillMaxWidth(),
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal))
-                if (amount.isNotBlank() && !amountValid)
-                    Text("Enter a valid nonzero quantity with no more than 3 decimals.",
-                        style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.error)
-                Text(if (movementType == 3) "Enter the positive amount used; it will be subtracted from stock." else if (movementType == 2) "Enter the positive amount received." else "Positive adds stock; negative removes stock.")
-                if (movementType == 3) {
-                    Text("Choose the related active-crop activity:")
-                    state.activities.forEach { activity ->
-                        FilterChip(selected = selectedActivity == activity.id, onClick = { selectedActivity = activity.id },
-                        enabled = !state.busy, label = { Text(activity.label) })
+                if (amount.isNotBlank()) {
+                    if (projected == null) {
+                        Text(if (movementType == 3)
+                            "Enter a valid amount no greater than the confirmed available stock."
+                            else if (movementType == 4)
+                                "Enter a different, nonnegative stock total (up to 3 decimal places)."
+                            else "Enter a positive amount with at most 3 decimal places.",
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.error)
+                    } else {
+                        FarmSectionCard("Stock balance preview",
+                            subtitle = "Confirmed stock only; pending changes are not included.") {
+                            Text("Current: ${item.quantityOnHand.toPlainString()} ${item.unit}",
+                                style = MaterialTheme.typography.bodyMedium)
+                            Text("After sync: ${projected.toPlainString()} ${item.unit}",
+                                style = MaterialTheme.typography.titleMedium)
+                            if (movementType == 4 && delta != null) {
+                                Text("Correction: ${if (delta.signum() > 0) "+" else ""}${delta.toPlainString()} ${item.unit}")
+                            }
+                        }
                     }
                 }
-                OutlinedTextField(reason, { reason = it }, enabled = !state.busy, label = { Text("Reason (required for adjustments)") })
+                if (movementType == 3) {
+                    Text("Which recorded crop activity used this supply?",
+                        style = MaterialTheme.typography.titleSmall)
+                    if (state.activities.isEmpty()) {
+                        FarmEmptyState("No activities to link",
+                            "Record the crop activity first, then return here to use supplies.")
+                    } else {
+                        val chosen = state.activities.firstOrNull { it.id == selectedActivity }
+                        OutlinedButton(onClick = { activityMenu = true }, enabled = !state.busy,
+                            modifier = Modifier.fillMaxWidth().defaultMinSize(minHeight = 48.dp)) {
+                            Text(chosen?.label ?: "Choose recorded activity")
+                        }
+                        DropdownMenu(expanded = activityMenu,
+                            onDismissRequest = { activityMenu = false }) {
+                            state.activities.forEach { activity ->
+                                DropdownMenuItem(text = { Text(activity.label) }, onClick = {
+                                    selectedActivity = activity.id; activityMenu = false
+                                })
+                            }
+                        }
+                    }
+                }
+                if (movementType == 4) {
+                    Text("Use this only to fix a physical count or recording mistake.",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant)
+                }
+                if (movementType == 4 || movementType == 2) {
+                    OutlinedTextField(reason, { reason = it }, enabled = !state.busy,
+                        label = { Text(if (movementType == 4) "Reason for correction" else "Notes (optional)") },
+                        modifier = Modifier.fillMaxWidth())
+                }
                 Button(onClick = {
-                    onMovement(movementType, amount,
-                        if (movementType == 3) selectedActivity else null, reason)
-                }, enabled = !state.busy && amountValid &&
+                    val savedAmount = if (movementType == 4) delta?.toPlainString() else amount.trim()
+                    if (savedAmount != null) onMovement(
+                        movementType, savedAmount,
+                        if (movementType == 3) selectedActivity else null,
+                        if (movementType == 3) "" else reason.trim()
+                    )
+                }, enabled = !state.busy && projected != null &&
                     (movementType != 3 || selectedActivity != null) &&
                     (movementType != 4 || reason.trim().length in 3..300),
-                    modifier = Modifier.fillMaxWidth()) {
+                    modifier = Modifier.fillMaxWidth().defaultMinSize(minHeight = 48.dp)) {
                     Text(when (movementType) {
-                        2 -> "Record received stock"
-                        3 -> "Record supply use"
-                        else -> "Save stock adjustment"
+                        2 -> "Save received stock"
+                        3 -> "Save supply use"
+                        else -> "Save corrected count"
                     })
                 }
-                Text("Saved on this device first. Stock totals update after server confirmation.",
+                Text("Saved on this phone first. The balance changes only after server confirmation.",
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant)
             }
             HorizontalDivider()
-            FarmSectionHeader("Transaction history", "Existing stock movements and queued local changes.")
+            FarmSectionHeader("Stock history", "Confirmed movements are separate from records saved on this phone.")
             PendingRecords(pending, state.farmId, state.itemId,
                 setOf("inventory"), onSync)
+            Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                OutlinedButton(onClick = { showAllMovements = !showAllMovements },
+                    modifier = Modifier.weight(1f)) {
+                    Text(if (showAllMovements) "Show recent" else "Show all history")
+                }
+            }
+            if (showAllMovements) {
+                Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                    listOf("all" to "All", "received" to "Added",
+                        "used" to "Used", "corrected" to "Other").forEach { (key, label) ->
+                        FilterChip(selected = historyFilter == key,
+                            onClick = { historyFilter = key },
+                            modifier = Modifier.weight(1f), label = { Text(label) })
+                    }
+                }
+            }
         }
             }
         }
-        if (item != null) items(state.transactions, key = { "transaction-${it.id}" }) { transaction ->
-            var reversalReason by rememberSaveable(transaction.id) { mutableStateOf("") }
-                val type = when (transaction.transactionType) {
-                    1 -> "Opening"; 2 -> "Receipt"; 3 -> "Consumption"
-                    4 -> "Adjustment"; else -> "Reversal"
+        if (item != null) {
+            val filtered = state.transactions.filter { entry ->
+                when (historyFilter) {
+                    "received" -> entry.transactionType == 2
+                    "used" -> entry.transactionType == 3
+                    "corrected" -> entry.transactionType !in 2..3
+                    else -> true
                 }
-                FarmSectionCard(type, subtitle = "Recorded ${transaction.occurredAtUtc} UTC") {
-                Text("${transaction.quantityChange} ${item.unit}", style = MaterialTheme.typography.titleLarge)
-                transaction.reason?.let { Text(it, style = MaterialTheme.typography.bodyMedium) }
-                if (canManage && !state.offline && item.archivedAtUtc == null &&
-                    transaction.transactionType != 5 && transaction.id !in reversedIds) {
-                    OutlinedTextField(reversalReason, { reversalReason = it }, enabled = !state.busy,
-                        label = { Text("Reversal reason") })
-                    ConfirmActionButton("Reverse this transaction",
-                        "Reverse ${transaction.quantityChange} ${item.unit} for ${item.name}? This changes the stock balance.",
-                        enabled = !state.busy && reversalReason.trim().length >= 3,
-                        onConfirm = { onReverse(transaction.id, reversalReason) })
+            }.sortedByDescending { it.occurredAtUtc }
+                .let { if (showAllMovements) it else it.take(5) }
+            if (filtered.isEmpty()) item(key = "history-empty") {
+                FarmEmptyState("No movements to show",
+                    "Server-confirmed stock changes will appear here.")
+            }
+            items(filtered, key = { "transaction-${it.id}" }) { transaction ->
+                var reversalReason by rememberSaveable(transaction.id) { mutableStateOf("") }
+                var reviewReversal by rememberSaveable(transaction.id) { mutableStateOf(false) }
+                val type = when (transaction.transactionType) {
+                    1 -> "Opening stock"; 2 -> "Stock received"; 3 -> "Supplies used"
+                    4 -> "Stock correction"; else -> "Reversal"
+                }
+                FarmSectionCard(type,
+                    subtitle = farmDateTime(transaction.occurredAtUtc, farmTimeZone)) {
+                    Text("${if (transaction.quantityChange.signum() > 0) "+" else ""}${transaction.quantityChange.toPlainString()} ${item.unit}",
+                        style = MaterialTheme.typography.titleLarge)
+                    transaction.reason?.let { Text(it, style = MaterialTheme.typography.bodyMedium) }
+                    if (canManage && !state.offline && item.archivedAtUtc == null &&
+                        transaction.transactionType != 5 && transaction.id !in reversedIds) {
+                        TextButton(onClick = { reviewReversal = !reviewReversal }) {
+                            Text(if (reviewReversal) "Close correction" else "Review reversal")
+                        }
+                        if (reviewReversal) {
+                            OutlinedTextField(reversalReason, { reversalReason = it },
+                                enabled = !state.busy, label = { Text("Reason to reverse") },
+                                modifier = Modifier.fillMaxWidth())
+                            ConfirmActionButton("Reverse this transaction",
+                                "Reverse ${transaction.quantityChange} ${item.unit} for ${item.name}? This changes the stock balance.",
+                                enabled = !state.busy && reversalReason.trim().length in 3..300,
+                                onConfirm = { onReverse(transaction.id, reversalReason) })
+                        }
+                    }
                 }
             }
         }
