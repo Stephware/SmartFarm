@@ -122,8 +122,10 @@
     <section class="panel card sf-farm-members" aria-labelledby="members-heading">
         <div class="sf-section-line card-head">
             <div>
-                <h2 id="members-heading">Members</h2>
-                <p class="sf-muted">See who has access to this farm.</p>
+                <h2 id="members-heading">Farm team</h2>
+                <p class="sf-muted">Members with access to this farm and their roles.</p>
+                @if (isOwner && Model.Enrollment is not null)
+                { <a class="ani-team-review-link" href="#join-requests-heading">Share code &amp; review requests →</a> }
             </div>
         </div>
         <ul class="sf-member-list">

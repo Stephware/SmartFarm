@@ -3,13 +3,14 @@
     ViewData["Title"] = "Announcements";
 }
 <div class="page-heading sf-announcement-heading">
-    <div><p class="sf-kicker">ANIGO UPDATES</p><h1>Announcements</h1>
-        <p class="sf-muted">Important news, service notices, and updates from the AniGo team.</p></div>
+    <div><p class="ani-overline">Platform updates</p><h1>Announcements</h1>
+        <p class="sf-muted">Read notices about AniGo service, updates, and planned changes. These are platform announcements—not farm task reminders.</p></div>
 </div>
 <section class="panel sf-announcement-panel" aria-label="Latest announcements">
     @if (Model.Announcements.Count == 0) {
-        <div class="sf-empty-state"><strong>No announcements right now.</strong>
-            <p>Updates from the platform team will appear here when available.</p></div>
+        <div class="sf-empty-state"><strong>Nothing new to announce.</strong>
+            <p>Platform updates will appear here when published. For farm reminders, open Notifications.</p>
+            <a asp-controller="Notifications" asp-action="Index">View notifications →</a></div>
     } else {
         <div class="sf-announcement-list">
             @foreach (var announcement in Model.Announcements) {

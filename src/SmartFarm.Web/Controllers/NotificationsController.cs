@@ -19,9 +19,12 @@ public sealed class NotificationsController(
         View(await tasks.NotificationsAsync(Actor, ct));
 
     [HttpPost, ValidateAntiForgeryToken]
-    public async Task<IActionResult> Read(Guid id, CancellationToken ct)
+    public async Task<IActionResult> Read(Guid id, CancellationToken ct, string? returnView = null)
     {
         await tasks.MarkNotificationReadAsync(Actor, id, ct);
-        return RedirectToAction(nameof(Index));
+        TempData["Message"] = "Notification marked as read.";
+        return returnView == "unread"
+            ? RedirectToAction(nameof(Index), new { view = "unread" })
+            : RedirectToAction(nameof(Index));
     }
 }

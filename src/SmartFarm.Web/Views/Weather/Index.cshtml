@@ -4,8 +4,11 @@
     ViewData["Title"] = "Farm weather";
     // Saved weather updates are normally checked every six hours. Two missed updates warrant a warning.
     var nowUtc = DateTime.UtcNow;
-    var stale = Model.Days.Any(day => day.RetrievedAtUtc < nowUtc.AddHours(-12)
-        || day.RetrievedAtUtc > nowUtc.AddMinutes(5));
+    var lastChecked = Model.Days.Count == 0 ? (DateTime?)null :
+        Model.Days.Max(day => day.RetrievedAtUtc);
+    // Freshness follows the newest saved retrieval, rather than a single old row.
+    var stale = lastChecked is { } checkedAt &&
+        (checkedAt < nowUtc.AddHours(-12) || checkedAt > nowUtc.AddMinutes(5));
     var activeAdvisories = Model.Advisories.Where(a => a.Status == 0).ToList();
     DateOnly? farmToday = null;
     try
@@ -26,8 +29,13 @@
         <div>
             <p><a asp-controller="Farms" asp-action="Details" asp-route-id="@Model.FarmId">← Back to farm</a></p>
 
+            <p class="ani-overline">Farm conditions</p>
             <h1 id="weather-heading">Farm weather</h1>
-            <p class="sf-muted">Forecast dates use @Model.TimeZoneId. This page displays saved forecasts, not live observations.</p>
+            <p class="sf-muted">Plan fieldwork with the last saved forecast. Dates follow @Model.TimeZoneId; this is not a live weather feed.</p>
+            <p class="ani-weather-freshness">
+                <strong>Last checked:</strong> @(lastChecked?.ToString("MMM d, yyyy HH:mm") ?? "Not yet available")@(lastChecked.HasValue ? " UTC" : "")
+                · <span>@(Model.Days.Count == 0 ? "No weather data saved" : stale ? "Saved forecast may be outdated" : "Recently saved forecast")</span>
+            </p>
             <nav class="ani-insight-links" aria-label="Weather page sections">
                 <a href="#saved-forecast">Saved forecast</a>
                 <a href="#weather-alerts-heading">Advisories (@activeAdvisories.Count)</a>
@@ -41,15 +49,15 @@
     {
         <div class="sf-empty-state">
             <h2>Weather is not enabled for this farm</h2>
-            <p>An owner or manager must add its latitude and longitude in Edit farm.</p>
-            <a asp-controller="Farms" asp-action="Details" asp-route-id="@Model.FarmId">Return to farm overview →</a>
+            <p>The farm needs a map pin before local forecasts can be saved. Ask the owner or manager to add an exact location under Edit farm.</p>
+            <a asp-controller="Farms" asp-action="Details" asp-route-id="@Model.FarmId">Go to farm settings →</a>
         </div>
     }
     else if (Model.Days.Count == 0)
     {
         <div class="sf-empty-state">
             <h2>No recent forecast is available</h2>
-            <p>Try again later, or ask your farm manager to check the weather settings.</p>
+            <p>No saved forecast is ready for this farm. Ask your farm manager to check the map pin and weather service; use official local forecasts for time-sensitive decisions.</p>
         </div>
     }
     else
@@ -58,7 +66,7 @@
         {
             <div class="sf-weather-stale" role="alert">
                 <strong>Weather data may be out of date.</strong>
-                <p>Weather data is over 12 hours old or has an invalid update time. Conditions and advisories may have changed. Check a current weather source.</p>
+                <p>The last saved weather check is over 12 hours old, or its update time is invalid. Conditions and advisories may have changed. Check an official current forecast before deciding on outdoor work.</p>
             </div>
         }
         <div class="reference-weather-overview">
@@ -89,7 +97,7 @@
                 </div>
                 <div class="sf-weather-temps">
                     <strong>@(day.MinTemperatureC?.ToString("0.#") ?? "—")–@(day.MaxTemperatureC?.ToString("0.#") ?? "—") °C</strong>
-                    <span>Forecast temperature range</span>
+                    <span>Forecast daily temperature range</span>
                 </div>
                 <dl class="sf-weather-facts">
                     <div><dt>Rainfall</dt><dd>@(day.RainfallMm?.ToString("0.#") ?? "—") mm</dd></div>
@@ -107,8 +115,8 @@
 <section class="panel card sf-weather-advisories ani-weather-advisories" aria-labelledby="weather-alerts-heading">
     <div class="sf-section-line card-head">
         <div>
-
-            <h2 id="weather-alerts-heading">Weather advisories</h2>
+            <h2 id="weather-alerts-heading">Saved weather advisories</h2>
+            <p class="sf-muted">These are saved farm-system advisories, not real-time emergency alerts.</p>
         </div>
         <span class="sf-status-chip @(activeAdvisories.Count > 0 ? "sf-status-chip--warning" : "sf-status-chip--neutral")">
             @activeAdvisories.Count active
@@ -117,8 +125,8 @@
     @if (activeAdvisories.Count == 0)
     {
         <div class="sf-empty-state">
-            <strong>No active warnings in the saved forecast.</strong>
-            <p>This does not rule out current hazards. Check official local weather updates when conditions are uncertain.</p>
+            <strong>No active saved advisories.</strong>
+            <p>This is not an all-clear for outdoor work. Check official local weather warnings before working during heavy rain, wind, or severe conditions.</p>
         </div>
     }
     else

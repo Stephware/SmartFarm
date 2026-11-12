@@ -15,6 +15,7 @@ using SmartFarm.Core.Contracts.Tasks;
 using SmartFarm.Core.Contracts.Weather;
 using SmartFarm.Core.Contracts.Monitoring;
 using SmartFarm.Core.Contracts.Harvests;
+using SmartFarm.Core.Contracts.Inventory;
 using SmartFarm.Core.Interfaces.Farms;
 using SmartFarm.Core.Interfaces.Reports;
 using SmartFarm.Core.Interfaces.Crops;
@@ -22,6 +23,7 @@ using SmartFarm.Core.Interfaces.Tasks;
 using SmartFarm.Core.Interfaces.Weather;
 using SmartFarm.Core.Interfaces.Monitoring;
 using SmartFarm.Core.Interfaces.Harvests;
+using SmartFarm.Core.Interfaces.Inventory;
 using SmartFarm.Core.Enums;
 using Xunit;
 
@@ -372,8 +374,10 @@ public sealed class FarmEnrollmentWebTests
         var path = $"/Tasks?farmId={FarmId}&view=mine";
         var html = await client.GetStringAsync(path);
         Assert.Contains("Assigned to me", html);
-        Assert.Contains("task-" + assigned.Id, html);
-        Assert.DoesNotContain("task-" + other.Id, html);
+        // The calendar intentionally links to all farm tasks, even when the
+        // selected list is filtered to only this worker's assignments.
+        Assert.Contains("id=\"task-" + assigned.Id + "\"", html);
+        Assert.DoesNotContain("id=\"task-" + other.Id + "\"", html);
         Assert.Contains("name=\"returnView\" value=\"mine\"", html);
         using var response = await client.PostAsync(
             $"/Tasks/Close?farmId={FarmId}&taskId={assigned.Id}",
@@ -448,6 +452,105 @@ public sealed class FarmEnrollmentWebTests
         {
             Assert.DoesNotContain("id=\"record-harvest\"", html);
             Assert.Contains("New harvests can only be recorded", html);
+        }
+    }
+
+
+    [Theory]
+    [InlineData("Owner", true)]
+    [InlineData("FieldWorker", false)]
+    public async Task InventoryLowStockAndMovementControlsRespectFarmRole(string role, bool canManage)
+    {
+        var itemId = Guid.NewGuid();
+        var item = new InventoryItemDetails(itemId, FarmId, "Rice seed", InventoryCategory.Seeds,
+            "kg", null, 2m, 5m, true, null, "version");
+        using var app = App(role: role, inventory: new InventoryWorkspace([item], 1), inventoryItem: item);
+        using var client = app.CreateClient();
+        var overview = await client.GetStringAsync($"/Inventory?farmId={FarmId}");
+        Assert.Contains("Needs restocking (1)", overview);
+        Assert.Contains("Rice seed", overview);
+        Assert.Contains("Low stock", overview);
+        if (canManage) Assert.Contains("Add supply", overview);
+        else Assert.DoesNotContain(">Add supply</a>", overview);
+        var details = await client.GetStringAsync($"/Inventory/Details?farmId={FarmId}&itemId={itemId}");
+        Assert.Contains("data-inventory-movement-form", details);
+        Assert.Contains("data-movement-kind", details);
+        Assert.Contains("data-movement-activity", details);
+        Assert.Contains("No recorded crop activity is available", details);
+        Assert.Contains("Current", details, StringComparison.OrdinalIgnoreCase);
+        if (canManage) Assert.Contains("Supplies arrived (add stock)", details);
+        else Assert.DoesNotContain("Supplies arrived (add stock)", details);
+    }
+
+    [Fact]
+    public async Task WeatherFreshnessUsesLatestSavedCheckWithoutClaimingLiveConditions()
+    {
+        var today = DateOnly.FromDateTime(DateTime.UtcNow);
+        var old = new WeatherDayDetails(today, 20m, 30m, null,
+            DateTime.UtcNow.AddHours(-24), "Open-Meteo", 35m, null);
+        var recent = old with { Date = today.AddDays(1), RetrievedAtUtc = DateTime.UtcNow.AddMinutes(-3) };
+        using var app = App(weather: new WeatherOverview(FarmId, true, "Asia/Manila", [old, recent], []));
+        using var client = app.CreateClient();
+        var html = await client.GetStringAsync($"/Weather?farmId={FarmId}");
+        Assert.Contains("Last checked:", html);
+        Assert.Contains("Recently saved forecast", html);
+        Assert.DoesNotContain("Weather data may be out of date", html);
+        Assert.Contains("not a live weather feed", html);
+    }
+
+    [Fact]
+    public async Task OldSavedWeatherDisplaysAnExplicitStaleWarning()
+    {
+        var day = new WeatherDayDetails(DateOnly.FromDateTime(DateTime.UtcNow),
+            24m, 32m, 12m, DateTime.UtcNow.AddHours(-16), "Open-Meteo", 45m, null);
+        using var app = App(weather: new WeatherOverview(FarmId, true, "Asia/Manila", [day], []));
+        using var client = app.CreateClient();
+        var html = await client.GetStringAsync($"/Weather?farmId={FarmId}");
+        Assert.Contains("Weather data may be out of date", html);
+        Assert.Contains("saved forecast", html, StringComparison.OrdinalIgnoreCase);
+    }
+
+    [Fact]
+    public async Task NotificationUnreadFilterAndReadActionKeepChosenView()
+    {
+        var unread = new NotificationDetails(Guid.NewGuid(), 1, "Check irrigation",
+            "The north field is due", Guid.NewGuid(), null, DateTime.UtcNow, null);
+        var read = new NotificationDetails(Guid.NewGuid(), 1, "Older weather reminder",
+            "Previous forecast", null, null, DateTime.UtcNow.AddDays(-2), DateTime.UtcNow.AddDays(-1));
+        using var app = App(notifications: [unread, read]);
+        using var client = app.CreateClient(new() { AllowAutoRedirect = false });
+        var html = await client.GetStringAsync("/Notifications?view=unread");
+        Assert.Contains("Check irrigation", html);
+        Assert.DoesNotContain("Older weather reminder", html);
+        Assert.Contains("name=\"returnView\" value=\"unread\"", html);
+        using var response = await client.PostAsync($"/Notifications/Read?id={unread.Id}",
+            Form(html, ("returnView", "unread")));
+        Assert.Equal(HttpStatusCode.Redirect, response.StatusCode);
+        Assert.Contains("view=unread", response.Headers.Location?.ToString());
+    }
+
+    [Theory]
+    [InlineData("Owner", true)]
+    [InlineData("FieldWorker", false)]
+    public async Task InviteAndApprovalControlsAppearOnlyForFarmOwner(string role, bool owner)
+    {
+        using var app = App(role);
+        using var client = app.CreateClient();
+        var html = await client.GetStringAsync($"/Farms/Details?id={FarmId}");
+        Assert.Contains("Farm team", html);
+        if (owner)
+        {
+            Assert.Contains("Invite &amp; approve team members", html);
+            Assert.Contains("Share farm joining code", html);
+            Assert.Contains("Pending requests", html);
+            Assert.Contains("Approve New Farmer", html);
+            Assert.Contains("Request history", html);
+            Assert.Contains("data-confirm=\"Reject the join request", html);
+        }
+        else
+        {
+            Assert.DoesNotContain("Invite &amp; approve team members", html);
+            Assert.DoesNotContain("Approve New Farmer", html);
         }
     }
 
@@ -710,7 +813,9 @@ public sealed class FarmEnrollmentWebTests
     private static WebApplicationFactory<Program> App(string role = "Owner", Func<string, object?[]?, object>? enroll = null, IReadOnlyList<FarmSummary>? farms = null, IReadOnlyList<PlotDetails>? plots = null,
         IReadOnlyList<CropCycleDetails>? cycles = null, IReadOnlyList<FarmTaskDetails>? taskList = null,
         IReadOnlyList<CropTypeDetails>? cropTypes = null,
-        MonitoringDetails? monitoring = null, HarvestOverview? harvest = null) =>
+        MonitoringDetails? monitoring = null, HarvestOverview? harvest = null,
+        InventoryWorkspace? inventory = null, InventoryItemDetails? inventoryItem = null,
+        WeatherOverview? weather = null, IReadOnlyList<NotificationDetails>? notifications = null) =>
         new WebApplicationFactory<Program>().WithWebHostBuilder(builder => builder.ConfigureTestServices(services =>
         {
             services.AddSingleton<IAuthenticationService, SignedIn>();
@@ -736,6 +841,8 @@ public sealed class FarmEnrollmentWebTests
             services.AddScoped(_ => Stub<IFarmTaskService>((name, args) => name switch
             {
                 "ListAsync" => Task.FromResult<IReadOnlyList<FarmTaskDetails>>(taskList ?? []),
+                "NotificationsAsync" => Task.FromResult<IReadOnlyList<NotificationDetails>>(notifications ?? []),
+                "MarkNotificationReadAsync" => Task.CompletedTask,
                 "CloseAsync" => Task.FromResult((taskList ?? [])
                     .First(t => t.Id == (Guid)args![1]!) with { Status = 1 }),
                 _ => throw new NotSupportedException(name)
@@ -757,8 +864,19 @@ public sealed class FarmEnrollmentWebTests
                 }));
             }
             services.AddScoped(_ => Stub<IFarmWeatherService>((name, _) => name == "GetAsync"
-                ? Task.FromResult(new WeatherOverview(FarmId, false, "Asia/Manila", [], []))
+                ? Task.FromResult(weather ?? new WeatherOverview(FarmId, false, "Asia/Manila", [], []))
                 : throw new NotSupportedException(name)));
+            if (inventory is not null || inventoryItem is not null)
+            {
+                services.AddScoped(_ => Stub<IInventoryService>((name, _) => name switch
+                {
+                    "ListAsync" => Task.FromResult(inventory ?? new InventoryWorkspace([], 0)),
+                    "GetAsync" => Task.FromResult<InventoryItemDetails?>(inventoryItem),
+                    "HistoryAsync" => Task.FromResult<IReadOnlyList<InventoryTransactionDetails>>([]),
+                    "ActivityOptionsAsync" => Task.FromResult<IReadOnlyList<InventoryActivityOption>>([]),
+                    _ => throw new NotSupportedException(name)
+                }));
+            }
             services.AddScoped(_ => Stub<IFarmEnrollmentService>(enroll ?? ((name, _) => name switch
             {
                 "OwnerOverviewAsync" => role == "Owner" ? Task.FromResult(new FarmEnrollmentOverview("ABCD12345678", [Pending])) : throw new InvalidOperationException("Non-owner must not request applicants"),
