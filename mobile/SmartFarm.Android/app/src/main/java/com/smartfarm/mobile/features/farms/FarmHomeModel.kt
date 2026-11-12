@@ -22,7 +22,7 @@ internal fun homeDailyWork(tasks: List<TaskDto>, today: LocalDate): HomeDailyWor
         upcoming = TaskWorkCenter.upcoming(tasks, today)
     )
 
-internal data class HomeSyncSummary(val pending: Int, val needsReview: Int)
+data class HomeSyncSummary(val pending: Int, val needsReview: Int)
 
 /** Scope local records to both signed-in user and chosen farm; never count them as server totals. */
 internal fun homeSyncSummary(
