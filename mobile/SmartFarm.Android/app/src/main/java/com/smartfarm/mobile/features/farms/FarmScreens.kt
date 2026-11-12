@@ -206,7 +206,8 @@ fun FarmDetailScreen(state: FarmUiState, onBack: () -> Unit,
     onRetry: () -> Unit = {}, onRegenerateCode: (String) -> Unit = {},
     homeTasks: com.smartfarm.mobile.features.tasks.TaskUiState? = null,
     homeCrops: com.smartfarm.mobile.features.crops.CropUiState? = null,
-    actorId: String? = null) {
+    actorId: String? = null,
+    section: String = "Overview", onWeather: () -> Unit = {}) {
     val farm = state.selected
     val canManage = !state.offline && farm?.role in listOf("Owner", "Manager")
     val isOwner = !state.offline && farm?.role == "Owner"
@@ -217,12 +218,18 @@ fun FarmDetailScreen(state: FarmUiState, onBack: () -> Unit,
     var longitude by rememberSaveable(farm?.id) { mutableStateOf(farm?.longitude?.toPlainString().orEmpty()) }
     var plotName by rememberSaveable { mutableStateOf("") }
     var plotArea by rememberSaveable { mutableStateOf("") }
-    var section by rememberSaveable(farm?.id) { mutableStateOf("Overview") }
-    val visibleSection = if (section == "Settings" && !canManage) "Overview" else section
+    val visibleSection = when (section) {
+        "Weather", "Plots", "Members" -> section
+        "Settings" -> if (canManage) section else "Restricted"
+        else -> "Overview"
+    }
     val sectionState = rememberSaveableStateHolder()
 
-    FarmPage(farm?.name ?: "Farm") {
-        OutlinedButton(onClick = onBack) { Text("All farms") }
+    FarmPage(if (visibleSection == "Overview") (farm?.name ?: "Farm") else
+        "$visibleSection · ${farm?.name ?: "Farm"}") {
+        OutlinedButton(onClick = onBack) {
+            Text(if (visibleSection == "Overview") "All farms" else "Back")
+        }
         Progress(state, onRetry)
         if (farm != null) {
             Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
@@ -230,18 +237,17 @@ fun FarmDetailScreen(state: FarmUiState, onBack: () -> Unit,
                     color = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.weight(1f))
                 FarmStatusChip(farm.role, FarmStatusTone.Planned)
             }
-            Row(Modifier.horizontalScroll(rememberScrollState()), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                (listOf("Overview", "Weather", "Plots", "Members") + if (canManage) listOf("Settings") else emptyList()).forEach { item ->
-                    FilterChip(selected = visibleSection == item, onClick = { section = item }, label = { Text(item) })
-                }
-            }
             if (visibleSection == "Overview") {
             FarmHomeOverview(state, homeTasks, homeCrops, actorId, onTasks, onCrops, onInventory,
-                onWeather = { section = "Weather" }, onInsights = onInsights)
-            if (farm.role == "Owner") EnrollmentPanel(state, onDecision, onRetry, onRegenerateCode)
+                onWeather = onWeather, onInsights = onInsights)
             }
             if (visibleSection == "Weather") {
                 FarmWeatherDetails(state)
+            }
+            if (visibleSection == "Restricted") {
+                FarmEmptyState("Farm settings unavailable",
+                    if (state.offline) "Reconnect to edit farm settings." else
+                        "Only owners and managers can edit this farm.")
             }
             if (canManage && visibleSection == "Settings") {
                 FarmSectionCard("Edit farm", subtitle = "Update this farm's address, location pin and local time zone.") {

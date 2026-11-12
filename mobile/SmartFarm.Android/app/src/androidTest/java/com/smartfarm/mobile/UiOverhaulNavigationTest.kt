@@ -24,12 +24,16 @@ class UiOverhaulNavigationTest {
                 }
             }
         }
-        listOf("Farm", "Tasks", "Crops", "Stock", "Account").forEach { label ->
+        listOf("Home", "Tasks", "Record", "Crops", "More").forEach { label ->
             compose.onNodeWithText(label).assertExists()
         }
-        compose.onNodeWithText("Farm").performClick()
+        compose.onNodeWithText("Home").performClick()
         compose.runOnIdle { assertNull(destination) }
 
+        compose.onNodeWithText("Record").performClick()
+        compose.runOnIdle { assertEquals("record", destination) }
+        compose.onNodeWithText("More").performClick()
+        compose.runOnIdle { assertEquals("more/{farmId}", destination) }
         compose.onNodeWithText("Crops").performClick()
         compose.runOnIdle { assertEquals("crops/{farmId}", destination) }
     }

@@ -5,6 +5,10 @@ import androidx.compose.runtime.CompositionLocalProvider
 import com.smartfarm.mobile.ui.components.LocalFarmHeaderNavigation
 import com.smartfarm.mobile.ui.components.FarmHeaderNavigation
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.LaunchedEffect
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavType
@@ -19,6 +23,9 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.ui.Modifier
 import com.smartfarm.mobile.features.auth.AccountScreen
 import com.smartfarm.mobile.features.auth.AuthViewModel
@@ -52,21 +59,29 @@ fun SmartFarmNavHost(auth: AuthViewModel, farms: FarmViewModel, crops: CropViewM
     val currentRoute = currentEntry?.destination?.route
     val currentFarmId = currentEntry?.arguments?.getString("farmId").orEmpty()
     val showFarmTabs = currentRoute in setOf(
-        "farm/{farmId}", "tasks/{farmId}", "crops/{farmId}", "inventory/{farmId}"
+        "farm/{farmId}", "tasks/{farmId}", "crops/{farmId}", "more/{farmId}"
     ) && currentFarmId.isNotBlank()
     val appContext = LocalContext.current
     val resolver = appContext.contentResolver
     val state by auth.state.collectAsStateWithLifecycle()
     val pending by sync.operations.collectAsStateWithLifecycle()
     val headerFarm by farms.state.collectAsStateWithLifecycle()
+    val cropState by crops.state.collectAsStateWithLifecycle()
+    var showFarmSwitcher by rememberSaveable { mutableStateOf(false) }
+    var recordForFarm by rememberSaveable { mutableStateOf<String?>(null) }
+    var pendingFarmSwitch by rememberSaveable { mutableStateOf<String?>(null) }
     LaunchedEffect(state.account?.id) {
+        showFarmSwitcher = false
+        recordForFarm = null
+        pendingFarmSwitch = null
         farms.clear()
         if (state.account != null) sync.load()
     }
     val expandedWorkspace = LocalConfiguration.current.screenWidthDp >= 600
     val navigateWorkspace: (String) -> Unit = { destination ->
-        if (destination == "account") {
-            navController.navigate("account") { launchSingleTop = true }
+        if (destination == "record") {
+            recordForFarm = currentFarmId
+            if (crops.state.value.farmId != currentFarmId) crops.load(currentFarmId)
         } else {
             val route = destination.replace("{farmId}", currentFarmId)
             navController.navigate(route) {
@@ -76,6 +91,62 @@ fun SmartFarmNavHost(auth: AuthViewModel, farms: FarmViewModel, crops: CropViewM
             }
         }
     }
+
+    fun completeFarmSwitch(target: String) {
+        showFarmSwitcher = false
+        pendingFarmSwitch = null
+        if (target == "__all__") {
+            navController.navigate("farms") { launchSingleTop = true }
+        } else if (target != currentFarmId) {
+            navController.navigate("farm/$target") {
+                popUpTo("farms") { inclusive = false }
+                launchSingleTop = true
+            }
+        }
+    }
+    fun requestFarmSwitch(target: String) {
+        showFarmSwitcher = false
+        if (requiresExitConfirmation(currentRoute)) {
+            pendingFarmSwitch = target
+        } else completeFarmSwitch(target)
+    }
+
+    // Both home and dedicated farm subpages use the existing data/actions.
+    val farmDestination: @Composable (String, String) -> Unit = { farmId, section ->
+        val farmState by farms.state.collectAsStateWithLifecycle()
+        val homeTasks by tasks.state.collectAsStateWithLifecycle()
+        val homeCrops by crops.state.collectAsStateWithLifecycle()
+        LaunchedEffect(farmId) {
+            if (farms.state.value.selected?.id != farmId) farms.loadDetail(farmId)
+            if (tasks.state.value.farmId != farmId) tasks.load(farmId)
+            if (crops.state.value.farmId != farmId) crops.load(farmId)
+        }
+        FarmDetailScreen(farmState,
+            onBack = {
+                if (section == "Overview") {
+                    navController.navigate("farms") { launchSingleTop = true }
+                } else navController.popBackStack()
+            },
+            onSaveFarm = { name, location, zone, latitude, longitude ->
+                farms.saveFarm(name, location, zone, latitude, longitude) {} },
+            onArchiveFarm = { farms.archiveFarm { navController.navigate("farms") } },
+            onAddPlot = { name, area -> farms.addPlot(name, area) },
+            onSavePlot = { plot, name, area -> farms.savePlot(plot, name, area) },
+            onArchivePlot = { plot -> farms.archivePlot(plot) },
+            onCrops = { navController.navigate("crops/$farmId") },
+            onInventory = { navController.navigate("inventory/$farmId") },
+            onDecision = farms::decideJoinRequest,
+            onChangeRole = { member, role -> farms.changeRole(member, role) },
+            onRemoveMember = { farms.remove(it) },
+            onTasks = { navController.navigate("tasks/$farmId") },
+            onInsights = { navController.navigate("insights/$farmId") },
+            onRetry = { farms.loadDetail(farmId) },
+            onRegenerateCode = farms::regenerateJoinCode,
+            homeTasks = homeTasks, homeCrops = homeCrops, actorId = state.account?.id,
+            section = section,
+            onWeather = { navController.navigate("farm/$farmId/weather") })
+    }
+
     Scaffold(
         contentWindowInsets = WindowInsets(0, 0, 0, 0),
         bottomBar = {
@@ -85,8 +156,12 @@ fun SmartFarmNavHost(auth: AuthViewModel, farms: FarmViewModel, crops: CropViewM
         }
     ) { workspacePadding ->
     CompositionLocalProvider(LocalFarmHeaderNavigation provides if (state.account == null) null else
-        FarmHeaderNavigation(headerFarm.selected?.name,
-            onFarms = { navController.navigate("farms") { launchSingleTop = true } },
+        FarmHeaderNavigation(headerFarm.selected?.takeIf { it.id == currentFarmId }?.name,
+            onFarms = {
+                if (currentFarmId.isBlank()) {
+                    navController.navigate("farms") { launchSingleTop = true }
+                } else showFarmSwitcher = true
+            },
             onNotifications = { navController.navigate("notifications") { launchSingleTop = true } })) {
     Row(Modifier.fillMaxSize().padding(workspacePadding)) {
     if (state.account != null && showFarmTabs && expandedWorkspace) {
@@ -172,33 +247,31 @@ fun SmartFarmNavHost(auth: AuthViewModel, farms: FarmViewModel, crops: CropViewM
                 onCancelRequest = farms::cancelJoinRequest)
         }
         composable("farm/{farmId}") { entry ->
+            farmDestination(entry.arguments?.getString("farmId").orEmpty(), "Overview")
+        }
+        composable("farm/{farmId}/{section}") { entry ->
+            val farmId = entry.arguments?.getString("farmId").orEmpty()
+            val section = safeFarmSection(entry.arguments?.getString("section"))
+                .replaceFirstChar { it.uppercase() }
+            farmDestination(farmId, section)
+        }
+        composable("more/{farmId}") { entry ->
             val farmId = entry.arguments?.getString("farmId").orEmpty()
             val farmState by farms.state.collectAsStateWithLifecycle()
-            val homeTasks by tasks.state.collectAsStateWithLifecycle()
-            val homeCrops by crops.state.collectAsStateWithLifecycle()
             LaunchedEffect(farmId) {
-                farms.loadDetail(farmId)
-                tasks.load(farmId)
-                crops.load(farmId)
+                if (farms.state.value.selected?.id != farmId) farms.loadDetail(farmId)
             }
-            FarmDetailScreen(farmState,
-                onBack = { navController.popBackStack() },
-                onSaveFarm = { name, location, zone, latitude, longitude ->
-                    farms.saveFarm(name, location, zone, latitude, longitude) {} },
-                onArchiveFarm = { farms.archiveFarm { navController.popBackStack() } },
-                onAddPlot = { name, area -> farms.addPlot(name, area) },
-                onSavePlot = { plot, name, area -> farms.savePlot(plot, name, area) },
-                onArchivePlot = { plot -> farms.archivePlot(plot) },
-                onCrops = { navController.navigate("crops/$farmId") },
-                onInventory = { navController.navigate("inventory/$farmId") },
-                onDecision = farms::decideJoinRequest,
-                onChangeRole = { member, role -> farms.changeRole(member, role) },
-                onRemoveMember = { farms.remove(it) },
-                onTasks = { navController.navigate("tasks/$farmId") },
-                onInsights = { navController.navigate("insights/$farmId") },
-                onRetry = { farms.loadDetail(farmId) },
-                onRegenerateCode = farms::regenerateJoinCode,
-                homeTasks = homeTasks, homeCrops = homeCrops, actorId = state.account?.id)
+            val farm = farmState.selected?.takeIf { it.id == farmId }
+            FarmMoreScreen(farm?.name ?: "Farm", farm?.role) { choice ->
+                when (choice) {
+                    "inventory" -> navController.navigate("inventory/$farmId")
+                    "insights" -> navController.navigate("insights/$farmId")
+                    "members", "plots", "settings", "weather" ->
+                        navController.navigate("farm/$farmId/$choice")
+                    "notifications", "sync", "account" -> navController.navigate(choice)
+                    "switch" -> showFarmSwitcher = true
+                }
+            }
         }
         composable("tasks/{farmId}") { entry ->
             val farmId = entry.arguments?.getString("farmId").orEmpty()
@@ -363,7 +436,55 @@ fun SmartFarmNavHost(auth: AuthViewModel, farms: FarmViewModel, crops: CropViewM
             )
         }
     }
+    } // Row
+    if (state.account != null && showFarmSwitcher) {
+        FarmSwitcherSheet(
+            farms = headerFarm.farms, currentFarmId = currentFarmId,
+            onSelect = { farmId ->
+                if (farmId == currentFarmId) showFarmSwitcher = false
+                else requestFarmSwitch(farmId)
+            },
+            onAllFarms = { requestFarmSwitch("__all__") },
+            onDismiss = { showFarmSwitcher = false }
+        )
     }
+    if (state.account != null && pendingFarmSwitch != null) {
+        AlertDialog(
+            onDismissRequest = { pendingFarmSwitch = null },
+            title = { Text("Leave this screen?") },
+            text = { Text("Save any unfinished form details before switching. Saved offline records will remain on this device.") },
+            confirmButton = {
+                TextButton(onClick = {
+                    val target = pendingFarmSwitch
+                    if (target != null) completeFarmSwitch(target)
+                }) { Text("Leave screen") }
+            },
+            dismissButton = {
+                TextButton(onClick = { pendingFarmSwitch = null }) { Text("Keep working") }
+            }
+        )
     }
+    if (state.account != null && !recordForFarm.isNullOrBlank()) {
+        val farmId = requireNotNull(recordForFarm)
+        FarmQuickRecordSheet(
+            farmId = farmId,
+            farmName = headerFarm.selected?.takeIf { it.id == farmId }?.name ?: "Selected farm",
+            cropState = cropState,
+            onDismiss = { recordForFarm = null },
+            onSelect = { action, cycleId ->
+                recordForFarm = null
+                quickRecordRoute(farmId, action, cycleId)?.let { navController.navigate(it) }
+            },
+            onBrowseCrops = {
+                recordForFarm = null
+                navController.navigate("crops/$farmId")
+            },
+            onSupplies = {
+                recordForFarm = null
+                navController.navigate("inventory/$farmId")
+            }
+        )
     }
+    } // CompositionLocalProvider
+    } // Scaffold
 }

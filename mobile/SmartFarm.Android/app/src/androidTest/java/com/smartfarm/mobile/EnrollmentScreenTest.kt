@@ -117,7 +117,8 @@ class EnrollmentScreenTest {
             "ABCD12345678", emptyList(), listOf(request().copy(status = "Rejected"))))
         compose.setContent { SmartFarmTheme {
             FarmDetailScreen(state, {}, { _, _, _, _, _ -> }, {}, { _, _ -> }, { _, _, _ -> }, {}, {}, {},
-                { _, _ -> }, { _, _ -> }, {}, onRegenerateCode = { regenerated = it })
+                { _, _ -> }, { _, _ -> }, {}, onRegenerateCode = { regenerated = it },
+                section = "Members")
         } }
         compose.onNodeWithText("Copy farm code").performScrollTo().performClick()
         compose.onNodeWithText("Farm code copied.").assertExists()
@@ -154,7 +155,7 @@ class EnrollmentScreenTest {
     @androidx.compose.runtime.Composable
     private fun detail(state: FarmUiState, decision: (String, Boolean) -> Unit) {
         FarmDetailScreen(state, {}, { _, _, _, _, _ -> }, {}, { _, _ -> }, { _, _, _ -> }, {}, {}, {},
-            decision, { _, _ -> }, {})
+            decision, { _, _ -> }, {}, section = "Members")
     }
 
     private fun farm(role: String) = FarmDto("farm", "North farm", "Location", "Asia/Manila", role = role)

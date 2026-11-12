@@ -9,6 +9,9 @@ import androidx.compose.material3.NavigationRailItemDefaults
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.NavigationBarItemDefaults
+import androidx.compose.material3.Surface
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -23,8 +26,9 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.unit.dp
 
-// Main farm routes remain unchanged. Deep forms retain their existing Back navigation.
-private enum class FarmNavSymbol { Farm, Tasks, Crops, Stock, Account }
+// Primary destinations are stable; Record is a sheet, never a separate route.
+// Deep forms retain Android Back navigation.
+private enum class FarmNavSymbol { Farm, Tasks, Record, Crops, More }
 private data class FarmNavTab(val route: String, val title: String, val symbol: FarmNavSymbol)
 
 /** Vector line-art avoids emoji fonts and keeps icons crisp without a new dependency. */
@@ -71,19 +75,14 @@ private fun FarmNavIcon(symbol: FarmNavSymbol, tint: Color) {
                 drawPath(left, tint, style = Stroke(width = width))
                 drawPath(right, tint, style = Stroke(width = width))
             }
-            FarmNavSymbol.Stock -> {
-                line(3f, 7f, 12f, 3f); line(12f, 3f, 21f, 7f)
-                line(3f, 7f, 12f, 12f); line(21f, 7f, 12f, 12f)
-                line(3f, 7f, 3f, 18f); line(21f, 7f, 21f, 18f)
-                line(3f, 18f, 12f, 22f); line(21f, 18f, 12f, 22f)
-                line(12f, 12f, 12f, 22f)
+            FarmNavSymbol.Record -> {
+                drawCircle(tint, radius = 10f * unit, center = Offset(12f * unit, 12f * unit),
+                    style = Stroke(width = width))
+                line(12f, 7f, 12f, 17f); line(7f, 12f, 17f, 12f)
             }
-            FarmNavSymbol.Account -> {
-                drawCircle(color = tint, radius = 4f * unit, center = Offset(12f * unit, 8f * unit),
-                    style = Stroke(width = width))
-                drawArc(color = tint, startAngle = 194f, sweepAngle = 152f, useCenter = false,
-                    topLeft = Offset(4f * unit, 13f * unit), size = Size(16f * unit, 15f * unit),
-                    style = Stroke(width = width))
+            FarmNavSymbol.More -> {
+                frame(4f, 4f, 6f, 6f); frame(14f, 4f, 6f, 6f)
+                frame(4f, 14f, 6f, 6f); frame(14f, 14f, 6f, 6f)
             }
         }
     }
@@ -96,11 +95,11 @@ internal fun FarmWorkspaceBar(
     onNavigate: (String) -> Unit
 ) {
     val tabs = listOf(
-        FarmNavTab("farm/{farmId}", "Farm", FarmNavSymbol.Farm),
+        FarmNavTab("farm/{farmId}", "Home", FarmNavSymbol.Farm),
         FarmNavTab("tasks/{farmId}", "Tasks", FarmNavSymbol.Tasks),
+        FarmNavTab("record", "Record", FarmNavSymbol.Record),
         FarmNavTab("crops/{farmId}", "Crops", FarmNavSymbol.Crops),
-        FarmNavTab("inventory/{farmId}", "Stock", FarmNavSymbol.Stock),
-        FarmNavTab("account", "Account", FarmNavSymbol.Account)
+        FarmNavTab("more/{farmId}", "More", FarmNavSymbol.More)
     )
     val colors = MaterialTheme.colorScheme
     if (expanded) {
@@ -109,8 +108,15 @@ internal fun FarmWorkspaceBar(
             tabs.forEach { tab ->
                 val selected = selectedRoute == tab.route
                 NavigationRailItem(selected = selected,
-                    onClick = { if (!selected) onNavigate(tab.route) },
-                    icon = { FarmNavIcon(tab.symbol, if (selected) colors.onPrimaryContainer else colors.onSurfaceVariant) },
+                    onClick = { if (tab.route == "record" || !selected) onNavigate(tab.route) },
+                    icon = {
+                        if (tab.route == "record") {
+                            Surface(shape = CircleShape, color = colors.secondaryContainer) {
+                                FarmNavIcon(tab.symbol, colors.onSecondaryContainer)
+                            }
+                        } else FarmNavIcon(tab.symbol,
+                            if (selected) colors.onPrimaryContainer else colors.onSurfaceVariant)
+                    },
                     label = { Text(tab.title) },
                     colors = NavigationRailItemDefaults.colors(
                         indicatorColor = colors.primaryContainer,
@@ -130,9 +136,13 @@ internal fun FarmWorkspaceBar(
             NavigationBarItem(
                 selected = selected,
                 // Re-tapping an active tab must not reset unsaved field forms.
-                onClick = { if (!selected) onNavigate(tab.route) },
+                onClick = { if (tab.route == "record" || !selected) onNavigate(tab.route) },
                 icon = {
-                    FarmNavIcon(tab.symbol,
+                    if (tab.route == "record") {
+                        Surface(shape = CircleShape, color = colors.secondaryContainer) {
+                            FarmNavIcon(tab.symbol, colors.onSecondaryContainer)
+                        }
+                    } else FarmNavIcon(tab.symbol,
                         if (selected) colors.onSecondaryContainer else colors.onSurfaceVariant)
                 },
                 label = { Text(tab.title) },
