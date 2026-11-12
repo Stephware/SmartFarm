@@ -76,20 +76,22 @@ class NavigationInputsTest {
         compose.onNodeWithText("Fertilizing").performScrollTo().performClick().assertIsSelected()
     }
 
-    @Test fun switchingFarmSectionsRetainsUnsavedPlotEdits() {
+    @Test fun changingDedicatedFarmPagesRetainsUnsavedPlotEdits() {
+        val current = mutableStateOf("Plots")
         compose.setContent {
             SmartFarmTheme {
                 FarmDetailScreen(FarmUiState(selected = FarmDto("farm", "Farm", "Location", "Asia/Manila",
                     null, null, "Owner", "version"), plots = listOf(PlotDto("plot", "farm", "North plot", BigDecimal.TEN, "version"))),
                     {}, { _, _, _, _, _ -> }, {}, { _, _ -> }, { _, _, _ -> }, {}, {}, {},
-                    { _, _ -> }, { _, _ -> }, {})
+                    { _, _ -> }, { _, _ -> }, {}, section = current.value)
             }
         }
-        compose.onNodeWithText("Plots").performScrollTo().performClick()
         compose.onAllNodesWithText("Plot name")[0].performScrollTo().performTextReplacement("Draft plot")
-        compose.onNodeWithText("Members").performScrollTo().performClick()
-        compose.onNodeWithText("Plots").performScrollTo().performClick()
+        compose.runOnIdle { current.value = "Members" }
+        compose.onNodeWithText("Members").assertExists()
+        compose.runOnIdle { current.value = "Plots" }
         compose.onNodeWithText("Draft plot").performScrollTo().assertIsDisplayed()
+        compose.onNodeWithText("Weather").assertDoesNotExist()
     }
 
     @Test fun fieldWorkersCanCompleteOnlyTheirAssignedTasks() {

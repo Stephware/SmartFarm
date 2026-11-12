@@ -91,7 +91,9 @@ fun MonitoringScreen(
     var focus by rememberSaveable(state.farmId, state.cycleId, quick) {
         mutableStateOf(if (quick == "inspection") "inspection" else "activity")
     }
-    var activityType by rememberSaveable(state.farmId, state.cycleId) { mutableStateOf(1) }
+    var activityType by rememberSaveable(state.farmId, state.cycleId, quick) {
+        mutableStateOf(if (quick == "fertilizing") 2 else 1)
+    }
     var activityNotes by rememberSaveable(state.farmId, state.cycleId) { mutableStateOf("") }
     var useStock by rememberSaveable(state.farmId, state.cycleId) { mutableStateOf(false) }
     var supplyId by rememberSaveable(state.farmId, state.cycleId) { mutableStateOf<String?>(null) }
