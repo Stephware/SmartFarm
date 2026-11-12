@@ -38,7 +38,7 @@ jobs:
           SDKMANAGER="$(find "$ANDROID_HOME/cmdline-tools" -path '*/bin/sdkmanager' -print -quit)"
           test -n "$SDKMANAGER"
           "$SDKMANAGER" "platforms;android-36" "build-tools;36.0.0"
-      - name: Run key Compose journeys on an emulator
+      - name: Run all Android device tests and full app journey
         uses: reactivecircus/android-emulator-runner@v2
         with:
           api-level: 35
@@ -50,11 +50,12 @@ jobs:
           disable-animations: true
           working-directory: mobile/SmartFarm.Android
           script: >-
-            bash -c 'bash ./gradlew --no-daemon :app:connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.smartfarm.mobile.FinalFarmerJourneysTest,com.smartfarm.mobile.NavigationInputsTest,com.smartfarm.mobile.SecondaryNavigationScreenTest,com.smartfarm.mobile.TaskWorkspaceScreenTest,com.smartfarm.mobile.CropWorkflowScreenTest,com.smartfarm.mobile.SimpleInspectionScreenTest,com.smartfarm.mobile.InventoryUsabilityScreenTest,com.smartfarm.mobile.HarvestUsabilityScreenTest,com.smartfarm.mobile.SyncClarityScreenTest,com.smartfarm.mobile.FarmOnboardingScreenTest,com.smartfarm.mobile.QuickRecordNavigationTest,com.smartfarm.mobile.ResponsiveListsTest,com.smartfarm.mobile.ReferenceWorkspaceVisualTest,com.smartfarm.mobile.UiOverhaulNavigationTest;
+            bash -c 'bash ./gradlew --no-daemon :app:connectedDebugAndroidTest -PsmartfarmDebugApiUrl=http://127.0.0.1:5081/;
             result=$?;
             adb pull /sdcard/Android/data/com.smartfarm.mobile/files/
             app/build/ui-screenshots/ >/dev/null 2>&1 || true;
             exit "$result"'
+      # Run every instrumentation class: Room, photos, draft recovery, UI flows, and app-level API journey.
       - name: Save Android test results
         if: always()
         uses: actions/upload-artifact@v4
