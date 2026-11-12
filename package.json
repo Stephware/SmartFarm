@@ -1,0 +1,13 @@
+{
+  "name": "anigo-web-design-system",
+  "private": true,
+  "version": "1.0.0",
+  "scripts": {
+    "css:build": "tailwindcss -i ./src/SmartFarm.Web/Styles/anigo-tailwind.css -o ./src/SmartFarm.Web/wwwroot/css/anigo-tailwind.css --minify",
+    "css:watch": "tailwindcss -i ./src/SmartFarm.Web/Styles/anigo-tailwind.css -o ./src/SmartFarm.Web/wwwroot/css/anigo-tailwind.css --watch"
+  },
+  "devDependencies": {
+    "@tailwindcss/cli": "4.3.0",
+    "tailwindcss": "4.3.0"
+  }
+}

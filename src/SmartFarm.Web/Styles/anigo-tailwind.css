@@ -1,0 +1,30 @@
+/* AniGo design system — Tailwind v4, no Preflight/reset.
+   Keep the current pine/gold semantic tokens in reference-ui.css as the source
+   of truth. The utilities use those variables in light and dark mode. */
+@layer theme, base, components, utilities;
+@import "tailwindcss/theme.css" layer(theme) prefix(tw);
+@import "tailwindcss/utilities.css" layer(utilities) prefix(tw) source(none);
+@source "../Views";
+@source "../Areas/Admin/Views";
+
+@theme inline {
+  --color-ani-pine: var(--pine);
+  --color-ani-pine-deep: var(--pine-deep);
+  --color-ani-gold: var(--gold);
+  --color-ani-gold-soft: var(--gold-soft);
+  --color-ani-bg: var(--bg);
+  --color-ani-surface: var(--card);
+  --color-ani-text: var(--ink);
+  --color-ani-muted: var(--muted);
+  --color-ani-border: var(--stroke);
+  --color-ani-focus: var(--focus);
+  --color-ani-danger: var(--danger);
+  --color-ani-success: var(--success-soft);
+  --radius-ani-card: var(--ui-card-radius);
+  --radius-ani-field: var(--ui-field-radius);
+  --spacing-ani-touch: var(--ui-control-height);
+}
+
+/* Existing page layouts, table styles, cards, buttons, and interaction states
+   remain in the shared stylesheets until a matched component replacement
+   passes visual parity. New components use tw:-prefixed utilities only. */
