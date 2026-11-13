@@ -1,11 +1,11 @@
 {
-  "reviewed": true,
+  "reviewed": false,
   "sourceHashes": {
-    "wwwroot/css/anigo-tailwind.css": "c4567fff4c3baad5c8e060e4cbf0200caedcb3118b88520978d82b84938f041c",
+    "wwwroot/css/anigo-tailwind.css": "bf78e47f783a372091865d266cb7fd3c916dc16415a2018312845b73e5ef3de0",
     "Views/Shared/_Layout.cshtml": "20995ee27c7391cc482027e22575978f2b45ba7afb80695200409544afcb2d6c",
-    "Views/Home/Index.cshtml": "6cf2e367cc5b97a4c61ff8cf7f5454785f518662bbc4018a77ed28bdcc180779",
-    "Views/Account/Login.cshtml": "8a9ac52f5a60999dfbffa6b7ca0120ff325b108311f89ac4601c1c8767e35c25",
-    "Views/Account/Register.cshtml": "95f2f66de1b4db8a114a0bdee337fe770745e9f8376e05bd3e582109e6fa37d2"
+    "Views/Home/Index.cshtml": "1d74072b0b9efc036974985c45c45047315f061a3d1dedd11c2e330b74880de6",
+    "Views/Account/Login.cshtml": "2881d3e20d68f709abf12d244855199f92c86b54e1c434bd022625999ed5d053",
+    "Views/Account/Register.cshtml": "86de5849358042654825b3a5179f8230ea5a632e2c82bf8a5b8ffaeea0f5ce7c"
   },
   "widths": [
     320,
@@ -23,5 +23,5 @@
     "login": "/Account/Login",
     "registration": "/Account/Register"
   },
-  "note": "Phase 12B (2026-11-13): 30 real Chromium screenshots (landing, login, registration × light/dark × 320/375/768/1024/1440) captured in GitHub Actions run 43343874887, matching Ubuntu 24.04 + Playwright 1.56.1. Reviewed contact sheets for all widths and themes (runs 43343874887 and 43344431259); layout, image crops, typography, controls, dark-mode contrast and mobile widths checked. Real-browser smoke + axe blocking checks passed. Authenticated farm screens are MVC-tested, not part of these anonymous goldens. Editorial farm photos are locally hosted."
+  "note": "Review the generated candidate images before changing reviewed to true."
 }
