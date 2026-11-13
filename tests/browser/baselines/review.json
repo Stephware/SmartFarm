@@ -1,5 +1,5 @@
 {
-  "reviewed": false,
+  "reviewed": true,
   "sourceHashes": {
     "wwwroot/css/anigo-tailwind.css": "d21a6822374d434e5ce5008a6398f5c8a1a62667116d2884075054d4ca9868de",
     "Views/Shared/_Layout.cshtml": "20995ee27c7391cc482027e22575978f2b45ba7afb80695200409544afcb2d6c",
@@ -23,5 +23,5 @@
     "login": "/Account/Login",
     "registration": "/Account/Register"
   },
-  "note": "Review the generated candidate images before changing reviewed to true."
+  "note": "Phase 12E visual acceptance (2026-11-13): Regenerated and reviewed all 30 public Chromium baselines at 320/375/768/1024/1440 widths in light/dark themes. Additionally reviewed signed-in daily-task, crop-monitoring, harvest, inventory, stock-use, stale-weather, and report screenshots captured from actual MVC Razor HTML with deterministic farm records (tests/browser/phase12e-review). Separate browser run passed 130 role/screen/width/theme combinations, checking horizontal overflow, mobile agenda, fieldwork dialog opening, role-safe inventory controls, harvest entry visibility, weather freshness, and serious/critical WCAG issues. No live production data or device-level testing. No business rules, Android, schema, or API contracts changed."
 }
