@@ -1,7 +1,7 @@
 {
-  "reviewed": true,
+  "reviewed": false,
   "sourceHashes": {
-    "wwwroot/css/anigo-tailwind.css": "66c12fcd519fe51a1989ee19ac5eb7e2b781c2e2bf778a85b84656a447ecc26c",
+    "wwwroot/css/anigo-tailwind.css": "6692f8ff5b7445f905c73117244968c52a78753a38d096962f157366f8a911fd",
     "Views/Shared/_Layout.cshtml": "20995ee27c7391cc482027e22575978f2b45ba7afb80695200409544afcb2d6c",
     "Views/Home/Index.cshtml": "1d74072b0b9efc036974985c45c45047315f061a3d1dedd11c2e330b74880de6",
     "Views/Account/Login.cshtml": "2881d3e20d68f709abf12d244855199f92c86b54e1c434bd022625999ed5d053",
@@ -23,5 +23,5 @@
     "login": "/Account/Login",
     "registration": "/Account/Register"
   },
-  "note": "Phase 12B completion (2026-11-13): 30 Chromium screenshots captured with Ubuntu 24.04 and pinned Playwright 1.56.1. Reviewed representative landing, login, and registration renders at 320/375/768/1024/1440 widths across light/dark themes: password toggle alignment, readable small-phone registration steps, photo credits disclosure, image crops, page flow, and contrast. Authenticated farm role/screens are separately tested and screenshot-captured in CI using deterministic MVC fixtures; these public goldens do not cover private screens. No production user/farm data was used."
+  "note": "Review the generated candidate images before changing reviewed to true."
 }
