@@ -247,6 +247,87 @@ public sealed class FarmEnrollmentWebTests
 
 
     [Theory]
+    [InlineData("Owner", "OWNER · FARM OVERVIEW")]
+    [InlineData("Manager", "MANAGER · DAILY OPERATIONS")]
+    [InlineData("FieldWorker", "FIELD WORKER · MY WORK")]
+    public async Task Phase12CDashboardHasRoleSpecificFirstScreen(string role, string heading)
+    {
+        using var app = App(role);
+        using var client = app.CreateClient();
+        var html = await client.GetStringAsync($"/Dashboard?farmId={FarmId}");
+        Assert.Contains(heading, html);
+        Assert.Contains("Today's priorities", html);
+        Assert.Contains("Farm at a glance", html);
+        Assert.Contains("Needs attention", html);
+        Assert.Contains("Quick actions", html);
+        if (role == "Owner")
+        {
+            Assert.Contains("Cash records", html);
+            Assert.Contains("Team requests needing a decision", html);
+            Assert.DoesNotContain("Your assigned work", html);
+        }
+        else if (role == "Manager")
+        {
+            Assert.Contains("Plan a crop", html);
+            Assert.DoesNotContain("Team requests needing a decision", html);
+            Assert.DoesNotContain("Cash records", html);
+        }
+        else
+        {
+            Assert.Contains("Your assigned work", html);
+            Assert.Contains("Weather &amp; safety", html);
+            Assert.DoesNotContain("Team requests needing a decision", html);
+            Assert.DoesNotContain("Cash records", html);
+            Assert.DoesNotContain("Add a task", html);
+        }
+    }
+
+    [Fact]
+    public async Task Phase12CWorkerDashboardExcludesOthersTasksAndKeepsOwnLinks()
+    {
+        var mine = new FarmTaskDetails(Guid.NewGuid(), FarmId, null, Actor, 1,
+            new DateOnly(2026, 10, 26), 0, "My irrigation job",
+            DateTime.UtcNow, null, "v");
+        var other = mine with { Id = Guid.NewGuid(), AssignedToUserId = Guid.NewGuid(),
+            Description = "Another worker private task" };
+        using var app = App(role: "FieldWorker", taskList: [other, mine]);
+        using var client = app.CreateClient();
+        var html = await client.GetStringAsync($"/Dashboard?farmId={FarmId}");
+        Assert.Contains("My irrigation job", html);
+        Assert.Contains("Assigned to you", html);
+        Assert.DoesNotContain("Another worker private task", html);
+        Assert.Contains($"task-{mine.Id}", html);
+        Assert.DoesNotContain($"task-{other.Id}", html);
+        Assert.Contains("view=mine", html);
+    }
+
+    [Fact]
+    public async Task Phase12CMultipleActiveCropsRequireExplicitSelection()
+    {
+        var first = new CropCycleDetails(Guid.NewGuid(), FarmId, Guid.NewGuid(), "North plot",
+            Guid.NewGuid(), "Tomato", CropCycleStatus.Active, new DateOnly(2026, 10, 1),
+            new DateOnly(2026, 10, 2), new DateOnly(2026, 11, 20), "kg", 3,
+            null, null, "v");
+        var second = first with { Id = Guid.NewGuid(), PlotId = Guid.NewGuid(),
+            PlotName = "South plot", CropTypeName = "Rice" };
+        using var app = App(cycles: [first, second]);
+        using var client = app.CreateClient();
+        var html = await client.GetStringAsync($"/Dashboard?farmId={FarmId}");
+        Assert.Contains("Choose crop to record", html);
+        Assert.Contains("Choose a plot and crop", html);
+        Assert.Contains("North plot", html);
+        Assert.Contains("South plot", html);
+        Assert.Contains(first.Id.ToString(), html);
+        Assert.Contains(second.Id.ToString(), html);
+        var heroStart = html.IndexOf("ani12c-dashboard-hero", StringComparison.Ordinal);
+        var heroEnd = html.IndexOf("</section>", heroStart, StringComparison.Ordinal);
+        Assert.True(heroStart >= 0 && heroEnd > heroStart);
+        var hero = html[heroStart..heroEnd];
+        Assert.Contains("#ani12c-crop-picker", hero);
+        Assert.DoesNotContain("cycleId=", hero, StringComparison.OrdinalIgnoreCase);
+    }
+
+    [Theory]
     [InlineData("Owner", true)]
     [InlineData("Manager", true)]
     [InlineData("FieldWorker", false)]
