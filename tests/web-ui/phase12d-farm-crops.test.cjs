@@ -30,6 +30,7 @@ test("Farm management puts plot and team workflows before destructive actions", 
     assert.ok(farm.includes('asp-action="CreatePlot"'));
     assert.ok(farm.includes('asp-action="EditPlot"'));
     assert.ok(farm.includes('asp-action="ArchivePlot"'));
+    assert.ok(farm.includes('asp-fragment="@(canManage ? "planting-plans-heading" : "ani-current-heading")"'));
     assert.ok(farm.includes('asp-action="ChangeRole"'));
     assert.ok(farm.includes('asp-action="RemoveMember"'));
     assert.ok(farm.includes('@if (isOwner)'));
@@ -43,6 +44,7 @@ test("Plot directory presents actual saved values without claiming geographic ac
     assert.ok(plots.includes("aria-label=\"@plot.Name,"));
     assert.ok(plots.includes("asp-route-plotId=\"@plot.PlotId\""));
     assert.ok(plots.includes("CropArtwork.FileName(plot.CropName)"));
+    assert.ok(plots.includes('canManage ? "planting-plans-heading" : "ani-current-heading"'));
     assert.doesNotMatch(plots, /actual field position or health status/);
 });
 test("Crop planning never implicitly selects an arbitrary plot or type", () => {
