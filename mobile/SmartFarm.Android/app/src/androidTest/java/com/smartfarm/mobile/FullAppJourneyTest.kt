@@ -155,7 +155,12 @@ class FullAppJourneyTest {
             assertEquals(fertilizerTaskId, combinedPayload.getAsJsonObject("activity").get("farmTaskId").asString)
             assertEquals("supply", combinedPayload.get("inventoryItemId").asString)
             assertEquals("1.250", combinedPayload.get("quantityUsed").asString)
-            androidx.test.uiautomator.UiDevice.getInstance(androidx.test.platform.app.InstrumentationRegistry.getInstrumentation()).pressBack()
+            // Hardware Back can dismiss the quantity keyboard without leaving the form.
+            // Use the explicit screen action, then wait for the workspace navigation.
+            compose.onNodeWithText("Back").performScrollTo().performClick()
+            compose.waitUntil(10_000) {
+                compose.onAllNodesWithTag("farm-bottom-navigation").fetchSemanticsNodes().isNotEmpty()
+            }
             compose.onNodeWithText("My Farm").performClick()
             compose.waitUntil(10_000) {
                 compose.onAllNodesWithText("Farm records").fetchSemanticsNodes().isNotEmpty()
