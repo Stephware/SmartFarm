@@ -72,7 +72,7 @@
     </aside>
     <div class="app-body content-shell">
         <header class="site-header app-topbar topbar">
-            <div class="crumb"><a asp-area="Admin" asp-controller="Dashboard" asp-action="Index" aria-current="@(section == "Dashboard" ? "page" : null)">Admin overview</a><span aria-hidden="true">/</span><strong>@(ViewData["Title"] ?? "Administration")</strong></div>
+            <div class="crumb"><a asp-area="Admin" asp-controller="Dashboard" asp-action="Index">Admin overview</a><span aria-hidden="true">/</span><strong>@(ViewData["Title"] ?? "Administration")</strong></div>
             <a class="mobile-brand" asp-area="Admin" asp-controller="Dashboard" asp-action="Index">AniGo Admin</a>
             <nav class="top-actions app-topbar-actions" aria-label="Administration settings">
                 <button class="icon-button color-mode-toggle" type="button" data-color-mode-toggle
@@ -85,7 +85,7 @@
                         <partial name="~/Views/Shared/_Icon.cshtml" model='@("more")' /><span>Menu</span>
                     </summary>
                     <nav id="ani12f-admin-mobile-links" aria-label="Mobile platform administration">
-                        <a asp-area="Admin" asp-controller="Dashboard" asp-action="Index">Admin overview</a>
+                        <a asp-area="Admin" asp-controller="Dashboard" asp-action="Index" aria-current="@(section == "Dashboard" ? "page" : null)">Admin overview</a>
                         <a asp-area="Admin" asp-controller="Users" asp-action="Index" aria-current="@(section == "Users" ? "page" : null)">Manage users</a>
                         <a asp-area="Admin" asp-controller="Farms" asp-action="Index" aria-current="@(section == "Farms" ? "page" : null)">Manage farms</a>
                         <a asp-area="Admin" asp-controller="Support" asp-action="Index" aria-current="@(section == "Support" ? "page" : null)">Support requests</a>
