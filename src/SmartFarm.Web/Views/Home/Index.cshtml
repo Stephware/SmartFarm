@@ -88,7 +88,8 @@
             <h3>I manage a farm</h3>
             <p>Create a farm, set up growing areas, plan crops, and bring your team together.</p>
             <a class="button" asp-controller="@(signedIn ? "Farms" : "Account")"
-               asp-action="@(signedIn ? "Create" : "Register")">@(signedIn ? "Create a farm" : "Create an account")</a>
+               asp-action="@(signedIn ? "Create" : "Register")"
+               asp-route-returnUrl="@(signedIn ? null : Url.Action("Create", "Farms"))">@(signedIn ? "Create a farm" : "Create an account to manage")</a>
         </article>
         <article class="ani-entry-path-card">
             <span class="ani-entry-path-step">FOR FIELD WORKERS AND TEAM MEMBERS</span>
@@ -96,6 +97,7 @@
             <p>Have a farm code? Create an account, request to join, and wait for the owner to approve your access.</p>
             <a class="ani-entry-path-link" asp-controller="@(signedIn ? "Farms" : "Account")"
                asp-action="@(signedIn ? "Index" : "Register")"
+               asp-route-returnUrl="@(signedIn ? null : Url.Action("Index", "Farms") + "#join-farm")"
                asp-fragment="@(signedIn ? "join-farm" : null)">@(signedIn ? "Enter a farm code" : "Create an account to join") <span aria-hidden="true">→</span></a>
         </article>
     </div>
@@ -111,5 +113,8 @@
        asp-action="@(signedIn ? "Index" : "Register")">@(signedIn ? "Open my farms" : "Create an account")</a>
 </section>
 
-<p class="ani-entry-photo-credit">Editorial photos: <a href="https://unsplash.com/@@quangpraha" target="_blank" rel="noopener noreferrer">Quang Nguyen Vinh</a> and <a href="https://unsplash.com/@@liyichuan" target="_blank" rel="noopener noreferrer">YiChuan Li</a> via <a href="https://unsplash.com/license" target="_blank" rel="noopener noreferrer">Unsplash</a>. Images illustrate agriculture and do not represent AniGo customer farms.</p>
+<details class="ani-entry-photo-credit">
+    <summary>Photo credits and sources</summary>
+    <p>Editorial agriculture photos by <a href="https://unsplash.com/@@quangpraha" target="_blank" rel="noopener noreferrer">Quang Nguyen Vinh</a> and <a href="https://unsplash.com/@@liyichuan" target="_blank" rel="noopener noreferrer">YiChuan Li</a>. The additional <a href="https://images.unsplash.com/photo-1730697897470-0efaee4922de" target="_blank" rel="noopener noreferrer">field image source</a> is from Unsplash; its photographer is unverified. See the <a href="https://unsplash.com/license" target="_blank" rel="noopener noreferrer">Unsplash license</a>. No image represents an AniGo customer farm.</p>
+</details>
 </div>

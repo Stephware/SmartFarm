@@ -41,6 +41,6 @@
             <button class="auth-submit" type="submit">Log in to my farms</button>
         </form>
         <p class="ani-auth-next-note"><strong>After signing in</strong>, you can open your farms, create one, or enter a farm code to request access.</p>
-        <p class="auth-switch">New to AniGo? <a asp-controller="Account" asp-action="Register">Create an account</a>.</p>
+        <p class="auth-switch">New to AniGo? <a asp-controller="Account" asp-action="Register" asp-route-returnUrl="@ViewData["ReturnUrl"]">Create an account</a>.</p>
     </section>
 </div>

@@ -62,6 +62,23 @@ async function checkAccessibility(page, screen, viewport) {
             try {
                 await checkPage(page, "/", "Every farm, crop, and harvest in one place.");
                 if (label === "phone") {
+                    // Entry choices should survive registration and the following login.
+                    await page.getByRole("link", { name: "Create an account to manage" }).click();
+                    assert.equal(new URL(page.url()).searchParams.get("returnUrl"), "/Farms/Create");
+                    assert.ok((await page.locator("form.auth-form").getAttribute("action")).includes("returnUrl="));
+                    assert.equal(new URL(await page.locator(".auth-switch a").getAttribute("href"), base)
+                        .searchParams.get("returnUrl"), "/Farms/Create");
+                    await page.goto(new URL("/", base).href);
+                    await page.getByRole("link", { name: "Create an account to join" }).click();
+                    assert.equal(new URL(page.url()).searchParams.get("returnUrl"), "/Farms#join-farm");
+                    assert.equal(new URL(await page.locator(".auth-switch a").getAttribute("href"), base)
+                        .searchParams.get("returnUrl"), "/Farms#join-farm");
+                    await page.goto(new URL("/Account/Register?returnUrl=https%3A%2F%2Fexample.org", base).href);
+                    assert.ok(!(await page.locator("form.auth-form").getAttribute("action")).includes("example.org"),
+                        "registration should drop external return URLs");
+                    await page.goto(new URL("/", base).href);
+                }
+                if (label === "phone") {
                     const photos = page.locator('img[src*="/images/photography/"]');
                     assert.ok(await photos.count() >= 2, "the landing must render actual farm photography");
                     for (const asset of ["fields-hero.webp", "farmers-working.webp", "fields-detail.webp"]) {

@@ -1171,6 +1171,90 @@ public sealed class FarmEnrollmentWebTests
         Assert.Equal(HttpStatusCode.OK, read.StatusCode);
     }
 
+    [Theory]
+    [InlineData("/Farms/Create")]
+    [InlineData("/Farms#join-farm")]
+    public async Task RegistrationKeepsSelectedFarmDestinationWhenInputNeedsCorrection(string destination)
+    {
+        using var app = App();
+        using var client = app.CreateClient(new() { AllowAutoRedirect = false });
+        var route = "/Account/Register?returnUrl=" + Uri.EscapeDataString(destination);
+        var html = await client.GetStringAsync(route);
+        Assert.Contains("returnUrl=", html);
+        Assert.Contains("Your selected next step", html);
+        using var response = await client.PostAsync(route, Form(html,
+            ("FullName", ""), ("Email", "invalid"), ("Password", "weak")));
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        var invalid = await response.Content.ReadAsStringAsync();
+        Assert.Contains("returnUrl=", invalid);
+        Assert.Contains("Your selected next step", invalid);
+    }
+
+    [Fact]
+    public async Task RegistrationDropsExternalReturnDestination()
+    {
+        using var app = App();
+        using var client = app.CreateClient();
+        var html = await client.GetStringAsync("/Account/Register?returnUrl=https%3A%2F%2Fexample.org");
+        Assert.DoesNotContain("example.org", html);
+        Assert.DoesNotContain("Your selected next step", html);
+    }
+
+    // Capture real Razor HTML with deterministic signed-in roles for Chromium screenshot
+    // verification. These are fixtures, never production credentials or seeded farm data.
+    [Fact]
+    public async Task Phase12BAuthenticatedBrowserFixtures()
+    {
+        if (Environment.GetEnvironmentVariable("ANIGO_CAPTURE_AUTH_FIXTURES") != "1") return;
+
+        var root = new DirectoryInfo(AppContext.BaseDirectory);
+        while (root is not null && !File.Exists(Path.Combine(root.FullName, "SmartFarm.slnx")))
+            root = root.Parent;
+        Assert.NotNull(root);
+        var directory = Path.Combine(root.FullName, "tests", "browser", "authenticated-fixtures");
+        Directory.CreateDirectory(directory);
+        var farmList = new FarmSummary[]
+        {
+            new(FarmId, "Green Farm", "Baliuag, Bulacan", "Owner", "Asia/Manila"),
+            new(Guid.NewGuid(), "North Valley Fields", "San Fernando, Pampanga", "Manager", "Asia/Manila")
+        };
+
+        async Task Capture(WebApplicationFactory<Program> app, string file, string url)
+        {
+            using var client = app.CreateClient();
+            using var response = await client.GetAsync(url);
+            Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+            var html = await response.Content.ReadAsStringAsync();
+            Assert.Contains("id=\"main-content\"", html);
+            await File.WriteAllTextAsync(Path.Combine(directory, file + ".html"), html);
+        }
+
+        using (var empty = App(enroll: (name, _) => name == "MyRequestsAsync"
+            ? Task.FromResult<IReadOnlyList<FarmJoinRequestDetails>>([])
+            : throw new NotSupportedException(name)))
+        {
+            await Capture(empty, "farms-empty", "/Farms");
+        }
+        using (var populated = App(farms: farmList, enroll: (name, _) => name == "MyRequestsAsync"
+            ? Task.FromResult<IReadOnlyList<FarmJoinRequestDetails>>([])
+            : throw new NotSupportedException(name)))
+        {
+            await Capture(populated, "farms-populated", "/Farms");
+        }
+        using (var pending = App())
+        {
+            await Capture(pending, "farms-pending", "/Farms");
+            await Capture(pending, "farm-create", "/Farms/Create");
+            await Capture(pending, "farm-edit", $"/Farms/Edit?id={FarmId}");
+            await Capture(pending, "farm-detail-new", $"/Farms/Details?id={FarmId}");
+        }
+        using (var worker = App("FieldWorker", farms: [new(FarmId, "Green Farm", "Baliuag, Bulacan", "FieldWorker", "Asia/Manila")]))
+        {
+            await Capture(worker, "farms-worker", "/Farms");
+            await Capture(worker, "farm-detail-worker", $"/Farms/Details?id={FarmId}");
+        }
+    }
+
     private static FormUrlEncodedContent Form(string html, params (string Key, string Value)[] values)
     {
         var fields = values.ToDictionary(v => v.Key, v => v.Value);

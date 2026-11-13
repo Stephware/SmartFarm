@@ -130,11 +130,18 @@ public sealed class AccountController : Controller
     }
 
     [AllowAnonymous, HttpGet]
-    public IActionResult Register() => View(new RegisterInput());
+    public IActionResult Register(string? returnUrl = null)
+    {
+        ViewData["ReturnUrl"] = Url.IsLocalUrl(returnUrl) ? returnUrl : null;
+        return View(new RegisterInput());
+    }
 
     [AllowAnonymous, HttpPost, ValidateAntiForgeryToken, EnableRateLimiting(EnrollmentRateLimiting.Registration)]
-    public async Task<IActionResult> Register(RegisterInput input)
+    public async Task<IActionResult> Register(RegisterInput input, string? returnUrl = null)
     {
+        // Keep the user's create-or-join choice without accepting external redirects.
+        var safeReturnUrl = Url.IsLocalUrl(returnUrl) ? returnUrl : null;
+        ViewData["ReturnUrl"] = safeReturnUrl;
         if (!ModelState.IsValid) return View(input);
         var result = await _registration.RegisterAsync(input.FullName, input.Email, input.Password);
         if (!result.Succeeded)
@@ -144,8 +151,8 @@ public sealed class AccountController : Controller
             return View(input);
         }
 
-        TempData["Message"] = "Account created. Sign in to create a farm or request access to an existing farm.";
-        return RedirectToAction(nameof(Login));
+        TempData["Message"] = "Account created. Sign in to continue.";
+        return RedirectToAction(nameof(Login), new { returnUrl = safeReturnUrl });
     }
 
     [Authorize(AuthenticationSchemes = SmartFarmAuthSchemes.Application), HttpGet]

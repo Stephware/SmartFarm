@@ -28,11 +28,12 @@ test("Real photo assets are bundled and optimized WebP, not external runtime dep
     assert.match(register, /farmers-working\.webp/);
     assert.match(landing, /Photos?|photography/i);
     assert.doesNotMatch(landing + login + register, /images\/crops\/.*?\.svg/);
-    assert.doesNotMatch(landing + login + register, /images\.unsplash\.com/);
+    // Attribution hyperlinks may point to the original source; rendered photos must be local.
+    assert.doesNotMatch(landing + login + register, /<img[^>]+src=["']https:\/\/images\.unsplash\.com/);
 });
 test("Editorial photographs are not presented as real farm records", () => {
     assert.match(landing, /not a farm record/i);
-    assert.match(landing, /do not represent AniGo customer farms/);
+    assert.match(landing, /No image represents an AniGo customer farm/);
     assert.match(login, /Agricultural photography for illustration only/);
     assert.match(register, /Agricultural photography for illustration only/);
     assert.doesNotMatch(farms, /images\/photography/);
@@ -72,6 +73,21 @@ test("Farm creation keeps its required fields, timezone and opt-in map", () => {
     assert.match(edit, /data-farm-location-picker/);
     assert.match(edit, /js\/farm-location-loader\.js/);
 });
+test("Completion keeps create/join intent and mobile control usability", () => {
+    const controller = read("Controllers/AccountController.cs");
+    assert.ok(landing.includes('asp-route-returnUrl="@(signedIn ? null : Url.Action("Create", "Farms"))"'));
+    assert.ok(landing.includes('#join-farm'));
+    assert.ok(register.includes('asp-route-returnUrl="@nextUrl"'));
+    assert.ok(register.includes('placeholder="Password"'));
+    assert.ok(login.includes('asp-route-returnUrl="@ViewData["ReturnUrl"]"'));
+    assert.ok(controller.includes('Url.IsLocalUrl(returnUrl)'));
+    assert.ok(styles.includes('top: 50%'));
+    assert.ok(styles.includes('min-height: 44px; min-width: 72px'));
+    assert.ok(styles.includes('max-width:420px'));
+    assert.ok(styles.includes('list-style: disclosure-closed inside'));
+    assert.ok(landing.includes('Photo credits and sources'));
+});
+
 test("New visual composition remains scoped and respects responsive / reduced motion", () => {
     const src = read("Styles/anigo-tailwind.css");
     assert.match(src, /@import "\.\/anigo-entry\.css"/);

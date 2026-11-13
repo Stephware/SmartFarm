@@ -120,8 +120,12 @@
   .ani-entry-finish p:not(.ani-entry-eyebrow) { color: #d8e9dc; margin: 0; line-height: 1.65; }
   .ani-entry-finish .button { flex: 0 0 auto; color: #193726; background: #f1d69c; border-color: #f1d69c; }
   .ani-entry-finish .button:hover { background: #f9e9bf; color: #142e20; }
-  .ani-entry-photo-credit { margin: -64px 0 0; color: var(--ui-text-secondary); font-size: .75rem; line-height: 1.6; }
-  .ani-entry-photo-credit a { color: inherit; text-underline-offset: 2px; }
+  .ani-entry-photo-credit { margin: -64px 0 0; color: var(--ui-text-secondary); font-size: .875rem; line-height: 1.6; }
+  .ani-entry-photo-credit summary { display: list-item; list-style: disclosure-closed inside; width: fit-content; min-height: 44px; padding: 10px 4px; cursor: pointer; font-weight: 650; }
+  .ani-entry-photo-credit[open] summary { list-style-type: disclosure-open; }
+  .ani-entry-photo-credit summary:hover { color: var(--ui-primary); text-decoration: underline; }
+  .ani-entry-photo-credit p { margin: 6px 0; max-width: 90ch; }
+  .ani-entry-photo-credit a { display: inline-flex; align-items: center; min-height: 44px; padding-inline: 3px; color: var(--ui-primary); text-underline-offset: 2px; }
 
   /* Sign-in and registration: the action and form are always primary. */
   .auth-layout.ani-entry-auth-layout {
@@ -164,10 +168,11 @@
   }
   .ani-entry-auth-card .form-field input:focus-visible { border-color: var(--ui-focus); }
   .ani-entry-auth-card .ani-password-field { min-width: 0; position: relative; }
-  .ani-entry-auth-card .ani-password-field input { padding-right: 76px!important; }
+  .ani-entry-auth-card .ani-password-field input { padding-right: 88px!important; }
   .ani-entry-auth-card .ani-password-toggle {
-    display: inline-flex; align-items: center; justify-content: center; position: absolute; right: 5px; top: 4px;
-    min-height: 40px; min-width: 60px; padding: 5px 10px; border-radius: 7px; font-size: .875rem;
+    display: inline-flex; align-items: center; justify-content: center; position: absolute; right: 4px; top: 50%;
+    transform: translateY(-50%); min-height: 44px; min-width: 72px;
+    padding: 7px 12px; border-radius: 7px; font-size: .875rem;
     color: var(--ui-primary); background: transparent; border: 0;
   }
   .ani-entry-auth-card .auth-remember { font-size: .9rem; }
@@ -310,6 +315,12 @@
     .ani-entry-join-layout .join-farm-form button { width: 100%; }
     .ani-entry-farms-heading > a { width: 100%; justify-content: center; }
     .ani-entry-first-actions > div { padding: 19px; }
+  }
+  @media(max-width:420px) {
+    .ani-entry-registration-steps { grid-template-columns: minmax(0,1fr); gap: 8px; }
+    .ani-entry-registration-steps li { grid-template-columns: minmax(110px,auto) minmax(0,1fr); align-items: center; column-gap: 12px; padding: 10px 12px; }
+    .ani-entry-registration-steps li strong { font-size: .875rem; }
+    .ani-entry-registration-steps li span { font-size: .8rem; }
   }
   @media(prefers-reduced-motion:reduce) {
     .ani-entry-site *, .ani-entry-auth-layout * { transition:none!important; animation:none!important; }

@@ -1,6 +1,7 @@
 @model SmartFarm.Web.ViewModels.Auth.RegisterInput
 @{
     ViewData["Title"] = "Register";
+    var nextUrl = ViewData["ReturnUrl"] as string;
 }
 <div class="auth-layout ani-entry-auth-layout">
     <aside class="auth-intro ani-entry-auth-visual">
@@ -24,7 +25,7 @@
                 <li><strong>3. Work</strong><span>Get started</span></li>
             </ol>
         </div>
-        <form method="post" asp-action="Register" asp-controller="Account" class="auth-form">
+        <form method="post" asp-action="Register" asp-controller="Account" asp-route-returnUrl="@nextUrl" class="auth-form">
             <div class="form-field">
                 <label asp-for="FullName">Full name</label>
                 <input asp-for="FullName" autocomplete="name" required placeholder="Your full name" />
@@ -40,7 +41,7 @@
                 <label asp-for="Password"></label>
                 <div class="ani-password-field">
                     <input asp-for="Password" type="password" autocomplete="new-password"
-                           aria-describedby="password-guidance" required minlength="10" placeholder="Create a secure password" />
+                           aria-describedby="password-guidance" required minlength="10" placeholder="Password" />
                     <button type="button" class="ani-password-toggle" data-password-toggle
                             aria-controls="Password" aria-pressed="false">Show</button>
                 </div>
@@ -49,7 +50,14 @@
             </div>
             <button class="auth-submit" type="submit">Create account</button>
         </form>
-        <p class="ani-auth-fineprint">After registration, sign in and choose <strong>Create farm</strong> or <strong>Join farm</strong>. A farm owner must approve join requests.</p>
-        <p class="auth-switch">Already have an account? <a asp-controller="Account" asp-action="Login">Log in</a>.</p>
+        @if (!string.IsNullOrEmpty(nextUrl))
+        {
+            <p class="ani-auth-fineprint" role="status">Your selected next step will be ready after sign-in. Joining a farm still requires the owner's approval.</p>
+        }
+        else
+        {
+            <p class="ani-auth-fineprint">After registration, sign in and choose <strong>Create farm</strong> or <strong>Join farm</strong>. A farm owner must approve join requests.</p>
+        }
+        <p class="auth-switch">Already have an account? <a asp-controller="Account" asp-action="Login" asp-route-returnUrl="@nextUrl">Log in</a>.</p>
     </section>
 </div>
