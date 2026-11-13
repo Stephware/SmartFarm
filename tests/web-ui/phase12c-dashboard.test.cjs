@@ -20,7 +20,7 @@ test("Phase 12C uses one scoped design and real farm-derived dashboard summaries
     assert.match(farm, /ani12c-role-manager/);
     assert.match(farm, /ani12c-role-worker/);
     assert.match(css, /var\(--ui-surface\)/);
-    assert.match(css, /max-width:360px/);
+    assert.match(css, /max-width:\s*360px/);
 });
 test("Phase 12C always chooses a crop explicitly when multiple are active", () => {
     assert.match(farm, /activeCycle = activeCycles\.Count == 1 \? activeCycles\[0\] : null/);
