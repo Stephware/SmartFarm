@@ -1282,7 +1282,7 @@ public sealed class FarmEnrollmentWebTests
     }
 
     [Fact]
-    public async Task Phase12CDashboardBrowserFixtures()
+    public async Task Phase12CAuthenticatedBrowserFixtures()
     {
         if (Environment.GetEnvironmentVariable("ANIGO_CAPTURE_AUTH_FIXTURES") != "1") return;
 
