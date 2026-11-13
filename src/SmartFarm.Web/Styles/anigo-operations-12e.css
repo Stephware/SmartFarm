@@ -1,0 +1,249 @@
+/* AniGo Phase 12E — daily operations.
+   All rules are scoped to the affected Razor pages. Display real saved data;
+   don't suggest weather is live or change farm permissions. */
+@layer components {
+  .ani12e-workspace {
+    min-width: 0;
+    --e-border: var(--ui-border);
+    --e-surface: var(--ui-surface);
+    --e-soft: var(--ui-surface-subtle);
+    --e-text: var(--ui-text);
+    --e-muted: var(--ui-text-secondary);
+  }
+  .ani12e-workspace > section.panel, .ani12e-workspace > .ani-report-main-content > section.panel {
+    min-width: 0; border: 1px solid var(--e-border); border-radius: var(--ui-card-radius);
+    background: var(--e-surface); box-shadow: none; margin-bottom: 18px;
+  }
+  .ani12e-hero {
+    padding: clamp(18px, 2.8vw, 30px);
+  }
+  .ani12e-hero .page-hero { display: flex; flex-wrap: wrap; align-items: center; gap: 12px 22px; }
+  .ani12e-hero .page-hero > div:first-child { min-width: 0; flex: 1 1 310px; }
+  .ani12e-hero h1 { font-size: clamp(1.65rem, 2.6vw, 2.4rem); line-height: 1.18; margin: 5px 0 10px; overflow-wrap: anywhere; }
+  .ani12e-hero .sf-muted { max-width: 75ch; line-height: 1.6; color: var(--e-muted); }
+  .ani12e-workspace :is(.sf-ops-hero a, .ani12e-jump-nav a, .ani12e-filter-tabs a, .ani12e-actions a) {
+    min-height: 44px; display: inline-flex; align-items: center;
+  }
+  .ani12e-workspace :is(input:not([type="hidden"]), select, textarea) { max-width: 100%; min-width: 0; }
+  .ani12e-workspace :is(input:not([type="hidden"]), select) { min-height: 44px; }
+  .ani12e-workspace :is(button, .button, .sf-button-outline) { min-height: 44px; }
+  .ani12e-workspace :is(a, button, input, select, textarea, summary):focus-visible {
+    outline: 3px solid var(--ui-primary); outline-offset: 3px;
+  }
+  .ani12e-metrics {
+    display: grid; grid-template-columns: repeat(4,minmax(0,1fr)); gap: 11px;
+    margin-top: 20px; margin-bottom: 12px;
+  }
+  .ani12e-metrics > div, .ani12e-unit-totals > div {
+    min-width: 0; min-height: 95px; display: flex; flex-direction: column; justify-content: center; gap: 6px;
+    padding: 16px 18px; border: 1px solid var(--e-border);
+    background: var(--e-surface); border-radius: 12px;
+  }
+  .ani12e-metrics strong, .ani12e-unit-totals strong {
+    color: var(--e-text); font-size: clamp(1.35rem,2.25vw,1.9rem);
+    font-variant-numeric: tabular-nums; line-height: 1.2; overflow-wrap: anywhere;
+  }
+  .ani12e-metrics span, .ani12e-unit-totals span { font-size: .875rem; line-height: 1.4; color: var(--e-muted); }
+  .ani12e-metrics > .ani-priority-warning, .ani12e-metrics > .sf-summary-warning {
+    border-color: var(--ui-gold); border-left: 4px solid var(--ui-gold);
+  }
+  .ani12e-primary-panel, .ani12e-history-panel, .ani12e-form-panel,
+  .ani12e-create-panel, .ani12e-observation-panel, .ani12e-photo-panel {
+    min-width: 0; border: 1px solid var(--e-border); border-radius: 13px; background: var(--e-surface);
+    box-shadow: none;
+  }
+  .ani12e-workspace :is(.sf-section-line, .reference-panel-heading) {
+    display: flex; gap: 12px; justify-content: space-between; align-items: flex-start; flex-wrap: wrap;
+  }
+  .ani12e-workspace .sf-section-line h2 { margin-bottom: 4px; }
+  .ani12e-workspace :is(.sf-ops-form, .sf-inventory-form) { max-width: 100%; }
+  .ani12e-form-panel, .ani12e-create-panel { scroll-margin-top: 100px; }
+  .ani12e-workspace .sf-empty-state {
+    background: var(--e-soft); border: 1px dashed var(--e-border);
+    border-radius: 12px; padding: 24px; line-height: 1.55;
+  }
+  .ani12e-filter-tabs, .ani12e-jump-nav {
+    display: flex; align-items: center; flex-wrap: wrap; gap: 7px;
+    background: var(--e-soft); border: 1px solid var(--e-border);
+    border-radius: 12px; padding: 6px; margin-block: 15px;
+  }
+  .ani12e-filter-tabs a, .ani12e-jump-nav a {
+    display: inline-flex; gap: 8px; justify-content: center; align-items: center;
+    border-radius: 9px; padding: 10px 13px; font-size: .875rem; font-weight: 750;
+    text-decoration: none; color: var(--e-text); border: 1px solid transparent;
+    background: transparent;
+  }
+  .ani12e-filter-tabs a:is(.is-selected, [aria-current="page"]) {
+    background: var(--e-surface); border-color: var(--e-border);
+    color: var(--ui-primary);
+  }
+  .ani12e-filter-tabs a:hover, .ani12e-jump-nav a:hover { background: var(--e-surface); color: var(--ui-primary); }
+  .ani12e-filter-tabs a span { font-variant-numeric: tabular-nums; }
+  .ani12e-task-workspace { display: grid; grid-template-columns: minmax(0,1.6fr) minmax(280px,1fr); gap: 18px; align-items: start; }
+  .ani12e-task-workspace > * { min-width: 0; }
+  .ani12e-tasks .ani12e-primary-panel { margin: 0; }
+  .ani12e-task-list { display: grid; gap: 12px; padding: 0; margin: 0; }
+  .ani12e-task-card {
+    min-width: 0; border: 1px solid var(--e-border); border-radius: 12px; box-shadow: none;
+    background: var(--e-surface); padding: clamp(14px,2vw,20px);
+    scroll-margin-top: 110px;
+  }
+  .ani12e-task-card.ani-task-urgent { border-color: var(--ui-gold); border-left: 4px solid var(--ui-gold); }
+  .ani12e-task-card .sf-task-main { min-width: 0; align-items: flex-start; }
+  .ani12e-task-card .sf-task-content { min-width: 0; flex: 1 1 auto; }
+  .ani12e-task-card .sf-task-title { gap: 8px; flex-wrap: wrap; }
+  .ani12e-task-card .sf-task-title h3 { font-size: 1rem; line-height: 1.4; }
+  .ani12e-task-card .sf-task-meta { display: flex; flex-wrap: wrap; gap: 6px 15px; font-size: .875rem; }
+  .ani12e-task-actions { display: flex; flex-wrap: wrap; align-items: flex-start; gap: 10px; }
+  .ani12e-task-actions button { font-weight: 750; }
+  .ani12e-task-card :is(.sf-edit-disclosure, .ani-task-other) summary {
+    display: list-item; align-content: center; cursor: pointer; min-height: 44px;
+    color: var(--ui-primary); font-weight: 650;
+  }
+  .ani12e-task-calendar { position: sticky; top: 96px; margin: 0; min-width: 0; }
+  .ani12e-month-nav { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+  .ani12e-month-nav a { display: inline-flex; align-items: center; min-height: 44px; padding: 7px; font-size: .82rem; }
+  .ani12e-month-nav strong { text-align: center; font-size: .95rem; }
+  .ani12e-mobile-agenda { display: none; }
+  .ani12e-tasks .ani12e-create-panel { margin-top: 20px; }
+  .ani12e-recording-grid { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); align-items: start; gap: 16px; }
+  .ani12e-monitoring .ani12e-crop-art img, .ani12e-harvest-actions img {
+    width: 64px; height: 64px; object-fit: contain; opacity: .8; flex: 0 0 64px;
+  }
+  .ani12e-monitoring .ani12e-actions { gap: 8px; flex-wrap: wrap; }
+  .ani12e-monitoring .ani12e-actions a { padding: 9px 14px; font-size: .875rem; }
+  .ani12e-monitoring .ani12e-steps { display: grid; grid-template-columns: repeat(3,minmax(0,1fr)); gap: 11px; margin: 16px 0; }
+  .ani12e-monitoring .ani12e-steps > div {
+    min-width: 0; background: var(--e-soft); border: 1px solid var(--e-border);
+    border-radius: 11px; padding: 15px; display: grid; gap: 5px;
+  }
+  .ani12e-monitoring .ani12e-steps strong { color: var(--e-text); font-size: .92rem; }
+  .ani12e-monitoring .ani12e-steps span { color: var(--e-muted); font-size: .82rem; line-height: 1.5; }
+  .ani12e-monitoring .ani12e-form-panel { scroll-margin-top: 100px; }
+  .ani12e-monitoring .ani12e-history-panel, .ani12e-monitoring .ani12e-observation-panel { margin-top: 18px; }
+  .ani12e-photo-grid { display: grid; grid-template-columns: repeat(auto-fill,minmax(min(100%,165px),1fr)); gap: 12px; }
+  .ani12e-photo-grid figure {
+    min-width: 0; margin: 0; border-radius: 12px; overflow: hidden;
+    border: 1px solid var(--e-border); background: var(--e-soft);
+  }
+  .ani12e-photo-grid figure img { display: block; width: 100%; aspect-ratio: 4/3; height: auto; object-fit: cover; }
+  .ani12e-photo-grid figure figcaption { padding: 11px; display: grid; gap: 3px; font-size: .83rem; color: var(--e-muted); }
+  .ani12e-photo-grid figure figcaption strong { color: var(--e-text); }
+  .ani12e-harvest-actions {
+    display: flex; gap: 9px; flex-wrap: wrap; align-items: center; justify-content: flex-end;
+    margin-left: auto; max-width: 420px;
+  }
+  .ani12e-harvest-actions > a { min-height: 44px; }
+  .ani12e-harvests .ani12e-metrics { grid-template-columns: minmax(0,1.5fr) repeat(2,minmax(0,1fr)); }
+  .ani12e-harvests .ani12e-history-panel { margin-top: 18px; }
+  .ani12e-inventory .ani12e-metrics { grid-template-columns: repeat(3,minmax(0,1fr)); }
+  .ani12e-inventory .ani12e-search-form {
+    display: flex; flex-wrap: wrap; align-items: end; gap: 12px; padding: 14px 0;
+  }
+  .ani12e-search-form > div { flex: 1 1 180px; min-width: 0; }
+  .ani12e-search-form input[type="search"] { width: 100%; }
+  .ani12e-search-form button, .ani12e-search-form a { min-height: 44px; }
+  .ani12e-scroll-table { max-width: 100%; overflow-x: auto; overscroll-behavior-x: contain; border-radius: 10px; }
+  .ani12e-inventory-table { min-width: 670px; }
+  .ani12e-inventory-table td { vertical-align: middle; }
+  .ani12e-inventory-table .reference-quantity { font-variant-numeric: tabular-nums; }
+  .ani12e-inventory-table td:last-child a { white-space: nowrap; }
+  .ani12e-inventory .ani12e-create-panel { margin-top: 18px; }
+  .ani12e-stock-detail .ani12e-stock-total { min-width: 170px; }
+  .ani12e-stock-detail .ani12e-stock-total strong { font-variant-numeric: tabular-nums; overflow-wrap: anywhere; }
+  .ani12e-stock-detail .ani12e-form-panel { margin-top: 18px; }
+  .ani12e-stock-detail .ani12e-movement-form { max-width: 660px; }
+  .ani12e-stock-detail .ani12e-movement-form :is(input, select) { width: 100%; }
+  .ani12e-edit-inventory { max-width: 850px; margin-inline: auto; }
+  .ani12e-edit-inventory .ani12e-form-panel { padding: clamp(20px,3vw,34px); }
+  .ani12e-edit-inventory .ani12e-fields { display: grid; gap: 10px; max-width: 620px; }
+  .ani12e-form-actions { display: flex; align-items: center; flex-wrap: wrap; gap: 12px; margin-top: 18px; }
+  .ani12e-form-actions > * { min-height: 44px; }
+  .ani12e-weather .ani12e-weather-safety {
+    margin-top: 12px; max-width: 85ch; padding: 11px 14px; border-left: 3px solid var(--ui-gold);
+    background: var(--e-soft); border-radius: 7px; font-size: .875rem; line-height: 1.6;
+  }
+  .ani12e-weather .ani12e-freshness {
+    display: flex; gap: 5px 8px; align-items: center; flex-wrap: wrap;
+    font-size: .875rem; color: var(--e-muted); margin: 12px 0 0;
+  }
+  .ani12e-weather .ani12e-weather-overview { margin-top: 16px; border: 1px solid var(--e-border); background: var(--e-soft); border-radius: 12px; }
+  .ani12e-weather .ani12e-forecast-grid {
+    display: grid; grid-template-columns: repeat(auto-fit,minmax(min(100%,205px),1fr));
+    gap: 12px; padding: 0; list-style: none;
+  }
+  .ani12e-weather .ani12e-forecast-grid > li { min-width: 0; border: 1px solid var(--e-border); border-radius: 12px; background: var(--e-surface); }
+  .ani12e-weather .ani12e-weather-advisories { margin-top: 18px; }
+  .ani12e-weather .sf-weather-stale { border-left: 4px solid var(--ui-gold); }
+  .ani12e-reports .ani12e-hero .ani-report-result-heading { margin: 22px 0 12px; }
+  .ani12e-reports .ani12e-metrics { grid-template-columns: repeat(2,minmax(0,1fr)); }
+  .ani12e-reports .ani12e-unit-totals {
+    display: grid; grid-template-columns: repeat(auto-fit,minmax(min(100%,220px),1fr)); gap: 12px;
+  }
+  .ani12e-export-shortcut { margin: 13px 0; }
+  .ani12e-export-shortcut a { display: inline-flex; align-items: center; min-height: 44px; }
+  .ani12e-report-filters { scroll-margin-top: 110px; border: 1px solid var(--e-border); border-radius: 12px; background: var(--e-soft); }
+  .ani12e-report-filters > summary { min-height: 52px; display: list-item; align-content: center; padding: 12px 16px; cursor: pointer; }
+  .ani12e-report-filter-form { display: grid; grid-template-columns: repeat(4,minmax(0,1fr)); gap: 12px; align-items: end; }
+  .ani12e-report-filter-form > div { min-width: 0; }
+  .ani12e-report-filter-form input, .ani12e-report-filter-form select { width: 100%; }
+  .ani12e-export-actions { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 12px; }
+  .ani12e-export-actions a { min-height: 44px; display: inline-flex; align-items: center; }
+  .ani12e-report-results { display: grid; gap: 18px; margin-block: 18px; }
+  .ani12e-report-results .ani12e-data-panel { margin: 0; min-width: 0; border: 1px solid var(--e-border); border-radius: 12px; background: var(--e-surface); }
+  .ani12e-data-panel .table-scroll { max-width: 100%; overflow-x: auto; border-radius: 10px; }
+  .ani12e-data-panel .data-table { min-width: 565px; }
+  .ani12e-report-advanced { border: 1px solid var(--e-border); border-radius: 12px; padding: 12px 18px; margin-top: 16px; }
+  .ani12e-report-advanced > summary { display: list-item; min-height: 44px; align-content: center; cursor: pointer; }
+  .ani12e-report-advanced .ani12e-report-charts { min-width: 0; }
+  .ani12e-report-charts .harvest-bar-row { min-width: 0; gap: 10px; }
+  @media(max-width:1120px) {
+    .ani12e-task-workspace { grid-template-columns: minmax(0,1fr); }
+    .ani12e-task-calendar { position: static; }
+    .ani12e-report-filter-form { grid-template-columns: repeat(2,minmax(0,1fr)); }
+    .ani12e-recording-grid { grid-template-columns: minmax(0,1fr); }
+  }
+  @media(max-width:760px) {
+    .ani12e-metrics { grid-template-columns: repeat(2,minmax(0,1fr)); }
+    .ani12e-harvests .ani12e-metrics, .ani12e-inventory .ani12e-metrics { grid-template-columns: repeat(2,minmax(0,1fr)); }
+    .ani12e-harvests .ani12e-metrics > :first-child { grid-column: 1 / -1; }
+    .ani12e-filter-tabs, .ani12e-jump-nav { flex-wrap: nowrap; overflow-x: auto; overscroll-behavior-x: contain; }
+    .ani12e-filter-tabs a, .ani12e-jump-nav a { white-space: nowrap; flex: 0 0 auto; }
+    .ani12e-task-calendar .reference-calendar { display: none; }
+    .ani12e-mobile-agenda { display: block; border-top: 1px solid var(--e-border); padding-top: 12px; }
+    .ani12e-mobile-agenda > p { padding: 15px; background: var(--e-soft); border-radius: 9px; }
+    .ani12e-mobile-agenda ol { margin: 0; padding: 0; list-style: none; display: grid; gap: 8px; }
+    .ani12e-mobile-agenda li {
+      display: grid; grid-template-columns: 64px minmax(0,1fr) auto; align-items: center;
+      gap: 10px; padding: 12px; border: 1px solid var(--e-border); border-radius: 9px;
+      background: var(--e-soft);
+    }
+    .ani12e-mobile-agenda li time { font-size: .875rem; font-weight: 800; }
+    .ani12e-mobile-agenda li span { min-width: 0; display: grid; gap: 4px; }
+    .ani12e-mobile-agenda li span strong { font-size: .875rem; overflow-wrap: anywhere; }
+    .ani12e-mobile-agenda li small { font-size: .78rem; color: var(--e-muted); }
+    .ani12e-mobile-agenda li a { display: inline-flex; align-items: center; min-height: 44px; font-weight: 700; white-space: nowrap; }
+    .ani12e-monitoring .ani12e-steps { grid-template-columns: minmax(0,1fr); }
+    .ani12e-monitoring .ani12e-steps > div { grid-template-columns: minmax(110px,auto) minmax(0,1fr); align-items: center; gap: 10px; }
+    .ani12e-harvest-actions { justify-content: flex-start; margin-left: 0; }
+    .ani12e-search-form { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); }
+    .ani12e-search-form > div { flex: none; }
+    .ani12e-weather .ani12e-forecast-grid { grid-template-columns: minmax(0,1fr); }
+    .ani12e-report-filter-form { grid-template-columns: minmax(0,1fr); }
+  }
+  @media(max-width:420px) {
+    .ani12e-metrics > div { padding: 12px; min-height: 82px; }
+    .ani12e-filter-tabs a, .ani12e-jump-nav a { padding: 9px 11px; }
+    .ani12e-month-nav { gap: 4px; }
+    .ani12e-month-nav a { padding: 6px 3px; font-size: .78rem; }
+    .ani12e-month-nav strong { font-size: .88rem; }
+    .ani12e-mobile-agenda li { grid-template-columns: 50px minmax(0,1fr); gap: 6px; }
+    .ani12e-mobile-agenda li a { grid-column: 2; justify-self: start; }
+    .ani12e-search-form { grid-template-columns: minmax(0,1fr); }
+    .ani12e-search-form > * { min-width: 0; }
+    .ani12e-weather .ani12e-freshness { display: block; }
+  }
+  @media(prefers-reduced-motion:reduce) {
+    .ani12e-workspace a, .ani12e-workspace button { transition: none; }
+  }
+}
