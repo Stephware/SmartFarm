@@ -105,7 +105,9 @@
     text-decoration: none;
   }
   .ani12d-plot-directory .ani12d-plot-card:hover { border-color: var(--ui-primary); background: var(--ani12d-soft); }
+  .ani12d-plot-directory .ani12d-plot-card::before { display: none; }
   .ani12d-plot-card .ani-plot-art {
+    position: static; inset: auto; align-self: center; justify-self: center;
     display: grid; place-items: center; width: 76px; min-height: 76px; max-height: 86px; height: 76px;
     border-radius: 10px; background: var(--ani12d-soft); overflow: hidden;
   }
