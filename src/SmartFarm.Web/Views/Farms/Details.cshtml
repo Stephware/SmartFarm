@@ -45,7 +45,7 @@
 </section>
 <nav class="ani12d-workspace-links" aria-label="Farm management sections">
     <a href="#plots-heading"><partial name="_Icon" model='@("grid")' />Plots <span>@Model.Plots.Count</span></a>
-    <a asp-controller="Crops" asp-action="Index" asp-route-farmId="@Model.Farm.Id" asp-fragment="planting-plans-heading"><partial name="_Icon" model='@("sprout")' />Crop planning</a>
+    <a asp-controller="Crops" asp-action="Index" asp-route-farmId="@Model.Farm.Id" asp-fragment="@(canManage ? "planting-plans-heading" : "ani-current-heading")"><partial name="_Icon" model='@("sprout")' />@(canManage ? "Crop planning" : "Crop records")</a>
     <a href="#members-heading"><partial name="_Icon" model='@("users")' />Farm team <span>@(Model.Members.Count + 1)</span></a>
     @if (isOwner) { <a href="#join-requests-heading"><partial name="_Icon" model='@("checkSquare")' />Join requests</a> }
 </nav>
@@ -85,7 +85,7 @@
                         <strong>@plot.Name</strong>
                         <span class="sf-muted">@plot.AreaSqMeters.ToString("N2") m²</span>
                         <a asp-controller="Crops" asp-action="Index" asp-route-farmId="@Model.Farm.Id"
-                           asp-route-plotId="@plot.Id" asp-fragment="planting-plans-heading">View crops for this plot →</a>
+                           asp-route-plotId="@plot.Id" asp-fragment="@(canManage ? "planting-plans-heading" : "ani-current-heading")">View crops for this plot →</a>
                     </div>
                     @if (canManage)
                     {
