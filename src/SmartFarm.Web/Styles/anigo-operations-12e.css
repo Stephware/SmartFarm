@@ -188,6 +188,11 @@
     align-content: center; padding: 12px 16px; cursor: pointer;
   }
   .ani12e-report-filters[open] > summary { list-style-type: disclosure-open; }
+  .ani12e-report-filters > summary strong { margin-right: 10px; }
+  .ani12e-report-filters > summary span { color: var(--e-muted); font-size: .83rem; line-height: 1.5; }
+  .ani12e-reports .ani12e-hero .page-hero > a {
+    align-self: flex-start; margin: 0; min-height: 44px;
+  }
   .ani12e-report-filter-form { display: grid; grid-template-columns: repeat(4,minmax(0,1fr)); gap: 12px; align-items: end; }
   .ani12e-report-filter-form > div { min-width: 0; }
   .ani12e-report-filter-form input, .ani12e-report-filter-form select { width: 100%; }
