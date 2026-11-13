@@ -1,0 +1,247 @@
+/* AniGo Phase 12D — task-led farm setup, plot directory, crop planning and calendar.
+   Scoped to farm/crop pages. Preserves all server-side role and record rules. */
+@layer components {
+  :is(.ani12d-farm-workspace, .ani12d-plot-workspace, .ani12d-crop-workspace, .ani12d-edit-plan, .ani12d-edit-plot) {
+    min-width: 0;
+    --ani12d-edge: var(--ui-border);
+    --ani12d-surface: var(--ui-surface);
+    --ani12d-soft: var(--ui-surface-subtle);
+    --ani12d-type: var(--ui-text);
+    --ani12d-muted: var(--ui-text-secondary);
+  }
+  :is(.ani12d-farm-workspace, .ani12d-plot-workspace, .ani12d-crop-workspace) > .panel {
+    background: var(--ani12d-surface); border: 1px solid var(--ani12d-edge);
+    border-radius: var(--ui-card-radius); box-shadow: none; margin-bottom: 22px;
+  }
+  .ani12d-farm-hero .page-hero, .ani12d-crop-hero .page-hero, .ani12d-plot-overview .page-hero {
+    margin-bottom: 16px; gap: 20px; align-items: center;
+  }
+  .ani12d-farm-hero h1, .ani12d-crop-hero h1, .ani12d-plot-overview h1 {
+    margin: 6px 0 10px; font-size: clamp(1.75rem, 2.8vw, 2.55rem);
+    line-height: 1.16; color: var(--ani12d-type);
+  }
+  .ani12d-back { display: inline-flex; align-items: center; min-height: 44px; font-size: .875rem; }
+  .ani12d-farm-identity { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 14px; }
+  .ani12d-location-timezone { color: var(--ani12d-muted); font-size: .875rem; }
+  .ani12d-workspace-links {
+    display: flex; gap: 8px; flex-wrap: wrap; align-items: stretch;
+    margin: 0 0 20px; padding: 6px;
+    background: var(--ani12d-soft); border-radius: 12px; border: 1px solid var(--ani12d-edge);
+  }
+  .ani12d-workspace-links a {
+    display: inline-flex; align-items: center; gap: 9px;
+    min-height: 44px; min-width: 0; padding: 10px 14px;
+    border-radius: 9px; color: var(--ani12d-type); text-decoration: none; font-size: .875rem; font-weight: 750;
+  }
+  .ani12d-workspace-links a:hover { background: var(--ani12d-surface); color: var(--ui-primary); }
+  .ani12d-workspace-links a > span {
+    display: inline-flex; align-items: center; justify-content: center;
+    min-width: 23px; min-height: 23px; border-radius: 7px;
+    background: var(--ani12d-surface); border: 1px solid var(--ani12d-edge);
+    font-variant-numeric: tabular-nums;
+  }
+  .ani12d-workspace-links svg { width: 17px; height: 17px; flex-shrink: 0; }
+  .ani12d-farm-summary {
+    display: grid; grid-template-columns: repeat(3,minmax(0,1fr)); gap: 12px; margin-bottom: 20px;
+  }
+  .ani12d-farm-summary > div {
+    display: grid; align-content: center; gap: 5px; min-height: 95px;
+    padding: 15px 19px; background: var(--ani12d-surface);
+    border: 1px solid var(--ani12d-edge); border-radius: 12px;
+  }
+  .ani12d-farm-summary strong { font-size: 1.42rem; font-weight: 800; line-height: 1.2; color: var(--ani12d-type); overflow-wrap: anywhere; }
+  .ani12d-farm-summary span { color: var(--ani12d-muted); font-size: .875rem; }
+  .ani12d-management-grid { gap: 18px; align-items: start; }
+  .ani12d-management-grid > section { min-width: 0; border-radius: 14px; }
+  .ani12d-plots-panel .sf-section-line, .ani12d-members-panel .sf-section-line { align-items: start; gap: 16px; }
+  .ani12d-plots-panel .sf-plot-list li { gap: 14px; padding: 18px 0; align-items: center; min-width: 0; }
+  .ani12d-plot-marker {
+    display: inline-grid; place-items: center; width: 40px; height: 40px;
+    flex: 0 0 40px; border-radius: 10px; color: var(--ui-primary); background: var(--ani12d-soft);
+  }
+  .ani12d-plot-marker svg { width: 19px; height: 19px; }
+  .ani12d-plot-actions { display: flex; flex-wrap: wrap; gap: 9px; margin-left: auto; }
+  .ani12d-plot-actions a, .ani12d-plot-actions button { display: inline-flex; align-items: center; min-height: 44px; padding: 9px 12px; }
+  .ani12d-add-plot { scroll-margin-top: 100px; margin-top: 24px; padding: 20px; background: var(--ani12d-soft); border: 1px solid var(--ani12d-edge); border-radius: 12px; }
+  .ani12d-add-plot h3 { margin: 0 0 6px; font-size: 1.15rem; }
+  .ani12d-add-plot > p { margin: 0 0 14px; }
+  .ani12d-add-plot .sf-inline-form { gap: 14px; align-items: end; }
+  .ani12d-add-plot input { min-height: 44px; }
+  .ani12d-farm-workspace #members-heading, .ani12d-farm-workspace #plots-heading { scroll-margin-top: 100px; }
+  .ani12d-members-panel .sf-member-list li { align-items: start; gap: 12px; }
+  .ani12d-members-panel .sf-member-controls { min-width: 0; }
+  .ani12d-members-panel .sf-member-controls form { max-width: 100%; }
+  .ani12d-danger-options {
+    margin: 22px 0 0; padding: 12px 18px;
+    border: 1px solid var(--ani12d-edge); background: var(--ani12d-surface); border-radius: 12px;
+  }
+  .ani12d-danger-options summary { min-height: 44px; display: list-item; align-content: center; cursor: pointer; color: var(--ani12d-muted); font-size: .875rem; font-weight: 700; }
+  .ani12d-danger-options p { max-width: 72ch; font-size: .875rem; color: var(--ani12d-muted); }
+  .ani12d-plot-disclaimer {
+    padding: 11px 14px; margin: 0 0 18px;
+    background: var(--ani12d-soft); border-radius: 9px; color: var(--ani12d-muted);
+    font-size: .875rem; line-height: 1.55;
+  }
+  .ani12d-plot-summary {
+    display: grid; grid-template-columns: repeat(4,minmax(0,1fr)); gap: 10px;
+    margin: 0 0 18px;
+  }
+  .ani12d-plot-summary > div {
+    display: grid; gap: 5px; padding: 16px; border: 1px solid var(--ani12d-edge);
+    background: var(--ani12d-surface); border-radius: 11px; min-width: 0;
+  }
+  .ani12d-plot-summary strong { font-variant-numeric: tabular-nums; font-size: 1.65rem; color: var(--ani12d-type); }
+  .ani12d-plot-summary span { font-size: .875rem; color: var(--ani12d-muted); }
+  .ani12d-field-journey { margin: 0 0 20px; }
+  .ani12d-plot-directory {
+    display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 14px;
+    margin: 0; padding: 0; list-style: none;
+  }
+  .ani12d-plot-directory .ani12d-plot-card {
+    display: grid; grid-template-columns: 76px minmax(0,1fr); min-height: 125px;
+    border-radius: 12px; border: 1px solid var(--ani12d-edge); color: var(--ani12d-type);
+    background: var(--ani12d-surface); overflow: hidden; text-align: left;
+    padding: 14px; gap: 14px; align-items: center;
+    text-decoration: none;
+  }
+  .ani12d-plot-directory .ani12d-plot-card:hover { border-color: var(--ui-primary); background: var(--ani12d-soft); }
+  .ani12d-plot-card .ani-plot-art {
+    display: grid; place-items: center; width: 76px; min-height: 76px; max-height: 86px; height: 76px;
+    border-radius: 10px; background: var(--ani12d-soft); overflow: hidden;
+  }
+  .ani12d-plot-card .ani-plot-art img { width: 58px; height: 58px; object-fit: contain; opacity: .85; }
+  .ani12d-plot-card .sf-plot-tile-info { position: static; display: grid; align-content: center; gap: 5px; padding: 0; min-width: 0; background: none; }
+  .ani12d-plot-card .sf-plot-tile-info strong { font-size: 1.05rem; color: var(--ani12d-type); }
+  .ani12d-plot-card .sf-plot-tile-info :is(span, .sf-plot-crop) { font-size: .875rem; line-height: 1.45; color: var(--ani12d-muted); }
+  .ani12d-plot-card .ani12d-directory-action { color: var(--ui-primary)!important; font-weight: 750; font-size: .875rem; }
+  .ani12d-plot-workspace .sf-overview-footer a { display: inline-flex; min-height: 44px; align-items: center; }
+  .ani12d-crop-tabs {
+    display: flex; gap: 7px; flex-wrap: wrap; margin: 18px 0; padding: 5px;
+    background: var(--ani12d-soft); border: 1px solid var(--ani12d-edge); border-radius: 12px;
+  }
+  .ani12d-crop-tabs a {
+    min-height: 44px; display: inline-flex; align-items: center; padding: 9px 13px;
+    border-radius: 9px; font-size: .875rem; font-weight: 700; text-decoration: none; color: var(--ani12d-type);
+  }
+  .ani12d-crop-tabs a:hover { background: var(--ani12d-surface); color: var(--ui-primary); }
+  .ani12d-crop-summary { margin-top: 16px; gap: 10px; }
+  .ani12d-crop-summary > div {
+    min-width: 0; padding: 14px 16px; background: var(--ani12d-surface); border-radius: 11px;
+    border: 1px solid var(--ani12d-edge);
+  }
+  .ani12d-crop-summary strong { font-size: 1.6rem; font-variant-numeric: tabular-nums; color: var(--ani12d-type); }
+  .ani12d-crop-summary span { font-size: .875rem; color: var(--ani12d-muted); }
+  .ani12d-current-crops, .ani12d-crop-records, .ani12d-plan-panel, .ani12d-calendar { scroll-margin-top: 100px; }
+  .ani12d-current-grid { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 12px; }
+  .ani12d-current-grid .ani-current-card {
+    display: flex; flex-direction: row; align-items: center; gap: 15px;
+    min-width: 0; min-height: 132px; background: var(--ani12d-surface);
+    border: 1px solid var(--ani12d-edge); padding: 15px; border-radius: 12px;
+  }
+  .ani12d-current-grid .ani-current-card:hover { border-color: var(--ui-primary); background: var(--ani12d-soft); }
+  .ani12d-current-grid .ani12d-current-art {
+    width: 76px; height: 76px; min-width: 76px; min-height: 76px; max-height: 76px;
+    display: grid; place-items: center; overflow: hidden; padding: 5px;
+    background: var(--ani12d-soft); border-radius: 10px;
+  }
+  .ani12d-current-grid .ani12d-current-art img { width: 60px; height: 60px; object-fit: contain; opacity: .85; }
+  .ani12d-current-grid .ani-current-copy { display: grid; gap: 5px; padding: 0; min-width: 0; }
+  .ani12d-current-grid .ani-current-copy strong { font-size: 1.05rem; }
+  .ani12d-current-grid .ani-current-copy span:not(.sf-status-chip), .ani12d-current-grid .ani-current-copy small { font-size: .875rem; color: var(--ani12d-muted); }
+  .ani12d-more-crops a { min-height: 44px; display: inline-flex; align-items: center; color: var(--ui-primary); font-weight: 750; }
+  .ani12d-plan-panel { border-top: 3px solid var(--ui-primary)!important; }
+  .ani12d-planting-form { max-width: none; }
+  .ani12d-plan-panel .ani-plan-form-grid { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 16px; }
+  .ani12d-plan-panel .ani-plan-field { min-width: 0; }
+  .ani12d-plan-panel :is(input, select) { min-height: 44px; background: var(--ani12d-surface); }
+  .ani12d-plan-panel .ani-plan-options summary { display: list-item; align-content: center; min-height: 44px; cursor: pointer; }
+  .ani12d-plan-panel .ani-plan-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 18px; }
+  .ani12d-plan-panel .ani-plan-actions p { font-size: .875rem; max-width: 65ch; color: var(--ani12d-muted); }
+  .ani12d-record-grid { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 14px; }
+  .ani12d-record-grid .ani12d-record { min-width: 0; border: 1px solid var(--ani12d-edge); border-radius: 12px; padding: 18px; margin: 0; background: var(--ani12d-surface); }
+  .ani12d-record .sf-crop-card-heading { align-items: center; }
+  .ani12d-record .ani12d-record-art { width: 56px; height: 56px; min-width: 56px; border-radius: 10px; background: var(--ani12d-soft); display: grid; place-items: center; overflow: hidden; }
+  .ani12d-record .ani12d-record-art img { width: 45px; height: 45px; object-fit: contain; opacity: .85; }
+  .ani12d-record .ani-crop-dates { gap: 8px; }
+  .ani12d-record .ani-crop-dates div { min-width: 0; }
+  .ani12d-record .reference-cycle-management summary { display: list-item; min-height: 44px; align-content: center; cursor: pointer; }
+  .ani12d-record :is(a, button) { min-height: 44px; }
+  .ani12d-calendar { overflow: hidden; }
+  .ani12d-calendar-note { max-width: 85ch; line-height: 1.65; }
+  .ani12d-calendar-nav {
+    display: flex; align-items: center; justify-content: space-between; gap: 12px;
+    background: var(--ani12d-soft); border: 1px solid var(--ani12d-edge);
+    padding: 9px 12px; border-radius: 11px;
+  }
+  .ani12d-calendar-nav a { display: inline-flex; align-items: center; min-height: 44px; padding: 9px 11px; border-radius: 8px; font-weight: 750; color: var(--ui-primary); }
+  .ani12d-calendar-nav a:hover { background: var(--ani12d-surface); }
+  .ani12d-calendar-nav strong { text-align: center; font-size: 1.05rem; color: var(--ani12d-type); }
+  .ani12d-calendar-month { margin: 16px 0; min-width: 0; }
+  .ani12d-calendar-month .calendar-grid { grid-template-columns: repeat(7,minmax(0,1fr)); }
+  .ani12d-calendar .cal-cell { min-width: 0; }
+  .ani12d-calendar .cal-cell a { display: flex; min-height: 44px; align-items: center; justify-content: center; }
+  .ani12d-agenda-details {
+    margin-top: 16px; padding: 12px 18px; border: 1px solid var(--ani12d-edge);
+    border-radius: 11px; background: var(--ani12d-surface);
+  }
+  .ani12d-agenda-details summary {
+    cursor: pointer; display: list-item; align-content: center; min-height: 44px; font-weight: 750;
+  }
+  .ani12d-agenda-list { margin: 12px 0 0; }
+  .ani12d-agenda-list > li { scroll-margin-top: 115px; }
+  .ani12d-agenda-list ul { gap: 8px; min-width: 0; }
+  .ani12d-agenda-list ul li {
+    display: flex; flex-wrap: wrap; gap: 6px 12px; align-items: baseline;
+    border-left: 3px solid var(--ui-gold); padding: 10px 12px;
+    border-radius: 8px; background: var(--ani12d-soft);
+    font-size: .875rem;
+  }
+  .ani12d-agenda-list ul li span { color: var(--ani12d-muted); overflow-wrap: anywhere; }
+  .ani12d-empty-month { padding: 22px; border: 1px dashed var(--ani12d-edge); border-radius: 11px; background: var(--ani12d-soft); }
+  .ani12d-empty-month p { margin-bottom: 0; color: var(--ani12d-muted); }
+  :is(.ani12d-edit-plan, .ani12d-edit-plot) { max-width: 850px; margin-inline: auto; }
+  :is(.ani12d-edit-plan, .ani12d-edit-plot) .ani12d-edit-form {
+    padding: clamp(22px,4vw,38px); border-radius: var(--ui-card-radius); border: 1px solid var(--ani12d-edge);
+    background: var(--ani12d-surface);
+  }
+  .ani12d-edit-form h1 { margin: 5px 0 12px; font-size: clamp(1.65rem,3vw,2.3rem); }
+  .ani12d-edit-fields { display: grid; gap: 10px; max-width: 620px; }
+  .ani12d-edit-fields h2 { margin: 16px 0 0; font-size: 1.13rem; }
+  .ani12d-edit-fields :is(input,select) { min-height: 44px; }
+  .ani12d-form-actions { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 18px; align-items: center; }
+  .ani12d-form-actions > * { min-height: 44px; }
+  @media(max-width:1100px) {
+    .ani12d-management-grid { grid-template-columns: minmax(0,1fr); }
+    .ani12d-record-grid { grid-template-columns: minmax(0,1fr); }
+  }
+  @media(max-width:760px) {
+    .ani12d-plot-directory, .ani12d-current-grid { grid-template-columns: minmax(0,1fr); }
+    .ani12d-calendar-month { display: none; }
+    .ani12d-calendar .ani12d-agenda-details { margin-top: 12px; }
+    .ani12d-crop-tabs { flex-wrap: nowrap; overflow-x: auto; overscroll-behavior-x: contain; }
+    .ani12d-crop-tabs a { white-space: nowrap; flex: 0 0 auto; }
+    .ani12d-plot-summary, .ani12d-crop-summary { grid-template-columns: repeat(2,minmax(0,1fr)); }
+    .ani12d-plan-panel .ani-plan-form-grid { grid-template-columns: minmax(0,1fr); }
+    .ani12d-workspace-links { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); }
+    .ani12d-workspace-links a { justify-content: flex-start; }
+  }
+  @media(max-width:420px) {
+    .ani12d-farm-summary { grid-template-columns: repeat(2,minmax(0,1fr)); gap: 9px; }
+    .ani12d-farm-summary > div:last-child { grid-column: 1 / -1; }
+    .ani12d-farm-summary > div { padding: 14px; min-height: 82px; }
+    .ani12d-workspace-links a { padding: 9px 10px; font-size: .82rem; }
+    .ani12d-plot-card .ani-plot-art { width: 60px; height: 60px; min-height: 60px; }
+    .ani12d-plot-directory .ani12d-plot-card { grid-template-columns: 60px minmax(0,1fr); gap: 12px; padding: 12px; }
+    .ani12d-current-grid .ani12d-current-art { width: 60px; height: 60px; min-width: 60px; min-height: 60px; }
+    .ani12d-current-grid .ani-current-card { padding: 12px; gap: 12px; }
+    .ani12d-calendar-nav { gap: 4px; padding: 7px; }
+    .ani12d-calendar-nav a { padding: 7px; font-size: .82rem; }
+    .ani12d-calendar-nav strong { font-size: .9rem; }
+    .ani12d-add-plot { padding: 15px; }
+    .ani12d-record-grid .ani12d-record { padding: 14px; }
+    .ani12d-edit-form { padding: 16px; }
+  }
+  @media(prefers-reduced-motion:reduce) {
+    .ani12d-workspace-links a, .ani12d-plot-directory .ani12d-plot-card { transition: none; }
+  }
+}
