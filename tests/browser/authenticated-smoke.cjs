@@ -114,6 +114,8 @@ const widths = [320, 375, 768, 1024, 1440];
                                 "Must choose plot explicitly");
                         } else {
                             assert.equal(await page.locator('button:has-text("Save planting plan")').count(), 0);
+                            assert.equal(await page.locator("#planting-plans-heading").count(), 0,
+                                "Workers should not see unavailable planning steps");
                         }
                     }
                     if (name === "12d-edit-plan" || name === "12d-edit-plot") {
