@@ -255,7 +255,7 @@ public sealed class FarmEnrollmentWebTests
         using var app = App(role);
         using var client = app.CreateClient();
         var html = await client.GetStringAsync($"/Dashboard?farmId={FarmId}");
-        Assert.Contains(heading, html);
+        Assert.Contains(heading, WebUtility.HtmlDecode(html));
         Assert.Contains("Today's priorities", html);
         Assert.Contains("Farm at a glance", html);
         Assert.Contains("Needs attention", html);
@@ -1010,7 +1010,7 @@ public sealed class FarmEnrollmentWebTests
         using var app = App();
         using var client = app.CreateClient();
         var html = await client.GetStringAsync($"/Dashboard?farmId={FarmId}");
-        Assert.Contains("Today's work", html);
+        Assert.Contains("Today's work", WebUtility.HtmlDecode(html));
         Assert.Contains("Plots &amp; crops", html);
         Assert.Contains("Farm weather", html);
         Assert.Contains("aria-labelledby=\"weather-heading\"", html);
