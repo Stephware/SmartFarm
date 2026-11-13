@@ -44,6 +44,7 @@ test("Plot directory presents actual saved values without claiming geographic ac
     assert.ok(plots.includes("aria-label=\"@plot.Name,"));
     assert.ok(plots.includes("asp-route-plotId=\"@plot.PlotId\""));
     assert.ok(plots.includes("CropArtwork.FileName(plot.CropName)"));
+    assert.ok(style.includes(".ani12d-plot-card .ani-plot-art img { position: static;"));
     assert.ok(plots.includes('canManage ? "planting-plans-heading" : "ani-current-heading"'));
     assert.doesNotMatch(plots, /actual field position or health status/);
 });
