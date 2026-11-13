@@ -1409,6 +1409,39 @@
           "sha256": "9c026f19ba489ee4a29e5c81c72ab00dbe73d7d7d072aa36e5e4b299257ba29b"
         }
       ]
+    },
+    {
+      "date": "2026-11-13",
+      "revision": "c33ed6e9fbd69a229c82627b62678d7ddba240a7 + Stage 2 working tree",
+      "snapshot": "raw/project/2026-11-13-mvp-stage-2.md",
+      "sha256": "a5fcc55ceb160d8f1a1cc6f6e0f2f1548717e2dfd27efab5cc8887941807a939",
+      "scope": "MVP Stage 2 native navigation and local emulator verification; remote CI pending.",
+      "source_files": [
+        {
+          "path": "mobile/SmartFarm.Android/app/src/main/java/com/smartfarm/mobile/navigation/FarmWorkspaceBar.kt",
+          "sha256": "87721aa731f0175aef01c6ab491ff99f93ec3959d000c171cfc1530554c6ea0c"
+        },
+        {
+          "path": "mobile/SmartFarm.Android/app/src/main/java/com/smartfarm/mobile/navigation/SmartFarmNavHost.kt",
+          "sha256": "db35505ff44306705bba19473961cf1a38ed71bc7405bac6887a8c0b7b6206b0"
+        },
+        {
+          "path": "mobile/SmartFarm.Android/app/src/main/java/com/smartfarm/mobile/navigation/FarmQuickRecordSheet.kt",
+          "sha256": "55203a01f8fc82a47b1999a3eca149053fd3a66dacf79fd822c240b6f5a498cd"
+        },
+        {
+          "path": "mobile/SmartFarm.Android/app/src/main/java/com/smartfarm/mobile/navigation/FarmMoreScreen.kt",
+          "sha256": "5e3b82ec4494543158f5e646c312239b5713d11b444b3173d6ebc22886d4dfa6"
+        },
+        {
+          "path": "mobile/SmartFarm.Android/app/src/main/java/com/smartfarm/mobile/features/farms/FarmHomeOverview.kt",
+          "sha256": "32c6af0a4abb93a80131ac9db342668b09877147dd2359d4c7091f14976f481e"
+        },
+        {
+          "path": "mobile/SmartFarm.Android/app/src/main/java/com/smartfarm/mobile/features/insights/FarmInsightsScreen.kt",
+          "sha256": "0a219e3b49299e4ca712fcff52109d48bae8308d7c4da42e5704c0dcd679a16a"
+        }
+      ]
     }
   ]
 }

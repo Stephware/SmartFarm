@@ -26,7 +26,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.unit.dp
 import com.smartfarm.mobile.features.crops.CropUiState
-import com.smartfarm.mobile.ui.components.CropArtworkImage
 import com.smartfarm.mobile.ui.components.FarmEmptyState
 
 /** Quick action menu. Existing crop, monitoring, harvest and stock forms do the saving. */
@@ -42,8 +41,9 @@ internal fun FarmQuickRecordSheet(
     onSupplies: () -> Unit,
     initialAction: String? = null
 ) {
-    val preferred = initialAction?.takeIf { it in setOf("watering", "fertilizing", "inspection", "harvest") }
+    val preferred = initialAction?.takeIf { it in setOf("watering", "fertilizing", "inspection", "harvest", "other") }
     var action by rememberSaveable(farmId, preferred) { mutableStateOf(preferred) }
+    var otherOptions by rememberSaveable(farmId) { mutableStateOf(false) }
     val available = cropState.farmId == farmId && !cropState.busy && cropState.error == null
     val growing = if (available) activeRecordCycles(cropState.cycles) else emptyList()
 
@@ -51,25 +51,29 @@ internal fun FarmQuickRecordSheet(
         Column(Modifier.fillMaxWidth().heightIn(max = 680.dp)
             .verticalScroll(rememberScrollState()).padding(horizontal = 20.dp, vertical = 12.dp),
             verticalArrangement = Arrangement.spacedBy(12.dp)) {
-            Text(if (action == null) "Quick Record" else "Choose a growing crop",
+            Text(if (action == null) "Record" else "Choose a growing crop",
                 style = MaterialTheme.typography.headlineSmall)
             Text(farmName, style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant)
             if (action == null) {
                 Text("What did you do on the farm?",
                     style = MaterialTheme.typography.titleMedium)
-                RecordOption("Watering", "Log watering for an active crop") { action = "watering" }
-                RecordOption("Fertilizer application", "Record fertilizer and optional supply use") {
+                RecordOption("Water", "Log watering for an active crop") { action = "watering" }
+                RecordOption("Use Supplies", "Apply fertilizer with optional supply use") {
                     action = "fertilizing"
                 }
-                RecordOption("Crop inspection", "Note crop condition and add a photo") {
+                RecordOption("Inspect", "Note crop condition and add a photo") {
                     action = "inspection"
                 }
-                RecordOption("Partial harvest", "Save an actual harvest quantity") {
+                RecordOption("Harvest", "Save an actual harvest quantity") {
                     action = "harvest"
                 }
                 HorizontalDivider()
-                RecordOption("Use supplies", "Select an inventory item and record its use", onSupplies)
+                TextButton(onClick = { otherOptions = !otherOptions }) { Text("Other") }
+                if (otherOptions) {
+                    RecordOption("Other fieldwork", "Weeding, pesticide application or other work") { action = "other" }
+                    RecordOption("General supply use", "Use a supply outside fertilizer application", onSupplies)
+                }
             } else {
                 TextButton(onClick = { action = null }) { Text("← Back to record options") }
                 Text("Only active crop cycles can receive new records.",
@@ -99,7 +103,6 @@ internal fun FarmQuickRecordSheet(
                             modifier = Modifier.fillMaxWidth()) {
                             Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically,
                                 horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                                CropArtworkImage(cycle.cropTypeName, Modifier.size(48.dp))
                                 Column(Modifier.weight(1f)) {
                                     Text(cycle.cropTypeName, style = MaterialTheme.typography.titleMedium)
                                     Text(cycle.plotName, style = MaterialTheme.typography.bodyMedium,

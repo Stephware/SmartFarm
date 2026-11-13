@@ -2,6 +2,7 @@ package com.smartfarm.mobile
 
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.test.junit4.createComposeRule
+import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import com.smartfarm.mobile.navigation.FarmWorkspaceBar
@@ -24,18 +25,28 @@ class UiOverhaulNavigationTest {
                 }
             }
         }
-        listOf("Home", "Tasks", "Record", "Crops", "More").forEach { label ->
+        listOf("Today", "Record", "My Farm").forEach { label ->
             compose.onNodeWithText(label).assertExists()
         }
-        compose.onNodeWithText("Home").performClick()
+        compose.onNodeWithText("Today").performClick()
         compose.runOnIdle { assertNull(destination) }
 
         compose.onNodeWithText("Record").performClick()
         compose.runOnIdle { assertEquals("record", destination) }
-        compose.onNodeWithText("More").performClick()
-        compose.runOnIdle { assertEquals("more/{farmId}", destination) }
-        compose.onNodeWithText("Crops").performClick()
-        compose.runOnIdle { assertEquals("crops/{farmId}", destination) }
+        compose.onNodeWithText("My Farm").performClick()
+        compose.runOnIdle { assertEquals("myfarm/{farmId}", destination) }
+        listOf("Tasks", "Crops", "More", "Home").forEach {
+            compose.onNodeWithText(it).assertDoesNotExist()
+        }
+    }
+
+    @Test fun expandedWorkspaceUsesThreeRailDestinations() {
+        compose.setContent { SmartFarmTheme {
+            FarmWorkspaceBar(selectedRoute = "myfarm/{farmId}", expanded = true) { }
+        } }
+        compose.onNodeWithTag("farm-navigation-rail").assertExists()
+        listOf("Today", "Record", "My Farm").forEach { compose.onNodeWithText(it).assertExists() }
+        listOf("Home", "Tasks", "Crops", "More").forEach { compose.onNodeWithText(it).assertDoesNotExist() }
     }
 
     @Test fun offlineNoticeShowsLocalOnlyStateAndDisappearsWhenConnected() {

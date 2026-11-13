@@ -47,14 +47,34 @@ class ReferenceWorkspaceVisualTest {
 
     @Test fun phoneHomeReference() {
         compose.setContent { SmartFarmTheme { Home() } }
-        compose.onNodeWithText("My farm plots").performScrollTo().assertIsDisplayed()
+        compose.onNodeWithText("Your work today").assertIsDisplayed()
         capture("reference-home-light.png")
     }
 
     @Test fun phoneHomeDarkReference() {
         compose.setContent { SmartFarmTheme { MaterialTheme(colorScheme = DarkColors) { Home() } } }
-        compose.onNodeWithText("My farm plots").performScrollTo().assertIsDisplayed()
+        compose.onNodeWithText("Your work today").assertIsDisplayed()
         capture("reference-home-dark.png")
+    }
+
+    @Test fun phoneMyFarmReference() {
+        compose.setContent { SmartFarmTheme { MyFarm() } }
+        compose.onNodeWithText("Harvest summary").performScrollTo().assertIsDisplayed()
+        capture("mvp-my-farm-light.png")
+    }
+
+    @Test fun phoneMyFarmDarkReference() {
+        compose.setContent { SmartFarmTheme { MaterialTheme(colorScheme = DarkColors) { MyFarm() } } }
+        compose.onNodeWithText("Harvest summary").performScrollTo().assertIsDisplayed()
+        capture("mvp-my-farm-dark.png")
+    }
+
+    @Composable private fun MyFarm() {
+        Scaffold(bottomBar = { FarmWorkspaceBar("myfarm/{farmId}") {} }) { padding ->
+            androidx.compose.foundation.layout.Box(Modifier.padding(padding)) {
+                com.smartfarm.mobile.navigation.FarmMoreScreen("Green Valley Farm", "FieldWorker", {})
+            }
+        }
     }
 
     @Test fun cropGridReference() {

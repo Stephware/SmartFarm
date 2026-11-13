@@ -3,6 +3,7 @@ package com.smartfarm.mobile
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.assertIsSelected
 import androidx.compose.ui.test.performScrollTo
 import com.smartfarm.mobile.data.remote.dto.CropCycleDto
 import com.smartfarm.mobile.features.crops.CropUiState
@@ -26,7 +27,7 @@ class QuickRecordNavigationTest {
                 onDismiss = {}, onSelect = { action, cycle -> selected = action to cycle },
                 onBrowseCrops = {}, onSupplies = {})
         } }
-        compose.onNodeWithText("Crop inspection").performClick()
+        compose.onNodeWithText("Inspect").performClick()
         compose.onNodeWithText("Tomato").performClick()
         compose.runOnIdle { assertEquals("inspection" to "cycle", selected) }
     }
@@ -39,10 +40,22 @@ class QuickRecordNavigationTest {
                 onDismiss = {}, onSelect = { _, _ -> },
                 onBrowseCrops = { browsed = true }, onSupplies = {})
         } }
-        compose.onNodeWithText("Partial harvest").performClick()
+        compose.onNodeWithText("Harvest").performClick()
         compose.onNodeWithText("No active crops").assertExists()
         compose.onNodeWithText("Tomato").assertDoesNotExist()
         compose.onNodeWithText("Open crops").performClick()
         compose.runOnIdle { assertEquals(true, browsed) }
     }
+    @Test fun otherShortcutNeverDefaultsToWatering() {
+        compose.setContent { SmartFarmTheme {
+            com.smartfarm.mobile.features.monitoring.MonitoringScreen(
+                com.smartfarm.mobile.features.monitoring.MonitoringUiState(
+                    farmId = "farm", cycleId = "cycle", canRecord = true),
+                onBack = {}, onActivity = { _, _ -> }, onObservation = { _, _, _, _ -> },
+                onUpload = { _, _ -> }, onPreview = {}, onThumbnail = { byteArrayOf() },
+                onDismissPreview = {}, quick = "other")
+        } }
+        compose.onNodeWithText("Other").performScrollTo().assertIsSelected()
+    }
+
 }
