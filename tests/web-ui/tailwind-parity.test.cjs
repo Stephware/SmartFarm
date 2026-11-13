@@ -18,6 +18,13 @@ test("Tailwind uses prefixed utilities without global Preflight resets", () => {
     assert.match(source, /--color-ani-surface:\s*var\(--card\)/);
     assert.match(source, /--color-ani-text:\s*var\(--ink\)/);
 });
+test("Bundled Manrope font uses a CSS-relative URL that works beneath PathBase", () => {
+    const source = read("Styles/anigo-tailwind.css");
+    const compiled = read("wwwroot/css/anigo-tailwind.css");
+    assert.match(source, /url\(["']?\.\.\/fonts\/manrope\/Manrope-Variable\.ttf/);
+    assert.match(compiled, /src:url\(\.\.\/fonts\/manrope\/Manrope-Variable\.ttf\)/);
+    assert.doesNotMatch(compiled, /url\(\/?fonts\/manrope/);
+});
 test("Generated Tailwind CSS is self-hosted and loaded in both Razor layouts", () => {
     for (const layout of [
         "Views/Shared/_Layout.cshtml",
