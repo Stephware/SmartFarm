@@ -121,7 +121,8 @@
   .ani-entry-finish .button { flex: 0 0 auto; color: #193726; background: #f1d69c; border-color: #f1d69c; }
   .ani-entry-finish .button:hover { background: #f9e9bf; color: #142e20; }
   .ani-entry-photo-credit { margin: -64px 0 0; color: var(--ui-text-secondary); font-size: .875rem; line-height: 1.6; }
-  .ani-entry-photo-credit summary { display: inline-flex; align-items: center; min-height: 44px; padding: 8px 4px; cursor: pointer; font-weight: 650; }
+  .ani-entry-photo-credit summary { display: list-item; list-style: disclosure-closed inside; width: fit-content; min-height: 44px; padding: 10px 4px; cursor: pointer; font-weight: 650; }
+  .ani-entry-photo-credit[open] summary { list-style-type: disclosure-open; }
   .ani-entry-photo-credit summary:hover { color: var(--ui-primary); text-decoration: underline; }
   .ani-entry-photo-credit p { margin: 6px 0; max-width: 90ch; }
   .ani-entry-photo-credit a { display: inline-flex; align-items: center; min-height: 44px; padding-inline: 3px; color: var(--ui-primary); text-underline-offset: 2px; }
