@@ -1,111 +1,115 @@
 @{
     ViewData["Title"] = "AniGo farm management";
+    var signedIn = User.Identity?.IsAuthenticated == true;
 }
-<section class="landing-hero panel">
-    <div class="landing-copy">
-
-        <h1>Every farm, crop, and harvest in one place.</h1>
-        <p class="landing-lede">Plan planting, keep track of daily fieldwork, monitor supplies, and understand your harvests with AniGo.</p>
-        <div class="landing-actions">
-            @if (User.Identity?.IsAuthenticated == true)
+<div class="ani-entry-site">
+<section class="ani-entry-hero" aria-labelledby="ani-entry-title">
+    <div class="ani-entry-hero-copy">
+        <p class="ani-entry-eyebrow">PRACTICAL FARM MANAGEMENT</p>
+        <h1 id="ani-entry-title">Every farm, crop, and harvest in one place.</h1>
+        <p class="ani-entry-lede">Keep your farm organized from planting to harvest. Plan the season, coordinate daily work, and keep important records together.</p>
+        <div class="ani-entry-hero-actions">
+            @if (signedIn)
             {
                 <a class="button" asp-controller="Farms" asp-action="Index">Open my farms</a>
-                <a class="sf-button-outline" asp-controller="Notifications" asp-action="Index">Review reminders</a>
+                <a class="ani-entry-secondary-link" asp-controller="Notifications" asp-action="Index">Review reminders <span aria-hidden="true">→</span></a>
             }
             else
             {
-                <a class="button" asp-controller="Account" asp-action="Register">Get started</a>
-                <a class="sf-button-outline" asp-controller="Account" asp-action="Login">Log in</a>
+                <a class="button" asp-controller="Account" asp-action="Register">Get started with AniGo</a>
+                <a class="ani-entry-secondary-link" href="#how-it-works">See how it works <span aria-hidden="true">→</span></a>
             }
         </div>
-        <p class="landing-reassurance">Keep your farm organized with tools for owners, managers, and field workers. One account can access multiple farms.</p>
-        <div class="ani-landing-points" aria-label="AniGo benefits">
-            <span><strong>01</strong> Plan your planting</span>
-            <span><strong>02</strong> Record fieldwork</span>
-            <span><strong>03</strong> Track every harvest</span>
-        </div>
+        <p class="ani-entry-assurance">Tools for owners, managers, and field workers. One account can access more than one farm.</p>
     </div>
-    <div class="landing-visual ani-landing-visual" aria-label="Illustrative farm plots with tomato, eggplant, rice, and corn crops" role="img">
-        <div class="visual-head">
-            <span>Farm plots</span><small>Illustrative overview</small>
-        </div>
-        <div class="visual-fields" aria-hidden="true">
-            <div class="visual-field field-a">
-                <span class="field-name">Plot A</span>
-                <img src="@Url.Content("~/images/crops/tomato.svg")" alt="" width="120" height="120" loading="eager" />
-                <strong>Tomato</strong>
-            </div>
-            <div class="visual-field field-b">
-                <span class="field-name">Plot B</span>
-                <img src="@Url.Content("~/images/crops/eggplant.svg")" alt="" width="120" height="120" loading="lazy" />
-                <strong>Eggplant</strong>
-            </div>
-            <div class="visual-field field-c">
-                <span class="field-name">Plot C</span>
-                <img src="@Url.Content("~/images/crops/rice.svg")" alt="" width="120" height="120" loading="lazy" />
-                <strong>Rice</strong>
-            </div>
-            <div class="visual-field field-d">
-                <span class="field-name">Plot D</span>
-                <img src="@Url.Content("~/images/crops/corn.svg")" alt="" width="120" height="120" loading="lazy" />
-                <strong>Corn</strong>
-            </div>
-        </div>
-        <p class="visual-footnote">Illustrative plot cards · real crop records stay in your farm workspace.</p>
+    <figure class="ani-entry-hero-photo">
+        <img src="~/images/photography/fields-hero.webp"
+             alt="Aerial photograph of green terraced agricultural fields"
+             width="1440" height="960" fetchpriority="high" decoding="async" />
+        <figcaption>Real agricultural photography · illustrative, not a farm record</figcaption>
+    </figure>
+</section>
+
+<section class="ani-entry-overview" id="how-it-works" aria-labelledby="ani-entry-overview-title">
+    <header class="ani-entry-section-heading">
+        <p class="ani-entry-eyebrow">ONE CONNECTED WORKSPACE</p>
+        <h2 id="ani-entry-overview-title">From the first planting plan to the final harvest.</h2>
+        <p>Simple steps for the everyday work that keeps your farm running.</p>
+    </header>
+    <div class="ani-entry-feature-grid">
+        <article class="ani-entry-feature">
+            <div class="ani-entry-feature-icon" aria-hidden="true"><partial name="_Icon" model='@("grid")' /></div>
+            <span class="ani-entry-feature-number">01 / PLAN</span>
+            <h3>Know what's growing</h3>
+            <p>Organize plots, crop cycles, and planting dates without losing track of each field.</p>
+        </article>
+        <article class="ani-entry-feature">
+            <div class="ani-entry-feature-icon" aria-hidden="true"><partial name="_Icon" model='@("checkSquare")' /></div>
+            <span class="ani-entry-feature-number">02 / WORK</span>
+            <h3>Keep fieldwork moving</h3>
+            <p>Assign tasks, record inspections, and save actual crop photos as work happens.</p>
+        </article>
+        <article class="ani-entry-feature">
+            <div class="ani-entry-feature-icon" aria-hidden="true"><partial name="_Icon" model='@("basket")' /></div>
+            <span class="ani-entry-feature-number">03 / REVIEW</span>
+            <h3>Understand your results</h3>
+            <p>Review harvest records, supply movements, and farm reports based on saved data.</p>
+        </article>
     </div>
 </section>
 
-<section class="ani-start-panel" aria-labelledby="start-options-heading">
-    <div class="ani-start-heading">
-        <p class="ani-overline">A simple way to begin</p>
+<section class="ani-entry-story" aria-labelledby="ani-entry-story-heading">
+    <figure class="ani-entry-story-photo">
+        <img src="~/images/photography/farmers-working.webp"
+             alt="Farmers working in a green rice field"
+             width="900" height="1120" loading="lazy" decoding="async" />
+    </figure>
+    <div class="ani-entry-story-content">
+        <p class="ani-entry-eyebrow">MADE FOR WORK IN THE FIELD</p>
+        <h2 id="ani-entry-story-heading">Less time looking for records. More time taking care of the farm.</h2>
+        <p>Start with the tasks that need attention today. Open the right crop or plot before recording fieldwork. Keep weather advisories and harvest history close without overwhelming the daily view.</p>
+        <ul class="ani-entry-story-list">
+            <li><partial name="_Icon" model='@("check")' /> Clear next steps for every role</li>
+            <li><partial name="_Icon" model='@("check")' /> Records organized by farm, plot, and crop</li>
+            <li><partial name="_Icon" model='@("check")' /> Friendly to phones and smaller screens</li>
+        </ul>
+    </div>
+</section>
+
+<section class="ani-entry-start" aria-labelledby="start-options-heading">
+    <div class="ani-entry-section-heading">
+        <p class="ani-entry-eyebrow">START WHERE YOU ARE</p>
         <h2 id="start-options-heading">How would you like to use AniGo?</h2>
-        <p>Start with your own farm or join a farm you're helping manage. You can do both with one account.</p>
+        <p>Start your own farm or join an existing team. You can do both with the same account.</p>
     </div>
-    <div class="ani-start-grid">
-        <article class="ani-start-card">
-            <div class="ani-start-card-icon" aria-hidden="true"><partial name="_Icon" model='@("sprout")' /></div>
+    <div class="ani-entry-start-grid">
+        <article class="ani-entry-path-card">
+            <span class="ani-entry-path-step">FOR FARM OWNERS AND MANAGERS</span>
             <h3>I manage a farm</h3>
-            <p>Create a farm, add growing plots, plan crops, and invite your workers.</p>
-            <a class="button" asp-controller="@(User.Identity?.IsAuthenticated == true ? "Farms" : "Account")"
-               asp-action="@(User.Identity?.IsAuthenticated == true ? "Create" : "Register")">@(User.Identity?.IsAuthenticated == true ? "Create a farm" : "Create an account")</a>
+            <p>Create a farm, set up growing areas, plan crops, and bring your team together.</p>
+            <a class="button" asp-controller="@(signedIn ? "Farms" : "Account")"
+               asp-action="@(signedIn ? "Create" : "Register")">@(signedIn ? "Create a farm" : "Create an account")</a>
         </article>
-        <article class="ani-start-card">
-            <div class="ani-start-card-icon" aria-hidden="true"><partial name="_Icon" model='@("checkSquare")' /></div>
+        <article class="ani-entry-path-card">
+            <span class="ani-entry-path-step">FOR FIELD WORKERS AND TEAM MEMBERS</span>
             <h3>I work on a farm</h3>
-            <p>Have a farm code? Sign in, request access, and wait for the owner to approve you.</p>
-            <a class="sf-button-outline" asp-controller="@(User.Identity?.IsAuthenticated == true ? "Farms" : "Account")"
-               asp-action="@(User.Identity?.IsAuthenticated == true ? "Index" : "Register")"
-               asp-fragment="@(User.Identity?.IsAuthenticated == true ? "join-farm" : null)">@(User.Identity?.IsAuthenticated == true ? "Enter farm code" : "Create an account to join")</a>
+            <p>Have a farm code? Create an account, request to join, and wait for the owner to approve your access.</p>
+            <a class="ani-entry-path-link" asp-controller="@(signedIn ? "Farms" : "Account")"
+               asp-action="@(signedIn ? "Index" : "Register")"
+               asp-fragment="@(signedIn ? "join-farm" : null)">@(signedIn ? "Enter a farm code" : "Create an account to join") <span aria-hidden="true">→</span></a>
         </article>
     </div>
 </section>
 
-<section class="landing-features ani-landing-features" aria-label="What you can do with AniGo">
-    <article class="panel">
-        <div class="feature-index">01</div>
-        <h2>Plan with confidence</h2>
-        <p>Organize farms and plots, schedule planting dates, and follow each crop cycle.</p>
-    </article>
-    <article class="panel">
-        <div class="feature-index">02</div>
-        <h2>Record the work</h2>
-        <p>Log activities, inspections, photos, inventory movements, and partial harvests.</p>
-    </article>
-    <article class="panel">
-        <div class="feature-index">03</div>
-        <h2>Stay informed</h2>
-        <p>Review farm tasks, available weather advisories, and harvest reports in one workspace.</p>
-    </article>
-</section>
-
-<section class="ani-landing-last panel" aria-labelledby="ani-landing-last-title">
+<section class="ani-entry-finish" aria-labelledby="ani-entry-finish-heading">
     <div>
-
-        <h2 id="ani-landing-last-title">Start with your farm. Keep every season organized.</h2>
-        <p>Set up a farm, approve team join requests, and record work from planting through harvest.</p>
+        <p class="ani-entry-eyebrow">READY FOR THE NEXT SEASON?</p>
+        <h2 id="ani-entry-finish-heading">Keep your farm organized, one day at a time.</h2>
+        <p>Start with a farm, grow your team, and keep your records useful from the first day.</p>
     </div>
-    <a class="button" asp-controller="@(User.Identity?.IsAuthenticated == true ? "Farms" : "Account")"
-       asp-action="@(User.Identity?.IsAuthenticated == true ? "Index" : "Register")">
-        @(User.Identity?.IsAuthenticated == true ? "Open my farms" : "Create an account")
-    </a>
+    <a class="button" asp-controller="@(signedIn ? "Farms" : "Account")"
+       asp-action="@(signedIn ? "Index" : "Register")">@(signedIn ? "Open my farms" : "Create an account")</a>
 </section>
+
+<p class="ani-entry-photo-credit">Editorial photos: <a href="https://unsplash.com/@quangpraha" target="_blank" rel="noopener noreferrer">Quang Nguyen Vinh</a> and <a href="https://unsplash.com/@liyichuan" target="_blank" rel="noopener noreferrer">YiChuan Li</a> via <a href="https://unsplash.com/license" target="_blank" rel="noopener noreferrer">Unsplash</a>. Images illustrate agriculture and do not represent AniGo customer farms.</p>
+</div>
