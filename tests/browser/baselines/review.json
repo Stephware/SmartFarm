@@ -1,11 +1,11 @@
 {
   "reviewed": false,
   "sourceHashes": {
-    "wwwroot/css/anigo-tailwind.css": "bf78e47f783a372091865d266cb7fd3c916dc16415a2018312845b73e5ef3de0",
+    "wwwroot/css/anigo-tailwind.css": "66c12fcd519fe51a1989ee19ac5eb7e2b781c2e2bf778a85b84656a447ecc26c",
     "Views/Shared/_Layout.cshtml": "20995ee27c7391cc482027e22575978f2b45ba7afb80695200409544afcb2d6c",
     "Views/Home/Index.cshtml": "1d74072b0b9efc036974985c45c45047315f061a3d1dedd11c2e330b74880de6",
     "Views/Account/Login.cshtml": "2881d3e20d68f709abf12d244855199f92c86b54e1c434bd022625999ed5d053",
-    "Views/Account/Register.cshtml": "86de5849358042654825b3a5179f8230ea5a632e2c82bf8a5b8ffaeea0f5ce7c"
+    "Views/Account/Register.cshtml": "ababbec811edc2e2be6a2d836c6d5f8f0178e14e3b018d00c9fe59769112906d"
   },
   "widths": [
     320,
