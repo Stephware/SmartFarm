@@ -79,12 +79,21 @@ const widths = [320, 375, 768, 1024, 1440];
                     }
                     if (name.includes("stock")) {
                         assert.equal(await page.locator("[data-inventory-movement-form]").count(), 1);
-                        if (name.endsWith("worker"))
+                        if (name.endsWith("worker")) {
                             assert.equal(await page.getByRole("option", { name: "Supplies arrived (add stock)" }).count(), 0);
+                            assert.equal(await page.getByText("+ Supplies arrived").count(), 0);
+                            assert.equal(await page.getByText("± Count correction").count(), 0);
+                        }
                     }
                     if (name.includes("monitoring")) {
                         assert.equal(await page.locator(".ani12e-recording-grid").count(), 1);
                         assert.equal(await page.locator(".ani12e-photo-panel").count(), 1);
+                        if (width === 375) {
+                            await page.locator('a[href="#record-activity"]').first().click();
+                            assert.equal(await page.locator("dialog[open] #record-activity").count(), 1,
+                                "Recording form must open from the fieldwork shortcut");
+                            await page.locator("dialog[open] button[aria-label^='Close']").click();
+                        }
                     }
                     if (name.includes("harvests")) {
                         assert.equal(await page.locator("#record-harvest").count(), 1);
@@ -98,6 +107,7 @@ const widths = [320, 375, 768, 1024, 1440];
                     if (name === "12e-reports") {
                         assert.equal(await page.locator(".ani12e-report-filters").count(), 1);
                         assert.ok(await page.getByText("Filter results or download CSV").count());
+                        assert.equal(await page.locator("#report-filters").evaluate(el => el.open), true);
                     }
                     if (width === 375) {
                         const audit = await new AxeBuilder({ page })
