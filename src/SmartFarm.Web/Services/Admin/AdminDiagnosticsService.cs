@@ -12,6 +12,11 @@ public sealed class AdminDiagnosticsService(
     SmartFarmDbContext db, IConfiguration configuration, HttpClient client,
     ILogger<AdminDiagnosticsService> logger)
 {
+    // A bounded read-only Hangfire summary for the admin landing page.
+    // Omit separate API and sync probes here to keep initial page loading focused.
+    public Task<AdminWorkerStatus> WorkerSummaryAsync(CancellationToken ct) =>
+        WorkerStatusAsync(DateTime.UtcNow, ct);
+
     public async Task<AdminMonitoringPage> OverviewAsync(CancellationToken ct)
     {
         var now = DateTime.UtcNow;
