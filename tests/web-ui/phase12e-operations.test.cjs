@@ -27,6 +27,7 @@ test("Phase 12E scopes a responsive theme to operational screens", () => {
         assert.ok(css.includes(rule), rule);
     }
     assert.ok(css.includes("min-height: 44px"));
+    assert.ok(css.includes(".ani12e-hero .page-hero > div:first-child { min-width: 0; flex: 1 1 auto; }"));
 });
 
 test("Tasks preserve assignment, completion and calendar navigation", () => {
@@ -77,6 +78,7 @@ test("Inventory keeps stock history, thresholds and explicit activity linkage", 
     assert.ok(item.includes('data-inventory-movement-form'));
     assert.ok(item.includes('name="CropActivityId"'));
     assert.ok(item.includes('name="RowVersion"'));
+    assert.ok(item.includes('@if (canManage) { <span>+ Supplies arrived</span> }'));
     assert.ok(item.includes('asp-action="Reverse"'));
     assert.ok(itemEdit.includes("ani12e-form-actions"));
     assert.ok(itemEdit.includes('asp-for="Input.RowVersion"'));
@@ -100,6 +102,7 @@ test("Reports retain unit-separated totals, filters and exports", () => {
     assert.ok(report.includes("ani12e-report-results"));
     assert.ok(report.includes("role=\"status\""));
     assert.ok(report.includes("Filter results or download CSV"));
+    assert.ok(report.includes('class="ani-report-filter-details ani12e-report-filters" open'));
     assert.ok(report.includes('asp-action="ExportCsv"'));
     assert.ok(report.includes('asp-action="ExportCycleCsv"'));
     assert.ok(report.includes('asp-route-plotId="@report.PlotId"'));
