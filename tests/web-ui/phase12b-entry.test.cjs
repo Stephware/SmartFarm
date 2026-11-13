@@ -72,6 +72,21 @@ test("Farm creation keeps its required fields, timezone and opt-in map", () => {
     assert.match(edit, /data-farm-location-picker/);
     assert.match(edit, /js\/farm-location-loader\.js/);
 });
+test("Completion keeps create/join intent and mobile control usability", () => {
+    const controller = read("Controllers/AccountController.cs");
+    assert.match(landing, /asp-route-returnUrl="\\@\\(signedIn \\? null : Url\\.Action\\("Create", "Farms"\\)\\)"/);
+    assert.match(landing, /#join-farm/);
+    assert.match(register, /asp-route-returnUrl="\\@nextUrl"/);
+    assert.match(register, /placeholder="Password"/);
+    assert.match(login, /asp-route-returnUrl="\\@ViewData\\["ReturnUrl"\\]"/);
+    assert.match(controller, /Url\\.IsLocalUrl\\(returnUrl\\)/);
+    assert.match(styles, /top: 50%/);
+    assert.match(styles, /min-height: 44px; min-width: 72px/);
+    assert.match(styles, /max-width:420px/);
+    assert.match(styles, /list-style: disclosure-closed inside/);
+    assert.match(landing, /Photo credits and sources/);
+});
+
 test("New visual composition remains scoped and respects responsive / reduced motion", () => {
     const src = read("Styles/anigo-tailwind.css");
     assert.match(src, /@import "\.\/anigo-entry\.css"/);
