@@ -28,7 +28,8 @@ test("Real photo assets are bundled and optimized WebP, not external runtime dep
     assert.match(register, /farmers-working\.webp/);
     assert.match(landing, /Photos?|photography/i);
     assert.doesNotMatch(landing + login + register, /images\/crops\/.*?\.svg/);
-    assert.doesNotMatch(landing + login + register, /images\.unsplash\.com/);
+    // Attribution hyperlinks may point to the original source; rendered photos must be local.
+    assert.doesNotMatch(landing + login + register, /<img[^>]+src=["']https:\/\/images\.unsplash\.com/);
 });
 test("Editorial photographs are not presented as real farm records", () => {
     assert.match(landing, /not a farm record/i);
