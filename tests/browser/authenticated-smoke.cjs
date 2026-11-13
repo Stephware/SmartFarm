@@ -97,7 +97,7 @@ const widths = [320, 375, 768, 1024, 1440];
                         assert.equal(await page.locator(".ani12c-role-manager").count(), 1);
                     if (name === "dashboard-worker" || name === "dashboard-empty") {
                         assert.equal(await page.locator(".ani12c-role-worker").count(), 1);
-                        assert.equal(await page.getByText("Your assigned work").count(), 1);
+                        assert.equal(await page.getByRole("heading", { name: "Your assigned work" }).count(), 1);
                         assert.equal(await page.locator(".ani12c-owner-decisions").count(), 0);
                     }
                     if (name === "dashboard-multiple-crops") {
