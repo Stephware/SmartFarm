@@ -5,19 +5,19 @@
     var cycle = Model.CropCycle;
     var overview = Model.Overview;
 }
-<div class="reference-screen reference-screen-harvests">
+<div class="reference-screen reference-screen-harvests ani12e-workspace ani12e-harvests">
 <partial name="_FarmNavigation" model="Model.CropCycle.FarmId" />
-<section class="panel card sf-ops-hero sf-harvest-hero" aria-labelledby="harvests-heading">
+<section class="panel card sf-ops-hero sf-harvest-hero ani12e-hero" aria-labelledby="harvests-heading">
     <div class="sf-page-header page-hero">
         <div>
             <p><a asp-controller="Crops" asp-action="Index" asp-route-farmId="@cycle.FarmId">← Crop management</a></p>
 
             <p class="ani-overline">Crop harvests</p>
-            <h1 id="harvests-heading">Record harvest · @cycle.CropTypeName</h1>
+            <h1 id="harvests-heading">Harvests · @cycle.CropTypeName</h1>
             <p class="sf-muted">@cycle.PlotName · <strong>@cycle.Status</strong> crop
             · Each harvest is recorded separately, without ending the crop cycle.</p>
         </div>
-        <div class="ani-harvest-identity">
+        <div class="ani-harvest-identity ani12e-harvest-actions">
             @if (overview.CanRecord) { <a class="button" href="#record-harvest">Record harvest</a> }
             <img src="@Url.Content("~/images/crops/" + CropArtwork.FileName(cycle.CropTypeName))"
                  width="120" height="120" alt="" />
@@ -26,7 +26,7 @@
             <a class="sf-button-outline" asp-controller="Reports" asp-action="Harvests" asp-route-farmId="@cycle.FarmId">Farm-wide report</a>
         </div>
     </div>
-    <div class="sf-harvest-metrics" aria-label="Recorded harvest totals">
+    <div class="sf-harvest-metrics ani12e-metrics" aria-label="Recorded harvest totals">
         <div class="sf-harvest-main-number">
             <span>Confirmed harvest total</span>
             <strong>@overview.TotalQuantity.ToString("N3") <small>@overview.Unit</small></strong>
@@ -51,13 +51,13 @@
 </section>
 @if (overview.CanRecord)
 {
-    <section class="panel card sf-harvest-record" id="record-harvest" data-form-dialog aria-labelledby="record-harvest-heading">
+    <section class="panel card sf-harvest-record ani12e-form-panel" id="record-harvest" data-form-dialog aria-labelledby="record-harvest-heading">
 
         <header class="reference-panel-heading">
             <div><p class="ani-overline">New entry</p><h2 id="record-harvest-heading">Record a partial harvest</h2></div>
         </header>
         <p class="sf-muted">Enter the actual quantity collected for @cycle.CropTypeName. You may save more than one harvest for the same crop.</p>
-        <p class="ani-harvest-form-notice">Only confirmed server harvests count toward the total shown above. On Android, offline entries show as pending until synced.</p>
+        <p class="ani-harvest-form-notice" role="note">Only confirmed server harvests count in the total. Android offline entries appear as pending until synchronized.</p>
         <form class="sf-ops-form" asp-action="Record" asp-route-farmId="@cycle.FarmId" asp-route-cycleId="@cycle.Id" method="post">
             <label for="quantity">Quantity collected <strong>(@overview.Unit)</strong></label>
             <input id="quantity" name="Quantity" type="number" step="0.001" min="0.001" max="999999999999999.999"
@@ -77,7 +77,7 @@ else
     </section>
 }
 
-<section class="panel card sf-harvest-history" aria-labelledby="harvest-history-heading">
+<section class="panel card sf-harvest-history ani12e-history-panel" aria-labelledby="harvest-history-heading">
     <div class="sf-section-line card-head">
         <h2 id="harvest-history-heading">Saved harvest records</h2>
         <span>@overview.Entries.Count record(s)</span>
@@ -92,7 +92,7 @@ else
     }
     else
     {
-        <div class="table-wrap table-scroll" tabindex="0" role="region" aria-label="Crop harvest history">
+        <div class="table-wrap table-scroll ani12e-scroll-table" tabindex="0" role="region" aria-label="Crop harvest history">
         <table class="data-table reference-harvest-table">
             <caption class="visually-hidden">Partial harvests, including voided records</caption>
             <thead><tr><th scope="col">Harvested at (UTC)</th><th scope="col">Quantity</th><th scope="col">Notes</th><th scope="col">Status / actions</th></tr></thead>

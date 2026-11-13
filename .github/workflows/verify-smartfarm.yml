@@ -108,6 +108,10 @@ jobs:
         env:
           SMARTFARM_BROWSER_BASE_URL: http://127.0.0.1:5082
         run: node tests/browser/authenticated-smoke.cjs
+      - name: Check Phase 12E field operations in Chromium
+        env:
+          SMARTFARM_BROWSER_BASE_URL: http://127.0.0.1:5082
+        run: node tests/browser/phase12e-smoke.cjs
       - name: Upload browser screenshots and startup log
         if: always()
         uses: actions/upload-artifact@v4

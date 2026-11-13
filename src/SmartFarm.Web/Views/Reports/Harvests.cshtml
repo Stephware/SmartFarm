@@ -6,9 +6,9 @@
     var hasFilters = report.FromDate.HasValue || report.ToDate.HasValue
         || report.PlotId.HasValue || report.CropTypeId.HasValue;
 }
-<div class="reference-screen reference-screen-reports">
+<div class="reference-screen reference-screen-reports ani12e-workspace ani12e-reports">
 <partial name="_FarmNavigation" model="Model.Report.FarmId" />
-<section class="panel card sf-report-hero ani-report-hero" aria-labelledby="reports-heading">
+<section class="panel card sf-report-hero ani-report-hero ani12e-hero" aria-labelledby="reports-heading">
     <div class="sf-page-header page-hero">
         <div>
             <p><a asp-controller="Dashboard" asp-action="Index" asp-route-farmId="@report.FarmId">← Farm dashboard</a></p>
@@ -20,7 +20,7 @@
         </div>
         <a class="sf-button-outline" asp-controller="FarmFinance" asp-action="Index" asp-route-farmId="@report.FarmId">View farm finances</a>
     </div>
-    <nav class="ani-insight-links ani-report-jump-links" aria-label="Harvest report sections">
+    <nav class="ani-insight-links ani-report-jump-links ani12e-jump-nav" aria-label="Harvest report sections">
         <a href="#report-history-heading">Recent harvests</a>
         <a href="#report-by-cycle">Planting cycles</a>
         <a href="#monthly-yield-table">Monthly totals</a>
@@ -29,9 +29,9 @@
     
     <div class="ani-report-result-heading">
         <h2>Harvests at a glance</h2>
-        <p>@(hasFilters ? "Showing filtered records only." : "Showing all recorded harvest dates, plots, and crops.")</p>
+        <p role="status">@(hasFilters ? "Filters applied — totals, tables, charts, and downloads use the selected records." : "Showing all recorded harvest dates, plots, and crops.")</p>
     </div>
-    <div class="sf-report-counts ani-report-counts" aria-label="Report record counts">
+    <div class="sf-report-counts ani-report-counts ani12e-metrics" aria-label="Report record counts">
         <div><strong>@report.ValidHarvestCount</strong><span>Valid harvest records</span></div>
         <div><strong>@report.VoidedHarvestCount</strong><span>Voided records</span></div>
     </div>
@@ -47,7 +47,7 @@
     }
     else
     {
-        <div class="stat-grid sf-report-unit-totals">
+        <div class="stat-grid sf-report-unit-totals ani12e-unit-totals">
         @foreach (var total in report.UnitTotals)
         {
             <div class="stat">
@@ -58,8 +58,9 @@
         </div>
     }
     <p class="hint">Each unit has its own total—kg, pieces, and other units are never added together. Voided harvests are excluded.</p>
+    <p class="ani12e-export-shortcut"><a class="sf-button-outline" href="#report-filters">Filter results or download CSV →</a></p>
 
-    <details class="ani-report-filter-details" open="@hasFilters" id="report-filters">
+    <details class="ani-report-filter-details ani12e-report-filters" open id="report-filters">
         <summary><strong>Filters &amp; downloads</strong>
             <span>@(hasFilters ? "Filters applied · change your selection or export" : "Choose dates, fields, crops, or export CSV")</span>
         </summary>
@@ -68,7 +69,7 @@
         <h3>Choose what to include</h3>
         <p class="sf-muted">Use a date range, plot, or crop to narrow totals, tables, charts, and CSV downloads together.</p>
     </div>
-    <form method="get" asp-action="Harvests" class="report-filters sf-report-filters">
+    <form method="get" asp-action="Harvests" class="report-filters sf-report-filters ani12e-report-filter-form">
         <input type="hidden" name="farmId" value="@report.FarmId" />
         <div><label for="from">From</label>
             <input id="from" type="date" name="from" min="2000-01-01" max="2100-12-30" value="@(report.FromDate?.ToString("yyyy-MM-dd"))" />
@@ -96,7 +97,7 @@
         </div>
         <button type="submit">Apply filters</button>
     </form>
-    <div class="action-links sf-report-actions">
+    <div class="action-links sf-report-actions ani12e-export-actions">
         <a asp-action="Harvests" asp-route-farmId="@report.FarmId">Clear filters</a>
         <a class="button" asp-action="ExportCsv" asp-route-farmId="@report.FarmId"
            asp-route-from="@(report.FromDate?.ToString("yyyy-MM-dd"))" asp-route-to="@(report.ToDate?.ToString("yyyy-MM-dd"))"
@@ -115,8 +116,8 @@
     </details>
 </section>
 
-<section class="ani-report-main-content" aria-label="Harvest report results">
-<section class="panel card sf-report-table-panel ani-report-table" aria-labelledby="report-history-heading">
+<section class="ani-report-main-content ani12e-report-results" aria-label="Harvest report results">
+<section class="panel card sf-report-table-panel ani-report-table ani12e-data-panel" aria-labelledby="report-history-heading">
     <header class="reference-panel-heading"><h2 id="report-history-heading">Recent harvests</h2></header>
     <p class="hint">Latest 100 matching records, including voided entries. For the complete list, use Export records CSV in Filters &amp; downloads.</p>
     @if (report.Entries.Count == 0)
@@ -208,11 +209,11 @@
 </section>
 
 </section>
-<details class="ani-report-advanced" id="report-advanced">
+<details class="ani-report-advanced ani12e-report-advanced" id="report-advanced">
     <summary><strong>Charts &amp; detailed comparisons</strong>
         <span>Analyze yields by cycle, month, crop and plot</span></summary>
     <div class="ani-report-advanced-inner">
-<section class="panel card sf-report-analytics ani-report-charts" aria-labelledby="harvest-analytics-heading">
+<section class="panel card sf-report-analytics ani-report-charts ani12e-report-charts" aria-labelledby="harvest-analytics-heading">
     <header class="reference-panel-heading"><h2 id="harvest-analytics-heading">Detailed yield comparisons</h2></header>
     <p class="hint">Compare individual planting cycles without mixing different units or combining
         repeated plantings on the same plot. Multiple partial harvests add to their own cycle total.</p>

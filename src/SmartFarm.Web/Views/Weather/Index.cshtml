@@ -22,9 +22,9 @@
         ? forecast.FirstOrDefault(d => d.Date >= today)
         : forecast.FirstOrDefault();
 }
-<div class="reference-screen reference-screen-weather">
+<div class="reference-screen reference-screen-weather ani12e-workspace ani12e-weather">
 <partial name="_FarmNavigation" model="Model.FarmId" />
-<section class="panel card sf-weather-hero ani-weather-hero" aria-labelledby="weather-heading">
+<section class="panel card sf-weather-hero ani-weather-hero ani12e-hero" aria-labelledby="weather-heading">
     <div class="sf-page-header page-hero">
         <div>
             <p><a asp-controller="Farms" asp-action="Details" asp-route-id="@Model.FarmId">← Back to farm</a></p>
@@ -32,11 +32,12 @@
             <p class="ani-overline">Farm conditions</p>
             <h1 id="weather-heading">Farm weather</h1>
             <p class="sf-muted">Plan fieldwork with the last saved forecast. Dates follow @Model.TimeZoneId; this is not a live weather feed.</p>
-            <p class="ani-weather-freshness">
+            <p class="ani12e-weather-safety" role="note"><strong>Saved forecast, not live conditions.</strong> For urgent rain, heat, or storm decisions, check PAGASA or local official advisories.</p>
+            <p class="ani-weather-freshness ani12e-freshness">
                 <strong>Last checked:</strong> @(lastChecked?.ToString("MMM d, yyyy HH:mm") ?? "Not yet available")@(lastChecked.HasValue ? " UTC" : "")
                 · <span>@(Model.Days.Count == 0 ? "No weather data saved" : stale ? "Saved forecast may be outdated" : "Recently saved forecast")</span>
             </p>
-            <nav class="ani-insight-links" aria-label="Weather page sections">
+            <nav class="ani-insight-links ani12e-jump-nav" aria-label="Weather page sections">
                 <a href="#saved-forecast">Saved forecast</a>
                 <a href="#weather-alerts-heading">Advisories (@activeAdvisories.Count)</a>
             </nav>
@@ -69,21 +70,21 @@
                 <p>The last saved weather check is over 12 hours old, or its update time is invalid. Conditions and advisories may have changed. Check an official current forecast before deciding on outdoor work.</p>
             </div>
         }
-        <div class="reference-weather-overview">
+        <div class="reference-weather-overview ani12e-weather-overview">
             <div class="reference-weather-now">
                 <span class="reference-weather-icon" aria-hidden="true"><svg viewBox="0 0 48 48" width="62" height="62" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M28 9v21a8 8 0 1 1-8 0V9a4 4 0 0 1 8 0Z"/><path d="M24 18v17m7-19h7m-7 8h5"/></svg></span>
                 <div><strong>@(next?.MaxTemperatureC?.ToString("0.#") ?? "—") °C</strong><span>@(next?.Date.ToString("dddd, MMM d") ?? "No upcoming forecast") · saved daily maximum</span></div>
             </div>
             <div class="weather-pills"><span class="sf-status-chip sf-status-chip--planned">Rain chance @(next?.MaxPrecipitationProbability?.ToString("0.#") ?? "—")%</span><span class="sf-status-chip sf-status-chip--neutral">@activeAdvisories.Count active advisories</span></div>
         </div>
-        <section class="card reference-forecast-card" aria-labelledby="saved-forecast">
+        <section class="card reference-forecast-card ani12e-primary-panel" aria-labelledby="saved-forecast">
         <div class="card-head">
         <h2 id="saved-forecast">Saved daily forecast</h2>
         <span class="sf-muted">Saved forecast · @Model.TimeZoneId</span>
         </div>
         <div class="card-body">
         <p class="hint">Check times are displayed in UTC. Forecast dates follow your farm's time zone.</p>
-        <ul class="sf-weather-grid ani-weather-days forecast">
+        <ul class="sf-weather-grid ani-weather-days forecast ani12e-forecast-grid">
         @foreach (var day in forecast)
         {
             <li class="sf-weather-card forecast-item @(next is not null && day.Date == next.Date ? "ani-weather-next" : "")">
@@ -112,7 +113,7 @@
         </section>
     }
 </section>
-<section class="panel card sf-weather-advisories ani-weather-advisories" aria-labelledby="weather-alerts-heading">
+<section class="panel card sf-weather-advisories ani-weather-advisories ani12e-weather-advisories" aria-labelledby="weather-alerts-heading">
     <div class="sf-section-line card-head">
         <div>
             <h2 id="weather-alerts-heading">Saved weather advisories</h2>

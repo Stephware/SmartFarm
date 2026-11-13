@@ -37,9 +37,9 @@
         .ThenBy(t => t.DueDate)
         .ThenBy(t => t.AssignedToUserId == actorId ? 0 : 1).ToList();
 }
-<div class="reference-screen reference-screen-tasks">
+<div class="reference-screen reference-screen-tasks ani12e-workspace ani12e-tasks">
 <partial name="_FarmNavigation" model="Model.Farm.Id" />
-<section class="panel card sf-ops-hero" aria-labelledby="tasks-heading">
+<section class="panel card sf-ops-hero ani12e-hero" aria-labelledby="tasks-heading">
     <div class="sf-page-header page-hero">
         <div>
             <p><a asp-controller="Farms" asp-action="Details" asp-route-id="@Model.Farm.Id">← @Model.Farm.Name</a></p>
@@ -53,7 +53,7 @@
             <a class="button" href="#add-task">Add a task</a>
         }
     </div>
-    <div class="sf-ops-summary ani-work-priority-summary" aria-label="Farm task priorities">
+    <div class="sf-ops-summary ani-work-priority-summary ani12e-metrics" aria-label="Farm task priorities">
         <div class="@(overdueCount > 0 ? "ani-priority-warning" : "")"><strong>@overdueCount</strong><span>Overdue</span></div>
         <div><strong>@dueTodayCount</strong><span>Due today</span></div>
         <div><strong>@mineCount</strong><span>Assigned to me</span></div>
@@ -64,13 +64,13 @@
     @if (TempData["Message"] is string message) { <p class="form-notice ani-save-feedback" role="status">@message</p> }
     @if (TempData["Error"] is string error) { <p class="error form-error" role="alert">@error</p> }
 </section>
-<div class="reference-task-workspace">
-<section class="panel card sf-task-panel" aria-labelledby="task-list-heading">
+<div class="reference-task-workspace ani12e-task-workspace">
+<section class="panel card sf-task-panel ani12e-primary-panel" aria-labelledby="task-list-heading">
     <div class="sf-section-line card-head">
         <h2 id="task-list-heading">Work to do</h2>
         <span>@shown.Count visible of @Model.Tasks.Count</span>
     </div>
-    <nav class="ani-task-tabs filter-row" aria-label="Filter farm tasks">
+    <nav class="ani-task-tabs filter-row ani12e-filter-tabs" aria-label="Filter farm tasks">
         <a class="@(Model.SelectedView == "today" ? "is-selected" : "")"
            aria-current="@(Model.SelectedView == "today" ? "page" : null)"
            asp-controller="Tasks" asp-action="Index" asp-route-farmId="@Model.Farm.Id" asp-route-view="today">
@@ -127,10 +127,10 @@
     }
     else
     {
-        <ul class="sf-task-list checklist">
+        <ul class="sf-task-list checklist ani12e-task-list">
         @foreach (var task in ordered)
         {
-            <li id="task-@task.Id" class="sf-task-item @(task.Status == 0 ? "sf-task-open" : "sf-task-closed") @(task.Status == 0 && Model.FarmToday is { } date && task.DueDate < date ? "ani-task-urgent" : "")">
+            <li id="task-@task.Id" class="sf-task-item ani12e-task-card @(task.Status == 0 ? "sf-task-open" : "sf-task-closed") @(task.Status == 0 && Model.FarmToday is { } date && task.DueDate < date ? "ani-task-urgent" : "")">
                 <div class="sf-task-main">
                     <span class="sf-task-symbol reference-task-check @(task.Status != 0 ? "is-closed" : "")" aria-hidden="true"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="4" />@if (task.Status != 0) { <path d="m7 12 3 3 7-7" /> }</svg></span>
                     <div class="sf-task-content">
@@ -146,7 +146,7 @@
                             <span><strong>Due:</strong> <time datetime="@task.DueDate.ToString("yyyy-MM-dd")">@task.DueDate.ToString("MMM d, yyyy")</time></span>
                             @if (task.AssignedToUserId is { } assigned)
                             {
-                                <span><strong>Assigned:</strong> @(Model.Members.FirstOrDefault(m => m.UserId == assigned)?.FullName ?? "Farm owner")</span>
+                                <span><strong>Assigned:</strong> @(assigned == actorId ? "You" : Model.Members.FirstOrDefault(m => m.UserId == assigned)?.FullName ?? "Farm member")</span>
                             }
                             else
                             {
@@ -173,7 +173,7 @@
                 </div>
                 @if (task.Status == 0 && (canManage || task.AssignedToUserId == actorId))
                 {
-                    <div class="sf-task-actions">
+                    <div class="sf-task-actions ani12e-task-actions">
                         <form asp-action="Close" asp-route-farmId="@Model.Farm.Id" asp-route-taskId="@task.Id" method="post">
                             <input type="hidden" name="RowVersion" value="@task.RowVersion" />
                             <input type="hidden" name="returnView" value="@Model.SelectedView" />
@@ -225,12 +225,12 @@
 </section>
 @if (calendarMonth is { } month)
 {
-    <section class="panel card reference-task-calendar" aria-labelledby="task-calendar-heading">
+    <section class="panel card reference-task-calendar ani12e-task-calendar" aria-labelledby="task-calendar-heading">
         <header class="reference-panel-heading"><h2 id="task-calendar-heading">Task calendar</h2></header>
-        <nav class="crop-agenda-nav" aria-label="Task calendar month">
-            @if (month.Year > 2000 || month.Month > 1) { <a asp-action="Index" asp-route-farmId="@Model.Farm.Id" asp-route-view="@Model.SelectedView" asp-route-month="@month.AddMonths(-1).ToString("yyyy-MM")" aria-label="Previous task month">‹</a> }
+        <nav class="crop-agenda-nav ani12e-month-nav" aria-label="Task calendar month">
+            @if (month.Year > 2000 || month.Month > 1) { <a asp-action="Index" asp-route-farmId="@Model.Farm.Id" asp-route-view="@Model.SelectedView" asp-route-month="@month.AddMonths(-1).ToString("yyyy-MM")" asp-fragment="task-calendar-heading" aria-label="Previous task month">← Previous</a> }
             <strong>@month.ToString("MMMM yyyy")</strong>
-            @if (month.Year < 2100 || month.Month < 12) { <a asp-action="Index" asp-route-farmId="@Model.Farm.Id" asp-route-view="@Model.SelectedView" asp-route-month="@month.AddMonths(1).ToString("yyyy-MM")" aria-label="Next task month">›</a> }
+            @if (month.Year < 2100 || month.Month < 12) { <a asp-action="Index" asp-route-farmId="@Model.Farm.Id" asp-route-view="@Model.SelectedView" asp-route-month="@month.AddMonths(1).ToString("yyyy-MM")" asp-fragment="task-calendar-heading" aria-label="Next task month">Next →</a> }
         </nav>
         <div class="reference-calendar" role="group" aria-label="Task dates in @month.ToString("MMMM yyyy")">
             <div class="calendar-grid reference-calendar-week" aria-hidden="true">@foreach (var day in new[] { "Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat" }) { <span>@day</span> }</div>
@@ -248,12 +248,36 @@
             </div>
         </div>
         <p class="hint">Dates use @Model.Farm.TimeZoneId. Select a marked date to open its task records.</p>
+        @{
+            var monthTasks = Model.Tasks.Where(t => t.DueDate.Year == month.Year && t.DueDate.Month == month.Month)
+                .OrderBy(t => t.DueDate).ThenBy(t => t.Status).ToList();
+        }
+        <div class="ani12e-mobile-agenda" aria-label="Task schedule for @month.ToString("MMMM yyyy")">
+            @if (monthTasks.Count == 0)
+            {
+                <p>No tasks scheduled this month. Select another month to check upcoming work.</p>
+            }
+            else
+            {
+                <ol>
+                @foreach (var scheduled in monthTasks)
+                {
+                    <li>
+                        <time datetime="@scheduled.DueDate.ToString("yyyy-MM-dd")">@scheduled.DueDate.ToString("MMM d")</time>
+                        <span><strong>@scheduled.TaskTypeName</strong><small>@scheduled.StatusName</small></span>
+                        <a asp-action="Index" asp-route-farmId="@Model.Farm.Id" asp-route-view="all"
+                           asp-fragment="@("task-" + scheduled.Id)">View task</a>
+                    </li>
+                }
+                </ol>
+            }
+        </div>
     </section>
 }
 </div>
 @if (canManage)
 {
-    <section class="panel card sf-task-create" id="add-task" data-form-dialog aria-labelledby="add-task-heading">
+    <section class="panel card sf-task-create ani12e-create-panel" id="add-task" data-form-dialog aria-labelledby="add-task-heading">
         <div class="sf-section-line card-head">
             <div>
 

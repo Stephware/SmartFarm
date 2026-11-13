@@ -10,9 +10,9 @@
     var reversedIds = Model.Transactions.Where(x => x.ReversesTransactionId is not null)
         .Select(x => x.ReversesTransactionId!.Value).ToHashSet();
 }
-<div class="reference-screen reference-screen-inventory">
+<div class="reference-screen reference-screen-inventory ani12e-workspace ani12e-stock-detail">
 <partial name="_FarmNavigation" model="Model.Farm.Id" />
-<section class="panel card sf-ops-hero sf-stock-hero" aria-labelledby="stock-heading">
+<section class="panel card sf-ops-hero sf-stock-hero ani12e-hero" aria-labelledby="stock-heading">
     <div class="sf-page-header page-hero">
         <div>
             <p><a asp-action="Index" asp-route-farmId="@Model.Farm.Id">← Inventory</a></p>
@@ -25,7 +25,7 @@
                 <p class="ani-stock-threshold">Low-stock alert at @item.ReorderLevel.Value.ToString("N3") @item.Unit</p>
             }
         </div>
-        <div class="sf-stock-hero-balance">
+        <div class="sf-stock-hero-balance ani12e-stock-total">
             <span>Available stock</span>
             <strong>@item.QuantityOnHand.ToString("N3") <small>@item.Unit</small></strong>
             @if (item.IsLowStock) { <span class="sf-status-chip sf-status-chip--warning">Low-stock threshold reached</span> }
@@ -52,14 +52,16 @@
 </section>
 @if (active)
 {
-    <section class="panel card sf-stock-movement ani-inventory-movement" id="stock-movement" aria-labelledby="stock-movement-heading">
+    <section class="panel card sf-stock-movement ani-inventory-movement ani12e-form-panel" id="stock-movement" aria-labelledby="stock-movement-heading">
 
         <header class="reference-panel-heading"><h2 id="stock-movement-heading">Record stock movement</h2></header>
         <p class="sf-muted">Choose the kind of change. Each saved movement updates the farm balance and keeps a history entry.</p>
         <div class="ani-stock-movement-guide" role="note">
-            <span>+ Supplies arrived</span><span>− Supplies used</span><span>± Count correction</span>
+            @if (canManage) { <span>+ Supplies arrived</span> }
+            <span>− Supplies used</span>
+            @if (canManage) { <span>± Count correction</span> }
         </div>
-        <form class="sf-ops-form ani-movement-form" data-inventory-movement-form
+        <form class="sf-ops-form ani-movement-form ani12e-movement-form" data-inventory-movement-form
               asp-action="Post" asp-route-farmId="@Model.Farm.Id" asp-route-itemId="@item.Id" method="post">
             <input type="hidden" name="RowVersion" value="@item.RowVersion" />
             <label for="kind">What happened?</label>
@@ -105,7 +107,7 @@
         </form>
     </section>
 }
-<section class="panel card sf-stock-history" aria-labelledby="transaction-heading">
+<section class="panel card sf-stock-history ani12e-history-panel" aria-labelledby="transaction-heading">
     <div class="sf-section-line card-head">
         <h2 id="transaction-heading">Transaction history</h2>
         <span>@Model.Transactions.Count entry/entries</span>

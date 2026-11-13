@@ -1,7 +1,7 @@
 {
   "reviewed": true,
   "sourceHashes": {
-    "wwwroot/css/anigo-tailwind.css": "c10e824d48cafa1eb0d2d9e375d6c8dd5dbb272fd8b9439ec8b727c893db8df2",
+    "wwwroot/css/anigo-tailwind.css": "d21a6822374d434e5ce5008a6398f5c8a1a62667116d2884075054d4ca9868de",
     "Views/Shared/_Layout.cshtml": "20995ee27c7391cc482027e22575978f2b45ba7afb80695200409544afcb2d6c",
     "Views/Home/Index.cshtml": "1d74072b0b9efc036974985c45c45047315f061a3d1dedd11c2e330b74880de6",
     "Views/Account/Login.cshtml": "2881d3e20d68f709abf12d244855199f92c86b54e1c434bd022625999ed5d053",
@@ -23,5 +23,5 @@
     "login": "/Account/Login",
     "registration": "/Account/Register"
   },
-  "note": "Phase 12D visual acceptance (Nov 13, 2026): 30 public screenshots regenerated in pinned Chromium across 320/375/768/1024/1440 widths and light/dark; representative public pages checked. Reviewed real signed-in farm-owner mobile, plot-directory desktop, crop-owner dark mobile, crop-worker tablet and edit-plan desktop screenshots in tests/browser/phase12d-review. Chromium checked 200 authenticated screen/width/theme combinations for navigation, responsive overflow and serious/critical accessibility findings using deterministic test fixtures. Role restrictions, crop selection and saved-data labels validated. No production farm data."
+  "note": "Phase 12E visual acceptance (2026-11-13): Regenerated and reviewed all 30 public Chromium baselines at 320/375/768/1024/1440 widths in light/dark themes. Additionally reviewed signed-in daily-task, crop-monitoring, harvest, inventory, stock-use, stale-weather, and report screenshots captured from actual MVC Razor HTML with deterministic farm records (tests/browser/phase12e-review). Separate browser run passed 130 role/screen/width/theme combinations, checking horizontal overflow, mobile agenda, fieldwork dialog opening, role-safe inventory controls, harvest entry visibility, weather freshness, and serious/critical WCAG issues. No live production data or device-level testing. No business rules, Android, schema, or API contracts changed."
 }

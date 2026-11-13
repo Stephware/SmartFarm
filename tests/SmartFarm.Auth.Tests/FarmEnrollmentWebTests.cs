@@ -692,7 +692,7 @@ public sealed class FarmEnrollmentWebTests
         Assert.Contains("value=\"2026-10-01\"", html);
         Assert.Contains("value=\"2026-10-31\"", html);
         Assert.Contains("plotId=" + plotId, html);
-        Assert.Matches("(?s)class=\"ani-report-filter-details\"[^>]*open", html);
+        Assert.Matches("(?s)class=\"ani-report-filter-details(?: [^\"]+)?\"[^>]*open", html);
         Assert.Contains("ExportCycleCsv", html);
     }
 
@@ -1425,6 +1425,137 @@ public sealed class FarmEnrollmentWebTests
             await Capture(worker, "12d-plots-worker", $"/PlotLayout?farmId={FarmId}");
             await Capture(worker, "12d-crops-worker", $"/Crops?farmId={FarmId}&month=2026-11");
         }
+    }
+
+    [Theory]
+    [InlineData("Owner", true)]
+    [InlineData("FieldWorker", false)]
+    public async Task Phase12EOperationsRespectFarmRolesAndSavedData(string role, bool canManage)
+    {
+        var cycle = new CropCycleDetails(Guid.NewGuid(), FarmId, Guid.NewGuid(), "North field",
+            Guid.NewGuid(), "Tomato", CropCycleStatus.Active, new DateOnly(2026, 10, 2),
+            new DateOnly(2026, 10, 3), new DateOnly(2026, 12, 10), "kg", 4, null, null, "v");
+        var task = new FarmTaskDetails(Guid.NewGuid(), FarmId, cycle.Id, Actor,
+            2, new DateOnly(2026, 11, 13), 0, "Water North plot",
+            DateTime.UtcNow, null, "v");
+        var item = new InventoryItemDetails(Guid.NewGuid(), FarmId, "Rice seed",
+            InventoryCategory.Seeds, "kg", null, 2m, 5m, true, null, "version");
+        var today = DateOnly.FromDateTime(DateTime.UtcNow);
+        var saved = new WeatherDayDetails(today, 22m, 31m, 8m,
+            DateTime.UtcNow.AddMinutes(-10), "Open-Meteo", 45m, null);
+        var report = new HarvestReport(FarmId, "Green Farm", "Asia/Manila",
+            null, null, null, null, 1, 0,
+            [new HarvestUnitTotal("kg", 8.5m, 1)], [], [], []);
+        using var app = App(role: role, taskList: [task], cycles: [cycle],
+            monitoring: new MonitoringDetails(FarmId, cycle.Id, true, [], []),
+            harvest: new HarvestOverview(FarmId, cycle.Id, "Tomato",
+                "North field", "kg", 1, true, false, 0m, 0, 0, []),
+            inventory: new InventoryWorkspace([item], 1), inventoryItem: item,
+            weather: new WeatherOverview(FarmId, true, "Asia/Manila", [saved], []),
+            harvestReport: report);
+        using var client = app.CreateClient(new() { AllowAutoRedirect = false });
+        var tasks = await client.GetStringAsync($"/Tasks?farmId={FarmId}&view=all");
+        var monitoring = await client.GetStringAsync($"/Monitoring?farmId={FarmId}&cycleId={cycle.Id}");
+        var harvests = await client.GetStringAsync($"/Harvests?farmId={FarmId}&cycleId={cycle.Id}");
+        var inventory = await client.GetStringAsync($"/Inventory?farmId={FarmId}");
+        var details = await client.GetStringAsync($"/Inventory/Details?farmId={FarmId}&itemId={item.Id}");
+        var weather = await client.GetStringAsync($"/Weather?farmId={FarmId}");
+        var reportHtml = await client.GetStringAsync($"/Reports/Harvests?farmId={FarmId}");
+
+        Assert.Contains("ani12e-task-workspace", tasks);
+        Assert.Contains("ani12e-mobile-agenda", tasks);
+        Assert.Contains("Water North plot", tasks);
+        Assert.Contains("ani12e-recording-grid", monitoring);
+        Assert.Contains("ani12e-photo-panel", monitoring);
+        Assert.Contains("ani12e-harvests", harvests);
+        Assert.Contains("Confirmed harvest total", harvests);
+        Assert.Contains("ani12e-inventory-table", inventory);
+        Assert.Contains("Rice seed", inventory);
+        Assert.Contains("ani12e-movement-form", details);
+        Assert.Contains("Low-stock threshold reached", details);
+        Assert.Contains("Saved forecast, not live conditions.", weather);
+        Assert.Contains("ani12e-forecast-grid", weather);
+        Assert.Contains("ani12e-report-filter-form", reportHtml);
+        Assert.Contains("Filter results or download CSV", reportHtml);
+        if (canManage)
+        {
+            Assert.Contains("id=\"add-task\"", tasks);
+            Assert.Contains("id=\"add-item\"", inventory);
+            Assert.Contains("Supplies arrived (add stock)", details);
+        }
+        else
+        {
+            Assert.DoesNotContain("id=\"add-task\"", tasks);
+            Assert.DoesNotContain("id=\"add-item\"", inventory);
+            Assert.DoesNotContain("Supplies arrived (add stock)", details);
+        }
+    }
+
+    [Fact]
+    public async Task Phase12EAuthenticatedBrowserFixtures()
+    {
+        if (Environment.GetEnvironmentVariable("ANIGO_CAPTURE_AUTH_FIXTURES") != "1") return;
+        var root = new DirectoryInfo(AppContext.BaseDirectory);
+        while (root is not null && !File.Exists(Path.Combine(root.FullName, "SmartFarm.slnx")))
+            root = root.Parent;
+        Assert.NotNull(root);
+        var directory = Path.Combine(root.FullName, "tests", "browser", "authenticated-fixtures");
+        Directory.CreateDirectory(directory);
+
+        var cycle = new CropCycleDetails(Guid.NewGuid(), FarmId, Guid.NewGuid(),
+            "North field", Guid.NewGuid(), "Tomato", CropCycleStatus.Active,
+            new DateOnly(2026, 10, 2), new DateOnly(2026, 10, 3),
+            new DateOnly(2026, 12, 10), "kg", 4, null, null, "v");
+        var task = new FarmTaskDetails(Guid.NewGuid(), FarmId, cycle.Id, Actor,
+            2, new DateOnly(2026, 11, 13), 0, "Water North field", DateTime.UtcNow, null, "v");
+        var item = new InventoryItemDetails(Guid.NewGuid(), FarmId, "Rice seed",
+            InventoryCategory.Seeds, "kg", null, 2m, 5m, true, null, "v");
+        var day = new WeatherDayDetails(new DateOnly(2026, 11, 13), 22m, 31m, 8m,
+            DateTime.UtcNow.AddMinutes(-10), "Open-Meteo", 45m, null);
+        var old = day with { RetrievedAtUtc = DateTime.UtcNow.AddHours(-18) };
+        var harvested = new HarvestEntry(Guid.NewGuid(), cycle.Id, 8.5m, "kg",
+            DateTime.UtcNow, DateTime.UtcNow, Actor, "First picking", false, null, null, null);
+        var report = new HarvestReport(FarmId, "Green Farm", "Asia/Manila",
+            null, null, null, null, 1, 0,
+            [new HarvestUnitTotal("kg", 8.5m, 1)], [], [],
+            [new HarvestReportEntry(harvested.Id, cycle.Id, cycle.PlotId, "North field",
+                cycle.CropTypeId, "Tomato", 8.5m, "kg", DateTime.UtcNow,
+                new DateOnly(2026, 11, 13), false, null)]);
+        async Task Capture(WebApplicationFactory<Program> app, string name, string route)
+        {
+            using var client = app.CreateClient();
+            using var response = await client.GetAsync(route);
+            Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+            var html = await response.Content.ReadAsStringAsync();
+            Assert.Contains("id=\"main-content\"", html);
+            await File.WriteAllTextAsync(Path.Combine(directory, name + ".html"), html);
+        }
+        foreach (var role in new[] { "Owner", "FieldWorker" })
+        {
+            using var app = App(role, taskList: [task], cycles: [cycle],
+                monitoring: new MonitoringDetails(FarmId, cycle.Id, true, [], []),
+                harvest: new HarvestOverview(FarmId, cycle.Id, "Tomato", "North field",
+                    "kg", 1, true, false, 8.5m, 1, 0, [harvested]),
+                inventory: new InventoryWorkspace([item], 1), inventoryItem: item,
+                weather: new WeatherOverview(FarmId, true, "Asia/Manila", [day], []),
+                harvestReport: report);
+            var suffix = role == "Owner" ? "owner" : "worker";
+            await Capture(app, "12e-tasks-" + suffix, $"/Tasks?farmId={FarmId}&view=all&month=2026-11");
+            await Capture(app, "12e-inventory-" + suffix, $"/Inventory?farmId={FarmId}");
+            await Capture(app, "12e-stock-" + suffix, $"/Inventory/Details?farmId={FarmId}&itemId={item.Id}");
+            await Capture(app, "12e-monitoring-" + suffix,
+                $"/Monitoring?farmId={FarmId}&cycleId={cycle.Id}");
+            await Capture(app, "12e-harvests-" + suffix,
+                $"/Harvests?farmId={FarmId}&cycleId={cycle.Id}");
+        }
+        using (var normal = App(weather: new WeatherOverview(FarmId, true, "Asia/Manila", [day], []),
+            harvestReport: report))
+        {
+            await Capture(normal, "12e-weather-saved", $"/Weather?farmId={FarmId}");
+            await Capture(normal, "12e-reports", $"/Reports/Harvests?farmId={FarmId}");
+        }
+        using (var stale = App(weather: new WeatherOverview(FarmId, true, "Asia/Manila", [old], [])))
+            await Capture(stale, "12e-weather-stale", $"/Weather?farmId={FarmId}");
     }
 
     // Capture real Razor HTML with deterministic signed-in roles for Chromium screenshot
