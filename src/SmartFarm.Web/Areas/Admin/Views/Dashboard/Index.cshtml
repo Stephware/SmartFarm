@@ -1,38 +1,82 @@
 @model SmartFarm.Web.ViewModels.Admin.AdminOverviewPage
 @{
     ViewData["Title"] = "Platform overview";
+    var workerAvailable = Model.Worker is not null
+        && Model.Worker.State is not ("Unavailable" or "Not configured");
 }
-<div class="page-heading admin-page-heading">
+<div class="ani12c-admin-dashboard">
+<header class="page-heading admin-page-heading ani12c-admin-hero">
     <div>
-        <p class="sf-kicker">ANIGO PLATFORM</p>
+        <p class="sf-kicker">ANIGO · PLATFORM ADMINISTRATION</p>
         <h1>Platform overview</h1>
-        <p class="sf-muted">A simple view of your registered users and farms. Farm-level roles stay separate.</p>
+        <p class="sf-muted">Start with users, farms, support cases, and background-job issues. This is a platform view, not access to individual farm records.</p>
     </div>
-</div>
-<section class="admin-stats" aria-label="Platform totals">
-    <a class="admin-stat panel" asp-area="Admin" asp-controller="Users" asp-action="Index">
-        <span>Registered users</span><strong>@Model.TotalUsers</strong><small>@Model.ActiveUsers active</small>
-    </a>
-    <a class="admin-stat panel" asp-area="Admin" asp-controller="Users" asp-action="Index" asp-route-status="disabled">
-        <span>Disabled accounts</span><strong>@Model.DisabledUsers</strong><small>Review accounts</small>
-    </a>
+    <a class="button admin-button-secondary" asp-area="Admin" asp-controller="Monitoring" asp-action="Index">Open system monitoring</a>
+</header>
+
+<section class="admin-stats ani12c-admin-kpis" aria-label="Key platform indicators">
     <a class="admin-stat panel" asp-area="Admin" asp-controller="Farms" asp-action="Index" asp-route-status="active">
-        <span>Active farms</span><strong>@Model.ActiveFarms</strong><small>@Model.TotalFarms total registered</small>
+        <span>Active farms</span><strong>@Model.ActiveFarms</strong><small>@Model.TotalFarms registered in total</small>
     </a>
-    <a class="admin-stat panel" asp-area="Admin" asp-controller="Farms" asp-action="Index" asp-route-status="archived">
-        <span>Archived farms</span><strong>@Model.ArchivedFarms</strong><small>View archived farms</small>
+    <a class="admin-stat panel" asp-area="Admin" asp-controller="Users" asp-action="Index" asp-route-status="active">
+        <span>Active users</span><strong>@Model.ActiveUsers</strong><small>@Model.TotalUsers registered in total</small>
     </a>
-    <div class="admin-stat panel"><span>Active plots</span><strong>@Model.ActivePlots</strong><small>Across the platform</small></div>
-    <a class="admin-stat panel" asp-area="Admin" asp-controller="Support" asp-action="Index">
+    <a class="admin-stat panel @(Model.PendingSupport > 0 ? "ani12c-kpi-warning" : "")"
+       asp-area="Admin" asp-controller="Support" asp-action="Index">
         <span>Unresolved support</span><strong>@Model.PendingSupport</strong><small>Open or in progress</small>
     </a>
+    <a class="admin-stat panel @((workerAvailable && Model.Worker!.FailedJobsLast7Days > 0) ? "ani12c-kpi-warning" : "")"
+       asp-area="Admin" asp-controller="Monitoring" asp-action="Index">
+        <span>Failed jobs · 7 days</span><strong>@(workerAvailable ? Model.Worker!.FailedJobsLast7Days.ToString() : "—")</strong>
+        <small>@(workerAvailable ? "Recorded SmartFarm worker jobs" : "Unavailable — view monitoring")</small>
+    </a>
 </section>
-<section class="panel admin-directory-panel" aria-labelledby="recent-farms-heading">
-    <div class="admin-section-heading">
-        <div>
-            <h2 id="recent-farms-heading">Recently registered farms</h2>
-            <p class="sf-muted">Open a farm to view its owner, plots, members, and status.</p>
+
+<div class="ani12c-admin-priorities">
+    <section class="panel" aria-labelledby="admin-decisions-heading">
+        <div class="admin-section-heading">
+            <div><p class="ani-overline">START HERE</p><h2 id="admin-decisions-heading">Needs your review</h2>
+                <p class="sf-muted">Open the appropriate workspace to investigate. No actions happen from this summary.</p></div>
         </div>
+        <nav class="ani12c-admin-priority-list" aria-label="Administrative review links">
+            <a asp-area="Admin" asp-controller="Support" asp-action="Index">
+                <strong>Support requests</strong><span>@Model.PendingSupport unresolved</span>
+            </a>
+            <a asp-area="Admin" asp-controller="Users" asp-action="Index" asp-route-status="disabled">
+                <strong>Disabled accounts</strong><span>@Model.DisabledUsers accounts</span>
+            </a>
+            <a asp-area="Admin" asp-controller="Farms" asp-action="Index" asp-route-status="archived">
+                <strong>Archived farms</strong><span>@Model.ArchivedFarms farms</span>
+            </a>
+            <a asp-area="Admin" asp-controller="Audit" asp-action="Index">
+                <strong>Administrative activity</strong><span>Review audit history</span>
+            </a>
+        </nav>
+    </section>
+    <section class="panel" aria-labelledby="admin-health-heading">
+        <div class="admin-section-heading">
+            <div><p class="ani-overline">READ-ONLY STATUS</p><h2 id="admin-health-heading">Service &amp; background work</h2></div>
+        </div>
+        <dl class="ani12c-admin-health">
+            <div><dt>Admin Web</dt><dd><span class="sf-status-chip sf-status-chip--active">Serving this request</span></dd></div>
+            <div><dt>Worker heartbeat</dt>
+                <dd><span class="sf-status-chip @(Model.Worker?.State == "Active" ? "sf-status-chip--active" : "sf-status-chip--planned")">@(Model.Worker?.State ?? "Unavailable")</span></dd></div>
+            <div><dt>Jobs waiting</dt><dd>@(workerAvailable ? Model.Worker!.WaitingJobs.ToString() : "Not available")</dd></div>
+        </dl>
+        <p class="sf-muted">@(Model.Worker?.Detail ?? "Worker diagnostics are unavailable.")</p>
+        @if (Model.Worker?.LastHeartbeatUtc is DateTime heartbeat)
+        {
+            <p class="sf-muted">Last worker heartbeat: <time datetime="@heartbeat.ToString("yyyy-MM-ddTHH:mm:ssZ")">@heartbeat.ToString("MMM d, yyyy HH:mm") UTC</time></p>
+        }
+        <a class="ani12c-admin-monitor-link" asp-area="Admin" asp-controller="Monitoring" asp-action="Index">Check API, database, worker and sync diagnostics →</a>
+        <p class="sf-muted">Other service health is checked on the monitoring page. A count is not treated as zero when diagnostics are unavailable.</p>
+    </section>
+</div>
+
+<section class="panel admin-directory-panel ani12c-admin-section" aria-labelledby="recent-farms-heading">
+    <div class="admin-section-heading">
+        <div><h2 id="recent-farms-heading">Recently registered farms</h2>
+            <p class="sf-muted">Most recent registrations, not an estimate of today's activity.</p></div>
         <a class="button admin-button-secondary" asp-area="Admin" asp-controller="Farms" asp-action="Index">View all farms</a>
     </div>
     @if (Model.RecentFarms.Count == 0)
@@ -52,26 +96,22 @@
         </div>
     }
 </section>
-<div class="admin-shortcuts">
-    <a class="panel admin-shortcut" asp-area="Admin" asp-controller="Users" asp-action="Index">
-        <strong>Manage users</strong><span>Search accounts and review access status.</span>
-    </a>
-    <a class="panel admin-shortcut" asp-area="Admin" asp-controller="Support" asp-action="Index">
-        <strong>Support cases</strong><span>Review requests, respond and track resolutions.</span>
-    </a>
-    <a class="panel admin-shortcut" asp-area="Admin" asp-controller="Monitoring" asp-action="Index">
-        <strong>System monitoring</strong><span>Check service status, failed jobs, and sync receipts.</span>
-    </a>
-    <a class="panel admin-shortcut" asp-area="Admin" asp-controller="Audit" asp-action="Index">
-        <strong>Audit history</strong><span>Find administrative actions, actors, dates and reasons.</span>
-    </a>
-    <a class="panel admin-shortcut" asp-area="Admin" asp-controller="Announcements" asp-action="Index">
-        <strong>Announcements</strong><span>Draft, publish, and archive platform updates.</span>
-    </a>
-    <a class="panel admin-shortcut" asp-area="Admin" asp-controller="Reports" asp-action="Index">
-        <strong>Platform reports</strong><span>View farm activity trends and export aggregate data.</span>
-    </a>
-    <a class="panel admin-shortcut" asp-area="Admin" asp-controller="Farms" asp-action="Index">
-        <strong>Manage farms</strong><span>Find farms and review archive status.</span>
-    </a>
+
+<section class="ani12c-admin-section" aria-labelledby="admin-tools-heading">
+    <div class="admin-section-heading">
+        <div><h2 id="admin-tools-heading">Platform tools</h2><p class="sf-muted">Open the complete records and filters when more detail is needed.</p></div>
+    </div>
+    <div class="admin-shortcuts">
+        <a class="panel admin-shortcut" asp-area="Admin" asp-controller="Users" asp-action="Index">
+            <strong>User directory</strong><span>Search accounts and review access.</span>
+        </a>
+        <a class="panel admin-shortcut" asp-area="Admin" asp-controller="Reports" asp-action="Index">
+            <strong>Platform reports</strong><span>Review aggregate recorded farm activity.</span>
+        </a>
+        <a class="panel admin-shortcut" asp-area="Admin" asp-controller="Announcements" asp-action="Index">
+            <strong>Announcements</strong><span>Publish and manage platform updates.</span>
+        </a>
+    </div>
+    <p class="sf-muted">Platform totals include @Model.ActivePlots active plots. No private farm activity or location coordinates are shown here.</p>
+</section>
 </div>
