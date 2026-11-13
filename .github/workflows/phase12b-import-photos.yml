@@ -1,0 +1,45 @@
+# One-off authoring workflow: vendor a small set of licensed Unsplash photographs.
+# The workflow is removed before the redesign PR is merged.
+name: Import licensed AniGo editorial photos
+on:
+  push:
+    branches:
+      - feature/web-ui-phase-12b-entry-onboarding
+    paths:
+      - .github/workflows/phase12b-import-photos.yml
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  photos:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: feature/web-ui-phase-12b-entry-onboarding
+          persist-credentials: true
+      - name: Download locally served Unsplash photographs
+        run: |
+          set -euo pipefail
+          mkdir -p src/SmartFarm.Web/wwwroot/images/photography
+          cd src/SmartFarm.Web/wwwroot/images/photography
+          curl --fail --location --retry 3 --silent --show-error \
+            'https://images.unsplash.com/photo-1677126138830-ca9d01b53ed5?fit=crop&w=1800&h=1150&q=76&fm=webp' -o fields-hero.webp
+          curl --fail --location --retry 3 --silent --show-error \
+            'https://images.unsplash.com/photo-1769430896895-577cab9060ba?fit=crop&w=1100&h=1300&q=74&fm=webp' -o farmers-working.webp
+          curl --fail --location --retry 3 --silent --show-error \
+            'https://images.unsplash.com/photo-1730697897470-0efaee4922de?fit=crop&w=1100&h=900&q=74&fm=webp' -o fields-detail.webp
+          for image in *.webp; do
+            test "$(wc -c < "$image")" -gt 4000
+            test "$(wc -c < "$image")" -lt 550000
+            file "$image" | grep -Eiq 'webp'
+            echo "$image ($(wc -c < "$image") bytes)"
+          done
+      - name: Commit optimized photos
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add src/SmartFarm.Web/wwwroot/images/photography/*.webp
+          git commit -m "Add licensed agricultural photography"
+          git push origin HEAD:feature/web-ui-phase-12b-entry-onboarding
