@@ -408,15 +408,22 @@ public sealed class FarmEnrollmentWebTests
         var html = await client.GetStringAsync($"/Crops?farmId={FarmId}&plotId={plotId}");
         Assert.Contains("Selected plot: North field", html);
         Assert.Contains("Currently growing", html);
-        Assert.Contains("Plan a crop", html);
+        if (canManage) Assert.Contains("Plan a crop", html);
         Assert.Contains("Crop records", html);
         Assert.Contains("Open monitoring", html);
         Assert.Contains("Crop types &amp; history", html);
         Assert.Contains("crop-cycle-" + active.Id, html);
-        Assert.True(html.IndexOf("id=\"ani-current-heading\"", StringComparison.Ordinal) <
-                    html.IndexOf("id=\"planting-plans-heading\"", StringComparison.Ordinal));
-        Assert.True(html.IndexOf("id=\"planting-plans-heading\"", StringComparison.Ordinal) <
-                    html.IndexOf("id=\"crop-cycles-heading\"", StringComparison.Ordinal));
+        if (canManage)
+        {
+            Assert.True(html.IndexOf("id=\"ani-current-heading\"", StringComparison.Ordinal) <
+                        html.IndexOf("id=\"planting-plans-heading\"", StringComparison.Ordinal));
+            Assert.True(html.IndexOf("id=\"planting-plans-heading\"", StringComparison.Ordinal) <
+                        html.IndexOf("id=\"crop-cycles-heading\"", StringComparison.Ordinal));
+        }
+        else
+        {
+            Assert.DoesNotContain("id=\"planting-plans-heading\"", html);
+        }
         if (canManage)
         {
             Assert.Contains("Save planting plan", html);
