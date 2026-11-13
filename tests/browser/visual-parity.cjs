@@ -47,7 +47,15 @@ else {
                     assert.equal(response?.status(), 200, key + ": public route");
                     await page.evaluate(async () => {
                         await document.fonts.ready;
-                        await Promise.all([...document.images].map(image => image.decode().catch(() => {})));
+                        // A full-page screenshot includes photos below the fold.
+                        // Lazy images may never decode until the browser is told to load them.
+                        const photos = [...document.images];
+                        for (const photo of photos) photo.loading = "eager";
+                        await Promise.race([
+                            Promise.all(photos.map(photo => photo.decode())),
+                            new Promise((_, reject) => setTimeout(
+                                () => reject(new Error("Image decode timed out")), 15000))
+                        ]);
                     });
                     assert.equal(await page.evaluate(() => document.documentElement.scrollWidth > innerWidth),
                         false, key + ": no document overflow");

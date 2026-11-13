@@ -7,6 +7,7 @@ on:
     paths:
       - .github/workflows/phase12b-stage-baselines.yml
       - src/SmartFarm.Web/Views/Home/Index.cshtml
+      - tests/browser/visual-parity.cjs
 permissions:
   contents: write
 jobs:
