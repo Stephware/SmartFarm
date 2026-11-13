@@ -1,5 +1,5 @@
 {
-  "reviewed": false,
+  "reviewed": true,
   "sourceHashes": {
     "wwwroot/css/anigo-tailwind.css": "c10e824d48cafa1eb0d2d9e375d6c8dd5dbb272fd8b9439ec8b727c893db8df2",
     "Views/Shared/_Layout.cshtml": "20995ee27c7391cc482027e22575978f2b45ba7afb80695200409544afcb2d6c",
@@ -23,5 +23,5 @@
     "login": "/Account/Login",
     "registration": "/Account/Register"
   },
-  "note": "Review the generated candidate images before changing reviewed to true."
+  "note": "Phase 12D visual acceptance (Nov 13, 2026): 30 public screenshots regenerated in pinned Chromium across 320/375/768/1024/1440 widths and light/dark; representative public pages checked. Reviewed real signed-in farm-owner mobile, plot-directory desktop, crop-owner dark mobile, crop-worker tablet and edit-plan desktop screenshots in tests/browser/phase12d-review. Chromium checked 200 authenticated screen/width/theme combinations for navigation, responsive overflow and serious/critical accessibility findings using deterministic test fixtures. Role restrictions, crop selection and saved-data labels validated. No production farm data."
 }
