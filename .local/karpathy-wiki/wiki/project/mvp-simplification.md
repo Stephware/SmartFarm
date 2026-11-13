@@ -1,7 +1,7 @@
 # Farmer-first MVP simplification — target state
 
 > Decision: 2026-11-13, user-requested scope reset following MVC/Android usability review.
-> Repository inspection: \`dev\` at \`29c55166f390efacfd5f717af98f506d50873dd5\`.
+> Repository inspection: `dev` at `29c55166f390efacfd5f717af98f506d50873dd5`.
 > Status: **Planned / documentation only.** Nothing here proves code was removed, tests run, or the simplified product delivered.
 
 ## Why
@@ -32,9 +32,9 @@ Roles: Owner/Manager manage farm setup, crops, tasks, stock setup and members su
 - Do not delete database history or quietly change REST endpoints referenced by offline queues.
 
 ## Code entry points
-Web: \`Views/Shared/_FarmNavigation.cshtml\`, \`_Layout.cshtml\`, \`Views/Dashboard\`, \`Views/Crops\`, \`Views/Monitoring\`, \`Views/Inventory\`, \`Views/Reports\`, \`Views/Farms\`, controllers and shared services.
-Android: \`navigation/FarmWorkspaceBar.kt\`, \`FarmMoreScreen.kt\`, \`FarmQuickRecordSheet.kt\`, \`SmartFarmNavHost.kt\`, \`features/farms/FarmHomeOverview.kt\`, \`features/monitoring/MonitoringScreens.kt\`, \`features/harvests/HarvestScreen.kt\`, \`features/inventory/InventoryScreens.kt\`, \`features/syncstatus/SyncStatusScreen.kt\`.
-Backend: \`Infrastructure/Services/Monitoring/MonitoringService.cs\` handles matching task fulfillment; API \`SyncOperationsController\` plus Room/WorkManager maintain idempotent writes; Worker \`FarmAutomationService\` supplies reminders/weather. Source remains authoritative for exact methods and paths.
+Web: `Views/Shared/_FarmNavigation.cshtml`, `_Layout.cshtml`, `Views/Dashboard`, `Views/Crops`, `Views/Monitoring`, `Views/Inventory`, `Views/Reports`, `Views/Farms`, controllers and shared services.
+Android: `navigation/FarmWorkspaceBar.kt`, `FarmMoreScreen.kt`, `FarmQuickRecordSheet.kt`, `SmartFarmNavHost.kt`, `features/farms/FarmHomeOverview.kt`, `features/monitoring/MonitoringScreens.kt`, `features/harvests/HarvestScreen.kt`, `features/inventory/InventoryScreens.kt`, `features/syncstatus/SyncStatusScreen.kt`.
+Backend: `Infrastructure/Services/Monitoring/MonitoringService.cs` handles matching task fulfillment; API `SyncOperationsController` plus Room/WorkManager maintain idempotent writes; Worker `FarmAutomationService` supplies reminders/weather. Source remains authoritative for exact methods and paths.
 
 ## Guardrails and verification
 Maintain live authorization; opaque Identity API bearer (not JWT); Android session credentials memory-only; crop/stock/harvest rowversions, farm-local dates, UTC storage, atomic combined activity+inventory, private photo storage, replay identities, nonnegative stock, per-unit totals and reasons on void/reversal. No automatic schema deletes/migrations. A queued record must never appear as confirmed.

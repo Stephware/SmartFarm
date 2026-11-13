@@ -32,7 +32,7 @@ Retire after dependency review: farm finance/cash insights, independent Plot Lay
 - Work **one stage at a time** following the execution plan; inspect callers before deleting any route/service/file.
 - Prefer one coding agent. Invoke relevant specialized skills only if needed; avoid repeating the same analysis in subagents, duplicate plans, and giant context dumps.
 - Keep prompts, commits and PR summaries short. Scope searches to affected paths; summarize findings and decisions rather than pasting files/logs. Never sacrifice tests or correctness to save model tokens.
-- Preserve unrelated changes. Work on a focused branch off \`dev\`; PR to \`dev\`; promote \`dev\` to \`main\` only after review. Never assert CI success without checking it.
+- Preserve unrelated changes. Work on a focused branch off `dev`; PR to `dev`; promote `dev` to `main` only after review. Never assert CI success without checking it.
 - Validate the affected .NET, Android, JS/visual and SQL-contract tests as applicable; real Android/device and live SQL tests only in authorized disposable environments. Do not run Worker against populated data casually.
 - After each completed and verified stage, update only the relevant wiki article and the plan's completion status. Historical raw snapshots and manifest entries remain immutable. See [development checks](.local/karpathy-wiki/wiki/project/development.md).
 

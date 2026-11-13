@@ -1,5 +1,8 @@
 # SmartFarm LLM Wiki
 
+> **New planned product target (2026-11-13):** [Farmer-first MVP scope](wiki/project/mvp-simplification.md), [PRODUCT.md](../../PRODUCT.md), and [Codex execution plan](../../docs/superpowers/plans/2026-11-13-mvp-simplification.md). Historical articles and immutable raw captures continue to describe prior implemented states. For routine coding, open only the relevant wiki article rather than ingesting every raw snapshot.
+
+
 Knowledge root: `.local/karpathy-wiki/`. Start with [the index](wiki/index.md).
 Repository source is authoritative; this is maintained development context, not
 application configuration or a runtime acceptance certificate.

@@ -70,8 +70,9 @@ physical-device and production/provider acceptance remain unverified.
 
 Use the installed `impeccable` skill for UI design, audit or refinement. Run its
 context command once, select only the relevant playbook and platform guidance,
-and follow its actual prerequisites. This checkout has incumbent UI but no
-`PRODUCT.md` or `DESIGN.md`. That is context status, not permission to invent product
+and follow its actual prerequisites. This checkout now has `PRODUCT.md` (2026-11-13) defining the planned MVP
+simplification; no additional design-spec document is required solely to explain
+that decision. That is context status, not permission to invent product
 requirements or redesign during a documentation task. New-surface/redesign flows
 require the skill's product-context step; narrow refinements can use incumbent
 code as its instructions permit. Browser-only tools do not apply to native Compose.
