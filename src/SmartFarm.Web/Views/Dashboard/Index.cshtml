@@ -14,9 +14,6 @@
     var attentionItems = (role.IsFieldWorker
         ? farm.AttentionItems.Where(a => a.Kind != "task" || role.VisibleOpenTaskIds.Contains(a.TargetId))
         : farm.AttentionItems).Take(5).ToArray();
-    var total = farm.PlannedCrops + farm.ActiveCrops + farm.CompletedCrops;
-    var completedPercent = total == 0 ? 0 : Math.Round(farm.CompletedCrops * 100m / total);
-    var activePercent = total == 0 ? 0 : Math.Round(farm.ActiveCrops * 100m / total);
     var activeWeatherAdvisories = Model.Weather?.Advisories.Count(a => a.Status == 0) ?? 0;
     var plotPreviews = Model.Plots.Take(4).ToList();
     var savedWeather = Model.Weather?.Days.Where(d => d.Date >= farm.FarmToday)
@@ -96,8 +93,9 @@
            asp-route-farmId="@farm.FarmId" asp-route-view="mine">
             <strong>@work.OpenCount</strong><span>Assigned to you</span>
         </a>
-        <a class="ani-dashboard-priority-stat" asp-controller="Crops" asp-action="Index" asp-route-farmId="@farm.FarmId">
-            <strong>@farm.ActiveCrops</strong><span>Active crops</span>
+        <a class="ani-dashboard-priority-stat" asp-controller="Tasks" asp-action="Index"
+           asp-route-farmId="@farm.FarmId" asp-route-view="mine">
+            <strong>@work.UpcomingCount</strong><span>Upcoming assigned</span>
         </a>
     }
     else if (role.IsManager)
@@ -117,8 +115,9 @@
            asp-controller="Inventory" asp-action="Index" asp-route-farmId="@farm.FarmId">
             <strong>@farm.LowStockItems</strong><span>Low-stock supplies</span>
         </a>
-        <a class="ani-dashboard-priority-stat" asp-controller="Crops" asp-action="Index" asp-route-farmId="@farm.FarmId">
-            <strong>@farm.ActiveCrops</strong><span>Active crops</span>
+        <a class="ani-dashboard-priority-stat @(farm.ConcerningObservations > 0 ? "is-warning" : "")"
+           asp-controller="Crops" asp-action="Index" asp-route-farmId="@farm.FarmId">
+            <strong>@farm.ConcerningObservations</strong><span>Crop concerns</span>
         </a>
     }
 </div>
@@ -469,18 +468,6 @@
                 <span>@harvest.Quantity.ToString("N3") @harvest.Unit</span></li>
         }
         </ul>
-    }
-    @if (total > 0)
-    {
-        <div class="sf-home-progress">
-            <div><strong>Crop-cycle progress</strong><span>@completedPercent% completed · @total planned, active or completed cycles</span></div>
-            <div class="progress-track" role="img"
-                 aria-label="@farm.CompletedCrops completed crops, @farm.ActiveCrops active crops, @farm.PlannedCrops planned crops">
-                <div class="progress-completed" style="width:@(completedPercent.ToString(System.Globalization.CultureInfo.InvariantCulture))%"></div>
-                <div class="progress-active" style="width:@(activePercent.ToString(System.Globalization.CultureInfo.InvariantCulture))%"></div>
-            </div>
-            <small>Failed and cancelled cycles are excluded.</small>
-        </div>
     }
 </section>
 }
