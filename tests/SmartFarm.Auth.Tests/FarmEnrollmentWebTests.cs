@@ -247,6 +247,87 @@ public sealed class FarmEnrollmentWebTests
 
 
     [Theory]
+    [InlineData("Owner", "OWNER · FARM OVERVIEW")]
+    [InlineData("Manager", "MANAGER · DAILY OPERATIONS")]
+    [InlineData("FieldWorker", "FIELD WORKER · MY WORK")]
+    public async Task Phase12CDashboardHasRoleSpecificFirstScreen(string role, string heading)
+    {
+        using var app = App(role);
+        using var client = app.CreateClient();
+        var html = await client.GetStringAsync($"/Dashboard?farmId={FarmId}");
+        Assert.Contains(heading, WebUtility.HtmlDecode(html));
+        Assert.Contains("Today's priorities", html);
+        Assert.Contains("Farm at a glance", html);
+        Assert.Contains("Needs attention", html);
+        Assert.Contains("Quick actions", html);
+        if (role == "Owner")
+        {
+            Assert.Contains("Cash records", html);
+            Assert.Contains("Team requests needing a decision", html);
+            Assert.DoesNotContain("Your assigned work", html);
+        }
+        else if (role == "Manager")
+        {
+            Assert.Contains("Plan a crop", html);
+            Assert.DoesNotContain("Team requests needing a decision", html);
+            Assert.DoesNotContain("Cash records", html);
+        }
+        else
+        {
+            Assert.Contains("Your assigned work", html);
+            Assert.Contains("Weather &amp; safety", html);
+            Assert.DoesNotContain("Team requests needing a decision", html);
+            Assert.DoesNotContain("Cash records", html);
+            Assert.DoesNotContain("Add a task", html);
+        }
+    }
+
+    [Fact]
+    public async Task Phase12CWorkerDashboardExcludesOthersTasksAndKeepsOwnLinks()
+    {
+        var mine = new FarmTaskDetails(Guid.NewGuid(), FarmId, null, Actor, 1,
+            new DateOnly(2026, 10, 26), 0, "My irrigation job",
+            DateTime.UtcNow, null, "v");
+        var other = mine with { Id = Guid.NewGuid(), AssignedToUserId = Guid.NewGuid(),
+            Description = "Another worker private task" };
+        using var app = App(role: "FieldWorker", taskList: [other, mine]);
+        using var client = app.CreateClient();
+        var html = await client.GetStringAsync($"/Dashboard?farmId={FarmId}");
+        Assert.Contains("My irrigation job", html);
+        Assert.Contains("Assigned to you", html);
+        Assert.DoesNotContain("Another worker private task", html);
+        Assert.Contains($"task-{mine.Id}", html);
+        Assert.DoesNotContain($"task-{other.Id}", html);
+        Assert.Contains("view=mine", html);
+    }
+
+    [Fact]
+    public async Task Phase12CMultipleActiveCropsRequireExplicitSelection()
+    {
+        var first = new CropCycleDetails(Guid.NewGuid(), FarmId, Guid.NewGuid(), "North plot",
+            Guid.NewGuid(), "Tomato", CropCycleStatus.Active, new DateOnly(2026, 10, 1),
+            new DateOnly(2026, 10, 2), new DateOnly(2026, 11, 20), "kg", 3,
+            null, null, "v");
+        var second = first with { Id = Guid.NewGuid(), PlotId = Guid.NewGuid(),
+            PlotName = "South plot", CropTypeName = "Rice" };
+        using var app = App(cycles: [first, second]);
+        using var client = app.CreateClient();
+        var html = await client.GetStringAsync($"/Dashboard?farmId={FarmId}");
+        Assert.Contains("Choose crop to record", html);
+        Assert.Contains("Choose a plot and crop", html);
+        Assert.Contains("North plot", html);
+        Assert.Contains("South plot", html);
+        Assert.Contains(first.Id.ToString(), html);
+        Assert.Contains(second.Id.ToString(), html);
+        var heroStart = html.IndexOf("ani12c-dashboard-hero", StringComparison.Ordinal);
+        var heroEnd = html.IndexOf("</section>", heroStart, StringComparison.Ordinal);
+        Assert.True(heroStart >= 0 && heroEnd > heroStart);
+        var hero = html[heroStart..heroEnd];
+        Assert.Contains("#ani12c-crop-picker", hero);
+        Assert.DoesNotContain("cycleId=", hero, StringComparison.OrdinalIgnoreCase);
+    }
+
+    [Theory]
     [InlineData("Owner", true)]
     [InlineData("Manager", true)]
     [InlineData("FieldWorker", false)]
@@ -929,7 +1010,7 @@ public sealed class FarmEnrollmentWebTests
         using var app = App();
         using var client = app.CreateClient();
         var html = await client.GetStringAsync($"/Dashboard?farmId={FarmId}");
-        Assert.Contains("Today's work", html);
+        Assert.Contains("Today's work", WebUtility.HtmlDecode(html));
         Assert.Contains("Plots &amp; crops", html);
         Assert.Contains("Farm weather", html);
         Assert.Contains("aria-labelledby=\"weather-heading\"", html);
@@ -1200,6 +1281,54 @@ public sealed class FarmEnrollmentWebTests
         Assert.DoesNotContain("Your selected next step", html);
     }
 
+    [Fact]
+    public async Task Phase12CAuthenticatedBrowserFixtures()
+    {
+        if (Environment.GetEnvironmentVariable("ANIGO_CAPTURE_AUTH_FIXTURES") != "1") return;
+
+        var root = new DirectoryInfo(AppContext.BaseDirectory);
+        while (root is not null && !File.Exists(Path.Combine(root.FullName, "SmartFarm.slnx")))
+            root = root.Parent;
+        Assert.NotNull(root);
+        var directory = Path.Combine(root.FullName, "tests", "browser", "authenticated-fixtures");
+        Directory.CreateDirectory(directory);
+        var plotA = Guid.NewGuid();
+        var plotB = Guid.NewGuid();
+        var one = new CropCycleDetails(Guid.NewGuid(), FarmId, plotA, "North plot",
+            Guid.NewGuid(), "Tomato", CropCycleStatus.Active,
+            new DateOnly(2026, 10, 1), new DateOnly(2026, 10, 2),
+            new DateOnly(2026, 12, 1), "kg", 3, null, null, "v");
+        var another = one with { Id = Guid.NewGuid(), PlotId = plotB,
+            PlotName = "South plot", CropTypeName = "Rice" };
+        var tasks = Enumerable.Range(0, 18).Select(i => new FarmTaskDetails(
+            Guid.NewGuid(), FarmId, null, i % 2 == 0 ? Actor : Guid.NewGuid(),
+            1, new DateOnly(2026, 10, 27).AddDays(i - 9), 0,
+            "Test task " + (i + 1), DateTime.UtcNow, null, "v")).ToArray();
+
+        async Task Capture(string name, string role, IReadOnlyList<CropCycleDetails> cycles)
+        {
+            var today = new DateOnly(2026, 10, 27);
+            // Keep the fake reporting snapshot consistent with the fake task/plot/crop rows.
+            // Otherwise a screenshot can show "0 active crops" beside populated crops.
+            var report = new FarmDashboard(FarmId, "Green Farm", today,
+                2, 0, cycles.Count, 0,
+                tasks.Length, tasks.Count(t => t.DueDate < today), 0, 0, [], []);
+            using var app = App(role: role, cycles: cycles, taskList: tasks,
+                dashboardReport: report,
+                plots: [new(plotA, FarmId, "North plot", 150m, "v"),
+                        new(plotB, FarmId, "South plot", 200m, "v")]);
+            using var client = app.CreateClient();
+            var html = await client.GetStringAsync($"/Dashboard?farmId={FarmId}");
+            Assert.Contains("ani12c-farm-dashboard", html);
+            await File.WriteAllTextAsync(Path.Combine(directory, name + ".html"), html);
+        }
+        await Capture("dashboard-owner", "Owner", [one]);
+        await Capture("dashboard-manager", "Manager", [one]);
+        await Capture("dashboard-worker", "FieldWorker", [one]);
+        await Capture("dashboard-multiple-crops", "Owner", [another, one]);
+        await Capture("dashboard-empty", "FieldWorker", []);
+    }
+
     // Capture real Razor HTML with deterministic signed-in roles for Chromium screenshot
     // verification. These are fixtures, never production credentials or seeded farm data.
     [Fact]
@@ -1273,7 +1402,8 @@ public sealed class FarmEnrollmentWebTests
         FarmFinanceInsights? financeInsights = null,
         Func<string, object?[]?, object>? cropWrites = null,
         Func<string, object?[]?, object>? monitoringWrites = null,
-        Func<string, object?[]?, object>? harvestWrites = null) =>
+        Func<string, object?[]?, object>? harvestWrites = null,
+        FarmDashboard? dashboardReport = null) =>
         new WebApplicationFactory<Program>().WithWebHostBuilder(builder => builder.ConfigureTestServices(services =>
         {
             services.AddSingleton<IAuthenticationService, SignedIn>();
@@ -1288,7 +1418,7 @@ public sealed class FarmEnrollmentWebTests
             services.AddScoped(_ => Stub<IFarmReportService>((name, _) => name switch
             {
                 "DashboardAsync" => Task.FromResult(
-                    new FarmDashboard(FarmId, "Green Farm", new DateOnly(2026,10,27),
+                    dashboardReport ?? new FarmDashboard(FarmId, "Green Farm", new DateOnly(2026,10,27),
                         0,0,0,0,0,0,0,0,[],[])),
                 "HarvestsAsync" => Task.FromResult(harvestReport ?? new HarvestReport(
                     FarmId, "Green Farm", "Asia/Manila",

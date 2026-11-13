@@ -103,7 +103,7 @@ jobs:
       - name: Capture deterministic authenticated MVC pages
         env:
           ANIGO_CAPTURE_AUTH_FIXTURES: "1"
-        run: dotnet test tests/SmartFarm.Auth.Tests/SmartFarm.Auth.Tests.csproj --configuration Release --filter "FullyQualifiedName~Phase12BAuthenticatedBrowserFixtures"
+        run: dotnet test tests/SmartFarm.Auth.Tests/SmartFarm.Auth.Tests.csproj --configuration Release --filter "FullyQualifiedName~AuthenticatedBrowserFixtures"
       - name: Check authenticated farm onboarding in Chromium
         env:
           SMARTFARM_BROWSER_BASE_URL: http://127.0.0.1:5082

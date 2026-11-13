@@ -5,12 +5,15 @@
     ViewData["Title"] = "Farm dashboard";
     ViewData["FarmName"] = Model.Report.FarmName;
     var farm = Model.Report;
-    var total = farm.PlannedCrops + farm.ActiveCrops + farm.CompletedCrops;
-    var completedPercent = total == 0 ? 0 : Math.Round(farm.CompletedCrops * 100m / total);
-    var activePercent = total == 0 ? 0 : Math.Round(farm.ActiveCrops * 100m / total);
-    var work = DashboardWorkSummary.Build(Model.Tasks, farm.FarmToday);
-    var canManageFarm = Model.FarmRole is "Owner" or "Manager";
-    var activeCycle = Model.Cycles.FirstOrDefault(c => c.Status == CropCycleStatus.Active);
+    var role = DashboardRoleSummary.Build(Model.FarmRole, Model.Tasks, Model.Cycles, Model.ActorId, farm.FarmToday);
+    var work = role.Work;
+    var canManageFarm = !role.IsFieldWorker;
+    var activeCycles = role.ActiveCycles;
+    // One active crop is unambiguous; multiple active crops always require explicit choice.
+    var activeCycle = activeCycles.Count == 1 ? activeCycles[0] : null;
+    var attentionItems = (role.IsFieldWorker
+        ? farm.AttentionItems.Where(a => a.Kind != "task" || role.VisibleOpenTaskIds.Contains(a.TargetId))
+        : farm.AttentionItems).Take(5).ToArray();
     var activeWeatherAdvisories = Model.Weather?.Advisories.Count(a => a.Status == 0) ?? 0;
     var plotPreviews = Model.Plots.Take(4).ToList();
     var savedWeather = Model.Weather?.Days.Where(d => d.Date >= farm.FarmToday)
@@ -19,34 +22,48 @@
         (savedWeather.RetrievedAtUtc < DateTime.UtcNow.AddHours(-12)
             || savedWeather.RetrievedAtUtc > DateTime.UtcNow.AddMinutes(5));
 }
+<div class="ani12c-farm-dashboard @(role.IsOwner ? "ani12c-role-owner" : role.IsManager ? "ani12c-role-manager" : "ani12c-role-worker")">
 <partial name="_FarmNavigation" model="farm.FarmId" />
 @if (TempData["Message"] is string message) { <p class="form-notice" role="status">@message</p> }
 @if (TempData["Error"] is string error) { <p class="error form-error" role="alert">@error</p> }
-<section class="page-hero reference-dashboard-hero ani-dashboard-hero" aria-labelledby="dashboard-heading">
+<section class="page-hero reference-dashboard-hero ani-dashboard-hero ani12c-dashboard-hero" aria-labelledby="dashboard-heading">
     <div>
-        <p class="ani-overline">Your farm today</p>
+        <p class="ani-overline">@(role.IsOwner ? "OWNER · FARM OVERVIEW" : role.IsManager ? "MANAGER · DAILY OPERATIONS" : "FIELD WORKER · MY WORK")</p>
         <h1 id="dashboard-heading">@farm.FarmName</h1>
-        <p>Start with the work that needs attention, then check your farm's progress.</p>
+        <p>@(role.IsOwner
+            ? "See farm risks, harvest results, and decisions that need your attention."
+            : role.IsManager
+                ? "Coordinate today's fieldwork, crop planning, and supply needs."
+                : "Focus on your assigned jobs, record fieldwork, and review saved weather advisories.")</p>
         <time class="dashboard-date" datetime="@farm.FarmToday.ToString("yyyy-MM-dd")">@farm.FarmToday.ToString("dddd, MMMM d, yyyy")</time>
     </div>
-    @if (activeCycle is not null)
-    {
-        <a class="button" asp-controller="Monitoring" asp-action="Index" asp-route-farmId="@farm.FarmId"
-           asp-route-cycleId="@activeCycle.Id" asp-fragment="record-activity">
-            <partial name="_Icon" model='@("plus")' />Record fieldwork
-        </a>
-    }
-    else if (canManageFarm && farm.ActivePlots == 0)
-    {
-        <a class="button" asp-controller="Farms" asp-action="Details" asp-route-id="@farm.FarmId"
-           asp-fragment="add-plot"><partial name="_Icon" model='@("plus")' />Add first plot</a>
-    }
-    else
-    {
-        <a class="button" asp-controller="Crops" asp-action="Index" asp-route-farmId="@farm.FarmId">
-            <partial name="_Icon" model='@("sprout")' />View crops
-        </a>
-    }
+    <div class="ani12c-hero-actions">
+        @if (activeCycles.Count > 1)
+        {
+            <a class="button" href="#ani12c-crop-picker">
+                <partial name="_Icon" model='@("sprout")' />Choose crop to record
+            </a>
+        }
+        else if (activeCycle is not null)
+        {
+            <a class="button" asp-controller="Monitoring" asp-action="Index" asp-route-farmId="@farm.FarmId"
+               asp-route-cycleId="@activeCycle.Id" asp-fragment="record-activity">
+                <partial name="_Icon" model='@("plus")' />Record fieldwork
+            </a>
+        }
+        else if (canManageFarm && farm.ActivePlots == 0)
+        {
+            <a class="button" asp-controller="Farms" asp-action="Details" asp-route-id="@farm.FarmId"
+               asp-fragment="add-plot"><partial name="_Icon" model='@("plus")' />Add first plot</a>
+        }
+        else
+        {
+            <a class="button" asp-controller="Crops" asp-action="Index" asp-route-farmId="@farm.FarmId">
+                <partial name="_Icon" model='@("sprout")' />View crops
+            </a>
+        }
+        <a class="sf-button-outline" asp-controller="Farms" asp-action="Index">Change farm</a>
+    </div>
 </section>
 @if (Model.Weather?.Advisories.FirstOrDefault(a => a.Status == 0) is { } advisory)
 {
@@ -56,40 +73,80 @@
     <div>
         <p class="ani-overline">Start here</p>
         <h2 id="priority-overview-heading">Today's priorities</h2>
-        <p>Review due work and recorded concerns before checking farm statistics.</p>
+        <p>@(role.IsFieldWorker ? "Only your assigned open tasks are shown below; farm concerns remain visible." : "Take care of due work and saved concerns before reviewing totals.")</p>
     </div>
-    <a asp-controller="Tasks" asp-action="Index" asp-route-farmId="@farm.FarmId" asp-route-view="today">Open task list →</a>
+    <a asp-controller="Tasks" asp-action="Index" asp-route-farmId="@farm.FarmId" asp-route-view="@(role.IsFieldWorker ? "mine" : "today")">@(role.IsFieldWorker ? "My task list" : "Open task list") →</a>
 </section>
-<div class="ani-dashboard-priority-stats" aria-label="Farm priorities at a glance">
+<div class="ani-dashboard-priority-stats ani12c-metrics" aria-label="@(role.IsFieldWorker ? "Your work priorities" : "Farm priorities")">
     <a class="ani-dashboard-priority-stat @(work.OverdueCount > 0 ? "is-warning" : "")"
-       asp-controller="Tasks" asp-action="Index" asp-route-farmId="@farm.FarmId" asp-route-view="today">
+       asp-controller="Tasks" asp-action="Index" asp-route-farmId="@farm.FarmId"
+       asp-route-view="@(role.IsFieldWorker ? "mine" : "today")">
         <strong>@work.OverdueCount</strong><span>Overdue tasks</span>
     </a>
-    <a class="ani-dashboard-priority-stat"
-       asp-controller="Tasks" asp-action="Index" asp-route-farmId="@farm.FarmId" asp-route-view="today">
+    <a class="ani-dashboard-priority-stat" asp-controller="Tasks" asp-action="Index"
+       asp-route-farmId="@farm.FarmId" asp-route-view="@(role.IsFieldWorker ? "mine" : "today")">
         <strong>@work.DueTodayCount</strong><span>Due today</span>
     </a>
-    <a class="ani-dashboard-priority-stat @(farm.LowStockItems > 0 ? "is-warning" : "")"
-       asp-controller="Inventory" asp-action="Index" asp-route-farmId="@farm.FarmId">
-        <strong>@farm.LowStockItems</strong><span>Low-stock supplies</span>
-    </a>
-    <a class="ani-dashboard-priority-stat @(farm.ConcerningObservations > 0 ? "is-warning" : "")"
-       asp-controller="Crops" asp-action="Index" asp-route-farmId="@farm.FarmId">
-        <strong>@farm.ConcerningObservations</strong><span>Crop concerns</span>
-    </a>
+    @if (role.IsFieldWorker)
+    {
+        <a class="ani-dashboard-priority-stat" asp-controller="Tasks" asp-action="Index"
+           asp-route-farmId="@farm.FarmId" asp-route-view="mine">
+            <strong>@work.OpenCount</strong><span>Assigned to you</span>
+        </a>
+        <a class="ani-dashboard-priority-stat" asp-controller="Tasks" asp-action="Index"
+           asp-route-farmId="@farm.FarmId" asp-route-view="mine">
+            <strong>@work.UpcomingCount</strong><span>Upcoming assigned</span>
+        </a>
+    }
+    else if (role.IsManager)
+    {
+        <a class="ani-dashboard-priority-stat @(farm.ConcerningObservations > 0 ? "is-warning" : "")"
+           asp-controller="Crops" asp-action="Index" asp-route-farmId="@farm.FarmId">
+            <strong>@farm.ConcerningObservations</strong><span>Crop concerns</span>
+        </a>
+        <a class="ani-dashboard-priority-stat @(farm.LowStockItems > 0 ? "is-warning" : "")"
+           asp-controller="Inventory" asp-action="Index" asp-route-farmId="@farm.FarmId">
+            <strong>@farm.LowStockItems</strong><span>Low-stock supplies</span>
+        </a>
+    }
+    else
+    {
+        <a class="ani-dashboard-priority-stat @(farm.LowStockItems > 0 ? "is-warning" : "")"
+           asp-controller="Inventory" asp-action="Index" asp-route-farmId="@farm.FarmId">
+            <strong>@farm.LowStockItems</strong><span>Low-stock supplies</span>
+        </a>
+        <a class="ani-dashboard-priority-stat @(farm.ConcerningObservations > 0 ? "is-warning" : "")"
+           asp-controller="Crops" asp-action="Index" asp-route-farmId="@farm.FarmId">
+            <strong>@farm.ConcerningObservations</strong><span>Crop concerns</span>
+        </a>
+    }
 </div>
+@if (role.IsOwner)
+{
+    <nav class="ani12c-owner-decisions" aria-label="Owner decision shortcuts">
+        <a asp-controller="Reports" asp-action="Harvests" asp-route-farmId="@farm.FarmId">
+            <strong>@farm.HarvestLast30Days.Sum(h => h.HarvestCount)</strong><span>Valid harvest entries · last 30 farm days</span>
+        </a>
+        <a href="#join-requests-heading">
+            <strong>@(Model.Enrollment?.Overview?.Requests.Count.ToString() ?? "—")</strong><span>Team requests needing a decision</span>
+        </a>
+        <a asp-controller="FarmFinance" asp-action="Index" asp-route-farmId="@farm.FarmId">
+            <strong>Cash records</strong><span>Review entered income &amp; expenses; not profit</span>
+        </a>
+    </nav>
+}
 <div class="ani-dashboard-primary-grid">
 <section class="panel sf-home-card" aria-labelledby="today-heading">
             <div class="sf-home-card-header">
-                <div><h2 id="today-heading">Today's work</h2><p class="ani-dashboard-card-note">Overdue and due today, shown first.</p></div>
-                <a asp-controller="Tasks" asp-action="Index" asp-route-farmId="@farm.FarmId">All tasks →</a>
+                <div><h2 id="today-heading">@(role.IsFieldWorker ? "Your assigned work" : "Today's work")</h2><p class="ani-dashboard-card-note">@(role.IsFieldWorker ? "Your overdue and due-today tasks first." : "Overdue and due-today jobs first.")</p></div>
+                <a asp-controller="Tasks" asp-action="Index" asp-route-farmId="@farm.FarmId" asp-route-view="@(role.IsFieldWorker ? "mine" : "all")">@(role.IsFieldWorker ? "My tasks" : "All tasks") →</a>
             </div>
             @if (work.DueTasks.Count == 0)
             {
                 <div class="sf-home-calm">
                     <strong>Nothing overdue or due today.</strong>
-                    <p>@(work.OpenCount == 0 ? "No work is currently scheduled. Check tasks to plan the next job." : "All currently scheduled work is coming up on a later date.")</p>
-                    <a class="ani-dashboard-inline-link" asp-controller="Tasks" asp-action="Index" asp-route-farmId="@farm.FarmId">Open farm tasks →</a>
+                    <p>@(work.OpenCount == 0 ? (role.IsFieldWorker ? "No open tasks are assigned to you right now." : "No work is currently scheduled. Check tasks to plan the next job.") : "All currently scheduled work is coming up on a later date.")</p>
+                    <a class="ani-dashboard-inline-link" asp-controller="Tasks" asp-action="Index" asp-route-farmId="@farm.FarmId" asp-route-view="@(role.IsFieldWorker ? "mine" : "all")">Open tasks →</a>
                 </div>
             }
             else
@@ -108,7 +165,7 @@
                             </small>
                         </div>
                         <a asp-controller="Tasks" asp-action="Index" asp-route-farmId="@farm.FarmId"
-                           asp-route-view="today" asp-fragment="@("task-" + task.Id)">Open <span class="visually-hidden">@task.TaskTypeName task</span> →</a>
+                           asp-route-view="@(role.IsFieldWorker ? "mine" : "today")" asp-fragment="@("task-" + task.Id)">Open <span class="visually-hidden">@task.TaskTypeName task</span> →</a>
                     </li>
                 }
                 </ul>
@@ -120,7 +177,7 @@
                     @foreach (var task in work.UpcomingTasks)
                     {
                         <a asp-controller="Tasks" asp-action="Index" asp-route-farmId="@farm.FarmId"
-                           asp-route-view="upcoming" asp-fragment="@("task-" + task.Id)">
+                           asp-route-view="@(role.IsFieldWorker ? "mine" : "upcoming")" asp-fragment="@("task-" + task.Id)">
                             <span>@task.TaskTypeName</span><time datetime="@task.DueDate.ToString("yyyy-MM-dd")">@task.DueDate.ToString("MMM d")</time>
                         </a>
                     }
@@ -129,66 +186,83 @@
             @if (work.DueTasks.Count > 0)
             {
                 <a class="ani-dashboard-view-all" asp-controller="Tasks" asp-action="Index"
-                   asp-route-farmId="@farm.FarmId" asp-route-view="today">
+                   asp-route-farmId="@farm.FarmId" asp-route-view="@(role.IsFieldWorker ? "mine" : "today")">
                     View all @(work.OverdueCount + work.DueTodayCount) due or overdue tasks →
                 </a>
             }
         </section>
+<div class="ani12c-dashboard-rail">
 <section class="panel sf-home-card" aria-labelledby="attention-heading">
-            <div class="sf-home-card-header">
-                <div><h2 id="attention-heading">Needs attention</h2><p class="ani-dashboard-card-note">Saved stock and crop issues.</p></div>
-            </div>
-            <div class="sf-home-attention-counts">
-                <a asp-controller="Inventory" asp-action="Index" asp-route-farmId="@farm.FarmId">
-                    <strong>@farm.LowStockItems</strong><span>Low-stock supplies</span>
-                </a>
-                <a asp-controller="Crops" asp-action="Index" asp-route-farmId="@farm.FarmId">
-                    <strong>@farm.ConcerningObservations</strong><span>Crop concerns</span>
-                </a>
-            </div>
-            @if (farm.AttentionItems.Count == 0)
-            {
-                <div class="sf-home-calm"><strong>No additional concerns listed.</strong><p>Low stock and crop issues are summarized above. Review tasks for work due dates.</p></div>
-            }
-            else
-            {
-                <ul class="sf-home-attention-list">
-                @foreach (var alert in farm.AttentionItems.Take(5))
-                {
-                    <li>
-                        <span class="sf-home-alert-dot" aria-hidden="true"></span>
-                        <div><strong>@alert.Title</strong><p>@alert.Detail</p>
-                            @switch (alert.Kind)
-                            {
-                                case "task":
-                                    <a asp-controller="Tasks" asp-action="Index" asp-route-farmId="@farm.FarmId"
-                                       asp-fragment="@("task-" + alert.TargetId)">Review task →</a>
-                                    break;
-                                case "inventory":
-                                    <a asp-controller="Inventory" asp-action="Details" asp-route-farmId="@farm.FarmId"
-                                       asp-route-itemId="@alert.TargetId">Review item →</a>
-                                    break;
-                                case "inspection":
-                                    <a asp-controller="Monitoring" asp-action="Index" asp-route-farmId="@farm.FarmId"
-                                       asp-route-cycleId="@alert.TargetId">Review crop →</a>
-                                    break;
-                            }
-                        </div>
-                    </li>
-                }
-                </ul>
-            }
-        </section>
-</div>
-<section class="panel sf-home-card ani-dashboard-quick reference-quick-card" aria-labelledby="quick-heading">
     <div class="sf-home-card-header">
-        <div>
-            <h2 id="quick-heading">Quick actions</h2>
-            <p class="ani-dashboard-card-note">Go directly to the next task or record.</p>
+        <div><h2 id="attention-heading">Needs attention</h2>
+            <p class="ani-dashboard-card-note">Saved farm concerns and next steps, not live field measurements.</p></div>
+    </div>
+    @if (farm.LowStockItems > 0 || farm.ConcerningObservations > 0)
+    {
+        <nav class="ani12c-attention-links" aria-label="Review saved farm concerns">
+            @if (farm.LowStockItems > 0)
+            {
+                <a asp-controller="Inventory" asp-action="Index" asp-route-farmId="@farm.FarmId">Review @farm.LowStockItems low-stock supplies →</a>
+            }
+            @if (farm.ConcerningObservations > 0)
+            {
+                <a asp-controller="Crops" asp-action="Index" asp-route-farmId="@farm.FarmId">Review @farm.ConcerningObservations crop concerns →</a>
+            }
+        </nav>
+    }
+    @if (attentionItems.Length == 0)
+    {
+        <div class="sf-home-calm">
+            <strong>@(farm.LowStockItems > 0 || farm.ConcerningObservations > 0 ? "Check the concerns linked above." : "No additional saved concerns.")</strong>
+            <p>@(role.IsFieldWorker ? "Task alerts for other workers are not shown in your queue." : "New issues will appear when saved in farm records.")</p>
         </div>
+    }
+    else
+    {
+        <ul class="sf-home-attention-list">
+            @foreach (var alert in attentionItems)
+            {
+                <li>
+                    <span class="sf-home-alert-dot" aria-hidden="true"></span>
+                    <div><strong>@alert.Title</strong><p>@alert.Detail</p>
+                        @switch (alert.Kind)
+                        {
+                            case "task":
+                                <a asp-controller="Tasks" asp-action="Index" asp-route-farmId="@farm.FarmId"
+                                   asp-route-view="@(role.IsFieldWorker ? "mine" : "all")"
+                                   asp-fragment="@("task-" + alert.TargetId)">Review task →</a>
+                                break;
+                            case "inventory":
+                                <a asp-controller="Inventory" asp-action="Details" asp-route-farmId="@farm.FarmId"
+                                   asp-route-itemId="@alert.TargetId">Review item →</a>
+                                break;
+                            case "inspection":
+                                <a asp-controller="Monitoring" asp-action="Index" asp-route-farmId="@farm.FarmId"
+                                   asp-route-cycleId="@alert.TargetId">Review crop →</a>
+                                break;
+                        }
+                    </div>
+                </li>
+            }
+        </ul>
+    }
+</section>
+<section class="panel sf-home-card ani-dashboard-quick reference-quick-card ani12c-quick" aria-labelledby="quick-heading">
+    <div class="sf-home-card-header">
+        <div><h2 id="quick-heading">Quick actions</h2>
+            <p class="ani-dashboard-card-note">@(role.IsFieldWorker ? "Find your next job or choose a crop before recording." : "Open a specific task or the right farm record.")</p></div>
     </div>
     <nav class="quick-grid" aria-label="Farm quick actions">
-        @if (activeCycle is not null)
+        @if (activeCycles.Count > 1)
+        {
+            <a href="#ani12c-crop-picker">
+                <span class="mini"><partial name="_Icon" model='@("edit")' /></span><span>Record activity<small>Choose the crop and plot first</small></span>
+            </a>
+            <a href="#ani12c-crop-picker">
+                <span class="mini"><partial name="_Icon" model='@("basket")' /></span><span>Record harvest<small>Choose the crop and plot first</small></span>
+            </a>
+        }
+        else if (activeCycle is not null)
         {
             <a asp-controller="Monitoring" asp-action="Index" asp-route-farmId="@farm.FarmId"
                asp-route-cycleId="@activeCycle.Id" asp-fragment="record-activity">
@@ -196,7 +270,7 @@
             </a>
             <a asp-controller="Harvests" asp-action="Index" asp-route-farmId="@farm.FarmId"
                asp-route-cycleId="@activeCycle.Id" asp-fragment="record-harvest">
-                <span class="mini"><partial name="_Icon" model='@("basket")' /></span><span>Record harvest<small>For an active crop</small></span>
+                <span class="mini"><partial name="_Icon" model='@("basket")' /></span><span>Record harvest<small>@activeCycle.CropTypeName · @activeCycle.PlotName</small></span>
             </a>
         }
         else
@@ -214,8 +288,8 @@
         }
         else
         {
-            <a asp-controller="Tasks" asp-action="Index" asp-route-farmId="@farm.FarmId" asp-route-view="today">
-                <span class="mini"><partial name="_Icon" model='@("checkSquare")' /></span><span>Review tasks<small>Due and overdue work</small></span>
+            <a asp-controller="Tasks" asp-action="Index" asp-route-farmId="@farm.FarmId" asp-route-view="mine">
+                <span class="mini"><partial name="_Icon" model='@("checkSquare")' /></span><span>Review tasks<small>Your assigned work</small></span>
             </a>
         }
         @if (canManageFarm && farm.ActivePlots == 0)
@@ -224,19 +298,58 @@
                 <span class="mini"><partial name="_Icon" model='@("grid")' /></span><span>Add a plot<small>Set up a growing area</small></span>
             </a>
         }
+        @if (role.IsManager)
+        {
+            <a asp-controller="Crops" asp-action="Index" asp-route-farmId="@farm.FarmId" asp-fragment="planting-plans-heading">
+                <span class="mini"><partial name="_Icon" model='@("sprout")' /></span><span>Plan a crop<small>Choose a plot and planting dates</small></span>
+            </a>
+        }
+        @if (role.IsFieldWorker)
+        {
+            <a asp-controller="Weather" asp-action="Index" asp-route-farmId="@farm.FarmId">
+                <span class="mini"><partial name="_Icon" model='@("cloud")' /></span><span>Weather &amp; safety<small>Read saved farm advisories</small></span>
+            </a>
+        }
         <a asp-controller="Inventory" asp-action="Index" asp-route-farmId="@farm.FarmId">
-            <span class="mini"><partial name="_Icon" model='@("box")' /></span><span>Check supplies<small>View stock and shortages</small></span>
+            <span class="mini"><partial name="_Icon" model='@("box")' /></span><span>Check supplies<small>View saved stock and shortages</small></span>
         </a>
     </nav>
 </section>
+</div>
+</div>
+@if (activeCycles.Count > 1)
+{
+    <section class="panel ani12c-crop-picker" id="ani12c-crop-picker" aria-labelledby="ani12c-picker-heading">
+        <div class="sf-home-card-header">
+            <div><p class="ani-overline">Select before recording</p><h2 id="ani12c-picker-heading">Choose a plot and crop</h2>
+                <p class="ani-dashboard-card-note">There are @activeCycles.Count active crop cycles. No record is attached to one until you select it below.</p></div>
+        </div>
+        <ul class="ani12c-crop-list">
+            @foreach (var crop in activeCycles)
+            {
+                <li>
+                    <div><strong>@crop.PlotName</strong><span>@crop.CropTypeName · Active crop</span></div>
+                    <div class="ani12c-crop-choices">
+                        <a asp-controller="Monitoring" asp-action="Index" asp-route-farmId="@farm.FarmId"
+                           asp-route-cycleId="@crop.Id" asp-fragment="record-activity">Record activity</a>
+                        <a asp-controller="Harvests" asp-action="Index" asp-route-farmId="@farm.FarmId"
+                           asp-route-cycleId="@crop.Id" asp-fragment="record-harvest">Record harvest</a>
+                    </div>
+                </li>
+            }
+        </ul>
+    </section>
+}
+
 <section class="ani-dashboard-overview" aria-labelledby="farm-glance-heading">
 <div class="ani-dashboard-section-header"><div><h2 id="farm-glance-heading">Farm at a glance</h2><p>Saved farm totals and current crop records.</p></div></div>
-<div class="metrics reference-dashboard-metrics" aria-label="Farm summary">
-    <a class="card metric" asp-controller="PlotLayout" asp-action="Index" asp-route-farmId="@farm.FarmId"><span class="metric-icon"><partial name="_Icon" model='@("grid")' /></span><span><strong>@farm.ActivePlots</strong><span>Active plots</span></span></a>
-    <a class="card metric" asp-controller="Tasks" asp-action="Index" asp-route-farmId="@farm.FarmId"><span class="metric-icon gold"><partial name="_Icon" model='@("checkSquare")' /></span><span><strong>@farm.OpenTasks</strong><span>Open tasks</span></span></a>
-    <a class="card metric" asp-controller="Inventory" asp-action="Index" asp-route-farmId="@farm.FarmId"><span class="metric-icon gold"><partial name="_Icon" model='@("box")' /></span><span><strong>@farm.LowStockItems</strong><span>Low-stock items</span></span></a>
-    <a class="card metric" asp-controller="Crops" asp-action="Index" asp-route-farmId="@farm.FarmId"><span class="metric-icon"><partial name="_Icon" model='@("sprout")' /></span><span><strong>@farm.ActiveCrops</strong><span>Active crops · @farm.PlannedCrops planned</span></span></a>
+<div class="ani12c-farm-facts" aria-label="Saved farm summary">
+    <span><strong>@farm.ActivePlots</strong> Active plots</span>
+    <span><strong>@farm.ActiveCrops</strong> Growing crops</span>
+    <span><strong>@farm.PlannedCrops</strong> Planned crop cycles</span>
+    <span><strong>@farm.CompletedCrops</strong> Completed crop cycles</span>
 </div>
+
 </section>
 <div class="dashboard-grid reference-dashboard-grid ani-dashboard-secondary-grid">
     <div class="stack"><section class="panel sf-home-card" aria-labelledby="plots-heading">
@@ -244,7 +357,7 @@
                 <div><h2 id="plots-heading">Plots &amp; crops</h2></div>
                 <a asp-controller="PlotLayout" asp-action="Index" asp-route-farmId="@farm.FarmId">View all plots →</a>
             </div>
-            <p class="sf-home-note">Illustrative crop rows — not actual field boundaries, growth or crop health.</p>
+            <p class="sf-home-note">Saved plot and crop details. This list is not a geographic map or crop-health indicator.</p>
             @if (plotPreviews.Count == 0)
             {
                 <div class="sf-home-calm">
@@ -268,15 +381,11 @@
                            asp-route-plotId="@plot.Id"
                            asp-fragment="@(current is null ? "planting-plans-heading" : "crop-cycle-" + current.Id)"
                            aria-label="@plot.Name, @(current?.CropTypeName ?? "No active or planned crop")">
-                            <div class="sf-home-plot-art ani-dashboard-plot-art @(current is null ? "sf-home-plot-empty" : "")" aria-hidden="true">
-                                <span></span><span></span><span></span><span></span>
-                                @if (current is not null)
-                                {
-                                    <img src="@Url.Content("~/images/crops/" + CropArtwork.FileName(current.CropTypeName))"
-                                         loading="lazy" width="120" height="120" alt="" />
-                                }
-                            </div>
-                            <div class="sf-home-plot-copy">
+                            <div class="ani12c-plot-mark" aria-hidden="true">
+    <partial name="_Icon" model='@("sprout")' />
+</div>
+
+<div class="sf-home-plot-copy">
                                 <strong>@plot.Name</strong>
                                 <span>@(current?.CropTypeName ?? "No current crop")</span>
                                 <small>@(current?.StatusName ?? "Available") · @plot.AreaSqMeters.ToString("N2") m²</small>
@@ -330,6 +439,8 @@
             }
         </section></div>
 </div>
+@if (!role.IsFieldWorker)
+{
 <section class="panel sf-home-card sf-home-harvest" aria-labelledby="harvest-heading">
     <div class="sf-home-card-header">
         <div><h2 id="harvest-heading">Recent harvests</h2></div>
@@ -359,17 +470,7 @@
         }
         </ul>
     }
-    @if (total > 0)
-    {
-        <div class="sf-home-progress">
-            <div><strong>Crop-cycle progress</strong><span>@completedPercent% completed · @total planned, active or completed cycles</span></div>
-            <div class="progress-track" role="img"
-                 aria-label="@farm.CompletedCrops completed crops, @farm.ActiveCrops active crops, @farm.PlannedCrops planned crops">
-                <div class="progress-completed" style="width:@(completedPercent.ToString(System.Globalization.CultureInfo.InvariantCulture))%"></div>
-                <div class="progress-active" style="width:@(activePercent.ToString(System.Globalization.CultureInfo.InvariantCulture))%"></div>
-            </div>
-            <small>Failed and cancelled cycles are excluded.</small>
-        </div>
-    }
 </section>
+}
 @if (Model.Enrollment is not null) { <partial name="_FarmEnrollment" model="Model.Enrollment" /> }
+</div>

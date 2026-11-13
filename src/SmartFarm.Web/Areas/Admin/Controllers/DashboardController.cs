@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using SmartFarm.Infrastructure.Persistence;
 using SmartFarm.Web.Authentication;
+using SmartFarm.Web.Services.Admin;
 using SmartFarm.Web.ViewModels.Admin;
 
 namespace SmartFarm.Web.Areas.Admin.Controllers;
@@ -11,7 +12,7 @@ namespace SmartFarm.Web.Areas.Admin.Controllers;
 [Route("admin")]
 [Authorize(Policy = SuperAdminSecurity.Policy)]
 [ResponseCache(Location = ResponseCacheLocation.None, NoStore = true)]
-public sealed class DashboardController(SmartFarmDbContext db) : Controller
+public sealed class DashboardController(SmartFarmDbContext db, AdminDiagnosticsService diagnostics) : Controller
 {
     [HttpGet("")]
     public async Task<IActionResult> Index(CancellationToken ct)
@@ -27,6 +28,9 @@ public sealed class DashboardController(SmartFarmDbContext db) : Controller
             totalUsers, totalUsers - disabledUsers, disabledUsers,
             totalFarms, totalFarms - archivedFarms, archivedFarms, activePlots,
             await db.SupportTickets.CountAsync(t => t.Status == "Open" || t.Status == "InProgress", ct),
-            await AdminFarmDirectory.LoadAsync(db, recent, ct)));
+            await AdminFarmDirectory.LoadAsync(db, recent, ct))
+        {
+            Worker = await diagnostics.WorkerSummaryAsync(ct)
+        });
     }
 }

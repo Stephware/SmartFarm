@@ -15,7 +15,10 @@ public sealed record AdminUserRow(
 public sealed record AdminOverviewPage(
     int TotalUsers, int ActiveUsers, int DisabledUsers,
     int TotalFarms, int ActiveFarms, int ArchivedFarms, int ActivePlots, int PendingSupport,
-    IReadOnlyList<AdminFarmRow> RecentFarms);
+    IReadOnlyList<AdminFarmRow> RecentFarms)
+{
+    public AdminWorkerStatus? Worker { get; init; }
+}
 
 public sealed record AdminUserIndexPage(
     string Search, string Status, int Page, int TotalCount, IReadOnlyList<AdminUserRow> Users)
