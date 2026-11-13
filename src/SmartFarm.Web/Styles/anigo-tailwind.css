@@ -39,4 +39,4 @@
 /* Legacy feature rules remain in the lowest cascade layer while focused views
    are migrated. Foundation/components and prefixed utilities define the system. */
 
-@font-face { font-family: "Manrope"; font-style: normal; font-weight: 200 800; font-display: swap; src: url("/fonts/manrope/Manrope-Variable.ttf") format("truetype"); }
+@font-face { font-family: "Manrope"; font-style: normal; font-weight: 200 800; font-display: swap; src: url("../fonts/manrope/Manrope-Variable.ttf") format("truetype"); }
