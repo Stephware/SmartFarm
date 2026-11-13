@@ -146,7 +146,7 @@
                             <span><strong>Due:</strong> <time datetime="@task.DueDate.ToString("yyyy-MM-dd")">@task.DueDate.ToString("MMM d, yyyy")</time></span>
                             @if (task.AssignedToUserId is { } assigned)
                             {
-                                <span><strong>Assigned:</strong> @(Model.Members.FirstOrDefault(m => m.UserId == assigned)?.FullName ?? "Farm owner")</span>
+                                <span><strong>Assigned:</strong> @(assigned == actorId ? "You" : Model.Members.FirstOrDefault(m => m.UserId == assigned)?.FullName ?? "Farm member")</span>
                             }
                             else
                             {
