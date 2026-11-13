@@ -26,7 +26,7 @@
         <div>
             <p class="ani-overline">Fields &amp; crops</p>
             <h1>Planting &amp; crops</h1>
-            <p class="sf-muted">See what is growing, plan the next planting, and review saved crop records.</p>
+            <p class="sf-muted">@(canManage ? "See what is growing, plan the next planting, and review saved crop records." : "See what is growing and open saved crop records, inspections, and harvests.")</p>
         </div>
         <div class="hero-actions">
             <a class="sf-button-outline" asp-controller="PlotLayout" asp-action="Index" asp-route-farmId="@Model.Farm.Id">View plots</a>
