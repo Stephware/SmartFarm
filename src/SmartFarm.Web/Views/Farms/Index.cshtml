@@ -2,15 +2,15 @@
 @{
     ViewData["Title"] = "My farms";
 }
-<div class="reference-screen reference-screen-farms">
-<div class="page-heading farm-page-heading page-hero">
+<div class="reference-screen reference-screen-farms ani-entry-farms-page">
+<header class="ani-entry-farms-heading">
     <div>
-
+        <p class="ani-entry-eyebrow">YOUR WORKSPACE</p>
         <h1>My farms</h1>
         <p class="sf-muted">Open a farm below, create your own, or enter a code to join your team.</p>
     </div>
     <a class="button" asp-controller="Farms" asp-action="Create">Create farm</a>
-</div>
+</header>
 
 @if (TempData["Message"] is string message) { <p class="form-notice" role="status">@message</p> }
 @if (TempData["Error"] is string error) { <p class="error form-error" role="alert">@error</p> }
@@ -18,11 +18,11 @@
 <section class="farm-library" aria-label="Your available farms">
     @if (Model.Farms.Count == 0)
     {
-        <div class="ani-onboarding-empty panel" aria-labelledby="first-farm-heading">
+        <div class="ani-onboarding-empty panel ani-entry-empty-farms" aria-labelledby="first-farm-heading">
             <p class="ani-overline">Welcome to your workspace</p>
             <h2 id="first-farm-heading">No farms yet</h2>
             <p>Choose what you'd like to do first. Your account can belong to more than one farm.</p>
-            <div class="ani-first-actions">
+            <div class="ani-first-actions ani-entry-first-actions">
                 <div>
                     <h3>Manage your own farm</h3>
                     <p>Start by giving your farm a name and location. You can add plots and crops next.</p>
@@ -38,13 +38,16 @@
     }
     else
     {
-        <ul class="farm-select-grid responsive-two">
+        <h2 class="ani-entry-farm-section-label">Your farms</h2>
+        <ul class="farm-select-grid responsive-two ani-entry-farm-list">
             @foreach (var farm in Model.Farms)
             {
-                <li class="farm-select-card card">
+                <li class="farm-select-card card ani-entry-farm-card">
                     <div class="farm-card-body card-body">
-                        <span class="reference-farm-icon" aria-hidden="true"><svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 21v-9M12 15C5 15 3 10 3 4c6 0 9 2 9 8M12 17c0-6 3-9 9-9 0 6-3 9-9 9Z" /></svg></span>
-                        <span class="farm-role-badge">@farm.Role</span>
+                        <div class="ani-entry-farm-identity">
+                            <span class="ani-entry-farm-mark" aria-hidden="true">Farm</span>
+                            <span class="farm-role-badge">@farm.Role</span>
+                        </div>
                         <h2><a asp-action="Details" asp-route-id="@farm.Id">@farm.Name</a></h2>
                         <p class="sf-muted">@farm.LocationText</p>
                         <div class="farm-card-actions">
@@ -58,11 +61,11 @@
     }
 </section>
 
-<div class="farm-onboarding-grid @(Model.JoinRequests.Count == 0 && Model.RequestError is null ? "farm-onboarding-grid--single" : "")">
+<div class="farm-onboarding-grid ani-entry-join-layout @(Model.JoinRequests.Count == 0 && Model.RequestError is null ? "farm-onboarding-grid--single ani-entry-join-layout--single" : "")">
     <section class="panel card join-farm-panel" id="join-farm" aria-labelledby="join-farm-heading">
 
         <header class="reference-panel-heading">
-            <h2 id="join-farm-heading">Join farm</h2>
+            <h2 id="join-farm-heading">Join an existing farm</h2>
             <span class="ani-optional-label">For team members</span>
         </header>
         <p class="sf-muted">Have a farm code? Enter the code supplied by the owner. Access begins after the owner approves your request.</p>

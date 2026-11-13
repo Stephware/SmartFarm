@@ -2,10 +2,11 @@
 @{
     ViewData["Title"] = "Create farm";
 }
-<div class="reference-screen reference-screen-farms">
-<div class="farm-create-heading">
+<div class="reference-screen reference-screen-farms ani-entry-farm-form-shell">
+<header class="farm-create-heading">
     <a class="farm-back-link" asp-action="Index">← Back to my farms</a>
 
+    <p class="ani-entry-eyebrow">START A FARM</p>
     <h1>Create a farm</h1>
     <p class="sf-muted">Start with just a farm name and nearby location. You can add plots, crops, and your team afterward.</p>
     <ol class="ani-setup-progress" aria-label="Farm setup progress">
@@ -13,7 +14,7 @@
         <li><span>2</span> Add plots</li>
         <li><span>3</span> Plan crops</li>
     </ol>
-</div>
+</header>
 <div class="farm-create-layout">
     <section class="panel card farm-create-panel" aria-labelledby="farm-details-heading">
         <header class="reference-panel-heading"><h2 id="farm-details-heading">Farm details</h2></header>
