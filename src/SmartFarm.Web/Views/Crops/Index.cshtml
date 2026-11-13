@@ -121,6 +121,8 @@
 </section>
 
 
+@if (canManage)
+{
 <section id="planting-plans" data-form-dialog class="panel card sf-crop-plan ani-planting-panel ani12d-plan-panel" aria-labelledby="planting-plans-heading">
     <header class="reference-panel-heading">
         <div><p class="ani-overline">Next step</p><h2 id="planting-plans-heading">Plan a crop</h2>
@@ -199,8 +201,8 @@
             @if (canManage) { <a href="#crop-types-heading">Add crop type →</a> }
         </div>
     }
-    else { <p class="sf-muted">You can view crop plans, but only owners and managers can create or edit them.</p> }
 </section>
+}
 
 <section class="panel card sf-crop-cycles ani12d-crop-records" aria-labelledby="crop-cycles-heading">
     <div class="sf-section-line card-head"><div><h2 id="crop-cycles-heading">Crop records</h2>
