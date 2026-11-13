@@ -1497,7 +1497,7 @@ public sealed class FarmEnrollmentWebTests
         new WebApplicationFactory<Program>().WithWebHostBuilder(builder => builder.ConfigureTestServices(services =>
         {
             services.AddSingleton<IAuthenticationService, SignedIn>();
-            services.AddScoped(_ => Stub<IFarmManagementService>((name, _) => name switch
+            services.AddScoped(_ => Stub<IFarmManagementService>((name, args) => name switch
             {
                 "ListAsync" => Task.FromResult<IReadOnlyList<FarmSummary>>(farms ?? []),
                 "GetAsync" => Task.FromResult<FarmDetails?>(new(FarmId, "Green Farm", "Location", "Asia/Manila", null, null, role, "version")),
