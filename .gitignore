@@ -75,3 +75,9 @@ local.properties
 
 # AniGo Tailwind build dependencies.
 node_modules/
+
+# Task-local visual candidates and Impeccable decision artifacts.
+/tests/browser/screenshots/
+/tests/browser/parity-output/
+/.impeccable/questions/
+/.impeccable/mocks/

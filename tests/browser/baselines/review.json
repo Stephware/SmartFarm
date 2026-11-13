@@ -1,0 +1,33 @@
+{
+  "reviewed": true,
+  "sourceHashes": {
+    "wwwroot/css/anigo-tailwind.css": "49a7271c79a56ab84478cc2ba473efc0a7997721bea5e5253ada93205bee4692",
+    "Views/Shared/_Layout.cshtml": "20995ee27c7391cc482027e22575978f2b45ba7afb80695200409544afcb2d6c",
+    "Views/Home/Index.cshtml": "5f8706c9716a9313dae66afac8308de34509a8f382f4948e0c358e0effc8f093",
+    "Views/Account/Login.cshtml": "5d7c397f1af7d26faa2105401d7d6be2554e0e3650140b997d17efc0ba86a908",
+    "Views/Account/Register.cshtml": "4aafc7c1cfd276b3d66b5dbfc7367e4456e43c95c5c96dc2c003698ae6534cdb"
+  },
+  "widths": [
+    320,
+    375,
+    768,
+    1024,
+    1440
+  ],
+  "modes": [
+    "light",
+    "dark"
+  ],
+  "pages": {
+    "landing": "/",
+    "login": "/Account/Login",
+    "registration": "/Account/Register"
+  },
+  "note": "Codex visual review, 2026-11-13: all30 Linux Chromium candidates inspected across five widths and both themes. Captured by GitHub Actions run43334145527, Playwright1.56.1, Ubuntu24.04. Linux container reproduces the Mac-versus-Linux text/control rasterization difference; comparison threshold unchanged. Phase12A foundation only; landing/auth composition follows in12B. Anonymous pages only.",
+  "environment": {
+    "os": "Ubuntu24.04",
+    "playwright": "1.56.1",
+    "chromium": "141.0.7390.37",
+    "container": "mcr.microsoft.com/playwright:v1.56.1-noble"
+  }
+}

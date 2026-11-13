@@ -1,0 +1,15 @@
+@model SmartFarm.Web.ViewModels.Shared.UiPageHeader
+<header class="ui-page-header">
+    <div class="ui-page-intro">
+        @if (!string.IsNullOrWhiteSpace(Model.BackUrl))
+        {
+            <a class="ui-back-link" href="@Model.BackUrl">@Model.BackText</a>
+        }
+        <h1 class="ui-page-title" id="@Model.Id">@Model.Title</h1>
+        <p class="ui-page-description">@Model.Description</p>
+    </div>
+    @if (!string.IsNullOrWhiteSpace(Model.ActionText) && !string.IsNullOrWhiteSpace(Model.ActionUrl))
+    {
+        <div class="ui-heading-actions"><a class="button" href="@Model.ActionUrl">@Model.ActionText</a></div>
+    }
+</header>

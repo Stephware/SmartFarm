@@ -2,10 +2,7 @@
 @{
     ViewData["Title"] = "Users";
 }
-<div class="page-heading admin-page-heading">
-    <div><p class="sf-kicker">PLATFORM DIRECTORY</p><h1>Users</h1>
-        <p class="sf-muted">Find registered accounts and review their status. Platform roles cannot be edited here.</p></div>
-</div>
+<partial name="~/Views/Shared/_UiPageHeader.cshtml" model='@(new SmartFarm.Web.ViewModels.Shared.UiPageHeader("Users", "Find registered accounts and review their status. Platform roles cannot be edited here."))' />
 <section class="panel admin-directory-panel" aria-label="User directory">
     <form class="admin-filters" method="get" asp-area="Admin" asp-controller="Users" asp-action="Index">
         <div class="admin-filter-search">

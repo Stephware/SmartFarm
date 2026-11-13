@@ -2,11 +2,7 @@
 @{
     ViewData["Title"] = "My support requests";
 }
-<div class="page-heading admin-page-heading">
-    <div><p class="ani-overline">Help &amp; support</p><h1>My support requests</h1>
-        <p class="sf-muted">Report an app or farm-management issue and see responses from the AniGo team. This is separate from your farm's task assignments.</p></div>
-    <a class="button" asp-area="" asp-controller="Support" asp-action="Create">New request</a>
-</div>
+<partial name="_UiPageHeader" model='@(new UiPageHeader("My support requests", "Report an app or farm-management issue and see responses from the AniGo team. This is separate from your farm’s task assignments.", "New request", Url.Action("Create", "Support")))' />
 @if (TempData["Message"] is string message) { <p class="form-notice" role="status">@message</p> }
 <section class="panel admin-directory-panel" aria-label="My requests">
     @if (Model.Tickets.Count == 0)
