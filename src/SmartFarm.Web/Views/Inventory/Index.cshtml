@@ -20,9 +20,9 @@
         .ToList();
     var inStock = Model.Workspace.Items.Count(i => !i.IsLowStock);
 }
-<div class="reference-screen reference-screen-inventory">
+<div class="reference-screen reference-screen-inventory ani12e-workspace ani12e-inventory">
 <partial name="_FarmNavigation" model="Model.Farm.Id" />
-<section class="panel card sf-ops-hero" aria-labelledby="inventory-heading">
+<section class="panel card sf-ops-hero ani12e-hero" aria-labelledby="inventory-heading">
     <div class="sf-page-header page-hero">
         <div>
             <p><a asp-controller="Farms" asp-action="Details" asp-route-id="@Model.Farm.Id">← @Model.Farm.Name</a></p>
@@ -33,7 +33,7 @@
         </div>
         @if (canManage) { <a class="button" href="#add-item">Add supply</a> }
     </div>
-    <div class="sf-ops-summary ani-inventory-metrics" aria-label="Inventory summary">
+    <div class="sf-ops-summary ani-inventory-metrics ani12e-metrics" aria-label="Inventory summary">
         <div><strong>@Model.Workspace.Items.Count</strong><span>Active supplies</span></div>
         <div class="@(Model.Workspace.LowStockCount > 0 ? "sf-summary-warning" : "")">
             <strong>@Model.Workspace.LowStockCount</strong><span>Low stock</span>
@@ -50,20 +50,20 @@
     @if (TempData["Message"] is string message) { <p role="status" class="form-notice">@message</p> }
     @if (TempData["Error"] is string error) { <p role="alert" class="error form-error">@error</p> }
 </section>
-<section class="panel card sf-inventory-panel" aria-labelledby="inventory-list-heading">
+<section class="panel card sf-inventory-panel ani12e-primary-panel" aria-labelledby="inventory-list-heading">
     <div class="sf-section-line card-head">
         <div><h2 id="inventory-list-heading">Your supplies</h2>
             <p class="sf-muted">Balances are shared across the selected farm, not separate for each plot.</p></div>
         <span>@visibleItems.Count of @Model.Workspace.Items.Count shown</span>
     </div>
-    <div class="ani-inventory-shortcuts" aria-label="Quick supply filters">
+    <div class="ani-inventory-shortcuts ani12e-filter-tabs" aria-label="Quick supply filters">
         <a class="@(Model.SelectedFilter == "all" ? "is-selected" : "")" asp-action="Index"
            asp-route-farmId="@Model.Farm.Id" aria-current="@(Model.SelectedFilter == "all" ? "page" : null)">All supplies (@Model.Workspace.Items.Count)</a>
         <a class="@(Model.SelectedFilter == "low" ? "is-selected" : "")" asp-action="Index"
            asp-route-farmId="@Model.Farm.Id" asp-route-filter="low"
            aria-current="@(Model.SelectedFilter == "low" ? "page" : null)">Needs restocking (@Model.Workspace.LowStockCount)</a>
     </div>
-    <form class="ani-inventory-filter" asp-action="Index" asp-route-farmId="@Model.Farm.Id" method="get">
+    <form class="ani-inventory-filter ani12e-search-form" asp-action="Index" asp-route-farmId="@Model.Farm.Id" method="get">
         <input type="hidden" name="farmId" value="@Model.Farm.Id" />
         <div>
             <label for="inventory-search">Find a supply</label>
@@ -102,8 +102,8 @@
     }
     else
     {
-        <div class="table-wrap table-scroll" tabindex="0" role="region" aria-label="Available farm supplies">
-        <table class="data-table reference-inventory-table">
+        <div class="table-wrap table-scroll ani12e-scroll-table" tabindex="0" role="region" aria-label="Available farm supplies">
+        <table class="data-table reference-inventory-table ani12e-inventory-table">
             <caption class="visually-hidden">Available supplies and current stock balances</caption>
             <thead><tr><th scope="col">Supply</th><th scope="col">Category</th><th scope="col">Available stock</th><th scope="col">Status</th><th scope="col">Actions</th></tr></thead>
             <tbody>
@@ -129,11 +129,11 @@
 </section>
 @if (canManage)
 {
-    <section class="panel card sf-inventory-create" id="add-item" data-form-dialog aria-labelledby="add-inventory-heading">
+    <section class="panel card sf-inventory-create ani12e-create-panel" id="add-item" data-form-dialog aria-labelledby="add-inventory-heading">
 
         <header class="reference-panel-heading"><h2 id="add-inventory-heading">Add a supply</h2></header>
         <p class="sf-muted">Enter the supply name, measurement unit, and quantity you currently have. Set a low-stock level if you want reminders.</p>
-        <form asp-action="Create" asp-route-farmId="@Model.Farm.Id" method="post" class="sf-ops-form sf-inventory-form">
+        <form asp-action="Create" asp-route-farmId="@Model.Farm.Id" method="post" class="sf-ops-form sf-inventory-form ani12e-fields">
             <div>
                 <label for="name">Item name</label>
                 <input name="Name" id="name" minlength="2" maxlength="120" required />
