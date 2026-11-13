@@ -7,9 +7,9 @@
     var monitoring = Model.Monitoring;
     var photoCount = monitoring.Observations.Sum(o => o.Photos.Count);
 }
-<div class="reference-screen reference-screen-monitoring">
+<div class="reference-screen reference-screen-monitoring ani12e-workspace ani12e-monitoring">
 <partial name="_FarmNavigation" model="Model.Cycle.FarmId" />
-<section class="panel card sf-ops-hero ani-monitoring-hero" aria-labelledby="monitoring-heading">
+<section class="panel card sf-ops-hero ani-monitoring-hero ani12e-hero" aria-labelledby="monitoring-heading">
     <div class="sf-page-header page-hero">
         <div>
             <p><a asp-controller="Crops" asp-action="Index"
@@ -18,7 +18,7 @@
             <h1 id="monitoring-heading">@cycle.CropTypeName — @cycle.PlotName</h1>
             <p class="sf-muted">Record completed fieldwork or inspect this crop. Attach photos after saving an inspection.</p>
         </div>
-        <div class="ani-monitoring-art">
+        <div class="ani-monitoring-art ani12e-crop-art">
             <img src="@Url.Content("~/images/crops/" + CropArtwork.FileName(cycle.CropTypeName))" alt=""
                  width="120" height="120" />
             <partial name="_UiStatusChip" model='@(new UiStatusChip(
@@ -26,7 +26,7 @@
                 monitoring.CanRecord ? "sf-status-chip--active" : "sf-status-chip--neutral"))' />
         </div>
     </div>
-    <nav class="sf-page-jump-nav ani-fieldwork-jumps" aria-label="Monitoring sections">
+    <nav class="sf-page-jump-nav ani-fieldwork-jumps ani12e-jump-nav" aria-label="Monitoring sections">
         @if (monitoring.CanRecord)
         {
             <a href="#record-activity">Record activity</a>
@@ -38,19 +38,19 @@
         <a href="#activity-history">Activity history</a>
         <a href="#observation-history">Inspections &amp; photos</a>
     </nav>
-    <div class="ani-monitoring-stats" aria-label="Crop record totals">
+    <div class="ani-monitoring-stats ani12e-metrics" aria-label="Crop record totals">
         <div><strong>@monitoring.Activities.Count</strong><span>Field activities</span></div>
         <div><strong>@monitoring.Observations.Count</strong><span>Inspections</span></div>
         <div><strong>@photoCount</strong><span>Private photos</span></div>
     </div>
     @if (monitoring.CanRecord)
     {
-        <nav class="ani-monitoring-status" aria-label="Quick recording actions">
+        <nav class="ani-monitoring-status ani12e-actions" aria-label="Quick recording actions">
             <a href="#record-activity">Record fieldwork</a>
             <a href="#record-inspection">New inspection</a>
             <a asp-controller="Harvests" asp-action="Index" asp-route-farmId="@cycle.FarmId"
                asp-route-cycleId="@cycle.Id" asp-fragment="record-harvest">Record harvest</a>
-            <a href="#observation-history">Attach photo</a>
+            <a href="#observation-history">Attach to saved inspection</a>
         </nav>
     }
     @if (!monitoring.CanRecord)
@@ -76,13 +76,13 @@
 </section>
 @if (monitoring.CanRecord)
 {
-    <div class="ani-fieldwork-recording-intro">
+    <div class="ani-fieldwork-recording-intro ani12e-steps">
         <div><strong>1. Choose what to record</strong><span>Fieldwork or an inspection</span></div>
         <div><strong>2. Save the record</strong><span>The server confirms the entry</span></div>
         <div><strong>3. Attach photos</strong><span>Optional, after saving an inspection</span></div>
     </div>
-    <div class="responsive-two reference-recording-grid ani-phase6-recording-grid">
-    <section class="panel card sf-monitoring-form" id="record-activity" data-form-dialog>
+    <div class="responsive-two reference-recording-grid ani-phase6-recording-grid ani12e-recording-grid">
+    <section class="panel card sf-monitoring-form ani12e-form-panel" id="record-activity" data-form-dialog>
 
         <header class="reference-panel-heading"><h2>Record fieldwork</h2></header>
         <p class="sf-muted">What work did you finish for @cycle.CropTypeName on @cycle.PlotName?</p>
@@ -163,7 +163,7 @@
     </section>
     </div>
 }
-<section class="panel card sf-monitoring-history" id="activity-history">
+<section class="panel card sf-monitoring-history ani12e-history-panel" id="activity-history">
     <div class="sf-section-line card-head">
         <h2>Activity history</h2>
         <span>@monitoring.Activities.Count record(s)</span>
@@ -203,7 +203,7 @@
         .ThenBy(p => p.Photo.UploadedAtUtc)
         .ToList();
 }
-<section class="panel card sf-photo-gallery" aria-labelledby="photo-progress-heading">
+<section class="panel card sf-photo-gallery ani12e-photo-panel" aria-labelledby="photo-progress-heading">
     <header class="reference-panel-heading"><h2 id="photo-progress-heading">Crop photo progress</h2></header>
     <p class="hint">Compare inspection photos from earliest to latest. Only authorized farm members can open these private images.</p>
     @if (progressPhotos.Count == 0)
@@ -212,7 +212,7 @@
     }
     else
     {
-        <div class="photo-progress-grid">
+        <div class="photo-progress-grid ani12e-photo-grid">
         @foreach (var entry in progressPhotos)
         {
             <figure>
@@ -233,7 +233,7 @@
         </div>
     }
 </section>
-<section class="panel card sf-monitoring-observations" id="observation-history">
+<section class="panel card sf-monitoring-observations ani12e-observation-panel" id="observation-history">
     <div class="sf-section-line card-head">
         <h2>Inspections &amp; photos</h2>
         <span>@monitoring.Observations.Count inspection(s)</span>
