@@ -5,17 +5,19 @@
     var canManage = Model.Farm.Role == "Owner" || Model.Farm.Role == "Manager";
     var isOwner = Model.Farm.Role == "Owner";
 }
-<div class="reference-screen reference-screen-farms">
+<div class="reference-screen reference-screen-farms ani12d-farm-workspace">
 <partial name="_FarmNavigation" model="Model.Farm.Id" />
-<section class="panel card sf-farm-hero" aria-labelledby="farm-heading">
+<section class="panel card sf-farm-hero ani12d-farm-hero" aria-labelledby="farm-heading">
     <div class="sf-page-header page-hero">
         <div>
-            <p><a asp-action="Index">← My farms</a></p>
+            <p><a class="ani12d-back" asp-action="Index">← All my farms</a></p>
+            <p class="ani-overline">Farm workspace</p>
 
             <h1 id="farm-heading">@Model.Farm.Name</h1>
-            <div class="sf-farm-identity">
+            <div class="sf-farm-identity ani12d-farm-identity">
                 <span>@Model.Farm.LocationText</span>
                 <span class="sf-status-chip sf-status-chip--planned">@Model.Farm.Role</span>
+                <span class="ani12d-location-timezone">Local dates: @Model.Farm.TimeZoneId</span>
             </div>
         </div>
         <div class="sf-farm-actions">
@@ -40,25 +42,26 @@
             </ol>
         </section>
     }
-    @if (isOwner)
-    {
-        <div class="sf-farm-danger-zone">
-            <p class="sf-muted">Archiving removes this farm from active lists but preserves its records.</p>
-            <form asp-action="Archive" asp-route-id="@Model.Farm.Id" method="post" class="inline" data-confirm="Archive @Model.Farm.Name? Its plots and records will no longer appear in active farms.">
-                <input type="hidden" name="rowVersion" value="@Model.Farm.RowVersion" />
-                <button class="button-danger" type="submit">Archive farm</button>
-            </form>
-        </div>
-    }
 </section>
-<div class="sf-farm-management-grid">
-    <section class="panel card sf-farm-plots" aria-labelledby="plots-heading">
+<nav class="ani12d-workspace-links" aria-label="Farm management sections">
+    <a href="#plots-heading"><partial name="_Icon" model='@("grid")' />Plots <span>@Model.Plots.Count</span></a>
+    <a asp-controller="Crops" asp-action="Index" asp-route-farmId="@Model.Farm.Id" asp-fragment="planting-plans-heading"><partial name="_Icon" model='@("sprout")' />Crop planning</a>
+    <a href="#members-heading"><partial name="_Icon" model='@("users")' />Farm team <span>@(Model.Members.Count + 1)</span></a>
+    @if (isOwner) { <a href="#join-requests-heading"><partial name="_Icon" model='@("checkSquare")' />Join requests</a> }
+</nav>
+<div class="ani12d-farm-summary" aria-label="Farm workspace overview">
+    <div><strong>@Model.Plots.Count</strong><span>Growing areas</span></div>
+    <div><strong>@Model.Members.Count</strong><span>Additional team members</span></div>
+    <div><strong>@Model.Farm.Role</strong><span>Your farm access</span></div>
+</div>
+<div class="sf-farm-management-grid ani12d-management-grid">
+    <section class="panel card sf-farm-plots ani12d-plots-panel" aria-labelledby="plots-heading">
         <div class="sf-section-line card-head">
             <div>
                 <h2 id="plots-heading">Plots</h2>
                 <p class="sf-muted">Manage your farm's growing spaces.</p>
             </div>
-            <a asp-controller="PlotLayout" asp-action="Index" asp-route-farmId="@Model.Farm.Id">View illustrated plots →</a>
+            <a asp-controller="PlotLayout" asp-action="Index" asp-route-farmId="@Model.Farm.Id">See plot overview →</a>
         </div>
         @if (Model.Plots.Count == 0)
         {
@@ -77,7 +80,7 @@
             @foreach (var plot in Model.Plots)
             {
                 <li>
-                    <div class="sf-list-icon" aria-hidden="true">P</div>
+                    <div class="sf-list-icon ani12d-plot-marker" aria-hidden="true"><partial name="_Icon" model='@("grid")' /></div>
                     <div class="sf-plot-list-details">
                         <strong>@plot.Name</strong>
                         <span class="sf-muted">@plot.AreaSqMeters.ToString("N2") m²</span>
@@ -86,7 +89,7 @@
                     </div>
                     @if (canManage)
                     {
-                        <div class="sf-row-actions">
+                        <div class="sf-row-actions ani12d-plot-actions">
                             <a asp-action="EditPlot" asp-route-id="@Model.Farm.Id" asp-route-plotId="@plot.Id">Edit</a>
                             <form asp-action="ArchivePlot" asp-route-id="@Model.Farm.Id" asp-route-plotId="@plot.Id"
                                   method="post" class="inline" data-confirm="Archive @plot.Name? Its history will be retained.">
@@ -109,17 +112,18 @@
         }
         @if (canManage)
         {
-            <div class="sf-add-plot" id="add-plot">
-                <h3>Add plot</h3>
+            <div class="sf-add-plot ani12d-add-plot" id="add-plot">
+                <h3>Add a growing area</h3>
+                <p class="sf-muted">Give each field a clear name and enter its area. You can plan its crop next.</p>
                 <form asp-action="CreatePlot" asp-route-id="@Model.Farm.Id" method="post" class="sf-inline-form">
-                    <div><label for="plotName">Name</label><input id="plotName" name="Name" required maxlength="100" minlength="2" placeholder="e.g. North field" /></div>
-                    <div><label for="plotArea">Area (m²)</label><input id="plotArea" name="AreaSqMeters" type="number" min="0.01" step="0.01" required /></div>
+                    <div><label for="plotName">Plot name</label><input id="plotName" name="Name" required maxlength="100" minlength="2" placeholder="e.g. North field" /></div>
+                    <div><label for="plotArea">Area in square meters (m²)</label><input id="plotArea" name="AreaSqMeters" type="number" min="0.01" step="0.01" required /></div>
                     <button type="submit">Add plot</button>
                 </form>
             </div>
         }
     </section>
-    <section class="panel card sf-farm-members" aria-labelledby="members-heading">
+    <section class="panel card sf-farm-members ani12d-members-panel" aria-labelledby="members-heading">
         <div class="sf-section-line card-head">
             <div>
                 <h2 id="members-heading">Farm team</h2>
@@ -170,5 +174,15 @@
 {
     <partial name="_FarmEnrollment" model="Model.Enrollment" />
 }
-
+@if (isOwner)
+{
+    <details class="ani12d-danger-options">
+        <summary>Archive this farm</summary>
+        <p>Archiving removes this farm from active lists and prevents further work here. Existing records are preserved.</p>
+        <form asp-action="Archive" asp-route-id="@Model.Farm.Id" method="post" class="inline" data-confirm="Archive @Model.Farm.Name? Its plots and records will no longer appear in active farms.">
+            <input type="hidden" name="rowVersion" value="@Model.Farm.RowVersion" />
+            <button class="button-danger" type="submit">Archive farm</button>
+        </form>
+    </details>
+}
 </div>
