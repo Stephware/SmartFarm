@@ -37,6 +37,9 @@ test("Worker task queue excludes other workers and owner-only actions remain iso
     assert.match(farm, /Team requests needing a decision/);
     assert.match(farm, /@if \(role\.IsOwner\)/);
     assert.match(farm, /@if \(!role\.IsFieldWorker\)/);
+    assert.match(farm, /Upcoming assigned/);
+    assert.match(farm, /Crop concerns/);
+    assert.doesNotMatch(farm, /sf-home-progress/);
     assert.match(farm, /asp-route-view="@\(role\.IsFieldWorker \? "mine" : "today"\)"/);
 });
 test("Super Admin is still authorized and displays verified job counts only", () => {
