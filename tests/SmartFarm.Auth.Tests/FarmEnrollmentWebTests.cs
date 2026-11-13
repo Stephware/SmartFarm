@@ -692,7 +692,7 @@ public sealed class FarmEnrollmentWebTests
         Assert.Contains("value=\"2026-10-01\"", html);
         Assert.Contains("value=\"2026-10-31\"", html);
         Assert.Contains("plotId=" + plotId, html);
-        Assert.Matches("(?s)class=\"ani-report-filter-details\"[^>]*open", html);
+        Assert.Matches("(?s)class=\"ani-report-filter-details(?: [^\"]+)?\"[^>]*open", html);
         Assert.Contains("ExportCycleCsv", html);
     }
 
