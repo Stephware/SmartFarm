@@ -53,6 +53,7 @@ jobs:
           git add src/SmartFarm.Web/wwwroot/css/anigo-tailwind.css tests/browser/baselines/
           if ! git diff --cached --quiet; then
             git commit -m 'Rebuild CSS and capture Phase 12B screens'
+            git pull --rebase origin feature/web-ui-phase-12b-completion
             git push origin HEAD:feature/web-ui-phase-12b-completion
           fi
       - uses: actions/upload-artifact@v4
