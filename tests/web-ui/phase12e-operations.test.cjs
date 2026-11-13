@@ -40,6 +40,8 @@ test("Tasks preserve assignment, completion and calendar navigation", () => {
     assert.ok(tasks.includes('name="RowVersion"'));
     assert.ok(tasks.includes('name="returnView"'));
     assert.ok(tasks.includes('task.AssignedToUserId == actorId'));
+    assert.ok(tasks.includes('assigned == actorId ? "You"'));
+    assert.ok(tasks.includes('?? "Farm member"'));
     assert.ok(css.includes(".ani12e-task-calendar .reference-calendar { display: none; }"));
 });
 
