@@ -23,5 +23,11 @@
     "login": "/Account/Login",
     "registration": "/Account/Register"
   },
-  "note": "Codex visual review, 2026-11-13: all 30 public images inspected across five widths and both themes. Phase12A foundation acceptance only; landing/auth composition is intentionally redesigned in Phase12B. Targeted browser and accessibility checks passed. No authenticated records in these goldens."
+  "note": "Codex visual review, 2026-11-13: all30 Linux Chromium candidates inspected across five widths and both themes. Captured by GitHub Actions run43334145527, Playwright1.56.1, Ubuntu24.04. Linux container reproduces the Mac-versus-Linux text/control rasterization difference; comparison threshold unchanged. Phase12A foundation only; landing/auth composition follows in12B. Anonymous pages only.",
+  "environment": {
+    "os": "Ubuntu24.04",
+    "playwright": "1.56.1",
+    "chromium": "141.0.7390.37",
+    "container": "mcr.microsoft.com/playwright:v1.56.1-noble"
+  }
 }

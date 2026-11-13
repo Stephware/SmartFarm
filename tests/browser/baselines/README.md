@@ -4,6 +4,12 @@
 320, 375, 768, 1024 and 1440 pixels. The source hashes also detect presentation
 changes that require a new review.
 
+Goldens use Playwright 1.56.1 Chromium on Ubuntu 24.04, matching CI. On macOS,
+use `mcr.microsoft.com/playwright:v1.56.1-noble` with the same runner packages
+and access the local site through `host.docker.internal`. Keep native Chrome
+screenshots as additional appearance evidence; its font/control rasterization
+differs from Linux and must not replace the CI goldens.
+
 For an intentional redesign:
 
 1. Build and start the candidate MVC site.
