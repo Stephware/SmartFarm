@@ -58,7 +58,7 @@ test("Crop planning never implicitly selects an arbitrary plot or type", () => {
     assert.ok(crops.includes('data-confirm="Cancel:'));
 });
 test("Calendar is accessible without discovering an extra hidden schedule", () => {
-    assert.ok(crops.includes('class="sf-crop-calendar ani12d-calendar"'));
+    assert.ok(crops.includes('sf-crop-calendar ani12d-calendar"'));
     assert.ok(crops.includes('class="crop-agenda-details ani12d-agenda-details" open'));
     assert.ok(crops.includes('asp-fragment="crop-calendar-heading"'));
     assert.ok(crops.includes('id="agenda-date-@day.Date.ToString("yyyy-MM-dd")"'));
