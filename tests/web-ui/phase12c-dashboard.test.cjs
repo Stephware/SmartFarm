@@ -19,6 +19,7 @@ test("Phase 12C uses one scoped design and real farm-derived dashboard summaries
     assert.match(farm, /ani12c-role-owner/);
     assert.match(farm, /ani12c-role-manager/);
     assert.match(farm, /ani12c-role-worker/);
+    assert.match(farm, /ani12c-dashboard-rail/);
     assert.match(css, /var\(--ui-surface\)/);
     assert.match(css, /max-width:\s*360px/);
 });
