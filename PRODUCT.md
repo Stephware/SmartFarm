@@ -1,6 +1,6 @@
 # AniGo — farmer-first SmartFarm MVP
 
-**Status:** approved product direction; Stages 1–2 MVC/Android navigation changes implemented, later stages planned. See the execution plan for verification and merge status. This document supersedes older UI phase briefs about retaining every feature. Source code is still the authority for current behavior.
+**Status:** approved product direction; Stages 1–3 MVC/Android navigation and short recording flows implemented, later stages planned. See the execution plan for verification and merge status. This document supersedes older UI phase briefs about retaining every feature. Source code is still the authority for current behavior.
 
 ## Purpose
 Help nontechnical farmers manage planting schedules, crop condition, fieldwork, supplies, harvests and weather-related tasks. Less navigation and data entry are the goal. This is **not** a finance/ERP/social platform.

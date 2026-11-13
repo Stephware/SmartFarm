@@ -33,14 +33,16 @@ public sealed class HarvestsController : Controller
         ? id : Guid.Empty;
 
     [HttpGet]
-    public async Task<IActionResult> Index(Guid farmId, Guid cycleId, CancellationToken ct)
+    public Task<IActionResult> Index(Guid farmId, Guid cycleId, CancellationToken ct) => Workspace(farmId, cycleId, ct);
+
+    private async Task<IActionResult> Workspace(Guid farmId, Guid cycleId, CancellationToken ct, RecordHarvestInput? draft = null)
     {
         try
         {
             var crop = await _crops.GetCycleAsync(farmId, cycleId, Actor, ct);
             if (crop is null) return NotFound();
             var overview = await _harvests.GetAsync(farmId, cycleId, Actor, ct);
-            return View(new HarvestPage(crop, overview));
+            return View("Index", new HarvestPage(crop, overview) { Entry = draft });
         }
         catch (FarmOperationException e) when (e.Error == FarmError.NotFound)
         {
@@ -54,8 +56,8 @@ public sealed class HarvestsController : Controller
     {
         if (!ModelState.IsValid)
         {
-            TempData["HarvestError"] = "Enter a positive quantity with no more than 3 decimal places.";
-            return RedirectToAction(nameof(Index), new { farmId, cycleId });
+            ModelState.AddModelError("", "Enter a positive quantity with no more than 3 decimal places.");
+            return await Workspace(farmId, cycleId, ct, input);
         }
         try
         {
@@ -65,7 +67,8 @@ public sealed class HarvestsController : Controller
         catch (FarmOperationException e)
         {
             if (e.Error == FarmError.NotFound) return NotFound();
-            TempData["HarvestError"] = e.Message;
+            ModelState.AddModelError("", e.Message);
+            return await Workspace(farmId, cycleId, ct, input);
         }
         return RedirectToAction(nameof(Index), new { farmId, cycleId });
     }

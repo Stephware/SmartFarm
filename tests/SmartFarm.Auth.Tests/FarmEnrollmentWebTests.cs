@@ -475,6 +475,165 @@ public sealed class FarmEnrollmentWebTests
     [Theory]
     [InlineData(false)]
     [InlineData(true)]
+    public async Task MvpClosedCropKeepsRejectedRecordingDraftReadableAndEscaped(bool inspection)
+    {
+        var cycle = new CropCycleDetails(Guid.NewGuid(), FarmId, Guid.NewGuid(), "North plot",
+            Guid.NewGuid(), "Corn", CropCycleStatus.Active, new(2026, 10, 1), new(2026, 10, 1),
+            null, "kg", 3, null, null, "v");
+        var cycles = new List<CropCycleDetails> { cycle };
+        var item = new InventoryItemDetails(Guid.NewGuid(), FarmId, "Fertilizer", InventoryCategory.Fertilizers,
+            "kg", null, 8m, null, false, null, "AQIDBAUGBwg=");
+        var closed = false;
+        object Reject()
+        {
+            closed = true; cycles[0] = cycle with { Status = CropCycleStatus.Completed };
+            throw new FarmOperationException(FarmError.InvalidInput, "This crop is no longer active.");
+        }
+        using var app = App("FieldWorker", cycles: cycles, inventory: new InventoryWorkspace([item], 0),
+            monitoringWrites: (name, _) => name == "GetAsync"
+                ? Task.FromResult(new MonitoringDetails(FarmId, cycle.Id, !closed, [], [])) : Reject(),
+            fieldworkWrites: (_, _) => Reject());
+        using var client = app.CreateClient(new() { AllowAutoRedirect = false });
+        var html = await client.GetStringAsync($"/Monitoring?farmId={FarmId}&cycleId={cycle.Id}");
+        const string note = "<script>unsafe</script> Keep my field notes";
+        var fields = inspection
+            ? Form(html, ("Observation.HealthStatus", "2"), ("Observation.IssueCategory", "1"),
+                ("Observation.IssueSeverity", "2"), ("Observation.GrowthStage", "Flowering"), ("Observation.Notes", note))
+            : Form(html, ("Activity.ActivityType", "2"), ("Activity.Notes", note),
+                ("Supply.Selection", item.Id + ":" + item.RowVersion), ("Supply.QuantityUsed", "1.250"),
+                ("Supply.Reason", "Keep my supply note"));
+        using var response = await client.PostAsync($"/Monitoring/{(inspection ? "Observation" : "Activity")}?farmId={FarmId}&cycleId={cycle.Id}", fields);
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        var draft = await response.Content.ReadAsStringAsync();
+        Assert.Contains("id=\"unsubmitted-draft\"", draft);
+        Assert.Contains("This crop is no longer active", draft);
+        Assert.Contains("&lt;script&gt;unsafe&lt;/script&gt;", draft);
+        Assert.DoesNotContain("<script>unsafe</script>", draft);
+        Assert.DoesNotContain("href=\"#record-activity\"", draft);
+        Assert.DoesNotContain("href=\"#record-inspection\"", draft);
+        if (inspection) { Assert.Contains("Flowering", draft); Assert.Contains("Moderate", draft); }
+        else { Assert.Contains("1.250", draft); Assert.Contains("Keep my supply note", draft); Assert.Contains("Fertilizer", draft); }
+    }
+
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public async Task MvpHarvestErrorsPreserveQuantityAndNotes(bool conflict)
+    {
+        var cycle = new CropCycleDetails(Guid.NewGuid(), FarmId, Guid.NewGuid(), "North plot",
+            Guid.NewGuid(), "Corn", CropCycleStatus.Active, new(2026, 10, 1), new(2026, 10, 1),
+            null, "kg", 3, null, null, "v");
+        var report = new HarvestOverview(FarmId, cycle.Id, "Corn", "North plot", "kg", 3,
+            true, false, 2m, 1, 0, []);
+        using var app = App("FieldWorker", cycles: [cycle], harvestWrites: (name, _) => name == "GetAsync"
+            ? Task.FromResult(report)
+            : throw new FarmOperationException(FarmError.Conflict, "Harvest changed. Review before retrying."));
+        using var client = app.CreateClient(new() { AllowAutoRedirect = false });
+        var html = await client.GetStringAsync($"/Harvests?farmId={FarmId}&cycleId={cycle.Id}");
+        var quantity = conflict ? "1.250" : "-1.250";
+        using var response = await client.PostAsync($"/Harvests/Record?farmId={FarmId}&cycleId={cycle.Id}",
+            Form(html, ("Quantity", quantity), ("Notes", "Keep this partial harvest draft")));
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        var draft = await response.Content.ReadAsStringAsync();
+        Assert.Contains("value=\"" + quantity + "\"", draft);
+        Assert.Contains("Keep this partial harvest draft", draft);
+        Assert.Contains("role=\"alert\"", draft);
+        Assert.Contains("2.000", draft);
+        var recordForm = Regex.Match(draft, "(?s)<form(?=[^>]*action=\"/Harvests/Record)[^>]*>(.*?)</form>").Groups[1].Value;
+        Assert.Contains("role=\"alert\"", recordForm);
+    }
+
+    [Theory]
+    [InlineData("watering", "Save watering", "record-inspection")]
+    [InlineData("fertilizing", "Save fertilizer application", "record-inspection")]
+    [InlineData("inspection", "Save inspection", "record-activity")]
+    [InlineData("other", "Save activity", "record-inspection")]
+    public async Task MvpQuickRecordingFocusesOneFormAndKeepsHistory(string quick, string save, string absent)
+    {
+        var cycle = new CropCycleDetails(Guid.NewGuid(), FarmId, Guid.NewGuid(), "South plot",
+            Guid.NewGuid(), "Corn", CropCycleStatus.Active, new(2026, 10, 1), new(2026, 10, 1),
+            null, "kg", 3, null, null, "v");
+        using var app = App("FieldWorker", cycles: [cycle],
+            monitoring: new MonitoringDetails(FarmId, cycle.Id, true, [], []));
+        using var client = app.CreateClient();
+        var html = await client.GetStringAsync($"/Monitoring?farmId={FarmId}&cycleId={cycle.Id}&quick={quick}");
+        Assert.Contains(">" + save + "</button>", html);
+        Assert.DoesNotContain("id=\"" + absent + "\"", html);
+        Assert.Contains("id=\"activity-history\"", html);
+        Assert.Contains("id=\"observation-history\"", html);
+        Assert.DoesNotContain("href=\"#" + absent + "\"", html);
+        if (quick == "watering") Assert.DoesNotContain("id=\"activity-supplies\"", html);
+        if (quick == "inspection") Assert.Contains("Not sure", html);
+        if (quick == "other") Assert.Matches("<option(?=[^>]*value=\"5\")(?=[^>]*selected)[^>]*>", html);
+    }
+
+    [Theory]
+    [InlineData("Owner", false)]
+    [InlineData("Manager", false)]
+    [InlineData("FieldWorker", false)]
+    [InlineData("FieldWorker", true)]
+    public async Task MvpFieldworkSupplyUsesOneAtomicServiceAndPreservesConflictDraft(string role, bool conflict)
+    {
+        var cycle = new CropCycleDetails(Guid.NewGuid(), FarmId, Guid.NewGuid(), "South plot",
+            Guid.NewGuid(), "Corn", CropCycleStatus.Active, new(2026, 10, 1), new(2026, 10, 1),
+            null, "kg", 3, null, null, "v");
+        var item = new InventoryItemDetails(Guid.NewGuid(), FarmId, "Fertilizer", InventoryCategory.Fertilizers,
+            "kg", null, 8m, null, false, null, "AQIDBAUGBwg=");
+        var taskId = Guid.NewGuid();
+        var oldVersion = conflict ? "AAAAAAAAAAA=" : item.RowVersion;
+        var selection = item.Id + ":" + oldVersion;
+        RecordActivityWithStockInput? combined = null;
+        var separateWrites = 0;
+        using var app = App(role, cycles: [cycle], inventory: new InventoryWorkspace([item], 0),
+            monitoringWrites: (name, _) => name == "GetAsync"
+                ? Task.FromResult(new MonitoringDetails(FarmId, cycle.Id, true, [], []))
+                : Separate(),
+            fieldworkWrites: (_, args) =>
+            {
+                Assert.Equal(FarmId, args![0]); Assert.Equal(cycle.Id, args[1]); Assert.Equal(Actor, args[2]);
+                combined = (RecordActivityWithStockInput)args[3]!;
+                if (conflict) throw new FarmOperationException(FarmError.Conflict, "Supply changed. Review the latest balance and select it again.");
+                return Task.FromResult<ActivityWithStockDetails>(null!);
+            });
+        object Separate() { separateWrites++; return Task.FromResult<ActivityDetails>(null!); }
+        using var client = app.CreateClient(new() { AllowAutoRedirect = false });
+        var html = await client.GetStringAsync($"/Monitoring?farmId={FarmId}&cycleId={cycle.Id}");
+        using var response = await client.PostAsync($"/Monitoring/Activity?farmId={FarmId}&cycleId={cycle.Id}", Form(html,
+            ("Activity.ActivityType", "2"), ("Activity.FarmTaskId", taskId.ToString()),
+            ("Activity.Notes", "Along the north rows"), ("Supply.UseStock", "true"),
+            ("Supply.Selection", selection), ("Supply.QuantityUsed", "1.250"), ("Supply.Reason", "Crop feeding")));
+        Assert.NotNull(combined); Assert.Equal(0, separateWrites);
+        Assert.Equal(taskId, combined.Activity!.FarmTaskId); Assert.Equal("Along the north rows", combined.Activity.Notes);
+        Assert.Equal(item.Id, combined.InventoryItemId); Assert.Equal(oldVersion, combined.RowVersion);
+        Assert.Equal(1.250m, combined.QuantityUsed); Assert.Equal("Crop feeding", combined.Reason);
+        Assert.Equal(conflict ? HttpStatusCode.OK : HttpStatusCode.Redirect, response.StatusCode);
+        if (conflict)
+        {
+            var draft = await response.Content.ReadAsStringAsync();
+            Assert.Contains("Supply changed", draft); Assert.Contains(selection, draft);
+            var recordForm = Regex.Match(draft, "(?s)<form(?=[^>]*action=\"/Monitoring/Activity)[^>]*>(.*?)</form>").Groups[1].Value;
+            Assert.Contains("Supply changed", recordForm);
+            Assert.Contains("1.250", draft); Assert.Contains("Along the north rows", draft);
+            Assert.Contains("Crop feeding", draft); Assert.Contains("Review and reselect", draft);
+            Assert.Matches("<option(?=[^>]*value=\"" + taskId + "\")(?=[^>]*selected)[^>]*>", draft);
+        }
+    }
+
+    [Fact]
+    public async Task MvpMalformedTaskLinkCannotFallBackToAutomaticMatching()
+    {
+        var cycle = new CropCycleDetails(Guid.NewGuid(), FarmId, Guid.NewGuid(), "South plot",
+            Guid.NewGuid(), "Corn", CropCycleStatus.Active, new(2026, 10, 1), new(2026, 10, 1),
+            null, "kg", 3, null, null, "v");
+        using var app = App(cycles: [cycle], monitoring: new MonitoringDetails(FarmId, cycle.Id, true, [], []));
+        using var client = app.CreateClient(new() { AllowAutoRedirect = false });
+        using var response = await client.GetAsync($"/Monitoring?farmId={FarmId}&cycleId={cycle.Id}&taskId=not-a-task-id");
+        Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
+    }
+
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
     public async Task MvpTaskRecordingRejectsClosedOrOtherWorkersTask(bool closed)
     {
         var cycle = new CropCycleDetails(Guid.NewGuid(), FarmId, Guid.NewGuid(), "South plot",
@@ -1605,6 +1764,9 @@ public sealed class FarmEnrollmentWebTests
             2, new DateOnly(2026, 11, 13), 0, "Water North field", DateTime.UtcNow, null, "v");
         var item = new InventoryItemDetails(Guid.NewGuid(), FarmId, "Rice seed",
             InventoryCategory.Seeds, "kg", null, 2m, 5m, true, null, "v");
+        var fertilizer = new InventoryItemDetails(Guid.NewGuid(), FarmId, "Complete fertilizer",
+            InventoryCategory.Fertilizers, "kg", null, 8m, null, false, null, "AQIDBAUGBwg=");
+        var fertilizerTask = task with { Id = Guid.NewGuid(), TaskType = 3, Description = "Feed North field" };
         var day = new WeatherDayDetails(new DateOnly(2026, 11, 13), 22m, 31m, 8m,
             DateTime.UtcNow.AddMinutes(-10), "Open-Meteo", 45m, null);
         var old = day with { RetrievedAtUtc = DateTime.UtcNow.AddHours(-18) };
@@ -1627,11 +1789,11 @@ public sealed class FarmEnrollmentWebTests
         }
         foreach (var role in new[] { "Owner", "FieldWorker" })
         {
-            using var app = App(role, taskList: [task], cycles: [cycle],
+            using var app = App(role, taskList: [task, fertilizerTask], cycles: [cycle],
                 monitoring: new MonitoringDetails(FarmId, cycle.Id, true, [], []),
                 harvest: new HarvestOverview(FarmId, cycle.Id, "Tomato", "North field",
                     "kg", 1, true, false, 8.5m, 1, 0, [harvested]),
-                inventory: new InventoryWorkspace([item], 1), inventoryItem: item,
+                inventory: new InventoryWorkspace([item, fertilizer], 1), inventoryItem: item,
                 weather: new WeatherOverview(FarmId, true, "Asia/Manila", [day], []),
                 harvestReport: report);
             var suffix = role == "Owner" ? "owner" : "worker";
@@ -1640,6 +1802,10 @@ public sealed class FarmEnrollmentWebTests
             await Capture(app, "12e-stock-" + suffix, $"/Inventory/Details?farmId={FarmId}&itemId={item.Id}");
             await Capture(app, "12e-monitoring-" + suffix,
                 $"/Monitoring?farmId={FarmId}&cycleId={cycle.Id}");
+            foreach (var quick in new[] { "watering", "fertilizing", "inspection", "other" })
+                await Capture(app, "mvp-monitoring-" + quick + "-" + suffix,
+                    $"/Monitoring?farmId={FarmId}&cycleId={cycle.Id}&quick={quick}" +
+                    (quick == "watering" ? $"&taskId={task.Id}" : quick == "fertilizing" ? $"&taskId={fertilizerTask.Id}" : ""));
             await Capture(app, "12e-harvests-" + suffix,
                 $"/Harvests?farmId={FarmId}&cycleId={cycle.Id}");
         }
@@ -1727,7 +1893,8 @@ public sealed class FarmEnrollmentWebTests
         Func<string, object?[]?, object>? cropWrites = null,
         Func<string, object?[]?, object>? monitoringWrites = null,
         Func<string, object?[]?, object>? harvestWrites = null,
-        FarmDashboard? dashboardReport = null) =>
+        FarmDashboard? dashboardReport = null,
+        Func<string, object?[]?, object>? fieldworkWrites = null) =>
         new WebApplicationFactory<Program>().WithWebHostBuilder(builder => builder.ConfigureTestServices(services =>
         {
             services.AddSingleton<IAuthenticationService, SignedIn>();
@@ -1802,7 +1969,6 @@ public sealed class FarmEnrollmentWebTests
             services.AddScoped(_ => Stub<IFarmWeatherService>((name, _) => name == "GetAsync"
                 ? Task.FromResult(weather ?? new WeatherOverview(FarmId, false, "Asia/Manila", [], []))
                 : throw new NotSupportedException(name)));
-            if (inventory is not null || inventoryItem is not null)
             {
                 services.AddScoped(_ => Stub<IInventoryService>((name, _) => name switch
                 {
@@ -1813,6 +1979,8 @@ public sealed class FarmEnrollmentWebTests
                     _ => throw new NotSupportedException(name)
                 }));
             }
+            if (fieldworkWrites is not null)
+                services.AddScoped(_ => Stub<IFieldworkStockService>(fieldworkWrites));
             services.AddScoped(_ => Stub<IFarmEnrollmentService>(enroll ?? ((name, _) => name switch
             {
                 "OwnerOverviewAsync" => role == "Owner" ? Task.FromResult(new FarmEnrollmentOverview("ABCD12345678", [Pending])) : throw new InvalidOperationException("Non-owner must not request applicants"),

@@ -41,6 +41,12 @@
         </div>
     </div>
     <p class="sf-ops-hint">Multiple partial harvests are allowed. The total includes valid server records only; voided entries are excluded. Harvests do not automatically complete the crop cycle.</p>
+    @if (!ViewData.ModelState.IsValid)
+    {
+        @if (overview.CanRecord) { <p class="error" role="alert">Harvest not saved. Your draft is kept.</p><a href="#record-harvest">Review the harvest draft →</a> }
+        else { <div asp-validation-summary="All" class="error form-error" role="alert"></div> }
+        @if (!overview.CanRecord && Model.Entry is not null) { <p>Unsubmitted draft: @Model.Entry.Quantity @overview.Unit — @Model.Entry.Notes</p> }
+    }
     @if (TempData["HarvestError"] is string error)
     {
         <p class="error form-error" role="alert">@error
@@ -54,17 +60,17 @@
     <section class="panel card sf-harvest-record ani12e-form-panel" id="record-harvest" data-form-dialog aria-labelledby="record-harvest-heading">
 
         <header class="reference-panel-heading">
-            <div><p class="ani-overline">New entry</p><h2 id="record-harvest-heading">Record a partial harvest</h2></div>
+            <div><h2 id="record-harvest-heading">Record a partial harvest</h2></div>
         </header>
         <p class="sf-muted">Enter the actual quantity collected for @cycle.CropTypeName. You may save more than one harvest for the same crop.</p>
         <p class="ani-harvest-form-notice" role="note">Only confirmed server harvests count in the total. Android offline entries appear as pending until synchronized.</p>
         <form class="sf-ops-form" asp-action="Record" asp-route-farmId="@cycle.FarmId" asp-route-cycleId="@cycle.Id" method="post">
+            @if (!ViewData.ModelState.IsValid) { <div asp-validation-summary="All" class="error form-error" data-form-error role="alert"></div> }
             <label for="quantity">Quantity collected <strong>(@overview.Unit)</strong></label>
-            <input id="quantity" name="Quantity" type="number" step="0.001" min="0.001" max="999999999999999.999"
-                   inputmode="decimal" required aria-describedby="harvest-quantity-hint" />
-            <p class="hint" id="harvest-quantity-hint">Enter a positive value with up to three decimal places. The unit is fixed for this crop cycle.</p>
+            @Html.TextBox("Quantity", Model.Entry?.Quantity, new { id = "quantity", type = "number", step = "0.001", min = "0.001", max = "999999999999999.999", inputmode = "decimal", required = "required", aria_describedby = "harvest-quantity-hint", aria_invalid = ViewData.ModelState.IsValid ? "false" : "true" })
+            <p class="hint" id="harvest-quantity-hint">Enter a positive value with up to three decimal places. The unit is fixed for this crop cycle. The date is set when the server accepts the entry.</p>
             <label for="notes">Notes (optional)</label>
-            <textarea id="notes" name="Notes" rows="3" maxlength="1000"></textarea>
+            @Html.TextArea("Notes", Model.Entry?.Notes, new { id = "notes", rows = 3, maxlength = 1000 })
             <button type="submit">Save partial harvest</button>
             <p class="hint">After saving, this amount appears in valid harvest history and the confirmed total.</p>
         </form>

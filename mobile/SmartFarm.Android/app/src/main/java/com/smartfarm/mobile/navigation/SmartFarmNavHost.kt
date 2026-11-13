@@ -122,7 +122,7 @@ fun SmartFarmNavHost(auth: AuthViewModel, farms: FarmViewModel, crops: CropViewM
         val action = when (task.taskType) {
             2 -> "watering"; 3 -> "fertilizing"; 4 -> "inspection"; 5 -> "harvest"; else -> null
         }
-        val route = action?.let { quickRecordRoute(farmId, it, task.cropCycleId) }
+        val route = action?.let { quickRecordRoute(farmId, it, task.cropCycleId, task.id) }
         navController.navigate(route ?: "tasks/$farmId")
     }
 
@@ -378,13 +378,14 @@ fun SmartFarmNavHost(auth: AuthViewModel, farms: FarmViewModel, crops: CropViewM
                 }, onRetry = { crops.load(farmId) },
                 onPlots = { navController.navigate("farm/$farmId/plots") })
         }
-        composable("monitor/{farmId}/{cycleId}?quick={quick}",
+        composable("monitor/{farmId}/{cycleId}?quick={quick}&taskId={taskId}",
             arguments = listOf(navArgument("quick") {
                 type = NavType.StringType
                 defaultValue = ""
-            })) { entry ->
+            }, navArgument("taskId") { type = NavType.StringType; nullable = true; defaultValue = null })) { entry ->
             val farmId = entry.arguments?.getString("farmId").orEmpty()
             val cycleId = entry.arguments?.getString("cycleId").orEmpty()
+            val taskId = entry.arguments?.getString("taskId")
             val monitoringState by monitoring.state.collectAsStateWithLifecycle()
             val farmState by farms.state.collectAsStateWithLifecycle()
             val taskState by tasks.state.collectAsStateWithLifecycle()
@@ -392,11 +393,13 @@ fun SmartFarmNavHost(auth: AuthViewModel, farms: FarmViewModel, crops: CropViewM
                 farmState.selected?.role in listOf("Owner", "Manager")
             LaunchedEffect(farmId, cycleId) {
                 monitoring.load(farmId, cycleId)
+                if (crops.state.value.farmId != farmId) crops.load(farmId)
                 if (manager) tasks.load(farmId)
             }
-            MonitoringScreen(monitoringState,
+            MonitoringScreen(monitoringState.takeIf { it.farmId == farmId && it.cycleId == cycleId }
+                ?: com.smartfarm.mobile.features.monitoring.MonitoringUiState(farmId = farmId, cycleId = cycleId, busy = true),
                 onBack = { navController.popBackStack() },
-                onActivity = { kind, notes -> monitoring.logActivity(kind, notes) },
+                onActivity = { kind, notes -> monitoring.logActivity(kind, notes, taskId) },
                 onObservation = { health, growth, notes, photo ->
                     monitoring.observe(health, growth, notes, photo, resolver)
                 },
@@ -408,18 +411,20 @@ fun SmartFarmNavHost(auth: AuthViewModel, farms: FarmViewModel, crops: CropViewM
                 onDismissPreview = { monitoring.dismissPreview() }, pending = pending,
                 onSync = { navController.navigate("sync") },
                 onRetry = { monitoring.load(farmId, cycleId) },
-                quick = entry.arguments?.getString("quick").orEmpty(),
+                quick = entry.arguments?.getString("quick").orEmpty(), linkedTask = !taskId.isNullOrBlank(),
+                cropLabel = cropState.takeIf { it.farmId == farmId }?.cycles
+                    ?.firstOrNull { it.id == cycleId }?.let { "${it.cropTypeName} · ${it.plotName}" },
                 onIssueObservation = { health, growth, notes, category, severity, photo ->
                     monitoring.observeIssue(health, growth, notes,
                         category, severity, photo, resolver)
                 },
                 canManageIssues = manager,
-                taskOptions = taskState.tasks,
+                taskOptions = taskState.takeIf { it.farmId == farmId && !it.busy && it.error == null }?.tasks.orEmpty(),
                 onFollowUp = { observation, status, taskId ->
                     monitoring.updateFollowUp(observation, status, taskId)
                 },
                 onActivityWithStock = { type, notes, item, quantity ->
-                    monitoring.logActivityWithStock(type, notes, item, quantity)
+                    monitoring.logActivityWithStock(type, notes, item, quantity, taskId)
                 })
         }
         composable("inventory/{farmId}") { entry ->

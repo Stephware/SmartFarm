@@ -2,13 +2,13 @@
 
 > Sources: SmartFarm checkout, recent commits, implementation and test inventory
 > Raw: [Progress sources](../../raw/project/2026-10-27-progress-source.md); [Architecture sources](../../raw/project/2026-10-27-architecture-source.md); [Feature sources](../../raw/project/2026-10-27-features-source.md); [Android sources](../../raw/project/2026-10-27-android-source.md); [Automation sources](../../raw/project/2026-10-27-automation-source.md); [Host test fixes and results](../../raw/project/2026-10-27-host-test-fixes.md); [Merged test fixes](../../raw/project/2026-10-27-host-test-merge.md); [JPEG fixture and photo verification](../../raw/project/2026-10-27-valid-jpeg-photo-fixture.md); [Functional E2E evidence](../../raw/project/2026-10-27-functional-e2e.md); [PR48 review evidence](../../raw/project/2026-10-28-pr48-review.md); [PR48 fix and merge](../../raw/project/2026-10-28-pr48-fix-and-merge.md); [Current audit](../../raw/project/2026-11-11-documentation-audit.md); [PR61–78 metadata](../../raw/project/2026-11-11-pr61-78-metadata.md); [Documentation verification](../../raw/project/2026-11-11-documentation-verification.md); [Reference frontend merge](../../raw/project/2026-11-11-reference-frontend-merge.md); [Publication source check](../../raw/project/2026-11-12-documentation-publication.md)
-> Updated: 2026-11-12
+> Updated: 2026-11-13
 
 **Source scope:** Earlier detailed audit/acceptance is dated below. For source
 changes through `dev` at `3c5a8b0`, see [current source status](current-source-status.md),
 which supersedes conflicting baseline UI, admin, CI and schema statements.
 
-> **New planned work (2026-11-13, documentation only):** [MVP simplification](mvp-simplification.md) and [execution plan](../../../../docs/superpowers/plans/2026-11-13-mvp-simplification.md). No simplified feature is implemented/verified by writing the plan. Older PR history below remains historical.
+> **MVP status (2026-11-13):** [MVP simplification](mvp-simplification.md) and [execution plan](../../../../docs/superpowers/plans/2026-11-13-mvp-simplification.md). Stages 0–2 merged; Stage 3 short recording flows implemented and locally verified. See the MVP article/plan for current evidence and remaining stages. Older PR history below remains historical.
 
 ## Reviewed baseline
 

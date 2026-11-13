@@ -151,12 +151,12 @@ class MonitoringViewModel(private val repository: MonitoringRepository,
         }
     }
 
-    fun logActivity(kind: Int, notes: String) = submit("activity") { farmId, cycleId ->
-        sync.queueActivity(farmId, cycleId, ActivityInputDto(kind, notes.trim().ifBlank { null }))
+    fun logActivity(kind: Int, notes: String, taskId: String? = null) = submit("activity") { farmId, cycleId ->
+        sync.queueActivity(farmId, cycleId, ActivityInputDto(kind, notes.trim().ifBlank { null }, taskId))
     }
 
     fun logActivityWithStock(
-        kind: Int, notes: String, item: InventoryItemDto, quantity: String
+        kind: Int, notes: String, item: InventoryItemDto, quantity: String, taskId: String? = null
     ) = submit("activity_stock") { farmId, cycleId ->
         val used = quantity.trim().toBigDecimal()
         require(kind in 2..3 &&
@@ -165,7 +165,7 @@ class MonitoringViewModel(private val repository: MonitoringRepository,
             used > BigDecimal.ZERO && used.scale() <= 3 &&
             used <= item.quantityOnHand && item.rowVersion.isNotBlank())
         sync.queueActivityWithStock(farmId, cycleId, ActivityStockInputDto(
-            ActivityInputDto(kind, notes.trim().ifBlank { null }),
+            ActivityInputDto(kind, notes.trim().ifBlank { null }, taskId),
             inventoryItemId = item.id, quantityUsed = used,
             rowVersion = item.rowVersion
         ))

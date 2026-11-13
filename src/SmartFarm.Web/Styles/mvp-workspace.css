@@ -3,6 +3,8 @@
   .sidebar-links a.farm-nav-secondary { margin-top: 16px; border-top: 1px solid var(--ui-nav-selected); border-radius: 0; padding-top: 16px; }
   .mvp-farm-navigation > .farm-nav-secondary { border-inline-start: 1px solid var(--stroke); }
   .mvp-task-action, .mvp-today .form-notice a, .mvp-crop-history a { display: inline-flex; align-items: center; min-height: 44px; padding-block: 8px; }
+  .mvp-unsubmitted-draft dt { margin-top: 12px; font-weight: 650; }
+  .mvp-unsubmitted-draft dd { margin-inline-start: 0; white-space: pre-wrap; overflow-wrap: anywhere; }
   .mvp-farm-context { font-weight: 650; color: var(--text); }
   .ani12d-crop-tabs { flex-wrap: wrap; overflow: visible; }
   .mvp-crop-counts { margin: 20px 0 0; color: var(--muted); font-size: .875rem; }

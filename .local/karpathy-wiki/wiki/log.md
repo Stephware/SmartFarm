@@ -152,3 +152,15 @@ Four primary farm sections, integrated plot/crop history and simpler Today/Suppl
 ## 2026-11-13 — MVP Stage 2 Android navigation
 
 Three native primary entries and a simpler existing Record sheet; My Farm groups required records with account/management/sync secondary. Native tests, scoped live disposable-API inspection and review recorded in the MVP article/plan; appended sanitized evidence. No business/API/Room/schema changes; CI remains the merge gate.
+
+## 2026-11-13 ingest | MVP Stage 3 recording
+- Disposition: Update
+- Raw: raw/project/2026-11-13-mvp-stage-3.md
+- Updated: MVP simplification; current progress; index and execution status.
+- Short forms, exact task envelopes, atomic MVC supply use and rejected-draft recovery verified; no API/schema/business-service changes. Stage 2 merged with seven green checks; Stage 4 remains next after Stage 3 gates. Private runtime evidence stays excluded.
+
+## 2026-11-13 ingest | Stage 3 CI test isolation
+- Disposition: Update
+- Raw: raw/project/2026-11-13-mvp-stage-3-ci.md
+- Updated: MVP simplification.
+- Fixed the recovery factory's missing inventory stub; full no-database and strict SQL suites passed. Application source unchanged.

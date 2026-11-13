@@ -52,3 +52,36 @@
         window.addEventListener('pagehide', release, { once: true });
     });
 })();
+
+// Enhance the same server-validated forms; without JavaScript their details remain available.
+(() => {
+    document.querySelectorAll('[data-inspection-form]').forEach(form => {
+        const health = form.querySelector('[name="Observation.HealthStatus"]');
+        const details = form.querySelector('[data-inspection-issues]');
+        if (!health || !details) return;
+        const fields = [...details.querySelectorAll('select')];
+        const update = () => {
+            const relevant = Number(health.value) >= 2 || fields.some(field => Number(field.value) !== 0);
+            details.hidden = !relevant;
+            if (relevant) details.open = true;
+            fields.forEach(field => { field.disabled = !relevant; });
+        };
+        health.addEventListener('change', update);
+        fields.forEach(field => field.addEventListener('change', update));
+        update();
+    });
+    document.querySelectorAll('[data-activity-form]').forEach(form => {
+        const selection = form.querySelector('[name="Supply.Selection"]');
+        const fields = form.querySelector('[data-supply-fields]');
+        const quantity = form.querySelector('[name="Supply.QuantityUsed"]');
+        if (!selection || !fields || !quantity) return;
+        const update = () => {
+            const used = !!selection.value;
+            fields.hidden = !used;
+            fields.querySelectorAll('input').forEach(field => { field.disabled = !used; });
+            quantity.required = used;
+        };
+        selection.addEventListener('change', update);
+        update();
+    });
+})();

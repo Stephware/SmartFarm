@@ -19,6 +19,7 @@ class FarmNavigationModelTest {
         assertEquals(false, requiresExitConfirmation("more/{farmId}"))
         assertEquals(false, requiresExitConfirmation("myfarm/{farmId}"))
         assertEquals(true, requiresExitConfirmation("monitor/{farmId}/{cycleId}?quick={quick}"))
+        assertEquals(true, requiresExitConfirmation("monitor/{farmId}/{cycleId}?quick={quick}&taskId={taskId}"))
         assertEquals(true, requiresExitConfirmation("crops/{farmId}"))
         assertEquals(true, requiresExitConfirmation("farm/{farmId}/{section}"))
         assertEquals(false, requiresExitConfirmation("farm/{farmId}/{section}", "weather"))
@@ -42,4 +43,15 @@ class FarmNavigationModelTest {
         assertNull(quickRecordRoute("farm","unsupported","cycle"))
         assertEquals("monitor/farm/cycle?quick=other", quickRecordRoute("farm","other","cycle"))
     }
+    @Test fun explicitTaskLinksOnlyUseSupportedActivityContracts() {
+        for (kind in listOf("watering", "fertilizing")) {
+            assertEquals("monitor/farm/cycle?quick=$kind&taskId=task-id",
+                quickRecordRoute("farm", kind, "cycle", "task-id"))
+        }
+        assertEquals("monitor/farm/cycle?quick=inspection", quickRecordRoute("farm", "inspection", "cycle", "task-id"))
+        assertEquals("harvests/farm/cycle", quickRecordRoute("farm", "harvest", "cycle", "task-id"))
+        assertEquals("monitor/farm/cycle?quick=watering&taskId=task%26other%3D1",
+            quickRecordRoute("farm", "watering", "cycle", "task&other=1"))
+    }
+
 }

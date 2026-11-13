@@ -82,6 +82,7 @@ fun MonitoringScreen(
     onSync: () -> Unit = {},
     onRetry: () -> Unit = {},
     quick: String = "",
+    cropLabel: String? = null, linkedTask: Boolean = false,
     onIssueObservation: (Int, String, String, Int, Int, Uri?) -> Unit = { _, _, _, _, _, _ -> },
     canManageIssues: Boolean = false,
     taskOptions: List<TaskDto> = emptyList(),
@@ -186,7 +187,12 @@ fun MonitoringScreen(
         item(key = "forms") {
             Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
             OutlinedButton(onClick = onBack) { Text("Back") }
-            FarmHero("Crop monitoring", "Record today's work, inspect crops, or review past records.")
+            FarmHero(when (quick) {
+                "watering" -> "Record watering"; "fertilizing" -> "Apply fertilizer"
+                "inspection" -> "Inspect crop"; "other" -> "Other fieldwork"; else -> "Crop monitoring"
+            }, cropLabel ?: "Selected crop · Record fieldwork, inspections and history.")
+            if (linkedTask) Text("Linked to your selected task. Completion is confirmed only after sending.",
+                style = MaterialTheme.typography.bodyMedium)
             if (state.busy) CircularProgressIndicator()
             state.error?.let {
                 Text(it, color = MaterialTheme.colorScheme.error, modifier = Modifier.semantics { liveRegion = LiveRegionMode.Assertive })
@@ -220,6 +226,7 @@ fun MonitoringScreen(
                 FarmSectionCard("Record farm activity",
                     subtitle = "Choose an activity and save the work to this crop cycle.") {
                 val activities = listOf("Watering", "Fertilizing", "Pesticide", "Weeding", "Other")
+                if (quick !in setOf("watering", "fertilizing")) {
                 Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                     activities.take(2).forEachIndexed { index, label ->
                         FilterChip(selected = activityType == index + 1,
@@ -246,6 +253,10 @@ fun MonitoringScreen(
                             modifier = Modifier.defaultMinSize(minHeight = 48.dp),
                             label = { Text("Other") })
                     }
+                }
+                } else {
+                    Text(if (quick == "watering") "Watering" else "Fertilizer application",
+                        style = MaterialTheme.typography.titleMedium)
                 }
                 // Editable note guides: never save guessed work or invent inspection findings.
                 val noteGuide = when (activityType) {
@@ -347,7 +358,7 @@ fun MonitoringScreen(
                 FarmSectionCard("Record inspection / observation",
                     subtitle = "Check crop condition and attach a photo if available.") {
                 Text("How are the crops looking?", style = MaterialTheme.typography.labelLarge)
-                listOf("Not assessed", "Healthy", "Needs attention", "Critical")
+                listOf("Not sure", "Healthy", "Needs attention", "Critical")
                     .chunked(2).forEachIndexed { rowIndex, options ->
                         Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                             options.forEachIndexed { index, label ->

@@ -1442,6 +1442,120 @@
           "sha256": "0a219e3b49299e4ca712fcff52109d48bae8308d7c4da42e5704c0dcd679a16a"
         }
       ]
+    },
+    {
+      "date": "2026-11-13",
+      "revision": "c7412b665c5b48d2affcdc324f2ab68d2b0fc728 + Stage 3 working tree",
+      "snapshot": "raw/project/2026-11-13-mvp-stage-3.md",
+      "sha256": "73421f886b13e6d15c56b71b8f50be61728a8c10cb6bd3fb8631f1415cbcb1a3",
+      "scope": "MVP Stage 3 recording source, strict disposable regression and live transaction/visual evidence; remote checks tracked in PR.",
+      "source_files": [
+        {
+          "path": "mobile/SmartFarm.Android/app/src/androidTest/java/com/smartfarm/mobile/FullAppJourneyTest.kt",
+          "sha256": "ce9be2e2a89fcc09106f16e3ebc064db4b64871e4cfaecb177710ddedcec0091"
+        },
+        {
+          "path": "mobile/SmartFarm.Android/app/src/androidTest/java/com/smartfarm/mobile/QuickLoggingScreenTest.kt",
+          "sha256": "cc2c163688bf3474ecec83ed5e756c43311d36782e5c33326353b69ca806d69e"
+        },
+        {
+          "path": "mobile/SmartFarm.Android/app/src/androidTest/java/com/smartfarm/mobile/QuickRecordNavigationTest.kt",
+          "sha256": "a2bcf515ca3b3234b997cb8a45529d176403c031d30ed10fcf9ea1fec66e5c2f"
+        },
+        {
+          "path": "mobile/SmartFarm.Android/app/src/main/java/com/smartfarm/mobile/features/harvests/HarvestScreen.kt",
+          "sha256": "17c8602b6aa8cd48b6290eac3d379c21549a53d3b81c279ac5560a1137350d00"
+        },
+        {
+          "path": "mobile/SmartFarm.Android/app/src/main/java/com/smartfarm/mobile/features/monitoring/MonitoringScreens.kt",
+          "sha256": "8b608a4d2462fadc4a63b43670ea2c56c593504831455f297d4fd12fe6ceae2e"
+        },
+        {
+          "path": "mobile/SmartFarm.Android/app/src/main/java/com/smartfarm/mobile/features/monitoring/MonitoringViewModel.kt",
+          "sha256": "f8815b8716e9328d2795120fa0fbb83d0d90ba9cced463eed9f1b0271eb3c920"
+        },
+        {
+          "path": "mobile/SmartFarm.Android/app/src/main/java/com/smartfarm/mobile/navigation/FarmNavigationModel.kt",
+          "sha256": "8f87b3f2e068f53b8e3245235e3a0ee8b5eedf78a0e17a732f0dad54b215f137"
+        },
+        {
+          "path": "mobile/SmartFarm.Android/app/src/main/java/com/smartfarm/mobile/navigation/SmartFarmNavHost.kt",
+          "sha256": "40002b9f15c0eb36fd04aa44a0bff2b39dd3dd9172e4eabde020702433014b1d"
+        },
+        {
+          "path": "mobile/SmartFarm.Android/app/src/test/java/com/smartfarm/mobile/FarmNavigationModelTest.kt",
+          "sha256": "0133e926ab42d031f555ec3dbe83242779133fdd01170ede3a058d06424d5c22"
+        },
+        {
+          "path": "src/SmartFarm.Web/Controllers/HarvestsController.cs",
+          "sha256": "0ced47e4c771a3ed445c291f30a36103a3f3e7c212e145a8740a60f987aab9ea"
+        },
+        {
+          "path": "src/SmartFarm.Web/Controllers/MonitoringController.cs",
+          "sha256": "063a46dbb737593fd17a5a2011ae8504d754d29f2e8d58c934c179d1b2f31d4c"
+        },
+        {
+          "path": "src/SmartFarm.Web/Styles/mvp-workspace.css",
+          "sha256": "5b0e4b1a9093e4b2d9cb271a427746908116c30a7e53cfe73ac13807261096c0"
+        },
+        {
+          "path": "src/SmartFarm.Web/ViewModels/Harvests/HarvestPage.cs",
+          "sha256": "fe890bf33d558f15eac6ad2dee283ac7c70b304eff1f483008eaca8449277b34"
+        },
+        {
+          "path": "src/SmartFarm.Web/ViewModels/Monitoring/MonitoringWorkspaceViewModel.cs",
+          "sha256": "51795b00a61a8cec4b3e718ef76416d2327ce7480b8c921de13c246b54b13342"
+        },
+        {
+          "path": "src/SmartFarm.Web/Views/Harvests/Index.cshtml",
+          "sha256": "e020f5d9e9089f38ae0511d0ca4e60a5b28d618ace00d7f6805ea781cb8b3bc5"
+        },
+        {
+          "path": "src/SmartFarm.Web/Views/Monitoring/Index.cshtml",
+          "sha256": "9d923d6cc8fbd1aed0cda80dc5e8224a749ba2de2f9b404d94dfabebb0146e21"
+        },
+        {
+          "path": "src/SmartFarm.Web/wwwroot/css/anigo-tailwind.css",
+          "sha256": "f6ef1b5b23982ed06019b29acbbf60d01114c40ddfc723b5dbbb4776784b9927"
+        },
+        {
+          "path": "src/SmartFarm.Web/wwwroot/js/fieldwork.js",
+          "sha256": "031584934b0b921a387f73e2e1a5da7c6cb4260b7f5c3c2ef7f09f31a164fe99"
+        },
+        {
+          "path": "src/SmartFarm.Web/wwwroot/js/site.js",
+          "sha256": "f9ea0d852752cc07bc894319e32fb2d3320697c41b15ebd2e3dff0cce188e9d8"
+        },
+        {
+          "path": "tests/SmartFarm.Auth.Tests/FarmEnrollmentWebTests.cs",
+          "sha256": "b4bf80983df34a0b4f25a3b8e10d096218606c1fa9f31b12c249119264703f33"
+        },
+        {
+          "path": "tests/browser/baselines/review.json",
+          "sha256": "0503160e6b4df281b05648e4b199fbd40a60512a20cafbdae828efbcbe3ef88f"
+        },
+        {
+          "path": "tests/browser/phase12e-smoke.cjs",
+          "sha256": "26a689ea0234035619974c81f45ce245f0a9978a44e0a83a927272c929f338f5"
+        },
+        {
+          "path": "tests/web-ui/fieldwork-forms.test.cjs",
+          "sha256": "eb379ede55ea9ee3a438aab8596b81f964f13d7bb2fc499c529efbbb713fc98e"
+        }
+      ]
+    },
+    {
+      "date": "2026-11-13",
+      "revision": "2ebfa957ecc512a23ce5b042f6b9470e025281ac + CI test isolation",
+      "snapshot": "raw/project/2026-11-13-mvp-stage-3-ci.md",
+      "sha256": "d730c7db316d8f798f7376a8618afa07aaf0d0e96a4d8b1988cea80c94db5a91",
+      "scope": "CI no-database regression reproduction and deterministic recovery test factory fix; full local revalidation.",
+      "source_files": [
+        {
+          "path": "tests/SmartFarm.Auth.Tests/FormRecoveryTests.cs",
+          "sha256": "3544b5cd6454cccfbebe26c030ad23eadca05edd5d322ba691bc026fcb5270f4"
+        }
+      ]
     }
   ]
 }

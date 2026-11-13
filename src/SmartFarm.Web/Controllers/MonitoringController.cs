@@ -4,6 +4,8 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using SmartFarm.Core.Contracts.Farms;
 using SmartFarm.Core.Contracts.Monitoring;
+using SmartFarm.Core.Contracts.Inventory;
+using SmartFarm.Core.Interfaces.Inventory;
 using SmartFarm.Core.Enums;
 using SmartFarm.Core.Interfaces.Crops;
 using SmartFarm.Core.Interfaces.Farms;
@@ -24,19 +26,23 @@ public sealed class MonitoringController : Controller
     private readonly IFarmManagementService _farms;
     private readonly IMonitoringService _monitoring;
     private readonly IFarmTaskService _tasks;
+    private readonly IInventoryService _inventory;
+    private readonly IFieldworkStockService _fieldwork;
 
     public MonitoringController(
         UserManager<SmartFarmUser> users,
         ICropManagementService crops,
         IFarmManagementService farms,
         IMonitoringService monitoring,
-        IFarmTaskService tasks)
+        IFarmTaskService tasks, IInventoryService inventory, IFieldworkStockService fieldwork)
     {
         _users = users;
         _crops = crops;
         _farms = farms;
         _monitoring = monitoring;
         _tasks = tasks;
+        _inventory = inventory;
+        _fieldwork = fieldwork;
     }
 
     private Guid Actor => Guid.TryParse(_users.GetUserId(User), out var id)
@@ -44,16 +50,19 @@ public sealed class MonitoringController : Controller
 
     [HttpGet]
     public Task<IActionResult> Index(Guid farmId, Guid cycleId, CancellationToken ct,
-        string? quick = null, Guid? taskId = null) =>
-        Workspace(farmId, cycleId, ct,
+        string? quick = null, Guid? taskId = null)
+    {
+        if (!ModelState.IsValid) return Task.FromResult<IActionResult>(NotFound());
+        return Workspace(farmId, cycleId, ct,
             activity: new RecordActivityInput
             {
-                ActivityType = quick == "fertilizing" ? (byte)2 : (byte)1
-            }, requestedTaskId: taskId);
+                ActivityType = quick switch { "fertilizing" => (byte)2, "other" => (byte)5, _ => (byte)1 }
+            }, requestedTaskId: taskId, quick: quick);
+    }
 
     private async Task<IActionResult> Workspace(Guid farmId, Guid cycleId, CancellationToken ct,
         RecordActivityInput? activity = null, RecordObservationInput? observation = null,
-        Guid? requestedTaskId = null)
+        Guid? requestedTaskId = null, ActivitySupplyInput? supply = null, string? quick = null)
     {
         try
         {
@@ -80,9 +89,21 @@ public sealed class MonitoringController : Controller
                     (canManageIssues || t.AssignedToUserId == Actor))) return NotFound();
                 activity!.FarmTaskId = selectedTask;
             }
+            IReadOnlyList<InventoryItemDetails> supplies = [];
+            string? supplyError = null;
+            if (monitoring.CanRecord || supply?.UseStock == true)
+            {
+                try { supplies = (await _inventory.ListAsync(farmId, Actor, ct)).Items
+                    .Where(i => i.ArchivedAtUtc is null && i.Category is InventoryCategory.Fertilizers or InventoryCategory.Pesticides).ToArray(); }
+                catch (Exception e) when (e is DbException or HttpRequestException or FarmOperationException)
+                { supplyError = "Supplies unavailable. Refresh before recording supply use."; }
+            }
             return View("Index", new MonitoringWorkspaceViewModel(cycle,
                 monitoring, taskList)
             {
+                ErrorForm = !ModelState.IsValid ? (observation is not null ? "inspection" : "activity") : null,
+                Quick = quick is "watering" or "fertilizing" or "inspection" or "other" ? quick : null,
+                Supplies = supplies, Supply = supply ?? new(), SupplyError = supplyError,
                 CanManageIssues = canManageIssues,
                 ActorId = Actor,
                 Activity = activity ?? new() { ActivityType = 1 }, Observation = observation ?? new()
@@ -93,33 +114,54 @@ public sealed class MonitoringController : Controller
 
     [HttpPost, ValidateAntiForgeryToken]
     public async Task<IActionResult> Activity(Guid farmId, Guid cycleId,
-        [Bind(Prefix = "Activity")] RecordActivityInput input, CancellationToken ct)
+        [Bind(Prefix = "Activity")] RecordActivityInput input, CancellationToken ct,
+        [Bind(Prefix = "Supply")] ActivitySupplyInput supply, string? quick = null)
     {
+        if (!supply.UseStock && (supply.QuantityUsed is not null || !string.IsNullOrWhiteSpace(supply.Reason)))
+            ModelState.AddModelError("Supply.Selection", "Choose the supply used, or clear the unused supply fields.");
         if (!ModelState.IsValid)
         {
-            return await Workspace(farmId, cycleId, ct, activity: input);
+            return await Workspace(farmId, cycleId, ct, activity: input, supply: supply, quick: quick);
         }
         try
         {
-            await _monitoring.RecordActivityAsync(farmId, cycleId, Actor, input, ct);
-            TempData["Notice"] = "Activity saved to this crop's history.";
+            if (supply.UseStock)
+            {
+                var selection = supply.Selection?.Split(':', 2);
+                if (selection is not { Length: 2 } || !Guid.TryParse(selection[0], out var itemId))
+                {
+                    ModelState.AddModelError("Supply.Selection", "Choose a supply and review its available balance.");
+                    return await Workspace(farmId, cycleId, ct, activity: input, supply: supply, quick: quick);
+                }
+                await _fieldwork.RecordAsync(farmId, cycleId, Actor, new RecordActivityWithStockInput
+                {
+                    Activity = input, InventoryItemId = itemId, RowVersion = selection[1],
+                    QuantityUsed = supply.QuantityUsed ?? 0, Reason = supply.Reason
+                }, ct);
+                TempData["Notice"] = "Activity and supply use saved together.";
+            }
+            else
+            {
+                await _monitoring.RecordActivityAsync(farmId, cycleId, Actor, input, ct);
+                TempData["Notice"] = "Activity saved to this crop's history.";
+            }
         }
         catch (FarmOperationException error)
         {
             if (error.Error == FarmError.NotFound) return NotFound();
             ModelState.AddModelError("", error.Message);
-            return await Workspace(farmId, cycleId, ct, activity: input);
+            return await Workspace(farmId, cycleId, ct, activity: input, supply: supply, quick: quick);
         }
-        return RedirectToAction(nameof(Index), new { farmId, cycleId });
+        return RedirectToAction(nameof(Index), new { farmId, cycleId, quick });
     }
 
     [HttpPost, ValidateAntiForgeryToken]
     public async Task<IActionResult> Observation(Guid farmId, Guid cycleId,
-        [Bind(Prefix = "Observation")] RecordObservationInput input, CancellationToken ct)
+        [Bind(Prefix = "Observation")] RecordObservationInput input, CancellationToken ct, string? quick = null)
     {
         if (!ModelState.IsValid)
         {
-            return await Workspace(farmId, cycleId, ct, observation: input);
+            return await Workspace(farmId, cycleId, ct, observation: input, quick: quick);
         }
         try
         {
@@ -131,7 +173,7 @@ public sealed class MonitoringController : Controller
         {
             if (error.Error == FarmError.NotFound) return NotFound();
             ModelState.AddModelError("", error.Message);
-            return await Workspace(farmId, cycleId, ct, observation: input);
+            return await Workspace(farmId, cycleId, ct, observation: input, quick: quick);
         }
         return RedirectToAction(nameof(Index), new { farmId, cycleId });
     }
