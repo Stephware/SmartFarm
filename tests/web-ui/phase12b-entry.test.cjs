@@ -74,17 +74,17 @@ test("Farm creation keeps its required fields, timezone and opt-in map", () => {
 });
 test("Completion keeps create/join intent and mobile control usability", () => {
     const controller = read("Controllers/AccountController.cs");
-    assert.match(landing, /asp-route-returnUrl="\\@\\(signedIn \\? null : Url\\.Action\\("Create", "Farms"\\)\\)"/);
-    assert.match(landing, /#join-farm/);
-    assert.match(register, /asp-route-returnUrl="\\@nextUrl"/);
-    assert.match(register, /placeholder="Password"/);
-    assert.match(login, /asp-route-returnUrl="\\@ViewData\\["ReturnUrl"\\]"/);
-    assert.match(controller, /Url\\.IsLocalUrl\\(returnUrl\\)/);
-    assert.match(styles, /top: 50%/);
-    assert.match(styles, /min-height: 44px; min-width: 72px/);
-    assert.match(styles, /max-width:420px/);
-    assert.match(styles, /list-style: disclosure-closed inside/);
-    assert.match(landing, /Photo credits and sources/);
+    assert.ok(landing.includes('asp-route-returnUrl="@(signedIn ? null : Url.Action("Create", "Farms"))"'));
+    assert.ok(landing.includes('#join-farm'));
+    assert.ok(register.includes('asp-route-returnUrl="@nextUrl"'));
+    assert.ok(register.includes('placeholder="Password"'));
+    assert.ok(login.includes('asp-route-returnUrl="@ViewData["ReturnUrl"]"'));
+    assert.ok(controller.includes('Url.IsLocalUrl(returnUrl)'));
+    assert.ok(styles.includes('top: 50%'));
+    assert.ok(styles.includes('min-height: 44px; min-width: 72px'));
+    assert.ok(styles.includes('max-width:420px'));
+    assert.ok(styles.includes('list-style: disclosure-closed inside'));
+    assert.ok(landing.includes('Photo credits and sources'));
 });
 
 test("New visual composition remains scoped and respects responsive / reduced motion", () => {
