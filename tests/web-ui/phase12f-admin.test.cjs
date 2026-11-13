@@ -39,6 +39,9 @@ test("Super Admin routes remain visible on desktop and mobile with active state"
     assert.match(layout, /id="main-content"/);
 });
 test("Administrative controls preserve auditing, MFA and explicit confirmations", () => {
+    const userDirectory = read("Areas/Admin/Views/Users/Index.cshtml");
+    assert.match(userDirectory, /class="page-heading admin-page-heading"/);
+    assert.match(userDirectory, /PLATFORM DIRECTORY/);
     const users = read("Areas/Admin/Views/Users/Details.cshtml");
     const farms = read("Areas/Admin/Views/Farms/Details.cshtml");
     const support = read("Areas/Admin/Views/Support/Details.cshtml");
