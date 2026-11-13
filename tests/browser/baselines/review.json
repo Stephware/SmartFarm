@@ -1,5 +1,5 @@
 {
-  "reviewed": false,
+  "reviewed": true,
   "sourceHashes": {
     "wwwroot/css/anigo-tailwind.css": "090f2f6e0582eb372b9e4fc64285c09f5584e510b3cc0cf2943d063421b5a20a",
     "Views/Shared/_Layout.cshtml": "20995ee27c7391cc482027e22575978f2b45ba7afb80695200409544afcb2d6c",
@@ -23,5 +23,5 @@
     "login": "/Account/Login",
     "registration": "/Account/Register"
   },
-  "note": "Review the generated candidate images before changing reviewed to true."
+  "note": "Phase 12F (Nov 13, 2026): 30 public Chromium baseline screenshots regenerated at 320/375/768/1024/1440 in light and dark, with representative landing, login, and registration screenshots reviewed for image crops, spacing and contrast. 120 real Razor Super Admin render combinations were tested with synthetic data in pinned Chromium, including sidebar and mobile navigation, form touch targets, report-table containment, overflow, script errors and serious/critical WCAG 2.x failures. Representative overview, users, farms, monitoring, audit, reports and security screenshots reviewed in tests/browser/phase12f-review. No real keys, private farm records, production data, or physical-device testing. All legacy farm roles and MFA authorization policies remain unchanged."
 }
