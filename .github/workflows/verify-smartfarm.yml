@@ -100,6 +100,14 @@ jobs:
         env:
           SMARTFARM_BROWSER_BASE_URL: http://127.0.0.1:5082
         run: node tests/browser/web-smoke.cjs
+      - name: Capture deterministic authenticated MVC pages
+        env:
+          ANIGO_CAPTURE_AUTH_FIXTURES: "1"
+        run: dotnet test tests/SmartFarm.Auth.Tests/SmartFarm.Auth.Tests.csproj --configuration Release --filter "FullyQualifiedName~Phase12BAuthenticatedBrowserFixtures"
+      - name: Check authenticated farm onboarding in Chromium
+        env:
+          SMARTFARM_BROWSER_BASE_URL: http://127.0.0.1:5082
+        run: node tests/browser/authenticated-smoke.cjs
       - name: Upload browser screenshots and startup log
         if: always()
         uses: actions/upload-artifact@v4
