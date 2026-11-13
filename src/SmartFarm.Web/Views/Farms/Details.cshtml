@@ -85,7 +85,7 @@
                         <strong>@plot.Name</strong>
                         <span class="sf-muted">@plot.AreaSqMeters.ToString("N2") m²</span>
                         <a asp-controller="Crops" asp-action="Index" asp-route-farmId="@Model.Farm.Id"
-                           asp-route-plotId="@plot.Id" asp-fragment="planting-plans-heading">Open crop planning for this plot →</a>
+                           asp-route-plotId="@plot.Id" asp-fragment="planting-plans-heading">View crops for this plot →</a>
                     </div>
                     @if (canManage)
                     {
