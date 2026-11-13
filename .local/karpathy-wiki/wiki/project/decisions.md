@@ -8,6 +8,10 @@
 changes through `dev` at `3c5a8b0`, see [current source status](current-source-status.md),
 which supersedes conflicting baseline UI, admin, CI and schema statements.
 
+## Approved product simplification — planned 2026-11-13
+
+User selected the farmer-first MVP scope: four primary MVC farm sections and three Android main destinations, with finance, broad analytics, redundant plot/timeline routes and platform communication features slated for retirement after dependency review. **This is a planning decision, not implemented behavior.** Security bearer/refresh tokens are not Codex usage tokens and are not to be removed. See [MVP decision](mvp-simplification.md) and [execution plan](../../../../docs/superpowers/plans/2026-11-13-mvp-simplification.md). The source-derived decisions below still constrain safe refactoring.
+
 ## Explicit decisions present in the repository
 
 | Decision | Evidence and implication |

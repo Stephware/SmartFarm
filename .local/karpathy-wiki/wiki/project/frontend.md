@@ -8,6 +8,8 @@
 changes through `dev` at `3c5a8b0`, see [current source status](current-source-status.md),
 which supersedes conflicting baseline UI, admin, CI and schema statements.
 
+> **Planned UX simplification:** [MVP scope decision](mvp-simplification.md). Target Web navigation is Today / Crops & Calendar / Supplies / Harvests; Android is Today / Record / My Farm. The five-tab Android and nine-link MVC descriptions below remain **current implemented source** until refactoring; do not add more UI layers or preserve old sections merely for parity. Note: `PRODUCT.md` now exists, superseding historical "no PRODUCT.md" guidance in the dated record.
+
 ## Current visual and interaction system
 
 The current implemented look reconstructs the supplied AniGo reference in Harvest
@@ -68,8 +70,9 @@ physical-device and production/provider acceptance remain unverified.
 
 Use the installed `impeccable` skill for UI design, audit or refinement. Run its
 context command once, select only the relevant playbook and platform guidance,
-and follow its actual prerequisites. This checkout has incumbent UI but no
-`PRODUCT.md` or `DESIGN.md`. That is context status, not permission to invent product
+and follow its actual prerequisites. This checkout now has `PRODUCT.md` (2026-11-13) defining the planned MVP
+simplification; no additional design-spec document is required solely to explain
+that decision. That is context status, not permission to invent product
 requirements or redesign during a documentation task. New-surface/redesign flows
 require the skill's product-context step; narrow refinements can use incumbent
 code as its instructions permit. Browser-only tools do not apply to native Compose.

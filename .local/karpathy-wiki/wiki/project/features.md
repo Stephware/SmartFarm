@@ -8,6 +8,8 @@
 changes through `dev` at `3c5a8b0`, see [current source status](current-source-status.md),
 which supersedes conflicting baseline UI, admin, CI and schema statements.
 
+> **Product scope reset (planned):** [farmer-first MVP](mvp-simplification.md). The table below is a source inventory of features currently implemented; it is **not** a mandate to preserve finance, specialized plot/timeline screens, advanced insights, public announcements or support tickets in the future UI. Do not alter underlying records until the dependency/retention review.
+
 ## Status meaning
 
 This is the current source inventory, not a new runtime acceptance result.

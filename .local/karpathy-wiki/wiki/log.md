@@ -128,3 +128,17 @@
 - New: Current source status.
 - Updated: Index; active source articles and their current-source cross-references; runbooks and agent/workflow guidance.
 - Publish documentation on current dev with Node/Tailwind/browser CI, admin/MFA, navigation and extended-schema limits accurately scoped. Historical immutable evidence is preserved; no fresh runtime acceptance or schema execution claimed.
+
+
+## [2026-11-13] decision | Farmer-first MVP reset (planning only)
+- Disposition: New decision and staged Codex handoff; **no application change**.
+- Basis: explicit user scope decision; read-only review of current `dev` at `29c55166`, MVC nine-link farm navigation, Android five-tab + More navigation, actual recording/offline/Worker code.
+- Created: `wiki/project/mvp-simplification.md` and an executable staged plan at `docs/superpowers/plans/2026-11-13-mvp-simplification.md`.
+- Updated: `PRODUCT.md`, `AGENTS.md`, README and relevant wiki navigation/context to distinguish implemented old features from future MVP target.
+- No raw source evidence snapshot added because this entry records a **user product decision**, not a new verification run. Historical raw snapshots, source hashes and manifest provenance remain untouched.
+- Token-efficiency note: short canonical context reduces duplicated Codex prompting; cannot eliminate paid/model tokens and does not authorize removing secure API credentials.
+- Verification: document links, scope consistency, Git diff and applicable CI to be checked on the PR; no SQL, API, emulator, Worker, data or deployment claims.
+
+## 2026-11-13 — MVP Stage 0 verified locally
+
+Updated the MVP article and existing execution plan with active callers, safe retention boundaries and the current regression baseline. Added sanitized evidence and appended manifest provenance. No application/schema changes; Stage 1 remains next.

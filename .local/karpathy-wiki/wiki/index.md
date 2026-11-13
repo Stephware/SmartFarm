@@ -1,5 +1,7 @@
 # Knowledge Base Index
 
+> **Current planned direction (2026-11-13):** [Farmer-first MVP simplification](project/mvp-simplification.md). Implementation is pending. Read [PRODUCT.md](../../../PRODUCT.md) and [the execution plan](../../../docs/superpowers/plans/2026-11-13-mvp-simplification.md) for Codex work. Prior source pages document the existing implementation, not the desired next UX.
+
 SmartFarm source-backed development knowledge: full audit at `ac624be`, with the
 reference frontend verification at `ae06ab2` and source publication checks through
 `dev` at `3c5a8b0`. Start with [current source status](project/current-source-status.md).
@@ -15,6 +17,7 @@ Architecture, behavior, conventions, decisions and dated implementation evidence
 
 | Article | Summary | Updated |
 | --- | --- | --- |
+| [MVP simplification](project/mvp-simplification.md) | Stage 0 inventory verified; four-section MVC / three-destination Android implementation remains planned | 2026-11-13 |
 | [Current source status](project/current-source-status.md) | Publication delta: admin/MFA, Android navigation, Tailwind, CI and extended-schema verifier limits | 2026-11-12 |
 | [Architecture](project/architecture.md) | Independent hosts, service boundaries, live farm access and private media | 2026-11-12 |
 | [Features](project/features.md) | Implemented modules, roles and critical business rules | 2026-11-12 |

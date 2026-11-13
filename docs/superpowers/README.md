@@ -1,13 +1,16 @@
 # SmartFarm engineering workflow
 
+> **Current goal (planned, 2026-11-13):** [Farmer-first MVP](../../PRODUCT.md) and [execution stages](plans/2026-11-13-mvp-simplification.md). Old UI phase documents are historical; don't expand/retain old finance, plot-layout, timeline or analytics UI just because they appear in those plans. Run only relevant skills and validations to avoid needless Codex context.
+
+
 Baseline review at `ac624be`; publication source check at `3c5a8b0` on 2026-11-12.
 See [current source status](../../.local/karpathy-wiki/wiki/project/current-source-status.md) for later source deltas. This is project guidance for the
 installed skills, not a replacement for their instructions or an application plan.
 Start with [AGENTS.md](../../AGENTS.md) and the [knowledge index](../../.local/karpathy-wiki/wiki/index.md).
 
-## One complementary workflow
+## Choose the necessary workflow steps
 
-**Karpathy → Superpowers → Ponytail → Impeccable (for UI/UX) → Testing → Knowledge Update**
+**Default: read PRODUCT + current plan stage → inspect relevant source → implement minimally → test → update relevant knowledge.** Invoke Karpathy, Superpowers, Ponytail, or Impeccable only when their skills actually apply; don't invoke all of them for routine edits.
 
 Use each tool for its responsibility. Read its installed `SKILL.md` when applicable;
 do not run every process for every task or duplicate a plan/checklist across tools.
