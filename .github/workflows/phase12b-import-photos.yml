@@ -25,11 +25,11 @@ jobs:
           mkdir -p src/SmartFarm.Web/wwwroot/images/photography
           cd src/SmartFarm.Web/wwwroot/images/photography
           curl --fail --location --retry 3 --silent --show-error \
-            'https://images.unsplash.com/photo-1677126138830-ca9d01b53ed5?fit=crop&w=1800&h=1150&q=76&fm=webp' -o fields-hero.webp
+            'https://images.unsplash.com/photo-1677126138830-ca9d01b53ed5?fit=crop&w=1440&h=960&q=62&fm=webp' -o fields-hero.webp
           curl --fail --location --retry 3 --silent --show-error \
-            'https://images.unsplash.com/photo-1769430896895-577cab9060ba?fit=crop&w=1100&h=1300&q=74&fm=webp' -o farmers-working.webp
+            'https://images.unsplash.com/photo-1769430896895-577cab9060ba?fit=crop&w=900&h=1120&q=62&fm=webp' -o farmers-working.webp
           curl --fail --location --retry 3 --silent --show-error \
-            'https://images.unsplash.com/photo-1730697897470-0efaee4922de?fit=crop&w=1100&h=900&q=74&fm=webp' -o fields-detail.webp
+            'https://images.unsplash.com/photo-1730697897470-0efaee4922de?fit=crop&w=1000&h=760&q=62&fm=webp' -o fields-detail.webp
           for image in *.webp; do
             test "$(wc -c < "$image")" -gt 4000
             test "$(wc -c < "$image")" -lt 550000
