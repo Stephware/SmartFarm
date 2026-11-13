@@ -17,7 +17,7 @@ Architecture, behavior, conventions, decisions and dated implementation evidence
 
 | Article | Summary | Updated |
 | --- | --- | --- |
-| [MVP simplification (planned)](project/mvp-simplification.md) | Approved four-section MVC / three-destination Android scope, retirement boundaries and invariants | 2026-11-13 |
+| [MVP simplification](project/mvp-simplification.md) | Stage 0 inventory verified; four-section MVC / three-destination Android implementation remains planned | 2026-11-13 |
 | [Current source status](project/current-source-status.md) | Publication delta: admin/MFA, Android navigation, Tailwind, CI and extended-schema verifier limits | 2026-11-12 |
 | [Architecture](project/architecture.md) | Independent hosts, service boundaries, live farm access and private media | 2026-11-12 |
 | [Features](project/features.md) | Implemented modules, roles and critical business rules | 2026-11-12 |

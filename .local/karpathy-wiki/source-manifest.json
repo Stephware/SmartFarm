@@ -1323,6 +1323,59 @@
           "sha256": "92284f3bd70fa12e0aa383509deef12883026becbb2ca2404b4d9ac1b4439b7e"
         }
       ]
+    },
+    {
+      "date": "2026-11-13",
+      "revision": "29c55166f390efacfd5f717af98f506d50873dd5",
+      "snapshot": "raw/project/2026-11-13-mvp-stage-0.md",
+      "sha256": "fc2a5201d839c2d55da8aafcaea354c0de3cebdcbe894b96e578f1b971f4f687",
+      "scope": "MVP Stage 0 dependency/retention inventory and current local regression baseline; no application changes or production acceptance.",
+      "source_files": [
+        {
+          "path": "src/SmartFarm.Web/Views/Shared/_FarmNavigation.cshtml",
+          "sha256": "d47c91b2949f0ca7235b9b59a7b71d4a53da522e4c58c0ef2056560e257750da"
+        },
+        {
+          "path": "src/SmartFarm.Web/wwwroot/js/farm-navigation.js",
+          "sha256": "8c0c92d4d40c95e2099c8525288ca2bcf8a87f788bc19607578c845cee88f20a"
+        },
+        {
+          "path": "src/SmartFarm.Api/Controllers/FarmFinanceController.cs",
+          "sha256": "87c3a8906ca3a19f01e6aeb5438c82a3f169986eac6af3f9fd54e201cb25f475"
+        },
+        {
+          "path": "src/SmartFarm.Api/Controllers/SyncOperationsController.cs",
+          "sha256": "46bb9be57f7a98cd4c3d9a09bfc346b4324c83567c93b0fc750b493279a22386"
+        },
+        {
+          "path": "src/SmartFarm.Infrastructure/Persistence/SmartFarmDbContext.cs",
+          "sha256": "9b9aa069a8e6f91bb01ef56dc0d6c1b9fc24386097c3650eac2e1b620e0de6a0"
+        },
+        {
+          "path": "src/SmartFarm.Infrastructure/Persistence/Migrations/SmartFarmDbContextModelSnapshot.cs",
+          "sha256": "4709ac9f8db98c2ed33a353846891b9a5b9b84ec1db9ce1362898d3e4d7875c2"
+        },
+        {
+          "path": "mobile/SmartFarm.Android/app/src/main/java/com/smartfarm/mobile/navigation/FarmWorkspaceBar.kt",
+          "sha256": "e486d21f177afeb92602e4f85acb1293fce9293ab8b462e94f8c0d5d7bd5b985"
+        },
+        {
+          "path": "mobile/SmartFarm.Android/app/src/main/java/com/smartfarm/mobile/navigation/SmartFarmNavHost.kt",
+          "sha256": "e984276d43e709e161a1e2315c758971b2d169a76424d35f470d11dd7c295e9d"
+        },
+        {
+          "path": "mobile/SmartFarm.Android/app/src/main/java/com/smartfarm/mobile/data/remote/api/FarmInsightsApi.kt",
+          "sha256": "0397dbcbc66f6a67153309720373606f5a48baef570586e1f086825f2f1b3406"
+        },
+        {
+          "path": "mobile/SmartFarm.Android/app/src/main/java/com/smartfarm/mobile/data/sync/SyncRepository.kt",
+          "sha256": "830887c5d6970acf34dd1ac51e103b8d4fc7668d58de49bf57f6b2fb4d3b2b2b"
+        },
+        {
+          "path": ".github/workflows/verify-smartfarm.yml",
+          "sha256": "ce1e4e4b42299ad8d40104cf454e47c04fc1f10e489554fa5702d8435432f2fe"
+        }
+      ]
     }
   ]
 }
