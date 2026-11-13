@@ -61,6 +61,17 @@ async function checkAccessibility(page, screen, viewport) {
             page.on("pageerror", error => errors.push(error.message));
             try {
                 await checkPage(page, "/", "Every farm, crop, and harvest in one place.");
+                if (label === "phone") {
+                    const photos = page.locator('img[src*="/images/photography/"]');
+                    assert.ok(await photos.count() >= 2, "the landing must render actual farm photography");
+                    for (const asset of ["fields-hero.webp", "farmers-working.webp", "fields-detail.webp"]) {
+                        const response = await page.request.get(
+                            new URL("/images/photography/" + asset, base).href);
+                        assert.equal(response.status(), 200, asset + " must be self-hosted");
+                        assert.match(response.headers()["content-type"] || "", /image\/webp/);
+                        assert.ok((await response.body()).length >= 4000, asset + " must not be empty");
+                    }
+                }
                 if (label === "phone" || label === "desktop")
                     await checkAccessibility(page, "landing", label);
                 await page.screenshot({ path: path.join(screenshots, `landing-${label}.png`), fullPage: true });

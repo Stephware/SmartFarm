@@ -2,46 +2,45 @@
 @{
     ViewData["Title"] = "Register";
 }
-<div class="auth-layout">
-    <aside class="auth-intro">
-
-        <h2>A simpler way to manage your farm.</h2>
-        <p>Set up your own farm or request to join an existing farm using its owner's code.</p>
-        <div class="ani-auth-illustration" aria-hidden="true">
-            <img src="@Url.Content("~/images/crops/sprout.svg")" alt="" width="120" height="120" />
-            <img src="@Url.Content("~/images/crops/corn.svg")" alt="" width="120" height="120" />
-            <img src="@Url.Content("~/images/crops/rice.svg")" alt="" width="120" height="120" />
+<div class="auth-layout ani-entry-auth-layout">
+    <aside class="auth-intro ani-entry-auth-visual">
+        <img class="ani-entry-auth-photo" src="~/images/photography/farmers-working.webp"
+             alt="" width="900" height="1120" loading="lazy" decoding="async" />
+        <div class="ani-entry-auth-visual-content">
+            <span class="ani-entry-auth-kicker">ANI GO / GROW TOGETHER</span>
+            <h2>One good place to start. Everything you need to keep growing.</h2>
+            <p>Build your own farm workspace or request access to a team you're already working with.</p>
+            <span class="ani-entry-auth-caption">Agricultural photography for illustration only</span>
         </div>
-        <div class="auth-intro-foot">One account can access multiple farms.</div>
     </aside>
-    <section class="panel auth-card" aria-labelledby="register-heading">
+    <section class="panel auth-card ani-entry-auth-card" aria-labelledby="register-heading">
         <div class="auth-heading">
-
+            <p class="ani-entry-eyebrow">YOUR FIRST STEP</p>
             <h1 id="register-heading">Create your account</h1>
-            <p>First, create your account. Next, choose whether to create or join a farm.</p>
-            <ol class="ani-auth-steps" aria-label="Getting started">
-                <li><strong>1. Account</strong><span class="ani-step-now">You're here</span></li>
+            <p>Set up your account first, then choose to create a farm or request to join one.</p>
+            <ol class="ani-auth-steps ani-entry-registration-steps" aria-label="Getting started">
+                <li aria-current="step"><strong>1. Account</strong><span class="ani-step-now">You're here</span></li>
                 <li><strong>2. Farm</strong><span>Create or request access</span></li>
-                <li><strong>3. Work</strong><span>Start managing or recording</span></li>
+                <li><strong>3. Work</strong><span>Get started</span></li>
             </ol>
         </div>
         <form method="post" asp-action="Register" asp-controller="Account" class="auth-form">
             <div class="form-field">
                 <label asp-for="FullName">Full name</label>
-                <input asp-for="FullName" autocomplete="name" required />
+                <input asp-for="FullName" autocomplete="name" required placeholder="Your full name" />
                 <span asp-validation-for="FullName" class="error"></span>
             </div>
             <div class="form-field">
                 <label asp-for="Email"></label>
                 <input asp-for="Email" type="email" autocomplete="email" inputmode="email"
-                       autocapitalize="none" spellcheck="false" required />
+                       autocapitalize="none" spellcheck="false" required placeholder="you@example.com" />
                 <span asp-validation-for="Email" class="error"></span>
             </div>
             <div class="form-field">
                 <label asp-for="Password"></label>
                 <div class="ani-password-field">
                     <input asp-for="Password" type="password" autocomplete="new-password"
-                           aria-describedby="password-guidance" required minlength="10" />
+                           aria-describedby="password-guidance" required minlength="10" placeholder="Create a secure password" />
                     <button type="button" class="ani-password-toggle" data-password-toggle
                             aria-controls="Password" aria-pressed="false">Show</button>
                 </div>

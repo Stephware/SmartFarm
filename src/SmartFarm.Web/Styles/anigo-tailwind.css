@@ -13,6 +13,7 @@
 @import "../wwwroot/css/reference-ui.css" layer(legacy);
 @import "../wwwroot/css/admin.css" layer(legacy);
 @import "./anigo-foundation.css";
+@import "./anigo-entry.css";
 @import "tailwindcss/theme.css" layer(theme) prefix(tw);
 @import "tailwindcss/utilities.css" layer(utilities) prefix(tw) source(none);
 @source "../Views";
