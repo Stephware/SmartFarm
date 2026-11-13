@@ -20,7 +20,12 @@ const screens = [
     ["farm-create", "/Farms/Create"],
     ["farm-edit", "/Farms/Edit?id=123"],
     ["farm-detail-new", "/Farms/Details?id=123"],
-    ["farm-detail-worker", "/Farms/Details?id=123"]
+    ["farm-detail-worker", "/Farms/Details?id=123"],
+    ["dashboard-owner", "/Dashboard?farmId=123"],
+    ["dashboard-manager", "/Dashboard?farmId=123"],
+    ["dashboard-worker", "/Dashboard?farmId=123"],
+    ["dashboard-multiple-crops", "/Dashboard?farmId=123"],
+    ["dashboard-empty", "/Dashboard?farmId=123"]
 ];
 const widths = [320, 375, 768, 1024, 1440];
 
@@ -39,7 +44,7 @@ const widths = [320, 375, 768, 1024, 1440];
             const errors = [];
             page.on("pageerror", e => errors.push(e.message));
             let selected = "";
-            await page.route(/\/Farms(?:\/|\?|$)/, async route => {
+            await page.route(/\/(?:Farms(?:\/|\?|$)|Dashboard(?:\?|$))/, async route => {
                 const file = path.join(fixtures, selected + ".html");
                 await route.fulfill({ status: 200, contentType: "text/html; charset=utf-8", body: fs.readFileSync(file) });
             });
@@ -78,6 +83,29 @@ const widths = [320, 375, 768, 1024, 1440];
                     }
                     if (name === "farm-detail-worker")
                         assert.equal(await page.locator("#add-plot").count(), 0);
+                    if (name.startsWith("dashboard-")) {
+                        assert.equal(await page.locator(".ani12c-farm-dashboard").count(), 1);
+                        assert.equal(await page.locator(".ani12c-metrics > a").count(), 4,
+                            "Dashboard must show exactly four first-level metrics");
+                        assert.equal(await page.getByRole("heading", { name: "Today's priorities" }).count(), 1);
+                    }
+                    if (name === "dashboard-owner") {
+                        assert.equal(await page.locator(".ani12c-role-owner").count(), 1);
+                        assert.equal(await page.locator(".ani12c-owner-decisions > a").count(), 3);
+                    }
+                    if (name === "dashboard-manager")
+                        assert.equal(await page.locator(".ani12c-role-manager").count(), 1);
+                    if (name === "dashboard-worker" || name === "dashboard-empty") {
+                        assert.equal(await page.locator(".ani12c-role-worker").count(), 1);
+                        assert.equal(await page.getByText("Your assigned work").count(), 1);
+                        assert.equal(await page.locator(".ani12c-owner-decisions").count(), 0);
+                    }
+                    if (name === "dashboard-multiple-crops") {
+                        assert.equal(await page.locator("#ani12c-crop-picker").count(), 1);
+                        assert.equal(await page.locator(".ani12c-crop-list > li").count(), 2);
+                        const hero = page.locator(".ani12c-dashboard-hero");
+                        assert.equal(await hero.locator('a[href*="cycleId"]').count(), 0);
+                    }
                     if (width === 375 || width === 1440) {
                         const audit = await new AxeBuilder({ page })
                             .withTags(["wcag2a", "wcag2aa", "wcag21a", "wcag21aa"]).analyze();
