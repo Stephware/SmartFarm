@@ -11,6 +11,11 @@
     border: 1px solid var(--ui-border); border-radius: var(--ui-card-radius);
   }
   .ani12c-dashboard-hero > div:first-child { min-width: 0; flex: 1 1 340px; }
+  /* Older dashboard styles give every direct div a 400px flex basis.
+     Override that for the action group to prevent huge blank mobile heroes. */
+  .ani12c-dashboard-hero > .ani12c-hero-actions {
+    flex: 0 1 auto; min-width: 0; margin-left: auto;
+  }
   .ani12c-dashboard-hero .ani-overline { color: var(--ui-gold); }
   .ani12c-dashboard-hero h1 { margin: 5px 0 12px; font-size: clamp(1.7rem, 3vw, 2.5rem); line-height: 1.15; }
   .ani12c-dashboard-hero p:not(.ani-overline) { max-width: 62ch; line-height: 1.6; color: var(--ui-text-secondary); }
@@ -187,6 +192,11 @@
     .ani12c-admin-dashboard .admin-shortcuts { grid-template-columns: repeat(2,minmax(0,1fr)); }
   }
   @media (max-width: 850px) {
+    .ani12c-dashboard-hero { align-items: flex-start; }
+    .ani12c-dashboard-hero > div:first-child { flex: 0 1 auto; width: 100%; }
+    .ani12c-dashboard-hero > .ani12c-hero-actions {
+      flex: 0 1 auto; margin-left: 0; width: 100%;
+    }
     .ani12c-owner-decisions { grid-template-columns: minmax(0, 1fr); gap: 10px; }
     .ani12c-owner-decisions a { min-height: 68px; padding: 16px; }
     .ani12c-farm-facts { grid-template-columns: repeat(2,minmax(0,1fr)); }
