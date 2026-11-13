@@ -147,3 +147,8 @@ Updated the MVP article and existing execution plan with active callers, safe re
 ## 2026-11-13 — MVP Stage 1 MVC workspace
 
 Four primary farm sections, integrated plot/crop history and simpler Today/Supplies/Harvests presentation; exact eligible water/fertilizer task prefill. Updated only MVP status/context and appended sanitized verification evidence. Shared services, API and schema unchanged. Review/CI remains the merge gate; later stages remain planned.
+
+
+## 2026-11-13 — MVP Stage 2 Android navigation
+
+Three native primary entries and a simpler existing Record sheet; My Farm groups required records with account/management/sync secondary. Native tests, scoped live disposable-API inspection and review recorded in the MVP article/plan; appended sanitized evidence. No business/API/Room/schema changes; CI remains the merge gate.

@@ -259,6 +259,7 @@ fun FarmDetailScreen(state: FarmUiState, onBack: () -> Unit,
     section: String = "Overview", onWeather: () -> Unit = {},
     onPlots: () -> Unit = {}, onSync: () -> Unit = {},
     onRecord: () -> Unit = {}, onRecordAction: (String) -> Unit = {},
+    onTask: (com.smartfarm.mobile.data.remote.api.TaskDto) -> Unit = {},
     homeSync: HomeSyncSummary = HomeSyncSummary(0, 0)) {
     val farm = state.selected
     val canManage = !state.offline && farm?.role in listOf("Owner", "Manager")
@@ -278,7 +279,7 @@ fun FarmDetailScreen(state: FarmUiState, onBack: () -> Unit,
     val sectionState = rememberSaveableStateHolder()
 
     val hasFarmSwitcher = LocalFarmHeaderNavigation.current != null
-    FarmPage(if (visibleSection == "Overview") (farm?.name ?: "Farm") else
+    FarmPage(if (visibleSection == "Overview") "Today · ${farm?.name ?: "Farm"}" else
         "$visibleSection · ${farm?.name ?: "Farm"}",
         subtitle = if (visibleSection == "Overview") "Your daily farm work in one place."
                    else "Review and manage this farm.",
@@ -296,10 +297,10 @@ fun FarmDetailScreen(state: FarmUiState, onBack: () -> Unit,
                 if (canManage) {
                     FarmSetupGuide(farm.id, state.plots.isNotEmpty(), homeCrops, onPlots, onCrops)
                 }
-                FarmHomeOverview(state, homeTasks, homeCrops, actorId, onTasks, onCrops, onInventory,
-                    onWeather = onWeather, onInsights = onInsights,
+                FarmHomeOverview(state, homeTasks, homeCrops, actorId, onTasks,
+                    onWeather = onWeather, onTask = onTask,
                     onRecord = onRecord, onRecordAction = onRecordAction,
-                    onPlots = onPlots, onSync = onSync, syncSummary = homeSync)
+                    onSync = onSync, syncSummary = homeSync)
             }
             if (visibleSection == "Weather") {
                 FarmWeatherDetails(state)

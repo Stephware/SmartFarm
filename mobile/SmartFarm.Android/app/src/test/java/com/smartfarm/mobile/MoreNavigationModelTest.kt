@@ -19,8 +19,10 @@ class MoreNavigationModelTest {
         val all = moreFarmTools("Owner") + moreManagement("Owner") + morePersonal
         assertEquals(all.map { it.route }.size, all.map { it.route }.distinct().size)
         assertTrue(all.map { it.route }.containsAll(listOf(
-            "inventory", "weather", "plots", "insights", "members",
+            "inventory", "weather", "plots", "crops", "insights", "members",
             "settings", "notifications", "sync", "account")))
+        assertFalse(all.any { "cash" in it.label.lowercase() || "finance" in it.label.lowercase() })
+        assertEquals("Harvest summary", all.single { it.route == "insights" }.label)
         assertTrue(moreFarmTools(null).isEmpty())
         assertTrue(moreManagement(null).isEmpty())
     }

@@ -18,7 +18,7 @@ internal fun quickRecordRoute(farmId: String, action: String, cycleId: String?):
     if (action == "supplies") return "inventory/$farmId"
     if (cycleId.isNullOrBlank()) return null
     return when (action) {
-        "watering", "fertilizing", "inspection" ->
+        "watering", "fertilizing", "inspection", "other" ->
             "monitor/$farmId/$cycleId?quick=$action"
         "harvest" -> "harvests/$farmId/$cycleId"
         else -> null
@@ -28,7 +28,7 @@ internal fun quickRecordRoute(farmId: String, action: String, cycleId: String?):
 /** Warn before leaving screens that can contain an unfinished field entry. */
 internal fun requiresExitConfirmation(route: String?, section: String? = null): Boolean =
     when (route) {
-        "farm/{farmId}", "more/{farmId}", "farms", "account", "notifications",
+        "farm/{farmId}", "myfarm/{farmId}", "more/{farmId}", "farms", "account", "notifications",
         "sync", "insights/{farmId}" -> false
         // Weather and members are informational; plot and settings forms can have drafts.
         "farm/{farmId}/{section}" ->

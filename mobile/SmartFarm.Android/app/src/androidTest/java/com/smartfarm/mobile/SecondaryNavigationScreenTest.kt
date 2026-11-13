@@ -16,17 +16,17 @@ import org.junit.Test
 class SecondaryNavigationScreenTest {
     @get:Rule val compose = createComposeRule()
 
-    @Test fun fieldWorkerMoreHasShortFarmActionsWithoutManagerSettings() {
+    @Test fun fieldWorkerMyFarmKeepsRecordsAndSyncWithoutFinanceOrManagerSettings() {
         var opened: String? = null
         compose.setContent { SmartFarmTheme {
             FarmMoreScreen("North farm", "FieldWorker", onOpen = { opened = it },
                 pendingSync = 3, reviewSync = 1)
         } }
         compose.onNodeWithText("Farm settings").assertDoesNotExist()
-        compose.onNodeWithText("Harvest & cash reports").performScrollTo().performClick()
+        compose.onNodeWithText("Harvest summary").performScrollTo().performClick()
         compose.runOnIdle { assertEquals("insights", opened) }
         // Lazy rows are composed only after scrolling them into the viewport.
-        compose.onNodeWithTag("record-list").performScrollToIndex(11)
+        compose.onNodeWithTag("record-list").performScrollToNode(hasText("Offline sync"))
         compose.onNodeWithText("1 need review", substring = true, useUnmergedTree = true)
             .assertExists()
         compose.onNodeWithText("Offline sync").performClick()
@@ -53,18 +53,13 @@ class SecondaryNavigationScreenTest {
         compose.runOnIdle { assertEquals(true, loggedOut) }
     }
 
-    @Test fun reportsSeparateHarvestFromCashWithoutChangingPeriodData() {
+    @Test fun reportsKeepHarvestSummaryWithoutCashNavigation() {
         compose.setContent { SmartFarmTheme {
-            FarmInsightsScreen(
-                FarmInsightsUiState(farmId = "farm"), "Asia/Manila",
+            FarmInsightsScreen(FarmInsightsUiState(farmId = "farm"), "Asia/Manila",
                 onBack = {}, onReload = { _, _ -> })
         } }
         compose.onNodeWithText("Harvest summary").assertExists()
+        compose.onNodeWithText("Cash").assertDoesNotExist()
         compose.onNodeWithText("Manual cash records (PHP)").assertDoesNotExist()
-        compose.onNodeWithText("Cash").performClick()
-        compose.onNodeWithText("Manual cash records (PHP)").assertExists()
-        compose.onNodeWithText("Harvest summary").assertDoesNotExist()
-        compose.onNodeWithText("Harvest").performClick()
-        compose.onNodeWithText("Harvest summary").assertExists()
     }
 }

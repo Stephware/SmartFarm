@@ -96,7 +96,7 @@ fun MonitoringScreen(
     var moreActivities by rememberSaveable(state.farmId, state.cycleId) { mutableStateOf(false) }
     var showGrowthStage by rememberSaveable(state.farmId, state.cycleId) { mutableStateOf(false) }
     var activityType by rememberSaveable(state.farmId, state.cycleId, quick) {
-        mutableStateOf(if (quick == "fertilizing") 2 else 1)
+        mutableStateOf(when (quick) { "fertilizing" -> 2; "other" -> 5; else -> 1 })
     }
     var activityNotes by rememberSaveable(state.farmId, state.cycleId) { mutableStateOf("") }
     var useStock by rememberSaveable(state.farmId, state.cycleId) { mutableStateOf(false) }

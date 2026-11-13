@@ -1,6 +1,6 @@
 # Implement AniGo farmer-first MVP simplification
 
-**Status: Stages 0–1 verified locally; Stage 1 review/CI pending. Stage 2 next after merge.** Baseline: `dev` from 2026-11-13 (`29c55166`). Keep each stage as a separately reviewable PR into `dev`, with tests before merge. The goal is fewer screens, **not** wholesale deletion of working infrastructure. Read [PRODUCT.md](../../../PRODUCT.md) and [AGENTS.md](../../../AGENTS.md) first.
+**Status: Stages 0–1 merged; Stage 2 verified locally and reviewed, CI pending. Stage 3 next after merge.** Baseline: `dev` from 2026-11-13 (`29c55166`). Keep each stage as a separately reviewable PR into `dev`, with tests before merge. The goal is fewer screens, **not** wholesale deletion of working infrastructure. Read [PRODUCT.md](../../../PRODUCT.md) and [AGENTS.md](../../../AGENTS.md) first.
 
 ## Scope and decision rules
 - MVC four primary farm destinations: Today, Crops & Calendar, Supplies, Harvests. Farm/Team and Account secondary.
@@ -55,6 +55,14 @@ Local checks: solution build; 565 SQL-enabled .NET tests (zero skipped); 60 Node
 - Fieldworkers see authorized tasks and recordings, not role management/finance/admin. Support 320dp screens, dynamic text, TalkBack, large targets, offline/loading/empty errors.
 - Verify: JVM Compose/nav tests and compiled device UI tests; on emulator/device validate Back, farm switch, login/logout and record drafts.
 
+### Stage 2 evidence
+
+Android bar/rail now exposes Today / Record / My Farm. Record reuses the native sheet and scoped forms, with Water / Inspect / Use Supplies / Harvest and expandable Other. My Farm groups crop/plot/history, supplies, harvest summary and weather; management/account/sync stay secondary. Deep forms retain Back and farm-switch draft confirmation; the legacy More route redirects to My Farm. Today opens eligible active-crop task workflows. Exact task-ID propagation and shorter save forms remain Stage 3.
+
+Cash presentation was removed now so the My Farm harvest link cannot expose finance; its API/repository/ViewModel dependencies remain for Stage 5 review. No API, Room, sync, shared-service or schema changes. Existing business data is retained.
+
+Verification: debug/device-test builds; 65 JVM tests and all 103 tests on the Pixel 9 Android 17 emulator passed without skips, including the loopback Activity login/task/Back/farm-switch/draft-preservation/Record/logout journey. Native Today/My Farm light/dark captures reviewed; 320dp at 1.6 font scale and three-entry rail tested. A separate native login against the guarded disposable SQL-backed API verified loaded Today/My Farm, the common/Other chooser and Material Back collapse/dismissal without submitting business records. Focused independent review found no blocking or minor issues. Physical devices, TalkBack execution, production and real-farmer acceptance remain unverified.
+
 ## Stage 3 — Short recording workflows
 - Inspect `features/monitoring/MonitoringScreens.kt`, `features/harvests/HarvestScreen.kt`, `features/inventory/InventoryScreens.kt`, MVC Monitoring and shared services.
 - Water: crop/task auto-selected when arriving from Today; date default only with correct farm time zone. One save produces linked activity, resolves eligible task once.
@@ -89,8 +97,8 @@ Read only AGENTS/PRODUCT/this plan and relevant code for the current stage. Do n
 
 ## Completion checklist (all initially unchecked)
 - [x] Stage 0 — current dependencies/coverage inventoried
-- [x] Stage 1 — MVC four-section farmer workspace implemented/tested locally; review/CI gate before merge
-- [ ] Stage 2 — Android three-destination navigation implemented/tested
+- [x] Stage 1 — MVC four-section farmer workspace implemented/tested; PR #124 merged after all six CI checks passed
+- [x] Stage 2 — Android three-destination navigation implemented/tested locally; CI gate before merge
 - [ ] Stage 3 — short record flows and atomic business rules verified
 - [ ] Stage 4 — offline confirmation/refresh and Worker/weather verified
 - [ ] Stage 5 — obsolete UI/code retired without lost data

@@ -60,7 +60,7 @@ fun SmartFarmNavHost(auth: AuthViewModel, farms: FarmViewModel, crops: CropViewM
     val currentRoute = currentEntry?.destination?.route
     val currentFarmId = currentEntry?.arguments?.getString("farmId").orEmpty()
     val showFarmTabs = currentRoute in setOf(
-        "farm/{farmId}", "tasks/{farmId}", "crops/{farmId}", "more/{farmId}"
+        "farm/{farmId}", "myfarm/{farmId}"
     ) && currentFarmId.isNotBlank()
     val appContext = LocalContext.current
     val resolver = appContext.contentResolver
@@ -118,6 +118,14 @@ fun SmartFarmNavHost(auth: AuthViewModel, farms: FarmViewModel, crops: CropViewM
         } else completeFarmSwitch(target)
     }
 
+    val openTaskRecord: (String, com.smartfarm.mobile.data.remote.api.TaskDto) -> Unit = { farmId, task ->
+        val action = when (task.taskType) {
+            2 -> "watering"; 3 -> "fertilizing"; 4 -> "inspection"; 5 -> "harvest"; else -> null
+        }
+        val route = action?.let { quickRecordRoute(farmId, it, task.cropCycleId) }
+        navController.navigate(route ?: "tasks/$farmId")
+    }
+
     // Both home and dedicated farm subpages use the existing data/actions.
     val farmDestination: @Composable (String, String) -> Unit = { farmId, section ->
         val farmState by farms.state.collectAsStateWithLifecycle()
@@ -146,6 +154,7 @@ fun SmartFarmNavHost(auth: AuthViewModel, farms: FarmViewModel, crops: CropViewM
             onChangeRole = { member, role -> farms.changeRole(member, role) },
             onRemoveMember = { farms.remove(it) },
             onTasks = { navController.navigate("tasks/$farmId") },
+            onTask = { openTaskRecord(farmId, it) },
             onInsights = { navController.navigate("insights/$farmId") },
             onRetry = { farms.loadDetail(farmId) },
             onRegenerateCode = farms::regenerateJoinCode,
@@ -286,7 +295,7 @@ fun SmartFarmNavHost(auth: AuthViewModel, farms: FarmViewModel, crops: CropViewM
                 .replaceFirstChar { it.uppercase() }
             farmDestination(farmId, section)
         }
-        composable("more/{farmId}") { entry ->
+        composable("myfarm/{farmId}") { entry ->
             val farmId = entry.arguments?.getString("farmId").orEmpty()
             val farmState by farms.state.collectAsStateWithLifecycle()
             LaunchedEffect(farmId) {
@@ -297,6 +306,7 @@ fun SmartFarmNavHost(auth: AuthViewModel, farms: FarmViewModel, crops: CropViewM
                 pending, pendingPhotos, farmId, state.account?.id)
             FarmMoreScreen(farm?.name ?: "Farm", farm?.role, onOpen = { choice ->
                 when (choice) {
+                    "crops" -> navController.navigate("crops/$farmId")
                     "inventory" -> navController.navigate("inventory/$farmId")
                     "insights" -> navController.navigate("insights/$farmId")
                     "members", "plots", "settings", "weather" ->
@@ -305,6 +315,15 @@ fun SmartFarmNavHost(auth: AuthViewModel, farms: FarmViewModel, crops: CropViewM
                     "switch" -> showFarmSwitcher = true
                 }
             }, pendingSync = currentQueue.total, reviewSync = currentQueue.needsReview)
+        }
+        composable("more/{farmId}") { entry ->
+            val farmId = entry.arguments?.getString("farmId").orEmpty()
+            LaunchedEffect(farmId) {
+                navController.navigate("myfarm/$farmId") {
+                    popUpTo("more/{farmId}") { inclusive = true }
+                    launchSingleTop = true
+                }
+            }
         }
         composable("tasks/{farmId}") { entry ->
             val farmId = entry.arguments?.getString("farmId").orEmpty()
@@ -322,13 +341,7 @@ fun SmartFarmNavHost(auth: AuthViewModel, farms: FarmViewModel, crops: CropViewM
                 onOpenCrop = { task ->
                     val cycleId = task.cropCycleId
                     if (cycleId != null && taskState.cycles.any { it.id == cycleId && it.status == 1 }) {
-                        when (task.taskType) {
-                            5 -> navController.navigate("harvests/$farmId/$cycleId")
-                            2 -> navController.navigate("monitor/$farmId/$cycleId?quick=watering")
-                            3 -> navController.navigate("monitor/$farmId/$cycleId?quick=fertilizing")
-                            4 -> navController.navigate("monitor/$farmId/$cycleId?quick=inspection")
-                            else -> navController.navigate("monitor/$farmId/$cycleId")
-                        }
+                        openTaskRecord(farmId, task)
                     }
                 })
         }

@@ -20,7 +20,6 @@ import com.smartfarm.mobile.data.remote.api.TaskDto
 import com.smartfarm.mobile.features.crops.CropUiState
 import com.smartfarm.mobile.features.tasks.TaskUiState
 import com.smartfarm.mobile.features.tasks.TaskWorkCenter
-import com.smartfarm.mobile.ui.components.CropArtworkImage
 import com.smartfarm.mobile.ui.components.FarmEmptyState
 import com.smartfarm.mobile.ui.components.FarmSectionCard
 import com.smartfarm.mobile.ui.components.FarmSectionHeader
@@ -45,10 +44,9 @@ internal fun farmHomeTaskPreview(
 @Composable
 internal fun FarmHomeOverview(
     state: FarmUiState, tasks: TaskUiState?, crops: CropUiState?, actorId: String?,
-    onTasks: () -> Unit, onCrops: () -> Unit, onInventory: () -> Unit,
-    onWeather: () -> Unit, onInsights: () -> Unit,
+    onTasks: () -> Unit, onWeather: () -> Unit,
+    onTask: (TaskDto) -> Unit = {},
     onRecord: () -> Unit = {}, onRecordAction: (String) -> Unit = {},
-    onPlots: () -> Unit = {},
     onSync: () -> Unit = {}, syncSummary: HomeSyncSummary = HomeSyncSummary(0, 0)
 ) {
     val farm = state.selected ?: return
@@ -58,7 +56,6 @@ internal fun FarmHomeOverview(
     val work = if (myWork != null && today != null) homeDailyWork(myWork, today) else null
     val visibleCrops = crops?.takeIf { it.farmId == farm.id && !it.busy && it.error == null }
     val currentCycles = visibleCrops?.cycles.orEmpty()
-    val growing = currentCycles.filter { it.status == 1 }
     val localWeather = state.weather?.takeIf { it.farmId == farm.id }
     val savedAdvisories = localWeather?.advisories?.count { it.status == 0 } ?: 0
     val localForecast = localWeather?.takeIf { it.hasCoordinates }
@@ -175,6 +172,13 @@ internal fun FarmHomeOverview(
                         FarmStatusChip(if (isLate) "Overdue" else "Today",
                             if (isLate) FarmStatusTone.Warning else FarmStatusTone.Active)
                     }
+                    val canRecordTask = task.taskType in 2..5 && currentCycles.any {
+                        it.id == task.cropCycleId && it.status == 1
+                    }
+                    OutlinedButton(onClick = { if (canRecordTask) onTask(task) else onTasks() },
+                        modifier = Modifier.fillMaxWidth().defaultMinSize(minHeight = 48.dp)) {
+                        Text(if (canRecordTask) "Record ${taskTypes[task.taskType].lowercase()}" else "View task")
+                    }
                 }
                 if (work.dueCount > 3) {
                     Text("And ${work.dueCount - 3} more tasks due.",
@@ -202,47 +206,6 @@ internal fun FarmHomeOverview(
                 Text("View sync status")
             }
         }
-    }
-
-    // Keep previews small. Never show a dashboard filled with zero-value statistic tiles.
-    if (state.plots.isNotEmpty()) {
-        FarmSectionCard("My farm plots",
-            subtitle = "A quick look at your growing areas; illustrations aren't geographic.") {
-            state.plots.take(2).forEach { plot ->
-                val crop = currentCycles.firstOrNull { it.plotId == plot.id && it.status == 1 }
-                    ?: currentCycles.firstOrNull { it.plotId == plot.id && it.status == 0 }
-                Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                    if (crop != null) {
-                        CropArtworkImage(crop.cropTypeName, Modifier.size(58.dp))
-                    }
-                    Column(Modifier.weight(1f)) {
-                        Text(plot.name, style = MaterialTheme.typography.titleMedium)
-                        Text(crop?.let { "${it.cropTypeName} · ${it.statusName}" } ?: "No current crop",
-                            style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant)
-                    }
-                    Text("${plot.areaSqMeters} m²", style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant)
-                }
-            }
-            if (state.plots.size > 2) {
-                Text("+${state.plots.size - 2} more growing areas",
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant)
-            }
-            Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-                OutlinedButton(onClick = onPlots, modifier = Modifier.weight(1f)) {
-                    Text("All plots")
-                }
-                OutlinedButton(onClick = onCrops, modifier = Modifier.weight(1f)) {
-                    Text("Manage crops")
-                }
-            }
-        }
-    } else if (farm.role != "Owner" && farm.role != "Manager") {
-        FarmEmptyState("No growing areas yet",
-            "Ask a farm owner or manager to add a plot before recording crop work.")
     }
 
     if (localForecast != null) {

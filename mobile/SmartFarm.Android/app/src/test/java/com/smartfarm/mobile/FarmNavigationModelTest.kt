@@ -17,6 +17,7 @@ class FarmNavigationModelTest {
     @Test fun changingFarmsWarnsBeforeLeavingAForm() {
         assertEquals(false, requiresExitConfirmation("farm/{farmId}"))
         assertEquals(false, requiresExitConfirmation("more/{farmId}"))
+        assertEquals(false, requiresExitConfirmation("myfarm/{farmId}"))
         assertEquals(true, requiresExitConfirmation("monitor/{farmId}/{cycleId}?quick={quick}"))
         assertEquals(true, requiresExitConfirmation("crops/{farmId}"))
         assertEquals(true, requiresExitConfirmation("farm/{farmId}/{section}"))
@@ -39,5 +40,6 @@ class FarmNavigationModelTest {
         assertNull(quickRecordRoute("farm","harvest",null))
         assertNull(quickRecordRoute("","supplies",null))
         assertNull(quickRecordRoute("farm","unsupported","cycle"))
+        assertEquals("monitor/farm/cycle?quick=other", quickRecordRoute("farm","other","cycle"))
     }
 }

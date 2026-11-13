@@ -65,6 +65,26 @@ class FarmHomeWorkScreenTest {
         compose.runOnIdle { assertEquals(1, syncOpens) }
     }
 
+    @Test fun dueWateringOffersTheCropRecordingAction() {
+        var recordedTask: String? = null
+        val crop = com.smartfarm.mobile.data.remote.dto.CropCycleDto(
+            "cycle", "farm", "plot", "North", "type", "Tomato", 1,
+            "2026-11-01", "2026-11-01", null, "kg", 2, null, null, "version")
+        val task = TaskDto("task", farm.id, crop.id, "worker", 2,
+            TaskWorkCenter.today(farm.timeZoneId).toString(), 0, "Water tomatoes", "version")
+        compose.setContent { SmartFarmTheme {
+            Column(Modifier.verticalScroll(rememberScrollState())) {
+                FarmHomeOverview(FarmUiState(selected = farm),
+                    TaskUiState(farmId = farm.id, tasks = listOf(task)),
+                    CropUiState(farmId = farm.id, cycles = listOf(crop)),
+                    actorId = "worker", onTasks = {}, onWeather = {},
+                    onTask = { recordedTask = it.id })
+            }
+        } }
+        compose.onNodeWithText("Record watering").performScrollTo().performClick()
+        compose.runOnIdle { assertEquals("task", recordedTask) }
+    }
+
     @Composable
     private fun Home(
         farm: FarmUiState,
@@ -76,8 +96,7 @@ class FarmHomeWorkScreenTest {
     ) {
         Column(Modifier.verticalScroll(rememberScrollState())) {
             FarmHomeOverview(farm, tasks, CropUiState(farmId = "farm"),
-                actorId = "worker", onTasks = onTasks, onCrops = {},
-                onInventory = {}, onWeather = {}, onInsights = {},
+                actorId = "worker", onTasks = onTasks, onWeather = {},
                 onRecordAction = onRecordAction, onSync = onSync, syncSummary = sync)
         }
     }

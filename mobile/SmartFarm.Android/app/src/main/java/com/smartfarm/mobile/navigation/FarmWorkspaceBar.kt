@@ -28,7 +28,7 @@ import androidx.compose.ui.unit.dp
 
 // Primary destinations are stable; Record is a sheet, never a separate route.
 // Deep forms retain Android Back navigation.
-private enum class FarmNavSymbol { Farm, Tasks, Record, Crops, More }
+private enum class FarmNavSymbol { Farm, Record, Crops }
 private data class FarmNavTab(val route: String, val title: String, val symbol: FarmNavSymbol)
 
 /** Vector line-art avoids emoji fonts and keeps icons crisp without a new dependency. */
@@ -41,24 +41,12 @@ private fun FarmNavIcon(symbol: FarmNavSymbol, tint: Color) {
             drawLine(tint, Offset(x1 * unit, y1 * unit), Offset(x2 * unit, y2 * unit),
                 strokeWidth = width, cap = StrokeCap.Round)
         }
-        fun frame(x: Float, y: Float, w: Float, h: Float) {
-            drawRoundRect(
-                color = tint, topLeft = Offset(x * unit, y * unit),
-                size = Size(w * unit, h * unit),
-                cornerRadius = CornerRadius(2f * unit, 2f * unit),
-                style = Stroke(width = width)
-            )
-        }
         when (symbol) {
             FarmNavSymbol.Farm -> {
                 line(3f, 11f, 12f, 3f); line(12f, 3f, 21f, 11f)
                 line(5f, 10f, 5f, 21f); line(19f, 10f, 19f, 21f)
                 line(5f, 21f, 19f, 21f)
                 line(9f, 21f, 9f, 14f); line(9f, 14f, 15f, 14f); line(15f, 14f, 15f, 21f)
-            }
-            FarmNavSymbol.Tasks -> {
-                frame(4f, 3f, 16f, 18f)
-                line(8f, 12f, 11f, 15f); line(11f, 15f, 16f, 9f)
             }
             FarmNavSymbol.Crops -> {
                 line(12f, 21f, 12f, 9f)
@@ -80,10 +68,7 @@ private fun FarmNavIcon(symbol: FarmNavSymbol, tint: Color) {
                     style = Stroke(width = width))
                 line(12f, 7f, 12f, 17f); line(7f, 12f, 17f, 12f)
             }
-            FarmNavSymbol.More -> {
-                frame(4f, 4f, 6f, 6f); frame(14f, 4f, 6f, 6f)
-                frame(4f, 14f, 6f, 6f); frame(14f, 14f, 6f, 6f)
-            }
+
         }
     }
 }
@@ -95,11 +80,9 @@ internal fun FarmWorkspaceBar(
     onNavigate: (String) -> Unit
 ) {
     val tabs = listOf(
-        FarmNavTab("farm/{farmId}", "Home", FarmNavSymbol.Farm),
-        FarmNavTab("tasks/{farmId}", "Tasks", FarmNavSymbol.Tasks),
+        FarmNavTab("farm/{farmId}", "Today", FarmNavSymbol.Farm),
         FarmNavTab("record", "Record", FarmNavSymbol.Record),
-        FarmNavTab("crops/{farmId}", "Crops", FarmNavSymbol.Crops),
-        FarmNavTab("more/{farmId}", "More", FarmNavSymbol.More)
+        FarmNavTab("myfarm/{farmId}", "My Farm", FarmNavSymbol.Crops)
     )
     val colors = MaterialTheme.colorScheme
     if (expanded) {

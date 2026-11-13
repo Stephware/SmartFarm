@@ -41,13 +41,13 @@ class FinalFarmerJourneysTest {
                 }
             }
         }
-        listOf("Home", "Tasks", "Record", "Crops", "More").forEach {
+        listOf("Today", "Record", "My Farm").forEach {
             compose.onNodeWithText(it).assertExists()
         }
         compose.onNodeWithText("Record").performClick()
         compose.runOnIdle { assertEquals("record", route) }
-        compose.onNodeWithText("Crops").performClick()
-        compose.runOnIdle { assertEquals("crops/{farmId}", route) }
+        compose.onNodeWithText("My Farm").performClick()
+        compose.runOnIdle { assertEquals("myfarm/{farmId}", route) }
     }
 
     @Test fun compactHeaderKeepsFarmSwitchAndOfflineWorkReachable() {

@@ -30,6 +30,7 @@ class FullAppJourneyTest {
         val completed = AtomicBoolean(false)
         val due = LocalDate.now(ZoneId.of("Asia/Manila")).toString()
         val farm = """{"id":"farm","name":"Green Valley Farm","locationText":"Angeles","timeZoneId":"Asia/Manila","role":"Owner","rowVersion":"version"}"""
+        val secondFarm = farm.replace("\"farm\"", "\"second\"").replace("Green Valley Farm", "Second Farm")
         fun task(): String = """{"id":"task","farmId":"farm","cropCycleId":null,"assignedToUserId":"journey-user","taskType":2,"dueDate":"$due","status":${if (completed.get()) 1 else 0},"description":"Water north plot","rowVersion":"version"}"""
         val server = MockWebServer()
         server.dispatcher = object : Dispatcher() {
@@ -40,8 +41,14 @@ class FullAppJourneyTest {
                         """{"accessToken":"journey-token","refreshToken":"journey-refresh","expiresIn":3600,"tokenType":"Bearer"}"""
                     path == "/api/auth/me" ->
                         """{"id":"journey-user","fullName":"Test Farmer","email":"farmer@example.test"}"""
-                    path == "/api/farms" -> "[$farm]"
+                    path == "/api/farms" -> "[$farm,$secondFarm]"
                     path == "/api/farm-join-requests" -> "[]"
+                    path == "/api/farms/second" -> secondFarm
+                    path == "/api/farms/second/weather" ->
+                        """{"farmId":"second","hasCoordinates":false,"timeZoneId":"Asia/Manila","days":[],"advisories":[]}"""
+                    path == "/api/farms/second/join-requests" ->
+                        """{"joinCode":"WXYZ12345678","requests":[],"history":[]}"""
+                    path.startsWith("/api/farms/second/") -> "[]"
                     path == "/api/farms/farm" -> farm
                     path == "/api/farms/farm/plots" ->
                         """[{"id":"plot","farmId":"farm","name":"North plot","areaSqMeters":100,"rowVersion":"version"}]"""
@@ -79,7 +86,10 @@ class FullAppJourneyTest {
                 compose.onAllNodesWithTag("farm-bottom-navigation").fetchSemanticsNodes().isNotEmpty()
             }
 
-            compose.onNodeWithText("Tasks").performClick()
+            compose.waitUntil(15_000) {
+                compose.onAllNodesWithText("My tasks").fetchSemanticsNodes().isNotEmpty()
+            }
+            compose.onNodeWithText("My tasks").performScrollTo().performClick()
             compose.waitUntil(15_000) {
                 compose.onAllNodesWithText("Mark completed").fetchSemanticsNodes().isNotEmpty()
             }
@@ -91,10 +101,36 @@ class FullAppJourneyTest {
                     compose.onAllNodesWithText("Task completed.").fetchSemanticsNodes().isNotEmpty()
             }
 
-            compose.onNodeWithText("More").performClick()
+            androidx.test.uiautomator.UiDevice.getInstance(androidx.test.platform.app.InstrumentationRegistry.getInstrumentation()).pressBack()
+            compose.onNodeWithText("My Farm").performClick()
             compose.waitUntil(10_000) {
-                compose.onAllNodesWithText("Farm tools").fetchSemanticsNodes().isNotEmpty()
+                compose.onAllNodesWithText("Farm records").fetchSemanticsNodes().isNotEmpty()
             }
+            compose.onNodeWithTag("record-list").performScrollToNode(hasText("Farm settings"))
+            compose.onNodeWithText("Farm settings").performClick()
+            compose.onNodeWithText("Name").performScrollTo().performTextReplacement("Unsaved farm name")
+            compose.onNodeWithContentDescription("Switch farm: Green Valley Farm").performClick()
+            compose.onNodeWithText("Second Farm").performClick()
+            compose.onNodeWithText("Leave this screen?").assertExists()
+            compose.onNodeWithText("Keep working").performClick()
+            compose.onNodeWithText("Unsaved farm name").assertExists()
+            compose.onNodeWithContentDescription("Switch farm: Green Valley Farm").performClick()
+            compose.onNodeWithText("Second Farm").performClick()
+            compose.onNodeWithText("Leave screen").performClick()
+            compose.waitUntil(15_000) {
+                compose.onAllNodesWithContentDescription("Switch farm: Second Farm").fetchSemanticsNodes().isNotEmpty()
+            }
+            compose.onNodeWithText("Today · Second Farm").assertExists()
+            compose.onNodeWithContentDescription("Switch farm: Second Farm").performClick()
+            compose.onNodeWithText("Green Valley Farm").performClick()
+            compose.waitUntil(15_000) {
+                compose.onAllNodesWithContentDescription("Switch farm: Green Valley Farm").fetchSemanticsNodes().isNotEmpty()
+            }
+            compose.onNodeWithText("Record").performClick()
+            compose.onNodeWithText("What did you do on the farm?").assertExists()
+            androidx.test.uiautomator.UiDevice.getInstance(androidx.test.platform.app.InstrumentationRegistry.getInstrumentation()).pressBack()
+            compose.onNodeWithText("What did you do on the farm?").assertDoesNotExist()
+            compose.onNodeWithText("My Farm").performClick()
             compose.onNodeWithTag("record-list").performScrollToNode(hasText("My account"))
             compose.onNodeWithText("My account").performClick()
             compose.onNodeWithTag("request-sign-out").performScrollTo().performClick()

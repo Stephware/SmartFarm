@@ -1,13 +1,13 @@
 # Farmer-first MVP simplification — target state
 
 > Sources: approved MVP brief and SmartFarm dev source, 2026-11-13
-> Raw: [Stage 0 source and regression evidence](../../raw/project/2026-11-13-mvp-stage-0.md), [Stage 1 MVC evidence](../../raw/project/2026-11-13-mvp-stage-1.md)
+> Raw: [Stage 0 source and regression evidence](../../raw/project/2026-11-13-mvp-stage-0.md), [Stage 1 MVC evidence](../../raw/project/2026-11-13-mvp-stage-1.md), [Stage 2 Android evidence](../../raw/project/2026-11-13-mvp-stage-2.md)
 > Updated: 2026-11-13
 
-**Stages 0–1 verified locally; Stage 1 review/CI pending.** Stage 1 is based on `a31f64d`. Android, shorter recording flows, offline clarity and obsolete-route retirement remain planned. No data or shared business-service functionality has been removed.
+**Stages 0–1 merged; Stage 2 locally verified and reviewed, CI pending.** Stage 2 is based on `c33ed6e` (Stage 1 PR #124 passed all six CI checks). Shorter recording flows, offline clarity and obsolete-route retirement remain planned. No data or shared business-service functionality has been removed.
 
 ## Why
-The existing SmartFarm/AniGo implements more features than the course MVP. Before this refactor MVC had nine primary farm links. MVC now has four; Android still has five primary tabs plus additional More entries. Separate plot, timeline, finance, insight and support screens make the daily grower workflow hard to navigate. Simplify the **farmer-facing product**, not the essential transaction/offline architecture.
+The existing SmartFarm/AniGo implements more features than the course MVP. Before this refactor MVC had nine primary farm links. MVC now has four and Android has three primary entries. Separate plot, timeline, finance, insight and support screens make the daily grower workflow hard to navigate. Simplify the **farmer-facing product**, not the essential transaction/offline architecture.
 
 ## Required MVP components
 MVC farms/plots/crop calendar/harvest reports/inventory; API farm activities/observations/photos/harvests/supplies; Hangfire planting/watering/harvest reminders and weather checks; Kotlin/Room offline inspection/photos/activity logging; weather external API. See the canonical [PRODUCT.md](../../../../PRODUCT.md).
@@ -16,7 +16,7 @@ MVC farms/plots/crop calendar/harvest reports/inventory; API farm activities/obs
 | Client | Target primary destinations | Secondary |
 | --- | --- | --- |
 | Web MVC — implemented in Stage 1 | Today, Crops & Calendar, Supplies, Harvests | Farm/team administration, account, basic Help |
-| Android — planned Stage 2 | Today, Record, My Farm | Account/settings, owner/manager tools, sync exception recovery |
+| Android — implemented in Stage 2 | Today, Record, My Farm | Account/settings, owner/manager tools, sync exception recovery |
 
 Roles: Owner/Manager manage farm setup, crops, tasks, stock setup and members subject to existing server permissions; Field Worker records authorized crop activities, photos, stock use and partial harvests. Do **not** remove essential owner approval or bypass farm access.
 
@@ -32,6 +32,13 @@ Today prioritizes authorized due work, saved crop concerns and timestamped weath
 Crops & Calendar contains all active plots, crop records and selected authorized history, including terminal cycles and private photo links. Native details/fragment navigation works without JavaScript. Supplies retains ledger and management safeguards. Harvests retains full filtered per-unit totals, bounded recent history, and both safe CSV exports; charts and finance links are removed from this page. Legacy plot/timeline routes still exist until Stage 5.
 
 Local Stage 1 checks: solution build, 565 SQL-enabled .NET tests without skips, 60 Node tests, 104 live disposable-SQL variants and 220 Linux synthetic authenticated screens across roles/themes/mobile sizes; 30 public baselines unchanged. No overflow or reported axe violations. These checks do not establish real-farmer, device, provider/job or production acceptance.
+
+## Stage 2 Android behavior
+Today / Record / My Farm use the existing native Material bar/rail. Record opens the existing scoped sheet: Water, Inspect, Use Supplies, Harvest; Other reveals uncommon activities/general stock use. The Other shortcut selects activity code 5 rather than watering. Only active cycles can receive new records. Deep forms retain Back and farm-switch draft protection; More is a compatibility redirect. Today links eligible active-crop tasks to their recording workflow; exact task-ID propagation remains Stage 3.
+
+My Farm groups crop/plot/history, supplies, harvest summary and weather; account/team/management/sync are secondary. Cash presentation is removed from the harvest report, but finance client/API dependencies remain for Stage 5 cleanup. Room, stable IDs, session guards, API and business services are unchanged.
+
+Debug/device builds, 65 JVM tests and 103 emulator tests passed without skips. The full Activity journey verifies login, task completion, Back, farm switching, keeping a draft and logout. Native light/dark captures reviewed; 320dp/1.6 text and rail tested. A native session against disposable SQL-backed API data verified workspace/chooser/Other/Back without saving business records. Physical-device, TalkBack, production and real-farmer acceptance remain unverified.
 
 ## Retire only after auditing dependencies
 - Farm finance manual cash ledger/analytics from active product UI and code.

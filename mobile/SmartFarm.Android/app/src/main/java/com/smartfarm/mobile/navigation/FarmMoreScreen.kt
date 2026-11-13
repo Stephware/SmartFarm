@@ -27,10 +27,11 @@ internal data class MoreEntry(val route: String, val label: String,
 
 internal fun moreFarmTools(role: String?): List<MoreEntry> =
     if (role == null) emptyList() else listOf(
-        MoreEntry("inventory", "Supplies & stock", "Use supplies and check balances", FarmSymbol.Stock),
+        MoreEntry("crops", "Crops & history", "Current plantings, plans and saved crop records", FarmSymbol.Crop),
+        MoreEntry("inventory", "Supplies", "Available stock and its history", FarmSymbol.Stock),
         MoreEntry("weather", "Weather", "Forecast and saved advisories", FarmSymbol.Weather),
         MoreEntry("plots", "Growing plots", "View and manage growing areas", FarmSymbol.Plots),
-        MoreEntry("insights", "Harvest & cash reports", "Confirmed yield and manual cash totals", FarmSymbol.Reports)
+        MoreEntry("insights", "Harvest summary", "Confirmed harvests, separated by unit", FarmSymbol.Reports)
     )
 
 internal fun moreManagement(role: String?): List<MoreEntry> =
@@ -53,14 +54,14 @@ internal fun FarmMoreScreen(farmName: String, role: String?, onOpen: (String) ->
     RecordPage {
         item(key = "intro") {
             Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                FarmHero("More", "Farm tools, reports and personal settings.")
+                FarmHero("My Farm", "Crops, growing areas, supplies and harvest history.")
                 Text(farmName, style = MaterialTheme.typography.titleMedium)
                 role?.let { FarmStatusChip(it, FarmStatusTone.Planned) }
             }
         }
         if (role != null) {
             item(key = "farm-tools-header") {
-                FarmSectionHeader("Farm tools", "Stock, weather and growing areas.")
+                FarmSectionHeader("Farm records")
             }
             items(moreFarmTools(role).size, key = { "farm-tool-$it" }) { index ->
                 val entry = moreFarmTools(role)[index]
@@ -81,7 +82,7 @@ internal fun FarmMoreScreen(farmName: String, role: String?, onOpen: (String) ->
             Text("Loading farm tools…", color = MaterialTheme.colorScheme.onSurfaceVariant)
         }
         item(key = "personal-header") {
-            FarmSectionHeader("Your account", "Messages, offline work and settings.")
+            FarmSectionHeader("Account & saved work")
         }
         items(morePersonal.size, key = { "personal-$it" }) { index ->
             val entry = morePersonal[index]

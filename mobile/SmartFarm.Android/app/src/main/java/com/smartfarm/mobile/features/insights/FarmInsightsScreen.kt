@@ -63,24 +63,15 @@ fun FarmInsightsScreen(
     onBack: () -> Unit, onReload: (String?, String?) -> Unit
 ) {
     var range by rememberSaveable(state.farmId) { mutableStateOf("all") }
-    var reportView by rememberSaveable(state.farmId) { mutableStateOf("harvest") }
     val today = runCatching { LocalDate.now(ZoneId.of(requireNotNull(farmTimeZone))) }.getOrNull()
     RecordPage {
         item(key = "intro") {
             Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
                 OutlinedButton(onClick = onBack) { Text("Back") }
-                FarmHero("Farm reports", "Choose harvest or cash summaries. All amounts are server-confirmed.")
+                FarmHero("Harvests", "Saved harvests, with each unit counted separately.")
                 Text("Server-confirmed data only. Unsynced mobile harvests are not included.",
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant)
-                Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    listOf("harvest" to "Harvest", "cash" to "Cash").forEach { (key, label) ->
-                        FilterChip(selected = reportView == key,
-                            onClick = { reportView = key },
-                            modifier = Modifier.weight(1f),
-                            label = { Text(label) })
-                    }
-                }
                 Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(6.dp)) {
                     listOf("all" to "All", "30" to "30 days",
                         "year" to "This year").forEach { (key, label) ->
@@ -115,7 +106,7 @@ fun FarmInsightsScreen(
                 }
             }
         }
-        if (reportView == "harvest") item(key = "harvest") {
+        item(key = "harvest") {
             val report = state.harvest
             FarmSectionCard("Harvest summary", subtitle = "Voided records are excluded. Units remain separate.") {
                 when {
@@ -146,7 +137,7 @@ fun FarmInsightsScreen(
                 }
             }
         }
-        if (reportView == "harvest") item(key = "harvest-chart") {
+        item(key = "harvest-chart") {
             state.harvest?.let { report ->
                 FarmSectionCard("Yield by crop and plot",
                     subtitle = "Recorded quantities. Each unit is charted independently.") {
@@ -170,7 +161,7 @@ fun FarmInsightsScreen(
                 }
             }
         }
-        if (reportView == "harvest") item(key = "monthly") {
+        item(key = "monthly") {
             state.harvest?.let { report ->
                 FarmSectionCard("Monthly harvests", subtitle = "Recorded yield by month, separated by unit.") {
                     if (report.monthlyTotals.isEmpty()) {
@@ -186,55 +177,6 @@ fun FarmInsightsScreen(
                             }
                         }
                     }
-                }
-            }
-        }
-        if (reportView == "cash") item(key = "finance") {
-            val finance = state.finance
-            FarmSectionCard("Manual cash records (PHP)",
-                subtitle = "These are entered transactions, not profit or automatic harvest sales.") {
-                when {
-                    finance == null && state.loading -> Text("Loading farm finances…")
-                    finance == null -> FarmEmptyState("Finance insights unavailable",
-                        state.financeError ?: "Check connection and farm permissions.")
-                    else -> {
-                        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-                            FarmMetricCard("Money in", "₱" + finance.incomePhp.toPlainString(),
-                                modifier = Modifier.weight(1f))
-                            FarmMetricCard("Money out", "₱" + finance.expensesPhp.toPlainString(),
-                                modifier = Modifier.weight(1f))
-                        }
-                        Text("Net recorded cash: ₱${finance.netPhp.toPlainString()}",
-                            style = MaterialTheme.typography.titleLarge)
-                        Text("${finance.entryCount} non-voided cash entries",
-                            style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant)
-                        Text("Harvests are not assumed sold. Inventory consumption is not automatically an expense.",
-                            style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant)
-                    }
-                }
-            }
-        }
-        if (reportView == "cash") item(key = "finance-chart") {
-            state.finance?.let { finance ->
-                FarmSectionCard("Cash trends", subtitle = "Income and expenses by month, in PHP.") {
-                    val months = finance.months.sortedBy { it.month }.takeLast(6)
-                    if (months.isEmpty()) {
-                        Text("No cash entries in this period.")
-                    } else {
-                        val max = months.maxOf { maxOf(it.incomePhp, it.expensesPhp) }
-                        months.forEach { month ->
-                            Text(month.month, style = MaterialTheme.typography.titleMedium)
-                            InsightBar("Money in", "₱${month.incomePhp.toPlainString()}",
-                                chartFraction(month.incomePhp, max))
-                            InsightBar("Money out", "₱${month.expensesPhp.toPlainString()}",
-                                chartFraction(month.expensesPhp, max))
-                        }
-                    }
-                    Text("For exports and detailed finance entries, use the Web farm workspace.",
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        style = MaterialTheme.typography.bodySmall)
                 }
             }
         }
