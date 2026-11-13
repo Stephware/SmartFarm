@@ -1,6 +1,6 @@
 # Implement AniGo farmer-first MVP simplification
 
-**Status: Stage 0 verified locally; Stage 1 next. No MVP application changes yet.** Baseline: `dev` from 2026-11-13 (`29c55166`). Keep each stage as a separately reviewable PR into `dev`, with tests before merge. The goal is fewer screens, **not** wholesale deletion of working infrastructure. Read [PRODUCT.md](../../../PRODUCT.md) and [AGENTS.md](../../../AGENTS.md) first.
+**Status: Stages 0–1 verified locally; Stage 1 review/CI pending. Stage 2 next after merge.** Baseline: `dev` from 2026-11-13 (`29c55166`). Keep each stage as a separately reviewable PR into `dev`, with tests before merge. The goal is fewer screens, **not** wholesale deletion of working infrastructure. Read [PRODUCT.md](../../../PRODUCT.md) and [AGENTS.md](../../../AGENTS.md) first.
 
 ## Scope and decision rules
 - MVC four primary farm destinations: Today, Crops & Calendar, Supplies, Harvests. Farm/Team and Account secondary.
@@ -41,6 +41,12 @@ Baseline verification: solution build passes with existing analyzer warnings; **
 - Harvests: retain `Harvests` and `Reports/Harvests` data and authorized CSV, reduce chart/compare UI and filters, do not truncate aggregates or combine units.
 - Role-dependent navigation: fieldworkers do not see manager forms; retain server checks. Update all links/test expectations.
 - Verify: MVC route/authorization/antiforgery, actual Web layout at 320/375/768/1440, keyboard, no-JS, light/dark, date/unit tests and API parity.
+
+### Stage 1 evidence
+
+Four primary MVC links, secondary Farm & team, integrated plot directory and selected crop history, eligible exact-task preselection for water/fertilizer, simpler supplies and per-unit harvest reports/CSV are implemented. Duplicate legacy routes remain until Stage 5. Inspection/harvest task fulfillment and short forms remain Stage 3 work.
+
+Local checks: solution build; 565 SQL-enabled .NET tests (zero skipped); 60 Node tests; 104 live disposable-SQL page variants at 320/375/768/1440 in both themes, including role/empty/stale/history states; native no-JS crop navigation; 220 Linux authenticated fixture screens; 30 unchanged public visual baselines. No overflow or reported axe violations. No production data, schema, shared business-service or API changes. Android, real farmer acceptance and live Worker/provider execution are not validated by this stage.
 
 ## Stage 2 — Android navigation
 - Refactor `navigation/FarmWorkspaceBar.kt`, `FarmMoreScreen.kt`, `SmartFarmNavHost.kt`, `features/farms/FarmHomeOverview.kt` without breaking saved state, farm switching or Back behavior.
@@ -83,7 +89,7 @@ Read only AGENTS/PRODUCT/this plan and relevant code for the current stage. Do n
 
 ## Completion checklist (all initially unchecked)
 - [x] Stage 0 — current dependencies/coverage inventoried
-- [ ] Stage 1 — MVC four-section farmer workspace implemented/tested
+- [x] Stage 1 — MVC four-section farmer workspace implemented/tested locally; review/CI gate before merge
 - [ ] Stage 2 — Android three-destination navigation implemented/tested
 - [ ] Stage 3 — short record flows and atomic business rules verified
 - [ ] Stage 4 — offline confirmation/refresh and Worker/weather verified

@@ -32,12 +32,13 @@ function node(tag = 'div') {
     };
     return el;
 }
+const labels = { dashboard: 'Today', crops: 'Crops & Calendar', inventory: 'Supplies', reports: 'Harvests', farm: 'Farm & team' };
 function link(section, href, current = null) {
     const a = node('a');
     a.dataset.navSection = section;
     a.href = href;
     const text = node('span');
-    text.textContent = section;
+    text.textContent = labels[section] || section;
     a.append(text);
     if (current) a.setAttribute('aria-current', current);
     a.cloneNode = () => link(section, href, current);
@@ -80,26 +81,21 @@ function navigationPage(sections, active = 'dashboard') {
 test('server farm links remain unique and contain a harvest-report destination', () => {
     const sections = [...razor.matchAll(/data-nav-section="([^"]+)"/g)].map(match => match[1]);
     assert.equal(sections.length, new Set(sections).size);
-    assert.ok(sections.includes('dashboard'));
-    assert.ok(sections.includes('reports'));
+    assert.deepEqual(sections, ['dashboard', 'crops', 'inventory', 'reports', 'farm']);
+    for (const label of ['Today', 'Crops &amp; Calendar', 'Supplies', 'Harvests']) assert.ok(razor.includes(label));
     assert.ok(!sections.includes('harvests'), 'same report must not appear twice');
     assert.match(razor, /asp-controller="Reports"\s+asp-action="Harvests"/);
 });
 
-test('desktop menu groups sections and retains original server-owned destinations', () => {
-    const sections = ['dashboard', 'crops', 'plots', 'tasks', 'inventory',
-        'weather', 'reports', 'finance', 'farm'];
-    const { controls, classes, urls } = navigationPage(sections, 'plots');
+test('desktop exposes four primary sections and secondary farm settings with server-owned URLs', () => {
+    const sections = ['dashboard', 'crops', 'inventory', 'reports', 'farm'];
+    const { controls, classes, urls } = navigationPage(sections, 'crops');
     const desktop = controls['sidebar-farm-links'];
-    assert.equal(desktop.children.length, 7, 'short primary navigation with two groups');
-    const grouped = desktop.children.filter(element => element.tagName === 'DETAILS');
-    assert.equal(grouped.length, 2);
-    assert.equal(grouped[0].open, true, 'active crop/plot page expands Fields & crops');
-    assert.equal(grouped[1].open, false);
     const anchors = flatten(desktop);
-    assert.deepEqual(anchors.map(a => a.dataset.navSection).sort(), sections.slice().sort());
+    assert.deepEqual(anchors.map(a => a.dataset.navSection), sections);
+    assert.equal(desktop.children.filter(element => element.tagName === 'DETAILS').length, 0);
     assert.ok(anchors.every(a => a.href === urls[a.dataset.navSection]));
-    assert.equal(anchors.find(a => a.dataset.navSection === 'plots').getAttribute('aria-current'), 'page');
+    assert.equal(anchors.find(a => a.dataset.navSection === 'crops').getAttribute('aria-current'), 'page');
     assert.equal(controls['sidebar-farm-context'].hidden, false);
     assert.equal(controls['breadcrumb-farm'].hidden, false);
     assert.equal(controls['breadcrumb-farm-link'].href, urls.dashboard);
@@ -113,33 +109,37 @@ test('farm overview has no duplicated farm-name breadcrumb', () => {
     assert.equal(controls['sidebar-farm-context'].hidden, false);
 });
 
-test('mobile primary bar has four tasks and secondary pages highlight More', () => {
-    const sections = ['dashboard', 'tasks', 'crops', 'inventory', 'reports', 'weather'];
+test('mobile bar offers all four MVP sections and Harvests stays visibly active', () => {
+    const sections = ['dashboard', 'crops', 'inventory', 'reports', 'farm'];
     const { controls, urls } = navigationPage(sections, 'reports');
     const bottom = flatten(controls['mobile-workspace-links']);
-    assert.deepEqual(bottom.map(a => a.dataset.navSection),
-        ['dashboard', 'tasks', 'crops', 'inventory']);
+    assert.deepEqual(bottom.map(a => a.dataset.navSection), ['dashboard', 'crops', 'inventory', 'reports']);
+    assert.deepEqual(bottom.map(a => a.querySelector('span').textContent), ['Today', 'Crops & Calendar', 'Supplies', 'Harvests']);
     assert.ok(bottom.every(a => a.href === urls[a.dataset.navSection]));
-    assert.equal(bottom[0].querySelector('span').textContent, 'Home');
-    assert.equal(controls['mobile-more-button'].dataset.hasCurrent, 'true');
-    const menu = controls['mobile-farm-links'];
-    assert.equal(menu.children.length, 3);
-    assert.deepEqual(flatten(menu).map(a => a.dataset.navSection),
-        ['dashboard', 'tasks', 'crops', 'inventory', 'weather', 'reports']);
+    assert.equal(bottom[3].getAttribute('aria-current'), 'page');
+    assert.notEqual(controls['mobile-more-button'].dataset.hasCurrent, 'true');
+    assert.deepEqual(flatten(controls['mobile-farm-links']).map(a => a.dataset.navSection), ['farm']);
     assert.equal(controls['mobile-workspace-bar'].hidden, false);
 });
 
+test('secondary farm settings highlight More without becoming a fifth primary destination', () => {
+    const { controls } = navigationPage(['dashboard', 'crops', 'inventory', 'reports', 'farm'], 'farm');
+    assert.equal(controls['mobile-more-button'].dataset.hasCurrent, 'true');
+    assert.equal(flatten(controls['mobile-workspace-links']).length, 4);
+    assert.equal(flatten(controls['mobile-farm-links'])[0].getAttribute('aria-current'), 'page');
+});
+
 test('enhancement never invents sections not supplied by the server', () => {
-    const only = ['dashboard', 'tasks'];
-    const { controls, urls } = navigationPage(only, 'tasks');
-    for (const id of ['sidebar-farm-links', 'mobile-farm-links', 'mobile-workspace-links']) {
+    const only = ['dashboard', 'crops'];
+    const { controls, urls } = navigationPage(only, 'crops');
+    for (const id of ['sidebar-farm-links', 'mobile-workspace-links']) {
         const anchors = flatten(controls[id]);
         assert.ok(anchors.length > 0);
         assert.ok(anchors.every(a => only.includes(a.dataset.navSection)));
         assert.ok(anchors.every(a => a.href === urls[a.dataset.navSection]));
     }
     const bottom = flatten(controls['mobile-workspace-links']);
-    assert.equal(bottom.find(a => a.dataset.navSection === 'tasks').getAttribute('aria-current'), 'page');
+    assert.equal(bottom.find(a => a.dataset.navSection === 'crops').getAttribute('aria-current'), 'page');
 });
 
 test('mobile More toggles, Escape restores focus, and outside tap closes the menu', () => {

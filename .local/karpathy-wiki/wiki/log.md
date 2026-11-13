@@ -142,3 +142,8 @@
 ## 2026-11-13 — MVP Stage 0 verified locally
 
 Updated the MVP article and existing execution plan with active callers, safe retention boundaries and the current regression baseline. Added sanitized evidence and appended manifest provenance. No application/schema changes; Stage 1 remains next.
+
+
+## 2026-11-13 — MVP Stage 1 MVC workspace
+
+Four primary farm sections, integrated plot/crop history and simpler Today/Supplies/Harvests presentation; exact eligible water/fertilizer task prefill. Updated only MVP status/context and appended sanitized verification evidence. Shared services, API and schema unchanged. Review/CI remains the merge gate; later stages remain planned.

@@ -1376,6 +1376,39 @@
           "sha256": "ce1e4e4b42299ad8d40104cf454e47c04fc1f10e489554fa5702d8435432f2fe"
         }
       ]
+    },
+    {
+      "date": "2026-11-13",
+      "revision": "a31f64df3538e2c047d70c913803af4cd5af58cc + Stage 1 working tree",
+      "snapshot": "raw/project/2026-11-13-mvp-stage-1.md",
+      "sha256": "8e2b87e88220cfa9e485e22432da5997df258de2fc0ae4aa193f8b036476b596",
+      "scope": "MVP Stage 1 MVC implementation and local verification; remote CI/review gate pending.",
+      "source_files": [
+        {
+          "path": "src/SmartFarm.Web/Controllers/CropsController.cs",
+          "sha256": "1b080f7b0d7da8b6ba73fbbc18afcfc2917e53c217bf59cfba2d9b343938fc80"
+        },
+        {
+          "path": "src/SmartFarm.Web/Controllers/MonitoringController.cs",
+          "sha256": "4b53931486afc8161632af822bbacf5b7bfcda5b33feee8b7fe6a11b09ad8b93"
+        },
+        {
+          "path": "src/SmartFarm.Web/Views/Shared/_FarmNavigation.cshtml",
+          "sha256": "99e805e99e7d85dd9e797e35ff211edce0b5ea6b847b483908bc9898782e93f3"
+        },
+        {
+          "path": "src/SmartFarm.Web/Views/Crops/Index.cshtml",
+          "sha256": "1cddd8789beeb21222c58ac8db0f56af4e3e198ddee85c464dffb62bf19def99"
+        },
+        {
+          "path": "src/SmartFarm.Web/Views/Reports/Harvests.cshtml",
+          "sha256": "b029281623cd8e6e51db153e986e4104ff3f45715a94b682ddbb6144950b4a43"
+        },
+        {
+          "path": "src/SmartFarm.Web/wwwroot/js/farm-navigation.js",
+          "sha256": "9c026f19ba489ee4a29e5c81c72ab00dbe73d7d7d072aa36e5e4b299257ba29b"
+        }
+      ]
     }
   ]
 }

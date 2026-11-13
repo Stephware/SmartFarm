@@ -32,7 +32,9 @@ const screens = [
     ["12d-crops-owner", "/Crops?farmId=123"],
     ["12d-crops-worker", "/Crops?farmId=123"],
     ["12d-edit-plot", "/Farms/EditPlot?id=123&plotId=123"],
-    ["12d-edit-plan", "/Crops/EditPlan?farmId=123&cycleId=123"]
+    ["12d-edit-plan", "/Crops/EditPlan?farmId=123&cycleId=123"],
+    ["mvp-crop-history-owner", "/Crops?farmId=123&cycleId=123"],
+    ["mvp-crop-history-worker", "/Crops?farmId=123&cycleId=123"]
 ];
 const widths = [320, 375, 768, 1024, 1440];
 
@@ -76,6 +78,17 @@ const widths = [320, 375, 768, 1024, 1440];
                     assert.ok(measures.content <= measures.window + 2,
                         name + " " + width + ": horizontal overflow " + measures.content + " > " + measures.window);
                     assert.equal(measures.unlabeled, 0, name + ": unlabeled interactive controls");
+                    if (await page.locator('main .farm-navigation').count()) {
+                        assert.deepEqual(await page.locator('#mobile-workspace-links a span').allTextContents(),
+                            ['Today', 'Crops & Calendar', 'Supplies', 'Harvests']);
+                        assert.equal(await page.locator('#sidebar-farm-links a:not(.farm-nav-secondary)').count(), 4);
+                    }
+                    if (name.startsWith('mvp-crop-history')) {
+                        assert.equal(await page.locator('#crop-history').isVisible(), true);
+                        assert.equal(await page.getByRole('heading', { name: 'History and upcoming milestones' }).count(), 1);
+                        assert.equal(await page.locator('a[href^="/CropTimeline"]').count(), 0);
+                        if (name.endsWith('worker')) assert.equal(await page.getByText('Save planting plan', { exact: true }).count(), 0);
+                    }
                     if (name === "farms-empty") {
                         assert.equal(await page.getByText("No farms yet").count(), 1);
                         assert.equal(await page.locator("#join-farm").count(), 1);
@@ -131,7 +144,8 @@ const widths = [320, 375, 768, 1024, 1440];
                     }
                     if (name === "dashboard-owner") {
                         assert.equal(await page.locator(".ani12c-role-owner").count(), 1);
-                        assert.equal(await page.locator(".ani12c-owner-decisions > a").count(), 3);
+                        assert.equal(await page.getByRole("link", { name: "Review team requests" }).count(), 1);
+                        assert.equal(await page.getByText("Cash records", { exact: true }).count(), 0);
                     }
                     if (name === "dashboard-manager")
                         assert.equal(await page.locator(".ani12c-role-manager").count(), 1);

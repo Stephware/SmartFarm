@@ -9,6 +9,7 @@ public sealed record MonitoringWorkspaceViewModel(
     IReadOnlyList<FarmTaskDetails> Tasks)
 {
     public bool CanManageIssues { get; init; }
+    public Guid ActorId { get; init; }
     public RecordActivityInput Activity { get; init; } = new() { ActivityType = 1 };
     public RecordObservationInput Observation { get; init; } = new();
 }

@@ -1,0 +1,39 @@
+/* MVP composition within the existing AniGo design system. */
+@layer components {
+  .sidebar-links a.farm-nav-secondary { margin-top: 16px; border-top: 1px solid var(--ui-nav-selected); border-radius: 0; padding-top: 16px; }
+  .mvp-farm-navigation > .farm-nav-secondary { border-inline-start: 1px solid var(--stroke); }
+  .mvp-task-action, .mvp-today .form-notice a, .mvp-crop-history a { display: inline-flex; align-items: center; min-height: 44px; padding-block: 8px; }
+  .mvp-farm-context { font-weight: 650; color: var(--text); }
+  .ani12d-crop-tabs { flex-wrap: wrap; overflow: visible; }
+  .mvp-crop-counts { margin: 20px 0 0; color: var(--muted); font-size: .875rem; }
+  .ani12d-current-grid .ani-current-card { display: block; min-height: 0; }
+  .ani12d-record .sf-crop-card-heading { display: flex; align-items: flex-start; gap: 12px; }
+  .ani12d-record .sf-crop-card-heading > div { flex: 1; min-width: 0; }
+  .mvp-today .ani12c-metrics > a, .mvp-today .ani12c-attention-links a { border-left-width: 1px; }
+  .mvp-today .sf-home-task-list li { border-left: 0; padding-left: 0; }
+  .mvp-plot-directory, .mvp-crop-history, .mvp-harvests > .panel { margin-bottom: 24px; }
+  .mvp-plot-directory .data-table { min-width: 600px; }
+  .mvp-plot-directory .data-table a { display: flex; align-items: center; min-height: 44px; padding-block: 8px; }
+  .mvp-plot-directory .data-table th[scope="row"] { color: var(--text); background: var(--surface); }
+  .mvp-workspace-details, .mvp-report-breakdown { margin: 24px 0; }
+  .mvp-workspace-details > summary, .mvp-report-breakdown > summary,
+  .mvp-report-filter-options > summary { min-height: 44px; padding: 12px 0; color: var(--primary); font-weight: 650; cursor: pointer; }
+  .mvp-workspace-details > .panel { margin-top: 12px; }
+  .mvp-harvests .report-filters { grid-template-columns: repeat(2, minmax(0, 1fr)) auto; }
+  .mvp-report-filter-options { grid-column: 1 / -1; }
+  .mvp-filter-fields { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; padding-top: 12px; }
+  .mvp-harvests .sf-report-actions { margin-top: 16px; }
+  .mvp-report-breakdown > .panel { margin-top: 16px; }
+  @media (max-width: 1000px) {
+    .mobile-workspace-links a { min-height: 64px; }
+    .mobile-workspace-links a span { white-space: normal; min-height: 2.6em; text-align: center; }
+  }
+  @media (max-width: 600px) {
+    .mvp-today .ani12c-metrics > a { display: flex; align-items: center; gap: 12px; padding: 12px; }
+    .mvp-today .ani12c-metrics > a strong { font-size: 1.5rem; }
+    .mvp-today .ani12c-metrics > a span { min-width: 0; line-height: 1.4; }
+    .mvp-harvests .report-filters, .mvp-filter-fields { grid-template-columns: minmax(0, 1fr); }
+    .mvp-harvests .sf-report-actions { align-items: stretch; }
+    .mvp-harvests .sf-report-actions a { flex: 1 1 150px; }
+  }
+}

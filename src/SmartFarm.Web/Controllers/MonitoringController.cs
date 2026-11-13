@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using SmartFarm.Core.Contracts.Farms;
 using SmartFarm.Core.Contracts.Monitoring;
+using SmartFarm.Core.Enums;
 using SmartFarm.Core.Interfaces.Crops;
 using SmartFarm.Core.Interfaces.Farms;
 using SmartFarm.Core.Interfaces.Monitoring;
@@ -42,15 +43,17 @@ public sealed class MonitoringController : Controller
         ? id : Guid.Empty;
 
     [HttpGet]
-    public Task<IActionResult> Index(Guid farmId, Guid cycleId, CancellationToken ct, string? quick = null) =>
+    public Task<IActionResult> Index(Guid farmId, Guid cycleId, CancellationToken ct,
+        string? quick = null, Guid? taskId = null) =>
         Workspace(farmId, cycleId, ct,
             activity: new RecordActivityInput
             {
                 ActivityType = quick == "fertilizing" ? (byte)2 : (byte)1
-            });
+            }, requestedTaskId: taskId);
 
     private async Task<IActionResult> Workspace(Guid farmId, Guid cycleId, CancellationToken ct,
-        RecordActivityInput? activity = null, RecordObservationInput? observation = null)
+        RecordActivityInput? activity = null, RecordObservationInput? observation = null,
+        Guid? requestedTaskId = null)
     {
         try
         {
@@ -68,10 +71,20 @@ public sealed class MonitoringController : Controller
             }
             catch (DbException) { /* Read-only monitoring remains available. */ }
             catch (HttpRequestException) { /* API role lookup unavailable. */ }
+            if (requestedTaskId is { } selectedTask)
+            {
+                var type = activity?.ActivityType == 2 ? (byte)FarmTaskType.Fertilizing : (byte)FarmTaskType.Watering;
+                if (cycle.Status != CropCycleStatus.Active || !taskList.Any(t =>
+                    t.Id == selectedTask && t.FarmId == farmId && t.CropCycleId == cycleId &&
+                    t.Status == 0 && t.TaskType == type &&
+                    (canManageIssues || t.AssignedToUserId == Actor))) return NotFound();
+                activity!.FarmTaskId = selectedTask;
+            }
             return View("Index", new MonitoringWorkspaceViewModel(cycle,
                 monitoring, taskList)
             {
                 CanManageIssues = canManageIssues,
+                ActorId = Actor,
                 Activity = activity ?? new() { ActivityType = 1 }, Observation = observation ?? new()
             });
         }

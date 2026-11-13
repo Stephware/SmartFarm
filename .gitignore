@@ -79,5 +79,6 @@ node_modules/
 # Task-local visual candidates and Impeccable decision artifacts.
 /tests/browser/screenshots/
 /tests/browser/parity-output/
+/tests/browser/authenticated-fixtures/
 /.impeccable/questions/
 /.impeccable/mocks/

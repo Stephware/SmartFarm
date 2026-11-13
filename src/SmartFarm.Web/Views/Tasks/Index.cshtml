@@ -162,11 +162,15 @@
                             var crop = Model.Cycles.FirstOrDefault(c => c.Id == cropId);
                             if (crop is not null)
                             {
-                                <a class="ani-task-crop-link" asp-controller="Monitoring" asp-action="Index"
-                                   asp-route-farmId="@Model.Farm.Id" asp-route-cycleId="@crop.Id"
-                                   asp-fragment="record-activity">
-                                    @crop.CropTypeName · @crop.PlotName — Record fieldwork →
-                                </a>
+                                <span class="sf-muted">@crop.CropTypeName · @crop.PlotName</span>
+                                @if (crop.Status == CropCycleStatus.Active && task.Status == 0 && (canManage || task.AssignedToUserId == actorId))
+                                {
+                                    <partial name="_TaskRecordLink" model="task" />
+                                }
+                                else
+                                {
+                                    <a class="ani-task-crop-link" asp-controller="Crops" asp-action="Index" asp-route-farmId="@Model.Farm.Id" asp-route-cycleId="@crop.Id" asp-fragment="crop-history">View crop history</a>
+                                }
                             }
                         }
                     </div>

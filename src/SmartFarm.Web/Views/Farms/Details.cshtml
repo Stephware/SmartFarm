@@ -61,7 +61,7 @@
                 <h2 id="plots-heading">Plots</h2>
                 <p class="sf-muted">Manage your farm's growing spaces.</p>
             </div>
-            <a asp-controller="PlotLayout" asp-action="Index" asp-route-farmId="@Model.Farm.Id">See plot overview →</a>
+            <a asp-controller="Crops" asp-action="Index" asp-route-farmId="@Model.Farm.Id" asp-fragment="farm-plots">See plots →</a>
         </div>
         @if (Model.Plots.Count == 0)
         {

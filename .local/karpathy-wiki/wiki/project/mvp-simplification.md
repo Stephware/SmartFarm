@@ -1,22 +1,22 @@
 # Farmer-first MVP simplification — target state
 
 > Sources: approved MVP brief and SmartFarm dev source, 2026-11-13
-> Raw: [Stage 0 source and regression evidence](../../raw/project/2026-11-13-mvp-stage-0.md)
+> Raw: [Stage 0 source and regression evidence](../../raw/project/2026-11-13-mvp-stage-0.md), [Stage 1 MVC evidence](../../raw/project/2026-11-13-mvp-stage-1.md)
 > Updated: 2026-11-13
 
-**Stage 0 verified locally; application simplification remains planned.** Source baseline: `29c55166f390efacfd5f717af98f506d50873dd5`. No functionality has been retired by this stage.
+**Stages 0–1 verified locally; Stage 1 review/CI pending.** Stage 1 is based on `a31f64d`. Android, shorter recording flows, offline clarity and obsolete-route retirement remain planned. No data or shared business-service functionality has been removed.
 
 ## Why
-The existing SmartFarm/AniGo implements more features than the course MVP. MVC has nine primary farm links; Android has five primary tabs plus additional More entries. Separate plot, timeline, finance, insight and support screens make the daily grower workflow hard to navigate. Simplify the **farmer-facing product**, not the essential transaction/offline architecture.
+The existing SmartFarm/AniGo implements more features than the course MVP. Before this refactor MVC had nine primary farm links. MVC now has four; Android still has five primary tabs plus additional More entries. Separate plot, timeline, finance, insight and support screens make the daily grower workflow hard to navigate. Simplify the **farmer-facing product**, not the essential transaction/offline architecture.
 
 ## Required MVP components
 MVC farms/plots/crop calendar/harvest reports/inventory; API farm activities/observations/photos/harvests/supplies; Hangfire planting/watering/harvest reminders and weather checks; Kotlin/Room offline inspection/photos/activity logging; weather external API. See the canonical [PRODUCT.md](../../../../PRODUCT.md).
 
-## Navigation target (not current)
+## Navigation status
 | Client | Target primary destinations | Secondary |
 | --- | --- | --- |
-| Web MVC | Today, Crops & Calendar, Supplies, Harvests | Farm/team administration, account, basic Help |
-| Android | Today, Record, My Farm | Account/settings, owner/manager tools, sync exception recovery |
+| Web MVC — implemented in Stage 1 | Today, Crops & Calendar, Supplies, Harvests | Farm/team administration, account, basic Help |
+| Android — planned Stage 2 | Today, Record, My Farm | Account/settings, owner/manager tools, sync exception recovery |
 
 Roles: Owner/Manager manage farm setup, crops, tasks, stock setup and members subject to existing server permissions; Field Worker records authorized crop activities, photos, stock use and partial harvests. Do **not** remove essential owner approval or bypass farm access.
 
@@ -25,6 +25,13 @@ Roles: Owner/Manager manage farm setup, crops, tasks, stock setup and members su
 - **Merge:** MVC Plot Layout into crop/plot list; Crop Timeline into crop history; tasks and notifications into Today; weather as Today preview; Android old Tasks/Crops/More flows into three destinations.
 - **Short forms:** Record Water / Inspect / Use Supplies / Harvest / Other with appropriate defaults, conditional issue fields, preserved validations, safe timezone and correct task linking.
 - **Offline:** hide routine sync plumbing from navigation but show truthful queued/sent/review states. Keep Room/WorkManager, user scoping, retry and explicit conflict review.
+
+## Stage 1 MVC behavior
+Today prioritizes authorized due work, saved crop concerns and timestamped weather; membership approval remains secondary owner-only Farm & team. Water/fertilizer task links preselect the exact eligible pending task; inspection and harvest links choose the correct crop, with short-form/task completion work still in Stage 3.
+
+Crops & Calendar contains all active plots, crop records and selected authorized history, including terminal cycles and private photo links. Native details/fragment navigation works without JavaScript. Supplies retains ledger and management safeguards. Harvests retains full filtered per-unit totals, bounded recent history, and both safe CSV exports; charts and finance links are removed from this page. Legacy plot/timeline routes still exist until Stage 5.
+
+Local Stage 1 checks: solution build, 565 SQL-enabled .NET tests without skips, 60 Node tests, 104 live disposable-SQL variants and 220 Linux synthetic authenticated screens across roles/themes/mobile sizes; 30 public baselines unchanged. No overflow or reported axe violations. These checks do not establish real-farmer, device, provider/job or production acceptance.
 
 ## Retire only after auditing dependencies
 - Farm finance manual cash ledger/analytics from active product UI and code.

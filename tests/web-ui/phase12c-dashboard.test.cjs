@@ -33,11 +33,11 @@ test("Phase 12C always chooses a crop explicitly when multiple are active", () =
 });
 test("Worker task queue excludes other workers and owner-only actions remain isolated", () => {
     assert.match(rules, /tasks\.Where\(t => t\.AssignedToUserId == actorId\)/);
-    assert.match(farm, /VisibleOpenTaskIds\.Contains\(a\.TargetId\)/);
+    assert.match(farm, /AttentionItems\.Where\(a => a\.Kind != "task"\)/);
     assert.match(farm, /Your assigned work/);
-    assert.match(farm, /Team requests needing a decision/);
+    assert.match(farm, /Review team requests/);
     assert.match(farm, /@if \(role\.IsOwner\)/);
-    assert.match(farm, /@if \(!role\.IsFieldWorker\)/);
+    assert.doesNotMatch(farm, /Cash records/);
     assert.match(farm, /Upcoming assigned/);
     assert.match(farm, /Crop concerns/);
     assert.doesNotMatch(farm, /sf-home-progress/);

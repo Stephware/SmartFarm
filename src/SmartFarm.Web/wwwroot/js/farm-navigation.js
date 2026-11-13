@@ -21,72 +21,23 @@
     if (!links.size) return;
 
     const isCurrent = section => links.get(section)?.getAttribute("aria-current") === "page";
-    const copy = (section, label) => {
+    const direct = (container, section) => {
         const original = links.get(section);
         if (!original) return null;
         const item = original.cloneNode(true);
         item.classList.add("nav-link");
-        if (label) {
-            const text = item.querySelector("span");
-            if (text) text.textContent = label;
-        }
+        container.append(item);
         return item;
     };
 
-    const direct = (container, section, label) => {
-        const item = copy(section, label);
-        if (item) container.append(item);
-        return item;
-    };
-
-    const disclosure = (container, label, sections) => {
-        const available = sections.filter(section => links.has(section));
-        if (!available.length) return;
-        const details = document.createElement("details");
-        details.className = "farm-nav-disclosure";
-        const summary = document.createElement("summary");
-        summary.textContent = label;
-        const items = document.createElement("div");
-        items.className = "farm-nav-disclosure-links";
-        for (const section of available) direct(items, section);
-        if (available.some(isCurrent)) {
-            details.open = true;
-            details.classList.add("has-current");
-        }
-        details.append(summary, items);
-        container.append(details);
-    };
-
-    // The primary sidebar stays short even for farms with every module enabled.
-    direct(desktop, "dashboard");
-    disclosure(desktop, "Fields & crops", ["crops", "plots"]);
-    direct(desktop, "tasks");
-    direct(desktop, "inventory");
-    direct(desktop, "weather");
-    direct(desktop, "reports");
-    disclosure(desktop, "Farm management", ["farm", "finance"]);
-
-    const mobileSection = (label, sections) => {
-        const available = sections.filter(section => links.has(section));
-        if (!available.length) return;
-        const section = document.createElement("section");
-        section.className = "mobile-menu-section";
-        const title = document.createElement("h2");
-        title.textContent = label;
-        section.append(title);
-        for (const item of available) direct(section, item);
-        mobile.append(section);
-    };
-    mobileSection("Daily work", ["dashboard", "tasks", "crops"]);
-    mobileSection("Farm tools", ["plots", "inventory", "weather"]);
-    mobileSection("Records & management", ["reports", "finance", "farm"]);
-
-    for (const section of ["dashboard", "tasks", "crops", "inventory"])
-        direct(bottom, section, section === "dashboard" ? "Home" : undefined);
-
-    // A secondary farm page stays visibly located under More on a phone.
-    if (["plots", "weather", "reports", "farm", "finance"].some(isCurrent))
-        more.dataset.hasCurrent = "true";
+    // Four daily destinations; settings stay secondary.
+    for (const section of ["dashboard", "crops", "inventory", "reports"]) {
+        direct(desktop, section);
+        direct(bottom, section);
+    }
+    direct(desktop, "farm")?.classList.add("farm-nav-secondary");
+    direct(mobile, "farm");
+    if (isCurrent("farm")) more.dataset.hasCurrent = "true";
 
     const syncMenuState = () => more.setAttribute("aria-expanded", String(menu.open));
     more.addEventListener("click", () => {
