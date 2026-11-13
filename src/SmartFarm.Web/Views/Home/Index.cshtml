@@ -88,7 +88,8 @@
             <h3>I manage a farm</h3>
             <p>Create a farm, set up growing areas, plan crops, and bring your team together.</p>
             <a class="button" asp-controller="@(signedIn ? "Farms" : "Account")"
-               asp-action="@(signedIn ? "Create" : "Register")">@(signedIn ? "Create a farm" : "Create an account")</a>
+               asp-action="@(signedIn ? "Create" : "Register")"
+               asp-route-returnUrl="@(signedIn ? null : Url.Action("Create", "Farms"))">@(signedIn ? "Create a farm" : "Create an account to manage")</a>
         </article>
         <article class="ani-entry-path-card">
             <span class="ani-entry-path-step">FOR FIELD WORKERS AND TEAM MEMBERS</span>
@@ -96,6 +97,7 @@
             <p>Have a farm code? Create an account, request to join, and wait for the owner to approve your access.</p>
             <a class="ani-entry-path-link" asp-controller="@(signedIn ? "Farms" : "Account")"
                asp-action="@(signedIn ? "Index" : "Register")"
+               asp-route-returnUrl="@(signedIn ? null : Url.Action("Index", "Farms") + "#join-farm")"
                asp-fragment="@(signedIn ? "join-farm" : null)">@(signedIn ? "Enter a farm code" : "Create an account to join") <span aria-hidden="true">→</span></a>
         </article>
     </div>
