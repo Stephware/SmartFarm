@@ -50,6 +50,6 @@ test("Super Admin is still authorized and displays verified job counts only", ()
     assert.match(admin, /Failed jobs · 7 days/);
     assert.match(admin, /Administrative activity/);
     assert.match(admin, /Recently registered farms/);
-    assert.match(admin, /Read-only/);
+    assert.match(admin, /READ-ONLY STATUS/);
     assert.doesNotMatch(admin, /asp-action="(Delete|Impersonate|RetryJobs|TransferOwnership)"/);
 });
