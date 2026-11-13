@@ -52,7 +52,10 @@
   .ani12c-owner-decisions a:hover { border-color: var(--ui-primary); background: var(--ui-surface); }
   .ani12c-owner-decisions a strong { font-size: 1.2rem; line-height: 1.25; font-variant-numeric: tabular-nums; overflow-wrap: anywhere; }
   .ani12c-owner-decisions a span { font-size: .875rem; line-height: 1.45; color: var(--ui-text-secondary); }
-  .ani12c-farm-dashboard .ani-dashboard-primary-grid { gap: 18px; align-items: stretch; }
+  .ani12c-farm-dashboard .ani-dashboard-primary-grid { gap: 18px; align-items: start; }
+  .ani12c-farm-dashboard .ani-dashboard-primary-grid > .sf-home-card { height: auto; }
+  .ani12c-dashboard-rail { display: grid; gap: 18px; min-width: 0; align-content: start; }
+  .ani12c-dashboard-rail > .sf-home-card { min-width: 0; margin: 0; }
   .ani12c-farm-dashboard .ani-dashboard-primary-grid .sf-home-card {
     border-radius: 14px; border: 1px solid var(--ui-border);
     background: var(--ui-surface);
