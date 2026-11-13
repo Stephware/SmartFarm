@@ -33,6 +33,8 @@ test("Super Admin routes remain visible on desktop and mobile with active state"
     assert.match(layout, /aria-label="Mobile platform administration"/);
     assert.match(layout, /aria-label="Admin navigation"/);
     assert.match(layout, /id="ani12f-admin-mobile-links"/);
+    assert.ok(layout.includes('asp-controller="Dashboard" asp-action="Index" aria-current="@(section == "Dashboard" ? "page" : null)">Admin overview</a>'));
+    assert.ok(!layout.includes('class="crumb"><a asp-area="Admin" asp-controller="Dashboard" asp-action="Index" aria-current='));
     assert.match(layout, /href="#main-content"/);
     assert.match(layout, /id="main-content"/);
 });
