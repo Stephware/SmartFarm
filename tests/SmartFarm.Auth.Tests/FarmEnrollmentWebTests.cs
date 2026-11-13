@@ -1307,7 +1307,14 @@ public sealed class FarmEnrollmentWebTests
 
         async Task Capture(string name, string role, IReadOnlyList<CropCycleDetails> cycles)
         {
+            var today = new DateOnly(2026, 10, 27);
+            // Keep the fake reporting snapshot consistent with the fake task/plot/crop rows.
+            // Otherwise a screenshot can show "0 active crops" beside populated crops.
+            var report = new FarmDashboard(FarmId, "Green Farm", today,
+                2, 0, cycles.Count, 0,
+                tasks.Length, tasks.Count(t => t.DueDate < today), 0, 0, [], []);
             using var app = App(role: role, cycles: cycles, taskList: tasks,
+                dashboardReport: report,
                 plots: [new(plotA, FarmId, "North plot", 150m, "v"),
                         new(plotB, FarmId, "South plot", 200m, "v")]);
             using var client = app.CreateClient();
@@ -1395,7 +1402,8 @@ public sealed class FarmEnrollmentWebTests
         FarmFinanceInsights? financeInsights = null,
         Func<string, object?[]?, object>? cropWrites = null,
         Func<string, object?[]?, object>? monitoringWrites = null,
-        Func<string, object?[]?, object>? harvestWrites = null) =>
+        Func<string, object?[]?, object>? harvestWrites = null,
+        FarmDashboard? dashboardReport = null) =>
         new WebApplicationFactory<Program>().WithWebHostBuilder(builder => builder.ConfigureTestServices(services =>
         {
             services.AddSingleton<IAuthenticationService, SignedIn>();
@@ -1410,7 +1418,7 @@ public sealed class FarmEnrollmentWebTests
             services.AddScoped(_ => Stub<IFarmReportService>((name, _) => name switch
             {
                 "DashboardAsync" => Task.FromResult(
-                    new FarmDashboard(FarmId, "Green Farm", new DateOnly(2026,10,27),
+                    dashboardReport ?? new FarmDashboard(FarmId, "Green Farm", new DateOnly(2026,10,27),
                         0,0,0,0,0,0,0,0,[],[])),
                 "HarvestsAsync" => Task.FromResult(harvestReport ?? new HarvestReport(
                     FarmId, "Green Farm", "Asia/Manila",
