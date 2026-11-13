@@ -1329,6 +1329,96 @@ public sealed class FarmEnrollmentWebTests
         await Capture("dashboard-empty", "FieldWorker", []);
     }
 
+    [Theory]
+    [InlineData("Owner", true)]
+    [InlineData("Manager", true)]
+    [InlineData("FieldWorker", false)]
+    public async Task Phase12DFarmAndCropWorkflowsRespectRoles(string role, bool canManage)
+    {
+        var plotId = Guid.NewGuid();
+        var cropTypeId = Guid.NewGuid();
+        using var app = App(role, plots: [new(plotId, FarmId, "North field", 100m, "v")],
+            cropTypes: [new(cropTypeId, "Tomato", 90, 4, "kg")]);
+        using var client = app.CreateClient(new() { AllowAutoRedirect = false });
+        var farmHtml = await client.GetStringAsync($"/Farms/Details?id={FarmId}");
+        var plotHtml = await client.GetStringAsync($"/PlotLayout?farmId={FarmId}");
+        var cropHtml = await client.GetStringAsync($"/Crops?farmId={FarmId}&month=2026-10");
+        Assert.Contains("ani12d-farm-workspace", farmHtml);
+        Assert.Contains("ani12d-farm-summary", farmHtml);
+        Assert.Contains("Plot directory, not a map.", plotHtml);
+        Assert.Contains("North field", plotHtml);
+        Assert.Contains("ani12d-calendar", cropHtml);
+        Assert.Contains("ani12d-agenda-details", cropHtml);
+        Assert.Contains("crop-calendar-heading", cropHtml);
+        if (canManage)
+        {
+            Assert.Contains("id=\"add-plot\"", farmHtml);
+            Assert.Contains("Save planting plan", cropHtml);
+            Assert.Contains("Choose a plot", cropHtml);
+            Assert.Contains("Choose a crop", cropHtml);
+        }
+        else
+        {
+            Assert.DoesNotContain("id=\"add-plot\"", farmHtml);
+            Assert.DoesNotContain("Save planting plan", cropHtml);
+            Assert.DoesNotContain("Archive farm", farmHtml);
+            Assert.Equal(HttpStatusCode.NotFound,
+                (await client.GetAsync($"/Farms/EditPlot?id={FarmId}&plotId={plotId}")).StatusCode);
+        }
+    }
+
+    [Fact]
+    public async Task Phase12DAuthenticatedBrowserFixtures()
+    {
+        if (Environment.GetEnvironmentVariable("ANIGO_CAPTURE_AUTH_FIXTURES") != "1") return;
+        var root = new DirectoryInfo(AppContext.BaseDirectory);
+        while (root is not null && !File.Exists(Path.Combine(root.FullName, "SmartFarm.slnx")))
+            root = root.Parent;
+        Assert.NotNull(root);
+        var directory = Path.Combine(root.FullName, "tests", "browser", "authenticated-fixtures");
+        Directory.CreateDirectory(directory);
+        var north = Guid.NewGuid();
+        var south = Guid.NewGuid();
+        var type = Guid.NewGuid();
+        var active = new CropCycleDetails(Guid.NewGuid(), FarmId, north, "North field",
+            type, "Tomato", CropCycleStatus.Active,
+            new DateOnly(2026, 10, 5), new DateOnly(2026, 10, 6),
+            new DateOnly(2026, 12, 10), "kg", 4, null, null, "v");
+        var planned = active with { Id = Guid.NewGuid(), PlotId = south,
+            PlotName = "South field", Status = CropCycleStatus.Planned,
+            PlantedDate = null, PlannedPlantingDate = new DateOnly(2026, 11, 15) };
+        var plots = new PlotDetails[]
+        {
+            new(north, FarmId, "North field", 150m, "v"),
+            new(south, FarmId, "South field", 200m, "v")
+        };
+        var types = new CropTypeDetails[] { new(type, "Tomato", 95, 4, "kg") };
+
+        async Task Capture(WebApplicationFactory<Program> app, string name, string url)
+        {
+            using var client = app.CreateClient();
+            using var response = await client.GetAsync(url);
+            Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+            var html = await response.Content.ReadAsStringAsync();
+            Assert.Contains("id=\"main-content\"", html);
+            await File.WriteAllTextAsync(Path.Combine(directory, name + ".html"), html);
+        }
+
+        using (var owner = App("Owner", plots: plots, cycles: [active, planned], cropTypes: types))
+        {
+            await Capture(owner, "12d-farm-owner", $"/Farms/Details?id={FarmId}");
+            await Capture(owner, "12d-plots-owner", $"/PlotLayout?farmId={FarmId}");
+            await Capture(owner, "12d-crops-owner", $"/Crops?farmId={FarmId}&month=2026-11");
+            await Capture(owner, "12d-edit-plot", $"/Farms/EditPlot?id={FarmId}&plotId={north}");
+            await Capture(owner, "12d-edit-plan", $"/Crops/EditPlan?farmId={FarmId}&cycleId={planned.Id}");
+        }
+        using (var worker = App("FieldWorker", plots: plots, cycles: [active, planned], cropTypes: types))
+        {
+            await Capture(worker, "12d-plots-worker", $"/PlotLayout?farmId={FarmId}");
+            await Capture(worker, "12d-crops-worker", $"/Crops?farmId={FarmId}&month=2026-11");
+        }
+    }
+
     // Capture real Razor HTML with deterministic signed-in roles for Chromium screenshot
     // verification. These are fixtures, never production credentials or seeded farm data.
     [Fact]
@@ -1412,6 +1502,7 @@ public sealed class FarmEnrollmentWebTests
                 "ListAsync" => Task.FromResult<IReadOnlyList<FarmSummary>>(farms ?? []),
                 "GetAsync" => Task.FromResult<FarmDetails?>(new(FarmId, "Green Farm", "Location", "Asia/Manila", null, null, role, "version")),
                 "ListPlotsAsync" => Task.FromResult<IReadOnlyList<PlotDetails>>(plots ?? []),
+                "GetPlotAsync" => Task.FromResult<PlotDetails?>(plots?.FirstOrDefault(p => p.Id == (Guid)args![1]!)),
                 "MembersAsync" => Task.FromResult<IReadOnlyList<FarmMemberDetails>>([]),
                 _ => throw new NotSupportedException(name)
             }));
