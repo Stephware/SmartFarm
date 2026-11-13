@@ -87,6 +87,8 @@ public sealed class Phase12FAdminViewTests
         routes.Values["area"] = "Admin";
         routes.Values["controller"] = controller;
         routes.Values["action"] = action;
+        // Razor link tag helpers need an IRouter when called outside a real request.
+        routes.Routers.Add(new FixtureRouter());
         var context = new ActionContext(http, routes, new ActionDescriptor());
         var engine = scope.ServiceProvider.GetRequiredService<IRazorViewEngine>();
         var viewPath = $"/Areas/Admin/Views/{controller}/{(action == "Editor" ? "Editor" : action)}.cshtml";
@@ -101,6 +103,31 @@ public sealed class Phase12FAdminViewTests
             new HtmlHelperOptions());
         await lookup.View.RenderAsync(viewContext);
         return writer.ToString();
+    }
+
+    // Link generation only; never matches HTTP requests or grants authentication.
+    private sealed class FixtureRouter : IRouter
+    {
+        public Task RouteAsync(RouteContext context) => Task.CompletedTask;
+
+        public VirtualPathData? GetVirtualPath(VirtualPathContext context)
+        {
+            var values = context.Values;
+            var controller = values.TryGetValue("controller", out var c) ? c?.ToString() : "Dashboard";
+            var action = values.TryGetValue("action", out var a) ? a?.ToString() : "Index";
+            var area = values.TryGetValue("area", out var r) ? r?.ToString() : "Admin";
+            var prefix = string.Equals(area, "Admin", StringComparison.OrdinalIgnoreCase)
+                ? "/admin" : "";
+            var path = prefix + (controller == "Dashboard" && action == "Index"
+                ? "" : "/" + controller?.ToLowerInvariant());
+            if (action is not ("Index" or null)) path += "/" + action?.ToLowerInvariant();
+            var extras = values
+                .Where(kv => kv.Key is not ("area" or "controller" or "action") && kv.Value is not null)
+                .Select(kv => Uri.EscapeDataString(kv.Key) + "=" +
+                    Uri.EscapeDataString(kv.Value!.ToString() ?? ""));
+            var query = string.Join("&", extras);
+            return new VirtualPathData(this, path + (query.Length > 0 ? "?" + query : ""));
+        }
     }
 
     [Fact]
