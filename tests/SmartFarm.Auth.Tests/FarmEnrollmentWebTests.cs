@@ -1281,6 +1281,47 @@ public sealed class FarmEnrollmentWebTests
         Assert.DoesNotContain("Your selected next step", html);
     }
 
+    [Fact]
+    public async Task Phase12CDashboardBrowserFixtures()
+    {
+        if (Environment.GetEnvironmentVariable("ANIGO_CAPTURE_AUTH_FIXTURES") != "1") return;
+
+        var root = new DirectoryInfo(AppContext.BaseDirectory);
+        while (root is not null && !File.Exists(Path.Combine(root.FullName, "SmartFarm.slnx")))
+            root = root.Parent;
+        Assert.NotNull(root);
+        var directory = Path.Combine(root.FullName, "tests", "browser", "authenticated-fixtures");
+        Directory.CreateDirectory(directory);
+        var plotA = Guid.NewGuid();
+        var plotB = Guid.NewGuid();
+        var one = new CropCycleDetails(Guid.NewGuid(), FarmId, plotA, "North plot",
+            Guid.NewGuid(), "Tomato", CropCycleStatus.Active,
+            new DateOnly(2026, 10, 1), new DateOnly(2026, 10, 2),
+            new DateOnly(2026, 12, 1), "kg", 3, null, null, "v");
+        var another = one with { Id = Guid.NewGuid(), PlotId = plotB,
+            PlotName = "South plot", CropTypeName = "Rice" };
+        var tasks = Enumerable.Range(0, 18).Select(i => new FarmTaskDetails(
+            Guid.NewGuid(), FarmId, null, i % 2 == 0 ? Actor : Guid.NewGuid(),
+            1, new DateOnly(2026, 10, 27).AddDays(i - 9), 0,
+            "Test task " + (i + 1), DateTime.UtcNow, null, "v")).ToArray();
+
+        async Task Capture(string name, string role, IReadOnlyList<CropCycleDetails> cycles)
+        {
+            using var app = App(role: role, cycles: cycles, taskList: tasks,
+                plots: [new(plotA, FarmId, "North plot", 150m, "v"),
+                        new(plotB, FarmId, "South plot", 200m, "v")]);
+            using var client = app.CreateClient();
+            var html = await client.GetStringAsync($"/Dashboard?farmId={FarmId}");
+            Assert.Contains("ani12c-farm-dashboard", html);
+            await File.WriteAllTextAsync(Path.Combine(directory, name + ".html"), html);
+        }
+        await Capture("dashboard-owner", "Owner", [one]);
+        await Capture("dashboard-manager", "Manager", [one]);
+        await Capture("dashboard-worker", "FieldWorker", [one]);
+        await Capture("dashboard-multiple-crops", "Owner", [another, one]);
+        await Capture("dashboard-empty", "FieldWorker", []);
+    }
+
     // Capture real Razor HTML with deterministic signed-in roles for Chromium screenshot
     // verification. These are fixtures, never production credentials or seeded farm data.
     [Fact]
