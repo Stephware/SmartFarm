@@ -9,6 +9,9 @@ import okhttp3.mockwebserver.Dispatcher
 import okhttp3.mockwebserver.MockResponse
 import okhttp3.mockwebserver.MockWebServer
 import okhttp3.mockwebserver.RecordedRequest
+import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.flow.first
+import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Assume.assumeTrue
 import org.junit.Rule
@@ -31,7 +34,15 @@ class FullAppJourneyTest {
         val due = LocalDate.now(ZoneId.of("Asia/Manila")).toString()
         val farm = """{"id":"farm","name":"Green Valley Farm","locationText":"Angeles","timeZoneId":"Asia/Manila","role":"Owner","rowVersion":"version"}"""
         val secondFarm = farm.replace("\"farm\"", "\"second\"").replace("Green Valley Farm", "Second Farm")
-        fun task(): String = """{"id":"task","farmId":"farm","cropCycleId":null,"assignedToUserId":"journey-user","taskType":2,"dueDate":"$due","status":${if (completed.get()) 1 else 0},"description":"Water north plot","rowVersion":"version"}"""
+        val manualDue = LocalDate.parse(due).minusDays(1).toString()
+        fun task(): String = """{"id":"task","farmId":"farm","cropCycleId":null,"assignedToUserId":"journey-user","taskType":2,"dueDate":"$manualDue","status":${if (completed.get()) 1 else 0},"description":"Water north plot","rowVersion":"version"}"""
+        val linkedTaskId = "11111111-1111-4111-8111-111111111111"
+        val linkedTask = """{"id":"$linkedTaskId","farmId":"farm","cropCycleId":"crop","assignedToUserId":"journey-user","taskType":2,"dueDate":"$due","status":0,"description":"Water this exact crop task","rowVersion":"version"}"""
+        val fertilizerTaskId = "22222222-2222-4222-8222-222222222222"
+        val fertilizerTask = linkedTask.replace(linkedTaskId, fertilizerTaskId)
+            .replace("\"taskType\":2", "\"taskType\":3").replace("Water this exact crop task", "Feed this exact crop task")
+        val dao = (compose.activity.application as SmartFarmApplication).container.database.pendingOperationDao()
+        val priorIds = runBlocking { dao.watch("journey-user").first().map { it.operationId }.toSet() }
         val server = MockWebServer()
         server.dispatcher = object : Dispatcher() {
             override fun dispatch(request: RecordedRequest): MockResponse {
@@ -57,9 +68,14 @@ class FullAppJourneyTest {
                         """{"joinCode":"ABCD12345678","requests":[],"history":[]}"""
                     path == "/api/farms/farm/weather" ->
                         """{"farmId":"farm","hasCoordinates":false,"timeZoneId":"Asia/Manila","days":[],"advisories":[]}"""
-                    path == "/api/farms/farm/crop-types" ||
-                        path == "/api/farms/farm/crop-cycles" -> "[]"
-                    path == "/api/farms/farm/tasks" -> "[${task()}]"
+                    path == "/api/farms/farm/crop-types" -> "[]"
+                    path == "/api/farms/farm/crop-cycles" ->
+                        """[{"id":"crop","farmId":"farm","plotId":"plot","plotName":"North plot","cropTypeId":"type","cropTypeName":"Tomato","status":1,"plannedPlantingDate":"2026-10-01","actualPlantingDate":"2026-10-01","harvestUnit":"kg","wateringIntervalDays":2,"rowVersion":"version"}]"""
+                    path == "/api/farms/farm/crop-cycles/crop/monitoring" ->
+                        """{"farmId":"farm","cycleId":"crop","canRecord":true,"activities":[],"observations":[]}"""
+                    path == "/api/farms/farm/inventory" ->
+                        """{"items":[{"id":"supply","farmId":"farm","name":"Test fertilizer","category":2,"unit":"kg","quantityOnHand":8,"isLowStock":false,"rowVersion":"AQIDBAUGBwg="}],"lowStockCount":0}"""
+                    path == "/api/farms/farm/tasks" -> "[${task()},$linkedTask,$fertilizerTask]"
                     path == "/api/farms/farm/tasks/task/close" && request.method == "PUT" -> {
                         completed.set(true)
                         task()
@@ -93,7 +109,7 @@ class FullAppJourneyTest {
             compose.waitUntil(15_000) {
                 compose.onAllNodesWithText("Mark completed").fetchSemanticsNodes().isNotEmpty()
             }
-            compose.onNodeWithText("Mark completed").performScrollTo().performClick()
+            compose.onAllNodesWithText("Mark completed").onFirst().performScrollTo().performClick()
             compose.onNodeWithText("Complete this task?").assertExists()
             compose.onNodeWithText("Complete task").performClick()
             compose.waitUntil(15_000) {
@@ -101,6 +117,44 @@ class FullAppJourneyTest {
                     compose.onAllNodesWithText("Task completed.").fetchSemanticsNodes().isNotEmpty()
             }
 
+            androidx.test.uiautomator.UiDevice.getInstance(androidx.test.platform.app.InstrumentationRegistry.getInstrumentation()).pressBack()
+            compose.waitUntil(15_000) {
+                compose.onAllNodesWithText("Record watering").fetchSemanticsNodes().isNotEmpty()
+            }
+            compose.onNodeWithText("Record watering").performScrollTo().performClick()
+            compose.waitUntil(15_000) {
+                compose.onAllNodes(hasText("Save activity") and isEnabled()).fetchSemanticsNodes().isNotEmpty()
+            }
+            compose.onNodeWithText("Tomato · North plot").assertExists()
+            compose.onNodeWithText("Save activity").performScrollTo().performClick()
+            compose.waitUntil(10_000) {
+                runBlocking { dao.watch("journey-user").first().any { it.operationId !in priorIds } }
+            }
+            val queued = runBlocking { dao.watch("journey-user").first().single { it.operationId !in priorIds } }
+            val payload = com.google.gson.JsonParser.parseString(queued.payloadJson).asJsonObject
+            assertEquals("activity", queued.operationType)
+            assertEquals(linkedTaskId, payload.getAsJsonObject("activity").get("farmTaskId")?.asString)
+            androidx.test.uiautomator.UiDevice.getInstance(androidx.test.platform.app.InstrumentationRegistry.getInstrumentation()).pressBack()
+            compose.waitUntil(15_000) {
+                compose.onAllNodesWithText("Record fertilizing").fetchSemanticsNodes().isNotEmpty()
+            }
+            compose.onNodeWithText("Record fertilizing").performScrollTo().performClick()
+            compose.waitUntil(15_000) {
+                compose.onAllNodes(hasText("Deduct supply from farm inventory") and isEnabled()).fetchSemanticsNodes().isNotEmpty()
+            }
+            compose.onNodeWithText("Deduct supply from farm inventory").performScrollTo().performClick()
+            compose.onNodeWithText("Choose supply").performScrollTo().performClick()
+            compose.onNodeWithText("Test fertilizer", substring = true).performClick()
+            compose.onNodeWithText("Quantity used (kg)").performScrollTo().performTextInput("1.250")
+            compose.onNodeWithText("Save activity and supply use").performScrollTo().performClick()
+            compose.waitUntil(10_000) {
+                runBlocking { dao.watch("journey-user").first().any { it.operationId !in priorIds && it.operationType == "activity_stock" } }
+            }
+            val combined = runBlocking { dao.watch("journey-user").first().single { it.operationId !in priorIds && it.operationType == "activity_stock" } }
+            val combinedPayload = com.google.gson.JsonParser.parseString(combined.payloadJson).asJsonObject.getAsJsonObject("activityStock")
+            assertEquals(fertilizerTaskId, combinedPayload.getAsJsonObject("activity").get("farmTaskId").asString)
+            assertEquals("supply", combinedPayload.get("inventoryItemId").asString)
+            assertEquals("1.250", combinedPayload.get("quantityUsed").asString)
             androidx.test.uiautomator.UiDevice.getInstance(androidx.test.platform.app.InstrumentationRegistry.getInstrumentation()).pressBack()
             compose.onNodeWithText("My Farm").performClick()
             compose.waitUntil(10_000) {
@@ -143,6 +197,8 @@ class FullAppJourneyTest {
             }
             assertTrue("Server should receive task completion", completed.get())
         } finally {
+            runBlocking { dao.watch("journey-user").first().filter { it.operationId !in priorIds }
+                .forEach { dao.remove(it.operationId, "journey-user") } }
             server.shutdown()
         }
     }

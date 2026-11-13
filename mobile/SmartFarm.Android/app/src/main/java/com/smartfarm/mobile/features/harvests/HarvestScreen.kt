@@ -155,7 +155,7 @@ fun HarvestScreen(
                                 modifier = Modifier.fillMaxWidth().defaultMinSize(minHeight = 48.dp)) {
                                 Text("Save harvested amount")
                             }
-                            Text("Saved on this phone first. The confirmed total updates only after syncing.",
+                            Text("Saved on this phone first. The server sets the harvest date and confirms totals when sent.",
                                 style = MaterialTheme.typography.bodySmall,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant)
                         }

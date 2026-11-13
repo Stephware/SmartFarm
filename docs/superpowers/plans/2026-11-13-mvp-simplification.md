@@ -1,6 +1,6 @@
 # Implement AniGo farmer-first MVP simplification
 
-**Status: Stages 0–1 merged; Stage 2 verified locally and reviewed, CI pending. Stage 3 next after merge.** Baseline: `dev` from 2026-11-13 (`29c55166`). Keep each stage as a separately reviewable PR into `dev`, with tests before merge. The goal is fewer screens, **not** wholesale deletion of working infrastructure. Read [PRODUCT.md](../../../PRODUCT.md) and [AGENTS.md](../../../AGENTS.md) first.
+**Status: Stages 0–2 merged; Stage 3 implemented and locally verified. Stage 4 next after Stage 3 checks/merge.** Baseline: `dev` from 2026-11-13 (`29c55166`). Keep each stage as a separately reviewable PR into `dev`, with tests before merge. The goal is fewer screens, **not** wholesale deletion of working infrastructure. Read [PRODUCT.md](../../../PRODUCT.md) and [AGENTS.md](../../../AGENTS.md) first.
 
 ## Scope and decision rules
 - MVC four primary farm destinations: Today, Crops & Calendar, Supplies, Harvests. Farm/Team and Account secondary.
@@ -63,6 +63,8 @@ Cash presentation was removed now so the My Farm harvest link cannot expose fina
 
 Verification: debug/device-test builds; 65 JVM tests and all 103 tests on the Pixel 9 Android 17 emulator passed without skips, including the loopback Activity login/task/Back/farm-switch/draft-preservation/Record/logout journey. Native Today/My Farm light/dark captures reviewed; 320dp at 1.6 font scale and three-entry rail tested. A separate native login against the guarded disposable SQL-backed API verified loaded Today/My Farm, the common/Other chooser and Material Back collapse/dismissal without submitting business records. Focused independent review found no blocking or minor issues. Physical devices, TalkBack execution, production and real-farmer acceptance remain unverified.
 
+Stage 2 PR #125 merged to dev (`c7412b6`) after all seven CI checks passed.
+
 ## Stage 3 — Short recording workflows
 - Inspect `features/monitoring/MonitoringScreens.kt`, `features/harvests/HarvestScreen.kt`, `features/inventory/InventoryScreens.kt`, MVC Monitoring and shared services.
 - Water: crop/task auto-selected when arriving from Today; date default only with correct farm time zone. One save produces linked activity, resolves eligible task once.
@@ -70,6 +72,14 @@ Verification: debug/device-test builds; 65 JVM tests and all 103 tests on the Pi
 - Fertilizer/supplies: one atomic activity + inventory consumption, valid category/quantity, no negative stock, no duplicate task close. Optional general stock-usage route remains for unrelated supplies.
 - Harvest: quantity/unit/date defaults and optional note; repeat partial harvests; correct void handling; show server-confirmed totals only.
 - Do not change DTO numeric codes or introduce fake persisted state. Test API/Room operation envelopes, service transaction rollbacks, preview/refetch conflict workflow, photo queue.
+
+### Stage 3 evidence
+
+MVC quick forms focus Water / Inspect / Fertilizer / Other, with conditional issue/supply fields and optional notes/photos. Water/fertilizer use the exact selected task; MVC supply use calls the existing atomic service with the displayed rowversion. Android carries the same task identity into ordinary/combined Room payloads and shows scoped crop/plot context. Failed saves retain drafts and visible errors, including escaped read-only recovery after crop closure. Partial harvests, fixed units, voids and server-confirmed totals remain intact.
+
+Contract rulings: existing server-assigned timestamps stay unchanged; no editable/backdated client date added. Only existing water/fertilizer activity contracts carry task IDs; inspection/harvest links retain their current contracts. No API/DTO codes, Room schema, sync guards, shared business logic or SQL changes.
+
+Verified: solution build; 578 SQL-enabled .NET tests, 62 Node tests, 66 Android JVM tests and 105 Pixel 9 Android 17 tests, zero skips. Full Activity journey verifies exact ordinary/combined task envelopes. Live disposable MVC/API acceptance confirmed atomic stock/task save, duplicate rejection, insufficient-stock rollback, two partial harvests (3.750 kg), validation recovery, private photo read, unrelated-user denial and closed-crop draft safety. Only new test resources were written. Web: 100 live short-form variants at 320/375/390/768/1440 in both themes, 10 no-JS variants and 40 all-rule axe scans without detected errors/overflow/violations; 210 Linux operation fixture screenshots, 220 authenticated farm screenshots and 30 unchanged public goldens passed. Native forms inspected against actual disposable API data and at 320dp/1.6 text. Focused review's Important hidden-draft issue was fixed with RED→GREEN regressions and full .NET rerun. Remote checks and merge status are tracked by the stage PR; physical-device/TalkBack, production, live Worker/provider and real-farmer acceptance remain unverified.
 
 ## Stage 4 — Offline and automation clarity
 - Keep `Room`, WorkManager, stable operation IDs, user-scoped data, photo queue and cancellation/session guards.
@@ -98,8 +108,8 @@ Read only AGENTS/PRODUCT/this plan and relevant code for the current stage. Do n
 ## Completion checklist (all initially unchecked)
 - [x] Stage 0 — current dependencies/coverage inventoried
 - [x] Stage 1 — MVC four-section farmer workspace implemented/tested; PR #124 merged after all six CI checks passed
-- [x] Stage 2 — Android three-destination navigation implemented/tested locally; CI gate before merge
-- [ ] Stage 3 — short record flows and atomic business rules verified
+- [x] Stage 2 — Android three-destination navigation implemented/tested; PR #125 merged after all seven CI checks passed
+- [x] Stage 3 — short record flows and atomic business rules verified locally; stage PR records CI/merge status
 - [ ] Stage 4 — offline confirmation/refresh and Worker/weather verified
 - [ ] Stage 5 — obsolete UI/code retired without lost data
 - [ ] Stage 6 — end-to-end and farmer usability checks documented

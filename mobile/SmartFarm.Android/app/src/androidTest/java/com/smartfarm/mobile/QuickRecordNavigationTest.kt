@@ -58,4 +58,37 @@ class QuickRecordNavigationTest {
         compose.onNodeWithText("Other").performScrollTo().assertIsSelected()
     }
 
+    @Test fun waterShortcutKeepsTheLinkedActivityTypeFixed() {
+        var kind: Int? = null
+        compose.setContent { SmartFarmTheme {
+            com.smartfarm.mobile.features.monitoring.MonitoringScreen(
+                com.smartfarm.mobile.features.monitoring.MonitoringUiState(
+                    farmId = "farm", cycleId = "cycle", canRecord = true),
+                onBack = {}, onActivity = { value, _ -> kind = value }, onObservation = { _, _, _, _ -> },
+                onUpload = { _, _ -> }, onPreview = {}, onThumbnail = { byteArrayOf() },
+                onDismissPreview = {}, quick = "watering")
+        } }
+        compose.onNodeWithText("Fertilizing").assertDoesNotExist()
+        compose.onNodeWithText("Other activity types").assertDoesNotExist()
+        compose.onNodeWithText("Save activity").performScrollTo().performClick()
+        compose.runOnIdle { assertEquals(1, kind) }
+    }
+
+    @Test fun inspectionCanSaveNotSureWithoutInventingAnIssueOrPhoto() {
+        var status: Int? = null
+        compose.setContent { SmartFarmTheme {
+            com.smartfarm.mobile.features.monitoring.MonitoringScreen(
+                com.smartfarm.mobile.features.monitoring.MonitoringUiState(
+                    farmId = "farm", cycleId = "cycle", canRecord = true),
+                onBack = {}, onActivity = { _, _ -> }, onObservation = { health, _, _, photo ->
+                    status = health; assertEquals(null, photo)
+                }, onUpload = { _, _ -> }, onPreview = {}, onThumbnail = { byteArrayOf() },
+                onDismissPreview = {}, quick = "inspection")
+        } }
+        compose.onNodeWithText("Not sure").performScrollTo().assertIsSelected()
+        compose.onNodeWithText("How serious is it?").assertDoesNotExist()
+        compose.onNodeWithText("Save inspection").performScrollTo().performClick()
+        compose.runOnIdle { assertEquals(0, status) }
+    }
+
 }

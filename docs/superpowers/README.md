@@ -94,8 +94,7 @@ disposable recovery rehearsal.
 Apply Impeccable only to relevant UI work. Read its installed skill and run context
 once; follow the selected reference and native guidance. Current UI is Razor/CSS/JS with self-hosted prefixed Tailwind utilities
 and Compose/Material3, Harvest Gold + Pine, AniGo. Reuse current components/assets.
-There is no PRODUCT.md or DESIGN.md yet; follow the installed prerequisites for a
-new surface/redesign, while narrow refinements use incumbent source as permitted.
+PRODUCT.md defines the approved MVP direction; no DESIGN.md exists. Follow installed prerequisites for a new surface/redesign, while narrow refinements use incumbent source as permitted.
 This document does not authorize a redesign or product-requirements invention.
 
 Verify rendered narrow/wide layouts, keyboard and large fonts, focus/labels/contrast,

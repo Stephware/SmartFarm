@@ -13,13 +13,15 @@ internal fun activeRecordCycles(cycles: List<CropCycleDto>): List<CropCycleDto> 
     cycles.filter { it.status == 1 }.sortedWith(compareBy({ it.plotName }, { it.cropTypeName }))
 
 /** Centralized, testable routes; never interpolate a name or arbitrary user text into a route. */
-internal fun quickRecordRoute(farmId: String, action: String, cycleId: String?): String? {
+internal fun quickRecordRoute(farmId: String, action: String, cycleId: String?, taskId: String? = null): String? {
     if (farmId.isBlank()) return null
     if (action == "supplies") return "inventory/$farmId"
     if (cycleId.isNullOrBlank()) return null
+    val linkedTask = if (action in setOf("watering", "fertilizing") && !taskId.isNullOrBlank())
+        "&taskId=" + java.net.URLEncoder.encode(taskId, "UTF-8") else ""
     return when (action) {
         "watering", "fertilizing", "inspection", "other" ->
-            "monitor/$farmId/$cycleId?quick=$action"
+            "monitor/$farmId/$cycleId?quick=$action$linkedTask"
         "harvest" -> "harvests/$farmId/$cycleId"
         else -> null
     }

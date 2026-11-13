@@ -17,12 +17,18 @@ const names = [
     "12e-stock-owner", "12e-stock-worker",
     "12e-monitoring-owner", "12e-monitoring-worker",
     "12e-harvests-owner", "12e-harvests-worker",
-    "12e-weather-saved", "12e-weather-stale", "12e-reports"
+    "12e-weather-saved", "12e-weather-stale", "12e-reports",
+    ...["watering", "fertilizing", "inspection", "other"].flatMap(quick =>
+        ["owner", "worker"].map(role => `mvp-monitoring-${quick}-${role}`))
 ];
 const routes = name => {
     if (name.includes("tasks")) return "/Tasks?farmId=123&view=all&month=2026-11";
     if (name.includes("inventory")) return "/Inventory?farmId=123";
     if (name.includes("stock")) return "/Inventory/Details?farmId=123&itemId=123";
+    if (name.startsWith("mvp-monitoring-")) {
+        const quick = name.split("-")[2];
+        return `/Monitoring?farmId=123&cycleId=123&quick=${quick}&scenario=${name}#record-${quick === "inspection" ? "inspection" : "activity"}`;
+    }
     if (name.includes("monitoring")) return "/Monitoring?farmId=123&cycleId=123";
     if (name.includes("harvests")) return "/Harvests?farmId=123&cycleId=123";
     if (name.includes("weather")) return "/Weather?farmId=123";
@@ -85,7 +91,7 @@ const widths = [320, 375, 768, 1024, 1440];
                             assert.equal(await page.getByText("± Count correction").count(), 0);
                         }
                     }
-                    if (name.includes("monitoring")) {
+                    if (name.includes("monitoring") && !name.startsWith("mvp-")) {
                         assert.equal(await page.locator(".ani12e-recording-grid").count(), 1);
                         assert.equal(await page.locator(".ani12e-photo-panel").count(), 1);
                         if (width === 375) {
@@ -93,6 +99,29 @@ const widths = [320, 375, 768, 1024, 1440];
                             assert.equal(await page.locator("dialog[open] #record-activity").count(), 1,
                                 "Recording form must open from the fieldwork shortcut");
                             await page.locator("dialog[open] button[aria-label^='Close']").click();
+                        }
+                    }
+                    if (name.startsWith("mvp-monitoring-")) {
+                        const quick = name.split("-")[2];
+                        const target = quick === "inspection" ? "inspection" : "activity";
+                        const absent = target === "inspection" ? "activity" : "inspection";
+                        assert.equal(await page.locator(`#record-${absent}`).count(), 0, name + ": one short form");
+                        assert.equal(await page.locator(`dialog[open] #record-${target}`).count(), 1, name + ": recording form opens");
+                        if (quick === "watering") {
+                            assert.equal(await page.locator('#Activity_ActivityType').inputValue(), '1');
+                            assert.equal(await page.locator('#activity-supplies').count(), 0);
+                        }
+                        if (quick === "fertilizing") {
+                            assert.equal(await page.locator('#Supply_QuantityUsed').isVisible(), false);
+                            await page.locator('#Supply_Selection').selectOption({ index: 1 });
+                            assert.equal(await page.locator('#Supply_QuantityUsed').isVisible(), true);
+                            assert.equal(await page.locator('#Supply_QuantityUsed').getAttribute('required') !== null, true);
+                            await page.locator('#Supply_QuantityUsed').fill('1.250');
+                        }
+                        if (quick === "inspection") {
+                            assert.equal(await page.locator('[data-inspection-issues]').isVisible(), false);
+                            await page.locator('#Observation_HealthStatus').selectOption('2');
+                            assert.equal(await page.locator('[data-inspection-issues]').isVisible(), true);
                         }
                     }
                     if (name.includes("harvests")) {

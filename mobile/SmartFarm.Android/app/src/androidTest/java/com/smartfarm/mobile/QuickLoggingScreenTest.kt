@@ -22,7 +22,7 @@ class QuickLoggingScreenTest {
                 quick = "watering")
         } }
         compose.onNodeWithText("Activity").assertIsSelected()
-        compose.onNodeWithText("Watering").assertIsSelected()
+        compose.onNodeWithText("Watering").assertIsDisplayed()
         compose.onNodeWithText("Record inspection / observation").assertDoesNotExist()
         compose.onNodeWithText("Save activity").performScrollTo().performClick()
         compose.runOnIdle { assertEquals(1 to "", saved) }

@@ -106,7 +106,7 @@ for (const button of document.querySelectorAll("[data-copy-target]")) {
         }
         close.addEventListener("click", () => dialog.close());
         dialog.addEventListener("close", () => opener?.focus());
-        if (section.querySelector('[aria-invalid="true"],.input-validation-error')) dialog.showModal();
+        if (section.querySelector('[aria-invalid="true"],.input-validation-error,[data-form-error]')) dialog.showModal();
     }
     const revealHash = () => {
         if (!window.location?.hash) return;
