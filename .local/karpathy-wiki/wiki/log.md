@@ -158,3 +158,9 @@ Three native primary entries and a simpler existing Record sheet; My Farm groups
 - Raw: raw/project/2026-11-13-mvp-stage-3.md
 - Updated: MVP simplification; current progress; index and execution status.
 - Short forms, exact task envelopes, atomic MVC supply use and rejected-draft recovery verified; no API/schema/business-service changes. Stage 2 merged with seven green checks; Stage 4 remains next after Stage 3 gates. Private runtime evidence stays excluded.
+
+## 2026-11-13 ingest | Stage 3 CI test isolation
+- Disposition: Update
+- Raw: raw/project/2026-11-13-mvp-stage-3-ci.md
+- Updated: MVP simplification.
+- Fixed the recovery factory's missing inventory stub; full no-database and strict SQL suites passed. Application source unchanged.

@@ -1543,6 +1543,19 @@
           "sha256": "eb379ede55ea9ee3a438aab8596b81f964f13d7bb2fc499c529efbbb713fc98e"
         }
       ]
+    },
+    {
+      "date": "2026-11-13",
+      "revision": "2ebfa957ecc512a23ce5b042f6b9470e025281ac + CI test isolation",
+      "snapshot": "raw/project/2026-11-13-mvp-stage-3-ci.md",
+      "sha256": "d730c7db316d8f798f7376a8618afa07aaf0d0e96a4d8b1988cea80c94db5a91",
+      "scope": "CI no-database regression reproduction and deterministic recovery test factory fix; full local revalidation.",
+      "source_files": [
+        {
+          "path": "tests/SmartFarm.Auth.Tests/FormRecoveryTests.cs",
+          "sha256": "3544b5cd6454cccfbebe26c030ad23eadca05edd5d322ba691bc026fcb5270f4"
+        }
+      ]
     }
   ]
 }

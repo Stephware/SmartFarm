@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.AspNetCore.TestHost;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Configuration;
 using SmartFarm.Core.Contracts.Crops;
 using SmartFarm.Core.Contracts.Farms;
 using SmartFarm.Core.Contracts.Monitoring;
@@ -157,7 +158,9 @@ public sealed class FormRecoveryTests
     }
 
     private static WebApplicationFactory<Program> CreateApp(CropCycleStatus status = CropCycleStatus.Planned, bool unavailable = false) => new WebApplicationFactory<Program>()
-        .WithWebHostBuilder(builder => builder.ConfigureTestServices(services =>
+        .WithWebHostBuilder(builder => builder.ConfigureAppConfiguration((_, config) =>
+            config.AddInMemoryCollection(new Dictionary<string, string?> { ["ConnectionStrings:SmartFarm"] = "" }))
+        .ConfigureTestServices(services =>
         {
             services.AddSingleton<IAuthenticationService, SignedIn>();
             services.AddScoped(_ => Stub<IFarmManagementService>(method => method switch
@@ -182,6 +185,8 @@ public sealed class FormRecoveryTests
                 : throw new NotSupportedException(method)));
             services.AddScoped(_ => Stub<IFarmTaskService>(method => method == "ListAsync"
                 ? Task.FromResult<IReadOnlyList<FarmTaskDetails>>([]) : throw new NotSupportedException(method)));
+            services.AddScoped(_ => Stub<IInventoryService>(method => method == "ListAsync"
+                ? Task.FromResult(new InventoryWorkspace([], 0)) : throw new NotSupportedException(method)));
         }));
 
     [Theory]
