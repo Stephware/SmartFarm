@@ -18,7 +18,7 @@
     padding: clamp(18px, 2.8vw, 30px);
   }
   .ani12e-hero .page-hero { display: flex; flex-wrap: wrap; align-items: center; gap: 12px 22px; }
-  .ani12e-hero .page-hero > div:first-child { min-width: 0; flex: 1 1 310px; }
+  .ani12e-hero .page-hero > div:first-child { min-width: 0; flex: 1 1 auto; }
   .ani12e-hero h1 { font-size: clamp(1.65rem, 2.6vw, 2.4rem); line-height: 1.18; margin: 5px 0 10px; overflow-wrap: anywhere; }
   .ani12e-hero .sf-muted { max-width: 75ch; line-height: 1.6; color: var(--e-muted); }
   .ani12e-workspace :is(.sf-ops-hero a, .ani12e-jump-nav a, .ani12e-filter-tabs a, .ani12e-actions a) {
@@ -183,7 +183,11 @@
   .ani12e-export-shortcut { margin: 13px 0; }
   .ani12e-export-shortcut a { display: inline-flex; align-items: center; min-height: 44px; }
   .ani12e-report-filters { scroll-margin-top: 110px; border: 1px solid var(--e-border); border-radius: 12px; background: var(--e-soft); }
-  .ani12e-report-filters > summary { min-height: 52px; display: list-item; align-content: center; padding: 12px 16px; cursor: pointer; }
+  .ani12e-report-filters > summary {
+    min-height: 52px; display: list-item; list-style: disclosure-closed inside;
+    align-content: center; padding: 12px 16px; cursor: pointer;
+  }
+  .ani12e-report-filters[open] > summary { list-style-type: disclosure-open; }
   .ani12e-report-filter-form { display: grid; grid-template-columns: repeat(4,minmax(0,1fr)); gap: 12px; align-items: end; }
   .ani12e-report-filter-form > div { min-width: 0; }
   .ani12e-report-filter-form input, .ani12e-report-filter-form select { width: 100%; }
