@@ -39,7 +39,7 @@ const widths = [320, 375, 768, 1024, 1440];
             const errors = [];
             page.on("pageerror", e => errors.push(e.message));
             let selected = "";
-            await page.route("**/Farms*", async route => {
+            await page.route(/\/Farms(?:\/|\?|$)/, async route => {
                 const file = path.join(fixtures, selected + ".html");
                 await route.fulfill({ status: 200, contentType: "text/html; charset=utf-8", body: fs.readFileSync(file) });
             });
