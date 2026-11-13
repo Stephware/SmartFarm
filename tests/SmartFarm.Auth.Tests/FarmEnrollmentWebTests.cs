@@ -347,14 +347,14 @@ public sealed class FarmEnrollmentWebTests
         using var app = App(role: role, plots: plots, cycles: [planted]);
         using var client = app.CreateClient();
         var html = await client.GetStringAsync($"/PlotLayout?farmId={FarmId}");
-        Assert.Contains("Your growing plots", html);
-        Assert.Contains("Illustrative layout only", html);
+        Assert.Contains("Farm plots", html);
+        Assert.Contains("Plot directory, not a map.", html);
         Assert.Contains("Growing", html);
         Assert.Contains("North field", html);
         Assert.Contains("South field", html);
         Assert.Contains("View crop details", html);
         Assert.Contains("plotId=" + emptyPlot, html);
-        Assert.Contains("planting-plans-heading", html);
+        Assert.Contains(canManage ? "planting-plans-heading" : "ani-current-heading", html);
         Assert.Contains(planted.Id.ToString(), html);
         if (canManage)
         {
