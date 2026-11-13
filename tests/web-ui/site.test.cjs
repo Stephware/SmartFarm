@@ -34,10 +34,8 @@ test('light and dark semantic colors preserve readable text and control boundari
     const layout = fs.readFileSync(path.join(web, 'Views/Shared/_Layout.cshtml'), 'utf8');
     const styles = [...layout.matchAll(/<link\b[^>]*rel="stylesheet"[^>]*href="~\/([^"?]+)"/g)]
         .map(match => match[1]);
-    // The reference theme remains the final shared stylesheet.
-    assert.equal(styles.at(-1), 'css/reference-ui.css');
-    assert.equal(styles.at(-2), 'css/anigo-tailwind.css');
-    assert.equal(styles.at(-3), 'css/farmer-operations.css');
+    // The ordered legacy/foundation layers are compiled into one self-hosted asset.
+    assert.deepEqual(styles, ['css/anigo-tailwind.css']);
     const css = styles.map(file => fs.readFileSync(path.join(web, 'wwwroot', file), 'utf8'))
         .join('\n').replace(/\/\*[\s\S]*?\*\//g, '');
     const luminance = hex => {

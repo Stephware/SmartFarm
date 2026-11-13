@@ -16,16 +16,16 @@ public sealed class ReferenceUiPageTests : IClassFixture<WebApplicationFactory<P
     [InlineData("/")]
     [InlineData("/Account/Login")]
     [InlineData("/Account/Register")]
-    public async Task PublicPagesApplyTheReferenceThemeAfterSharedStyles(string path)
+    public async Task PublicPagesLoadOneSelfHostedDesignSystem(string path)
     {
         using var response = await _client.GetAsync(path);
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
         var html = await response.Content.ReadAsStringAsync();
         var styles = Regex.Matches(html, "<link\\b[^>]*rel=\"stylesheet\"[^>]*href=\"([^\"]+)\"")
             .Select(match => match.Groups[1].Value.Split('?')[0]).ToArray();
-        Assert.NotEmpty(styles);
-        Assert.Equal("/css/reference-ui.css", styles[^1]);
-        Assert.Contains("/css/site.css", styles);
+        Assert.Equal("/css/anigo-tailwind.css", Assert.Single(styles));
+        Assert.Contains("/fonts/manrope/Manrope-Variable.ttf", html);
+        Assert.DoesNotContain("fonts.googleapis.com", html);
     }
 
     [Theory]

@@ -1,7 +1,18 @@
 /* AniGo design system — Tailwind v4, no Preflight/reset.
-   Keep the current pine/gold semantic tokens in reference-ui.css as the source
-   of truth. The utilities use those variables in light and dark mode. */
-@layer theme, base, components, utilities;
+   anigo-foundation.css owns semantic tokens; prefixed utilities use the same
+   variables in light and dark mode. Legacy imports are migration support. */
+@layer legacy, theme, base, components, utilities;
+@import "../wwwroot/css/site.css" layer(legacy);
+@import "../wwwroot/css/dashboard.css" layer(legacy);
+@import "../wwwroot/css/crop-art.css" layer(legacy);
+@import "../wwwroot/css/fieldwork.css" layer(legacy);
+@import "../wwwroot/css/harvest-inventory.css" layer(legacy);
+@import "../wwwroot/css/insights.css" layer(legacy);
+@import "../wwwroot/css/access-polish.css" layer(legacy);
+@import "../wwwroot/css/farmer-operations.css" layer(legacy);
+@import "../wwwroot/css/reference-ui.css" layer(legacy);
+@import "../wwwroot/css/admin.css" layer(legacy);
+@import "./anigo-foundation.css";
 @import "tailwindcss/theme.css" layer(theme) prefix(tw);
 @import "tailwindcss/utilities.css" layer(utilities) prefix(tw) source(none);
 @source "../Views";
@@ -25,6 +36,7 @@
   --spacing-ani-touch: var(--ui-control-height);
 }
 
-/* Existing page layouts, table styles, cards, buttons, and interaction states
-   remain in the shared stylesheets until a matched component replacement
-   passes visual parity. New components use tw:-prefixed utilities only. */
+/* Legacy feature rules remain in the lowest cascade layer while focused views
+   are migrated. Foundation/components and prefixed utilities define the system. */
+
+@font-face { font-family: "Manrope"; font-style: normal; font-weight: 200 800; font-display: swap; src: url("/fonts/manrope/Manrope-Variable.ttf") format("truetype"); }

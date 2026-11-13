@@ -32,7 +32,7 @@ public sealed class UiOverhaulPageTests : IClassFixture<WebApplicationFactory<Pr
         Assert.Contains("id=\"main-content\"", html);
         Assert.Contains("tabindex=\"-1\"", html);
         Assert.Contains("aria-label=\"Main navigation\"", html);
-        Assert.Contains("/css/site.css", html);
+        Assert.Contains("/css/anigo-tailwind.css", html);
         Assert.Contains("/Account/Login", html);
         Assert.Contains("/Account/Register", html);
 

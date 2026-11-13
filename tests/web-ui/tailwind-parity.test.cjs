@@ -11,7 +11,7 @@ test("Tailwind uses prefixed utilities without global Preflight resets", () => {
     assert.match(source, /prefix\(tw\)/);
     assert.match(source, /source\(none\)/);
     assert.doesNotMatch(source, /@import\s+["']tailwindcss\/preflight/);
-    assert.doesNotMatch(built, /button\s*,\s*input\s*,\s*select/);
+    assert.doesNotMatch(built, /::file-selector-button\s*\{[^}]*font:inherit/);
     assert.match(built, /\.tw\\:min-w-0/);
     assert.match(source, /--color-ani-pine:\s*var\(--pine\)/);
     assert.match(source, /--color-ani-gold:\s*var\(--gold\)/);
@@ -24,10 +24,9 @@ test("Generated Tailwind CSS is self-hosted and loaded in both Razor layouts", (
         "Areas/Admin/Views/Shared/_Layout.cshtml"
     ]) {
         const markup = read(layout);
-        const tailwind = markup.indexOf('href="~/css/anigo-tailwind.css"');
-        const original = markup.indexOf('href="~/css/reference-ui.css"');
-        assert.ok(tailwind >= 0 && original >= 0 && tailwind < original,
-            layout + ": utility stylesheet must precede the existing theme");
+        const styles = [...markup.matchAll(/<link\b[^>]*rel="stylesheet"[^>]*href="~\/([^"?]+)"/g)]
+            .map(match => match[1]);
+        assert.deepEqual(styles, ["css/anigo-tailwind.css"], layout + ": one compiled design system");
         assert.doesNotMatch(markup, /cdn\.tailwindcss\.com/);
     }
     assert.ok(read("wwwroot/css/anigo-tailwind.css").length > 150);

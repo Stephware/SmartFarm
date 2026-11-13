@@ -1,0 +1,27 @@
+{
+  "reviewed": true,
+  "sourceHashes": {
+    "wwwroot/css/anigo-tailwind.css": "49a7271c79a56ab84478cc2ba473efc0a7997721bea5e5253ada93205bee4692",
+    "Views/Shared/_Layout.cshtml": "20995ee27c7391cc482027e22575978f2b45ba7afb80695200409544afcb2d6c",
+    "Views/Home/Index.cshtml": "5f8706c9716a9313dae66afac8308de34509a8f382f4948e0c358e0effc8f093",
+    "Views/Account/Login.cshtml": "5d7c397f1af7d26faa2105401d7d6be2554e0e3650140b997d17efc0ba86a908",
+    "Views/Account/Register.cshtml": "4aafc7c1cfd276b3d66b5dbfc7367e4456e43c95c5c96dc2c003698ae6534cdb"
+  },
+  "widths": [
+    320,
+    375,
+    768,
+    1024,
+    1440
+  ],
+  "modes": [
+    "light",
+    "dark"
+  ],
+  "pages": {
+    "landing": "/",
+    "login": "/Account/Login",
+    "registration": "/Account/Register"
+  },
+  "note": "Codex visual review, 2026-11-13: all 30 public images inspected across five widths and both themes. Phase12A foundation acceptance only; landing/auth composition is intentionally redesigned in Phase12B. Targeted browser and accessibility checks passed. No authenticated records in these goldens."
+}
