@@ -33,7 +33,7 @@ test("Real photo assets are bundled and optimized WebP, not external runtime dep
 });
 test("Editorial photographs are not presented as real farm records", () => {
     assert.match(landing, /not a farm record/i);
-    assert.match(landing, /do not represent AniGo customer farms/);
+    assert.match(landing, /No image represents an AniGo customer farm/);
     assert.match(login, /Agricultural photography for illustration only/);
     assert.match(register, /Agricultural photography for illustration only/);
     assert.doesNotMatch(farms, /images\/photography/);
