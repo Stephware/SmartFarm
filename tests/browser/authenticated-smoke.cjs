@@ -85,6 +85,7 @@ const widths = [320, 375, 768, 1024, 1440];
                         assert.equal(await page.locator("#add-plot").count(), 0);
                     if (name.startsWith("dashboard-")) {
                         assert.equal(await page.locator(".ani12c-farm-dashboard").count(), 1);
+                        assert.equal(await page.locator(".ani12c-dashboard-rail").count(), 1);
                         assert.equal(await page.locator(".ani12c-metrics > a").count(), 4,
                             "Dashboard must show exactly four first-level metrics");
                         assert.equal(await page.getByRole("heading", { name: "Today's priorities" }).count(), 1);
