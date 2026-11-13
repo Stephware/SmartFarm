@@ -17,7 +17,7 @@
 </head>
 <body class="is-authenticated">
 <a class="skip-link" href="#main-content">Skip to content</a>
-<div class="app-shell admin-shell">
+<div class="app-shell admin-shell ani12f-admin-shell">
     <aside class="sidebar app-sidebar" aria-label="Platform administration">
         <a class="logo brand sidebar-brand" asp-area="Admin" asp-controller="Dashboard" asp-action="Index">
             <span class="logo-mark"><partial name="~/Views/Shared/_Icon.cshtml" model='@("leaf")' /></span>
@@ -51,7 +51,7 @@
                 <a class="nav-link" asp-area="Admin" asp-controller="Reports" asp-action="Index" aria-current="@(section == "Reports" ? "page" : null)">
                     <partial name="~/Views/Shared/_Icon.cshtml" model='@("chart")' /><span>Reports</span>
                 </a>
-                <a class="nav-link" asp-area="Admin" asp-controller="Security" asp-action="Setup">
+                <a class="nav-link" asp-area="Admin" asp-controller="Security" asp-action="Setup" aria-current="@(section == "Security" ? "page" : null)">
                     <partial name="~/Views/Shared/_Icon.cshtml" model='@("settings")' /><span>Security</span>
                 </a>
             </nav>
@@ -72,7 +72,7 @@
     </aside>
     <div class="app-body content-shell">
         <header class="site-header app-topbar topbar">
-            <div class="crumb"><span>AniGo</span><span aria-hidden="true">/</span><strong>@(ViewData["Title"] ?? "Administration")</strong></div>
+            <div class="crumb"><a asp-area="Admin" asp-controller="Dashboard" asp-action="Index">Admin overview</a><span aria-hidden="true">/</span><strong>@(ViewData["Title"] ?? "Administration")</strong></div>
             <a class="mobile-brand" asp-area="Admin" asp-controller="Dashboard" asp-action="Index">AniGo Admin</a>
             <nav class="top-actions app-topbar-actions" aria-label="Administration settings">
                 <button class="icon-button color-mode-toggle" type="button" data-color-mode-toggle
@@ -81,19 +81,19 @@
                 </button>
                 <a class="farm-picker" asp-area="" asp-controller="Farms" asp-action="Index">Back to farms</a>
                 <details class="mobile-nav admin-mobile-nav">
-                    <summary aria-label="Open admin navigation">
+                    <summary aria-label="Admin navigation" aria-controls="ani12f-admin-mobile-links">
                         <partial name="~/Views/Shared/_Icon.cshtml" model='@("more")' /><span>Menu</span>
                     </summary>
-                    <nav aria-label="Mobile platform administration">
-                        <a asp-area="Admin" asp-controller="Dashboard" asp-action="Index">Admin overview</a>
-                        <a asp-area="Admin" asp-controller="Users" asp-action="Index">Manage users</a>
-                        <a asp-area="Admin" asp-controller="Farms" asp-action="Index">Manage farms</a>
-                        <a asp-area="Admin" asp-controller="Support" asp-action="Index">Support requests</a>
-                        <a asp-area="Admin" asp-controller="Monitoring" asp-action="Index">System monitoring</a>
-                        <a asp-area="Admin" asp-controller="Audit" asp-action="Index">Audit history</a>
-                        <a asp-area="Admin" asp-controller="Announcements" asp-action="Index">Platform announcements</a>
-                        <a asp-area="Admin" asp-controller="Reports" asp-action="Index">Platform reports</a>
-                        <a asp-area="Admin" asp-controller="Security" asp-action="Setup">Authenticator security</a>
+                    <nav id="ani12f-admin-mobile-links" aria-label="Mobile platform administration">
+                        <a asp-area="Admin" asp-controller="Dashboard" asp-action="Index" aria-current="@(section == "Dashboard" ? "page" : null)">Admin overview</a>
+                        <a asp-area="Admin" asp-controller="Users" asp-action="Index" aria-current="@(section == "Users" ? "page" : null)">Manage users</a>
+                        <a asp-area="Admin" asp-controller="Farms" asp-action="Index" aria-current="@(section == "Farms" ? "page" : null)">Manage farms</a>
+                        <a asp-area="Admin" asp-controller="Support" asp-action="Index" aria-current="@(section == "Support" ? "page" : null)">Support requests</a>
+                        <a asp-area="Admin" asp-controller="Monitoring" asp-action="Index" aria-current="@(section == "Monitoring" ? "page" : null)">System monitoring</a>
+                        <a asp-area="Admin" asp-controller="Audit" asp-action="Index" aria-current="@(section == "Audit" ? "page" : null)">Audit history</a>
+                        <a asp-area="Admin" asp-controller="Announcements" asp-action="Index" aria-current="@(section == "Announcements" ? "page" : null)">Platform announcements</a>
+                        <a asp-area="Admin" asp-controller="Reports" asp-action="Index" aria-current="@(section == "Reports" ? "page" : null)">Platform reports</a>
+                        <a asp-area="Admin" asp-controller="Security" asp-action="Setup" aria-current="@(section == "Security" ? "page" : null)">Authenticator security</a>
                         <a asp-area="" asp-controller="Farms" asp-action="Index">Farm workspace</a>
                         <button type="button" data-color-mode-toggle aria-label="Toggle appearance">Change appearance</button>
                         <form asp-area="" asp-controller="Account" asp-action="Logout" method="post">
