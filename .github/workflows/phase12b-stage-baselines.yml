@@ -6,6 +6,7 @@ on:
       - feature/web-ui-phase-12b-entry-onboarding
     paths:
       - .github/workflows/phase12b-stage-baselines.yml
+      - src/SmartFarm.Web/Views/Home/Index.cshtml
 permissions:
   contents: write
 jobs:
