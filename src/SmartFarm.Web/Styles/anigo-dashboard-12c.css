@@ -135,8 +135,7 @@
   }
   .ani12c-farm-dashboard .sf-home-plot-copy span { color: var(--ui-text); font-size: .875rem; font-weight: 600; }
   .ani12c-farm-dashboard .sf-home-plot-copy small { color: var(--ui-text-secondary); font-size: .8rem; }
-  .ani12c-role-worker .ani-dashboard-secondary-grid { display: flex; flex-direction: column-reverse; gap: 18px; }
-  .ani12c-role-worker .ani-dashboard-secondary-grid > .stack { width: 100%; }
+  /* Keep DOM order and visual order aligned for keyboard and screen-reader navigation. */
   .ani12c-farm-dashboard .sf-home-harvest { border-radius: 14px; }
   .ani12c-farm-dashboard :is(a, button):focus-visible,
   .ani12c-admin-dashboard :is(a, button):focus-visible {
@@ -155,6 +154,7 @@
     grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 14px; margin-bottom: 24px;
   }
   .ani12c-admin-dashboard .ani12c-admin-kpis .admin-stat { min-height: 128px; padding: 22px; border-radius: 14px; }
+  .ani12c-admin-dashboard .ani12c-kpi-warning { border-left: 4px solid var(--ui-gold); }
   .ani12c-admin-dashboard .ani12c-admin-kpis .admin-stat span { font-size: .875rem; color: var(--ui-text-secondary); }
   .ani12c-admin-dashboard .ani12c-admin-kpis .admin-stat strong { font-size: clamp(1.7rem, 2.5vw, 2.2rem); font-variant-numeric: tabular-nums; color: var(--ui-text); }
   .ani12c-admin-dashboard .ani12c-admin-kpis .admin-stat small { font-size: .82rem; line-height: 1.45; }
