@@ -1,6 +1,6 @@
 # Knowledge Base Index
 
-> **Current planned direction (2026-11-13):** [Farmer-first MVP simplification](project/mvp-simplification.md). Implementation is pending. Read [PRODUCT.md](../../../PRODUCT.md) and [the execution plan](../../../docs/superpowers/plans/2026-11-13-mvp-simplification.md) for Codex work. Prior source pages document the existing implementation, not the desired next UX.
+> **Current planned direction (2026-11-13):** [Farmer-first MVP simplification](project/mvp-simplification.md). Stage 1 MVC is implemented and locally verified; later stages remain planned. Check the plan for merge status. Read [PRODUCT.md](../../../PRODUCT.md) and [the execution plan](../../../docs/superpowers/plans/2026-11-13-mvp-simplification.md) for Codex work. Prior source pages document the existing implementation, not the desired next UX.
 
 SmartFarm source-backed development knowledge: full audit at `ac624be`, with the
 reference frontend verification at `ae06ab2` and source publication checks through

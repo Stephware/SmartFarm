@@ -105,9 +105,13 @@ const widths = [320, 375, 768, 1024, 1440];
                             assert.ok(await page.getByText("Weather data may be out of date.").count());
                     }
                     if (name === "12e-reports") {
-                        assert.equal(await page.locator(".ani12e-report-filters").count(), 1);
-                        assert.ok(await page.getByText("Filter results or download CSV").count());
-                        assert.equal(await page.locator("#report-filters").evaluate(el => el.open), true);
+                        assert.equal(await page.locator("#report-filters").count(), 1);
+                        assert.equal(await page.locator('#from').isVisible(), true);
+                        assert.equal(await page.locator('#to').isVisible(), true);
+                        assert.equal(await page.locator('a[href*="ExportCsv"]').count(), 1);
+                        assert.equal(await page.locator('a[href*="ExportCycleCsv"]').count(), 1);
+                        assert.equal(await page.locator('.ani-report-chart').count(), 0);
+                        assert.equal(await page.locator('a[href*="FarmFinance"]').count(), 0);
                     }
                     if (width === 375) {
                         const audit = await new AxeBuilder({ page })

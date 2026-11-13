@@ -1,7 +1,7 @@
 @using SmartFarm.Core.Enums
 @model SmartFarm.Web.ViewModels.Inventory.InventoryPage
 @{
-    ViewData["Title"] = "Inventory";
+    ViewData["Title"] = "Supplies";
     ViewData["FarmName"] = Model.Farm.Name;
     var canManage = Model.Farm.Role is "Owner" or "Manager";
     var visibleItems = Model.Workspace.Items
@@ -18,7 +18,6 @@
             i.Name.Contains(Model.Search, StringComparison.OrdinalIgnoreCase))
         .OrderByDescending(i => i.IsLowStock).ThenBy(i => i.Name)
         .ToList();
-    var inStock = Model.Workspace.Items.Count(i => !i.IsLowStock);
 }
 <div class="reference-screen reference-screen-inventory ani12e-workspace ani12e-inventory">
 <partial name="_FarmNavigation" model="Model.Farm.Id" />
@@ -27,18 +26,10 @@
         <div>
             <p><a asp-controller="Farms" asp-action="Details" asp-route-id="@Model.Farm.Id">← @Model.Farm.Name</a></p>
 
-            <p class="ani-overline">Farm supplies</p>
-            <h1 id="inventory-heading">Inventory</h1>
+            <h1 id="inventory-heading">Supplies</h1>
             <p class="sf-muted">Find a supply, check its balance, and record what came in or was used.</p>
         </div>
         @if (canManage) { <a class="button" href="#add-item">Add supply</a> }
-    </div>
-    <div class="sf-ops-summary ani-inventory-metrics ani12e-metrics" aria-label="Inventory summary">
-        <div><strong>@Model.Workspace.Items.Count</strong><span>Active supplies</span></div>
-        <div class="@(Model.Workspace.LowStockCount > 0 ? "sf-summary-warning" : "")">
-            <strong>@Model.Workspace.LowStockCount</strong><span>Low stock</span>
-        </div>
-        <div><strong>@inStock</strong><span>Not flagged low</span></div>
     </div>
     @if (Model.Workspace.LowStockCount > 0)
     {

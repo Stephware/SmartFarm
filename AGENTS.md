@@ -1,7 +1,7 @@
 # AniGo / SmartFarm — Codex instructions
 
 ## Current goal and source of truth
-Build the **farmer-first MVP simplification**. This is a planned refactor, **not implemented yet**.
+Build the **farmer-first MVP simplification**. Stage 1 MVC changes are implemented; later stages remain planned. Check the execution plan for verification and merge status.
 Read, in order:
 1. [PRODUCT.md](PRODUCT.md) — product requirements and keep/remove boundaries.
 2. [Execution plan](docs/superpowers/plans/2026-11-13-mvp-simplification.md) — implementation stages and acceptance.

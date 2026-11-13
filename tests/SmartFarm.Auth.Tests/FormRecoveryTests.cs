@@ -10,11 +10,13 @@ using Microsoft.Extensions.DependencyInjection;
 using SmartFarm.Core.Contracts.Crops;
 using SmartFarm.Core.Contracts.Farms;
 using SmartFarm.Core.Contracts.Monitoring;
+using SmartFarm.Core.Contracts.Harvests;
 using SmartFarm.Core.Contracts.Tasks;
 using SmartFarm.Core.Enums;
 using SmartFarm.Core.Interfaces.Crops;
 using SmartFarm.Core.Interfaces.Farms;
 using SmartFarm.Core.Interfaces.Monitoring;
+using SmartFarm.Core.Interfaces.Harvests;
 using SmartFarm.Core.Interfaces.Tasks;
 using SmartFarm.Core.Interfaces.Inventory;
 using SmartFarm.Core.Contracts.Inventory;
@@ -174,6 +176,10 @@ public sealed class FormRecoveryTests
             services.AddScoped(_ => Stub<IMonitoringService>(method => method == "GetAsync"
                 ? Task.FromResult(new MonitoringDetails(FarmId, CycleId, true, [], []))
                 : throw (unavailable ? new OfflineDatabase() : new FarmOperationException(FarmError.InvalidInput, "Check the submitted values."))));
+            services.AddScoped(_ => Stub<IHarvestService>(method => method == "GetAsync"
+                ? Task.FromResult(new HarvestOverview(FarmId, CycleId, "Rice", "North plot", "kg",
+                    (byte)status, false, false, 0m, 0, 0, []))
+                : throw new NotSupportedException(method)));
             services.AddScoped(_ => Stub<IFarmTaskService>(method => method == "ListAsync"
                 ? Task.FromResult<IReadOnlyList<FarmTaskDetails>>([]) : throw new NotSupportedException(method)));
         }));

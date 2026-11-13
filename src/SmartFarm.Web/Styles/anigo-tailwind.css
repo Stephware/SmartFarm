@@ -18,6 +18,7 @@
 @import "./anigo-farm-12d.css";
 @import "./anigo-operations-12e.css";
 @import "./anigo-admin-12f.css";
+@import "./mvp-workspace.css";
 @import "tailwindcss/theme.css" layer(theme) prefix(tw);
 @import "tailwindcss/utilities.css" layer(utilities) prefix(tw) source(none);
 @source "../Views";

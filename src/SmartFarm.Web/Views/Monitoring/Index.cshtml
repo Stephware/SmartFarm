@@ -100,7 +100,8 @@
             <select asp-for="Activity.FarmTaskId">
                 <option value="">Match my oldest due task automatically</option>
                 @foreach (var task in Model.Tasks.Where(t => t.CropCycleId == cycle.Id &&
-                    t.Status == 0 && (t.TaskType == 2 || t.TaskType == 3)))
+                    t.Status == 0 && (t.TaskType == 2 || t.TaskType == 3) &&
+                    (Model.CanManageIssues || t.AssignedToUserId == Model.ActorId)))
                 {
                     var taskName = task.TaskType == 2 ? "Watering" : "Fertilizing";
                     <option value="@task.Id">@taskName — @task.DueDate.ToString("yyyy-MM-dd") — @task.Description</option>

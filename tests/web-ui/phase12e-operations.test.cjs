@@ -103,12 +103,13 @@ test("Reports retain unit-separated totals, filters and exports", () => {
     assert.ok(report.includes("ani12e-unit-totals"));
     assert.ok(report.includes("ani12e-report-results"));
     assert.ok(report.includes("role=\"status\""));
-    assert.ok(report.includes("Filter results or download CSV"));
-    assert.ok(report.includes('class="ani-report-filter-details ani12e-report-filters" open'));
+    assert.ok(report.includes("Filters &amp; downloads"));
+    assert.ok(report.includes('class="mvp-report-filter-options"'));
+    assert.ok(!report.includes('id="report-advanced"'));
     assert.ok(report.includes('asp-action="ExportCsv"'));
     assert.ok(report.includes('asp-action="ExportCycleCsv"'));
     assert.ok(report.includes('asp-route-plotId="@report.PlotId"'));
     assert.ok(report.includes('asp-route-cropTypeId="@report.CropTypeId"'));
-    assert.ok(report.includes("Each unit has its own total"));
-    assert.ok(report.includes("Voided harvests are excluded"));
+    assert.ok(report.includes("different units stay separate"));
+    assert.ok(report.includes("Voided entries are excluded"));
 });

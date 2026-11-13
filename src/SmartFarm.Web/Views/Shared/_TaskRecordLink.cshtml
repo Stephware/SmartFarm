@@ -1,0 +1,20 @@
+@model SmartFarm.Core.Contracts.Tasks.FarmTaskDetails
+@{
+    var recordable = Model.CropCycleId is not null && Model.TaskType is 2 or 3 or 4 or 5;
+    var controller = Model.TaskType == 5 ? "Harvests" : "Monitoring";
+    var quick = Model.TaskType switch { 2 => "watering", 3 => "fertilizing", 4 => "inspection", _ => null };
+    var fragment = Model.TaskType switch { 4 => "record-inspection", 5 => "record-harvest", _ => "record-activity" };
+}
+@if (recordable)
+{
+    <a class="ani-task-crop-link mvp-task-action" asp-controller="@controller" asp-action="Index"
+       asp-route-farmId="@Model.FarmId" asp-route-cycleId="@Model.CropCycleId"
+       asp-route-quick="@quick" asp-route-taskId="@(Model.TaskType is 2 or 3 ? Model.Id : (Guid?)null)"
+       asp-fragment="@fragment">Record @Model.TaskTypeName.ToLowerInvariant()</a>
+}
+else
+{
+    <a class="mvp-task-action" asp-controller="Tasks" asp-action="Index"
+       asp-route-farmId="@Model.FarmId" asp-route-view="all"
+       asp-fragment="@("task-" + Model.Id)">Review task</a>
+}
