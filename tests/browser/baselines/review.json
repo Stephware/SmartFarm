@@ -1,7 +1,7 @@
 {
   "reviewed": false,
   "sourceHashes": {
-    "wwwroot/css/anigo-tailwind.css": "e2ff90ca7da1c9c5b975495c0e3d06bf6d71a73b3e40325ce942f528f1ed1de1",
+    "wwwroot/css/anigo-tailwind.css": "21eeba1d610081227f59daef035cb0004230762827eb0aee00436f5ae0549364",
     "Views/Shared/_Layout.cshtml": "20995ee27c7391cc482027e22575978f2b45ba7afb80695200409544afcb2d6c",
     "Views/Home/Index.cshtml": "1d74072b0b9efc036974985c45c45047315f061a3d1dedd11c2e330b74880de6",
     "Views/Account/Login.cshtml": "2881d3e20d68f709abf12d244855199f92c86b54e1c434bd022625999ed5d053",
