@@ -1,0 +1,217 @@
+/* Phase 12C — scoped, role-led farm and platform dashboards.
+   Use Phase 12A semantic tokens; keep existing forms, auth, and farm routes. */
+@layer components {
+  .ani12c-farm-dashboard,
+  .ani12c-admin-dashboard { min-width: 0; }
+  .ani12c-farm-dashboard > * { min-width: 0; }
+  .ani12c-dashboard-hero {
+    align-items: center; gap: 20px;
+    padding: clamp(22px, 3.2vw, 38px);
+    margin-bottom: 22px; background: var(--ui-surface);
+    border: 1px solid var(--ui-border); border-radius: var(--ui-card-radius);
+  }
+  .ani12c-dashboard-hero > div:first-child { min-width: 0; flex: 1 1 340px; }
+  .ani12c-dashboard-hero .ani-overline { color: var(--ui-gold); }
+  .ani12c-dashboard-hero h1 { margin: 5px 0 12px; font-size: clamp(1.7rem, 3vw, 2.5rem); line-height: 1.15; }
+  .ani12c-dashboard-hero p:not(.ani-overline) { max-width: 62ch; line-height: 1.6; color: var(--ui-text-secondary); }
+  .ani12c-dashboard-hero .dashboard-date { color: var(--ui-text-secondary); font-size: .875rem; }
+  .ani12c-hero-actions { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+  .ani12c-hero-actions > a { min-height: 44px; }
+  .ani12c-metrics { margin: 0 0 20px; }
+  .ani12c-metrics .ani-dashboard-priority-stat {
+    min-width: 0; min-height: 110px; padding: clamp(17px, 2.3vw, 24px);
+    background: var(--ui-surface); border: 1px solid var(--ui-border);
+    border-radius: 14px; box-shadow: none;
+  }
+  .ani12c-metrics .ani-dashboard-priority-stat.is-warning {
+    background: var(--ui-surface); border-color: var(--ui-gold);
+    border-left: 4px solid var(--ui-gold);
+  }
+  .ani12c-metrics .ani-dashboard-priority-stat strong {
+    color: var(--ui-text); font-size: clamp(1.7rem, 2.3vw, 2.1rem);
+    font-variant-numeric: tabular-nums;
+  }
+  .ani12c-metrics .ani-dashboard-priority-stat span { color: var(--ui-text-secondary); font-size: .875rem; }
+  .ani12c-metrics .ani-dashboard-priority-stat:hover { background: var(--ui-surface-subtle); }
+  .ani12c-owner-decisions {
+    display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px;
+    margin-bottom: 20px;
+  }
+  .ani12c-owner-decisions a {
+    display: flex; flex-direction: column; align-items: flex-start; justify-content: center;
+    min-width: 0; min-height: 96px; gap: 8px; padding: 20px 22px;
+    background: var(--ui-surface-subtle); color: var(--ui-text);
+    border: 1px solid var(--ui-border); border-radius: 12px;
+    text-decoration: none;
+  }
+  .ani12c-owner-decisions a:hover { border-color: var(--ui-primary); background: var(--ui-surface); }
+  .ani12c-owner-decisions a strong { font-size: 1.2rem; line-height: 1.25; font-variant-numeric: tabular-nums; overflow-wrap: anywhere; }
+  .ani12c-owner-decisions a span { font-size: .875rem; line-height: 1.45; color: var(--ui-text-secondary); }
+  .ani12c-farm-dashboard .ani-dashboard-primary-grid { gap: 18px; align-items: stretch; }
+  .ani12c-farm-dashboard .ani-dashboard-primary-grid .sf-home-card {
+    border-radius: 14px; border: 1px solid var(--ui-border);
+    background: var(--ui-surface);
+  }
+  .ani12c-farm-dashboard .ani-dashboard-primary-grid .sf-home-task-list li > a {
+    display: inline-flex; min-height: 44px; align-items: center; white-space: normal;
+  }
+  .ani12c-attention-links { display: grid; gap: 9px; margin-bottom: 16px; }
+  .ani12c-attention-links a {
+    display: flex; align-items: center; min-height: 44px; padding: 10px 14px;
+    border: 1px solid var(--ui-border); border-left: 3px solid var(--ui-gold);
+    border-radius: 8px; background: var(--ui-surface-subtle);
+    font-size: .875rem; font-weight: 700; color: var(--ui-primary); text-decoration: none;
+  }
+  .ani12c-attention-links a:hover { text-decoration: underline; }
+  .ani12c-quick { border-radius: 14px; }
+  .ani12c-quick .quick-grid a {
+    font-size: .9rem; font-weight: 700;
+    color: var(--ui-text); background: var(--ui-surface);
+    min-width: 0; min-height: 64px; padding: 14px 16px;
+    border: 1px solid var(--ui-border);
+  }
+  .ani12c-quick .quick-grid a:hover { background: var(--ui-surface-subtle); }
+  .ani12c-quick .quick-grid a small { color: var(--ui-text-secondary); font-size: .8rem; line-height: 1.45; }
+  .ani12c-quick .quick-grid .mini { background: var(--ui-surface-subtle); color: var(--ui-primary); }
+  .ani12c-crop-picker {
+    margin: 0 0 22px; scroll-margin-top: 94px; border-color: var(--ui-primary);
+    border-radius: 14px;
+  }
+  .ani12c-crop-picker .ani-overline { color: var(--ui-gold); }
+  .ani12c-crop-list {
+    max-height: 480px; overflow-y: auto; overscroll-behavior: contain;
+    list-style: none; margin: 12px 0 0; padding: 0;
+  }
+  .ani12c-crop-list li {
+    display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between;
+    gap: 12px; padding: 14px 4px; border-top: 1px solid var(--ui-border);
+  }
+  .ani12c-crop-list li > div:first-child { display: grid; gap: 3px; min-width: 0; flex: 1 1 180px; }
+  .ani12c-crop-list li strong { font-size: .98rem; overflow-wrap: anywhere; }
+  .ani12c-crop-list li span { font-size: .875rem; color: var(--ui-text-secondary); overflow-wrap: anywhere; }
+  .ani12c-crop-choices { display: flex; flex-wrap: wrap; gap: 8px; }
+  .ani12c-crop-choices a {
+    display: inline-flex; align-items: center; justify-content: center;
+    min-height: 44px; padding: 8px 12px; border-radius: 8px;
+    border: 1px solid var(--ui-border); background: var(--ui-surface-subtle);
+    color: var(--ui-primary); font-size: .875rem; font-weight: 700; text-decoration: none;
+  }
+  .ani12c-crop-choices a:hover { border-color: var(--ui-primary); }
+  .ani12c-farm-facts {
+    display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px;
+    margin: 0 0 20px; padding: 14px 18px; background: var(--ui-surface);
+    border: 1px solid var(--ui-border); border-radius: 12px;
+  }
+  .ani12c-farm-facts span { display: flex; flex-direction: column; gap: 5px; font-size: .875rem; color: var(--ui-text-secondary); }
+  .ani12c-farm-facts strong { font-size: 1.15rem; color: var(--ui-text); font-variant-numeric: tabular-nums; }
+  .ani12c-farm-dashboard .sf-home-plots {
+    display: grid; grid-template-columns: minmax(0, 1fr); gap: 0;
+    background: transparent; border: 1px solid var(--ui-border);
+    border-radius: 10px; padding: 0;
+  }
+  .ani12c-farm-dashboard .sf-home-plot {
+    display: flex; align-items: center; min-width: 0; gap: 14px;
+    min-height: 76px; padding: 12px 16px;
+    background: var(--ui-surface); color: var(--ui-text);
+    border: 0; border-bottom: 1px solid var(--ui-border);
+    border-radius: 0; box-shadow: none;
+  }
+  .ani12c-farm-dashboard .sf-home-plot:last-child { border-bottom: 0; }
+  .ani12c-farm-dashboard .sf-home-plot:hover { background: var(--ui-surface-subtle); }
+  .ani12c-plot-mark {
+    display: grid; flex: 0 0 42px; place-items: center;
+    width: 42px; height: 42px; border-radius: 10px;
+    background: var(--ui-surface-subtle); color: var(--ui-primary);
+  }
+  .ani12c-plot-mark .ico { width: 22px; height: 22px; }
+  .ani12c-farm-dashboard .sf-home-plot-copy {
+    position: static; inset: auto; display: grid; gap: 4px; min-width: 0;
+    padding: 0; color: var(--ui-text);
+  }
+  .ani12c-farm-dashboard .sf-home-plot-copy strong {
+    position: static; max-width: none; padding: 0; border: 0;
+    background: transparent; color: var(--ui-text);
+    font-size: .95rem; white-space: normal; overflow-wrap: anywhere;
+  }
+  .ani12c-farm-dashboard .sf-home-plot-copy span { color: var(--ui-text); font-size: .875rem; font-weight: 600; }
+  .ani12c-farm-dashboard .sf-home-plot-copy small { color: var(--ui-text-secondary); font-size: .8rem; }
+  .ani12c-role-worker .ani-dashboard-secondary-grid { display: flex; flex-direction: column-reverse; gap: 18px; }
+  .ani12c-role-worker .ani-dashboard-secondary-grid > .stack { width: 100%; }
+  .ani12c-farm-dashboard .sf-home-harvest { border-radius: 14px; }
+  .ani12c-farm-dashboard :is(a, button):focus-visible,
+  .ani12c-admin-dashboard :is(a, button):focus-visible {
+    outline: 3px solid var(--ui-focus); outline-offset: 3px;
+  }
+
+  /* Super Admin: four actionable platform signals, followed by diagnostic detail. */
+  .ani12c-admin-dashboard .ani12c-admin-hero {
+    display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between;
+    gap: 20px; margin-bottom: 24px;
+  }
+  .ani12c-admin-dashboard .ani12c-admin-hero h1 { font-size: clamp(1.75rem, 2.7vw, 2.4rem); margin: 6px 0 10px; }
+  .ani12c-admin-dashboard .ani12c-admin-hero p { max-width: 65ch; line-height: 1.55; }
+  .ani12c-admin-dashboard .ani12c-admin-hero .button { flex-shrink: 0; }
+  .ani12c-admin-dashboard .ani12c-admin-kpis {
+    grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 14px; margin-bottom: 24px;
+  }
+  .ani12c-admin-dashboard .ani12c-admin-kpis .admin-stat { min-height: 128px; padding: 22px; border-radius: 14px; }
+  .ani12c-admin-dashboard .ani12c-admin-kpis .admin-stat span { font-size: .875rem; color: var(--ui-text-secondary); }
+  .ani12c-admin-dashboard .ani12c-admin-kpis .admin-stat strong { font-size: clamp(1.7rem, 2.5vw, 2.2rem); font-variant-numeric: tabular-nums; color: var(--ui-text); }
+  .ani12c-admin-dashboard .ani12c-admin-kpis .admin-stat small { font-size: .82rem; line-height: 1.45; }
+  .ani12c-admin-dashboard .ani12c-admin-section { margin-bottom: 24px; }
+  .ani12c-admin-dashboard .ani12c-admin-priorities {
+    display: grid; grid-template-columns: 1.1fr 1fr; gap: 18px; align-items: start;
+    margin-bottom: 24px;
+  }
+  .ani12c-admin-dashboard .ani12c-admin-priorities .panel { min-width: 0; margin: 0; border-radius: 14px; }
+  .ani12c-admin-priority-list { display: grid; gap: 10px; }
+  .ani12c-admin-priority-list a {
+    display: flex; align-items: center; justify-content: space-between;
+    flex-wrap: wrap; gap: 8px; min-height: 50px; padding: 12px 14px;
+    border: 1px solid var(--ui-border); border-radius: 9px;
+    color: var(--ui-text); background: var(--ui-surface-subtle); text-decoration: none;
+  }
+  .ani12c-admin-priority-list a:hover { border-color: var(--ui-primary); }
+  .ani12c-admin-priority-list span { color: var(--ui-text-secondary); font-size: .875rem; }
+  .ani12c-admin-health { display: grid; gap: 12px; margin: 0; }
+  .ani12c-admin-health > div { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px; padding: 10px 0; border-bottom: 1px solid var(--ui-border); }
+  .ani12c-admin-health dt { font-weight: 700; }
+  .ani12c-admin-health dd { margin: 0; }
+  .ani12c-admin-monitor-link { display: inline-flex; min-height: 44px; align-items: center; font-weight: 700; font-size: .875rem; }
+  .ani12c-admin-dashboard .admin-shortcuts { grid-template-columns: repeat(3, minmax(0,1fr)); gap: 12px; }
+  .ani12c-admin-dashboard .admin-shortcut { border-radius: 12px; min-width: 0; }
+
+  @media (max-width: 1024px) {
+    .ani12c-admin-dashboard .ani12c-admin-kpis { grid-template-columns: repeat(2,minmax(0,1fr)); }
+    .ani12c-admin-dashboard .ani12c-admin-priorities { grid-template-columns: minmax(0,1fr); }
+    .ani12c-admin-dashboard .admin-shortcuts { grid-template-columns: repeat(2,minmax(0,1fr)); }
+  }
+  @media (max-width: 850px) {
+    .ani12c-owner-decisions { grid-template-columns: minmax(0, 1fr); gap: 10px; }
+    .ani12c-owner-decisions a { min-height: 68px; padding: 16px; }
+    .ani12c-farm-facts { grid-template-columns: repeat(2,minmax(0,1fr)); }
+    .ani12c-hero-actions { width: 100%; }
+  }
+  @media (max-width: 600px) {
+    .ani12c-dashboard-hero { padding: 20px; margin-bottom: 18px; }
+    .ani12c-dashboard-hero h1 { font-size: 1.7rem; }
+    .ani12c-hero-actions > a { flex: 1 1 150px; }
+    .ani12c-metrics { grid-template-columns: repeat(2,minmax(0,1fr)); gap: 9px; }
+    .ani12c-metrics .ani-dashboard-priority-stat { min-height: 86px; padding: 14px; }
+    .ani12c-farm-facts { gap: 8px; padding: 12px; }
+    .ani12c-crop-picker { padding: 16px; }
+    .ani12c-crop-choices { width: 100%; }
+    .ani12c-crop-choices a { flex: 1 1 130px; }
+    .ani12c-quick .quick-grid { grid-template-columns: minmax(0,1fr); }
+    .ani12c-admin-dashboard .ani12c-admin-kpis .admin-stat { min-height: 100px; padding: 16px; }
+    .ani12c-admin-dashboard .admin-shortcuts { grid-template-columns: minmax(0, 1fr); }
+  }
+  @media (max-width: 360px) {
+    .ani12c-metrics { grid-template-columns: minmax(0,1fr); }
+    .ani12c-admin-dashboard .ani12c-admin-kpis { grid-template-columns: minmax(0,1fr); }
+    .ani12c-farm-facts { grid-template-columns: minmax(0,1fr); }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .ani12c-farm-dashboard *, .ani12c-admin-dashboard * { transition: none !important; animation: none !important; }
+  }
+}
