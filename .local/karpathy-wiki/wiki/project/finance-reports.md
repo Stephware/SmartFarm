@@ -8,6 +8,8 @@
 changes through `dev` at `3c5a8b0`, see [current source status](current-source-status.md),
 which supersedes conflicting baseline UI, admin, CI and schema statements.
 
+> **Planned retirement distinction (2026-11-13):** Retire the farm-finance/cash and advanced chart product UI after caller/data review; **keep** accurate simple harvest history, per-unit/cycle totals, safe CSV and records. This page describes the **old implemented finance** until refactoring. No table/ledger/history deletion is authorized. See [MVP simplification](mvp-simplification.md).
+
 ## Harvest and dashboard read models
 
 All active farm viewers can read reports; services authorize the farm before

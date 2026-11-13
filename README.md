@@ -1,5 +1,7 @@
 # SmartFarm
 
+> **New product direction (planned, not yet implemented):** simplify AniGo to four MVC farm sections and three Android destinations while preserving the original course MVP, backend safeguards, Hangfire and offline Room. Start with [PRODUCT.md](PRODUCT.md), [the staged implementation plan](docs/superpowers/plans/2026-11-13-mvp-simplification.md) and [scope decision](.local/karpathy-wiki/wiki/project/mvp-simplification.md). The implemented feature inventory below describes the **existing** system until refactoring PRs land; do not delete data or auth tokens as part of documentation work.
+
 SmartFarm is an in-development farm-management platform, displayed as **AniGo**
 on Web and Android. Full audit at `ac624be`; publication source checks on 2026-11-12 at `dev` /
 `3c5a8b0` are summarized in [current source status](.local/karpathy-wiki/wiki/project/current-source-status.md). This is

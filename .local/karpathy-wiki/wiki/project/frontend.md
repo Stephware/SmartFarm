@@ -8,6 +8,8 @@
 changes through `dev` at `3c5a8b0`, see [current source status](current-source-status.md),
 which supersedes conflicting baseline UI, admin, CI and schema statements.
 
+> **Planned UX simplification:** [MVP scope decision](mvp-simplification.md). Target Web navigation is Today / Crops & Calendar / Supplies / Harvests; Android is Today / Record / My Farm. The five-tab Android and nine-link MVC descriptions below remain **current implemented source** until refactoring; do not add more UI layers or preserve old sections merely for parity. Note: `PRODUCT.md` now exists, superseding historical "no PRODUCT.md" guidance in the dated record.
+
 ## Current visual and interaction system
 
 The current implemented look reconstructs the supplied AniGo reference in Harvest

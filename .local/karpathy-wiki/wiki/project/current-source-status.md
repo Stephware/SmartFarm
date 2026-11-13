@@ -4,6 +4,8 @@
 > Raw: [Documentation publication source check](../../raw/project/2026-11-12-documentation-publication.md)
 > Updated: 2026-11-12
 
+> **Planned product change (not yet implemented):** [farmer-first MVP simplification](mvp-simplification.md) and [Codex implementation plan](../../../../docs/superpowers/plans/2026-11-13-mvp-simplification.md). The admin, finance, support, complex navigation and reporting below describe existing code and must not be mistaken for the desired simplified UX.
+
 This page records source changes since the earlier full audit and reference UI
 verification. It supersedes conflicting baseline statements below; historical
 counts/acceptance remain scoped to their recorded revision. This publication is

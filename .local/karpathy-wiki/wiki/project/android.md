@@ -8,6 +8,8 @@
 changes through `dev` at `3c5a8b0`, see [current source status](current-source-status.md),
 which supersedes conflicting baseline UI, admin, CI and schema statements.
 
+> **New planned mobile UX:** Today / Record / My Farm, with sync only as automatic status plus exception recovery. Keep Room/WorkManager and all safe conflict/photo/session handling. See [MVP plan](mvp-simplification.md). The five-tab navigation described below is **currently implemented**, not the target.
+
 ## Display name
 
 The app displays AniGo; application/namespace remains `com.smartfarm.mobile`.

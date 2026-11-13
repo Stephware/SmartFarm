@@ -8,6 +8,8 @@
 changes through `dev` at `3c5a8b0`, see [current source status](current-source-status.md),
 which supersedes conflicting baseline UI, admin, CI and schema statements.
 
+> **New planned work (2026-11-13, documentation only):** [MVP simplification](mvp-simplification.md) and [execution plan](../../../../docs/superpowers/plans/2026-11-13-mvp-simplification.md). No simplified feature is implemented/verified by writing the plan. Older PR history below remains historical.
+
 ## Reviewed baseline
 
 Full source audit baseline: branch `dev`, HEAD `ac624be`, on 2026-11-11.

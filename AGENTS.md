@@ -1,139 +1,39 @@
-# SmartFarm agent operating guide
+# AniGo / SmartFarm — Codex instructions
 
-## Start with context and source
+## Current goal and source of truth
+Build the **farmer-first MVP simplification**. This is a planned refactor, **not implemented yet**.
+Read, in order:
+1. [PRODUCT.md](PRODUCT.md) — product requirements and keep/remove boundaries.
+2. [Execution plan](docs/superpowers/plans/2026-11-13-mvp-simplification.md) — implementation stages and acceptance.
+3. Only the relevant section of [wiki](.local/karpathy-wiki/wiki/index.md), then the affected source/tests.
 
-Read [.local/karpathy-wiki/wiki/index.md](.local/karpathy-wiki/wiki/index.md), then
-only relevant pages. Search with `rg --hidden --no-ignore` when needed. Source is
-authoritative: inspect affected files/callers before relying on summaries. Keep
-implemented, planned/incomplete and runtime-verified status distinct. Historical
-test counts and merged PRs do not prove today's build, deployment or acceptance.
+Do **not** load the entire wiki, raw snapshots, old phase plans, or all skills by default. Current source overrides historical wiki descriptions. Earlier instructions to preserve finance, advanced insights, dedicated Plot Layout, timeline, platform announcements, and support tickets describe the **old implementation**, not the desired MVP. Do not mistake the plan for completed work.
 
-Use the installed tools as one workflow:
-**Karpathy → Superpowers → Ponytail → Impeccable (for UI/UX) → Testing → Knowledge Update**.
-Read actual installed skill instructions; apply only those relevant to the task.
+## Nonnegotiable MVP
+- MVC: farm and plot setup; crop plans/calendar; supplies and stock history; partial harvests and simple reports.
+- API: authorized crop activity, crop observations, photo, harvest and inventory records, plus offline sync endpoints.
+- Worker: Hangfire planting/watering/harvest reminders and weather checks.
+- Android: simple daily work and field recording, photos, Room/WorkManager offline queue.
+- External weather: saved forecasts and advisories with freshness and appropriate cautions.
+- **Target navigation:** Web farm workspace = Today / Crops & Calendar / Supplies / Harvests; Android = Today / Record / My Farm. Keep Farm Settings/Team and Account secondary. UI roles are distinct: Owner/Manager manage; Field Worker records authorized work.
 
-- **Karpathy Wiki:** use `karpathy-llm-wiki` for knowledge/context and maintenance.
-  This machine's skill is `/Users/stephen/.codex/skills/karpathy-llm-wiki/SKILL.md`.
-  Resolve `raw/`, `wiki/` and checker paths under `.local/karpathy-wiki/`, never
-  repository root. Read raw snapshots only for evidence questions.
-- **Superpowers:** use applicable installed skills for planning, systematic
-  debugging, TDD, execution, code review and verification. Follow their real
-  triggers/approval rules under the user's current scope; avoid duplicate plans.
-- **Ponytail:** use the installed simplicity workflow for coding. Prefer existing
-  code/components, then built-ins and installed dependencies; smallest complete
-  solution, YAGNI, beneficial DRY, minimal dependencies. Avoid speculative
-  abstractions/boilerplate/optimization. Never cut security, validation, error
-  handling, accessibility, correctness or essential tests for fewer lines.
-- **Impeccable:** use applicable installed instructions for Web/Android interface
-  design, audit or refinement. Prioritize accessible, responsive, consistent,
-  polished farmer-friendly experiences. Follow context/playbook/native guidance;
-  inspect rendered results. Documentation maintenance does not authorize redesign.
+Keep: private photos, permission checks, one-active-crop-per-plot, partial harvests, unit-separated totals, stock ledger/atomic activity+stock updates, rowversions, idempotent sync, explicit conflict review, session boundaries, antiforgery, safe CSV, truthful offline confirmation. Simplifying the UI **must not** silently lose business records or weaken security.
 
-Detailed workflow and historical plans: [docs/superpowers/README.md](docs/superpowers/README.md).
+Retire after dependency review: farm finance/cash insights, independent Plot Layout and Crop Timeline screens (merge content), advanced charts, Android combined cash/harvest insights, crop decorative SVG emphasis, public-facing announcements and support-ticket workflow, unnecessary Super Admin analytics. **Retire UI first; never drop SQL tables, migration history, audit records, or user data without a separate reviewed migration/retention decision.** Keep operational MFA, auth and basic audit. Existing farm-joining approval may be simplified visually, not bypassed.
 
-## Architecture and conventions
+## Engineering boundaries
+- .NET 10; Core pure models/rules, Infrastructure shared services/EF/Identity, Web independent cookie MVC, API independent opaque Identity bearer (not JWT), Worker Hangfire with **separate jobs storage**, Android Kotlin Compose + Retrofit + Room/WorkManager.
+- MVC and API use shared services/database; do not add Web-to-API HTTP calls for business logic.
+- API auth/session tokens are **security credentials**: do not remove/change them as part of LLM token-efficiency work. Android tokens stay memory-only.
+- SQL Server SQL-first; no startup migrations, destructive cleanup, or production data mutations. Preserve numeric DTO codes, date/time zone and rowversion semantics, API compatibility for queued Android operations.
+- Use existing components, dependencies, accessibility and AniGo pine/gold theme. No new framework, no finance replacement, no speculative features.
 
-- `Core`: plain entities, contracts, interfaces, enums and pure business rules;
-  no Infrastructure/provider dependency. `Infrastructure`: EF/Identity,
-  repositories/unit of work, shared services, weather adapter and private files.
-- `Web` (Razor MVC/cookies) and `Api` (opaque Identity bearer, not JWT) independently
-  call shared services/database. Do not reintroduce Web→API business HTTP calls
-  through legacy `Web/Clients`; CSV helpers there remain active.
-- `Worker`: headless Hangfire automation, separate jobs storage. Checked-in
-  processing is enabled; explicitly disable it for an idle host. Startup may
-  register/enqueue jobs. Do not assume running it is read-only.
-- Android: Compose → StateFlow ViewModel → repository → Retrofit, manually wired
-  in `AppContainer`; Room/WorkManager for selected cached reads/queued writes.
-  Keep cancellation, user scoping and session-generation guards intact.
-- Reuse established direct DbContext patterns where present; no blanket new
-  repository/abstraction rule. Preserve DTO numeric codes, additive compatibility,
-  ISO farm dates, UTC timestamps and Base64 rowversion checks across clients.
-- Current UI is AniGo, Harvest Gold + Pine, Razor/CSS/JS and Material3 Compose.
-  Reuse effective CSS tokens, theme/shared components and local artwork; inspect
-  the final CSS cascade. No PRODUCT.md or DESIGN.md currently exists; follow
-  Impeccable's actual prerequisites for future new surfaces/redesigns.
+## Execution with less Codex context
+- Work **one stage at a time** following the execution plan; inspect callers before deleting any route/service/file.
+- Prefer one coding agent. Invoke relevant specialized skills only if needed; avoid repeating the same analysis in subagents, duplicate plans, and giant context dumps.
+- Keep prompts, commits and PR summaries short. Scope searches to affected paths; summarize findings and decisions rather than pasting files/logs. Never sacrifice tests or correctness to save model tokens.
+- Preserve unrelated changes. Work on a focused branch off \`dev\`; PR to \`dev\`; promote \`dev\` to \`main\` only after review. Never assert CI success without checking it.
+- Validate the affected .NET, Android, JS/visual and SQL-contract tests as applicable; real Android/device and live SQL tests only in authorized disposable environments. Do not run Worker against populated data casually.
+- After each completed and verified stage, update only the relevant wiki article and the plan's completion status. Historical raw snapshots and manifest entries remain immutable. See [development checks](.local/karpathy-wiki/wiki/project/development.md).
 
-## Critical business and security rules
-
-- Farm access comes from enabled user + active farm ownership/membership, checked
-  server-side per operation. Global roles, cached data and hidden buttons grant
-  no authority. Owner alone manages membership/codes/approvals and farm archive;
-  Owner/Manager manages business data, with service-specific exceptions.
-- Signup creates only an account. Signed-in code requests require owner approval
-  to become Field Worker; pending/rejected/cancelled requests grant no access.
-  Preserve cancellation/decision history and retired invitation Gone responses.
-- Crop catalog is global/add-only. Only one Active crop per plot; terminal cycles
-  do not reopen. New monitoring/harvest records require Active status; authorized
-  history remains readable. Issue follow-up is manager/owner, versioned and online.
-- Stock never becomes negative. All balance changes retain ledger history;
-  consumption links an active same-farm crop activity. Combined fertilizer/pesticide
-  activity and matching supply consumption must roll back together, including task
-  fulfillment. Reversals/voids retain audit reasons; never edit away history.
-- Harvesting does not complete crops or generate sales. Separate units/cycles in
-  totals; exclude voids. Finance is manually recorded PHP cash, not accounting
-  profit or inferred harvest/inventory value. Preserve full-scope aggregates,
-  filter context and CSV formula protection despite bounded displays.
-- Stable-ID sync commits business result and ledger atomically; preserve the
-  implemented operation/type and observation/combined/photo receipt guards before
-  queue deletion. Never silently rebase stock conflicts.
-  Photos use stable-ID replay/private authorized storage. Tokens remain memory-only;
-  never put them in plaintext preferences/Room. Offline support is not full CRUD.
-- SQL Server is SQL-first. No startup Migrate/EnsureCreated/EnsureDeleted or silent
-  history adoption. Base schema excludes optional finance; existing-database
-  upgrades require reviewed schema/history and separately authorized execution.
-  Never run fresh-schema DDL or write tests on populated SmartFarmDB.
-
-## Development, tests and Git
-
-Inspect `git status`/branch first; preserve unrelated files and staged changes.
-Use focused branches into `dev`, reviewed promotion to `main`, and existing remote
-requirements. Do not infer remote protection/green CI from local refs. Skill
-example commit/push/merge commands do not expand the user's authorization. Never
-force-add secrets/private artifacts or perform destructive cleanup to get a clean tree.
-
-Development defaults: Web `localhost:5080`, API `localhost:5081`, Android emulator
-API `10.0.2.2:5081`. Release needs explicit HTTPS endpoint, durable private photos,
-protected shared keys and separately configured SQL/jobs storage. Keep credentials
-in local/deployment secret configuration, never docs or tracked appsettings.
-
-Use [development checks](.local/karpathy-wiki/wiki/project/development.md) for exact
-commands and [database recovery](database/RECOVERY.md) for operator acceptance.
-Run meaningful tests for affected behavior and inspect output before success
-claims. SQL tests need explicitly disposable initialized connections; absent
-settings can skip work. CI builds/tests .NET and Android JVM, compiles device tests,
-and checks recovery scripts. It also runs Node, public Chromium smoke/a11y,
-Tailwind consistency and PR visual checks; it does not run live SQL, an Android
-emulator or deployment.
-Report unrun checks. Documentation-only edits need source/link/evidence/diff checks.
-
-## Knowledge maintenance and navigation
-
-After significant completed changes, capture sanitized new evidence in a new
-`raw/project/` file, update only affected article sections/cross-references, refresh
-article/index dates, append `wiki/log.md` and manifest provenance. Preserve immutable
-snapshots, append-only history and valuable superseded decisions with status/date.
-Plain knowledge queries never write files. See [wiki runbook](.local/karpathy-wiki/README.md);
-its evidence checker requires the documented Python 3.10 interpreter here.
-
-Wiki, manifest/runbook, Superpowers docs and this guide are Git-visible by user
-instruction; do not re-ignore them. Private historical `verification/`, secrets and
-generated files remain excluded. Visibility does not mean permission to publish
-private data. Inspect exact paths and diffs before any authorized staging.
-
-Source updates since the full audit: [current source status](.local/karpathy-wiki/wiki/project/current-source-status.md).
-Use self-hosted `tw:` Tailwind utilities without Preflight; rebuild with `npm ci`
-and `npm run css:build`, retaining reference-ui.css last. Global SuperAdmin/MFA
-portal rights are separate from farm ownership/membership. Existing SQL verifier
-counts cover base/finance only; review support/announcement extensions explicitly.
-
-Task references: [architecture](.local/karpathy-wiki/wiki/project/architecture.md),
-[business rules](.local/karpathy-wiki/wiki/project/features.md),
-[API](.local/karpathy-wiki/wiki/project/api-contracts.md),
-[database](.local/karpathy-wiki/wiki/project/database.md),
-[Android/sync](.local/karpathy-wiki/wiki/project/android.md),
-[frontend](.local/karpathy-wiki/wiki/project/frontend.md),
-[automation](.local/karpathy-wiki/wiki/project/automation.md),
-[finance/reports](.local/karpathy-wiki/wiki/project/finance-reports.md),
-[decisions](.local/karpathy-wiki/wiki/project/decisions.md),
-[progress](.local/karpathy-wiki/wiki/project/progress.md),
-[known issues](.local/karpathy-wiki/wiki/project/known-issues.md).
+**Stop condition:** a farmer can create a farm and crop, find today's work, record watering/inspection/photos/stock use/partial harvest, recover offline, and view a simple report without learning internal architecture.
