@@ -1,5 +1,5 @@
 {
-  "reviewed": false,
+  "reviewed": true,
   "sourceHashes": {
     "wwwroot/css/anigo-tailwind.css": "6e204c641f9c6908a497d4f24bc38db4a60647fa3af39006e6e863fa9910ef98",
     "Views/Shared/_Layout.cshtml": "20995ee27c7391cc482027e22575978f2b45ba7afb80695200409544afcb2d6c",
@@ -23,5 +23,5 @@
     "login": "/Account/Login",
     "registration": "/Account/Register"
   },
-  "note": "Review the generated candidate images before changing reviewed to true."
+  "note": "Phase 12C (2026-11-13): Regenerated all 30 public screenshots with pinned Chromium after new dashboard CSS; reviewed public pages at 320/375/768/1024/1440 in light and dark. Additionally reviewed real MVC signed-in Owner desktop, Manager mobile, Field Worker dark mobile, and multiple-crop tablet dashboard screenshots. Confirmed role-based first screen, legibility, action touch targets, selected crop requirement, saved-data labels, and no stock photo presented as customer records. Role snapshots are deterministic test fixtures rather than production data. See tests/browser/phase12c-review. All CI checks must pass prior to merge."
 }
