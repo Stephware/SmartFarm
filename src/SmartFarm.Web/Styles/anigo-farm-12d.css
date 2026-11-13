@@ -111,7 +111,7 @@
     display: grid; place-items: center; width: 76px; min-height: 76px; max-height: 86px; height: 76px;
     border-radius: 10px; background: var(--ani12d-soft); overflow: hidden;
   }
-  .ani12d-plot-card .ani-plot-art img { width: 58px; height: 58px; object-fit: contain; opacity: .85; }
+  .ani12d-plot-card .ani-plot-art img { position: static; inset: auto; margin: 0; width: 58px; height: 58px; object-fit: contain; opacity: .85; }
   .ani12d-plot-card .sf-plot-tile-info { position: static; display: grid; align-content: center; gap: 5px; padding: 0; min-width: 0; background: none; }
   .ani12d-plot-card .sf-plot-tile-info strong { font-size: 1.05rem; color: var(--ani12d-type); }
   .ani12d-plot-card .sf-plot-tile-info :is(span, .sf-plot-crop) { font-size: .875rem; line-height: 1.45; color: var(--ani12d-muted); }
