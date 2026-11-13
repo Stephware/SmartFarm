@@ -1,0 +1,101 @@
+# Temporary authoring workflow; removed after reviewed screenshot baselines land.
+name: Stage Phase 12B browser screenshots
+on:
+  push:
+    branches:
+      - feature/web-ui-phase-12b-entry-onboarding
+    paths:
+      - .github/workflows/phase12b-stage-baselines.yml
+permissions:
+  contents: write
+jobs:
+  baseline:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: feature/web-ui-phase-12b-entry-onboarding
+          persist-credentials: true
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 10.0.x
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Compile and prepare browser
+        run: |
+          npm ci --no-audit --no-fund
+          npm run css:build
+          npm install --no-save --no-package-lock playwright@1.56.1 pixelmatch@5.3.0 pngjs@7.0.0 @axe-core/playwright@4.10.2
+          npx playwright install --with-deps chromium
+          dotnet build src/SmartFarm.Web/SmartFarm.Web.csproj -c Release
+      - name: Start real MVC server
+        run: |
+          (cd src/SmartFarm.Web && ASPNETCORE_ENVIRONMENT=Development ASPNETCORE_URLS=http://127.0.0.1:5082 dotnet bin/Release/net10.0/SmartFarm.Web.dll) > /tmp/phase12b-app.log 2>&1 &
+          for i in $(seq 1 60); do
+            if curl -fsS http://127.0.0.1:5082/ >/dev/null; then exit 0; fi
+            sleep 1
+          done
+          cat /tmp/phase12b-app.log
+          exit 1
+      - name: Run real-browser smoke and accessibility
+        env:
+          SMARTFARM_BROWSER_BASE_URL: http://127.0.0.1:5082
+        run: node tests/browser/web-smoke.cjs
+      - name: Capture new public visual baseline candidates
+        env:
+          ANIGO_UPDATE_VISUAL_BASELINES: '1'
+          ANIGO_CANDIDATE_URL: http://127.0.0.1:5082
+        run: node tests/browser/visual-parity.cjs
+      - name: Generate optimized QA screenshot contact sheet
+        run: |
+          python3 -m pip install --quiet Pillow
+          python3 - <<'PY'
+          from PIL import Image, ImageOps, ImageDraw
+          from pathlib import Path
+          import base64,io
+          root=Path('tests/browser/parity-output')
+          sources=[(name,mode,width) for mode in ('light','dark')
+                   for width in (375,1440)
+                   for name in ('landing','login','registration')]
+          preview_width=375
+          tiles=[]
+          for name,mode,width in sources:
+              p=root/f'{name}-{mode}-{width}-candidate.png'
+              im=Image.open(p).convert('RGB')
+              target=round(preview_width*im.height/im.width)
+              im=im.resize((preview_width,max(1,min(680,target))))
+              panel=Image.new('RGB',(390,730),'#e9efeb')
+              d=ImageDraw.Draw(panel)
+              d.text((8,10),f'{name} {mode} {width}',fill='#192b20')
+              panel.paste(im,(7,40))
+              tiles.append(panel)
+          for start in (0,6):
+              collage=Image.new('RGB',(1170,1460),'#eef0ec')
+              for n,img in enumerate(tiles[start:start+6]):
+                  collage.paste(img,((n%3)*390,(n//3)*730))
+              buffer=io.BytesIO()
+              collage.save(buffer,format='JPEG',quality=66,optimize=True)
+              encoded=base64.b64encode(buffer.getvalue()).decode()
+              print('ANIGO_12B_PREVIEW'+str(start//6)+'_BEGIN')
+              for index in range(0,len(encoded),2200):
+                  print('ANIGO_12B_PREVIEW'+str(start//6)+':'+encoded[index:index+2200])
+              print('ANIGO_12B_PREVIEW'+str(start//6)+'_END')
+          PY
+      - name: Commit generated CSS and unreviewed baselines
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add src/SmartFarm.Web/wwwroot/css/anigo-tailwind.css tests/browser/baselines/
+          git commit -m "Capture redesigned public page baselines"
+          git push origin HEAD:feature/web-ui-phase-12b-entry-onboarding
+      - name: Save screenshots and logs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: phase12b-rendered-review
+          if-no-files-found: ignore
+          path: |
+            tests/browser/parity-output/
+            /tmp/phase12b-app.log
