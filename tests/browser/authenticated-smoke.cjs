@@ -25,7 +25,14 @@ const screens = [
     ["dashboard-manager", "/Dashboard?farmId=123"],
     ["dashboard-worker", "/Dashboard?farmId=123"],
     ["dashboard-multiple-crops", "/Dashboard?farmId=123"],
-    ["dashboard-empty", "/Dashboard?farmId=123"]
+    ["dashboard-empty", "/Dashboard?farmId=123"],
+    ["12d-farm-owner", "/Farms/Details?id=123"],
+    ["12d-plots-owner", "/PlotLayout?farmId=123"],
+    ["12d-plots-worker", "/PlotLayout?farmId=123"],
+    ["12d-crops-owner", "/Crops?farmId=123"],
+    ["12d-crops-worker", "/Crops?farmId=123"],
+    ["12d-edit-plot", "/Farms/EditPlot?id=123&plotId=123"],
+    ["12d-edit-plan", "/Crops/EditPlan?farmId=123&cycleId=123"]
 ];
 const widths = [320, 375, 768, 1024, 1440];
 
@@ -44,7 +51,7 @@ const widths = [320, 375, 768, 1024, 1440];
             const errors = [];
             page.on("pageerror", e => errors.push(e.message));
             let selected = "";
-            await page.route(/\/(?:Farms(?:\/|\?|$)|Dashboard(?:\?|$))/, async route => {
+            await page.route(/\/(?:Farms(?:\/|\?|$)|Dashboard(?:\?|$)|PlotLayout(?:\?|$)|Crops(?:\/|\?|$))/, async route => {
                 const file = path.join(fixtures, selected + ".html");
                 await route.fulfill({ status: 200, contentType: "text/html; charset=utf-8", body: fs.readFileSync(file) });
             });
@@ -83,6 +90,38 @@ const widths = [320, 375, 768, 1024, 1440];
                     }
                     if (name === "farm-detail-worker")
                         assert.equal(await page.locator("#add-plot").count(), 0);
+                    if (name === "12d-farm-owner") {
+                        assert.equal(await page.locator(".ani12d-farm-summary").count(), 1);
+                        assert.equal(await page.locator(".ani12d-plots-panel").count(), 1);
+                        assert.equal(await page.locator("#add-plot").count(), 1);
+                        assert.equal(await page.locator(".ani12d-danger-options").count(), 1);
+                    }
+                    if (name === "12d-plots-owner" || name === "12d-plots-worker") {
+                        assert.equal(await page.locator(".ani12d-plot-directory .ani12d-plot-card").count(), 2);
+                        assert.equal(await page.locator(".ani12d-plot-disclaimer").count(), 1);
+                    }
+                    if (name === "12d-crops-owner" || name === "12d-crops-worker") {
+                        assert.equal(await page.locator(".ani12d-calendar").count(), 1);
+                        assert.equal(await page.locator(".ani12d-agenda-details[open]").count(), 1);
+                        const visible = await page.locator(".ani12d-agenda-list").isVisible();
+                        assert.ok(visible, "Calendar schedule must be readable by default");
+                        if (width <= 375)
+                            assert.equal(await page.locator(".ani12d-calendar-month").isVisible(), false,
+                                "On phones the agenda replaces the cramped month grid");
+                        if (name === "12d-crops-owner") {
+                            assert.equal(await page.locator("#plotId option[value='']").count(), 1);
+                            assert.equal(await page.locator("#plotId").inputValue(), "",
+                                "Must choose plot explicitly");
+                        } else {
+                            assert.equal(await page.locator('button:has-text("Save planting plan")').count(), 0);
+                            assert.equal(await page.locator("#planting-plans-heading").count(), 0,
+                                "Workers should not see unavailable planning steps");
+                        }
+                    }
+                    if (name === "12d-edit-plan" || name === "12d-edit-plot") {
+                        assert.equal(await page.locator(".ani12d-edit-form").count(), 1);
+                        assert.equal(await page.locator(".ani12d-form-actions").count(), 1);
+                    }
                     if (name.startsWith("dashboard-")) {
                         assert.equal(await page.locator(".ani12c-farm-dashboard").count(), 1);
                         assert.equal(await page.locator(".ani12c-dashboard-rail").count(), 1);

@@ -2,16 +2,19 @@
 @{
     ViewData["Title"] = "Edit plot";
 }
-<div class="reference-screen reference-screen-farms">
-<section class="panel card sf-edit-form-panel">
+<div class="reference-screen reference-screen-farms ani12d-edit-plot">
+<section class="panel card sf-edit-form-panel ani12d-edit-form">
 
+    <p class="ani-overline">Growing areas</p>
     <h1>Edit plot</h1>
-    <form class="sf-crop-form" asp-action="EditPlot" asp-route-id="@Model.FarmId" asp-route-plotId="@Model.PlotId" method="post">
+    <p class="sf-muted">Update the plot name or its measured area. Existing crop records remain connected.</p>
+    <div asp-validation-summary="ModelOnly" class="error" role="alert"></div>
+    <form class="sf-crop-form ani12d-edit-fields" asp-action="EditPlot" asp-route-id="@Model.FarmId" asp-route-plotId="@Model.PlotId" method="post">
         <input asp-for="Input.RowVersion" type="hidden" />
         <label asp-for="Input.Name">Plot name</label><input asp-for="Input.Name" required /><span asp-validation-for="Input.Name" class="error"></span>
         <label asp-for="Input.AreaSqMeters">Area (m²)</label><input asp-for="Input.AreaSqMeters" type="number" min="0.01" step="0.01" required /><span asp-validation-for="Input.AreaSqMeters" class="error"></span>
-        <button type="submit">Save changes</button>
-        <a asp-action="Details" asp-route-id="@Model.FarmId">Cancel</a>
+        <div class="ani12d-form-actions"><button type="submit">Save changes</button>
+        <a class="sf-button-outline" asp-action="Details" asp-route-id="@Model.FarmId">Cancel</a></div>
     </form>
 </section>
 

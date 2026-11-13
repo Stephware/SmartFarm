@@ -15,6 +15,7 @@
 @import "./anigo-foundation.css";
 @import "./anigo-entry.css";
 @import "./anigo-dashboard-12c.css";
+@import "./anigo-farm-12d.css";
 @import "tailwindcss/theme.css" layer(theme) prefix(tw);
 @import "tailwindcss/utilities.css" layer(utilities) prefix(tw) source(none);
 @source "../Views";

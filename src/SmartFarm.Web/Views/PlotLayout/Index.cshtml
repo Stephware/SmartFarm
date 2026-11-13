@@ -8,16 +8,16 @@
     var planned = Model.Tiles.Count(t => t.CropStatus == SmartFarm.Core.Enums.CropCycleStatus.Planned);
     var available = Model.Tiles.Count(t => t.CycleId is null);
 }
-<div class="reference-screen reference-screen-plotlayout">
+<div class="reference-screen reference-screen-plotlayout ani12d-plot-workspace">
 <partial name="_FarmNavigation" model="Model.Farm.Id" />
-<section class="panel card sf-plot-overview" aria-labelledby="plot-layout-heading">
+<section class="panel card sf-plot-overview ani12d-plot-overview" aria-labelledby="plot-layout-heading">
     <div class="sf-page-header page-hero">
         <div>
             <p><a asp-controller="Farms" asp-action="Details" asp-route-id="@Model.Farm.Id">← @Model.Farm.Name</a></p>
 
             <p class="ani-overline">Fields &amp; crops</p>
-            <h1 id="plot-layout-heading">Your growing plots</h1>
-            <p class="sf-muted">See what's planted or planned in each plot, then open its crop records or start a plan.</p>
+            <h1 id="plot-layout-heading">Farm plots</h1>
+            <p class="sf-muted">Find a plot by name, check its current crop, and open the right planting plan.</p>
         </div>
         @if (canManage)
         {
@@ -30,14 +30,14 @@
                asp-route-farmId="@Model.Farm.Id">View crops</a>
         }
     </div>
-    <p class="sf-schematic-note"><strong>Illustrative layout only.</strong> Plot tiles are arranged automatically, not by real field position, size, distance or crop health.</p>
-    <div class="ani-fields-summary" aria-label="Plot status summary">
+    <p class="sf-schematic-note ani12d-plot-disclaimer"><strong>Plot directory, not a map.</strong> Cards are organized for easy reading and do not show actual field positions, distances, or plant health.</p>
+    <div class="ani-fields-summary ani12d-plot-summary" aria-label="Plot status summary">
         <div><strong>@Model.Tiles.Count</strong><span>Active plots</span></div>
         <div><strong>@growing</strong><span>Growing</span></div>
         <div><strong>@planned</strong><span>Planned</span></div>
         <div><strong>@available</strong><span>No current plan</span></div>
     </div>
-    <div class="ani-field-journey" aria-label="Crop planning steps">
+    <div class="ani-field-journey ani12d-field-journey" aria-label="Crop planning steps">
         <span>1. Add a plot</span><span aria-hidden="true">›</span>
         <span>2. Plan a crop</span><span aria-hidden="true">›</span>
         <span>3. Plant &amp; monitor</span>
@@ -56,13 +56,13 @@
     }
     else
     {
-        <div class="plot-layout-grid sf-plot-grid plot-board ani-fields-board" role="list" aria-label="Farm plot overview">
+        <div class="plot-layout-grid sf-plot-grid plot-board ani-fields-board ani12d-plot-directory" role="list" aria-label="Farm plot directory">
         @foreach (var plot in Model.Tiles)
         {
-            <a role="listitem" class="plot-layout-tile sf-plot-tile ani-plot-tile plot-tile @(plot.CropName is null ? "sf-plot-empty" : "sf-plot-growing")"
+            <a role="listitem" class="plot-layout-tile sf-plot-tile ani-plot-tile plot-tile ani12d-plot-card @(plot.CropName is null ? "sf-plot-empty" : "sf-plot-growing")"
                asp-controller="Crops" asp-action="Index" asp-route-farmId="@Model.Farm.Id"
                asp-route-plotId="@plot.PlotId"
-               asp-fragment="@(plot.CycleId.HasValue ? "crop-cycle-" + plot.CycleId : "planting-plans-heading")"
+               asp-fragment="@(plot.CycleId.HasValue ? "crop-cycle-" + plot.CycleId : canManage ? "planting-plans-heading" : "ani-current-heading")"
                aria-label="@plot.Name, @plot.AreaSqMeters square meters, @(plot.CropName ?? "No current crop"). @(plot.CycleId.HasValue ? "View crop details" : canManage ? "Plan a crop" : "View crop planning").">
                 <div class="sf-plot-field ani-plot-art" aria-hidden="true">
                     @if (plot.CropName is not null)
@@ -72,17 +72,17 @@
                 </div>
                 <div class="sf-plot-tile-info">
                     <strong>@plot.Name</strong>
-                    <span>@plot.AreaSqMeters.ToString("N2") m²</span>
+                    <span>@plot.AreaSqMeters.ToString("N2") m² of growing area</span>
                     @if (plot.CropName is not null)
                     {
                         <span class="sf-plot-crop">@plot.CropName</span>
-                        <span class="sf-plot-status">@plot.CropStatus</span>
+                        <span class="sf-plot-status">Status: @plot.CropStatus</span>
                     }
                     else
                     {
                         <span class="sf-plot-crop">Ready for a planting plan</span>
                     }
-                    <span class="ani-field-card-action">
+                    <span class="ani-field-card-action ani12d-directory-action">
                         @(plot.CycleId.HasValue ? "View crop details" : canManage ? "Plan a crop" : "View planting plans") <span aria-hidden="true">›</span>
                     </span>
                 </div>

@@ -2,14 +2,17 @@
 @{
     ViewData["Title"] = "Edit planting plan";
 }
-<div class="reference-screen reference-screen-crops">
-<section class="panel card sf-edit-form-panel">
+<div class="reference-screen reference-screen-crops ani12d-edit-plan">
+<section class="panel card sf-edit-form-panel ani12d-edit-form">
 
+    <p class="ani-overline">Crop planning</p>
     <h1>Edit planting plan</h1>
-    <p>@Model.Cycle.PlotName · @Model.Cycle.CropTypeName</p>
-    <form class="sf-crop-form" asp-action="EditPlan" asp-route-farmId="@Model.Farm.Id"
+    <p class="sf-muted">Update @Model.Cycle.CropTypeName on @Model.Cycle.PlotName. Saved crop history is retained.</p>
+    <div asp-validation-summary="ModelOnly" class="error" role="alert"></div>
+    <form class="sf-crop-form ani12d-edit-fields" asp-action="EditPlan" asp-route-farmId="@Model.Farm.Id"
           asp-route-cycleId="@Model.Cycle.Id" method="post">
         <input type="hidden" asp-for="Input.RowVersion" />
+        <h2>Crop and dates</h2>
         <label asp-for="Input.CropTypeId">Crop type</label>
         <select asp-for="Input.CropTypeId">
             @foreach (var type in Model.CropTypes)
@@ -19,14 +22,15 @@
         </select>
         <label asp-for="Input.PlannedPlantingDate">Planned planting date</label>
         <input asp-for="Input.PlannedPlantingDate" type="date" required />
-        <label asp-for="Input.ExpectedHarvestDate">Expected harvest</label>
+        <label asp-for="Input.ExpectedHarvestDate">Expected harvest (optional)</label>
         <input asp-for="Input.ExpectedHarvestDate" type="date" />
+        <h2>Optional harvest and watering settings</h2>
         <label asp-for="Input.HarvestUnit">Harvest unit</label><input asp-for="Input.HarvestUnit" maxlength="20" />
         <label asp-for="Input.WateringIntervalDays">Watering interval days</label>
         <input asp-for="Input.WateringIntervalDays" type="number" min="1" max="32767" />
-        <button type="submit">Save plan</button>
+        <div class="ani12d-form-actions"><button type="submit">Save changes</button>
+        <a class="sf-button-outline" asp-action="Index" asp-route-farmId="@Model.Farm.Id" asp-fragment="@("crop-cycle-" + Model.Cycle.Id)">Cancel</a></div>
     </form>
-    <a asp-action="Index" asp-route-farmId="@Model.Farm.Id">Cancel</a>
 </section>
 
 
