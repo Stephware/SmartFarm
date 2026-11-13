@@ -1171,6 +1171,35 @@ public sealed class FarmEnrollmentWebTests
         Assert.Equal(HttpStatusCode.OK, read.StatusCode);
     }
 
+    [Theory]
+    [InlineData("/Farms/Create")]
+    [InlineData("/Farms#join-farm")]
+    public async Task RegistrationKeepsSelectedFarmDestinationWhenInputNeedsCorrection(string destination)
+    {
+        using var app = App();
+        using var client = app.CreateClient(new() { AllowAutoRedirect = false });
+        var route = "/Account/Register?returnUrl=" + Uri.EscapeDataString(destination);
+        var html = await client.GetStringAsync(route);
+        Assert.Contains("returnUrl=", html);
+        Assert.Contains("Your selected next step", html);
+        using var response = await client.PostAsync(route, Form(html,
+            ("FullName", ""), ("Email", "invalid"), ("Password", "weak")));
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        var invalid = await response.Content.ReadAsStringAsync();
+        Assert.Contains("returnUrl=", invalid);
+        Assert.Contains("Your selected next step", invalid);
+    }
+
+    [Fact]
+    public async Task RegistrationDropsExternalReturnDestination()
+    {
+        using var app = App();
+        using var client = app.CreateClient();
+        var html = await client.GetStringAsync("/Account/Register?returnUrl=https%3A%2F%2Fexample.org");
+        Assert.DoesNotContain("example.org", html);
+        Assert.DoesNotContain("Your selected next step", html);
+    }
+
     // Capture real Razor HTML with deterministic signed-in roles for Chromium screenshot
     // verification. These are fixtures, never production credentials or seeded farm data.
     [Fact]
