@@ -1207,7 +1207,11 @@ public sealed class FarmEnrollmentWebTests
     {
         if (Environment.GetEnvironmentVariable("ANIGO_CAPTURE_AUTH_FIXTURES") != "1") return;
 
-        var directory = Path.Combine(Directory.GetCurrentDirectory(), "tests", "browser", "authenticated-fixtures");
+        var root = new DirectoryInfo(AppContext.BaseDirectory);
+        while (root is not null && !File.Exists(Path.Combine(root.FullName, "SmartFarm.slnx")))
+            root = root.Parent;
+        Assert.NotNull(root);
+        var directory = Path.Combine(root.FullName, "tests", "browser", "authenticated-fixtures");
         Directory.CreateDirectory(directory);
         var farmList = new FarmSummary[]
         {
