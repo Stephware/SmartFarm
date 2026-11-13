@@ -57,7 +57,9 @@
         <header class="reference-panel-heading"><h2 id="stock-movement-heading">Record stock movement</h2></header>
         <p class="sf-muted">Choose the kind of change. Each saved movement updates the farm balance and keeps a history entry.</p>
         <div class="ani-stock-movement-guide" role="note">
-            <span>+ Supplies arrived</span><span>− Supplies used</span><span>± Count correction</span>
+            @if (canManage) { <span>+ Supplies arrived</span> }
+            <span>− Supplies used</span>
+            @if (canManage) { <span>± Count correction</span> }
         </div>
         <form class="sf-ops-form ani-movement-form ani12e-movement-form" data-inventory-movement-form
               asp-action="Post" asp-route-farmId="@Model.Farm.Id" asp-route-itemId="@item.Id" method="post">
