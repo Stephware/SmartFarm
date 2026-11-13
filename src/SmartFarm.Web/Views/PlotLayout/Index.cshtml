@@ -62,7 +62,7 @@
             <a role="listitem" class="plot-layout-tile sf-plot-tile ani-plot-tile plot-tile ani12d-plot-card @(plot.CropName is null ? "sf-plot-empty" : "sf-plot-growing")"
                asp-controller="Crops" asp-action="Index" asp-route-farmId="@Model.Farm.Id"
                asp-route-plotId="@plot.PlotId"
-               asp-fragment="@(plot.CycleId.HasValue ? "crop-cycle-" + plot.CycleId : "planting-plans-heading")"
+               asp-fragment="@(plot.CycleId.HasValue ? "crop-cycle-" + plot.CycleId : canManage ? "planting-plans-heading" : "ani-current-heading")"
                aria-label="@plot.Name, @plot.AreaSqMeters square meters, @(plot.CropName ?? "No current crop"). @(plot.CycleId.HasValue ? "View crop details" : canManage ? "Plan a crop" : "View crop planning").">
                 <div class="sf-plot-field ani-plot-art" aria-hidden="true">
                     @if (plot.CropName is not null)
