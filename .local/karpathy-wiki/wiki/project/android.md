@@ -1,14 +1,14 @@
 # Android and offline synchronization
 
 > Sources: SmartFarm Android and API source review
-> Raw: [Android sources](../../raw/project/2026-10-27-android-source.md); [Feature sources](../../raw/project/2026-10-27-features-source.md); [Functional E2E evidence](../../raw/project/2026-10-27-functional-e2e.md); [PR48 fix and merge](../../raw/project/2026-10-28-pr48-fix-and-merge.md); [Current documentation audit](../../raw/project/2026-11-11-documentation-audit.md); [Current Android sources](../../raw/project/2026-11-11-android-current.md); [Reference frontend merge](../../raw/project/2026-11-11-reference-frontend-merge.md); [Publication source check](../../raw/project/2026-11-12-documentation-publication.md)
-> Updated: 2026-11-12
+> Raw: [Android sources](../../raw/project/2026-10-27-android-source.md); [Feature sources](../../raw/project/2026-10-27-features-source.md); [Functional E2E evidence](../../raw/project/2026-10-27-functional-e2e.md); [PR48 fix and merge](../../raw/project/2026-10-28-pr48-fix-and-merge.md); [Current documentation audit](../../raw/project/2026-11-11-documentation-audit.md); [Current Android sources](../../raw/project/2026-11-11-android-current.md); [Reference frontend merge](../../raw/project/2026-11-11-reference-frontend-merge.md); [Publication source check](../../raw/project/2026-11-12-documentation-publication.md); [MVP Android navigation](../../raw/project/2026-11-13-mvp-stage-2.md); [MVP recording](../../raw/project/2026-11-13-mvp-stage-3.md); [MVP offline confirmation](../../raw/project/2026-11-14-mvp-stage-4.md)
+> Updated: 2026-11-14
 
 **Source scope:** Earlier detailed audit/acceptance is dated below. For source
 changes through `dev` at `3c5a8b0`, see [current source status](current-source-status.md),
 which supersedes conflicting baseline UI, admin, CI and schema statements.
 
-> **New planned mobile UX:** Today / Record / My Farm, with sync only as automatic status plus exception recovery. Keep Room/WorkManager and all safe conflict/photo/session handling. See [MVP plan](mvp-simplification.md). The five-tab navigation described below is **currently implemented**, not the target.
+**Current MVP:** Today / Record / My Farm and short forms are implemented; Stage 4 adds automatic confirmation/refresh and exception recovery. Older five-tab UI descriptions below are historical. See [MVP status](mvp-simplification.md). Room/WorkManager, receipts and conflict/photo/session safeguards remain.
 
 ## Display name
 
@@ -48,6 +48,11 @@ as one operation. Structured issues travel with observations. Photo rows/files
 have a separate queue; observation and dependent photo publication is atomic in
 Room. Local-save receipts and pending rows do not mean server-confirmed stock or
 yield. Some direct Retrofit POST methods remain but current record forms use sync.
+
+## Current sync confirmation and cache consistency
+`SyncRepository.progress` exposes account-scoped active transfers and per-farm confirmation revisions in memory; confirmed rows leave Room only after matching receipt validation. `AppContainer` supplies the same `OfflineReadCache` used by read repositories. Confirmed monitoring/stock/harvest/photo writes invalidate only the affected user's resources. Resource revision checks prevent pre-invalidation reads from saving stale snapshots, including prefix invalidation, without blocking network calls under the cache mutex. Active route data/tasks refresh without resetting drafts or adding pending values to confirmed totals.
+
+Explicit access denial clears affected cache and retained ViewModel data/permissions; private monitoring photo memory is evicted. Expired sessions keep pending records and request sign-in. Routine cards explain automatic sending; stock/photo conflicts retain explicit safe review. Sent acknowledges this session's validated receipt and is not a new persistent queue status. Worker/weather scheduling is unchanged. Dated tests, native SQL-backed checks and environment/acceptance limits are in [Stage 4 evidence](../../raw/project/2026-11-14-mvp-stage-4.md).
 
 ## Retry and conflict contract
 

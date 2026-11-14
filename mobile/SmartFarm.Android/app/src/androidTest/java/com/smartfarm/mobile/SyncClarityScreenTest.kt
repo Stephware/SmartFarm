@@ -1,6 +1,9 @@
 package com.smartfarm.mobile
 
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.mutableStateOf
+import com.smartfarm.mobile.data.sync.SyncProgress
+import com.smartfarm.mobile.ui.components.LocalSyncProgress
 import androidx.compose.ui.test.*
 import androidx.compose.ui.test.junit4.createComposeRule
 import com.smartfarm.mobile.data.local.entity.PendingOperation
@@ -20,6 +23,32 @@ class SyncClarityScreenTest {
         PendingOperation(id, "person", farm, "harvest",
             """{"targetId":"cycle","harvest":{"quantity":"2"}}""",
             1000L, status, if (status == "review") "Check the rejected record" else null)
+
+    @Test fun sendingAndSentRequireActualScopedTransferEvidence() {
+        val progress = mutableStateOf(SyncProgress("person", "queued", "farm-a"))
+        val rows = mutableStateOf(listOf(operation("queued", "farm-a")))
+        compose.setContent { SmartFarmTheme {
+            CompositionLocalProvider(LocalSyncProgress provides progress.value) {
+                SyncStatusScreen(rows.value, emptyList(), null, null,
+                    onBack = {}, onRetry = {}, onDiscard = {}, onRetryPhoto = {}, onDiscardPhoto = {},
+                    onReviewStock = {}, onApproveStock = {}, onCancelStock = {}, onSyncNow = {},
+                    currentFarmId = "farm-a")
+            }
+        } }
+        compose.onNodeWithText("Sending").performScrollTo().assertExists()
+        compose.onNodeWithText("Sent").assertDoesNotExist()
+        compose.runOnIdle { progress.value = SyncProgress("person", confirmedFarms = mapOf("farm-b" to 1L)) }
+        compose.onNodeWithText("Sent").assertDoesNotExist()
+        compose.runOnIdle {
+            rows.value = emptyList()
+            progress.value = SyncProgress("person", confirmedFarms = mapOf("farm-a" to 1L))
+        }
+        compose.onNodeWithText("Sent").performScrollTo().assertExists()
+        compose.onNodeWithText("Server-confirmed work is available in farm history.").assertExists()
+        compose.runOnIdle { progress.value = SyncProgress("person", signInRequired = true) }
+        compose.onNodeWithText("Sign in again to send your saved work.").performScrollTo().assertExists()
+        compose.onNodeWithText("Sent").assertDoesNotExist()
+    }
 
     @Test fun globalHeaderBadgeOpensSyncAndFlagsReviewWithoutHidingNotifications() {
         var opened = 0
@@ -58,7 +87,7 @@ class SyncClarityScreenTest {
         } }
         compose.onNodeWithText("Needs review: 1").assertExists()
         compose.onNodeWithText("South Farm", substring = true).assertDoesNotExist()
-        compose.onNodeWithText("Needs review").performClick()
+        compose.onNode(hasText("Needs review") and hasClickAction()).performClick()
         compose.onNodeWithText("Retry this change").performScrollTo().performClick()
         compose.runOnIdle { assertEquals("need", requestedRetry) }
         compose.onNodeWithText("All my farms").performClick()

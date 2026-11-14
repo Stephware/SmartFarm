@@ -4,11 +4,11 @@ import com.smartfarm.mobile.data.local.entity.PendingOperation
 import com.smartfarm.mobile.data.local.entity.PendingPhoto
 
 /** Queued rows have not been server-confirmed. Confirmed rows leave the Room queue. */
-enum class SyncRecordState { WAITING, NEEDS_REVIEW }
+enum class SyncRecordState { WAITING, SENDING, NEEDS_REVIEW }
 
-fun syncState(status: String, error: String?): SyncRecordState =
+fun syncState(status: String, error: String?, sending: Boolean = false): SyncRecordState =
     if (status != "pending" || !error.isNullOrBlank()) SyncRecordState.NEEDS_REVIEW
-    else SyncRecordState.WAITING
+    else if (sending) SyncRecordState.SENDING else SyncRecordState.WAITING
 
 data class SyncQueueSummary(
     val waiting: Int = 0, val needsReview: Int = 0,

@@ -29,6 +29,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import retrofit2.HttpException
 
 data class MonitoringUiState(
     val farmId: String = "",
@@ -85,7 +86,8 @@ class MonitoringViewModel(private val repository: MonitoringRepository,
     fun load(farmId: String, cycleId: String) {
         previewJob?.cancel()
         loadJob?.cancel()
-        mutable.value = MonitoringUiState(
+        mutable.value = if (mutable.value.farmId == farmId && mutable.value.cycleId == cycleId)
+            mutable.value.copy(busy = true, error = null, notice = null) else MonitoringUiState(
             farmId = farmId, cycleId = cycleId, busy = true,
             saveReceipts = mutable.value.saveReceipts)
         loadJob = viewModelScope.launch {
@@ -96,18 +98,26 @@ class MonitoringViewModel(private val repository: MonitoringRepository,
                     if (mutable.value.farmId == farmId && mutable.value.cycleId == cycleId) {
                         mutable.value = mutable.value.copy(
                             supplies = stock.value.items.filter { it.archivedAtUtc == null },
-                            suppliesOffline = stock.offline)
+                            suppliesOffline = stock.offline, supplyError = null)
                     }
                 } catch (cancelled: CancellationException) { throw cancelled }
-                catch (_: Exception) {
+                catch (error: Exception) {
+                    if (error is HttpException && error.code() in setOf(401, 403, 404)) throw error
                     if (mutable.value.farmId == farmId && mutable.value.cycleId == cycleId)
                         mutable.value = mutable.value.copy(
                             supplyError = "Supplies unavailable. You can still log an activity without stock.")
                 }
             } catch (cancelled: CancellationException) {
                 throw cancelled
-            } catch (_: Exception) {
+            } catch (error: Exception) {
                 if (mutable.value.farmId == farmId && mutable.value.cycleId == cycleId) {
+                    if (error is HttpException && error.code() in setOf(401, 403, 404)) {
+                        photoCache.evictAll()
+                        thumbnailCache.evictAll()
+                        mutable.value = mutable.value.copy(canRecord = false, activities = emptyList(),
+                            observations = emptyList(), supplies = emptyList(), preview = null,
+                            previewPhotoId = null, offline = false, cachedAtUtcMillis = null, supplyError = null)
+                    }
                     mutable.value = mutable.value.copy(error = "Could not load monitoring history.")
                 }
             } finally {

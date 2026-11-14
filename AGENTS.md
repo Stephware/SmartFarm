@@ -1,7 +1,7 @@
 # AniGo / SmartFarm — Codex instructions
 
 ## Current goal and source of truth
-Build the **farmer-first MVP simplification**. Stages 1–3 MVC/Android navigation and short recording flows are implemented; later stages remain planned. Check the execution plan for verification and merge status.
+Build the **farmer-first MVP simplification**. Stages 1–4 MVC/Android navigation, recording and offline confirmation are implemented; later stages remain planned. Check the execution plan for verification and merge status.
 Read, in order:
 1. [PRODUCT.md](PRODUCT.md) — product requirements and keep/remove boundaries.
 2. [Execution plan](docs/superpowers/plans/2026-11-13-mvp-simplification.md) — implementation stages and acceptance.

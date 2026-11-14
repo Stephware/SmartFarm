@@ -3,6 +3,8 @@ package com.smartfarm.mobile.features.syncstatus
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.FlowRow
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.lazy.items
@@ -34,6 +36,7 @@ import com.smartfarm.mobile.ui.components.FarmStatusChip
 import com.smartfarm.mobile.ui.components.FarmStatusTone
 import com.smartfarm.mobile.ui.components.RecordPage
 import com.smartfarm.mobile.ui.components.pendingRecordDescription
+import com.smartfarm.mobile.ui.components.LocalSyncProgress
 import com.smartfarm.mobile.ui.components.farmDateTime
 
 /**
@@ -41,6 +44,7 @@ import com.smartfarm.mobile.ui.components.farmDateTime
  * Do not claim an operation is uploaded merely because WorkManager was scheduled.
  */
 @Composable
+@OptIn(ExperimentalLayoutApi::class)
 fun SyncStatusScreen(
     operations: List<PendingOperation>,
     photos: List<PendingPhoto>,
@@ -59,7 +63,8 @@ fun SyncStatusScreen(
     farmNames: Map<String, String> = emptyMap(),
     farmTimeZones: Map<String, String> = emptyMap(),
     notice: String? = null,
-    farmTimeZone: String? = null
+    farmTimeZone: String? = null,
+    onAccount: (() -> Unit)? = null
 ) {
     var discard by rememberSaveable { mutableStateOf<String?>(null) }
     var discardPhoto by rememberSaveable { mutableStateOf<String?>(null) }
@@ -84,6 +89,8 @@ fun SyncStatusScreen(
         }.thenByDescending { it.savedAtUtcMillis })
     val summary = syncQueueSummary(operations, photos, farmId)
     val global = syncQueueSummary(operations, photos)
+    val progress = LocalSyncProgress.current
+    val confirmed = progress.confirmedFarms.any { (farm, count) -> count > 0 && (farmId == null || farm == farmId) }
     fun farmLabel(id: String): String = farmNames[id] ?: "Farm ${id.take(8)}"
 
     RecordPage {
@@ -93,7 +100,8 @@ fun SyncStatusScreen(
                 FarmHero("Offline sync",
                     "Review records saved on this phone before the farm server confirms them.")
                 FarmSectionCard("Sync queue", subtitle = "Saved here, not yet included in confirmed totals.") {
-                    Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    FlowRow(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp),
+                        verticalArrangement = Arrangement.spacedBy(8.dp)) {
                         FarmStatusChip("Pending: ${summary.waiting}", FarmStatusTone.Planned)
                         FarmStatusChip("Needs review: ${summary.needsReview}",
                             if (summary.needsReview > 0) FarmStatusTone.Warning
@@ -107,22 +115,34 @@ fun SyncStatusScreen(
                             style = MaterialTheme.typography.bodySmall)
                     }
                 }
+                if (confirmed) {
+                    FarmStatusChip("Sent", FarmStatusTone.Active)
+                    Text("Server-confirmed work is available in farm history.",
+                        modifier = Modifier.semantics { liveRegion = LiveRegionMode.Polite })
+                }
+                if (progress.signInRequired) {
+                    Text("Sign in again to send your saved work.",
+                        modifier = Modifier.semantics { liveRegion = LiveRegionMode.Polite })
+                    if (onAccount != null) OutlinedButton(onClick = onAccount) { Text("Open account") }
+                }
                 if (currentFarmId != null) {
-                    Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    FlowRow(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp),
+                        verticalArrangement = Arrangement.spacedBy(8.dp)) {
                         FilterChip(selected = !allFarms, onClick = { allFarms = false },
-                            modifier = Modifier.weight(1f).defaultMinSize(minHeight = 48.dp),
+                            modifier = Modifier.defaultMinSize(minHeight = 48.dp),
                             label = { Text("This farm") })
                         FilterChip(selected = allFarms, onClick = { allFarms = true },
-                            modifier = Modifier.weight(1f).defaultMinSize(minHeight = 48.dp),
+                            modifier = Modifier.defaultMinSize(minHeight = 48.dp),
                             label = { Text("All my farms") })
                     }
                 }
-                Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                FlowRow(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(6.dp),
+                    verticalArrangement = Arrangement.spacedBy(6.dp)) {
                     listOf("all" to "All", "review" to "Needs review",
                         "waiting" to "Waiting").forEach { (key, label) ->
                         FilterChip(selected = statusFilter == key,
                             onClick = { statusFilter = key },
-                            modifier = Modifier.weight(1f).defaultMinSize(minHeight = 48.dp),
+                            modifier = Modifier.defaultMinSize(minHeight = 48.dp),
                             label = { Text(label) })
                     }
                 }
@@ -162,14 +182,17 @@ fun SyncStatusScreen(
             FarmSectionHeader("Field records", "Needs-review entries appear first.")
         }
         items(shownOperations, key = { "operation-${it.operationId}" }) { operation ->
-            val needs = syncState(operation.status, operation.errorMessage) == SyncRecordState.NEEDS_REVIEW
+            val transfer = syncState(operation.status, operation.errorMessage,
+                progress.userId == operation.userId && progress.sendingId == operation.operationId)
+            val needs = transfer == SyncRecordState.NEEDS_REVIEW
             val isStock = operation.operationType in setOf("inventory", "activity_stock")
             FarmSectionCard(syncRecordType(operation.operationType),
                 subtitle = "${farmLabel(operation.farmId)} · " +
                     farmDateTime(java.time.Instant.ofEpochMilli(operation.createdAtUtc).toString(),
                         farmTimeZones[operation.farmId] ?: farmTimeZone)) {
-                FarmStatusChip(if (needs) "Needs attention" else "Waiting to sync",
-                    if (needs) FarmStatusTone.Warning else FarmStatusTone.Planned)
+                FarmStatusChip(if (needs) "Needs review" else if (transfer == SyncRecordState.SENDING) "Sending" else "Saved on phone",
+                    if (needs) FarmStatusTone.Warning else FarmStatusTone.Planned,
+                    modifier = Modifier.semantics { liveRegion = LiveRegionMode.Polite })
                 Text(pendingRecordDescription(operation))
                 if (needs) {
                     operation.errorMessage?.let {
@@ -203,13 +226,16 @@ fun SyncStatusScreen(
             FarmSectionHeader("Crop photos", "Photos upload after their linked inspections.")
         }
         items(shownPhotos, key = { "photo-${it.photoId}" }) { photo ->
-            val needs = syncState(photo.status, photo.errorMessage) == SyncRecordState.NEEDS_REVIEW
+            val transfer = syncState(photo.status, photo.errorMessage,
+                progress.userId == photo.userId && progress.sendingId == photo.photoId)
+            val needs = transfer == SyncRecordState.NEEDS_REVIEW
             FarmSectionCard("Inspection photo",
                 subtitle = "${farmLabel(photo.farmId)} · " +
                     farmDateTime(java.time.Instant.ofEpochMilli(photo.savedAtUtcMillis).toString(),
                         farmTimeZones[photo.farmId] ?: farmTimeZone)) {
-                FarmStatusChip(if (needs) "Needs attention" else "Waiting to sync",
-                    if (needs) FarmStatusTone.Warning else FarmStatusTone.Planned)
+                FarmStatusChip(if (needs) "Needs review" else if (transfer == SyncRecordState.SENDING) "Sending" else "Saved on phone",
+                    if (needs) FarmStatusTone.Warning else FarmStatusTone.Planned,
+                    modifier = Modifier.semantics { liveRegion = LiveRegionMode.Polite })
                 if (photo.observationId == null) {
                     Text("Waiting for its inspection to be accepted before uploading the photo.",
                         style = MaterialTheme.typography.bodySmall)

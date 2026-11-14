@@ -10,10 +10,17 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.staticCompositionLocalOf
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.liveRegion
+import androidx.compose.ui.semantics.LiveRegionMode
+import com.smartfarm.mobile.data.sync.SyncProgress
 import com.google.gson.JsonParser
 import com.smartfarm.mobile.data.local.entity.PendingOperation
 import com.smartfarm.mobile.features.syncstatus.SyncRecordState
 import com.smartfarm.mobile.features.syncstatus.syncState
+
+val LocalSyncProgress = staticCompositionLocalOf { SyncProgress() }
 
 fun pendingRecordDescription(operation: PendingOperation): String = try {
     val json = JsonParser.parseString(operation.payloadJson).asJsonObject
@@ -40,8 +47,10 @@ fun PendingRecords(operations: List<PendingOperation>, farmId: String, targetId:
         }.getOrDefault(false)
     }
     if (pending.isEmpty()) return
+    val progress = LocalSyncProgress.current
+    val needsReview = pending.any { syncState(it.status, it.errorMessage) == SyncRecordState.NEEDS_REVIEW }
     FarmSectionCard(
-        "Saved on this device",
+        "Saved on phone",
         subtitle = "These records are not server-confirmed and are not included in the totals above."
     ) {
         pending.forEach { operation ->
@@ -49,11 +58,13 @@ fun PendingRecords(operations: List<PendingOperation>, farmId: String, targetId:
                 modifier = Modifier.fillMaxWidth(),
                 verticalArrangement = Arrangement.spacedBy(6.dp)
             ) {
+                val transfer = syncState(operation.status, operation.errorMessage,
+                    progress.userId == operation.userId && progress.sendingId == operation.operationId)
                 FarmStatusChip(
-                    if (syncState(operation.status, operation.errorMessage) == SyncRecordState.NEEDS_REVIEW)
-                        "Needs attention" else "Waiting to sync",
-                    if (syncState(operation.status, operation.errorMessage) == SyncRecordState.NEEDS_REVIEW)
-                        FarmStatusTone.Warning else FarmStatusTone.Planned
+                    when (transfer) { SyncRecordState.NEEDS_REVIEW -> "Needs review"; SyncRecordState.SENDING -> "Sending"; else -> "Saved on phone" },
+                    if (transfer == SyncRecordState.NEEDS_REVIEW)
+                        FarmStatusTone.Warning else FarmStatusTone.Planned,
+                    modifier = Modifier.semantics { liveRegion = LiveRegionMode.Polite }
                 )
                 Text(pendingRecordDescription(operation), style = MaterialTheme.typography.bodyMedium)
                 operation.errorMessage?.let {
@@ -61,8 +72,11 @@ fun PendingRecords(operations: List<PendingOperation>, farmId: String, targetId:
                 }
             }
         }
-        OutlinedButton(onClick = onSync, modifier = Modifier.fillMaxWidth()) {
-            Text("Review sync status")
-        }
+        if (needsReview || progress.signInRequired) {
+            if (progress.signInRequired) Text("Sign in again to send your saved work.")
+            OutlinedButton(onClick = onSync, modifier = Modifier.fillMaxWidth()) {
+                Text(if (needsReview) "Review saved work" else "Open sync status")
+            }
+        } else Text("Uploads automatically when a connection is available.")
     }
 }

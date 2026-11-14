@@ -2,6 +2,8 @@ package com.smartfarm.mobile
 
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithText
+import androidx.compose.ui.test.onAllNodesWithText
+import androidx.compose.ui.test.assertCountEquals
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollTo
 import com.smartfarm.mobile.data.local.entity.PendingOperation
@@ -38,11 +40,11 @@ class UiOverhaulSyncTest {
                 )
             }
         }
-        compose.onNodeWithText("Saved on this device").assertExists()
-        compose.onNodeWithText("Waiting to sync").assertExists()
+        compose.onAllNodesWithText("Saved on phone").assertCountEquals(2)
         compose.onNodeWithText("Stock quantity change: -2").assertExists()
-        compose.onNodeWithText("Review sync status").performClick()
-        compose.runOnIdle { assertEquals(true, openedSync) }
+        compose.onNodeWithText("Uploads automatically when a connection is available.").assertExists()
+        compose.onNodeWithText("Review saved work").assertDoesNotExist()
+        compose.runOnIdle { assertEquals(false, openedSync) }
     }
 
     @Test fun stockConflictsMustBeReviewedBeforeRetryOrDiscard() {

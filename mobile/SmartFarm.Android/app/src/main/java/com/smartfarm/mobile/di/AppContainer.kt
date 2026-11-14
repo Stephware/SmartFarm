@@ -88,11 +88,12 @@ class AppContainer(context: Context) {
             com.smartfarm.mobile.data.sync.OfflineObservationQueue(database),
             { retrofit.create(SyncApi::class.java) },
             { retrofit.create(MonitoringApi::class.java) },
-            { retrofit.create(InventoryApi::class.java) }, workManager)
+            { retrofit.create(InventoryApi::class.java) }, workManager, offlineCache)
     }
 
     val authRepository: AuthRepository by lazy {
         AuthRepository(onLogin = {
+            syncRepository.resetProgress()
             syncRepository.enablePeriodicChecks()
             syncRepository.schedule()
         }) { retrofit.create(AuthApi::class.java) }

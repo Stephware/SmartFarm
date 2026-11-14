@@ -26,6 +26,8 @@ import java.util.UUID
 import java.util.concurrent.TimeUnit
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import okhttp3.MediaType.Companion.toMediaType
@@ -52,10 +54,33 @@ class SyncRepository(
     private val api: () -> SyncApi,
     private val monitoringApi: () -> MonitoringApi,
     private val inventoryApi: () -> InventoryApi,
-    private val work: WorkManager
+    private val work: WorkManager,
+    private val cache: com.smartfarm.mobile.data.local.OfflineReadCache? = null
 ) {
     private val gson = Gson()
     private val uploadMutex = Mutex()
+    private val progressMutable = MutableStateFlow(SyncProgress())
+    val progress = progressMutable.asStateFlow()
+
+    fun resetProgress() { progressMutable.value = SyncProgress(auth.currentUserId) }
+
+    private fun sending(user: String, farm: String, id: String) {
+        if (auth.currentUserId != user) return
+        val current = progressMutable.value.takeIf { it.userId == user } ?: SyncProgress(user)
+        progressMutable.value = current.copy(sendingId = id, sendingFarmId = farm)
+    }
+
+    private fun confirmed(user: String, farm: String) {
+        if (auth.currentUserId != user) return
+        val current = progressMutable.value.takeIf { it.userId == user } ?: SyncProgress(user)
+        progressMutable.value = current.copy(sendingId = null, sendingFarmId = null, signInRequired = false,
+            confirmedFarms = current.confirmedFarms + (farm to ((current.confirmedFarms[farm] ?: 0) + 1)))
+    }
+
+    private fun requireSignIn(user: String) {
+        if (auth.currentUserId == user)
+            progressMutable.value = progressMutable.value.copy(signInRequired = true)
+    }
 
     fun watch(): Flow<List<PendingOperation>> =
         dao.watch(requireNotNull(auth.currentUserId) { "Sign in to view pending changes." })
@@ -278,7 +303,21 @@ class SyncRepository(
     }
 
     // false requests WorkManager's exponential network/server retry.
-    suspend fun uploadPending(): Boolean = uploadMutex.withLock { uploadPendingOnce() }
+    suspend fun uploadPending(): Boolean = uploadMutex.withLock {
+        try { uploadPendingOnce() }
+        finally { progressMutable.value = progressMutable.value.copy(sendingId = null, sendingFarmId = null) }
+    }
+
+    private suspend fun invalidateConfirmed(user: String, farm: String, target: String, type: String) {
+        when (type) {
+            "activity", "observation", "photo", "activity_stock" ->
+                cache?.invalidate(user, "farm/$farm/cycle/$target/monitoring")
+            "harvest" -> cache?.invalidate(user, "farm/$farm/cycle/$target/harvests")
+        }
+        if (type in setOf("inventory", "activity_stock"))
+            cache?.invalidate(user, "farm/$farm/inventory", prefix = true)
+        else if (type == "activity") cache?.invalidate(user, "farm/$farm/inventory/activities")
+    }
 
     private suspend fun uploadPendingOnce(): Boolean {
         val user = auth.currentUserId ?: return true
@@ -296,6 +335,7 @@ class SyncRepository(
                     continue
                 }
                 try {
+                    sending(user, input.farmId, operation.operationId)
                     val response = auth.authorized {
                         api().submit(it, operation.operationId, input)
                     }
@@ -321,7 +361,9 @@ class SyncRepository(
                         }
                         photoDao.resolveObservation(user, operation.operationId, observationId)
                     }
+                    invalidateConfirmed(user, input.farmId, input.targetId, operation.operationType)
                     dao.remove(operation.operationId, user)
+                    confirmed(user, input.farmId)
                 } catch (cancelled: CancellationException) {
                     throw cancelled
                 } catch (error: HttpException) {
@@ -329,7 +371,7 @@ class SyncRepository(
                         400, 403, 404, 409, 422 ->
                             dao.needsReview(operation.operationId, user,
                                 "Server rejected this change (${error.code()}). Review before retrying.")
-                        401 -> return true
+                        401 -> { requireSignIn(user); return true }
                         else -> return false
                     }
                 } catch (_: IOException) {
@@ -351,6 +393,7 @@ class SyncRepository(
                     continue
                 }
                 try {
+                    sending(user, photo.farmId, photo.photoId)
                     val body = file.asRequestBody(photo.mimeType.toMediaType())
                     val part = MultipartBody.Part.createFormData("photo", "field-photo", body)
                     val saved = auth.authorized { bearer ->
@@ -362,8 +405,10 @@ class SyncRepository(
                             "Unexpected photo confirmation. Review before retrying.")
                         continue
                     }
+                    invalidateConfirmed(user, photo.farmId, photo.cycleId, "photo")
                     photoDao.remove(user, photo.photoId)
                     files.delete(photo.photoId)
+                    confirmed(user, photo.farmId)
                 } catch (cancelled: CancellationException) {
                     throw cancelled
                 } catch (error: HttpException) {
@@ -371,7 +416,7 @@ class SyncRepository(
                         400, 403, 404, 409, 422 ->
                             photoDao.review(user, photo.photoId,
                                 "Photo rejected (${error.code()}). Review before retrying.")
-                        401 -> return true
+                        401 -> { requireSignIn(user); return true }
                         else -> return false
                     }
                 } catch (_: IOException) {

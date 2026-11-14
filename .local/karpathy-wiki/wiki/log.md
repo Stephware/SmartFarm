@@ -164,3 +164,9 @@ Three native primary entries and a simpler existing Record sheet; My Farm groups
 - Raw: raw/project/2026-11-13-mvp-stage-3-ci.md
 - Updated: MVP simplification.
 - Fixed the recovery factory's missing inventory stub; full no-database and strict SQL suites passed. Application source unchanged.
+
+## 2026-11-14 ingest | MVP Stage 4 offline confirmation
+- Disposition: Update
+- Raw: raw/project/2026-11-14-mvp-stage-4.md
+- Updated: MVP simplification; Android/sync; current progress; index and execution status.
+- Truthful transfer/receipt state and scoped refresh/cache consistency verified with regressions, full tests and controlled native SQL-backed reconnect. Review fixes and emulator/physical-network limits recorded; no business/API/schema/Worker changes. Later stages remain planned.
