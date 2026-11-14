@@ -138,7 +138,8 @@ class FullAppJourneyTest {
                     compose.onAllNodesWithText("Task completed.").fetchSemanticsNodes().isNotEmpty()
             }
 
-            androidx.test.uiautomator.UiDevice.getInstance(androidx.test.platform.app.InstrumentationRegistry.getInstrumentation()).pressBack()
+            // Use app navigation, not a device Back press that may only dismiss an IME/dialog.
+            compose.runOnIdle { compose.activity.onBackPressedDispatcher.onBackPressed() }
             compose.waitUntil(15_000) {
                 compose.onAllNodesWithText("Record watering").fetchSemanticsNodes().isNotEmpty()
             }
@@ -155,7 +156,8 @@ class FullAppJourneyTest {
             val payload = com.google.gson.JsonParser.parseString(queued.payloadJson).asJsonObject
             assertEquals("activity", queued.operationType)
             assertEquals(linkedTaskId, payload.getAsJsonObject("activity").get("farmTaskId")?.asString)
-            androidx.test.uiautomator.UiDevice.getInstance(androidx.test.platform.app.InstrumentationRegistry.getInstrumentation()).pressBack()
+            // Use app navigation, not a device Back press that may only dismiss an IME/dialog.
+            compose.runOnIdle { compose.activity.onBackPressedDispatcher.onBackPressed() }
             compose.waitUntil(15_000) {
                 compose.onAllNodesWithText("Record fertilizing").fetchSemanticsNodes().isNotEmpty()
             }
