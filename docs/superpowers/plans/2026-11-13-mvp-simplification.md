@@ -1,6 +1,6 @@
 # Implement AniGo farmer-first MVP simplification
 
-**Status: Stages 0–2 merged; Stage 3 implemented and locally verified. Stage 4 next after Stage 3 checks/merge.** Baseline: `dev` from 2026-11-13 (`29c55166`). Keep each stage as a separately reviewable PR into `dev`, with tests before merge. The goal is fewer screens, **not** wholesale deletion of working infrastructure. Read [PRODUCT.md](../../../PRODUCT.md) and [AGENTS.md](../../../AGENTS.md) first.
+**Status: Stages 0–3 merged; Stage 4 implemented and locally verified. Stage 5 next after Stage 4 checks/merge.** Baseline: `dev` from 2026-11-13 (`29c55166`). Keep each stage as a separately reviewable PR into `dev`, with tests before merge. The goal is fewer screens, **not** wholesale deletion of working infrastructure. Read [PRODUCT.md](../../../PRODUCT.md) and [AGENTS.md](../../../AGENTS.md) first.
 
 ## Scope and decision rules
 - MVC four primary farm destinations: Today, Crops & Calendar, Supplies, Harvests. Farm/Team and Account secondary.
@@ -88,6 +88,12 @@ Verified: solution build; 578 SQL-enabled .NET tests, 62 Node tests, 66 Android 
 - Preserve Hangfire task/reminder/weather jobs; do not turn off jobs to make UX simpler. Do not present saved forecasts as live warnings; show freshness and official-source caution.
 - Test offline save/reconnect, duplicate replay, conflict resolution, expired sessions, per-user cache, partial photo success, Worker scheduled behavior.
 
+### Stage 4 evidence
+
+Stage 3 PR #126 merged at `292dca8` after all seven checks passed. Stage 4 adds truthful local/sending/confirmed/review status and sign-in guidance, scoped cache invalidation and automatic display/task refresh. Stable IDs, explicit stock review, photo receipts, queued payloads and Room/API/schema compatibility remain intact. Drafts and previous confirmed values survive refresh; explicit access denial clears private snapshots/permissions. Resource revisions prevent older reads undoing exact/prefix invalidation. Worker/weather source and processing defaults are unchanged.
+
+Verified: Android build, 67 JVM and 117 emulator tests without skips; 578 strict disposable-SQL .NET and 62 Node tests; independent review's two Important findings fixed with RED→GREEN regressions and full rerun. The real native app queued fertilizer/harvest offline against newly created disposable resources: server values stayed unchanged until automatic WorkManager acceptance, then exact task/stock/history and 2.500 kg confirmed totals matched. Light/dark and 320dp/1.6 text inspected; narrow filters now wrap. The loopback emulator needed a temporary platform validation setting, restored afterward; this is not physical-network/farmer acceptance. No live Worker/provider or production run. See [dated evidence](../../../.local/karpathy-wiki/raw/project/2026-11-14-mvp-stage-4.md); the stage PR records remote checks/merge status.
+
 ## Stage 5 — Retire non-MVP presentation and unused code
 - Only after replacement links/flows have been verified: retire finance UI/API/service logic *if no active dependency remains*; keep financial tables and historical records unless a separate authorized migration is approved.
 - Merge away dedicated `PlotLayout`/`CropTimeline`; remove now-unreferenced UI components and assets only after checking browsers, Android, tests and CSS. Actual authorized photos stay.
@@ -109,7 +115,7 @@ Read only AGENTS/PRODUCT/this plan and relevant code for the current stage. Do n
 - [x] Stage 0 — current dependencies/coverage inventoried
 - [x] Stage 1 — MVC four-section farmer workspace implemented/tested; PR #124 merged after all six CI checks passed
 - [x] Stage 2 — Android three-destination navigation implemented/tested; PR #125 merged after all seven CI checks passed
-- [x] Stage 3 — short record flows and atomic business rules verified locally; stage PR records CI/merge status
-- [ ] Stage 4 — offline confirmation/refresh and Worker/weather verified
+- [x] Stage 3 — short record flows verified; PR #126 merged after all seven checks passed
+- [x] Stage 4 — offline confirmation/refresh verified; Worker/weather automated checks retained; stage PR records CI/merge status
 - [ ] Stage 5 — obsolete UI/code retired without lost data
 - [ ] Stage 6 — end-to-end and farmer usability checks documented

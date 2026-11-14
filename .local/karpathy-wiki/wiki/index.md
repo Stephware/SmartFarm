@@ -1,6 +1,6 @@
 # Knowledge Base Index
 
-> **Current planned direction (2026-11-13):** [Farmer-first MVP simplification](project/mvp-simplification.md). Stages 1–3 MVC/Android navigation and recording are implemented and locally verified; later stages remain planned. Check the plan for merge status. Read [PRODUCT.md](../../../PRODUCT.md) and [the execution plan](../../../docs/superpowers/plans/2026-11-13-mvp-simplification.md) for Codex work. Prior source pages document the existing implementation, not the desired next UX.
+> **Current planned direction (2026-11-13):** [Farmer-first MVP simplification](project/mvp-simplification.md). Stages 1–4 MVC/Android navigation, recording and offline confirmation are implemented and locally verified; later stages remain planned. Check the plan for merge status. Read [PRODUCT.md](../../../PRODUCT.md) and [the execution plan](../../../docs/superpowers/plans/2026-11-13-mvp-simplification.md) for Codex work. Prior source pages document the existing implementation, not the desired next UX.
 
 SmartFarm source-backed development knowledge: full audit at `ac624be`, with the
 reference frontend verification at `ae06ab2` and source publication checks through
@@ -17,17 +17,17 @@ Architecture, behavior, conventions, decisions and dated implementation evidence
 
 | Article | Summary | Updated |
 | --- | --- | --- |
-| [MVP simplification](project/mvp-simplification.md) | Stages 0–2 merged; short recording flows locally verified; offline clarity/retirement/acceptance remain planned | 2026-11-13 |
+| [MVP simplification](project/mvp-simplification.md) | Stages 0–3 merged; offline confirmation locally verified; retirement/acceptance remain planned | 2026-11-14 |
 | [Current source status](project/current-source-status.md) | Publication delta: admin/MFA, Android navigation, Tailwind, CI and extended-schema verifier limits | 2026-11-12 |
 | [Architecture](project/architecture.md) | Independent hosts, service boundaries, live farm access and private media | 2026-11-12 |
 | [Features](project/features.md) | Implemented modules, roles and critical business rules | 2026-11-12 |
 | [Database](project/database.md) | SQL-first base/finance split, issue upgrades, concurrency and migration boundaries | 2026-11-12 |
-| [Android and offline sync](project/android.md) | Room/cache, selected queue types, receipts, sessions, reports and parity limits | 2026-11-12 |
+| [Android and offline sync](project/android.md) | Room/cache, scoped confirmations/refresh, receipts, sessions and offline limits | 2026-11-14 |
 | [Tasks, weather, and automation](project/automation.md) | Enabled Worker defaults, task/stock/weather jobs, stored forecasts and notifications | 2026-11-12 |
 | [Dependencies and development](project/development.md) | Build pins, local hosts, checks, real CI scope and test isolation | 2026-11-12 |
 | [Development decisions](project/decisions.md) | Implemented constraints, inferred consequences and integrated agent workflow | 2026-11-12 |
 | [Known issues and incomplete work](project/known-issues.md) | Current gaps versus resolved/historical failures and runtime unknowns | 2026-11-12 |
-| [Current progress](project/progress.md) | Confirmed PR61–78 provenance, Phases A–D, MVP stage status and dated results | 2026-11-13 |
+| [Current progress](project/progress.md) | Confirmed PR61–78 provenance, Phases A–D, MVP stage status and dated results | 2026-11-14 |
 | [Functional verification](project/functional-verification.md) | Historical role/workflow runtime record, with current interpretation | 2026-11-11 |
 | [PR48 review](project/pr48-review.md) | Historical date-boundary fix/merge and scoped runtime evidence | 2026-11-11 |
 | [Frontend](project/frontend.md) | Current Razor/Compose visual system, accessible farmer-facing conventions | 2026-11-12 |

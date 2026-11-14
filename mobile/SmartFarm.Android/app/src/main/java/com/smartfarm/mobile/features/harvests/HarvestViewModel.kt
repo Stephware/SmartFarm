@@ -12,6 +12,9 @@ import com.smartfarm.mobile.data.sync.SyncRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.Job
+import kotlin.coroutines.coroutineContext
+import retrofit2.HttpException
 import java.math.BigDecimal
 
 data class HarvestUiState(
@@ -31,11 +34,16 @@ class HarvestViewModel(private val repository: HarvestRepository,
     private val mutable = MutableStateFlow(HarvestUiState())
     val state = mutable.asStateFlow()
 
-    fun clear() { mutable.value = HarvestUiState() }
+    private var loadJob: Job? = null
+
+    fun clear() { loadJob?.cancel(); loadJob = null; mutable.value = HarvestUiState() }
 
     fun load(farmId: String, cycleId: String) {
-        mutable.value = HarvestUiState(farmId = farmId, cycleId = cycleId, busy = true, saveReceipts = mutable.value.saveReceipts)
-        viewModelScope.launch {
+        loadJob?.cancel()
+        mutable.value = if (mutable.value.farmId == farmId && mutable.value.cycleId == cycleId)
+            mutable.value.copy(busy = true, error = null, notice = null) else
+            HarvestUiState(farmId = farmId, cycleId = cycleId, busy = true, saveReceipts = mutable.value.saveReceipts)
+        loadJob = viewModelScope.launch {
             try {
                 val snapshot = repository.listSnapshot(farmId, cycleId)
                 mutable.value = mutable.value.copy(overview = snapshot.value,
@@ -44,10 +52,12 @@ class HarvestViewModel(private val repository: HarvestRepository,
             } catch (cancelled: CancellationException) {
                 throw cancelled
             } catch (error: Exception) {
+                if (error is HttpException && error.code() in setOf(401, 403, 404))
+                    mutable.value = mutable.value.copy(overview = null, offline = false, cachedAtUtcMillis = null)
                 mutable.value = mutable.value.copy(error = NetworkErrorMessages.forRequest(
                     error, "Could not load harvest history."))
             } finally {
-                mutable.value = mutable.value.copy(busy = false)
+                if (loadJob === coroutineContext[Job]) mutable.value = mutable.value.copy(busy = false)
             }
         }
     }

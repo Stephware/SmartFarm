@@ -4,6 +4,8 @@ import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.runtime.SideEffect
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.test.onNodeWithText
+import androidx.compose.ui.test.onAllNodesWithText
+import androidx.compose.ui.test.assertCountEquals
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollTo
 import androidx.compose.ui.test.performTextInput
@@ -119,8 +121,8 @@ class DraftFeedbackTest {
             }
         }
         compose.onNodeWithText("Harvest quantity: 3").assertIsDisplayed()
-        compose.onNodeWithText("Waiting to sync").assertIsDisplayed()
-        compose.onNodeWithText("Review sync status").assertIsDisplayed()
+        compose.onAllNodesWithText("Saved on phone").assertCountEquals(2)
+        compose.onNodeWithText("Uploads automatically when a connection is available.").assertIsDisplayed()
     }
 
     @Test fun registrationSubmitCanBeScrolledAboveTheKeyboard() {

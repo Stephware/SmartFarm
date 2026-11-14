@@ -15,6 +15,7 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
 
 class SyncStatusViewModel(private val repository: SyncRepository) : ViewModel() {
+    val progress = repository.progress
     private val mutable = MutableStateFlow<List<PendingOperation>>(emptyList())
     val operations = mutable.asStateFlow()
     private val photoMutable = MutableStateFlow<List<PendingPhoto>>(emptyList())

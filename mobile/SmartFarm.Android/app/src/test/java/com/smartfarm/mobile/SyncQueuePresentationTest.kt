@@ -42,6 +42,12 @@ class SyncQueuePresentationTest {
         assertEquals(SyncRecordState.NEEDS_REVIEW, syncState("pending", "Rejected"))
         assertEquals(SyncRecordState.NEEDS_REVIEW, syncState("failed", null))
     }
+    @Test fun sendingRequiresAnActiveTransferAndNeverHidesReview() {
+        assertEquals(SyncRecordState.SENDING, syncState("pending", null, sending = true))
+        assertEquals(SyncRecordState.WAITING, syncState("pending", null, sending = false))
+        assertEquals(SyncRecordState.NEEDS_REVIEW, syncState("review", null, sending = true))
+        assertEquals(SyncRecordState.NEEDS_REVIEW, syncState("pending", "Rejected", sending = true))
+    }
     @Test fun dependentPhotosAreNeverBlindlyRetried() {
         val dependent = photo("a", "f", "u", null, "review")
         val linked = photo("b", "f", "u", "observation", "review")

@@ -11,6 +11,9 @@ import com.smartfarm.mobile.data.sync.SyncRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.Job
+import kotlin.coroutines.coroutineContext
+import retrofit2.HttpException
 import java.math.BigDecimal
 
 internal fun inventoryMovementQuantity(type: Int, text: String): BigDecimal {
@@ -33,6 +36,7 @@ data class InventoryUiState(
     val transactions: List<InventoryTransactionDto> = emptyList(),
     val activities: List<InventoryActivityOptionDto> = emptyList(),
     val offline: Boolean = false,
+    val accessDenied: Boolean = false,
     val cachedAtUtcMillis: Long? = null
 )
 
@@ -41,11 +45,16 @@ class InventoryViewModel(private val repo: InventoryRepository,
     private val mutable = MutableStateFlow(InventoryUiState())
     val state = mutable.asStateFlow()
 
-    fun clear() { mutable.value = InventoryUiState() }
+    private var loadJob: Job? = null
+
+    fun clear() { loadJob?.cancel(); loadJob = null; mutable.value = InventoryUiState() }
 
     fun load(farmId: String) {
-        mutable.value = InventoryUiState(farmId = farmId, busy = true, saveReceipts = mutable.value.saveReceipts)
-        viewModelScope.launch {
+        loadJob?.cancel()
+        mutable.value = if (mutable.value.farmId == farmId && mutable.value.itemId.isBlank())
+            mutable.value.copy(busy = true, error = null, notice = null, accessDenied = false) else
+            InventoryUiState(farmId = farmId, busy = true, saveReceipts = mutable.value.saveReceipts)
+        loadJob = viewModelScope.launch {
             try {
                 val snapshot = repo.listSnapshot(farmId)
                 mutable.value = mutable.value.copy(workspace = snapshot.value,
@@ -54,17 +63,19 @@ class InventoryViewModel(private val repo: InventoryRepository,
             } catch (cancelled: CancellationException) {
                 throw cancelled
             } catch (error: Exception) {
+                if (error is HttpException && error.code() in setOf(401, 403, 404)) clearDeniedData()
                 mutable.value = mutable.value.copy(error = NetworkErrorMessages.forRequest(
                     error, "Could not load inventory."))
-            } finally { mutable.value = mutable.value.copy(busy = false) }
+            } finally { if (loadJob === coroutineContext[Job]) mutable.value = mutable.value.copy(busy = false) }
         }
     }
 
     fun loadItem(farmId: String, itemId: String) {
+        loadJob?.cancel()
         mutable.value = if (mutable.value.farmId == farmId && mutable.value.itemId == itemId)
-            mutable.value.copy(busy = true, error = null) else
+            mutable.value.copy(busy = true, error = null, accessDenied = false) else
             InventoryUiState(farmId = farmId, itemId = itemId, busy = true, saveReceipts = mutable.value.saveReceipts)
-        viewModelScope.launch {
+        loadJob = viewModelScope.launch {
             try {
                 val item = repo.itemSnapshot(farmId, itemId)
                 val history = repo.historySnapshot(farmId, itemId)
@@ -81,10 +92,17 @@ class InventoryViewModel(private val repo: InventoryRepository,
             } catch (cancelled: CancellationException) {
                 throw cancelled
             } catch (error: Exception) {
+                if (error is HttpException && error.code() in setOf(401, 403, 404)) clearDeniedData()
                 mutable.value = mutable.value.copy(error = NetworkErrorMessages.forRequest(
                     error, "Could not load inventory item."))
-            } finally { mutable.value = mutable.value.copy(busy = false) }
+            } finally { if (loadJob === coroutineContext[Job]) mutable.value = mutable.value.copy(busy = false) }
         }
+    }
+
+    private fun clearDeniedData() {
+        mutable.value = mutable.value.copy(workspace = InventoryWorkspaceDto(emptyList(), 0),
+            item = null, transactions = emptyList(), activities = emptyList(),
+            offline = false, accessDenied = true, cachedAtUtcMillis = null)
     }
 
     private fun work(after: (() -> Unit)? = null, block: suspend (InventoryUiState) -> Unit) {

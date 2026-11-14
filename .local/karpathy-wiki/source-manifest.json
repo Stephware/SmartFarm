@@ -1556,6 +1556,87 @@
           "sha256": "3544b5cd6454cccfbebe26c030ad23eadca05edd5d322ba691bc026fcb5270f4"
         }
       ]
+    },
+    {
+      "date": "2026-11-14",
+      "revision": "292dca84198565e5e712f32f548543b382de8639 + Stage 4 working tree",
+      "snapshot": "raw/project/2026-11-14-mvp-stage-4.md",
+      "sha256": "da51b640c8e3ecb5d9f03937b1a22ad919d8426c4ee9dad25eba20096085fb4f",
+      "scope": "MVP Stage 4 offline confirmation, scoped cache/display refresh, review fixes and controlled native verification; remote gates tracked in PR.",
+      "source_files": [
+        {
+          "path": "mobile/SmartFarm.Android/app/src/androidTest/java/com/smartfarm/mobile/DraftFeedbackTest.kt",
+          "sha256": "93c6d2c2e08e87c6fbc60d1e81817cac3478158200b3f566d557353b98c729dd"
+        },
+        {
+          "path": "mobile/SmartFarm.Android/app/src/androidTest/java/com/smartfarm/mobile/FullAppJourneyTest.kt",
+          "sha256": "61f16246ba8a045c6366c22ea54e5f8d0a675b8a0c97d03655ce42473fa45ddd"
+        },
+        {
+          "path": "mobile/SmartFarm.Android/app/src/androidTest/java/com/smartfarm/mobile/SyncClarityScreenTest.kt",
+          "sha256": "2bff9b1e9bf2959ec6a373e46959bbd90c69fb5ef3aed69e4605500321a294bb"
+        },
+        {
+          "path": "mobile/SmartFarm.Android/app/src/androidTest/java/com/smartfarm/mobile/SyncConfirmationTest.kt",
+          "sha256": "7ae8ac4c255673bd675b04d13464600ea25e98936f9013358e67d1f685fb067d"
+        },
+        {
+          "path": "mobile/SmartFarm.Android/app/src/androidTest/java/com/smartfarm/mobile/UiOverhaulSyncTest.kt",
+          "sha256": "f19001d278e44fc9ab9464e0dd3542a0820b48694b4bc34b164225ba888d5a74"
+        },
+        {
+          "path": "mobile/SmartFarm.Android/app/src/main/java/com/smartfarm/mobile/data/local/OfflineReadCache.kt",
+          "sha256": "27fa97b4fa7f879d0499060239d590054528eaa98360696764ad743d69e9c36f"
+        },
+        {
+          "path": "mobile/SmartFarm.Android/app/src/main/java/com/smartfarm/mobile/data/sync/SyncProgress.kt",
+          "sha256": "64b8f056dbe521cbb4228256370da355fab48d8be4557f9dcbcba358417f1893"
+        },
+        {
+          "path": "mobile/SmartFarm.Android/app/src/main/java/com/smartfarm/mobile/data/sync/SyncRepository.kt",
+          "sha256": "81eb4f67abc66c9e2202c9e5f8931ce14c48369a2225baea4cdb224582ca9bed"
+        },
+        {
+          "path": "mobile/SmartFarm.Android/app/src/main/java/com/smartfarm/mobile/di/AppContainer.kt",
+          "sha256": "c7ff0f90038ef5672a5ae9c3d2f3b948a6ccfdc521751ae3049a346234d6f578"
+        },
+        {
+          "path": "mobile/SmartFarm.Android/app/src/main/java/com/smartfarm/mobile/features/harvests/HarvestViewModel.kt",
+          "sha256": "64226996ddf2b9e1191b92098db728361de8a1eac9bf2f3df3bc3b3cebb738c8"
+        },
+        {
+          "path": "mobile/SmartFarm.Android/app/src/main/java/com/smartfarm/mobile/features/inventory/InventoryViewModel.kt",
+          "sha256": "e2a035958956308c55befa994c38f829880985069d7c8cf4e5edababc58ff790"
+        },
+        {
+          "path": "mobile/SmartFarm.Android/app/src/main/java/com/smartfarm/mobile/features/monitoring/MonitoringViewModel.kt",
+          "sha256": "73714635d76d4e3cdacbdff56ec4ef2838f4523ae1d09c4aa7d4d1d4b153ab0a"
+        },
+        {
+          "path": "mobile/SmartFarm.Android/app/src/main/java/com/smartfarm/mobile/features/syncstatus/SyncQueuePresentation.kt",
+          "sha256": "8057498d1f3b3c80c9a048021e061fe6968f809c950fc6347d5bf40b07fcf60c"
+        },
+        {
+          "path": "mobile/SmartFarm.Android/app/src/main/java/com/smartfarm/mobile/features/syncstatus/SyncStatusScreen.kt",
+          "sha256": "a2f9f92d4b57a71ff904f128e6ba8695a4e2415bd4763b430bcc1408ced1bc29"
+        },
+        {
+          "path": "mobile/SmartFarm.Android/app/src/main/java/com/smartfarm/mobile/features/syncstatus/SyncStatusViewModel.kt",
+          "sha256": "1f91bf25365db4e47ff99f555a09c3dfe8bddb862462898377a0dac6b2f66050"
+        },
+        {
+          "path": "mobile/SmartFarm.Android/app/src/main/java/com/smartfarm/mobile/navigation/SmartFarmNavHost.kt",
+          "sha256": "f7efba3c1a0e4073fd6d52fe498eb696c514543dd7f562461200c7b7bfe10c2b"
+        },
+        {
+          "path": "mobile/SmartFarm.Android/app/src/main/java/com/smartfarm/mobile/ui/components/PendingRecords.kt",
+          "sha256": "e20cdfeeb487ee5173d8baaff30a8ab73788ac3b567c94976f335ececa672969"
+        },
+        {
+          "path": "mobile/SmartFarm.Android/app/src/test/java/com/smartfarm/mobile/SyncQueuePresentationTest.kt",
+          "sha256": "5970c803a951329d1b7b9d22600372ecff388b48ceb41c53745cdb412b7868b9"
+        }
+      ]
     }
   ]
 }

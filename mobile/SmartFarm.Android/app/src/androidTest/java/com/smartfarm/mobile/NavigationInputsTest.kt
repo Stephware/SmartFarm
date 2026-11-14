@@ -52,8 +52,12 @@ class NavigationInputsTest {
         try {
             compose.onNodeWithContentDescription(
                 "Planting date: $formatted. Choose date").performClick()
+            // Headless emulators can expose the native positive button by text before
+            // its framework resource ID is discoverable by UI Automator.
             val confirm = device.wait(
-                androidx.test.uiautomator.Until.findObject(ok), 10_000L)
+                androidx.test.uiautomator.Until.findObject(ok), 15_000L)
+                ?: device.wait(androidx.test.uiautomator.Until.findObject(
+                    androidx.test.uiautomator.By.text("OK")), 5_000L)
             org.junit.Assert.assertNotNull("Native date picker should show its OK button", confirm)
             confirm!!.click()
             compose.waitUntil(5_000) { selected == selectedDate }

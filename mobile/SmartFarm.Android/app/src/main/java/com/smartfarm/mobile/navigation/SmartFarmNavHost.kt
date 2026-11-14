@@ -3,6 +3,8 @@ package com.smartfarm.mobile.navigation
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import com.smartfarm.mobile.ui.components.LocalFarmHeaderNavigation
+import com.smartfarm.mobile.ui.components.LocalSyncProgress
+import com.smartfarm.mobile.data.sync.SyncProgress
 import com.smartfarm.mobile.ui.components.FarmHeaderNavigation
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -48,6 +50,7 @@ import com.smartfarm.mobile.features.insights.FarmInsightsScreen
 import com.smartfarm.mobile.features.syncstatus.SyncStatusViewModel
 import com.smartfarm.mobile.features.syncstatus.SyncStatusScreen
 import com.smartfarm.mobile.features.syncstatus.syncQueueSummary
+import kotlinx.coroutines.flow.first
 import androidx.compose.ui.platform.LocalContext
 import com.bumptech.glide.Glide
 import com.smartfarm.mobile.features.farms.FarmListScreen
@@ -67,6 +70,9 @@ fun SmartFarmNavHost(auth: AuthViewModel, farms: FarmViewModel, crops: CropViewM
     val state by auth.state.collectAsStateWithLifecycle()
     val pending by sync.operations.collectAsStateWithLifecycle()
     val pendingPhotos by sync.photos.collectAsStateWithLifecycle()
+    val progress by sync.progress.collectAsStateWithLifecycle()
+    val scopedProgress = progress.takeIf { it.userId == state.account?.id } ?: SyncProgress()
+    val confirmationVersion = scopedProgress.confirmedFarms[currentFarmId] ?: 0
     val headerFarm by farms.state.collectAsStateWithLifecycle()
     val cropState by crops.state.collectAsStateWithLifecycle()
     val accountQueue = syncQueueSummary(pending, pendingPhotos, userId = state.account?.id)
@@ -80,7 +86,7 @@ fun SmartFarmNavHost(auth: AuthViewModel, farms: FarmViewModel, crops: CropViewM
         recordAction = null
         pendingFarmSwitch = null
         farms.clear()
-        if (state.account != null) sync.load()
+        if (state.account != null) sync.load() else sync.clear()
     }
     val expandedWorkspace = LocalConfiguration.current.screenWidthDp >= 600
     val navigateWorkspace: (String) -> Unit = { destination ->
@@ -131,10 +137,10 @@ fun SmartFarmNavHost(auth: AuthViewModel, farms: FarmViewModel, crops: CropViewM
         val farmState by farms.state.collectAsStateWithLifecycle()
         val homeTasks by tasks.state.collectAsStateWithLifecycle()
         val homeCrops by crops.state.collectAsStateWithLifecycle()
-        LaunchedEffect(farmId) {
+        LaunchedEffect(farmId, confirmationVersion) {
             if (farms.state.value.selected?.id != farmId) farms.loadDetail(farmId)
-            if (tasks.state.value.farmId != farmId) tasks.load(farmId)
-            if (crops.state.value.farmId != farmId) crops.load(farmId)
+            if (confirmationVersion > 0 || tasks.state.value.farmId != farmId) tasks.load(farmId)
+            if (confirmationVersion > 0 || crops.state.value.farmId != farmId) crops.load(farmId)
         }
         FarmDetailScreen(farmState,
             onBack = {
@@ -185,7 +191,8 @@ fun SmartFarmNavHost(auth: AuthViewModel, farms: FarmViewModel, crops: CropViewM
             }
         }
     ) { workspacePadding ->
-    CompositionLocalProvider(LocalFarmHeaderNavigation provides if (state.account == null) null else
+    CompositionLocalProvider(LocalSyncProgress provides scopedProgress,
+        LocalFarmHeaderNavigation provides if (state.account == null) null else
         FarmHeaderNavigation(headerFarm.selected?.takeIf { it.id == currentFarmId }?.name,
             onFarms = {
                 if (currentFarmId.isBlank()) {
@@ -271,7 +278,8 @@ fun SmartFarmNavHost(auth: AuthViewModel, farms: FarmViewModel, crops: CropViewM
                 farmNames = headerFarm.farms.associate { it.id to it.name },
                 farmTimeZones = headerFarm.farms.associate { it.id to it.timeZoneId },
                 notice = syncNotice,
-                farmTimeZone = headerFarm.selected?.timeZoneId)
+                farmTimeZone = headerFarm.selected?.timeZoneId,
+                onAccount = { navController.navigate("account") })
         }
         composable("farms") {
             val farmState by farms.state.collectAsStateWithLifecycle()
@@ -329,7 +337,7 @@ fun SmartFarmNavHost(auth: AuthViewModel, farms: FarmViewModel, crops: CropViewM
             val farmId = entry.arguments?.getString("farmId").orEmpty()
             val taskState by tasks.state.collectAsStateWithLifecycle()
             val farmState by farms.state.collectAsStateWithLifecycle()
-            LaunchedEffect(farmId) { tasks.load(farmId) }
+            LaunchedEffect(farmId, confirmationVersion) { tasks.load(farmId) }
             com.smartfarm.mobile.features.tasks.TaskScreen(taskState,
                 canManage = farmState.selected?.id == farmId &&
                     farmState.selected?.role in listOf("Owner", "Manager"),
@@ -391,7 +399,8 @@ fun SmartFarmNavHost(auth: AuthViewModel, farms: FarmViewModel, crops: CropViewM
             val taskState by tasks.state.collectAsStateWithLifecycle()
             val manager = farmState.selected?.id == farmId &&
                 farmState.selected?.role in listOf("Owner", "Manager")
-            LaunchedEffect(farmId, cycleId) {
+            LaunchedEffect(farmId, cycleId, confirmationVersion) {
+                monitoring.state.first { !it.busy || it.farmId != farmId || it.cycleId != cycleId }
                 monitoring.load(farmId, cycleId)
                 if (crops.state.value.farmId != farmId) crops.load(farmId)
                 if (manager) tasks.load(farmId)
@@ -431,9 +440,12 @@ fun SmartFarmNavHost(auth: AuthViewModel, farms: FarmViewModel, crops: CropViewM
             val farmId = entry.arguments?.getString("farmId").orEmpty()
             val state by inventory.state.collectAsStateWithLifecycle()
             val farmState by farms.state.collectAsStateWithLifecycle()
-            LaunchedEffect(farmId) { inventory.load(farmId) }
+            LaunchedEffect(farmId, confirmationVersion) {
+                inventory.state.first { !it.busy || it.farmId != farmId }
+                inventory.load(farmId)
+            }
             InventoryListScreen(state,
-                canManage = farmState.selected?.id == farmId &&
+                canManage = !state.accessDenied && farmState.selected?.id == farmId &&
                     farmState.selected?.role in listOf("Owner", "Manager"),
                 onBack = { navController.popBackStack() },
                 onOpen = { navController.navigate("inventory/$farmId/$it") },
@@ -446,9 +458,12 @@ fun SmartFarmNavHost(auth: AuthViewModel, farms: FarmViewModel, crops: CropViewM
             val itemId = entry.arguments?.getString("itemId").orEmpty()
             val state by inventory.state.collectAsStateWithLifecycle()
             val farmState by farms.state.collectAsStateWithLifecycle()
-            LaunchedEffect(farmId, itemId) { inventory.loadItem(farmId, itemId) }
+            LaunchedEffect(farmId, itemId, confirmationVersion) {
+                inventory.state.first { !it.busy || it.farmId != farmId || it.itemId != itemId }
+                inventory.loadItem(farmId, itemId)
+            }
             InventoryItemScreen(state,
-                canManage = farmState.selected?.id == farmId &&
+                canManage = !state.accessDenied && farmState.selected?.id == farmId &&
                     farmState.selected?.role in listOf("Owner", "Manager"),
                 onBack = { navController.popBackStack() },
                 onSave = { name, category, unit, description, reorder ->
@@ -467,7 +482,10 @@ fun SmartFarmNavHost(auth: AuthViewModel, farms: FarmViewModel, crops: CropViewM
             val farmId = entry.arguments?.getString("farmId").orEmpty()
             val insightState by insights.state.collectAsStateWithLifecycle()
             val farmState by farms.state.collectAsStateWithLifecycle()
-            LaunchedEffect(farmId) { insights.load(farmId) }
+            LaunchedEffect(farmId, confirmationVersion) {
+                val filters = insights.state.value.takeIf { it.farmId == farmId }
+                insights.load(farmId, filters?.from, filters?.to)
+            }
             FarmInsightsScreen(
                 state = insightState,
                 farmTimeZone = farmState.selected?.takeIf { it.id == farmId }?.timeZoneId,
@@ -479,7 +497,10 @@ fun SmartFarmNavHost(auth: AuthViewModel, farms: FarmViewModel, crops: CropViewM
             val farmId = entry.arguments?.getString("farmId").orEmpty()
             val cycleId = entry.arguments?.getString("cycleId").orEmpty()
             val harvestState by harvests.state.collectAsStateWithLifecycle()
-            LaunchedEffect(farmId, cycleId) { harvests.load(farmId, cycleId) }
+            LaunchedEffect(farmId, cycleId, confirmationVersion) {
+                harvests.state.first { !it.busy || it.farmId != farmId || it.cycleId != cycleId }
+                harvests.load(farmId, cycleId)
+            }
             HarvestScreen(
                 state = harvestState,
                 onBack = { navController.popBackStack() },
