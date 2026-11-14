@@ -170,3 +170,10 @@ Three native primary entries and a simpler existing Record sheet; My Farm groups
 - Raw: raw/project/2026-11-14-mvp-stage-4.md
 - Updated: MVP simplification; Android/sync; current progress; index and execution status.
 - Truthful transfer/receipt state and scoped refresh/cache consistency verified with regressions, full tests and controlled native SQL-backed reconnect. Review fixes and emulator/physical-network limits recorded; no business/API/schema/Worker changes. Later stages remain planned.
+
+## [2026-11-14] ingest | MVP Stage 5 retirement
+- Disposition: Update
+- Raw: raw/project/2026-11-14-mvp-stage-5.md
+- Updated: MVP simplification; Android; finance/reports; frontend; progress
+- Recorded read-only archives, compatibility/retention boundaries, review fix and current verification limits.
+- Updated: current source status; features (legacy UI status overridden by Stage 5 evidence).

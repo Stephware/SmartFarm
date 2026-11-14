@@ -1,14 +1,14 @@
 # Implemented features
 
 > Sources: SmartFarm repository, local source review
-> Raw: [Feature sources](../../raw/project/2026-10-27-features-source.md); [Architecture sources](../../raw/project/2026-10-27-architecture-source.md); [Android sources](../../raw/project/2026-10-27-android-source.md); [PR48 fix and merge](../../raw/project/2026-10-28-pr48-fix-and-merge.md); [backend source review](../../raw/project/2026-11-11-backend-current.md); [reports source review](../../raw/project/2026-11-11-reports-current.md); [android source review](../../raw/project/2026-11-11-android-current.md); [web-workflow source review](../../raw/project/2026-11-11-web-workflow-current.md); [Current documentation audit](../../raw/project/2026-11-11-documentation-audit.md); [Publication source check](../../raw/project/2026-11-12-documentation-publication.md)
-> Updated: 2026-11-12
+> Raw: [Feature sources](../../raw/project/2026-10-27-features-source.md); [Architecture sources](../../raw/project/2026-10-27-architecture-source.md); [Android sources](../../raw/project/2026-10-27-android-source.md); [PR48 fix and merge](../../raw/project/2026-10-28-pr48-fix-and-merge.md); [backend source review](../../raw/project/2026-11-11-backend-current.md); [reports source review](../../raw/project/2026-11-11-reports-current.md); [android source review](../../raw/project/2026-11-11-android-current.md); [web-workflow source review](../../raw/project/2026-11-11-web-workflow-current.md); [Current documentation audit](../../raw/project/2026-11-11-documentation-audit.md); [Publication source check](../../raw/project/2026-11-12-documentation-publication.md); [MVP retirement](../../raw/project/2026-11-14-mvp-stage-5.md)
+> Updated: 2026-11-14
 
 **Source scope:** Earlier detailed audit/acceptance is dated below. For source
 changes through `dev` at `3c5a8b0`, see [current source status](current-source-status.md),
 which supersedes conflicting baseline UI, admin, CI and schema statements.
 
-> **Product scope reset (planned):** [farmer-first MVP](mvp-simplification.md). The table below is a source inventory of features currently implemented; it is **not** a mandate to preserve finance, specialized plot/timeline screens, advanced insights, public announcements or support tickets in the future UI. Do not alter underlying records until the dependency/retention review.
+**Current MVP override:** [Farmer-first MVP](mvp-simplification.md) supersedes legacy product UI in the table below. Stage 5 retires cash/charts, duplicate plot/timeline pages, public bulletins and ticket creation/replies. Backend finance compatibility and protected read-only histories remain; no underlying records/schema were removed. Required crop, task, photo, supply, harvest, weather and offline workflows remain implemented.
 
 ## Status meaning
 

@@ -19,9 +19,9 @@ const pages = [
     ["monitoring", "Monitoring", "/admin/monitoring"],
     ["sync", "Monitoring", "/admin/monitoring/sync"],
     ["audit", "Audit", "/admin/audit"],
-    ["reports", "Reports", "/admin/reports"],
     ["announcements", "Announcements", "/admin/announcements"],
-    ["announcement-new", "Announcements", "/admin/announcements/new"],
+    ["support", "Support", "/admin/support"],
+    ["support-detail", "Support", "/admin/support/123"],
     ["security", "Security", "/admin/security/setup"]
 ];
 const widths = [320, 375, 768, 1024, 1440];
@@ -79,13 +79,15 @@ const widths = [320, 375, 768, 1024, 1440];
                             assert.ok(h >= 44, name + ": filter button touch target " + h);
                         }
                     }
-                    if (name === "reports") {
-                        assert.equal(await page.locator('.admin-report-scroll[tabindex="0"]').count(), 1);
-                        assert.equal(await page.locator("table.admin-report-table").count(), 1);
-                        if (width === 320) {
-                            assert.ok(await page.locator(".admin-report-scroll").evaluate(el =>
-                                el.scrollWidth > el.clientWidth), "wide reports scroll within their own region");
-                        }
+                    assert.equal(await page.locator('a[href^="/admin/reports"]').count(), 0);
+                    if (name === "support-detail") {
+                        assert.equal(await page.getByRole("heading", { name: "Read-only history", exact: true }).count(), 1);
+                        assert.equal(await page.locator('form[action$="/reply"],form[action$="/status"]').count(), 0);
+                        assert.equal(await page.getByText("Retained internal note", {exact: true}).count(), 1);
+                    }
+                    if (name === "announcements") {
+                        assert.equal(await page.getByRole("heading", { name: "Announcement history", exact: true }).count(), 1);
+                        assert.equal(await page.getByRole("link", { name: "New announcement", exact: true }).count(), 0);
                     }
                     if (name === "security")
                         assert.ok(await page.locator('.admin-security-setup input[type="password"]').count());

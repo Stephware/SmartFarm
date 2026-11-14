@@ -1637,6 +1637,256 @@
           "sha256": "5970c803a951329d1b7b9d22600372ecff388b48ceb41c53745cdb412b7868b9"
         }
       ]
+    },
+    {
+      "date": "2026-11-14",
+      "revision": "9c9adce4c1ff73825d44b86361dc0faf5a7b1a7f + Stage 5 working tree",
+      "snapshot": "raw/project/2026-11-14-mvp-stage-5.md",
+      "sha256": "3d8799d9eb15b711382f1f71cc8578ff9c027129a5d6c447334d7fb528d7ef27",
+      "scope": "MVP Stage 5 presentation retirement, protected history/compatibility retention, recreation/read-only-write review regressions and scoped verification. Remote gates tracked in stage PR.",
+      "source_files": [
+        {
+          "path": ".github/workflows/verify-smartfarm.yml",
+          "sha256": "396856e3dd15aa217dd8bbfa9395b0ee8b063108a410141d2cc61c16c3d99300"
+        },
+        {
+          "path": "mobile/SmartFarm.Android/app/src/androidTest/java/com/smartfarm/mobile/FullAppJourneyTest.kt",
+          "sha256": "e8a49dde8163afd17494dc3838b695a933e735ec1f021a74fdd41af67e9e0fea"
+        },
+        {
+          "path": "mobile/SmartFarm.Android/app/src/androidTest/java/com/smartfarm/mobile/SecondaryNavigationScreenTest.kt",
+          "sha256": "98b6125d3d885b7f47136fa477f75c8ce9eb6f6e6d3160bfed0b7032408e5cf4"
+        },
+        {
+          "path": "mobile/SmartFarm.Android/app/src/androidTest/java/com/smartfarm/mobile/SyncConfirmationTest.kt",
+          "sha256": "5d44380857d286c1f8ca2f3fef506387367c14e6ab0f56389e52ebd53d22db81"
+        },
+        {
+          "path": "mobile/SmartFarm.Android/app/src/main/java/com/smartfarm/mobile/data/remote/api/FarmInsightsApi.kt",
+          "sha256": "807e693f2426064eebeea564b91e0f9018ee7c8dbe19a2eed26ef1821231982c"
+        },
+        {
+          "path": "mobile/SmartFarm.Android/app/src/main/java/com/smartfarm/mobile/data/remote/dto/FarmInsightsDtos.kt",
+          "sha256": "fca219834bfae57a7386778870c84fe6e6755aabe7a09edcf29451cd942ec6d8"
+        },
+        {
+          "path": "mobile/SmartFarm.Android/app/src/main/java/com/smartfarm/mobile/data/repository/FarmInsightsRepository.kt",
+          "sha256": "0ce28bc7107d80f3a3f7a079c512fb7b72423e14237a2b5f974ca90816e61aa5"
+        },
+        {
+          "path": "mobile/SmartFarm.Android/app/src/main/java/com/smartfarm/mobile/features/auth/AuthScreens.kt",
+          "sha256": "7a061b90e80870123a73a68d808ded12845d7416fabd5701600d3e8027b388ca"
+        },
+        {
+          "path": "mobile/SmartFarm.Android/app/src/main/java/com/smartfarm/mobile/features/crops/CropScreens.kt",
+          "sha256": "b5a9c7a491f77f182114b0ba51667a2bc3a9ef5fa01bc0ae6a0c3539c88b6213"
+        },
+        {
+          "path": "mobile/SmartFarm.Android/app/src/main/java/com/smartfarm/mobile/features/farms/FarmScreens.kt",
+          "sha256": "4d5d9d97dcfd84bca794ec7dfc681084c782982c944745166dec63d6ddce6c48"
+        },
+        {
+          "path": "mobile/SmartFarm.Android/app/src/main/java/com/smartfarm/mobile/features/harvests/HarvestScreen.kt",
+          "sha256": "305c268fbc722966d1e4b545ef5339c4be8008d57dedcffda353de24a2f8a00f"
+        },
+        {
+          "path": "mobile/SmartFarm.Android/app/src/main/java/com/smartfarm/mobile/features/insights/FarmInsightsScreen.kt",
+          "sha256": "109b6056b68bece427f1512cd80b3811a95daee3c95bf350fa04044a6b97cb3a"
+        },
+        {
+          "path": "mobile/SmartFarm.Android/app/src/main/java/com/smartfarm/mobile/features/insights/FarmInsightsViewModel.kt",
+          "sha256": "cf3bf27d832f5d09f7f2189f7e00494425deeaab2a0094dc15fd7230e31f0787"
+        },
+        {
+          "path": "mobile/SmartFarm.Android/app/src/main/java/com/smartfarm/mobile/navigation/SmartFarmNavHost.kt",
+          "sha256": "3bf684c0d3da32847da1e8428f6faf5c9708bfe19df44267e097eb46b2e0b3db"
+        },
+        {
+          "path": "mobile/SmartFarm.Android/app/src/main/java/com/smartfarm/mobile/ui/components/FarmDesignComponents.kt",
+          "sha256": "1c19ab5225a63cfee7ff6991ce965da5934aa7ffd1ec2966552e1636a6642dd1"
+        },
+        {
+          "path": "mobile/SmartFarm.Android/app/src/main/java/com/smartfarm/mobile/ui/components/WelcomeScreen.kt",
+          "sha256": "32c57bb81b48a586b96f18787b7784da3bb13630e322f257bca8cbc163879a4a"
+        },
+        {
+          "path": "src/SmartFarm.Web/Areas/Admin/Controllers/AnnouncementsController.cs",
+          "sha256": "c08633fac28320027db05c813d82e2bc1dd136b490873b91a5b5bee3fa56f3a3"
+        },
+        {
+          "path": "src/SmartFarm.Web/Areas/Admin/Controllers/ReportsController.cs",
+          "sha256": "e018fc8f9370a088ecb1fb0fc25b05f427e1abca6a64b455f356b3feb296e075"
+        },
+        {
+          "path": "src/SmartFarm.Web/Areas/Admin/Controllers/SupportController.cs",
+          "sha256": "a377d2b33af931dbfaad243ea5f7aeaa60d57cda163755eef5b8bec1784f2e9b"
+        },
+        {
+          "path": "src/SmartFarm.Web/Areas/Admin/Views/Announcements/Details.cshtml",
+          "sha256": "1064b235f78636d3fd3cc64ff9b2d0b6e44cb64c80743a3e3639279027e96a3f"
+        },
+        {
+          "path": "src/SmartFarm.Web/Areas/Admin/Views/Announcements/Index.cshtml",
+          "sha256": "6bf6a9fa013c47daecf3053776d2a9d9801d11fcccfb7b3ae85d14215b00624c"
+        },
+        {
+          "path": "src/SmartFarm.Web/Areas/Admin/Views/Dashboard/Index.cshtml",
+          "sha256": "3fd5c08d9cf39dbd04d9ef9b72b9478e8b99727d0610bf40834c1f725b927cc1"
+        },
+        {
+          "path": "src/SmartFarm.Web/Areas/Admin/Views/Shared/_Layout.cshtml",
+          "sha256": "f64bb487f9f7a64edbf1f2dc84a2b500ca9b262757e52848d3bc9f3151db21a8"
+        },
+        {
+          "path": "src/SmartFarm.Web/Areas/Admin/Views/Support/Details.cshtml",
+          "sha256": "2c162e75b6cd76db146b71bb5331dcd3e0958a30829bc948dfa01b1aabd86f73"
+        },
+        {
+          "path": "src/SmartFarm.Web/Areas/Admin/Views/Support/Index.cshtml",
+          "sha256": "37c953fcd08660c82fc3ba076163bd928eea53da9936e558c38e2b732267ce11"
+        },
+        {
+          "path": "src/SmartFarm.Web/Controllers/AnnouncementsController.cs",
+          "sha256": "45fdb7d8efdbe20ca443e206e026cc43a8694370419f6403a0824253f4711bbc"
+        },
+        {
+          "path": "src/SmartFarm.Web/Controllers/CropTimelineController.cs",
+          "sha256": "2dbd83e3e5e0e57e2b80158f3f71bd74ff104f6028c3f47c37d22df62e26f45f"
+        },
+        {
+          "path": "src/SmartFarm.Web/Controllers/FarmFinanceController.cs",
+          "sha256": "2bb83b00f05a57fe57337cb3b94ee1f9f73cbf875c6e8f2012b62bd2cee0c72d"
+        },
+        {
+          "path": "src/SmartFarm.Web/Controllers/HomeController.cs",
+          "sha256": "02e9a69191fbf0577f3faba4dd3f80e3d102682df7420b331cf1761f2f4697ed"
+        },
+        {
+          "path": "src/SmartFarm.Web/Controllers/PlotLayoutController.cs",
+          "sha256": "c047c9d778e9012e4c580d5bfec325f4e2f431483a9396360ef90f0193d1736c"
+        },
+        {
+          "path": "src/SmartFarm.Web/Controllers/SupportController.cs",
+          "sha256": "4567fee138a09719e00e24b7d2d1118e35a2464eaa07ad2800db987349596bf0"
+        },
+        {
+          "path": "src/SmartFarm.Web/Program.cs",
+          "sha256": "891391267b7fc91ca183038fc1b99edefe075c12338add7ad2cc3b01582bc442"
+        },
+        {
+          "path": "src/SmartFarm.Web/ViewModels/Announcements/AnnouncementPages.cs",
+          "sha256": "2826150df21af6a5bb0db144aad1789f9c9f4dbb14eb2ff31816147ebfa7eaea"
+        },
+        {
+          "path": "src/SmartFarm.Web/ViewModels/Reports/HarvestReportPage.cs",
+          "sha256": "aa9b42fba508c02121977087ea79073ec9c6a25800f36d5a4d01721a4412cf5c"
+        },
+        {
+          "path": "src/SmartFarm.Web/ViewModels/Support/SupportPages.cs",
+          "sha256": "cb4a4e3b55c1c3bdbc7bb3ab629fb7b531a54afa072d8a25cf4e03388949d1ee"
+        },
+        {
+          "path": "src/SmartFarm.Web/Views/Account/Profile.cshtml",
+          "sha256": "cdbad0d645fe57a8595f637df65fb3bd0d120fb6a93342dbc17894d262c3a144"
+        },
+        {
+          "path": "src/SmartFarm.Web/Views/Harvests/Index.cshtml",
+          "sha256": "427de6987adcd4579993de8b6f94839ffbae17a89d15412048c911547a45c8be"
+        },
+        {
+          "path": "src/SmartFarm.Web/Views/Home/Help.cshtml",
+          "sha256": "2c97933b06308ba0100b310725670298c7a6af88199aa25799f0e86a11c5854c"
+        },
+        {
+          "path": "src/SmartFarm.Web/Views/Monitoring/Index.cshtml",
+          "sha256": "891935abba409c0209e832c1239ca7fe489d76c187a0390304d3aa42519a718a"
+        },
+        {
+          "path": "src/SmartFarm.Web/Views/Shared/_Layout.cshtml",
+          "sha256": "7881b6551f00c2ef8255f925e6fbe48fecc7b876a35671925692ab960dfb39bf"
+        },
+        {
+          "path": "src/SmartFarm.Web/Views/Support/Details.cshtml",
+          "sha256": "4fe9ffe4adaa1dd7acd5653f222640a193ada32a457bfaad7fd1003c6bddc51f"
+        },
+        {
+          "path": "src/SmartFarm.Web/Views/Support/Index.cshtml",
+          "sha256": "6491c9fb24f1aeab4791389064784da3d6b11e09abd949dd1be60df4e25f38ed"
+        },
+        {
+          "path": "tests/SmartFarm.Auth.Tests/FarmEnrollmentWebTests.cs",
+          "sha256": "d94125866c31eae40aa41f6a20c73c9eec657e9f9fcaaac69f627e5cf1f1733c"
+        },
+        {
+          "path": "tests/SmartFarm.Auth.Tests/Phase12FAdminViewTests.cs",
+          "sha256": "c99493f8ff074a7d6506747bddbf8eb108ce59d4c7ad98e4fa215c11946bc2c7"
+        },
+        {
+          "path": "tests/SmartFarm.Auth.Tests/PhaseOneInsightsTests.cs",
+          "sha256": "f0dfedc73702920b9144954ad5269f093dbd7e5840c98985b69ed7cabc68add7"
+        },
+        {
+          "path": "tests/SmartFarm.Auth.Tests/PhaseThreeFeaturesTests.cs",
+          "sha256": "173b439f75e4e420485366bd7b2ddba9dd73a8c2831beb11561479e61d408c47"
+        },
+        {
+          "path": "tests/SmartFarm.Auth.Tests/SuperAdminPhase3Tests.cs",
+          "sha256": "c56e12b25c01e0b5a9f8442003b9d6ac5a71bf75f35c2d0741d8ab0c126ca46f"
+        },
+        {
+          "path": "tests/SmartFarm.Auth.Tests/SuperAdminPhase6Tests.cs",
+          "sha256": "fa6f72071b3c056d8a50c0bc16ff165d7796ac12bd684a2bb36f576de905ba12"
+        },
+        {
+          "path": "tests/browser/authenticated-smoke.cjs",
+          "sha256": "a768a4579a103c9e0f1208312d58810cef1575489c550cec21e566894d1cb344"
+        },
+        {
+          "path": "tests/browser/phase12f-admin-smoke.cjs",
+          "sha256": "0632e607ab3eea2661843b6a91f0a79ae942a175ac73d4e6364d3dac151610b3"
+        },
+        {
+          "path": "tests/web-ui/phase12d-farm-crops.test.cjs",
+          "sha256": "892a2de4af99983706a946ec438b784553ad0bd906bc55c7a5f39846fd566c3b"
+        },
+        {
+          "path": "tests/web-ui/phase12f-admin.test.cjs",
+          "sha256": "f60be17bd39869ba54beb214be81f6c0339acf0d6c72ed729c1335778fe11867"
+        }
+      ],
+      "removed_paths": [
+        "mobile/SmartFarm.Android/app/src/main/java/com/smartfarm/mobile/ui/components/CropArtwork.kt",
+        "mobile/SmartFarm.Android/app/src/main/res/drawable/crop_corn.xml",
+        "mobile/SmartFarm.Android/app/src/main/res/drawable/crop_eggplant.xml",
+        "mobile/SmartFarm.Android/app/src/main/res/drawable/crop_rice.xml",
+        "mobile/SmartFarm.Android/app/src/main/res/drawable/crop_sprout.xml",
+        "mobile/SmartFarm.Android/app/src/main/res/drawable/crop_tomato.xml",
+        "mobile/SmartFarm.Android/app/src/test/java/com/smartfarm/mobile/CropArtworkTest.kt",
+        "mobile/SmartFarm.Android/app/src/test/java/com/smartfarm/mobile/FarmInsightsChartTest.kt",
+        "scripts/verify-web-visual-assets.py",
+        "src/SmartFarm.Web/Areas/Admin/Views/Announcements/Editor.cshtml",
+        "src/SmartFarm.Web/Areas/Admin/Views/Reports/Index.cshtml",
+        "src/SmartFarm.Web/Clients/FinanceInsightsCsv.cs",
+        "src/SmartFarm.Web/Presentation/CropArtwork.cs",
+        "src/SmartFarm.Web/Services/Admin/AdminReportService.cs",
+        "src/SmartFarm.Web/ViewModels/Admin/AdminReportPages.cs",
+        "src/SmartFarm.Web/ViewModels/Farms/PlotLayoutPage.cs",
+        "src/SmartFarm.Web/ViewModels/Finance/FarmFinancePage.cs",
+        "src/SmartFarm.Web/ViewModels/Reports/HarvestAnalyticsBuilder.cs",
+        "src/SmartFarm.Web/Views/Announcements/Details.cshtml",
+        "src/SmartFarm.Web/Views/Announcements/Index.cshtml",
+        "src/SmartFarm.Web/Views/CropTimeline/Index.cshtml",
+        "src/SmartFarm.Web/Views/FarmFinance/Index.cshtml",
+        "src/SmartFarm.Web/Views/PlotLayout/Index.cshtml",
+        "src/SmartFarm.Web/Views/Support/Create.cshtml",
+        "src/SmartFarm.Web/wwwroot/images/crops/corn.svg",
+        "src/SmartFarm.Web/wwwroot/images/crops/eggplant.svg",
+        "src/SmartFarm.Web/wwwroot/images/crops/rice.svg",
+        "src/SmartFarm.Web/wwwroot/images/crops/sprout.svg",
+        "src/SmartFarm.Web/wwwroot/images/crops/tomato.svg",
+        "tests/SmartFarm.Auth.Tests/CropArtworkTests.cs",
+        "tests/SmartFarm.Auth.Tests/FinanceInsightsCsvTests.cs"
+      ]
     }
   ]
 }

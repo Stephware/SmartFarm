@@ -29,6 +29,28 @@ import java.util.UUID
 import java.util.concurrent.TimeUnit
 
 class SyncConfirmationTest {
+    @Test fun harvestSummaryNeverRequestsRetiredFinanceData() = runBlocking {
+        fixture { (_, server, _, auth, _, _) ->
+            server.enqueue(MockResponse().setHeader("Content-Type", "application/json").setBody(
+                """{"farmId":"farm","farmName":"Farm","timeZoneId":"Asia/Manila","fromDate":null,"toDate":null,"validHarvestCount":2,"voidedHarvestCount":1,"unitTotals":[{"unit":"kg","quantity":2.5,"harvestCount":2}],"cropPlotTotals":[],"monthlyTotals":[]}"""))
+            // Any obsolete extra fetch completes, so the regression fails on its count.
+            server.enqueue(MockResponse().setResponseCode(410))
+            val retrofit = ApiClientFactory.create(server.url("/").toString(), true)
+            val vm = com.smartfarm.mobile.features.insights.FarmInsightsViewModel(
+                com.smartfarm.mobile.data.repository.FarmInsightsRepository(auth) {
+                    retrofit.create(FarmInsightsApi::class.java)
+                })
+            try {
+                withContext(Dispatchers.Main) { vm.load("farm", "2026-11-01", "2026-11-14") }
+                withTimeout(5000) { while (!vm.state.value.loaded) delay(10) }
+                assertEquals(BigDecimal("2.5"), vm.state.value.harvest?.unitTotals?.single()?.quantity)
+                assertEquals("/api/farms/farm/reports/harvests?from=2026-11-01&to=2026-11-14",
+                    server.takeRequest(2, TimeUnit.SECONDS)?.path)
+                assertEquals("Only the confirmed harvest report may be requested", 3, server.requestCount)
+            } finally { withContext(Dispatchers.Main) { vm.clear() } }
+        }
+    }
+
     @Test fun confirmedInvalidationPreventsOlderReadFromRestoringExactOrPrefixCache() = runBlocking {
         fixture { (db, server, sync, _, _, cache) -> coroutineScope {
             val staleKeys = mutableListOf<String>()

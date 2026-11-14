@@ -311,31 +311,6 @@ fun FarmMetricCard(label: String, value: String, note: String? = null, modifier:
     }
 }
 
-/** Schematic planting rows, never geographic geometry or crop health. */
-@Composable
-fun FarmPlotPreview(modifier: Modifier = Modifier, cropName: String? = null) {
-    val rows = when (cropArtworkKind(cropName)) {
-        CropArtworkKind.Rice -> listOf(Color(0xFFB4A65C),Color(0xFFD2BF6F),Color(0xFF9B934C))
-        CropArtworkKind.Eggplant -> listOf(Color(0xFF8C9471),Color(0xFFA4A78B),Color(0xFF657E59))
-        else -> listOf(Color(0xFF79995F),Color(0xFF91AF75),Color(0xFF5F8551))
-    }
-    Box(modifier.fillMaxWidth().height(112.dp).clip(MaterialTheme.shapes.medium)
-        .background(rows[0]), contentAlignment = Alignment.Center) {
-        Canvas(Modifier.fillMaxSize()) {
-            val step = 18.dp.toPx()
-            var x = -size.height
-            var index = 0
-            while (x < size.width + size.height) {
-                drawLine(rows[index%3],Offset(x, size.height),Offset(x+size.height*1.5f,0f),
-                    strokeWidth=step/3)
-                x += step/3; index++
-            }
-            drawRect(Brush.verticalGradient(listOf(Color.Transparent,Color(0x55153D2D))))
-        }
-        if (!cropName.isNullOrBlank()) CropArtworkImage(cropName, Modifier.size(76.dp))
-    }
-}
-
 @Composable
 fun FarmQuickAction(label: String, symbol: FarmSymbol, onClick: () -> Unit, modifier: Modifier = Modifier) {
     androidx.compose.material3.OutlinedButton(onClick = onClick,

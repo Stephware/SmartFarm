@@ -1,14 +1,14 @@
 # Finance, harvest reports and exports
 
 > Sources: SmartFarm repository, source review
-> Raw: [Current documentation audit](../../raw/project/2026-11-11-documentation-audit.md); [Publication source check](../../raw/project/2026-11-12-documentation-publication.md)
-> Updated: 2026-11-12
+> Raw: [Current documentation audit](../../raw/project/2026-11-11-documentation-audit.md); [Publication source check](../../raw/project/2026-11-12-documentation-publication.md); [MVP retirement](../../raw/project/2026-11-14-mvp-stage-5.md)
+> Updated: 2026-11-14
 
 **Source scope:** Earlier detailed audit/acceptance is dated below. For source
 changes through `dev` at `3c5a8b0`, see [current source status](current-source-status.md),
 which supersedes conflicting baseline UI, admin, CI and schema statements.
 
-> **Planned retirement distinction (2026-11-13):** Retire the farm-finance/cash and advanced chart product UI after caller/data review; **keep** accurate simple harvest history, per-unit/cycle totals, safe CSV and records. This page describes the **old implemented finance** until refactoring. No table/ledger/history deletion is authorized. See [MVP simplification](mvp-simplification.md).
+**Current MVP retirement:** Stage 5 removes cash/advanced-chart UI and Web cash CSV; those Web routes return 410. Native summaries fetch confirmed harvests only. The authenticated finance API/shared services remain for compatibility, with historical rows/tables unchanged. Simple harvest history, separate-unit/cycle totals and safe harvest CSV remain. Finance UI descriptions below are historical; service/contracts still describe the retained backend. See [MVP simplification](mvp-simplification.md).
 
 ## Harvest and dashboard read models
 

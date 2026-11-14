@@ -33,67 +33,33 @@ public sealed class SuperAdminPhase6Tests
             StringComparison.OrdinalIgnoreCase);
     }
 
-    [Fact]
-    public void AdminPublishingAndReportsRequireVerifiedMfa()
+    [Theory]
+    [InlineData(typeof(SmartFarm.Web.Areas.Admin.Controllers.AnnouncementsController))]
+    [InlineData(typeof(SmartFarm.Web.Areas.Admin.Controllers.ReportsController))]
+    public void RetainedAdminHistoryAndRetiredAnalyticsStillRequireVerifiedMfa(Type controller)
     {
-        var announcements = typeof(SmartFarm.Web.Areas.Admin.Controllers.AnnouncementsController);
-        var reports = typeof(SmartFarm.Web.Areas.Admin.Controllers.ReportsController);
-        Assert.Equal(SuperAdminSecurity.Policy,
-            announcements.GetCustomAttribute<AuthorizeAttribute>()?.Policy);
-        Assert.Equal(SuperAdminSecurity.Policy,
-            reports.GetCustomAttribute<AuthorizeAttribute>()?.Policy);
-        Assert.Equal("Admin", announcements.GetCustomAttribute<AreaAttribute>()?.RouteValue);
-        Assert.Equal("Admin", reports.GetCustomAttribute<AreaAttribute>()?.RouteValue);
-        Assert.True(reports.GetCustomAttribute<ResponseCacheAttribute>()?.NoStore);
-        Assert.NotNull(reports.GetMethod("Csv")?.GetCustomAttribute<HttpGetAttribute>());
+        Assert.Equal(SuperAdminSecurity.Policy, controller.GetCustomAttribute<AuthorizeAttribute>()?.Policy);
+        Assert.Equal("Admin", controller.GetCustomAttribute<AreaAttribute>()?.RouteValue);
+        Assert.True(controller.GetCustomAttribute<ResponseCacheAttribute>()?.NoStore);
+    }
 
-        foreach (var name in new[] { "Create", "Edit", "Publish", "Archive" })
-        {
-            var action = announcements.GetMethods()
-                .Single(m => m.Name == name && m.GetCustomAttribute<HttpPostAttribute>() is not null);
+    [Fact]
+    public void AnnouncementMutationsAreGoneAndStillRequireCsrf()
+    {
+        var controller = new SmartFarm.Web.Areas.Admin.Controllers.AnnouncementsController(null!, null!);
+        var results = new IActionResult[] { controller.Create(), controller.Create(null),
+            controller.Edit(Guid.NewGuid()), controller.Edit(Guid.NewGuid(), null),
+            controller.Publish(Guid.NewGuid()), controller.Archive(Guid.NewGuid()) };
+        Assert.All(results, result => Assert.Equal(410, Assert.IsType<ObjectResult>(result).StatusCode));
+        foreach (var action in controller.GetType().GetMethods().Where(m => m.GetCustomAttribute<HttpPostAttribute>() is not null))
             Assert.NotNull(action.GetCustomAttribute<ValidateAntiForgeryTokenAttribute>());
-            Assert.Equal(EnrollmentRateLimiting.AdminActions,
-                action.GetCustomAttribute<EnableRateLimitingAttribute>()?.PolicyName);
-        }
-        foreach (var name in new[] { "Publish", "Archive" })
-        {
-            var action = announcements.GetMethod(name)!;
-            Assert.Contains(action.GetParameters(), p => p.Name == "currentPassword");
-            Assert.Contains(action.GetParameters(), p => p.Name == "rowVersion");
-            Assert.Contains(action.GetParameters(), p => p.Name == "reason");
-        }
     }
 
     [Fact]
-    public void PublicBulletinUsesCookieAuthAndNeverTreatsDraftsAsVisible()
+    public void RetiredPlatformAnalyticsNeverQueriesTheDatabase()
     {
-        var controller = typeof(SmartFarm.Web.Controllers.AnnouncementsController);
-        Assert.Equal(SmartFarmAuthSchemes.Application,
-            controller.GetCustomAttribute<AuthorizeAttribute>()?.AuthenticationSchemes);
-        var now = new DateTime(2026, 11, 12, 9, 0, 0, DateTimeKind.Utc);
-        var announcement = new PlatformAnnouncement { State = "Draft", PublishedAtUtc = null };
-        Assert.False(AnnouncementRules.IsVisible(announcement, now));
-        announcement.State = "Published";
-        announcement.PublishedAtUtc = now;
-        Assert.True(AnnouncementRules.IsVisible(announcement, now));
-        announcement.ExpiresAtUtc = now;
-        Assert.False(AnnouncementRules.IsVisible(announcement, now));
-        announcement.ExpiresAtUtc = now.AddMinutes(1);
-        Assert.True(AnnouncementRules.IsVisible(announcement, now));
-        announcement.State = "Archived";
-        Assert.False(AnnouncementRules.IsVisible(announcement, now));
-    }
-
-    [Fact]
-    public void ReportWindowsAndConcurrencyTokensAreBounded()
-    {
-        Assert.Equal(30, AdminReportRules.NormalizeDays(null));
-        Assert.Equal(30, AdminReportRules.NormalizeDays(3000));
-        Assert.Equal(7, AdminReportRules.NormalizeDays(7));
-        Assert.Equal(90, AdminReportRules.NormalizeDays(90));
-        Assert.False(AnnouncementRules.ValidRowVersion("garbage", out _));
-        var version = Convert.ToBase64String(new byte[8]);
-        Assert.True(AnnouncementRules.ValidRowVersion(version, out var decoded));
-        Assert.Equal(8, decoded.Length);
+        var controller = new SmartFarm.Web.Areas.Admin.Controllers.ReportsController();
+        Assert.Equal(410, Assert.IsType<ObjectResult>(controller.Index()).StatusCode);
+        Assert.Equal(410, Assert.IsType<ObjectResult>(controller.Csv()).StatusCode);
     }
 }

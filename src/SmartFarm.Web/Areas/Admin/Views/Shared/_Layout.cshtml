@@ -36,7 +36,7 @@
                     <partial name="~/Views/Shared/_Icon.cshtml" model='@("sprout")' /><span>Farms</span>
                 </a>
                 <a class="nav-link" asp-area="Admin" asp-controller="Support" asp-action="Index" aria-current="@(section == "Support" ? "page" : null)">
-                    <partial name="~/Views/Shared/_Icon.cshtml" model='@("bell")' /><span>Support</span>
+                    <partial name="~/Views/Shared/_Icon.cshtml" model='@("bell")' /><span>Support history</span>
                 </a>
                 <a class="nav-link" asp-area="Admin" asp-controller="Monitoring" asp-action="Index" aria-current="@(section == "Monitoring" ? "page" : null)">
                     <partial name="~/Views/Shared/_Icon.cshtml" model='@("chart")' /><span>Monitoring</span>
@@ -46,10 +46,7 @@
                     <partial name="~/Views/Shared/_Icon.cshtml" model='@("list")' /><span>Audit history</span>
                 </a>
                 <a class="nav-link" asp-area="Admin" asp-controller="Announcements" asp-action="Index" aria-current="@(section == "Announcements" ? "page" : null)">
-                    <partial name="~/Views/Shared/_Icon.cshtml" model='@("bell")' /><span>Announcements</span>
-                </a>
-                <a class="nav-link" asp-area="Admin" asp-controller="Reports" asp-action="Index" aria-current="@(section == "Reports" ? "page" : null)">
-                    <partial name="~/Views/Shared/_Icon.cshtml" model='@("chart")' /><span>Reports</span>
+                    <partial name="~/Views/Shared/_Icon.cshtml" model='@("bell")' /><span>Announcement history</span>
                 </a>
                 <a class="nav-link" asp-area="Admin" asp-controller="Security" asp-action="Setup" aria-current="@(section == "Security" ? "page" : null)">
                     <partial name="~/Views/Shared/_Icon.cshtml" model='@("settings")' /><span>Security</span>
@@ -88,11 +85,10 @@
                         <a asp-area="Admin" asp-controller="Dashboard" asp-action="Index" aria-current="@(section == "Dashboard" ? "page" : null)">Admin overview</a>
                         <a asp-area="Admin" asp-controller="Users" asp-action="Index" aria-current="@(section == "Users" ? "page" : null)">Manage users</a>
                         <a asp-area="Admin" asp-controller="Farms" asp-action="Index" aria-current="@(section == "Farms" ? "page" : null)">Manage farms</a>
-                        <a asp-area="Admin" asp-controller="Support" asp-action="Index" aria-current="@(section == "Support" ? "page" : null)">Support requests</a>
+                        <a asp-area="Admin" asp-controller="Support" asp-action="Index" aria-current="@(section == "Support" ? "page" : null)">Support history</a>
                         <a asp-area="Admin" asp-controller="Monitoring" asp-action="Index" aria-current="@(section == "Monitoring" ? "page" : null)">System monitoring</a>
                         <a asp-area="Admin" asp-controller="Audit" asp-action="Index" aria-current="@(section == "Audit" ? "page" : null)">Audit history</a>
-                        <a asp-area="Admin" asp-controller="Announcements" asp-action="Index" aria-current="@(section == "Announcements" ? "page" : null)">Platform announcements</a>
-                        <a asp-area="Admin" asp-controller="Reports" asp-action="Index" aria-current="@(section == "Reports" ? "page" : null)">Platform reports</a>
+                        <a asp-area="Admin" asp-controller="Announcements" asp-action="Index" aria-current="@(section == "Announcements" ? "page" : null)">Announcement history</a>
                         <a asp-area="Admin" asp-controller="Security" asp-action="Setup" aria-current="@(section == "Security" ? "page" : null)">Authenticator security</a>
                         <a asp-area="" asp-controller="Farms" asp-action="Index">Farm workspace</a>
                         <button type="button" data-color-mode-toggle aria-label="Toggle appearance">Change appearance</button>

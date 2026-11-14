@@ -1,14 +1,14 @@
 # Web and Android frontend conventions
 
 > Sources: SmartFarm repository, source review
-> Raw: [Current documentation audit](../../raw/project/2026-11-11-documentation-audit.md); [Reference frontend merge](../../raw/project/2026-11-11-reference-frontend-merge.md); [Publication source check](../../raw/project/2026-11-12-documentation-publication.md)
-> Updated: 2026-11-12
+> Raw: [Current documentation audit](../../raw/project/2026-11-11-documentation-audit.md); [Reference frontend merge](../../raw/project/2026-11-11-reference-frontend-merge.md); [Publication source check](../../raw/project/2026-11-12-documentation-publication.md); [MVP retirement](../../raw/project/2026-11-14-mvp-stage-5.md)
+> Updated: 2026-11-14
 
 **Source scope:** Earlier detailed audit/acceptance is dated below. For source
 changes through `dev` at `3c5a8b0`, see [current source status](current-source-status.md),
 which supersedes conflicting baseline UI, admin, CI and schema statements.
 
-> **Planned UX simplification:** [MVP scope decision](mvp-simplification.md). Target Web navigation is Today / Crops & Calendar / Supplies / Harvests; Android is Today / Record / My Farm. The five-tab Android and nine-link MVC descriptions below remain **current implemented source** until refactoring; do not add more UI layers or preserve old sections merely for parity. Note: `PRODUCT.md` now exists, superseding historical "no PRODUCT.md" guidance in the dated record.
+**Current MVP:** Web has Today / Crops & Calendar / Supplies / Harvests; Android has Today / Record / My Farm. Stage 5 removes duplicate plot/timeline pages, cash/charts, decorative crop art, public bulletins and ticket creation/replies. Help and protected read-only histories replace those entry points; security/diagnostics remain. Earlier five-tab/nine-link and finance/bulletin UI descriptions below are historical. [MVP scope/status](mvp-simplification.md) and `PRODUCT.md` supersede them.
 
 ## Current visual and interaction system
 

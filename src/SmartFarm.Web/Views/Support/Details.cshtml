@@ -2,7 +2,7 @@
 @{
     ViewData["Title"] = "Support request";
 }
-<a class="admin-back" asp-area="" asp-controller="Support" asp-action="Index">← My requests</a>
+<a class="admin-back" asp-area="" asp-controller="Support" asp-action="History">← Previous requests</a>
 <div class="page-heading admin-page-heading">
     <div><p class="sf-kicker">@Model.Ticket.Category.ToUpperInvariant() SUPPORT</p><h1>@Model.Ticket.Title</h1>
         <p class="sf-muted">Sent @Model.Ticket.CreatedAtUtc.ToString("MMM d, yyyy") UTC
@@ -17,7 +17,7 @@
 </section>
 <section class="panel admin-directory-panel" aria-labelledby="support-updates-heading">
     <h2 id="support-updates-heading">Updates &amp; replies</h2>
-    @if (Model.Messages.Count == 0) { <p class="admin-empty">No replies yet. We will respond here when there is an update.</p> }
+    @if (Model.Messages.Count == 0) { <p class="admin-empty">No saved replies.</p> }
     else {
         <div class="admin-support-thread">
             @foreach (var reply in Model.Messages) {
@@ -29,16 +29,4 @@
         </div>
     }
 </section>
-@if (Model.Ticket.Status != "Closed")
-{
-    <section class="panel admin-support-form-panel" aria-labelledby="reply-heading">
-        <h2 id="reply-heading">Add a reply</h2>
-        <p class="sf-muted">If you reply to a resolved request, it will reopen automatically.</p>
-        <form method="post" asp-area="" asp-controller="Support" asp-action="Reply" asp-route-id="@Model.Ticket.Id" class="admin-action-form">
-            <label for="support-reply">Your message</label>
-            <textarea id="support-reply" name="body" minlength="2" maxlength="1200" rows="4" required></textarea>
-            <button type="submit">Send reply</button>
-        </form>
-    </section>
-}
-else { <p class="sf-muted">This request is closed. Create a new request if you need more help.</p> }
+<p class="hint">This history is read-only. <a asp-controller="Home" asp-action="Help">Open Help</a> for next steps.</p>

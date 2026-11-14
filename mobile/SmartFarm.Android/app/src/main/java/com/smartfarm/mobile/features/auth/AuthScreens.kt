@@ -50,7 +50,6 @@ import com.smartfarm.mobile.ui.theme.LocalFarmAppearance
 import androidx.compose.material3.Switch
 import com.smartfarm.mobile.ui.components.FarmAppBar
 import com.smartfarm.mobile.ui.components.FarmHero
-import com.smartfarm.mobile.ui.components.CropArtworkImage
 import com.smartfarm.mobile.ui.components.FarmSectionCard
 
 @Composable

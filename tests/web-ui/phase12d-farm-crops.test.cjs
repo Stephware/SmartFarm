@@ -7,7 +7,6 @@ const path = require("node:path");
 const root = path.resolve(__dirname, "../../src/SmartFarm.Web");
 const read = name => fs.readFileSync(path.join(root, name), "utf8");
 const farm = read("Views/Farms/Details.cshtml");
-const plots = read("Views/PlotLayout/Index.cshtml");
 const crops = read("Views/Crops/Index.cshtml");
 const editPlot = read("Views/Farms/EditPlot.cshtml");
 const editPlan = read("Views/Crops/EditPlan.cshtml");
@@ -37,16 +36,11 @@ test("Farm management puts plot and team workflows before destructive actions", 
     assert.ok(farm.indexOf('class="ani12d-danger-options"') > farm.indexOf('id="members-heading"'));
     assert.ok(farm.includes('data-confirm="Archive @Model.Farm.Name?'));
 });
-test("Plot directory presents actual saved values without claiming geographic accuracy", () => {
-    assert.ok(plots.includes('class="plot-layout-grid sf-plot-grid plot-board ani-fields-board ani12d-plot-directory"'));
-    assert.ok(plots.includes("Plot directory, not a map."));
-    assert.ok(plots.includes("@plot.AreaSqMeters.ToString"));
-    assert.ok(plots.includes("aria-label=\"@plot.Name,"));
-    assert.ok(plots.includes("asp-route-plotId=\"@plot.PlotId\""));
-    assert.ok(plots.includes("CropArtwork.FileName(plot.CropName)"));
-    assert.ok(style.includes(".ani12d-plot-card .ani-plot-art img { position: static;"));
-    assert.ok(plots.includes('canManage ? "planting-plans-heading" : "ani-current-heading"'));
-    assert.doesNotMatch(plots, /actual field position or health status/);
+test("Merged plot directory uses saved values and no crop illustrations", () => {
+    assert.ok(crops.includes('id="farm-plots"'));
+    assert.ok(crops.includes('@plot.Name'));
+    assert.ok(crops.includes('@plot.AreaSqMeters'));
+    assert.doesNotMatch(crops, /images\/crops/);
 });
 test("Crop planning never implicitly selects an arbitrary plot or type", () => {
     assert.ok(crops.includes('option value="" disabled selected="@(Model.PlanPlotId is null)"'));

@@ -80,12 +80,17 @@ fun SmartFarmNavHost(auth: AuthViewModel, farms: FarmViewModel, crops: CropViewM
     var recordForFarm by rememberSaveable { mutableStateOf<String?>(null) }
     var recordAction by rememberSaveable { mutableStateOf<String?>(null) }
     var pendingFarmSwitch by rememberSaveable { mutableStateOf<String?>(null) }
+    var farmScopeUserId by rememberSaveable { mutableStateOf<String?>(null) }
     LaunchedEffect(state.account?.id) {
         showFarmSwitcher = false
         recordForFarm = null
         recordAction = null
         pendingFarmSwitch = null
-        farms.clear()
+        // Keep the same user's farm context through Activity recreation.
+        if (farmScopeUserId != state.account?.id) {
+            farms.clear()
+            farmScopeUserId = state.account?.id
+        }
         if (state.account != null) sync.load() else sync.clear()
     }
     val expandedWorkspace = LocalConfiguration.current.screenWidthDp >= 600
@@ -483,6 +488,7 @@ fun SmartFarmNavHost(auth: AuthViewModel, farms: FarmViewModel, crops: CropViewM
             val insightState by insights.state.collectAsStateWithLifecycle()
             val farmState by farms.state.collectAsStateWithLifecycle()
             LaunchedEffect(farmId, confirmationVersion) {
+                if (farms.state.value.selected?.id != farmId) farms.loadDetail(farmId)
                 val filters = insights.state.value.takeIf { it.farmId == farmId }
                 insights.load(farmId, filters?.from, filters?.to)
             }

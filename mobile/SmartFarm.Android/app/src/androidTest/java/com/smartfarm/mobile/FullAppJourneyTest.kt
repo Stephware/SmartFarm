@@ -79,6 +79,8 @@ class FullAppJourneyTest {
                         """[{"id":"crop","farmId":"farm","plotId":"plot","plotName":"North plot","cropTypeId":"type","cropTypeName":"Tomato","status":1,"plannedPlantingDate":"2026-10-01","actualPlantingDate":"2026-10-01","harvestUnit":"kg","wateringIntervalDays":2,"rowVersion":"version"}]"""
                     path == "/api/farms/farm/crop-cycles/crop/monitoring" ->
                         """{"farmId":"farm","cycleId":"crop","canRecord":true,"activities":${if (supplySent.get()) """[{"id":"44444444-4444-4444-8444-444444444444","activityType":2,"occurredAtUtc":"2026-11-14T01:00:00Z","recordedAtUtc":"2026-11-14T01:00:00Z","recordedByUserId":"$journeyUserId","notes":"Confirmed fertilizer after reconnect"}]""" else "[]"},"observations":[]}"""
+                    path == "/api/farms/farm/reports/harvests" ->
+                        """{"farmId":"farm","farmName":"Green Valley Farm","timeZoneId":"Asia/Manila","fromDate":null,"toDate":null,"validHarvestCount":1,"voidedHarvestCount":0,"unitTotals":[{"unit":"kg","quantity":${harvestTotal.get().toPlainString()},"harvestCount":1}]}"""
                     path == "/api/farms/farm/inventory" ->
                         """{"items":[{"id":"$supplyId","farmId":"farm","name":"Test fertilizer","category":2,"unit":"kg","quantityOnHand":${if (supplySent.get()) "6.750" else "8"},"isLowStock":false,"rowVersion":"AQIDBAUGBwg="}],"lowStockCount":0}"""
                     path == "/api/farms/farm/crop-cycles/crop/harvests" ->
@@ -220,6 +222,15 @@ class FullAppJourneyTest {
                 compose.onAllNodesWithTag("farm-bottom-navigation").fetchSemanticsNodes().isNotEmpty()
             }
             compose.onNodeWithText("My Farm").performClick()
+            compose.onNodeWithTag("record-list").performScrollToNode(hasText("Harvest summary"))
+            compose.onNodeWithText("Harvest summary").performClick()
+            compose.waitUntil(10_000) { compose.onAllNodesWithText("2.500 kg").fetchSemanticsNodes().isNotEmpty() }
+            compose.activityRule.scenario.recreate()
+            compose.waitUntil(10_000) {
+                compose.onAllNodesWithContentDescription("Switch farm: Green Valley Farm").fetchSemanticsNodes().isNotEmpty()
+            }
+            compose.onNodeWithText("Farm time zone unavailable. Only unfiltered reports can be shown.").assertDoesNotExist()
+            compose.onNodeWithText("Back").performScrollTo().performClick()
             compose.waitUntil(10_000) {
                 compose.onAllNodesWithText("Farm records").fetchSemanticsNodes().isNotEmpty()
             }

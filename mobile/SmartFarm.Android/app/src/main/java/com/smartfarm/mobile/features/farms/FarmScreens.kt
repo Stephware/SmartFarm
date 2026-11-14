@@ -34,7 +34,6 @@ import com.smartfarm.mobile.ui.components.FarmSectionCard
 import com.smartfarm.mobile.ui.components.FarmSectionHeader
 import com.smartfarm.mobile.ui.components.FarmStatusChip
 import com.smartfarm.mobile.ui.components.FarmStatusTone
-import com.smartfarm.mobile.ui.components.FarmPlotPreview
 import com.smartfarm.mobile.ui.components.FarmEmptyState
 import com.smartfarm.mobile.ui.components.RecordPage
 import androidx.compose.material3.Button
@@ -185,7 +184,6 @@ fun FarmListScreen(state: FarmUiState, onOpen: (String) -> Unit,
             OutlinedCard(onClick = { onOpen(farm.id) },
                 modifier = Modifier.fillMaxWidth().testTag("record-card")) {
                 Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
-                    FarmPlotPreview()
                     Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween,
                         verticalAlignment = Alignment.CenterVertically) {
                         Text(farm.name, style = MaterialTheme.typography.titleLarge,
@@ -339,9 +337,6 @@ fun FarmDetailScreen(state: FarmUiState, onBack: () -> Unit,
                     var plotFilter by rememberSaveable(farm.id) { mutableStateOf("") }
                     FarmSectionHeader("Growing plots",
                         "Choose a plot to view its crops. Edit one plot at a time.")
-                    Text("Plot previews are illustrations, not maps or real distances.",
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant)
                     if (canManage) {
                         Button(onClick = {
                             addingPlot = !addingPlot

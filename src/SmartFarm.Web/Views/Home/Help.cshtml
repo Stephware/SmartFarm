@@ -1,0 +1,20 @@
+@{ ViewData["Title"] = "Help"; }
+<partial name="_UiPageHeader" model='@(new UiPageHeader("Help", "Practical steps for accounts, farm access and field records."))' />
+<section class="panel" aria-labelledby="farm-help-heading">
+    <h2 id="farm-help-heading">Ask your farm owner</h2>
+    <p>For a join code, access approval, an assigned task or a stock conflict, contact your farm owner or manager. Only the owner can approve membership.</p>
+    <p>For sign-in or an app problem, contact the person or organization that provided your AniGo account or deployment. Never share your password or sign-in tokens.</p>
+</section>
+<section class="panel" aria-labelledby="offline-help-heading">
+    <h2 id="offline-help-heading">Check work saved on your phone</h2>
+    <p><strong>Saved on phone</strong> means your Android record is waiting for upload. Keep it on the phone and reconnect. <strong>Sending</strong> means an upload is in progress; <strong>Sent</strong> confirms acceptance. Confirmed records appear in crop history, supplies or harvests.</p>
+    <p>If a record <strong>Needs review</strong>, open Offline sync from My Farm. Check the rejection and current stock before retrying. Sign in again if requested; do not clear app storage or discard a record to fix a connection problem.</p>
+</section>
+@if (User.Identity?.IsAuthenticated == true)
+{
+    <section class="panel" aria-labelledby="help-records-heading">
+        <h2 id="help-records-heading">Existing records</h2>
+        <p><a asp-controller="Support" asp-action="History">Read your previous support requests</a>. This history is read-only; new tickets and replies are retired.</p>
+        <p><a asp-controller="Farms" asp-action="Index">Open your farms</a> for current crop, supply and harvest records.</p>
+    </section>
+}

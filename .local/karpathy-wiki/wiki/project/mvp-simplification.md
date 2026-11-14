@@ -1,10 +1,10 @@
 # Farmer-first MVP simplification — target state
 
 > Sources: approved MVP brief and SmartFarm dev source, 2026-11-13
-> Raw: [Stage 0 source and regression evidence](../../raw/project/2026-11-13-mvp-stage-0.md), [Stage 1 MVC evidence](../../raw/project/2026-11-13-mvp-stage-1.md), [Stage 2 Android evidence](../../raw/project/2026-11-13-mvp-stage-2.md), [Stage 3 recording evidence](../../raw/project/2026-11-13-mvp-stage-3.md), [CI test isolation](../../raw/project/2026-11-13-mvp-stage-3-ci.md), [Stage 4 offline evidence](../../raw/project/2026-11-14-mvp-stage-4.md)
+> Raw: [Stage 0 source and regression evidence](../../raw/project/2026-11-13-mvp-stage-0.md), [Stage 1 MVC evidence](../../raw/project/2026-11-13-mvp-stage-1.md), [Stage 2 Android evidence](../../raw/project/2026-11-13-mvp-stage-2.md), [Stage 3 recording evidence](../../raw/project/2026-11-13-mvp-stage-3.md), [CI test isolation](../../raw/project/2026-11-13-mvp-stage-3-ci.md), [Stage 4 offline evidence](../../raw/project/2026-11-14-mvp-stage-4.md); [MVP retirement](../../raw/project/2026-11-14-mvp-stage-5.md)
 > Updated: 2026-11-14
 
-**Stages 0–3 merged; Stage 4 implemented and locally verified.** Stage 3 PR #126 passed all seven checks and merged at `292dca8`. Recording, truthful offline confirmation and scoped display/cache refresh are implemented. Obsolete presentation retirement and release/farmer acceptance remain planned; check the stage PR for remote/merge status. No data or shared business-service functionality has been removed.
+**Stages 0–4 merged; Stage 5 implemented and locally verified.** PR #127 passed all seven checks and merged at `9c9adce`. Presentation retirement preserves data, security, compatibility APIs and required farmer workflows. Stage 6 release/farmer acceptance remains planned; the stage PR records remote gates.
 
 ## Why
 The existing SmartFarm/AniGo implements more features than the course MVP. Before this refactor MVC had nine primary farm links. MVC now has four and Android has three primary entries. Separate plot, timeline, finance, insight and support screens make the daily grower workflow hard to navigate. Simplify the **farmer-facing product**, not the essential transaction/offline architecture.
@@ -29,7 +29,7 @@ Roles: Owner/Manager manage farm setup, crops, tasks, stock setup and members su
 ## Stage 1 MVC behavior
 Today prioritizes authorized due work, saved crop concerns and timestamped weather; membership approval remains secondary owner-only Farm & team. Water/fertilizer task links preselect the exact eligible pending task; inspection and harvest links choose the correct crop, with short forms implemented in Stage 3. Inspection/harvest contracts do not carry task-fulfillment fields.
 
-Crops & Calendar contains all active plots, crop records and selected authorized history, including terminal cycles and private photo links. Native details/fragment navigation works without JavaScript. Supplies retains ledger and management safeguards. Harvests retains full filtered per-unit totals, bounded recent history, and both safe CSV exports; charts and finance links are removed from this page. Legacy plot/timeline routes still exist until Stage 5.
+Crops & Calendar contains all active plots, crop records and selected authorized history, including terminal cycles and private photo links. Native details/fragment navigation works without JavaScript. Supplies retains ledger and management safeguards. Harvests retains full filtered per-unit totals, bounded recent history, and both safe CSV exports; charts and finance links are removed from this page. Stage 5 replaces their standalone pages with redirects into this merged workspace.
 
 Local Stage 1 checks: solution build, 565 SQL-enabled .NET tests without skips, 60 Node tests, 104 live disposable-SQL variants and 220 Linux synthetic authenticated screens across roles/themes/mobile sizes; 30 public baselines unchanged. No overflow or reported axe violations. These checks do not establish real-farmer, device, provider/job or production acceptance.
 
@@ -50,12 +50,10 @@ Saved on phone / Sending / Sent / Needs review reflect actual queue/transfer/rec
 
 Verification: 67 JVM and 117 emulator tests, 578 strict SQL-enabled .NET tests and 62 Node tests passed without skips. Review's two Important issues were reproduced and fixed. Real native offline fertilizer/harvest records against new disposable SQL-backed resources stayed unconfirmed until automatic worker acceptance; final stock/task/history and 2.500 kg totals matched. Native themes and 320dp/1.6 text were inspected and filter wrapping corrected. The loopback emulator used a temporary validation setting, restored afterward; physical-network, TalkBack, live Worker/provider, production and farmer acceptance remain unverified. No API/Room/schema/business-service changes.
 
-## Retire only after auditing dependencies
-- Farm finance manual cash ledger/analytics from active product UI and code.
-- Dedicated plot layout and crop timeline routes after moving their useful content.
-- Analytics-only yield/cash comparisons, Android standalone insights and unused decorative crop artwork.
-- Public announcements and support-ticket UI; nonessential platform analytics. Preserve any existing records/audits and core admin MFA/diagnostics.
-- Do not delete database history or quietly change REST endpoints referenced by offline queues.
+## Stage 5 retirement and retention
+Legacy plot/timeline URLs now redirect into Crops with farm/cycle identity and the relevant fragment. Cash UI/CSV, public bulletins, new tickets/replies and platform analytics return protected 410 responses. Help replaces farmer entry points; author-scoped support history excludes internal notes, and MFA-gated admin support/announcement archives retain read-only records/audits. Native reports fetch harvests only; advanced charts, decorative crop art and unused presentation helpers are removed. Report filters/confirmed unit totals, harvest CSV and all storage/history remain. Same-account Activity recreation preserves farm context; account changes/logout still clear it.
+
+Finance API/shared services stay for installed/external compatibility. Mixed legacy CSS retains active shared styles. No Core/Infrastructure/API/Worker/database changes or data deletion. Verification: 577 strict SQL-enabled .NET, 64 JVM, 118 device and 62 Node tests pass without skips; 220 farm + 210 field-operation + 120 admin browser combinations and 24 live Help/history renders pass. Native light/dark and 320dp/1.6 text inspected; read-only admin-write and report-recreation regressions passed after failing first. The review's old empty-announcement draft wording is deferred. Production, physical-device, TalkBack, real-network/provider/Worker and farmer acceptance remain unverified.
 
 ## Code entry points
 Web: `Views/Shared/_FarmNavigation.cshtml`, `_Layout.cshtml`, `Views/Dashboard`, `Views/Crops`, `Views/Monitoring`, `Views/Inventory`, `Views/Reports`, `Views/Farms`, controllers and shared services.

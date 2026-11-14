@@ -1,6 +1,6 @@
 # Implement AniGo farmer-first MVP simplification
 
-**Status: Stages 0–3 merged; Stage 4 implemented and locally verified. Stage 5 next after Stage 4 checks/merge.** Baseline: `dev` from 2026-11-13 (`29c55166`). Keep each stage as a separately reviewable PR into `dev`, with tests before merge. The goal is fewer screens, **not** wholesale deletion of working infrastructure. Read [PRODUCT.md](../../../PRODUCT.md) and [AGENTS.md](../../../AGENTS.md) first.
+**Status: Stages 0–4 merged; Stage 5 implemented and locally verified. Stage 6 acceptance next after Stage 5 checks/merge.** Baseline: `dev` from 2026-11-13 (`29c55166`). Keep each stage as a separately reviewable PR into `dev`, with tests before merge. The goal is fewer screens, **not** wholesale deletion of working infrastructure. Read [PRODUCT.md](../../../PRODUCT.md) and [AGENTS.md](../../../AGENTS.md) first.
 
 ## Scope and decision rules
 - MVC four primary farm destinations: Today, Crops & Calendar, Supplies, Harvests. Farm/Team and Account secondary.
@@ -102,6 +102,12 @@ Verified: Android build, 67 JVM and 117 emulator tests without skips; 578 strict
 - Remove related stale links, tests that assert removed UI, assets and dead code; replace with MVP behavior tests rather than weakening coverage.
 - **No destructive database SQL** in this stage. Any proposed schema contraction is separate, backed up, explicitly approved and forward-only.
 
+### Stage 5 evidence
+
+Stage 4 PR #127 merged at `9c9adce` with all seven checks green. Legacy plot/timeline URLs redirect into Crops. Cash/bulletin/new-ticket/analytics tools return protected 410 responses; Help and author-scoped/MFA-gated read-only histories retain records. Android fetches harvest reports only; chart/art/unused UI code is removed. Finance API/shared services, all schemas/data, harvest CSV, private photos, offline contracts, Worker/weather and security remain. Report recreation restores farm context and large-text counters stay readable.
+
+Verified: 577 strict disposable-SQL .NET, 64 JVM, 118 device and 62 Node tests without skips; 220 farm + 210 field-operation + 120 admin browser combinations; 24 live Help/history renders and native themes/320dp/1.6 text. Review's writable admin archive was fixed RED→GREEN. Old empty-announcement draft wording is a deferred Minor. Existing 100-row support list bound and mixed shared CSS remain. Stage 6 covers physical/TalkBack/real-network/farmer/production/provider/Worker acceptance. [Dated evidence](../../../.local/karpathy-wiki/raw/project/2026-11-14-mvp-stage-5.md); stage PR records remote gates.
+
 ## Stage 6 — release acceptance
 - Demonstrate owner setup → plot → plan/start active crop → reminder → water → inspect/photo → fertilizer/stock → multiple harvests → accurate report; repeat Android offline/reconnect.
 - Validate Owner/Manager/Field Worker boundaries; no unauthorized farm joins; one active crop per plot; no negative stock; no wrong-unit totals; server-confirmed vs pending counts never confused.
@@ -117,5 +123,5 @@ Read only AGENTS/PRODUCT/this plan and relevant code for the current stage. Do n
 - [x] Stage 2 — Android three-destination navigation implemented/tested; PR #125 merged after all seven CI checks passed
 - [x] Stage 3 — short record flows verified; PR #126 merged after all seven checks passed
 - [x] Stage 4 — offline confirmation/refresh verified; Worker/weather automated checks retained; stage PR records CI/merge status
-- [ ] Stage 5 — obsolete UI/code retired without lost data
+- [x] Stage 5 — non-MVP presentation retired; records/contracts retained; local verification complete, stage PR records remote gates
 - [ ] Stage 6 — end-to-end and farmer usability checks documented

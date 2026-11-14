@@ -25,7 +25,6 @@ import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.foundation.lazy.items
 import com.smartfarm.mobile.ui.components.RecordPage
 import com.smartfarm.mobile.ui.components.FarmHero
-import com.smartfarm.mobile.ui.components.CropArtworkImage
 import com.smartfarm.mobile.ui.components.FarmSectionCard
 import com.smartfarm.mobile.ui.components.FarmSectionHeader
 import com.smartfarm.mobile.ui.components.FarmStatusChip
@@ -184,11 +183,6 @@ fun CropScreen(
                         Row(Modifier.fillMaxWidth().padding(12.dp),
                             horizontalArrangement = Arrangement.spacedBy(12.dp),
                             verticalAlignment = Alignment.CenterVertically) {
-                            Surface(shape = MaterialTheme.shapes.medium,
-                                color = MaterialTheme.colorScheme.primaryContainer) {
-                                CropArtworkImage(cycle.cropTypeName,
-                                    Modifier.padding(6.dp).size(70.dp))
-                            }
                             Column(Modifier.weight(1f),
                                 verticalArrangement = Arrangement.spacedBy(5.dp)) {
                                 Text(cycle.cropTypeName, style = MaterialTheme.typography.titleMedium)
@@ -300,7 +294,6 @@ fun CropScreen(
                 FarmSectionCard(type.name, subtitle = "Harvest unit: ${type.defaultHarvestUnit}") {
                     Row(verticalAlignment = Alignment.CenterVertically,
                         horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                        CropArtworkImage(type.name, Modifier.size(64.dp))
                         type.defaultGrowthDays?.let { Text("Typical growth: $it days") }
                     }
                 }
@@ -356,7 +349,6 @@ private fun CycleCard(
     FarmSectionCard("${cycle.cropTypeName} · ${cycle.plotName}",
         subtitle = "Planned planting: ${cycle.plannedPlantingDate}") {
     Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-        CropArtworkImage(cycle.cropTypeName, Modifier.size(92.dp))
         Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(7.dp)) {
             FarmStatusChip(cycle.statusName, when (cycle.status) {
                 0 -> FarmStatusTone.Planned
