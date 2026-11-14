@@ -255,8 +255,14 @@ class FullAppJourneyTest {
                 compose.onAllNodesWithContentDescription("Switch farm: Green Valley Farm").fetchSemanticsNodes().isNotEmpty()
             }
             compose.onNodeWithText("Record").performClick()
-            compose.onNodeWithText("What did you do on the farm?").assertExists()
-            androidx.test.uiautomator.UiDevice.getInstance(androidx.test.platform.app.InstrumentationRegistry.getInstrumentation()).pressBack()
+            compose.onNodeWithText("What did you do on the farm?").assertIsDisplayed()
+            val device = androidx.test.uiautomator.UiDevice.getInstance(
+                androidx.test.platform.app.InstrumentationRegistry.getInstrumentation())
+            device.waitForIdle()
+            device.pressBack()
+            compose.waitUntil(10_000) {
+                compose.onAllNodesWithText("What did you do on the farm?").fetchSemanticsNodes().isEmpty()
+            }
             compose.onNodeWithText("What did you do on the farm?").assertDoesNotExist()
             compose.onNodeWithText("My Farm").performClick()
             compose.onNodeWithTag("record-list").performScrollToNode(hasText("My account"))

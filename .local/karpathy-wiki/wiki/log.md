@@ -188,3 +188,8 @@ Three native primary entries and a simpler existing Record sheet; My Farm groups
 - Disposition: Update
 - Raw: raw/project/2026-11-14-mvp-stage-6.md
 - Updated: Farmer-first MVP simplification; Current project progress; Current source status and publication scope
+
+## [2026-11-14] ingest | MVP Stage 6 Android CI synchronization
+- Disposition: Update
+- Raw: raw/project/2026-11-14-mvp-stage-6-ci.md
+- Updated: Farmer-first MVP simplification
