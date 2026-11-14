@@ -177,3 +177,9 @@ Three native primary entries and a simpler existing Record sheet; My Farm groups
 - Updated: MVP simplification; Android; finance/reports; frontend; progress
 - Recorded read-only archives, compatibility/retention boundaries, review fix and current verification limits.
 - Updated: current source status; features (legacy UI status overridden by Stage 5 evidence).
+
+## [2026-11-14] ingest | MVP Stage 5 public baseline review
+- Disposition: Update
+- Raw: raw/project/2026-11-14-mvp-stage-5-ci.md
+- Updated: MVP simplification
+- Same-browser public equivalence verified; Linux golden files/threshold unchanged; remote gates remain required.

@@ -1887,6 +1887,27 @@
         "tests/SmartFarm.Auth.Tests/CropArtworkTests.cs",
         "tests/SmartFarm.Auth.Tests/FinanceInsightsCsvTests.cs"
       ]
+    },
+    {
+      "date": "2026-11-14",
+      "revision": "85751e579c8c4333fb9c6c681b9a710aa5094266 + baseline review metadata/CI guard",
+      "snapshot": "raw/project/2026-11-14-mvp-stage-5-ci.md",
+      "sha256": "e0f9d6f42da87ee78cb354d48e9bbe0cfdaac1fcea1a0100c2494b8bc506e2b0",
+      "scope": "Public base/candidate review and read-only CI metadata integrity; no app/golden/threshold changes. Final checks tracked in PR128.",
+      "source_files": [
+        {
+          "path": "tests/browser/baselines/review.json",
+          "sha256": "be3cf03d0dae935c8b778f1f200bea9094f4b6a235477d4a3c80e26af34d1a27"
+        },
+        {
+          "path": ".github/workflows/verify-smartfarm.yml",
+          "sha256": "839ce2757e086f04faaa9b8975f5f509200dad056d74b0f98540813ebdbb56ca"
+        },
+        {
+          "path": "tests/browser/visual-parity.cjs",
+          "sha256": "0c1a849b780053ca2e2a868f067573aae9ebcf22f6705d61089f33e859312386"
+        }
+      ]
     }
   ]
 }
