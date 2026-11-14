@@ -4,13 +4,5 @@ using SmartFarm.Core.Contracts.Reports;
 
 namespace SmartFarm.Web.ViewModels.Reports;
 
-public sealed record HarvestReportPage(
-    HarvestReport Report, IReadOnlyList<PlotDetails> Plots,
-    IReadOnlyList<CropTypeDetails> CropTypes)
-{
-    public IReadOnlyList<HarvestChart> CycleCharts =>
-        HarvestAnalyticsBuilder.CropCycles(Report, Plots);
-    public IReadOnlyList<HarvestChart> MonthlyCharts => HarvestAnalyticsBuilder.Monthly(Report);
-    public IReadOnlyList<HarvestChart> CropPlotCharts => HarvestAnalyticsBuilder.CropAndPlot(Report, Plots);
-}
-
+public sealed record HarvestReportPage(HarvestReport Report,
+    IReadOnlyList<PlotDetails> Plots, IReadOnlyList<CropTypeDetails> CropTypes);

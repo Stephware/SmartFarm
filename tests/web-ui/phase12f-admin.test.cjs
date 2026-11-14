@@ -23,7 +23,7 @@ test("Super Admin reuses the AniGo design tokens and no second CSS reset", () =>
 });
 test("Super Admin routes remain visible on desktop and mobile with active state", () => {
     for (const controller of ["Dashboard", "Users", "Farms", "Support", "Monitoring",
-        "Audit", "Announcements", "Reports", "Security"]) {
+        "Audit", "Announcements", "Security"]) {
         assert.ok(layout.includes('asp-area="Admin" asp-controller="' + controller + '"'),
             controller + " navigation");
         assert.ok(layout.includes('section == "' + controller + '" ? "page" : null'),
@@ -45,7 +45,7 @@ test("Administrative controls preserve auditing, MFA and explicit confirmations"
     const users = read("Areas/Admin/Views/Users/Details.cshtml");
     const farms = read("Areas/Admin/Views/Farms/Details.cshtml");
     const support = read("Areas/Admin/Views/Support/Details.cshtml");
-    const announcements = read("Areas/Admin/Views/Announcements/Editor.cshtml");
+    const announcements = read("Areas/Admin/Views/Announcements/Details.cshtml");
     const audit = read("Areas/Admin/Views/Audit/Index.cshtml");
     const monitoring = read("Areas/Admin/Views/Monitoring/Index.cshtml");
     for (const page of [users, farms]) {
@@ -55,8 +55,11 @@ test("Administrative controls preserve auditing, MFA and explicit confirmations"
         assert.match(page, /asp-controller="Audit"/);
     }
     assert.match(support, /admin-support-message-internal/);
-    assert.match(support, /Internal note \(not visible to requester\)/);
-    assert.match(announcements, /asp-validation-summary/);
+    assert.match(support, /Internal only/);
+    assert.match(support, /Read-only history/);
+    assert.doesNotMatch(support, /asp-action="(?:Reply|ChangeStatus)"/);
+    assert.match(announcements, /history is read-only|Retained history only/);
+    assert.doesNotMatch(announcements, /asp-action="(?:Publish|Edit|Archive)"/);
     assert.match(audit, /This history is read-only/);
     assert.match(monitoring, /Failed jobs are not retried here/);
     assert.match(styles, /min-height:\s*44px/);
@@ -72,9 +75,6 @@ test("Directory filters and pagination remain semantic and readable", () => {
         assert.match(html, /asp-route-page=/);
         assert.match(html, /<label for=/);
     }
-    const reports = read("Areas/Admin/Views/Reports/Index.cshtml");
-    assert.match(reports, /role="region" tabindex="0" aria-label="Daily platform report data"/);
-    assert.match(reports, /scope="col"/);
-    assert.match(reports, /Export CSV/);
+    assert.doesNotMatch(layout, /asp-controller="Reports"/);
     assert.match(styles, /overflow-x:\s*auto/);
 });

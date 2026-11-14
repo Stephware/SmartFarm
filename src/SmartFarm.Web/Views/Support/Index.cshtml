@@ -1,14 +1,14 @@
 @model SmartFarm.Web.ViewModels.Support.SupportListPage
 @{
-    ViewData["Title"] = "My support requests";
+    ViewData["Title"] = "Previous support requests";
 }
-<partial name="_UiPageHeader" model='@(new UiPageHeader("My support requests", "Report an app or farm-management issue and see responses from the AniGo team. This is separate from your farm’s task assignments.", "New request", Url.Action("Create", "Support")))' />
+<partial name="_UiPageHeader" model='@(new UiPageHeader("Previous support requests", "Read-only history. New requests and replies are retired; use Help for next steps."))' />
+<a asp-controller="Home" asp-action="Help">Help</a>
 @if (TempData["Message"] is string message) { <p class="form-notice" role="status">@message</p> }
 <section class="panel admin-directory-panel" aria-label="My requests">
     @if (Model.Tickets.Count == 0)
     {
-        <div class="admin-empty"><h2>No requests yet</h2><p>Need help with an account, farm, or mobile sync issue? Describe it in a request so the support team can reply here.</p>
-            <a class="button" asp-area="" asp-controller="Support" asp-action="Create">Get support</a></div>
+        <p class="admin-empty">No previous requests.</p>
     }
     else
     {

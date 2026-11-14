@@ -1,14 +1,14 @@
 # Android and offline synchronization
 
 > Sources: SmartFarm Android and API source review
-> Raw: [Android sources](../../raw/project/2026-10-27-android-source.md); [Feature sources](../../raw/project/2026-10-27-features-source.md); [Functional E2E evidence](../../raw/project/2026-10-27-functional-e2e.md); [PR48 fix and merge](../../raw/project/2026-10-28-pr48-fix-and-merge.md); [Current documentation audit](../../raw/project/2026-11-11-documentation-audit.md); [Current Android sources](../../raw/project/2026-11-11-android-current.md); [Reference frontend merge](../../raw/project/2026-11-11-reference-frontend-merge.md); [Publication source check](../../raw/project/2026-11-12-documentation-publication.md); [MVP Android navigation](../../raw/project/2026-11-13-mvp-stage-2.md); [MVP recording](../../raw/project/2026-11-13-mvp-stage-3.md); [MVP offline confirmation](../../raw/project/2026-11-14-mvp-stage-4.md)
+> Raw: [Android sources](../../raw/project/2026-10-27-android-source.md); [Feature sources](../../raw/project/2026-10-27-features-source.md); [Functional E2E evidence](../../raw/project/2026-10-27-functional-e2e.md); [PR48 fix and merge](../../raw/project/2026-10-28-pr48-fix-and-merge.md); [Current documentation audit](../../raw/project/2026-11-11-documentation-audit.md); [Current Android sources](../../raw/project/2026-11-11-android-current.md); [Reference frontend merge](../../raw/project/2026-11-11-reference-frontend-merge.md); [Publication source check](../../raw/project/2026-11-12-documentation-publication.md); [MVP Android navigation](../../raw/project/2026-11-13-mvp-stage-2.md); [MVP recording](../../raw/project/2026-11-13-mvp-stage-3.md); [MVP offline confirmation](../../raw/project/2026-11-14-mvp-stage-4.md); [MVP retirement](../../raw/project/2026-11-14-mvp-stage-5.md)
 > Updated: 2026-11-14
 
 **Source scope:** Earlier detailed audit/acceptance is dated below. For source
 changes through `dev` at `3c5a8b0`, see [current source status](current-source-status.md),
 which supersedes conflicting baseline UI, admin, CI and schema statements.
 
-**Current MVP:** Today / Record / My Farm and short forms are implemented; Stage 4 adds automatic confirmation/refresh and exception recovery. Older five-tab UI descriptions below are historical. See [MVP status](mvp-simplification.md). Room/WorkManager, receipts and conflict/photo/session safeguards remain.
+**Current MVP:** Today / Record / My Farm, short forms and automatic scoped confirmation are implemented. Stage 5 removes hidden finance fetches, advanced report charts and decorative crop art; the summary retains confirmed per-unit harvests. Same-account recreation preserves the farm header/time zone/switcher; account changes/logout clear context. Older five-tab/combined-insight descriptions below are historical. See [MVP status](mvp-simplification.md). Room/WorkManager and receipt/photo/conflict/session guards remain.
 
 ## Display name
 

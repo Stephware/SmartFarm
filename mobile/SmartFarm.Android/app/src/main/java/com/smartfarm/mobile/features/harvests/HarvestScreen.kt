@@ -31,7 +31,6 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import com.smartfarm.mobile.data.local.entity.PendingOperation
-import com.smartfarm.mobile.ui.components.CropArtworkImage
 import com.smartfarm.mobile.ui.components.FarmEmptyState
 import com.smartfarm.mobile.ui.components.FarmHero
 import com.smartfarm.mobile.ui.components.FarmSectionCard
@@ -110,7 +109,6 @@ fun HarvestScreen(
                 if (overview != null) {
                     Row(Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                        CropArtworkImage(overview.cropName, Modifier.size(64.dp))
                         Column(Modifier.weight(1f)) {
                             Text(overview.cropName, style = MaterialTheme.typography.titleLarge)
                             Text(overview.plotName, style = MaterialTheme.typography.bodyMedium,

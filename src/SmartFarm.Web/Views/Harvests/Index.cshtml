@@ -19,8 +19,6 @@
         </div>
         <div class="ani-harvest-identity ani12e-harvest-actions">
             @if (overview.CanRecord) { <a class="button" href="#record-harvest">Record harvest</a> }
-            <img src="@Url.Content("~/images/crops/" + CropArtwork.FileName(cycle.CropTypeName))"
-                 width="120" height="120" alt="" />
             <a class="sf-button-outline" asp-controller="Monitoring" asp-action="Index"
                asp-route-farmId="@cycle.FarmId" asp-route-cycleId="@cycle.Id">Crop fieldwork</a>
             <a class="sf-button-outline" asp-controller="Reports" asp-action="Harvests" asp-route-farmId="@cycle.FarmId">Farm-wide report</a>

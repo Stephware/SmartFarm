@@ -52,13 +52,6 @@ fun WelcomeScreen(
                         Text("Your farms, fieldwork and harvests—organized in one place.",
                             style = MaterialTheme.typography.bodyLarge,
                             color = MaterialTheme.colorScheme.onPrimary)
-                        Row(Modifier.fillMaxWidth(),
-                            verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.SpaceEvenly) {
-                            CropArtworkImage("Tomato", Modifier.weight(1f).padding(5.dp))
-                            CropArtworkImage("Rice", Modifier.weight(1f).padding(5.dp))
-                            CropArtworkImage("Eggplant", Modifier.weight(1f).padding(5.dp))
-                        }
                         Text("Plan crops · Record fieldwork · Track harvests",
                             color = MaterialTheme.colorScheme.onPrimary,
                             style = MaterialTheme.typography.bodyMedium)

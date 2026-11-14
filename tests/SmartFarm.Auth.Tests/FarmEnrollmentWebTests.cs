@@ -33,6 +33,69 @@ namespace SmartFarm.Auth.Tests;
 
 public sealed class FarmEnrollmentWebTests
 {
+    [Theory]
+    [InlineData("/FarmFinance/Record")]
+    [InlineData("/FarmFinance/Void")]
+    [InlineData("/support/new")]
+    [InlineData("/support/00000000-0000-0000-0000-000000000001/reply")]
+    public async Task MvpRetiredWritesKeepCsrfAndNeverSaveRecords(string path)
+    {
+        using var app = App("Owner");
+        using var client = app.CreateClient(new() { AllowAutoRedirect = false });
+        var html = await client.GetStringAsync("/Farms");
+        using var withoutCsrf = await client.PostAsync(path, new FormUrlEncodedContent([]));
+        Assert.Equal(HttpStatusCode.BadRequest, withoutCsrf.StatusCode);
+        using var retired = await client.PostAsync(path, Form(html));
+        Assert.Equal(HttpStatusCode.Gone, retired.StatusCode);
+    }
+
+    [Theory]
+    [InlineData("PlotLayout", "farm-plots")]
+    [InlineData("CropTimeline", "crop-history")]
+    public async Task MvpLegacyCropRoutesRedirectToMergedWorkspace(string controller, string fragment)
+    {
+        using var app = App("Owner");
+        using var client = app.CreateClient(new() { AllowAutoRedirect = false });
+        var cycle = Guid.NewGuid();
+        using var response = await client.GetAsync($"/{controller}?farmId={FarmId}&cycleId={cycle}");
+        Assert.Equal(HttpStatusCode.Redirect, response.StatusCode);
+        var target = response.Headers.Location!.ToString();
+        Assert.StartsWith("/Crops?", target);
+        Assert.Contains($"farmId={FarmId}", target);
+        Assert.EndsWith("#" + fragment, target);
+        if (controller == "CropTimeline") Assert.Contains($"cycleId={cycle}", target);
+    }
+
+    [Theory]
+    [InlineData("/FarmFinance")]
+    [InlineData("/FarmFinance/ExportInsightsCsv")]
+    [InlineData("/announcements")]
+    [InlineData("/announcements/00000000-0000-0000-0000-000000000001")]
+    [InlineData("/support/new")]
+    public async Task MvpRetiredProductRoutesAreGoneWithoutReadingBusinessData(string route)
+    {
+        using var app = App("Owner");
+        using var client = app.CreateClient(new() { AllowAutoRedirect = false });
+        using var response = await client.GetAsync(route + $"?farmId={FarmId}");
+        Assert.Equal(HttpStatusCode.Gone, response.StatusCode);
+    }
+
+    [Fact]
+    public async Task MvpHelpReplacesTicketCreationAndPublicNewsInAccountNavigation()
+    {
+        using var app = App("FieldWorker");
+        using var client = app.CreateClient(new() { AllowAutoRedirect = false });
+        using var oldHelp = await client.GetAsync("/support");
+        Assert.Equal(HttpStatusCode.Redirect, oldHelp.StatusCode);
+        Assert.Equal("/Home/Help", oldHelp.Headers.Location?.ToString());
+        var html = await client.GetStringAsync("/Home/Help");
+        Assert.Contains("Ask your farm owner", html);
+        Assert.Contains("Saved on phone", html);
+        Assert.Contains("/support/history", html);
+        Assert.DoesNotContain("href=\"/announcements", html);
+        Assert.DoesNotContain("href=\"/support/new", html);
+    }
+
     private static readonly Guid Actor = Guid.NewGuid(), FarmId = Guid.NewGuid(), RequestId = Guid.NewGuid();
     private static readonly FarmJoinRequestDetails Pending = new(RequestId, FarmId, "Green Farm", Guid.NewGuid(),
         "New Farmer", "applicant@example.test", "Pending", DateTime.UtcNow, null);
@@ -361,23 +424,22 @@ public sealed class FarmEnrollmentWebTests
         using var client = app.CreateClient();
         var html = await client.GetStringAsync($"/PlotLayout?farmId={FarmId}");
         Assert.Contains("Farm plots", html);
-        Assert.Contains("Plot directory, not a map.", html);
+        Assert.Contains("id=\"farm-plots\"", html);
         Assert.Contains("Growing", html);
         Assert.Contains("North field", html);
         Assert.Contains("South field", html);
         Assert.Contains("View crop details", html);
-        Assert.Contains("plotId=" + emptyPlot, html);
-        Assert.Contains(canManage ? "planting-plans-heading" : "ani-current-heading", html);
         Assert.Contains(planted.Id.ToString(), html);
         if (canManage)
         {
             Assert.Contains("Add plot", html);
-            Assert.Contains("Plan a crop", html);
+            Assert.Contains("Plan for this plot", html);
+            Assert.Contains("plotId=" + emptyPlot, html);
         }
         else
         {
             Assert.DoesNotContain(">Add plot</a>", html);
-            Assert.Contains("View planting plans", html);
+            Assert.DoesNotContain("Plan for this plot", html);
         }
     }
 
@@ -389,16 +451,16 @@ public sealed class FarmEnrollmentWebTests
             using var app = App(role);
             using var client = app.CreateClient();
             var html = await client.GetStringAsync($"/PlotLayout?farmId={FarmId}");
-            Assert.Contains("No active plots yet", html);
+            Assert.Contains("No plots yet.", html);
             if (role == "Owner")
             {
-                Assert.Contains("Add your first plot", html);
+                Assert.Contains("Add a plot", html);
                 Assert.Contains("add-plot", html);
             }
             else
             {
-                Assert.DoesNotContain("Add your first plot", html);
-                Assert.Contains("farm owner or manager can add plots", html);
+                Assert.DoesNotContain(">Add plot</a>", html);
+                Assert.Contains("Your owner or manager can add growing areas.", html);
             }
         }
     }
@@ -947,41 +1009,16 @@ public sealed class FarmEnrollmentWebTests
     }
 
     [Theory]
-    [InlineData("Owner", true)]
-    [InlineData("Manager", true)]
-    [InlineData("FieldWorker", false)]
-    public async Task FarmFinanceShowsManualCashButOnlyManagersCanAddEntries(string role, bool canManage)
+    [InlineData("Owner")]
+    [InlineData("Manager")]
+    [InlineData("FieldWorker")]
+    public async Task CashUiIsRetiredForEveryFarmRole(string role)
     {
-        var entry = new FarmFinanceEntryDetails(Guid.NewGuid(), FarmId, null,
-            new DateOnly(2026, 10, 20), "Income", "Crop sale", 1000m, null,
-            DateTime.UtcNow, false, null);
-        var overview = new FarmFinanceOverview(FarmId, 300m, 1000m, 700m, [entry]);
-        var insights = new FarmFinanceInsights(FarmId, new DateOnly(2026, 10, 1),
-            new DateOnly(2026, 10, 31), 1000m, 300m, 700m, 2, [], [], []);
-        using var app = App(role, financeOverview: overview, financeInsights: insights);
-        using var client = app.CreateClient();
-        var html = await client.GetStringAsync($"/FarmFinance?farmId={FarmId}&from=2026-10-01&to=2026-10-31");
-        Assert.Contains("₱1,000.00", html);
-        Assert.Contains("₱300.00", html);
-        Assert.Contains("₱700.00", html);
-        Assert.Contains("A harvest is not automatically a sale", html);
-        Assert.Contains("Crop sale", html);
-        Assert.Contains("Date filters applied", html);
-        Assert.Contains("finance-advanced", html);
-        Assert.True(html.IndexOf("id=\"finance-history-heading\"", StringComparison.Ordinal) <
-                    html.IndexOf("id=\"finance-advanced\"", StringComparison.Ordinal));
-        if (canManage)
-        {
-            Assert.Contains("id=\"add-finance-entry\"", html);
-            Assert.Contains("Save cash entry", html);
-            Assert.True(html.IndexOf("id=\"add-finance-entry\"", StringComparison.Ordinal) <
-                        html.IndexOf("id=\"finance-history-heading\"", StringComparison.Ordinal));
-        }
-        else
-        {
-            Assert.DoesNotContain("id=\"add-finance-entry\"", html);
-            Assert.DoesNotContain("Save cash entry", html);
-        }
+        using var app = App(role);
+        using var client = app.CreateClient(new() { AllowAutoRedirect = false });
+        using var response = await client.GetAsync($"/FarmFinance?farmId={FarmId}");
+        Assert.Equal(HttpStatusCode.Gone, response.StatusCode);
+        Assert.Contains("retired", await response.Content.ReadAsStringAsync());
     }
 
     [Theory]
@@ -1092,7 +1129,6 @@ public sealed class FarmEnrollmentWebTests
         {
             $"/Dashboard?farmId={FarmId}",
             $"/Farms/Details?id={FarmId}",
-            $"/PlotLayout?farmId={FarmId}",
             $"/Crops?farmId={FarmId}",
             $"/Monitoring?farmId={FarmId}&cycleId={cycleId}",
             $"/Harvests?farmId={FarmId}&cycleId={cycleId}",
@@ -1100,7 +1136,7 @@ public sealed class FarmEnrollmentWebTests
             $"/Inventory?farmId={FarmId}",
             $"/Weather?farmId={FarmId}",
             $"/Reports/Harvests?farmId={FarmId}",
-            $"/FarmFinance?farmId={FarmId}"
+            $"/Crops?farmId={FarmId}#farm-plots"
         })
         {
             using var response = await client.GetAsync(url);
@@ -1598,11 +1634,11 @@ public sealed class FarmEnrollmentWebTests
             cropTypes: [new(cropTypeId, "Tomato", 90, 4, "kg")]);
         using var client = app.CreateClient(new() { AllowAutoRedirect = false });
         var farmHtml = await client.GetStringAsync($"/Farms/Details?id={FarmId}");
-        var plotHtml = await client.GetStringAsync($"/PlotLayout?farmId={FarmId}");
+        var plotHtml = await client.GetStringAsync($"/Crops?farmId={FarmId}#farm-plots");
         var cropHtml = await client.GetStringAsync($"/Crops?farmId={FarmId}&month=2026-10");
         Assert.Contains("ani12d-farm-workspace", farmHtml);
         Assert.Contains("ani12d-farm-summary", farmHtml);
-        Assert.Contains("Plot directory, not a map.", plotHtml);
+        Assert.Contains("id=\"farm-plots\"", plotHtml);
         Assert.Contains("North field", plotHtml);
         Assert.Contains("ani12d-calendar", cropHtml);
         Assert.True(cropHtml.Contains("ani12d-agenda-details") ||
@@ -1667,7 +1703,7 @@ public sealed class FarmEnrollmentWebTests
         using (var owner = App("Owner", plots: plots, cycles: [active, planned], cropTypes: types, monitoring: monitoring, harvest: harvest))
         {
             await Capture(owner, "12d-farm-owner", $"/Farms/Details?id={FarmId}");
-            await Capture(owner, "12d-plots-owner", $"/PlotLayout?farmId={FarmId}");
+            await Capture(owner, "12d-plots-owner", $"/Crops?farmId={FarmId}#farm-plots");
             await Capture(owner, "12d-crops-owner", $"/Crops?farmId={FarmId}&month=2026-11");
             await Capture(owner, "mvp-crop-history-owner", $"/Crops?farmId={FarmId}&cycleId={active.Id}&month=2026-11");
             await Capture(owner, "12d-edit-plot", $"/Farms/EditPlot?id={FarmId}&plotId={north}");
@@ -1675,7 +1711,7 @@ public sealed class FarmEnrollmentWebTests
         }
         using (var worker = App("FieldWorker", plots: plots, cycles: [active, planned], cropTypes: types, monitoring: monitoring, harvest: harvest))
         {
-            await Capture(worker, "12d-plots-worker", $"/PlotLayout?farmId={FarmId}");
+            await Capture(worker, "12d-plots-worker", $"/Crops?farmId={FarmId}#farm-plots");
             await Capture(worker, "12d-crops-worker", $"/Crops?farmId={FarmId}&month=2026-11");
             await Capture(worker, "mvp-crop-history-worker", $"/Crops?farmId={FarmId}&cycleId={active.Id}&month=2026-11");
         }

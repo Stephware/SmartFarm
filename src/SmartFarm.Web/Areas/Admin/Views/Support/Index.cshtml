@@ -1,15 +1,15 @@
 @model SmartFarm.Web.ViewModels.Support.AdminSupportListPage
 @{
-    ViewData["Title"] = "Support";
+    ViewData["Title"] = "Support history";
 }
 <div class="page-heading admin-page-heading">
-    <div><p class="sf-kicker">PLATFORM SUPPORT</p><h1>Support requests</h1>
+    <div><h1>Support history</h1>
         <p class="sf-muted">Review user issues, prioritize cases, and respond in one place.</p></div>
 </div>
 <section class="admin-stats" aria-label="Support totals">
-    <a class="admin-stat panel" asp-area="Admin" asp-controller="Support" asp-action="Index" asp-route-status="Open"><span>Open</span><strong>@Model.OpenCount</strong><small>Waiting for review</small></a>
-    <a class="admin-stat panel" asp-area="Admin" asp-controller="Support" asp-action="Index" asp-route-status="InProgress"><span>In progress</span><strong>@Model.InProgressCount</strong><small>Being handled</small></a>
-    <a class="admin-stat panel" asp-area="Admin" asp-controller="Support" asp-action="Index" asp-route-status="Resolved"><span>Resolved</span><strong>@Model.ResolvedCount</strong><small>Awaiting closure</small></a>
+    <a class="admin-stat panel" asp-area="Admin" asp-controller="Support" asp-action="Index" asp-route-status="Open"><span>Open</span><strong>@Model.OpenCount</strong><small>Retained open status</small></a>
+    <a class="admin-stat panel" asp-area="Admin" asp-controller="Support" asp-action="Index" asp-route-status="InProgress"><span>In progress</span><strong>@Model.InProgressCount</strong><small>Retained in-progress status</small></a>
+    <a class="admin-stat panel" asp-area="Admin" asp-controller="Support" asp-action="Index" asp-route-status="Resolved"><span>Resolved</span><strong>@Model.ResolvedCount</strong><small>Retained resolved status</small></a>
 </section>
 <section class="panel admin-directory-panel" aria-label="Support queue">
     <form class="admin-filters" method="get" asp-area="Admin" asp-controller="Support" asp-action="Index">

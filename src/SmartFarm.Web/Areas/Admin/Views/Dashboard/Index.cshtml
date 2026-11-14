@@ -40,7 +40,7 @@
         </div>
         <nav class="ani12c-admin-priority-list" aria-label="Administrative review links">
             <a asp-area="Admin" asp-controller="Support" asp-action="Index">
-                <strong>Support requests</strong><span>@Model.PendingSupport unresolved</span>
+                <strong>Support history</strong><span>@Model.PendingSupport previously unresolved</span>
             </a>
             <a asp-area="Admin" asp-controller="Users" asp-action="Index" asp-route-status="disabled">
                 <strong>Disabled accounts</strong><span>@Model.DisabledUsers accounts</span>
@@ -105,11 +105,8 @@
         <a class="panel admin-shortcut" asp-area="Admin" asp-controller="Users" asp-action="Index">
             <strong>User directory</strong><span>Search accounts and review access.</span>
         </a>
-        <a class="panel admin-shortcut" asp-area="Admin" asp-controller="Reports" asp-action="Index">
-            <strong>Platform reports</strong><span>Review aggregate recorded farm activity.</span>
-        </a>
         <a class="panel admin-shortcut" asp-area="Admin" asp-controller="Announcements" asp-action="Index">
-            <strong>Announcements</strong><span>Publish and manage platform updates.</span>
+            <strong>Announcement history</strong><span>Read retained notices and their audit history.</span>
         </a>
     </div>
     <p class="sf-muted">Platform totals include @Model.ActivePlots active plots. No private farm activity or location coordinates are shown here.</p>

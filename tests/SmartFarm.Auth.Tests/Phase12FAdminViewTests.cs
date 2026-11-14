@@ -53,16 +53,19 @@ public sealed class Phase12FAdminViewTests
                 null, null, null, 1, 1, 1,
                 [new AdminAuditRow(Guid.NewGuid(), Snapshot, "Test Admin",
                     "admin@example.test", "Web", "user-disabled", "user", ExampleUser)])),
-            ("reports", "Reports", "Index", new AdminPlatformReportPage(30,
-                new DateOnly(2026, 10, 15), new DateOnly(2026, 11, 13), Snapshot,
-                12, 1, 5, 4, 8, 3, 2, 1, 2, 4, 1, 3,
-                [new AdminReportDay(new DateOnly(2026, 11, 13), 1, 2, 1, 3)])),
             ("announcements", "Announcements", "Index",
                 new AdminAnnouncementIndexPage("All", 1, 1, 1, 0,
                     [new AnnouncementRow(Guid.NewGuid(), "Scheduled maintenance",
                         "Test only", "Maintenance", "Draft", Snapshot, null, null, "AAAAAAAABAA=")])),
-            ("announcement-new", "Announcements", "Editor",
-                new AnnouncementEditorPage(null, new AnnouncementInput())),
+            ("support", "Support", "Index", new SmartFarm.Web.ViewModels.Support.AdminSupportListPage(
+                "", "All", "All", 1, 1, 1, 0, 0,
+                [new SmartFarm.Web.ViewModels.Support.SupportRow(ExampleFarm, ExampleUser, "Previous request",
+                    "Account", "Open", "Normal", "Test Farmer", "farmer@example.test", "Green Farm", Snapshot, Snapshot, "AAAAAAAABAA=")])),
+            ("support-detail", "Support", "Details", new SmartFarm.Web.ViewModels.Support.SupportDetailsPage(
+                new SmartFarm.Web.ViewModels.Support.SupportRow(ExampleFarm, ExampleUser, "Previous request",
+                    "Account", "Open", "Normal", "Test Farmer", "farmer@example.test", "Green Farm", Snapshot, Snapshot, "AAAAAAAABAA="),
+                "Retained original description", [new SmartFarm.Web.ViewModels.Support.SupportMessageRow(
+                    Guid.NewGuid(), "Test Admin", "Retained internal note", true, Snapshot)])),
             ("security", "Security", "Setup",
                 new AdminMfaSetupPage("TEST-ONLY-KEY-DO-NOT-USE", "test-admin@example.test"))
         ];
@@ -145,10 +148,21 @@ public sealed class Phase12FAdminViewTests
             Assert.DoesNotContain("Farm joining code", html, StringComparison.OrdinalIgnoreCase);
             if (page.Name == "security")
                 Assert.Contains("TEST-ONLY-KEY-DO-NOT-USE", html);
-            if (page.Name == "reports")
+            Assert.DoesNotContain("/admin/reports", html);
+            if (page.Name == "support-detail")
             {
-                Assert.Contains("Daily platform report data", html);
-                Assert.Contains("Aggregate activity trends only", html);
+                Assert.Contains("Retained internal note", html);
+                Assert.Contains("Internal only", html);
+                Assert.Contains("Read-only history", html);
+                Assert.DoesNotContain("asp-action=", html);
+                Assert.DoesNotContain("/reply", html);
+                Assert.DoesNotContain("/status", html);
+            }
+            if (page.Name == "announcements")
+            {
+                Assert.Contains("Announcement history", html);
+                Assert.DoesNotContain("New announcement", html);
+                Assert.DoesNotContain("View public", html);
             }
         }
     }

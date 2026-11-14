@@ -3,21 +3,18 @@
     ViewData["Title"] = "Announcements";
 }
 <div class="page-heading admin-page-heading">
-    <div><p class="sf-kicker">PLATFORM COMMUNICATIONS</p><h1>Announcements</h1>
-        <p class="sf-muted">Write clear updates for everyone using AniGo. Publishing is a separate, confirmed action.</p></div>
-    <a class="button" asp-area="Admin" asp-controller="Announcements" asp-action="Create">New announcement</a>
+    <div><h1>Announcement history</h1>
+        <p class="sf-muted">Retained notices for authorized review. Publishing and editing are retired.</p></div>
 </div>
 @if (TempData["Message"] is string message) { <p class="form-notice" role="status">@message</p> }
 <section class="admin-stats" aria-label="Announcement totals">
     <a class="admin-stat panel" asp-area="Admin" asp-controller="Announcements" asp-action="Index" asp-route-status="Draft">
-        <span>Drafts</span><strong>@Model.DraftCount</strong><small>Not visible to users</small>
+        <span>Drafts</span><strong>@Model.DraftCount</strong><small>Retained drafts</small>
     </a>
     <a class="admin-stat panel" asp-area="Admin" asp-controller="Announcements" asp-action="Index" asp-route-status="Published">
-        <span>Active published</span><strong>@Model.PublishedCount</strong><small>Currently visible</small>
+        <span>Published records</span><strong>@Model.PublishedCount</strong><small>Retained history</small>
     </a>
-    <a class="admin-stat panel" asp-area="" asp-controller="Announcements" asp-action="Index">
-        <span>User bulletin</span><strong><partial name="~/Views/Shared/_Icon.cshtml" model='@("bell")' /></strong><small>View as a farmer</small>
-    </a>
+
 </section>
 <section class="panel admin-directory-panel" aria-label="Announcement directory">
     <form class="admin-filters" asp-area="Admin" asp-controller="Announcements" asp-action="Index" method="get">

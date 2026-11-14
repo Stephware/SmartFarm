@@ -24,8 +24,6 @@
             <p class="sf-muted">Record completed fieldwork or inspect this crop. Attach photos after saving an inspection.</p>
         </div>
         <div class="ani-monitoring-art ani12e-crop-art">
-            <img src="@Url.Content("~/images/crops/" + CropArtwork.FileName(cycle.CropTypeName))" alt=""
-                 width="120" height="120" />
             <partial name="_UiStatusChip" model='@(new UiStatusChip(
                 cycle.Status.ToString(),
                 monitoring.CanRecord ? "sf-status-chip--active" : "sf-status-chip--neutral"))' />

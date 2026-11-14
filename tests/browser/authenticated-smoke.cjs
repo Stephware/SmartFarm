@@ -27,8 +27,8 @@ const screens = [
     ["dashboard-multiple-crops", "/Dashboard?farmId=123"],
     ["dashboard-empty", "/Dashboard?farmId=123"],
     ["12d-farm-owner", "/Farms/Details?id=123"],
-    ["12d-plots-owner", "/PlotLayout?farmId=123"],
-    ["12d-plots-worker", "/PlotLayout?farmId=123"],
+    ["12d-plots-owner", "/Crops?farmId=123&fixture=plots-owner#farm-plots"],
+    ["12d-plots-worker", "/Crops?farmId=123&fixture=plots-worker#farm-plots"],
     ["12d-crops-owner", "/Crops?farmId=123"],
     ["12d-crops-worker", "/Crops?farmId=123"],
     ["12d-edit-plot", "/Farms/EditPlot?id=123&plotId=123"],
@@ -110,8 +110,9 @@ const widths = [320, 375, 768, 1024, 1440];
                         assert.equal(await page.locator(".ani12d-danger-options").count(), 1);
                     }
                     if (name === "12d-plots-owner" || name === "12d-plots-worker") {
-                        assert.equal(await page.locator(".ani12d-plot-directory .ani12d-plot-card").count(), 2);
-                        assert.equal(await page.locator(".ani12d-plot-disclaimer").count(), 1);
+                        assert.equal(await page.locator("#farm-plots tbody tr").count(), 2);
+                        assert.equal(await page.locator('#farm-plots [role="region"]').count(), 1);
+                        assert.equal(await page.locator('img[src*="/images/crops/"]').count(), 0);
                     }
                     if (name === "12d-crops-owner" || name === "12d-crops-worker") {
                         assert.equal(await page.locator(".ani12d-calendar").count(), 1);

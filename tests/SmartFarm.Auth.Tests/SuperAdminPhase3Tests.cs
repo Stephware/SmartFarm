@@ -28,6 +28,14 @@ public sealed class SuperAdminPhase3Tests
     }
 
     [Fact]
+    public void AdminSupportWritesAreRetiredWithoutReadingOrChangingRecords()
+    {
+        var controller = new SmartFarm.Web.Areas.Admin.Controllers.SupportController(null!, null!);
+        Assert.Equal(410, Assert.IsType<ObjectResult>(controller.ChangeStatus(Guid.NewGuid())).StatusCode);
+        Assert.Equal(410, Assert.IsType<ObjectResult>(controller.Reply(Guid.NewGuid())).StatusCode);
+    }
+
+    [Fact]
     public void AdminSupportRequiresVerifiedMfa()
     {
         var controller = typeof(SmartFarm.Web.Areas.Admin.Controllers.SupportController);
@@ -50,11 +58,8 @@ public sealed class SuperAdminPhase3Tests
     }
 
     [Fact]
-    public void SupportInputsEnforceSmallAndValidPayloads()
+    public void RetainedSupportStatusesAndPrioritiesStayFilterable()
     {
-        Assert.True(SupportRules.ValidMessage("Need help"));
-        Assert.False(SupportRules.ValidMessage("x"));
-        Assert.False(SupportRules.ValidMessage(new string('a', 1201)));
         Assert.Equal(["Open", "InProgress", "Resolved", "Closed"], SupportRules.Statuses);
         Assert.Equal(["Normal", "High"], SupportRules.Priorities);
     }

@@ -55,10 +55,20 @@ class SecondaryNavigationScreenTest {
 
     @Test fun reportsKeepHarvestSummaryWithoutCashNavigation() {
         compose.setContent { SmartFarmTheme {
-            FarmInsightsScreen(FarmInsightsUiState(farmId = "farm"), "Asia/Manila",
+            FarmInsightsScreen(FarmInsightsUiState(farmId = "farm", harvest =
+                com.smartfarm.mobile.data.remote.dto.FarmHarvestSummaryDto("farm", "North farm", "Asia/Manila",
+                    null, null, 3, 1, listOf(
+                        com.smartfarm.mobile.data.remote.dto.HarvestUnitSummaryDto("kg", java.math.BigDecimal("2.500"), 2),
+                        com.smartfarm.mobile.data.remote.dto.HarvestUnitSummaryDto("pieces", java.math.BigDecimal("9"), 1)))), "Asia/Manila",
                 onBack = {}, onReload = { _, _ -> })
         } }
         compose.onNodeWithText("Harvest summary").assertExists()
+        compose.onNodeWithText("Valid harvests: 3").performScrollTo().assertExists()
+        compose.onNodeWithText("Voided harvests: 1").performScrollTo().assertExists()
+        compose.onNodeWithText("2.500 kg").performScrollTo().assertExists()
+        compose.onNodeWithText("9 pieces").performScrollTo().assertExists()
+        compose.onNodeWithText("Yield by crop and plot").assertDoesNotExist()
+        compose.onNodeWithText("Monthly harvests").assertDoesNotExist()
         compose.onNodeWithText("Cash").assertDoesNotExist()
         compose.onNodeWithText("Manual cash records (PHP)").assertDoesNotExist()
     }

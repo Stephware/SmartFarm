@@ -1,10 +1,10 @@
 # Current source status and publication scope
 
 > Sources: SmartFarm source at dev `3c5a8b0`, inspected 2026-11-12
-> Raw: [Documentation publication source check](../../raw/project/2026-11-12-documentation-publication.md)
-> Updated: 2026-11-12
+> Raw: [Documentation publication source check](../../raw/project/2026-11-12-documentation-publication.md); [MVP retirement](../../raw/project/2026-11-14-mvp-stage-5.md)
+> Updated: 2026-11-14
 
-> **Planned product change (not yet implemented):** [farmer-first MVP simplification](mvp-simplification.md) and [Codex implementation plan](../../../../docs/superpowers/plans/2026-11-13-mvp-simplification.md). The admin, finance, support, complex navigation and reporting below describe existing code and must not be mistaken for the desired simplified UX.
+**Current MVP override:** [Farmer-first MVP status](mvp-simplification.md) and [the execution plan](../../../../docs/superpowers/plans/2026-11-13-mvp-simplification.md) supersede the earlier UI inventory below. Navigation, recording, offline confirmation and Stage 5 retirement are implemented; Stage 6 acceptance remains planned. Cash/bulletin/ticket-writing/chart presentation is retired; protected histories, compatibility finance API and all stored records remain.
 
 This page records source changes since the earlier full audit and reference UI
 verification. It supersedes conflicting baseline statements below; historical

@@ -1,4 +1,3 @@
-using System.ComponentModel.DataAnnotations;
 using Microsoft.EntityFrameworkCore;
 using SmartFarm.Core.Entities;
 using SmartFarm.Infrastructure.Persistence;
@@ -11,32 +10,9 @@ public static class SupportRules
     public static readonly string[] Statuses = ["Open", "InProgress", "Resolved", "Closed"];
     public static readonly string[] Priorities = ["Normal", "High"];
 
-    public static bool ValidMessage(string? body) => body?.Trim().Length is >= 2 and <= 1200;
 
-    // Only the owner or a current member can connect a request to a farm.
-    public static Task<bool> CanLinkFarm(SmartFarmDbContext db, Guid actor, Guid farmId,
-        CancellationToken ct = default) =>
-        db.Farms.AsNoTracking().AnyAsync(f => f.Id == farmId && f.ArchivedAtUtc == null &&
-            (f.OwnerUserId == actor || db.FarmMembers.Any(m =>
-                m.FarmId == farmId && m.UserId == actor && m.RemovedAtUtc == null)), ct);
+
 }
-
-public sealed class SupportCreateInput
-{
-    [Required, StringLength(140, MinimumLength = 5)]
-    public string Title { get; set; } = "";
-
-    [Required, StringLength(2000, MinimumLength = 15)]
-    public string Description { get; set; } = "";
-
-    [Required, RegularExpression("Account|Farm|Mobile|Other")]
-    public string Category { get; set; } = "Other";
-
-    public Guid? FarmId { get; set; }
-}
-
-public sealed record SupportFarmChoice(Guid Id, string Name);
-public sealed record SupportCreatePage(SupportCreateInput Input, IReadOnlyList<SupportFarmChoice> Farms);
 
 public sealed record SupportRow(Guid Id, Guid UserId, string Title,
     string Category, string Status, string Priority,

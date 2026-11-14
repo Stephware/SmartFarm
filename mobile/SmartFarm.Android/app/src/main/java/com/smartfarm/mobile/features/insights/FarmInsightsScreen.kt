@@ -1,15 +1,9 @@
 package com.smartfarm.mobile.features.insights
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Button
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
@@ -20,42 +14,15 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.unit.dp
 import com.smartfarm.mobile.ui.components.FarmEmptyState
 import com.smartfarm.mobile.ui.components.FarmHero
-import com.smartfarm.mobile.ui.components.FarmMetricCard
 import com.smartfarm.mobile.ui.components.FarmSectionCard
 import com.smartfarm.mobile.ui.components.FarmStatusChip
 import com.smartfarm.mobile.ui.components.FarmStatusTone
 import com.smartfarm.mobile.ui.components.RecordPage
-import com.smartfarm.mobile.data.remote.dto.MonthlyFinanceSummaryDto
-import java.math.BigDecimal
-import java.math.RoundingMode
 import java.time.LocalDate
 import java.time.ZoneId
-
-/** Avoid infinities, accidental mixed units or negative bar widths. */
-internal fun chartFraction(value: BigDecimal, max: BigDecimal): Float {
-    if (value <= BigDecimal.ZERO || max <= BigDecimal.ZERO) return 0f
-    return value.divide(max, 6, RoundingMode.HALF_UP).toFloat().coerceIn(0f, 1f)
-}
-
-@Composable
-private fun InsightBar(label: String, amount: String, fraction: Float, note: String? = null) {
-    Column(verticalArrangement = Arrangement.spacedBy(5.dp)) {
-        Text(label, style = MaterialTheme.typography.titleSmall)
-        Box(Modifier.fillMaxWidth().height(9.dp)
-            .clip(RoundedCornerShape(12.dp))
-            .background(MaterialTheme.colorScheme.surfaceContainerHighest)) {
-            Box(Modifier.fillMaxWidth(fraction).height(9.dp)
-                .background(MaterialTheme.colorScheme.primary))
-        }
-        Text(amount, style = MaterialTheme.typography.bodyMedium)
-        if (note != null) Text(note, style = MaterialTheme.typography.bodySmall,
-            color = MaterialTheme.colorScheme.onSurfaceVariant)
-    }
-}
 
 @Composable
 fun FarmInsightsScreen(
@@ -72,11 +39,10 @@ fun FarmInsightsScreen(
                 Text("Server-confirmed data only. Unsynced mobile harvests are not included.",
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant)
-                Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                FlowRow(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(6.dp)) {
                     listOf("all" to "All", "30" to "30 days",
                         "year" to "This year").forEach { (key, label) ->
                         FilterChip(selected = range == key,
-                            modifier = Modifier.weight(1f),
                             enabled = !state.loading && (key == "all" || today != null),
                             onClick = {
                                 range = key
@@ -116,12 +82,8 @@ fun FarmInsightsScreen(
                             state.harvestError ?: "Reconnect to view confirmed harvest data.")
                     }
                     else -> {
-                        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-                            FarmMetricCard("Valid entries", report.validHarvestCount.toString(),
-                                modifier = Modifier.weight(1f))
-                            FarmMetricCard("Voided entries", report.voidedHarvestCount.toString(),
-                                modifier = Modifier.weight(1f))
-                        }
+                        Text("Valid harvests: ${report.validHarvestCount}")
+                        Text("Voided harvests: ${report.voidedHarvestCount}")
                         if (report.unitTotals.isEmpty()) {
                             FarmEmptyState("No recorded harvests", "No valid entries match these dates.")
                         } else report.unitTotals.forEach { total ->
@@ -131,49 +93,6 @@ fun FarmInsightsScreen(
                                 Text("${total.harvestCount} valid harvests",
                                     style = MaterialTheme.typography.bodySmall,
                                     color = MaterialTheme.colorScheme.onSurfaceVariant)
-                            }
-                        }
-                    }
-                }
-            }
-        }
-        item(key = "harvest-chart") {
-            state.harvest?.let { report ->
-                FarmSectionCard("Yield by crop and plot",
-                    subtitle = "Recorded quantities. Each unit is charted independently.") {
-                    if (report.cropPlotTotals.isEmpty()) {
-                        Text("No crop or plot totals for the selected dates.")
-                    } else {
-                        report.cropPlotTotals.groupBy { it.unit }.forEach { (unit, group) ->
-                            Text("Unit: $unit", style = MaterialTheme.typography.titleMedium)
-                            val max = group.maxOf { it.quantity }
-                            group.sortedByDescending { it.quantity }.take(8).forEach { row ->
-                                InsightBar("${row.cropTypeName} · ${row.plotName}",
-                                    "${row.quantity.toPlainString()} $unit",
-                                    chartFraction(row.quantity, max),
-                                    "${row.harvestCount} partial harvests")
-                            }
-                            if (group.size > 8)
-                                Text("Showing 8 of ${group.size} crop/plot totals in $unit.",
-                                    style = MaterialTheme.typography.bodySmall)
-                        }
-                    }
-                }
-            }
-        }
-        item(key = "monthly") {
-            state.harvest?.let { report ->
-                FarmSectionCard("Monthly harvests", subtitle = "Recorded yield by month, separated by unit.") {
-                    if (report.monthlyTotals.isEmpty()) {
-                        Text("No monthly harvest totals match the period.")
-                    } else {
-                        report.monthlyTotals.groupBy { it.unit }.forEach { (unit, group) ->
-                            Text("Unit: $unit", style = MaterialTheme.typography.titleMedium)
-                            val recent = group.sortedBy { it.month }.takeLast(6)
-                            val max = recent.maxOf { it.quantity }
-                            recent.forEach { row ->
-                                InsightBar(row.month, "${row.quantity.toPlainString()} $unit",
-                                    chartFraction(row.quantity, max))
                             }
                         }
                     }
