@@ -168,6 +168,16 @@ public sealed class Phase12FAdminViewTests
     }
 
     [Fact]
+    public async Task EmptyAnnouncementHistoryDoesNotOfferRetiredPublishing()
+    {
+        using var app = new WebApplicationFactory<Program>();
+        var html = await RenderAsync(app.Services, "Announcements", "Index",
+            new AdminAnnouncementIndexPage("All", 1, 0, 0, 0, []));
+        Assert.Contains("No retained announcements match these filters.", html);
+        Assert.DoesNotContain("Create a draft", html);
+    }
+
+    [Fact]
     public async Task Phase12FAdminBrowserFixtures()
     {
         if (Environment.GetEnvironmentVariable("ANIGO_CAPTURE_ADMIN_FIXTURES") != "1") return;

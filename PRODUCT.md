@@ -1,6 +1,6 @@
 # AniGo — farmer-first SmartFarm MVP
 
-**Status:** approved product direction; Stages 1–5 navigation, recording, offline confirmation and presentation retirement implemented; Stage 6 acceptance planned. See the execution plan for verification and merge status. This document supersedes older UI phase briefs about retaining every feature. Source code is still the authority for current behavior.
+**Status:** approved product direction; Stages 1–5 navigation, recording, offline confirmation and presentation retirement implemented; Stage 6 technical checks recorded with explicit provider/release limits. See the execution plan for verification and merge status. This document supersedes older UI phase briefs about retaining every feature. Source code is still the authority for current behavior.
 
 ## Purpose
 Help nontechnical farmers manage planting schedules, crop condition, fieldwork, supplies, harvests and weather-related tasks. Less navigation and data entry are the goal. This is **not** a finance/ERP/social platform.
@@ -50,4 +50,4 @@ One Active crop per plot; authorized farm membership; terminal crop records stay
 7. Weather/reminders remain operative; Owner/Manager actions never become available to Field Worker.
 
 ## Implementation and evidence
-Follow [the staged execution plan](docs/superpowers/plans/2026-11-13-mvp-simplification.md). Do not call this delivered until implementation, tests and farmer validation. **Codex's model tokens cannot be eliminated by documentation**; this file exists to avoid repetitive prompt context. This is unrelated to security bearer/refresh tokens, which remain required.
+Follow [the staged execution plan](docs/superpowers/plans/2026-11-13-mvp-simplification.md). Technical acceptance is recorded separately from release readiness. Real-farmer sessions were waived for Stage 6 and not conducted; recommend them before broad rollout. See the plan for unresolved provider and operational checks. **Codex's model tokens cannot be eliminated by documentation**; this file exists to avoid repetitive prompt context. This is unrelated to security bearer/refresh tokens, which remain required.

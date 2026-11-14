@@ -1,6 +1,6 @@
 # Knowledge Base Index
 
-> **Current planned direction (2026-11-13):** [Farmer-first MVP simplification](project/mvp-simplification.md). Stages 1–5 navigation, recording, offline confirmation and presentation retirement are implemented and locally verified; Stage 6 acceptance remains planned. Check the plan for merge status. Read [PRODUCT.md](../../../PRODUCT.md) and [the execution plan](../../../docs/superpowers/plans/2026-11-13-mvp-simplification.md) for Codex work. Prior source pages document the existing implementation, not the desired next UX.
+> **Current planned direction (2026-11-13):** [Farmer-first MVP simplification](project/mvp-simplification.md). Stages 1–5 navigation, recording, offline confirmation and presentation retirement are implemented and locally verified; Stage 6 technical checks recorded with provider/release limits; real-farmer sessions waived/not conducted. Check the plan for merge status. Read [PRODUCT.md](../../../PRODUCT.md) and [the execution plan](../../../docs/superpowers/plans/2026-11-13-mvp-simplification.md) for Codex work. Prior source pages document the existing implementation, not the desired next UX.
 
 SmartFarm source-backed development knowledge: full audit at `ac624be`, with the
 reference frontend verification at `ae06ab2` and source publication checks through
@@ -17,7 +17,7 @@ Architecture, behavior, conventions, decisions and dated implementation evidence
 
 | Article | Summary | Updated |
 | --- | --- | --- |
-| [MVP simplification](project/mvp-simplification.md) | Stages 0–4 merged; Stage 5 retirement verified locally; release acceptance remains planned | 2026-11-14 |
+| [MVP simplification](project/mvp-simplification.md) | Stages 0–5 merged; Stage 6 technical checks, provider/release limits and merge-approval gate recorded | 2026-11-14 |
 | [Current source status](project/current-source-status.md) | Publication delta: admin/MFA, Android navigation, Tailwind, CI and extended-schema verifier limits | 2026-11-14 |
 | [Architecture](project/architecture.md) | Independent hosts, service boundaries, live farm access and private media | 2026-11-12 |
 | [Features](project/features.md) | Implemented modules, roles and critical business rules | 2026-11-14 |

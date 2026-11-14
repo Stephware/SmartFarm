@@ -183,3 +183,8 @@ Three native primary entries and a simpler existing Record sheet; My Farm groups
 - Raw: raw/project/2026-11-14-mvp-stage-5-ci.md
 - Updated: MVP simplification
 - Same-browser public equivalence verified; Linux golden files/threshold unchanged; remote gates remain required.
+
+## [2026-11-14] ingest | MVP Stage 6 technical acceptance
+- Disposition: Update
+- Raw: raw/project/2026-11-14-mvp-stage-6.md
+- Updated: Farmer-first MVP simplification; Current project progress; Current source status and publication scope

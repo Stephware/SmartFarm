@@ -899,6 +899,27 @@
           "sha256": "6244e0c84160820574a1a7641677d246c218cc12faba2b533243606436f8c081"
         }
       ]
+    },
+    {
+      "collected": "2026-11-14",
+      "repository_head": "9d5a44caed0920d32e4f48a465983f3bc76adec3",
+      "snapshot": "raw/project/2026-11-14-mvp-stage-6.md",
+      "sha256": "14dfb2bde9cb577e7118bc095ced67556f4dece27e734e71dc6a8f1524145039",
+      "scope": "Stage 6 isolated technical acceptance; provider timeouts and farmer waiver explicit; PR to dev requires approval before merge.",
+      "source_files": [
+        {
+          "path": "src/SmartFarm.Web/Areas/Admin/Views/Announcements/Index.cshtml",
+          "sha256": "3cb2c3ced14970bb59c76e5b44d4725c3139a91f8deb9fbbaf5286a183884201"
+        },
+        {
+          "path": "tests/SmartFarm.Auth.Tests/Phase12FAdminViewTests.cs",
+          "sha256": "8b8ca826739f2331cf60582f85e32eb5d869f5ee75e3eb9e5ad611c04e6e0d9e"
+        },
+        {
+          "path": "tests/browser/mvp-acceptance.cjs",
+          "sha256": "6a71e3ec2b3375441d43f570ce47ef285254a8239c7e4ed63d4944c048b4f021"
+        }
+      ]
     }
   ],
   "reviews": [

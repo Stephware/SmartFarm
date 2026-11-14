@@ -1,6 +1,6 @@
 # Implement AniGo farmer-first MVP simplification
 
-**Status: Stages 0–4 merged; Stage 5 implemented and locally verified. Stage 6 acceptance next after Stage 5 checks/merge.** Baseline: `dev` from 2026-11-13 (`29c55166`). Keep each stage as a separately reviewable PR into `dev`, with tests before merge. The goal is fewer screens, **not** wholesale deletion of working infrastructure. Read [PRODUCT.md](../../../PRODUCT.md) and [AGENTS.md](../../../AGENTS.md) first.
+**Status: Stages 0–5 merged; Stage 6 technical checks recorded with provider/release limits. Its PR requires explicit approval before merge.** Baseline: `dev` from 2026-11-13 (`29c55166`). Keep each stage as a separately reviewable PR into `dev`, with tests before merge. The goal is fewer screens, **not** wholesale deletion of working infrastructure. Read [PRODUCT.md](../../../PRODUCT.md) and [AGENTS.md](../../../AGENTS.md) first.
 
 ## Scope and decision rules
 - MVC four primary farm destinations: Today, Crops & Calendar, Supplies, Harvests. Farm/Team and Account secondary.
@@ -106,13 +106,25 @@ Verified: Android build, 67 JVM and 117 emulator tests without skips; 578 strict
 
 Stage 4 PR #127 merged at `9c9adce` with all seven checks green. Legacy plot/timeline URLs redirect into Crops. Cash/bulletin/new-ticket/analytics tools return protected 410 responses; Help and author-scoped/MFA-gated read-only histories retain records. Android fetches harvest reports only; chart/art/unused UI code is removed. Finance API/shared services, all schemas/data, harvest CSV, private photos, offline contracts, Worker/weather and security remain. Report recreation restores farm context and large-text counters stay readable.
 
-Verified: 577 strict disposable-SQL .NET, 64 JVM, 118 device and 62 Node tests without skips; 220 farm + 210 field-operation + 120 admin browser combinations; 24 live Help/history renders and native themes/320dp/1.6 text. Review's writable admin archive was fixed RED→GREEN. Old empty-announcement draft wording is a deferred Minor. Existing 100-row support list bound and mixed shared CSS remain. Stage 6 covers physical/TalkBack/real-network/farmer/production/provider/Worker acceptance. [Dated evidence](../../../.local/karpathy-wiki/raw/project/2026-11-14-mvp-stage-5.md); stage PR records remote gates.
+Verified: 577 strict disposable-SQL .NET, 64 JVM, 118 device and 62 Node tests without skips; 220 farm + 210 field-operation + 120 admin browser combinations; 24 live Help/history renders and native themes/320dp/1.6 text. Review's writable admin archive was fixed RED→GREEN. Old empty-announcement draft wording is a deferred Minor. Existing 100-row support list bound and mixed shared CSS remain. Stage 6 records technical acceptance and remaining physical/TalkBack/real-network/farmer/production/provider limits. [Dated evidence](../../../.local/karpathy-wiki/raw/project/2026-11-14-mvp-stage-5.md); stage PR records remote gates.
 
 ## Stage 6 — release acceptance
 - Demonstrate owner setup → plot → plan/start active crop → reminder → water → inspect/photo → fertilizer/stock → multiple harvests → accurate report; repeat Android offline/reconnect.
 - Validate Owner/Manager/Field Worker boundaries; no unauthorized farm joins; one active crop per plot; no negative stock; no wrong-unit totals; server-confirmed vs pending counts never confused.
 - Run targeted + full relevant .NET tests; Android assemble/JVM/device where available; Node/UI/cross-browser visual checks; SQL scripts only on explicitly disposable databases. Real Worker/weather/backup restore/deployment require separate authorization and evidence.
 - Observe **3–5 real farmers** on phone without coaching. Target: complete primary tasks with no unclear screens and few required inputs; fix blocking usability failures. Do not declare farmer acceptance or production readiness from CI alone.
+
+### Stage 6 technical acceptance evidence
+
+Stage 5 PR #128 merged at `9d5a44c` after all seven checks passed. The user waived real-farmer sessions for this technical stage: **not conducted**, recommended later with 3–5 farmers. Do not merge this stage's PR without fresh explicit approval; leave `main` untouched.
+
+Verified on new disposable application/jobs databases: normal signup with no farm; MVC farm→plot→plan→start; owner-approved joining and role boundaries; one Active crop/plot; real Hangfire task/reminder generation and exact generated-task watering; atomic fertilizer/stock/task save, duplicate rejection and negative-stock rollback; inspection/private photo; repeat partial harvests, void history, unit-separated/filter-correct reports and formula-safe CSV; stable-ID replay/conflict/outsider protection. Native real-API fertilizer, two harvests and inspection/photo were queued offline once and automatically confirmed on reconnect; pending records did not inflate server values. Controlled loopback validation is not ordinary mobile-network acceptance.
+
+Final local gates: solution build and 578 strict SQL-enabled .NET tests; Android debug build, 64 JVM and 118 emulator tests; 62 Node and 7+15 recovery-tool tests, zero failures/skips. Live Chrome/Firefox/WebKit: 324 role/page/size/theme variants, 54 axe scans, 18 enlarged-text checks, no detected overflow/errors/violations; no-JS/keyboard/Escape checked (macOS WebKit uses Option-Tab for links). A misleading retired-publishing prompt was fixed RED→GREEN. Native themes/320dp/1.6 text results and final remote gates are recorded in the stage PR.
+
+**Remaining limits:** both real OpenMeteo attempts timed out; weather mapping/failure tests pass but provider forecast/advisory acceptance remains unverified. Production/deployment, real restore, physical devices, TalkBack and ordinary network wakeup are unverified. No farmer results or production readiness claimed. See [sanitized evidence](../../../.local/karpathy-wiki/raw/project/2026-11-14-mvp-stage-6.md).
+
+Repeat read-only live browser checks using `node tests/browser/mvp-acceptance.cjs` with installed Playwright/axe resolvable through `NODE_PATH` when needed. Set `SMARTFARM_ACCEPTANCE_WEB` to the local lab Web URL, `SMARTFARM_ACCEPTANCE_CONFIG` to a protected JSON containing disposable `Database`, `Password`, `Owner`, `Manager`, `Worker`, `SMARTFARM_ACCEPTANCE_RESOURCES` to protected `{farmId,cycleId}` JSON, and `SMARTFARM_ACCEPTANCE_OUTPUT` to a fresh private directory. The accounts must already have the stated roles on that farm. Never commit credentials, sessions or captures; this runner logs in and reads existing data only. Linux visual golden checks remain separate CI gates.
 
 ## Working agreement for Codex context efficiency
 Read only AGENTS/PRODUCT/this plan and relevant code for the current stage. Do not paste all wiki/raw, run all agents, generate duplicate research summaries, or rebuild already accepted UI. Record a short check result and changed files for each PR. Tokens consumed by Codex cannot be made zero; this discipline **reduces avoidable context**. API bearer/refresh auth tokens are unrelated and must remain secure.
@@ -124,4 +136,4 @@ Read only AGENTS/PRODUCT/this plan and relevant code for the current stage. Do n
 - [x] Stage 3 — short record flows verified; PR #126 merged after all seven checks passed
 - [x] Stage 4 — offline confirmation/refresh verified; Worker/weather automated checks retained; stage PR records CI/merge status
 - [x] Stage 5 — non-MVP presentation retired; records/contracts retained; local verification complete, stage PR records remote gates
-- [ ] Stage 6 — end-to-end and farmer usability checks documented
+- [x] Stage 6 — technical checks and limitations recorded; farmer sessions waived/not conducted; PR requires explicit merge approval
