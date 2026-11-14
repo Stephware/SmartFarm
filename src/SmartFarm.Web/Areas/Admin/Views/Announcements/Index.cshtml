@@ -29,7 +29,7 @@
     </form>
     <p class="admin-results-count">@Model.Total @(Model.Total == 1 ? "announcement" : "announcements")</p>
     @if (Model.Announcements.Count == 0) {
-        <div class="admin-empty"><strong>No announcements</strong><p>Create a draft to share an update with your users.</p></div>
+        <div class="admin-empty"><strong>No announcements</strong><p>No retained announcements match these filters.</p></div>
     } else {
         <div class="admin-record-list">
             @foreach (var announcement in Model.Announcements) {
