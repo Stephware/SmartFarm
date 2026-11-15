@@ -48,7 +48,9 @@ import com.smartfarm.mobile.ui.theme.AniGoPalette
 object FarmSpacing {
     val extraSmall = 4.dp
     val small = 8.dp
+    val compact = 12.dp
     val medium = 16.dp
+    val comfortable = 20.dp
     val large = 24.dp
     val extraLarge = 32.dp
 }
@@ -88,8 +90,8 @@ fun FarmSectionCard(
         elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
     ) {
         Column(
-            modifier = Modifier.fillMaxWidth().padding(16.dp),
-            verticalArrangement = Arrangement.spacedBy(12.dp)
+            modifier = Modifier.fillMaxWidth().padding(FarmSpacing.medium),
+            verticalArrangement = Arrangement.spacedBy(FarmSpacing.compact)
         ) {
             FarmSectionHeader(title, subtitle)
             content()
