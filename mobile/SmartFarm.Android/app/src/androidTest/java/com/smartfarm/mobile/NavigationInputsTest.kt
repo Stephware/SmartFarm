@@ -65,7 +65,9 @@ class NavigationInputsTest {
                 ?: device.wait(androidx.test.uiautomator.Until.findObject(
                     androidx.test.uiautomator.By.res("android", "button1")), 3_000L)
                 ?: device.wait(androidx.test.uiautomator.Until.findObject(
-                    androidx.test.uiautomator.By.textMatches("(?i)^(ok|set|done)$")), 3_000L)
+                    androidx.test.uiautomator.By.text("OK")), 3_000L)
+                ?: device.wait(androidx.test.uiautomator.Until.findObject(
+                    androidx.test.uiautomator.By.text("Set")), 3_000L)
             if (confirm != null) {
                 confirm.click()
             } else {
