@@ -19,7 +19,7 @@
     <section class="panel card farm-create-panel" aria-labelledby="farm-details-heading">
         <header class="reference-panel-heading"><h2 id="farm-details-heading">Farm details</h2></header>
         <p class="sf-muted">Start with a name and a nearby location. The time zone is prefilled; a map pin is optional.</p>
-        <form asp-action="Create" method="post" class="farm-create-form">
+        <form asp-action="Create" method="post" class="farm-create-form ani-p5-form" data-ani-p5-form>
             <div class="form-field">
                 <label asp-for="Name"></label>
                 <input asp-for="Name" required maxlength="120" autocomplete="organization" placeholder="e.g. Riverside Farm" />

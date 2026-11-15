@@ -9,10 +9,10 @@
     <h1>Edit plot</h1>
     <p class="sf-muted">Update the plot name or its measured area. Existing crop records remain connected.</p>
     <div asp-validation-summary="ModelOnly" class="error" role="alert"></div>
-    <form class="sf-crop-form ani12d-edit-fields" asp-action="EditPlot" asp-route-id="@Model.FarmId" asp-route-plotId="@Model.PlotId" method="post">
+    <form class="sf-crop-form ani12d-edit-fields ani-p5-form" data-ani-p5-form asp-action="EditPlot" asp-route-id="@Model.FarmId" asp-route-plotId="@Model.PlotId" method="post">
         <input asp-for="Input.RowVersion" type="hidden" />
         <label asp-for="Input.Name">Plot name</label><input asp-for="Input.Name" required /><span asp-validation-for="Input.Name" class="error"></span>
-        <label asp-for="Input.AreaSqMeters">Area (m²)</label><input asp-for="Input.AreaSqMeters" type="number" min="0.01" step="0.01" required /><span asp-validation-for="Input.AreaSqMeters" class="error"></span>
+        <label asp-for="Input.AreaSqMeters">Area (m²)</label><input asp-for="Input.AreaSqMeters" type="number" min="0.01" step="0.01" inputmode="decimal" required aria-describedby="ani-p5-plot-area-help" /><p class="hint" id="ani-p5-plot-area-help">Enter the measured area in square meters (m²).</p><span asp-validation-for="Input.AreaSqMeters" class="error"></span>
         <div class="ani12d-form-actions"><button type="submit">Save changes</button>
         <a class="sf-button-outline" asp-action="Details" asp-route-id="@Model.FarmId">Cancel</a></div>
     </form>
