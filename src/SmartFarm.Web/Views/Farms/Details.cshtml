@@ -5,9 +5,9 @@
     var canManage = Model.Farm.Role == "Owner" || Model.Farm.Role == "Manager";
     var isOwner = Model.Farm.Role == "Owner";
 }
-<div class="reference-screen reference-screen-farms ani12d-farm-workspace">
+<div class="reference-screen reference-screen-farms ani12d-farm-workspace ani-p2-page ani-p2-farm">
 <partial name="_FarmNavigation" model="Model.Farm.Id" />
-<section class="panel card sf-farm-hero ani12d-farm-hero" aria-labelledby="farm-heading">
+<section class="panel card sf-farm-hero ani12d-farm-hero ani-p2-hero" aria-labelledby="farm-heading">
     <div class="sf-page-header page-hero">
         <div>
             <p><a class="ani12d-back" asp-action="Index">← All my farms</a></p>
@@ -32,14 +32,22 @@
     @if (TempData["Error"] is string error) { <p class="error form-error" role="alert">@error</p> }
     @if (canManage && Model.Plots.Count == 0)
     {
-        <section class="ani-farm-next-steps" aria-labelledby="next-steps-heading">
-            <p class="ani-overline">Get your farm ready</p>
-            <h2 id="next-steps-heading">Your farm is created. Here's what to do next.</h2>
-            <ol class="ani-journey-steps">
-                <li class="ani-journey-step--current"><span aria-hidden="true">1</span><div><strong>Add your first plot</strong><p>Give the growing area a name and size.</p></div><a href="#add-plot">Add plot</a></li>
-                <li><span aria-hidden="true">2</span><div><strong>Plan a crop</strong><p>Choose what you'll grow and set planting dates after adding a plot.</p></div><a asp-controller="Crops" asp-action="Index" asp-route-farmId="@Model.Farm.Id">View crops</a></li>
-                <li><span aria-hidden="true">3</span><div><strong>Bring your team</strong><p>Share your farm code when you're ready for people to join.</p></div><a href="#members-heading">Farm members</a></li>
-            </ol>
+        <section class="ani-farm-next-steps ani-p2-setup" aria-labelledby="next-steps-heading">
+            <div class="ani-p2-setup-intro">
+                <div>
+                    <p class="ani-overline">Get your farm ready · Step 1 of 3</p>
+                    <h2 id="next-steps-heading">Start with your first plot</h2>
+                    <p class="sf-muted">Give the growing area a name and size. You can plan what to grow next.</p>
+                </div>
+                <a class="button" href="#add-plot">Add a plot</a>
+            </div>
+            <details class="ani-p2-setup-more">
+                <summary>What comes after adding a plot?</summary>
+                <ol class="ani-journey-steps" start="2">
+                    <li><span aria-hidden="true">2</span><div><strong>Plan a crop</strong><p>Choose what you'll grow and set planting dates.</p></div><a asp-controller="Crops" asp-action="Index" asp-route-farmId="@Model.Farm.Id">View crops</a></li>
+                    <li><span aria-hidden="true">3</span><div><strong>Bring your team</strong><p>Share your farm code when you're ready for people to join.</p></div><a href="#members-heading">Farm members</a></li>
+                </ol>
+            </details>
         </section>
     }
 </section>
