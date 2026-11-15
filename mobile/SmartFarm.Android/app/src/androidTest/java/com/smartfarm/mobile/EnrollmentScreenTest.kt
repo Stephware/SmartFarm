@@ -47,6 +47,10 @@ class EnrollmentScreenTest {
         compose.onNodeWithText("North farm: Pending · Awaiting owner approval").assertExists()
         compose.onNodeWithText("Join a farm").performClick()
         compose.onNodeWithText("Farm code").performScrollTo().performTextInput("ABCD12345678")
+        // Ensure the IME edit has reached Compose before tapping a button while
+        // the keyboard may still be animating on a slower emulator.
+        compose.onNodeWithText("Farm code").assertTextContains("ABCD12345678")
+        compose.waitForIdle()
         compose.onNodeWithText("Request access").performScrollTo().performClick()
         compose.runOnIdle { assertEquals("ABCD12345678", sent) }
         compose.onNodeWithText("Farm code").assertTextContains("ABCD12345678")
