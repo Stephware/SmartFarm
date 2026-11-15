@@ -30,6 +30,8 @@ import com.smartfarm.mobile.ui.components.FarmSectionHeader
 import com.smartfarm.mobile.ui.components.FarmStatusChip
 import com.smartfarm.mobile.ui.components.FarmStatusTone
 import com.smartfarm.mobile.ui.components.FarmEmptyState
+import com.smartfarm.mobile.ui.components.FarmLoadingState
+import com.smartfarm.mobile.ui.components.FarmErrorState
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.widthIn
@@ -104,12 +106,9 @@ fun CropScreen(
         item(key = "overview") {
             Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
                 FarmHero("Crops", "Growing crops, planting plans and history.")
-                if (state.busy) CircularProgressIndicator()
-                state.error?.let {
-                    Text(it, color = MaterialTheme.colorScheme.error,
-                        modifier = Modifier.semantics { liveRegion = LiveRegionMode.Assertive })
-                    OutlinedButton(onClick = onRetry, enabled = !state.busy) { Text("Try again") }
-                }
+                if (state.busy) FarmLoadingState(
+                    if (state.cycles.isEmpty()) "Loading crop records…" else "Refreshing crop records…")
+                state.error?.let { FarmErrorState(it, onRetry, canRetry = !state.busy) }
                 OfflineDataNotice(state.offline, state.cachedAtUtcMillis)
                 FlowRow(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(6.dp)) {
                     listOf("growing" to "Growing", "planned" to "Planned", "history" to "History")

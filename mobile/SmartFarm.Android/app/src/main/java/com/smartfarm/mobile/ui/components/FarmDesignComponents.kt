@@ -29,6 +29,10 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.OutlinedButton
+import androidx.compose.ui.semantics.liveRegion
+import androidx.compose.ui.semantics.LiveRegionMode
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -139,11 +143,44 @@ fun FarmEmptyState(title: String, description: String, modifier: Modifier = Modi
         border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant)
     ) {
         Column(
-            modifier = Modifier.padding(FarmSpacing.large),
-            verticalArrangement = Arrangement.spacedBy(FarmSpacing.small)
+            modifier = Modifier.fillMaxWidth().padding(FarmSpacing.medium),
+            verticalArrangement = Arrangement.spacedBy(FarmSpacing.extraSmall)
         ) {
             Text(title, style = MaterialTheme.typography.titleMedium)
-            Text(description, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+            Text(description, style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant)
+        }
+    }
+}
+
+/** A true in-flight request. Never display empty counts as loaded while this is visible. */
+@Composable
+fun FarmLoadingState(label: String, modifier: Modifier = Modifier) {
+    Row(modifier.fillMaxWidth().padding(vertical = FarmSpacing.small),
+        horizontalArrangement = Arrangement.spacedBy(FarmSpacing.compact),
+        verticalAlignment = Alignment.CenterVertically) {
+        CircularProgressIndicator(modifier = Modifier.size(20.dp), strokeWidth = 2.dp)
+        Text(label, style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            modifier = Modifier.semantics { liveRegion = LiveRegionMode.Polite })
+    }
+}
+
+/** Error is distinct from an empty farm. Retry is an action, not a dead-end label. */
+@Composable
+fun FarmErrorState(message: String, onRetry: () -> Unit,
+                   modifier: Modifier = Modifier, canRetry: Boolean = true) {
+    Surface(modifier.fillMaxWidth(), shape = MaterialTheme.shapes.medium,
+        color = MaterialTheme.colorScheme.errorContainer) {
+        Column(Modifier.fillMaxWidth().padding(FarmSpacing.medium),
+            verticalArrangement = Arrangement.spacedBy(FarmSpacing.small)) {
+            Text(message, style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onErrorContainer,
+                modifier = Modifier.semantics { liveRegion = LiveRegionMode.Assertive })
+            OutlinedButton(onClick = onRetry, enabled = canRetry,
+                modifier = Modifier.defaultMinSize(minHeight = 48.dp)) {
+                Text("Try again", color = MaterialTheme.colorScheme.onErrorContainer)
+            }
         }
     }
 }

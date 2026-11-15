@@ -45,6 +45,8 @@ import com.smartfarm.mobile.data.remote.api.TaskUpdateInput
 import com.smartfarm.mobile.data.remote.dto.CropCycleDto
 import com.smartfarm.mobile.data.remote.dto.FarmMemberDto
 import com.smartfarm.mobile.ui.components.FarmEmptyState
+import com.smartfarm.mobile.ui.components.FarmLoadingState
+import com.smartfarm.mobile.ui.components.FarmErrorState
 import com.smartfarm.mobile.ui.components.FarmHero
 import com.smartfarm.mobile.ui.components.FarmSectionCard
 import com.smartfarm.mobile.ui.components.FarmSectionHeader
@@ -102,11 +104,10 @@ fun TaskScreen(
                         modifier = Modifier.weight(1f))
                     TextButton(onClick = onRetry, enabled = !state.busy) { Text("Refresh") }
                 }
-                if (state.busy) CircularProgressIndicator()
-                state.error?.let {
-                    Text(it, color = MaterialTheme.colorScheme.error,
-                        modifier = Modifier.semantics { liveRegion = LiveRegionMode.Assertive })
-                }
+                if (state.busy) FarmLoadingState(
+                    if (state.tasks.isEmpty() && state.notifications.isEmpty()) "Loading farm tasks…"
+                    else "Refreshing farm tasks…")
+                state.error?.let { FarmErrorState(it, onRetry, canRetry = !state.busy) }
                 state.notice?.let {
                     Text(it, color = MaterialTheme.colorScheme.primary,
                         modifier = Modifier.semantics { liveRegion = LiveRegionMode.Polite })
@@ -124,7 +125,8 @@ fun TaskScreen(
             }
         }
 
-        if (isTasks && (state.error == null || state.tasks.isNotEmpty())) {
+        if (isTasks && (state.error == null || state.tasks.isNotEmpty()) &&
+            (!state.busy || state.tasks.isNotEmpty())) {
             item(key = "task-tabs") {
                 Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
                     FlowRow(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(6.dp)) {

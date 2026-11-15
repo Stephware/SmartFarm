@@ -27,6 +27,8 @@ import com.smartfarm.mobile.ui.components.FarmSectionHeader
 import com.smartfarm.mobile.ui.components.FarmStatusChip
 import com.smartfarm.mobile.ui.components.FarmStatusTone
 import com.smartfarm.mobile.ui.components.FarmEmptyState
+import com.smartfarm.mobile.ui.components.FarmLoadingState
+import com.smartfarm.mobile.ui.components.FarmErrorState
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.material3.Button
@@ -61,11 +63,9 @@ import com.smartfarm.mobile.ui.components.farmDateTime
 
 @Composable
 private fun Feedback(state: InventoryUiState, onRetry: () -> Unit) {
-    if (state.busy) CircularProgressIndicator()
-    state.error?.let {
-        Text(it, color = MaterialTheme.colorScheme.error, modifier = Modifier.semantics { liveRegion = LiveRegionMode.Assertive })
-        OutlinedButton(onClick = onRetry, enabled = !state.busy) { Text("Try again") }
-    }
+    if (state.busy) FarmLoadingState(
+        if (state.workspace.items.isEmpty()) "Loading supplies…" else "Refreshing supplies…")
+    state.error?.let { FarmErrorState(it, onRetry, canRetry = !state.busy) }
     OfflineDataNotice(state.offline, state.cachedAtUtcMillis)
             state.notice?.let { Text(it, color = MaterialTheme.colorScheme.primary, modifier = Modifier.semantics { liveRegion = LiveRegionMode.Polite }) }
 }
@@ -104,6 +104,8 @@ fun InventoryListScreen(
                 OutlinedButton(onClick = onBack) { Text("Back") }
                 FarmHero("Inventory", "Track farm-wide supplies and stock movements.")
                 Feedback(state, onRetry)
+                // Do not show a zero-stock dashboard for a new or still-loading farm.
+                if (state.workspace.items.isNotEmpty()) {
                 FarmSectionCard("Stock overview",
                     subtitle = "Farm-wide balances, excluding changes awaiting server confirmation.") {
                     Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
@@ -124,6 +126,8 @@ fun InventoryListScreen(
                             modifier = Modifier.fillMaxWidth()) { Text("Show low-stock supplies") }
                     }
                 }
+                }
+                if (state.workspace.items.isNotEmpty()) {
                 OutlinedTextField(search, { search = it },
                     label = { Text("Find a supply") }, singleLine = true,
                     placeholder = { Text("Search by name") }, modifier = Modifier.fillMaxWidth())
@@ -154,8 +158,11 @@ fun InventoryListScreen(
                 Text("${visibleItems.size} of ${state.workspace.items.size} supplies shown",
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant)
+                }
                 if (state.workspace.items.isEmpty() && !state.busy && state.error == null)
-                    FarmEmptyState("No inventory items yet.", "Create a supply record to start tracking farm stock.")
+                    FarmEmptyState("No inventory items yet.",
+                        if (canManage) "Add your first supply to track farm-wide stock."
+                        else "Your owner or manager can add supplies for this farm.")
                 if (state.workspace.items.isNotEmpty() && visibleItems.isEmpty() && !state.busy) {
                     FarmEmptyState("No matching supplies", "Change the search or category to see more supplies.")
                     OutlinedButton(onClick = { search = ""; filter = "all" },
