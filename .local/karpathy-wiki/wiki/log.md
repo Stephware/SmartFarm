@@ -193,3 +193,8 @@ Three native primary entries and a simpler existing Record sheet; My Farm groups
 - Disposition: Update
 - Raw: raw/project/2026-11-14-mvp-stage-6-ci.md
 - Updated: Farmer-first MVP simplification
+
+## [2026-11-15] ingest | Phase 3 Android UI refinement
+- Disposition: Update
+- Raw: raw/project/2026-11-15-phase3-android-refinement.md
+- Updated: Frontend conventions and index; native adaptive/accessibility checks and explicit review/runtime limits. PR #133 remains unmerged.

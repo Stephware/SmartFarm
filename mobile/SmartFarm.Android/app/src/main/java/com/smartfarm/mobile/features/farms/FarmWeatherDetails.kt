@@ -14,6 +14,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import com.smartfarm.mobile.ui.components.farmDateTime
 import com.smartfarm.mobile.ui.components.FarmEmptyState
 import com.smartfarm.mobile.ui.components.FarmSectionCard
 import com.smartfarm.mobile.ui.components.FarmSectionHeader
@@ -48,9 +49,13 @@ internal fun FarmWeatherDetails(state: FarmUiState) {
                 val parsed = runCatching { LocalDate.parse(day.date) }.getOrNull()
                 parsed != null && date != null && !parsed.isBefore(date)
             }
-            FarmSectionCard("Forecast summary", subtitle = "Saved predictions, not measured conditions.") {
+            FarmSectionCard("Forecast summary") {
                 if (upcoming != null) {
                     Text(upcoming.date, style = MaterialTheme.typography.titleMedium)
+                    Text("Source: ${upcoming.provider}", style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    Text("Last checked: ${farmDateTime(upcoming.retrievedAtUtc, weather.timeZoneId)}", style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant)
                     Text("${upcoming.minTemperatureC?.toPlainString() ?: "—"}–${upcoming.maxTemperatureC?.toPlainString() ?: "—"} °C",
                         style = MaterialTheme.typography.headlineSmall)
                     Text("Rain chance: ${upcoming.maxPrecipitationProbability?.toPlainString() ?: "—"}% · " +
@@ -64,28 +69,27 @@ internal fun FarmWeatherDetails(state: FarmUiState) {
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant)
             }
-            FarmSectionHeader("Forecast by day")
             TextButton(onClick = { showDailyForecast = !showDailyForecast }) {
                 Text(if (showDailyForecast) "Hide daily forecast" else "Show daily forecast")
             }
             if (showDailyForecast) {
-            if (days.isEmpty()) FarmEmptyState("No forecast days",
-                "Reconnect and reopen the farm after the weather worker refreshes.")
-            days.forEach { day ->
-                FarmSectionCard(day.date, subtitle = "Source: ${day.provider}") {
-                    if (upcoming?.date == day.date) {
-                        FarmStatusChip("Next available forecast", FarmStatusTone.Planned)
+                if (days.isEmpty()) FarmEmptyState("No forecast days",
+                    "Reconnect and reopen the farm after the weather worker refreshes.")
+                days.forEach { day ->
+                    FarmSectionCard(day.date, subtitle = "Source: ${day.provider}") {
+                        if (upcoming?.date == day.date) {
+                            FarmStatusChip("Next available forecast", FarmStatusTone.Planned)
+                        }
+                        Text("${day.minTemperatureC?.toPlainString() ?: "—"}–${day.maxTemperatureC?.toPlainString() ?: "—"} °C",
+                            style = MaterialTheme.typography.titleLarge)
+                        Text("Rain: ${day.rainfallMm?.toPlainString() ?: "—"} mm · " +
+                            "Chance: ${day.maxPrecipitationProbability?.toPlainString() ?: "—"}%")
+                        Text("Max wind: ${day.maxWindKph?.toPlainString() ?: "—"} km/h")
+                        Text("Last checked: ${farmDateTime(day.retrievedAtUtc, weather.timeZoneId)}",
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant)
                     }
-                    Text("${day.minTemperatureC?.toPlainString() ?: "—"}–${day.maxTemperatureC?.toPlainString() ?: "—"} °C",
-                        style = MaterialTheme.typography.titleLarge)
-                    Text("Rain: ${day.rainfallMm?.toPlainString() ?: "—"} mm · " +
-                        "Chance: ${day.maxPrecipitationProbability?.toPlainString() ?: "—"}%")
-                    Text("Max wind: ${day.maxWindKph?.toPlainString() ?: "—"} km/h")
-                    Text("Last checked: ${day.retrievedAtUtc} UTC",
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant)
                 }
-            }
             }
             FarmSectionHeader("Saved advisories", "Check official warnings for current conditions.")
             val advisories = weather.advisories.filter { it.status == 0 }

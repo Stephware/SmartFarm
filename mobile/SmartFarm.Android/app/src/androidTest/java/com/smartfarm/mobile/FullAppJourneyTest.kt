@@ -209,7 +209,17 @@ class FullAppJourneyTest {
             val harvests = androidx.lifecycle.ViewModelProvider(compose.activity)[com.smartfarm.mobile.features.harvests.HarvestViewModel::class.java]
             compose.waitUntil(5000) { harvests.state.value.overview != null && !harvests.state.value.busy }
             compose.onNodeWithText("Harvested quantity (kg)").performScrollTo().performTextInput("2.500")
-            compose.onNodeWithText("Save harvested amount").performScrollTo().performClick()
+            // Wait for IME insets before hit-testing Save; a moving viewport can lose the tap.
+            compose.runOnIdle {
+                androidx.core.view.WindowCompat.getInsetsController(compose.activity.window,
+                    compose.activity.window.decorView).hide(androidx.core.view.WindowInsetsCompat.Type.ime())
+            }
+            compose.waitUntil(5_000) {
+                androidx.core.view.ViewCompat.getRootWindowInsets(compose.activity.window.decorView)
+                    ?.isVisible(androidx.core.view.WindowInsetsCompat.Type.ime()) == false
+            }
+            compose.onNodeWithText("Save harvested amount").performScrollTo()
+                .assertIsDisplayed().assertIsEnabled().performClick()
             // Room queue writes are asynchronous. Keep the assertion against the
             // actual saved harvest, but allow a slower CI emulator to persist it.
             compose.waitUntil(15_000) {

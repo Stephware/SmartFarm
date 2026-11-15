@@ -20,6 +20,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.fillMaxSize
@@ -200,11 +201,11 @@ fun MonitoringScreen(
             }
             state.notice?.let { Text(it, color = MaterialTheme.colorScheme.primary, modifier = Modifier.semantics { liveRegion = LiveRegionMode.Polite }) }
             OfflineDataNotice(state.offline, state.cachedAtUtcMillis)
-            Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+            FlowRow(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(6.dp)) {
                 listOf("activity" to "Activity", "inspection" to "Inspection",
                     "history" to "History").forEach { (key, label) ->
                     FilterChip(selected = focus == key, onClick = { focus = key },
-                        modifier = Modifier.weight(1f).defaultMinSize(minHeight = 48.dp),
+                        modifier = Modifier.defaultMinSize(minHeight = 48.dp),
                         label = { Text(label) })
                 }
             }

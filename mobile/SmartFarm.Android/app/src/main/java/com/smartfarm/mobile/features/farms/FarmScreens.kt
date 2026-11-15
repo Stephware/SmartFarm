@@ -22,6 +22,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.text.KeyboardOptions
 import com.smartfarm.mobile.ui.components.TimeZoneInput
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.material3.FilterChip
 import androidx.compose.foundation.lazy.items
@@ -33,6 +34,7 @@ import com.smartfarm.mobile.ui.components.FarmHero
 import com.smartfarm.mobile.ui.components.FarmSectionCard
 import com.smartfarm.mobile.ui.components.FarmSectionHeader
 import com.smartfarm.mobile.ui.components.FarmStatusChip
+import com.smartfarm.mobile.ui.components.farmRoleLabel
 import com.smartfarm.mobile.ui.components.FarmStatusTone
 import com.smartfarm.mobile.ui.components.FarmEmptyState
 import com.smartfarm.mobile.ui.components.RecordPage
@@ -120,13 +122,14 @@ fun FarmListScreen(state: FarmUiState, onOpen: (String) -> Unit,
                 Progress(state, onRetry)
                 if (state.farms.isEmpty() && !state.loading && state.error == null)
                     FarmEmptyState("No farms yet", "Start your own farm or enter the code from an owner.")
-                Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+                FlowRow(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(10.dp),
+                    verticalArrangement = Arrangement.spacedBy(8.dp)) {
                     Button(onClick = { creating = !creating; if (creating) joining = false },
-                        modifier = Modifier.weight(1f).defaultMinSize(minHeight = 52.dp)) {
+                        modifier = Modifier.weight(1f).widthIn(min = 140.dp).defaultMinSize(minHeight = 52.dp)) {
                         Text(if (creating) "Close farm form" else "Add a farm")
                     }
                     OutlinedButton(onClick = { joining = !joining; if (joining) creating = false },
-                        modifier = Modifier.weight(1f).defaultMinSize(minHeight = 52.dp)) {
+                        modifier = Modifier.weight(1f).widthIn(min = 140.dp).defaultMinSize(minHeight = 52.dp)) {
                         Text(if (joining) "Close join form" else "Join a farm")
                     }
                 }
@@ -185,16 +188,15 @@ fun FarmListScreen(state: FarmUiState, onOpen: (String) -> Unit,
                 modifier = Modifier.fillMaxWidth().testTag("record-card")) {
                 Column(Modifier.fillMaxWidth().padding(16.dp),
                     verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                    Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(12.dp),
-                        verticalAlignment = Alignment.CenterVertically) {
-                        Column(Modifier.weight(1f),
+                    FlowRow(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(12.dp),
+                        verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                        Column(Modifier.weight(1f).widthIn(min = 160.dp),
                             verticalArrangement = Arrangement.spacedBy(4.dp)) {
                             Text(farm.name, style = MaterialTheme.typography.titleMedium)
                             Text(farm.locationText, style = MaterialTheme.typography.bodyMedium,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                                maxLines = 2)
+                                color = MaterialTheme.colorScheme.onSurfaceVariant)
                         }
-                        FarmStatusChip(farm.role, FarmStatusTone.Planned)
+                        FarmStatusChip(farmRoleLabel(farm.role), FarmStatusTone.Planned)
                     }
                     Text("Open farm →", style = MaterialTheme.typography.labelLarge,
                         color = MaterialTheme.colorScheme.primary)
@@ -293,7 +295,7 @@ fun FarmDetailScreen(state: FarmUiState, onBack: () -> Unit,
                 Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                     Text(farm.locationText, style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.weight(1f))
-                    FarmStatusChip(farm.role, FarmStatusTone.Planned)
+                    FarmStatusChip(farmRoleLabel(farm.role), FarmStatusTone.Planned)
                 }
             }
             if (visibleSection == "Overview") {

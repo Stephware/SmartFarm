@@ -41,6 +41,7 @@ import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import com.smartfarm.mobile.ui.theme.AniGoPalette
 
@@ -54,6 +55,8 @@ object FarmSpacing {
     val large = 24.dp
     val extraLarge = 32.dp
 }
+
+fun farmRoleLabel(role: String): String = if (role == "FieldWorker") "Field worker" else role
 
 enum class FarmStatusTone { Active, Planned, Warning, Failed, Neutral }
 
@@ -237,7 +240,7 @@ fun FarmAppBar(modifier: Modifier = Modifier) {
     }
 }
 
-enum class FarmSymbol { Crop, Plots, Tasks, Clock, Stock, Weather, Reports, Offline, Bell }
+enum class FarmSymbol { Crop, Plots, Tasks, Clock, Stock, Weather, Reports, Offline, Bell, ChevronRight }
 
 /** One stroke system for metrics, shortcuts and offline indicators. */
 @Composable
@@ -283,6 +286,11 @@ fun FarmLineIcon(symbol: FarmSymbol, modifier: Modifier = Modifier, tint: Color 
                     cubicTo(17*u,2*u,7*u,2*u,7*u,9*u); lineTo(7*u,13*u); close()
                 }
                 drawPath(bell,tint,style=Stroke(stroke)); line(10f,21f,14f,21f)
+            }
+            FarmSymbol.ChevronRight -> {
+                val start = if (layoutDirection == LayoutDirection.Rtl) 15f else 9f
+                val tip = 24f - start
+                line(start,6f,tip,12f); line(tip,12f,start,18f)
             }
             FarmSymbol.Offline -> { line(3f,3f,21f,21f);line(6f,11f,10f,9f);line(14f,9f,18f,11f);line(9f,15f,12f,14f);drawCircle(tint,1.3f*u,Offset(12*u,19*u)) }
         }

@@ -1946,6 +1946,71 @@
           "sha256": "0c1a849b780053ca2e2a868f067573aae9ebcf22f6705d61089f33e859312386"
         }
       ]
+    },
+    {
+      "date": "2026-11-15",
+      "revision": "985509679f15065f604cfe711fe533e9daff956c + PR133 Android refinement (source hashes below)",
+      "snapshot": "raw/project/2026-11-15-phase3-android-refinement.md",
+      "sha256": "f97671138b4e15f37495964d23cdd308000ed420f205f7a420e58ecec36c00d5",
+      "scope": "Phase 3 Android UI refinement, IME-aware farmer-journey readiness, accessibility/adaptive regressions and native visual checks; no business/backend changes. Final CI status belongs to PR133.",
+      "source_files": [
+        {
+          "path": "mobile/SmartFarm.Android/app/src/androidTest/java/com/smartfarm/mobile/FullAppJourneyTest.kt",
+          "sha256": "fe2d97b6e8bcd2ab1a3359021947b4a198f05764f040af89574e1b581193202c"
+        },
+        {
+          "path": "mobile/SmartFarm.Android/app/src/main/java/com/smartfarm/mobile/features/crops/CropScreens.kt",
+          "sha256": "d262a204d311a0fcd226eb8f2f4e8303f84c6cc667be0d0f0b96ac18c8964350"
+        },
+        {
+          "path": "mobile/SmartFarm.Android/app/src/main/java/com/smartfarm/mobile/features/farms/FarmHomeOverview.kt",
+          "sha256": "4c21b3c76eb0b97c32524109f550b1750cf53055f6d6421073d092723e6aa998"
+        },
+        {
+          "path": "mobile/SmartFarm.Android/app/src/main/java/com/smartfarm/mobile/features/farms/FarmScreens.kt",
+          "sha256": "89bc38e1fe7c08e99df81181dc7e83bc6f0c8e87e9b2acd7e1a4121dae1de0ee"
+        },
+        {
+          "path": "mobile/SmartFarm.Android/app/src/main/java/com/smartfarm/mobile/features/farms/FarmSetupGuide.kt",
+          "sha256": "30823a2504d35632569e8bb8f230aa1843272641b7b5e394808429e7e330132e"
+        },
+        {
+          "path": "mobile/SmartFarm.Android/app/src/main/java/com/smartfarm/mobile/features/farms/FarmWeatherDetails.kt",
+          "sha256": "15bac1be832563f180d46c9cbd0786e1c83c7740c8e3ce6d8c3077cf8c29b710"
+        },
+        {
+          "path": "mobile/SmartFarm.Android/app/src/main/java/com/smartfarm/mobile/features/monitoring/MonitoringScreens.kt",
+          "sha256": "d984e6b9109063af274e08f8e9b31779ef1ac399217267a378d3ae86e87c87e5"
+        },
+        {
+          "path": "mobile/SmartFarm.Android/app/src/main/java/com/smartfarm/mobile/features/tasks/TaskScreens.kt",
+          "sha256": "574800c666d8e1c0f6bced7b3d194e3a794ebf795ca14ee33c55fab71c801f87"
+        },
+        {
+          "path": "mobile/SmartFarm.Android/app/src/main/java/com/smartfarm/mobile/navigation/FarmMoreScreen.kt",
+          "sha256": "e92645ede2622d3d046f1907a23a86eec8bec3eb35ff8c13e88b0cd8fb47ca6a"
+        },
+        {
+          "path": "mobile/SmartFarm.Android/app/src/main/java/com/smartfarm/mobile/navigation/FarmQuickRecordSheet.kt",
+          "sha256": "80baaa5f539cccfc258d30e52ace873e4a94df8befa4748dd75c702fb866165f"
+        },
+        {
+          "path": "mobile/SmartFarm.Android/app/src/main/java/com/smartfarm/mobile/ui/components/FarmDesignComponents.kt",
+          "sha256": "e8f08702a0960e7c9768d00a3a998ee85d3d47ac26cacdca982773de42516b2e"
+        },
+        {
+          "path": "mobile/SmartFarm.Android/app/src/main/java/com/smartfarm/mobile/ui/components/WelcomeScreen.kt",
+          "sha256": "22cd397807c4812df238ce667fdc4df1d658738e252c5cf4f28a4f695bea53e8"
+        },
+        {
+          "path": "mobile/SmartFarm.Android/app/src/androidTest/java/com/smartfarm/mobile/Phase3RefinementTest.kt",
+          "sha256": "1183f4911cba821bbe4ef03b828056af14228ea060fcd5b779f897a60ddb6999"
+        },
+        {
+          "path": "mobile/SmartFarm.Android/app/src/androidTest/java/com/smartfarm/mobile/Phase3VisualReviewTest.kt",
+          "sha256": "063508a0ecd533b6290ea5f9a418568d9307d8179b51410b9e8d8ecb5a4f5a2c"
+        }
+      ]
     }
   ]
 }

@@ -4,6 +4,8 @@ import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.FlowRow
+import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
@@ -125,12 +127,12 @@ fun TaskScreen(
         if (isTasks && (state.error == null || state.tasks.isNotEmpty())) {
             item(key = "task-tabs") {
                 Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
-                    Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                    FlowRow(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(6.dp)) {
                         listOf("today" to "Today", "upcoming" to "Upcoming",
                             "completed" to "Completed").forEach { (key, title) ->
                             FilterChip(selected = selectedView == key,
                                 onClick = { selectedView = key },
-                                modifier = Modifier.weight(1f),
+                                modifier = Modifier.defaultMinSize(minHeight = 48.dp),
                                 label = { Text(title) })
                         }
                     }

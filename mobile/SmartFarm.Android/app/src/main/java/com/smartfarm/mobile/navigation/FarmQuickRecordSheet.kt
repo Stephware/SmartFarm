@@ -13,6 +13,7 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Surface
@@ -25,11 +26,16 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.role
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.unit.dp
 import com.smartfarm.mobile.features.crops.CropUiState
+import com.smartfarm.mobile.ui.components.FarmLineIcon
+import com.smartfarm.mobile.ui.components.FarmSymbol
+import com.smartfarm.mobile.ui.components.FarmSpacing
 import com.smartfarm.mobile.ui.components.FarmEmptyState
 
 /** Quick action menu. Existing crop, monitoring, harvest and stock forms do the saving. */
@@ -51,7 +57,8 @@ internal fun FarmQuickRecordSheet(
     val available = cropState.farmId == farmId && !cropState.busy && cropState.error == null
     val growing = if (available) activeRecordCycles(cropState.cycles) else emptyList()
 
-    ModalBottomSheet(onDismissRequest = onDismiss) {
+    ModalBottomSheet(onDismissRequest = onDismiss,
+        sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)) {
         Column(Modifier.fillMaxWidth().heightIn(max = 680.dp)
             .verticalScroll(rememberScrollState()).padding(horizontal = 20.dp, vertical = 12.dp),
             verticalArrangement = Arrangement.spacedBy(10.dp)) {
@@ -70,9 +77,6 @@ internal fun FarmQuickRecordSheet(
             if (action == null) {
                 Text("What did you do on the farm?",
                     style = MaterialTheme.typography.titleMedium)
-                Text("Choose an activity, then select the growing crop.",
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant)
                 RecordOption("Water", "Log watering for an active crop") { action = "watering" }
                 RecordOption("Use Supplies", "Apply fertilizer with optional supply use") {
                     action = "fertilizing"
@@ -125,7 +129,7 @@ internal fun FarmQuickRecordSheet(
                                     Text(cycle.plotName, style = MaterialTheme.typography.bodyMedium,
                                         color = MaterialTheme.colorScheme.onSurfaceVariant)
                                 }
-                                Text("→", style = MaterialTheme.typography.titleLarge)
+                                FarmLineIcon(FarmSymbol.ChevronRight)
                             }
                         }
                     }
@@ -137,20 +141,20 @@ internal fun FarmQuickRecordSheet(
 
 @Composable
 private fun RecordOption(label: String, explanation: String, onClick: () -> Unit) {
-    Surface(onClick = onClick, modifier = Modifier.fillMaxWidth(),
+    Surface(onClick = onClick, modifier = Modifier.fillMaxWidth()
+        .semantics { role = Role.Button },
         shape = MaterialTheme.shapes.medium,
         color = MaterialTheme.colorScheme.surfaceContainerLow,
         border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant)) {
-        Row(Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 13.dp),
+        Row(Modifier.fillMaxWidth().padding(horizontal = FarmSpacing.medium, vertical = FarmSpacing.compact),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(12.dp)) {
             Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(3.dp)) {
-                Text(label, style = MaterialTheme.typography.titleSmall)
+                Text(label, style = MaterialTheme.typography.titleMedium)
                 Text(explanation, style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant)
             }
-            Text("›", style = MaterialTheme.typography.titleLarge,
-                color = MaterialTheme.colorScheme.primary)
+            FarmLineIcon(FarmSymbol.ChevronRight)
         }
     }
 }

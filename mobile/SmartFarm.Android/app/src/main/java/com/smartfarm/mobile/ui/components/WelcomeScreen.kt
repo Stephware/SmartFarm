@@ -42,20 +42,17 @@ fun WelcomeScreen(
     Scaffold(topBar = { FarmAppBar() }) { padding ->
         Box(Modifier.fillMaxSize().padding(padding), contentAlignment = Alignment.TopCenter) {
             Column(Modifier.widthIn(max = 560.dp).fillMaxWidth().verticalScroll(rememberScrollState())
-                .padding(horizontal = 20.dp, vertical = 24.dp),
-                verticalArrangement = Arrangement.spacedBy(20.dp)) {
+                .padding(FarmSpacing.medium),
+                verticalArrangement = Arrangement.spacedBy(FarmSpacing.medium)) {
                 Card(colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primary),
                     shape = MaterialTheme.shapes.large, modifier = Modifier.fillMaxWidth()) {
-                    Column(Modifier.fillMaxWidth().padding(24.dp),
+                    Column(Modifier.fillMaxWidth().padding(FarmSpacing.medium),
                         verticalArrangement = Arrangement.spacedBy(12.dp)) {
                         Text("Welcome to AniGo", style = MaterialTheme.typography.headlineLarge,
                             color = MaterialTheme.colorScheme.onPrimary)
                         Text("Your farms, fieldwork and harvests—organized in one place.",
                             style = MaterialTheme.typography.bodyLarge,
                             color = MaterialTheme.colorScheme.onPrimary)
-                        Text("Plan crops  ·  Record fieldwork  ·  Track harvests",
-                            color = MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.86f),
-                            style = MaterialTheme.typography.bodyMedium)
                     }
                 }
                 FarmSectionCard("Get started", subtitle = "Open your farms or join a farming team.") {
@@ -63,7 +60,6 @@ fun WelcomeScreen(
                     OutlinedButton(onClick = onRegister, modifier = Modifier.fillMaxWidth()) {
                         Text("Create account")
                     }
-
                 }
                 if (BuildConfig.DEBUG) {
                     TextButton(onClick = { showDiagnostics = !showDiagnostics }) {

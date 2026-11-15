@@ -14,8 +14,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
-import androidx.compose.foundation.layout.Row
-import androidx.compose.ui.Alignment
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.smartfarm.mobile.features.crops.CropUiState
@@ -64,8 +63,7 @@ internal fun FarmSetupGuide(
             Text(if (next == FarmSetupNext.AddPlot) "Add first plot"
                 else if (hasPlannedCrop) "Start planned crop" else "Plan a crop")
         }
-        Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.SpaceBetween) {
+        FlowRow(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
             TextButton(onClick = { showSteps = !showSteps }) {
                 Text(if (showSteps) "Hide setup steps" else "See all setup steps")
             }
