@@ -2096,6 +2096,88 @@
           "sha256": "a53ebb75ff319f9749de8ccdf76aae8e26fc9e905efec7ebeed519bafe27ceb9"
         }
       ]
+    },
+    {
+      "date": "2026-11-16",
+      "revision": "22e70e4f680dcf0b2a8667c934621fc432581ca1 + scoped workflow/harvest test refresh (source hashes below)",
+      "snapshot": "raw/project/2026-11-16-agent-workflow-refresh.md",
+      "sha256": "2bea7e54d2dbe1d3483604f5f0e1ebbb4249567e8147974d660331850cd8f253",
+      "scope": "User-requested tool/context freshness, confirmed code-first preference, actual CI scope and test-only readiness/resource fixes; no global skill edits or landing redesign. Final remote status belongs to PR134.",
+      "source_files": [
+        {
+          "path": "AGENTS.md",
+          "sha256": "56198ececc4eb0147f8723752bb21d3977e2eb011f3145b289eb8cef471fa0aa"
+        },
+        {
+          "path": "PRODUCT.md",
+          "sha256": "bbfdb4fe142939089b399ee5e86bb39c00d93dab8224d3cc6c73ed5fe8c7b71d"
+        },
+        {
+          "path": ".impeccable/config.json",
+          "sha256": "e9b1179c839289e7f450760d8f3336f56de2ee02e8520f7236edd29495ca7ec4"
+        },
+        {
+          "path": "docs/superpowers/README.md",
+          "sha256": "31ee02e7434555320ec5e619128bc070036e317b18faf9b72886cb010e876dfc"
+        },
+        {
+          "path": ".github/workflows/android-ui-smoke.yml",
+          "sha256": "fd740a11d86e90b324bc13851f23c2348e16e485edeafee7d8fa8833a9930cd4"
+        },
+        {
+          "path": ".github/workflows/verify-smartfarm.yml",
+          "sha256": "56dd137c9f8de06346c25533dc6adde778eac16b9e0abe3ec6d7d05670a6af0e"
+        },
+        {
+          "path": "tests/SmartFarm.Auth.Tests/SmartFarm.Auth.Tests.csproj",
+          "sha256": "0a667a46193ff8084ebf31ad2af8d6579df233bc5c9d5848a2f55fb9ee5d0459"
+        },
+        {
+          "path": "tests/SmartFarm.Auth.Tests/test.runsettings",
+          "sha256": "532e4823a0a3dc672adbf42f3e36e9e3efe1e64b3863a7703684adae6715e092"
+        },
+        {
+          "path": "tests/SmartFarm.Auth.Tests/Phase4DataStatesWebTests.cs",
+          "sha256": "9a2bfe477663d9491e29553a60e77b4953e15fdc621ece795eee2f6c463e5073"
+        },
+        {
+          "path": "mobile/SmartFarm.Android/app/src/androidTest/java/com/smartfarm/mobile/HarvestUsabilityScreenTest.kt",
+          "sha256": "dd2b97a98f09a44776b6ad686e6c1a145753e429232368e154b5383421030e41"
+        }
+      ]
+    },
+    {
+      "date": "2026-11-16",
+      "revision": "2b4ccdcfea7c57091351ecfb8d3f5b8026c1b1d9 + user-requested documentation/config refresh (source hashes below)",
+      "snapshot": "raw/project/2026-11-16-phase4-final-ci.md",
+      "sha256": "e3778bf05bd5692b02e2d6fe4a82e07963b8932e01ae8a22a29d65e2f77ad22e",
+      "scope": "Final seven green application CI jobs, 139-device-test XML, externally performed PR134 merge, and verified project tool/context refresh; no agent merge or new UI work.",
+      "source_files": [
+        {
+          "path": "AGENTS.md",
+          "sha256": "56198ececc4eb0147f8723752bb21d3977e2eb011f3145b289eb8cef471fa0aa"
+        },
+        {
+          "path": "PRODUCT.md",
+          "sha256": "bbfdb4fe142939089b399ee5e86bb39c00d93dab8224d3cc6c73ed5fe8c7b71d"
+        },
+        {
+          "path": ".impeccable/config.json",
+          "sha256": "e9b1179c839289e7f450760d8f3336f56de2ee02e8520f7236edd29495ca7ec4"
+        },
+        {
+          "path": "docs/superpowers/README.md",
+          "sha256": "31ee02e7434555320ec5e619128bc070036e317b18faf9b72886cb010e876dfc"
+        },
+        {
+          "path": ".local/karpathy-wiki/README.md",
+          "sha256": "6d5dc8d7d5f9e40e58f000aadd4dc36a3f9561f3bbf914998c505448d66cc525"
+        },
+        {
+          "path": "mobile/SmartFarm.Android/app/src/androidTest/java/com/smartfarm/mobile/HarvestUsabilityScreenTest.kt",
+          "sha256": "336e8243c2e74b3c04c4e545ddfec4b77049cdc62a1f52808b34ff49a93631ac"
+        }
+      ]
     }
   ]
 }
