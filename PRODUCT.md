@@ -1,9 +1,33 @@
 # AniGo — farmer-first SmartFarm MVP
 
+<!-- impeccable:product-schema 1 -->
+
 **Status:** approved product direction; Stages 1–5 navigation, recording, offline confirmation and presentation retirement implemented; Stage 6 technical checks recorded with explicit provider/release limits. See the execution plan for verification and merge status. This document supersedes older UI phase briefs about retaining every feature. Source code is still the authority for current behavior.
+
+## Platform
+
+adaptive
 
 ## Purpose
 Help nontechnical farmers manage planting schedules, crop condition, fieldwork, supplies, harvests and weather-related tasks. Less navigation and data entry are the goal. This is **not** a finance/ERP/social platform.
+
+## Users
+Farm Owners and Managers set up and manage farms; Field Workers record authorized daily work. Super Admin remains a secondary operational/security role.
+
+## Positioning
+Focus on practical farm setup, daily work and field recording with fewer inputs and navigation steps. Preserve dependable records and offline confirmation rather than expanding into an ERP or advanced analytics product. No competitive or adoption claims are established.
+
+## Operating Context
+Web supports farm/plot setup, crop planning, supplies and simple harvest reports. Native Android supports daily fieldwork, inspection photos and selected Room/WorkManager offline recording. Users may switch farms and roles; saved data, queued changes and server-confirmed results must remain distinguishable. External weather may be stale.
+
+## Product Principles
+- Make the next authorized farmer action easy to find, with few required inputs.
+- Preserve business rules, data, security and audit history during simplification.
+- Explain loading, failures, offline records and synchronization truthfully.
+- Reuse established Web and native components; keep interfaces readable and accessible.
+
+## Evidence on Hand
+Approved requirements are recorded here and in the staged execution plan. Current source, focused regression tests and dated wiki evidence describe implementation and technical verification. Visual test fixtures are synthetic, not production records or farmer feedback. Real-farmer usability sessions have not been conducted; do not invent testimonials, metrics or release-readiness claims.
 
 ## Mandatory technical scope
 - **MVC (.NET 10 Razor):** farms, plots, crop calendar, simple harvest reports and inventory.

@@ -203,3 +203,13 @@ Three native primary entries and a simpler existing Record sheet; My Farm groups
 - Disposition: Update
 - Raw: raw/project/2026-11-16-phase4-data-states-review.md
 - Updated: Frontend conventions/index; cache/refresh truth, scoped pagination, native readability and dated verification limits. UI Phase 6 landing reserved; PR134 must not merge.
+
+## [2026-11-16] ingest | Agent workflow freshness and development checks
+- Disposition: Update
+- Raw: raw/project/2026-11-16-agent-workflow-refresh.md
+- Updated: Dependencies and local development; AGENTS/PRODUCT/Superpowers integration; confirmed Impeccable code-first configuration. Existing product decisions and historical evidence preserved; final PR checks remain separate.
+
+## [2026-11-16] ingest | Phase 4 final CI and external integration
+- Disposition: Update
+- Raw: raw/project/2026-11-16-phase4-final-ci.md
+- Updated: Frontend Phase 4 verification and external merge attribution; supersedes pending CI in earlier captures without rewriting history.
