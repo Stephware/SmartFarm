@@ -19,9 +19,9 @@
         .OrderByDescending(i => i.IsLowStock).ThenBy(i => i.Name)
         .ToList();
 }
-<div class="reference-screen reference-screen-inventory ani12e-workspace ani12e-inventory">
+<div class="reference-screen reference-screen-inventory ani12e-workspace ani12e-inventory ani-p2-page ani-p2-inventory">
 <partial name="_FarmNavigation" model="Model.Farm.Id" />
-<section class="panel card sf-ops-hero ani12e-hero" aria-labelledby="inventory-heading">
+<section class="panel card sf-ops-hero ani12e-hero ani-p2-hero" aria-labelledby="inventory-heading">
     <div class="sf-page-header page-hero">
         <div>
             <p><a asp-controller="Farms" asp-action="Details" asp-route-id="@Model.Farm.Id">← @Model.Farm.Name</a></p>

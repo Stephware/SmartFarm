@@ -20,6 +20,7 @@
 @import "./anigo-admin-12f.css";
 @import "./mvp-workspace.css";
 @import "./anigo-design-foundation.css";
+@import "./anigo-web-phase2.css";
 @import "tailwindcss/theme.css" layer(theme) prefix(tw);
 @import "tailwindcss/utilities.css" layer(utilities) prefix(tw) source(none);
 @source "../Views";

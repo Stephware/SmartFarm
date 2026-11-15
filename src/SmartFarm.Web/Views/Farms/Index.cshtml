@@ -2,7 +2,7 @@
 @{
     ViewData["Title"] = "My farms";
 }
-<div class="reference-screen reference-screen-farms ani-entry-farms-page">
+<div class="reference-screen reference-screen-farms ani-entry-farms-page ani-p2-page ani-p2-farms">
 <header class="ani-entry-farms-heading">
     <div>
         <p class="ani-entry-eyebrow">YOUR WORKSPACE</p>
@@ -45,7 +45,7 @@
                 <li class="farm-select-card card ani-entry-farm-card">
                     <div class="farm-card-body card-body">
                         <div class="ani-entry-farm-identity">
-                            <span class="ani-entry-farm-mark" aria-hidden="true">Farm</span>
+                            <span class="ani-entry-farm-mark" aria-hidden="true"><partial name="_Icon" model='@("sprout")' /></span>
                             <span class="farm-role-badge">@farm.Role</span>
                         </div>
                         <h2><a asp-action="Details" asp-route-id="@farm.Id">@farm.Name</a></h2>
