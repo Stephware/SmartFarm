@@ -138,9 +138,9 @@ const widths = [320, 375, 768, 1024, 1440];
                         assert.equal(await harvestFilters.count(), 1);
                         // Phase 2 keeps date/plot filters and CSV exports in a
                         // disclosure so harvest totals and records appear first.
-                        assert.equal(await harvestFilters.locator("summary").isVisible(), true);
+                        assert.equal(await harvestFilters.locator(":scope > summary").isVisible(), true);
                         if (!(await harvestFilters.evaluate(el => el.open)))
-                            await harvestFilters.locator("summary").click();
+                            await harvestFilters.locator(":scope > summary").click();
                         assert.equal(await page.locator('#from').isVisible(), true);
                         assert.equal(await page.locator('#to').isVisible(), true);
                         assert.equal(await page.locator('a[href*="ExportCsv"]').count(), 1);
