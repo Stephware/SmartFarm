@@ -23,6 +23,8 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.unit.dp
 import com.smartfarm.mobile.features.crops.CropUiState
@@ -51,8 +53,16 @@ internal fun FarmQuickRecordSheet(
         Column(Modifier.fillMaxWidth().heightIn(max = 680.dp)
             .verticalScroll(rememberScrollState()).padding(horizontal = 20.dp, vertical = 12.dp),
             verticalArrangement = Arrangement.spacedBy(12.dp)) {
-            Text(if (action == null) "Record" else "Choose a growing crop",
-                style = MaterialTheme.typography.headlineSmall)
+            Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween) {
+                Text(if (action == null) "Record" else "Choose a growing crop",
+                    style = MaterialTheme.typography.headlineSmall,
+                    modifier = Modifier.weight(1f))
+                TextButton(onClick = onDismiss,
+                    modifier = Modifier.semantics { contentDescription = "Close record menu" }) {
+                    Text("Close")
+                }
+            }
             Text(farmName, style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant)
             if (action == null) {
