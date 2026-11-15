@@ -15,6 +15,8 @@ import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.Surface
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -52,7 +54,7 @@ internal fun FarmQuickRecordSheet(
     ModalBottomSheet(onDismissRequest = onDismiss) {
         Column(Modifier.fillMaxWidth().heightIn(max = 680.dp)
             .verticalScroll(rememberScrollState()).padding(horizontal = 20.dp, vertical = 12.dp),
-            verticalArrangement = Arrangement.spacedBy(12.dp)) {
+            verticalArrangement = Arrangement.spacedBy(10.dp)) {
             Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.SpaceBetween) {
                 Text(if (action == null) "Record" else "Choose a growing crop",
@@ -68,6 +70,9 @@ internal fun FarmQuickRecordSheet(
             if (action == null) {
                 Text("What did you do on the farm?",
                     style = MaterialTheme.typography.titleMedium)
+                Text("Choose an activity, then select the growing crop.",
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant)
                 RecordOption("Water", "Log watering for an active crop") { action = "watering" }
                 RecordOption("Use Supplies", "Apply fertilizer with optional supply use") {
                     action = "fertilizing"
@@ -79,7 +84,9 @@ internal fun FarmQuickRecordSheet(
                     action = "harvest"
                 }
                 HorizontalDivider()
-                TextButton(onClick = { otherOptions = !otherOptions }) { Text("Other") }
+                TextButton(onClick = { otherOptions = !otherOptions }) {
+                    Text(if (otherOptions) "Hide other activities" else "Other")
+                }
                 if (otherOptions) {
                     RecordOption("Other fieldwork", "Weeding, pesticide application or other work") { action = "other" }
                     RecordOption("General supply use", "Use a supply outside fertilizer application", onSupplies)
@@ -130,12 +137,20 @@ internal fun FarmQuickRecordSheet(
 
 @Composable
 private fun RecordOption(label: String, explanation: String, onClick: () -> Unit) {
-    OutlinedButton(onClick = onClick, modifier = Modifier.fillMaxWidth()) {
-        Column(Modifier.fillMaxWidth().padding(vertical = 5.dp),
-            verticalArrangement = Arrangement.spacedBy(3.dp)) {
-            Text(label, style = MaterialTheme.typography.titleSmall)
-            Text(explanation, style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant)
+    Surface(onClick = onClick, modifier = Modifier.fillMaxWidth(),
+        shape = MaterialTheme.shapes.medium,
+        color = MaterialTheme.colorScheme.surfaceContainerLow,
+        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant)) {
+        Row(Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 13.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+            Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(3.dp)) {
+                Text(label, style = MaterialTheme.typography.titleSmall)
+                Text(explanation, style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant)
+            }
+            Text("›", style = MaterialTheme.typography.titleLarge,
+                color = MaterialTheme.colorScheme.primary)
         }
     }
 }

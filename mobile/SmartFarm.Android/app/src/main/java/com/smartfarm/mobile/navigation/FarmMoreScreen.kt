@@ -8,7 +8,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -54,9 +54,13 @@ internal fun FarmMoreScreen(farmName: String, role: String?, onOpen: (String) ->
     RecordPage {
         item(key = "intro") {
             Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                FarmHero("My Farm", "Crops, growing areas, supplies and harvest history.")
-                Text(farmName, style = MaterialTheme.typography.titleMedium)
-                role?.let { FarmStatusChip(it, FarmStatusTone.Planned) }
+                FarmHero("My Farm", "Find farm records and account tools.")
+                Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+                    Text(farmName, style = MaterialTheme.typography.titleMedium,
+                        modifier = Modifier.weight(1f))
+                    role?.let { FarmStatusChip(it, FarmStatusTone.Planned) }
+                }
             }
         }
         if (role != null) {
@@ -97,21 +101,27 @@ internal fun FarmMoreScreen(farmName: String, role: String?, onOpen: (String) ->
 @Composable
 private fun MoreDestination(entry: MoreEntry, onOpen: (String) -> Unit,
     trailing: String? = null) {
-    OutlinedButton(onClick = { onOpen(entry.route) },
-        modifier = Modifier.fillMaxWidth().defaultMinSize(minHeight = 60.dp),
-        contentPadding = androidx.compose.foundation.layout.PaddingValues(
-            horizontal = 14.dp, vertical = 9.dp)) {
-        Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-            FarmLineIcon(entry.symbol, Modifier.size(21.dp))
+    // A quiet, full-width list row makes long tool lists easier to scan.
+    Surface(onClick = { onOpen(entry.route) },
+        modifier = Modifier.fillMaxWidth().defaultMinSize(minHeight = 64.dp),
+        color = MaterialTheme.colorScheme.surface,
+        shape = MaterialTheme.shapes.medium) {
+        Row(Modifier.fillMaxWidth().padding(horizontal = 14.dp, vertical = 12.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(14.dp)) {
+            FarmLineIcon(entry.symbol, Modifier.size(22.dp))
             Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(2.dp)) {
                 Text(entry.label, style = MaterialTheme.typography.titleSmall)
-                Text(entry.hint, style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant)
+                Text(entry.hint, style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    maxLines = 2)
             }
             if (trailing != null) {
-                Text(trailing, style = MaterialTheme.typography.labelSmall,
+                Text(trailing, style = MaterialTheme.typography.labelMedium,
                     color = MaterialTheme.colorScheme.primary)
+            } else {
+                Text("›", style = MaterialTheme.typography.titleLarge,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant)
             }
         }
     }

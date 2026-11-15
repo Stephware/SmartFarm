@@ -183,14 +183,19 @@ fun FarmListScreen(state: FarmUiState, onOpen: (String) -> Unit,
         items(state.farms, key = { "farm-${it.id}" }) { farm ->
             OutlinedCard(onClick = { onOpen(farm.id) },
                 modifier = Modifier.fillMaxWidth().testTag("record-card")) {
-                Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
-                    Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween,
+                Column(Modifier.fillMaxWidth().padding(16.dp),
+                    verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                    Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(12.dp),
                         verticalAlignment = Alignment.CenterVertically) {
-                        Text(farm.name, style = MaterialTheme.typography.titleLarge,
-                            modifier = Modifier.weight(1f))
+                        Column(Modifier.weight(1f),
+                            verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                            Text(farm.name, style = MaterialTheme.typography.titleMedium)
+                            Text(farm.locationText, style = MaterialTheme.typography.bodyMedium,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                maxLines = 2)
+                        }
                         FarmStatusChip(farm.role, FarmStatusTone.Planned)
                     }
-                    Text(farm.locationText, color = MaterialTheme.colorScheme.onSurfaceVariant)
                     Text("Open farm →", style = MaterialTheme.typography.labelLarge,
                         color = MaterialTheme.colorScheme.primary)
                 }
