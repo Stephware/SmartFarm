@@ -6,6 +6,11 @@
     var shown = (unreadOnly ? Model.Where(notification => notification.ReadAtUtc is null) : Model)
         .OrderBy(notification => notification.ReadAtUtc is null ? 0 : 1)
         .ThenByDescending(notification => notification.CreatedAtUtc).ToList();
+    const int pageSize = 20;
+    var requestedPage = int.TryParse(Context.Request.Query["page"].ToString(), out var parsedPage) ? parsedPage : 1;
+    var pageCount = Math.Max(1, (shown.Count + pageSize - 1) / pageSize);
+    var currentPage = Math.Clamp(requestedPage, 1, pageCount);
+    var visibleNotifications = shown.Skip((currentPage - 1) * pageSize).Take(pageSize).ToList();
 }
 <div class="reference-screen reference-screen-notifications ani-p2-page ani-p2-notifications">
 <section class="panel card sf-notifications-hero ani-p2-hero" aria-labelledby="notifications-heading">
@@ -28,7 +33,7 @@
 <section class="panel card sf-notifications-panel" aria-labelledby="notifications-list-heading">
     <div class="sf-section-line card-head">
         <h2 id="notifications-list-heading">Recent notifications</h2>
-        <span>@shown.Count shown · @Model.Count total</span>
+        <span>@visibleNotifications.Count on this page · @shown.Count matching · @Model.Count total</span>
     </div>
     <nav class="ani-inbox-tabs" aria-label="Notification filters">
         <a asp-controller="Notifications" asp-action="Index" class="@(!unreadOnly ? "is-active" : "")"
@@ -49,7 +54,7 @@
     else
     {
         <ul class="sf-notifications-list list-grid">
-        @foreach (var notification in shown)
+        @foreach (var notification in visibleNotifications)
         {
             <li class="sf-notification list-card @(notification.ReadAtUtc is null ? "sf-notification-unread" : "sf-notification-read")">
                 <span class="sf-notification-marker reference-notification-icon" aria-hidden="true"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9M10 21h4" /></svg></span>
@@ -78,6 +83,24 @@
             </li>
         }
         </ul>
+        @if (pageCount > 1)
+        {
+            <nav class="ani-p4-pager" aria-label="Notification pages">
+                <span>Page @currentPage of @pageCount</span>
+                @if (currentPage > 1)
+                {
+                    <a asp-controller="Notifications" asp-action="Index"
+                       asp-route-view="@(unreadOnly ? "unread" : null)"
+                       asp-route-page="@(currentPage - 1)" rel="prev">Previous</a>
+                }
+                @if (currentPage < pageCount)
+                {
+                    <a asp-controller="Notifications" asp-action="Index"
+                       asp-route-view="@(unreadOnly ? "unread" : null)"
+                       asp-route-page="@(currentPage + 1)" rel="next">Next</a>
+                }
+            </nav>
+        }
     }
 </section>
 

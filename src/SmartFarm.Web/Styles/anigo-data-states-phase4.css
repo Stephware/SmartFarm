@@ -1,0 +1,64 @@
+/* Phase 4: compact, accessible empty/data states and scalable record navigation.
+   Authenticated workspace only; public entry remains unchanged for Phase 6. */
+@layer components {
+  body.is-authenticated .ani-p4-empty,
+  body.is-authenticated .ani-p2-page .sf-empty-state {
+    display: flex; flex-direction: column; align-items: flex-start; justify-content: center;
+    gap: 8px; min-height: 0; max-width: none;
+    margin: 12px 0; padding: clamp(18px, 2.4vw, 26px);
+    background: var(--ui-surface-subtle); color: var(--ui-text);
+    border: 1px dashed var(--ui-border); border-radius: 12px;
+  }
+  body.is-authenticated .ani-p4-empty :is(strong,p,a),
+  body.is-authenticated .ani-p2-page .sf-empty-state :is(strong,p,a) {
+    margin: 0; max-width: 66ch; overflow-wrap: anywhere;
+  }
+  body.is-authenticated .ani-p4-empty .ani-p4-empty-title,
+  body.is-authenticated .ani-p2-page .sf-empty-state > strong {
+    font-size: 1rem; font-weight: 700; line-height: 1.4;
+  }
+  body.is-authenticated .ani-p4-empty p,
+  body.is-authenticated .ani-p2-page .sf-empty-state p {
+    color: var(--ui-text-secondary); font-size: .9rem; line-height: 1.55;
+  }
+  body.is-authenticated .ani-p4-empty .ani-p4-empty-action,
+  body.is-authenticated .ani-p2-page .sf-empty-state a {
+    display: inline-flex; align-items: center; min-height: 44px;
+    margin-top: 3px; font-weight: 700; text-underline-offset: 4px;
+  }
+  body.is-authenticated .ani-p4-pager {
+    display: flex; flex-wrap: wrap; justify-content: flex-end; align-items: center;
+    gap: 8px; margin-top: 16px; padding-top: 14px;
+    border-top: 1px solid var(--ui-border);
+    font-size: .875rem;
+  }
+  body.is-authenticated .ani-p4-pager span {
+    color: var(--ui-text-secondary); margin-right: auto;
+    font-variant-numeric: tabular-nums;
+  }
+  body.is-authenticated .ani-p4-pager a {
+    display: inline-flex; min-height: 44px; align-items: center;
+    padding: 8px 14px; color: var(--ui-primary); font-weight: 700;
+    text-decoration: none; background: var(--ui-surface);
+    border: 1px solid var(--ui-border); border-radius: 10px;
+  }
+  body.is-authenticated .ani-p4-pager a:hover { background: var(--ui-surface-subtle); }
+  body.is-authenticated .ani-p4-pager a:focus-visible {
+    outline: 3px solid var(--ui-focus); outline-offset: 2px;
+  }
+  body.is-authenticated .ani-p2-inventory .ani12e-scroll-table {
+    max-width: 100%; overflow-x: auto;
+  }
+  body.is-authenticated .ani-p2-notifications .sf-notifications-list {
+    min-width: 0; display: grid; gap: 10px;
+  }
+  @media(max-width: 600px) {
+    body.is-authenticated .ani-p4-pager { justify-content: space-between; }
+    body.is-authenticated .ani-p4-pager span { flex: 1 1 100%; }
+    body.is-authenticated .ani-p4-empty,
+    body.is-authenticated .ani-p2-page .sf-empty-state { padding: 18px; }
+  }
+  @media(prefers-reduced-motion: reduce) {
+    body.is-authenticated .ani-p4-pager a { transition: none; }
+  }
+}
