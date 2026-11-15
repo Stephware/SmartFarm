@@ -1,6 +1,6 @@
 # Implement AniGo farmer-first MVP simplification
 
-**Status: Stages 0–5 merged; Stage 6 technical checks recorded with provider/release limits. Its PR requires explicit approval before merge.** Baseline: `dev` from 2026-11-13 (`29c55166`). Keep each stage as a separately reviewable PR into `dev`, with tests before merge. The goal is fewer screens, **not** wholesale deletion of working infrastructure. Read [PRODUCT.md](../../../PRODUCT.md) and [AGENTS.md](../../../AGENTS.md) first.
+**Status: Stages 0–5 merged; Stage 6 technical checks recorded with provider/release limits. Its CI follow-up requires explicit approval before merge.** Baseline: `dev` from 2026-11-13 (`29c55166`). Keep each stage as a separately reviewable PR into `dev`, with tests before merge. The goal is fewer screens, **not** wholesale deletion of working infrastructure. Read [PRODUCT.md](../../../PRODUCT.md) and [AGENTS.md](../../../AGENTS.md) first.
 
 ## Scope and decision rules
 - MVC four primary farm destinations: Today, Crops & Calendar, Supplies, Harvests. Farm/Team and Account secondary.
@@ -115,6 +115,8 @@ Verified: 577 strict disposable-SQL .NET, 64 JVM, 118 device and 62 Node tests w
 - Observe **3–5 real farmers** on phone without coaching. Target: complete primary tasks with no unclear screens and few required inputs; fix blocking usability failures. Do not declare farmer acceptance or production readiness from CI alone.
 
 ### Stage 6 technical acceptance evidence
+
+PR #129 was externally merged by `Stephware` at `6982780` while the emulator gate was failing; this agent did not merge. The test-only follow-up waits for native picker readiness and actual sheet dismissal, preserving all assertions. Local build/64 JVM/118 device checks pass; check all seven jobs on the follow-up PR head before acceptance. [CI evidence](../../../.local/karpathy-wiki/raw/project/2026-11-14-mvp-stage-6-ci.md). The external merge does not grant approval for another merge.
 
 Stage 5 PR #128 merged at `9d5a44c` after all seven checks passed. The user waived real-farmer sessions for this technical stage: **not conducted**, recommended later with 3–5 farmers. Do not merge this stage's PR without fresh explicit approval; leave `main` untouched.
 

@@ -17,7 +17,7 @@ Architecture, behavior, conventions, decisions and dated implementation evidence
 
 | Article | Summary | Updated |
 | --- | --- | --- |
-| [MVP simplification](project/mvp-simplification.md) | Stages 0–5 merged; Stage 6 technical checks, provider/release limits and merge-approval gate recorded | 2026-11-14 |
+| [MVP simplification](project/mvp-simplification.md) | Stage 6 technical evidence; external PR merge and test-only CI follow-up with explicit approval gate | 2026-11-14 |
 | [Current source status](project/current-source-status.md) | Publication delta: admin/MFA, Android navigation, Tailwind, CI and extended-schema verifier limits | 2026-11-14 |
 | [Architecture](project/architecture.md) | Independent hosts, service boundaries, live farm access and private media | 2026-11-12 |
 | [Features](project/features.md) | Implemented modules, roles and critical business rules | 2026-11-14 |

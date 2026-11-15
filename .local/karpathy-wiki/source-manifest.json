@@ -920,6 +920,23 @@
           "sha256": "6a71e3ec2b3375441d43f570ce47ef285254a8239c7e4ed63d4944c048b4f021"
         }
       ]
+    },
+    {
+      "collected": "2026-11-14",
+      "repository_head": "6982780fa6d20e61c48525c97f95b7ae37c7cd4f",
+      "snapshot": "raw/project/2026-11-14-mvp-stage-6-ci.md",
+      "sha256": "4abaff3ce6fdc588f5438b2f445423cc84ee257428f5471170e621e84e96d9d9",
+      "scope": "Test-only native window/dismissal synchronization after red emulator CI; external merge recorded; new PR remains approval-gated.",
+      "source_files": [
+        {
+          "path": "mobile/SmartFarm.Android/app/src/androidTest/java/com/smartfarm/mobile/FullAppJourneyTest.kt",
+          "sha256": "42ebc2695dcbe7b40eb4d3731a5acba8f0c90c9986cfb23b1d1dab63e55337e2"
+        },
+        {
+          "path": "mobile/SmartFarm.Android/app/src/androidTest/java/com/smartfarm/mobile/NavigationInputsTest.kt",
+          "sha256": "c9daa25ef47b1702efed96fb6c8517e046e733634cb3bb87e07bfbc9f4723afe"
+        }
+      ]
     }
   ],
   "reviews": [

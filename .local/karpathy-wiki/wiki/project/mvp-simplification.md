@@ -1,7 +1,7 @@
 # Farmer-first MVP simplification — target state
 
 > Sources: approved MVP brief and SmartFarm dev source, 2026-11-13
-> Raw: [Stage 0 source and regression evidence](../../raw/project/2026-11-13-mvp-stage-0.md), [Stage 1 MVC evidence](../../raw/project/2026-11-13-mvp-stage-1.md), [Stage 2 Android evidence](../../raw/project/2026-11-13-mvp-stage-2.md), [Stage 3 recording evidence](../../raw/project/2026-11-13-mvp-stage-3.md), [CI test isolation](../../raw/project/2026-11-13-mvp-stage-3-ci.md), [Stage 4 offline evidence](../../raw/project/2026-11-14-mvp-stage-4.md); [MVP retirement](../../raw/project/2026-11-14-mvp-stage-5.md); [Public baseline review](../../raw/project/2026-11-14-mvp-stage-5-ci.md); [Stage 6 technical acceptance](../../raw/project/2026-11-14-mvp-stage-6.md)
+> Raw: [Stage 0 source and regression evidence](../../raw/project/2026-11-13-mvp-stage-0.md), [Stage 1 MVC evidence](../../raw/project/2026-11-13-mvp-stage-1.md), [Stage 2 Android evidence](../../raw/project/2026-11-13-mvp-stage-2.md), [Stage 3 recording evidence](../../raw/project/2026-11-13-mvp-stage-3.md), [CI test isolation](../../raw/project/2026-11-13-mvp-stage-3-ci.md), [Stage 4 offline evidence](../../raw/project/2026-11-14-mvp-stage-4.md); [MVP retirement](../../raw/project/2026-11-14-mvp-stage-5.md); [Public baseline review](../../raw/project/2026-11-14-mvp-stage-5-ci.md); [Stage 6 technical acceptance](../../raw/project/2026-11-14-mvp-stage-6.md); [Stage 6 CI follow-up](../../raw/project/2026-11-14-mvp-stage-6-ci.md)
 > Updated: 2026-11-14
 
 **Stages 0–5 merged; Stage 6 technical acceptance recorded.** PR #128 merged at `9d5a44c` after all seven checks passed. Real-farmer sessions were waived, not conducted. Provider/release limits below remain; Stage 6 PR must not merge without fresh explicit approval.
@@ -63,6 +63,8 @@ Android: `navigation/FarmWorkspaceBar.kt`, `FarmMoreScreen.kt`, `FarmQuickRecord
 Backend: `Infrastructure/Services/Monitoring/MonitoringService.cs` handles matching task fulfillment; API `SyncOperationsController` plus Room/WorkManager maintain idempotent writes; Worker `FarmAutomationService` supplies reminders/weather. Source remains authoritative for exact methods and paths.
 
 ## Stage 6 technical acceptance
+
+PR #129 was externally merged at `6982780` while CI was still being verified; this agent issued no merge action. Six initial jobs passed; two emulator test synchronization failures led to a test-only follow-up. Fresh local 64 JVM/118 device checks pass; require all seven jobs on its final PR head and explicit approval before any merge.
 
 Fresh guarded MVC/API/Worker and native offline journeys cover setup, approved joining/roles, generated-task watering, atomic stock use/rollback, inspections/private photos, repeated partial harvests, unit-separated reports/CSV and stable-ID conflicts. Final local gates: 578 strict SQL-enabled .NET, 64 JVM, 118 emulator, 62 Node and 7+15 recovery-tool tests. Live Chrome/Firefox/WebKit: 324 page variants, 54 axe scans and 18 enlarged-text checks with no detected failures; no-JS/keyboard/Escape also checked. Native queued fertilizer, two harvests and inspection/photo automatically confirmed on reconnect; controlled loopback is not ordinary network acceptance. See the plan for repeat commands and PR gates.
 

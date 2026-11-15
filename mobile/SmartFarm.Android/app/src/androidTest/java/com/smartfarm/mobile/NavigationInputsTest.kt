@@ -52,6 +52,9 @@ class NavigationInputsTest {
         try {
             compose.onNodeWithContentDescription(
                 "Planting date: $formatted. Choose date").performClick()
+            // Commit the framework window before querying its accessibility tree.
+            compose.waitForIdle()
+            device.waitForIdle()
             // Headless emulators can expose the native positive button by text before
             // its framework resource ID is discoverable by UI Automator.
             val confirm = device.wait(
