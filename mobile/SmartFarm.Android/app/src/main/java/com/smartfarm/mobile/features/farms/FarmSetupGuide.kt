@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.material3.Button
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -13,6 +14,8 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
+import androidx.compose.foundation.layout.Row
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.smartfarm.mobile.features.crops.CropUiState
@@ -38,6 +41,7 @@ internal fun FarmSetupGuide(
     onCrops: () -> Unit
 ) {
     var hidden by rememberSaveable(farmId) { mutableStateOf(false) }
+    var showSteps by rememberSaveable(farmId) { mutableStateOf(false) }
     val loaded = cropState?.farmId == farmId &&
         !cropState.busy && cropState.error == null
     val hasActiveCrop = loaded && cropState?.cycles?.any { it.status == 1 } == true
@@ -46,20 +50,13 @@ internal fun FarmSetupGuide(
     if (hidden || next == FarmSetupNext.Loading || next == FarmSetupNext.Complete) return
 
     FarmSectionCard("Get your farm ready",
-        subtitle = "A quick setup guide. You can come back to these steps anytime.") {
-        Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-            Text("1. Add a growing plot  ${if (hasPlots) "✓" else "· Next step"}",
-                style = MaterialTheme.typography.titleSmall)
-            Text("2. Plan and start your first crop  ${if (hasActiveCrop) "✓" else "· Not started"}",
-                style = MaterialTheme.typography.titleSmall)
-            Text("3. Record fieldwork from the Record button",
-                style = MaterialTheme.typography.titleSmall)
-        }
+        subtitle = if (next == FarmSetupNext.AddPlot) "Step 1 of 3 · Set up a growing area"
+                   else "Step 2 of 3 · Start a crop") {
         Text(if (next == FarmSetupNext.AddPlot)
-            "Start by naming the growing area and entering its size."
+            "Add your first plot to begin planning crops."
         else if (hasPlannedCrop)
-            "Your planting plan is ready. Open Crops to start the growing cycle."
-        else "Your plot is ready. Choose a crop and make a planting plan.",
+            "Your planting plan is ready. Start the growing cycle when you plant."
+        else "Your plot is ready. Choose what to grow next.",
             style = MaterialTheme.typography.bodyMedium,
             color = MaterialTheme.colorScheme.onSurfaceVariant)
         Button(onClick = if (next == FarmSetupNext.AddPlot) onPlots else onCrops,
@@ -67,6 +64,23 @@ internal fun FarmSetupGuide(
             Text(if (next == FarmSetupNext.AddPlot) "Add first plot"
                 else if (hasPlannedCrop) "Start planned crop" else "Plan a crop")
         }
-        TextButton(onClick = { hidden = true }) { Text("Not now") }
+        Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceBetween) {
+            TextButton(onClick = { showSteps = !showSteps }) {
+                Text(if (showSteps) "Hide setup steps" else "See all setup steps")
+            }
+            TextButton(onClick = { hidden = true }) { Text("Not now") }
+        }
+        if (showSteps) {
+            HorizontalDivider()
+            Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                Text("1. Add a growing plot ${if (hasPlots) "✓" else "· Next step"}",
+                    style = MaterialTheme.typography.bodyMedium)
+                Text("2. Plan and start your first crop ${if (hasActiveCrop) "✓" else "· Not started"}",
+                    style = MaterialTheme.typography.bodyMedium)
+                Text("3. Record fieldwork from the Record button",
+                    style = MaterialTheme.typography.bodyMedium)
+            }
+        }
     }
 }

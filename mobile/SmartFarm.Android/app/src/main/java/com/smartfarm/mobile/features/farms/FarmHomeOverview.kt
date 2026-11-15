@@ -10,6 +10,8 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.Surface
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -75,14 +77,21 @@ internal fun FarmHomeOverview(
         }
     }
 
-    Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-        listOf("Water" to "watering", "Inspect" to "inspection", "Harvest" to "harvest")
-            .forEach { (label, action) ->
-                OutlinedButton(onClick = { onRecordAction(action) },
+    // Secondary shortcuts use a single quiet surface instead of three full buttons.
+    Surface(modifier = Modifier.fillMaxWidth(), shape = MaterialTheme.shapes.medium,
+        color = MaterialTheme.colorScheme.surfaceContainerLow,
+        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant)) {
+        Row(Modifier.fillMaxWidth().padding(horizontal = 6.dp, vertical = 3.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(2.dp)) {
+            listOf("Water" to "watering", "Inspect" to "inspection",
+                "Harvest" to "harvest").forEach { (label, action) ->
+                TextButton(onClick = { onRecordAction(action) },
                     modifier = Modifier.weight(1f).defaultMinSize(minHeight = 48.dp)) {
-                    Text(label)
+                    Text(label, style = MaterialTheme.typography.labelLarge)
                 }
             }
+        }
     }
 
     // Only actionable alerts appear here. Weather warnings are explicitly saved, not live.
@@ -122,7 +131,7 @@ internal fun FarmHomeOverview(
     }
 
     FarmSectionCard("Today's tasks",
-        subtitle = "Your assignments and, for owners, unassigned farm work.") {
+        subtitle = "Due work and the next assignments.") {
         when {
             state.offline -> {
                 FarmEmptyState("Tasks need a connection",
@@ -187,7 +196,7 @@ internal fun FarmHomeOverview(
                 }
             }
         }
-        OutlinedButton(onClick = onTasks,
+        TextButton(onClick = onTasks,
             modifier = Modifier.fillMaxWidth().defaultMinSize(minHeight = 48.dp)) {
             Text("Open tasks")
         }
