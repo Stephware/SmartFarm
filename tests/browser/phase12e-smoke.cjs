@@ -134,7 +134,13 @@ const widths = [320, 375, 768, 1024, 1440];
                             assert.ok(await page.getByText("Weather data may be out of date.").count());
                     }
                     if (name === "12e-reports") {
-                        assert.equal(await page.locator("#report-filters").count(), 1);
+                        const harvestFilters = page.locator("#report-filters");
+                        assert.equal(await harvestFilters.count(), 1);
+                        // Phase 2 keeps date/plot filters and CSV exports in a
+                        // disclosure so harvest totals and records appear first.
+                        assert.equal(await harvestFilters.locator("summary").isVisible(), true);
+                        if (!(await harvestFilters.evaluate(el => el.open)))
+                            await harvestFilters.locator("summary").click();
                         assert.equal(await page.locator('#from').isVisible(), true);
                         assert.equal(await page.locator('#to').isVisible(), true);
                         assert.equal(await page.locator('a[href*="ExportCsv"]').count(), 1);
