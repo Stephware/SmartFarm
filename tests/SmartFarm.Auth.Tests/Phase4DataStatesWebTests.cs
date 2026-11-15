@@ -1,5 +1,8 @@
 using System.Net;
 using System.Text.RegularExpressions;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Configuration.Json;
+using Microsoft.Extensions.DependencyInjection;
 using SmartFarm.Core.Contracts.Inventory;
 using SmartFarm.Core.Contracts.Tasks;
 using SmartFarm.Core.Enums;
@@ -9,6 +12,16 @@ namespace SmartFarm.Auth.Tests;
 
 public sealed partial class FarmEnrollmentWebTests
 {
+    [Fact]
+    public void ImmutableMvcTestConfigurationDoesNotAllocateReloadWatchers()
+    {
+        using var app = App();
+        var configuration = (IConfigurationRoot)app.Services.GetRequiredService<IConfiguration>();
+        var files = configuration.Providers.OfType<JsonConfigurationProvider>().ToList();
+        Assert.NotEmpty(files);
+        Assert.All(files, file => Assert.False(file.Source.ReloadOnChange));
+    }
+
     private static InventoryWorkspace Phase4Supplies(int count) => new(
         Enumerable.Range(1, count).Select(i => new InventoryItemDetails(
             new Guid(i, 0, 0, new byte[8]), FarmId, $"Supply {i:000}",

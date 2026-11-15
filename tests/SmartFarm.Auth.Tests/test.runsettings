@@ -1,0 +1,8 @@
+<RunSettings>
+  <RunConfiguration>
+    <EnvironmentVariables>
+      <!-- Test hosts read fixed settings; live reload needlessly consumes Linux inotify instances. -->
+      <DOTNET_HOSTBUILDER__RELOADCONFIGONCHANGE>false</DOTNET_HOSTBUILDER__RELOADCONFIGONCHANGE>
+    </EnvironmentVariables>
+  </RunConfiguration>
+</RunSettings>
