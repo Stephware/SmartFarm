@@ -5,6 +5,7 @@
         ? "A" : Model.FullName.Trim()[0].ToString().ToUpperInvariant();
 }
 <partial name="_UiPageHeader" model='@(new UiPageHeader("My account", "Review your identity and preferred appearance.", Id: "account-heading"))' />
+<div class="ani-p2-page ani-p2-account">
 <section class="panel sf-account-hero ani-account-hero" aria-labelledby="account-heading">
     <div class="sf-account-identity">
         <span class="sf-account-avatar ani-account-avatar" aria-hidden="true">@initial</span>
@@ -14,14 +15,13 @@
         </div>
     </div>
 </section>
-<section class="panel sf-account-details" aria-labelledby="account-details-heading">
-    <h2 id="account-details-heading">Your account information</h2>
+<details class="panel sf-account-details ani-p2-account-details"><summary id="account-details-heading">Your account information (read-only)</summary>
     <dl>
         <div><dt>Name</dt><dd>@Model.FullName</dd></div>
         <div><dt>Email</dt><dd>@Model.Email</dd></div>
     </dl>
-    <p class="hint">This information is read-only here; this screen does not change your password or sign-in details. Farm roles and membership are managed separately inside each farm.</p>
-</section>
+    <p class="hint">This screen does not change your password or sign-in details. Farm roles and membership are managed separately inside each farm.</p>
+</details>
 <section class="panel sf-account-links" aria-labelledby="account-links-heading">
     <h2 id="account-links-heading">Where to go next</h2>
     <div class="sf-account-link-grid">
@@ -42,3 +42,5 @@
         <p>Light is the default. Your choice is saved on this browser only, not across every device.</p></div>
     <button type="button" data-color-mode-toggle aria-pressed="false" aria-label="Use dark appearance"><span data-color-mode-status>Light appearance</span><partial name="_Icon" model='@("sun")' /></button>
 </section>
+
+</div>

@@ -14,9 +14,9 @@
         currentCycles.FirstOrDefault(c => c.PlotId == selectedPlot.Id);
     var finishedCycles = Model.Cycles.Count(c => c.Status is not (CropCycleStatus.Active or CropCycleStatus.Planned));
 }
-<div class="reference-screen reference-screen-crops ani12d-crop-workspace">
+<div class="reference-screen reference-screen-crops ani12d-crop-workspace ani-p2-page ani-p2-crops">
 <partial name="_FarmNavigation" model="Model.Farm.Id" />
-<section class="panel card sf-crop-hero ani12d-crop-hero">
+<section class="panel card sf-crop-hero ani12d-crop-hero ani-p2-hero">
     <p><a asp-controller="Farms" asp-action="Details" asp-route-id="@Model.Farm.Id">← @Model.Farm.Name</a></p>
 
     <div class="sf-page-header page-hero">

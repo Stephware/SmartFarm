@@ -1,0 +1,261 @@
+/* AniGo Phase 2 — Web MVC layout refinement.
+   Role-aware routes and form actions stay intact. Deliberately scoped to
+   authenticated workspace pages, with Phase 1 light/dark design tokens. */
+@layer components {
+  body.is-authenticated .ani-p2-page {
+    min-width: 0;
+    --p2-gap: clamp(14px, 1.8vw, 20px);
+    --p2-padding: clamp(17px, 2vw, 24px);
+  }
+  body.is-authenticated .ani-p2-page .ani-p2-hero {
+    margin: 0 0 20px; padding: 0; border: 0; border-radius: 0;
+    background: transparent; box-shadow: none; min-height: 0;
+  }
+  body.is-authenticated .ani-p2-page .ani-p2-hero .page-hero {
+    padding: 0; display: flex; flex-wrap: wrap; align-items: center; gap: 12px 20px;
+  }
+  body.is-authenticated .ani-p2-page .ani-p2-hero h1 {
+    font-size: clamp(1.78rem, 2.4vw, 2.2rem); line-height: 1.2;
+    letter-spacing: -.025em; margin: 0 0 6px;
+  }
+  body.is-authenticated .ani-p2-page .ani-p2-hero p.sf-muted {
+    max-width: 66ch; font-size: .94rem; line-height: 1.5;
+  }
+  body.is-authenticated .ani-p2-page :is(.panel,.card) { box-shadow: none; }
+  body.is-authenticated .ani-p2-page :is(.card-head,.reference-panel-heading) {
+    margin-bottom: 14px; gap: 12px;
+  }
+  body.is-authenticated .ani-p2-page :is(.card-head,.reference-panel-heading) h2 {
+    font-size: 1.13rem; line-height: 1.35;
+  }
+  body.is-authenticated .ani-p2-page .sf-empty-state {
+    min-height: 0; padding: clamp(20px, 2.7vw, 32px) 16px;
+    margin-block: 10px 2px; background: var(--ui-surface-subtle);
+    border: 1px dashed var(--ui-border); border-radius: 12px;
+  }
+  body.is-authenticated .ani-p2-page :is(a,button,summary):focus-visible {
+    outline: 3px solid var(--ui-focus); outline-offset: 3px;
+  }
+  /* Farms: compact cards, meaningful icon, and two-level action hierarchy. */
+  body.is-authenticated .ani-p2-farms .ani-entry-farms-heading { margin-bottom: 20px; gap: 16px; }
+  body.is-authenticated .ani-p2-farms .ani-entry-farm-list { gap: 14px; }
+  body.is-authenticated .ani-p2-farms .ani-entry-farm-card { min-height: 0; border-radius: 14px; }
+  body.is-authenticated .ani-p2-farms .ani-entry-farm-card .farm-card-body {
+    min-height: 0; padding: 20px 23px;
+  }
+  body.is-authenticated .ani-p2-farms .ani-entry-farm-identity { margin-bottom: 12px; }
+  body.is-authenticated .ani-p2-farms .ani-entry-farm-mark {
+    width: 38px; height: 38px; flex: 0 0 38px; border-radius: 10px;
+  }
+  body.is-authenticated .ani-p2-farms .ani-entry-farm-mark :is(.ico,svg) { width: 20px; height: 20px; }
+  body.is-authenticated .ani-p2-farms .ani-entry-farm-card h2 { margin: 0 0 5px; font-size: 1.15rem; }
+  body.is-authenticated .ani-p2-farms .ani-entry-farm-card .sf-muted { margin-bottom: 12px; line-height: 1.4; }
+  body.is-authenticated .ani-p2-farms .farm-card-actions {
+    margin-top: auto; padding-top: 8px; gap: 8px 16px; align-items: center;
+  }
+  body.is-authenticated .ani-p2-farms .farm-card-actions > a { min-height: 44px; }
+  body.is-authenticated .ani-p2-farms .ani-entry-join-layout { margin-top: 20px; max-width: 920px; }
+  /* Today: one useful next action, then concise status cards and work. */
+  body.is-authenticated .ani-p2-dashboard .ani12c-dashboard-hero {
+    gap: 18px; align-items: center; flex-wrap: wrap;
+  }
+  body.is-authenticated .ani-p2-dashboard .ani12c-dashboard-hero > div:first-child {
+    flex: 1 1 320px;
+  }
+  body.is-authenticated .ani-p2-dashboard .ani12c-dashboard-hero .dashboard-date {
+    display: block; margin-top: 7px; font-size: .84rem;
+  }
+  body.is-authenticated .ani-p2-dashboard .ani12c-dashboard-hero .mvp-farm-context {
+    font-size: .9rem; font-weight: 650; margin-bottom: 3px;
+  }
+  body.is-authenticated .ani-p2-dashboard .ani-dashboard-priority-intro { margin-bottom: 12px; }
+  body.is-authenticated .ani-p2-dashboard .ani-dashboard-priority-intro p {
+    font-size: .875rem; margin: 4px 0 0;
+  }
+  body.is-authenticated .ani-p2-dashboard .ani12c-metrics { gap: 12px; margin-bottom: 16px; }
+  body.is-authenticated .ani-p2-dashboard .ani12c-metrics .ani-dashboard-priority-stat {
+    min-height: 90px; padding: 16px 18px; border-radius: 12px;
+  }
+  body.is-authenticated .ani-p2-dashboard .ani12c-metrics .ani-dashboard-priority-stat strong {
+    font-size: clamp(1.5rem, 2vw, 1.9rem);
+  }
+  body.is-authenticated .ani-p2-dashboard .ani-dashboard-primary-grid { gap: 16px; }
+  body.is-authenticated .ani-p2-dashboard .ani-dashboard-primary-grid .sf-home-card {
+    padding: var(--p2-padding); border-radius: 14px;
+  }
+  body.is-authenticated .ani-p2-dashboard .ani12c-dashboard-rail { gap: 16px; }
+  /* Crops: unboxed header, integrated jump navigation and tighter crop cards. */
+  body.is-authenticated .ani-p2-crops .ani12d-crop-hero > p:first-child { margin: 0 0 12px; }
+  body.is-authenticated .ani-p2-crops .ani12d-crop-tabs {
+    margin: 16px 0 0; padding: 5px; gap: 5px;
+    background: var(--ui-surface-subtle); border: 1px solid var(--ui-border);
+    border-radius: 12px;
+  }
+  body.is-authenticated .ani-p2-crops .ani12d-crop-tabs > a {
+    min-height: 42px; border-radius: 9px;
+  }
+  body.is-authenticated .ani-p2-crops .mvp-crop-counts { margin: 10px 0 0; font-size: .85rem; }
+  body.is-authenticated .ani-p2-crops .ani12d-current-crops {
+    padding: var(--p2-padding); border-radius: 14px;
+  }
+  body.is-authenticated .ani-p2-crops .ani12d-current-grid { gap: 12px; }
+  body.is-authenticated .ani-p2-crops .ani12d-current-grid .ani-current-card {
+    min-height: 0; border-radius: 12px;
+  }
+  /* Supplies: compact header, search and filters directly above inventory. */
+  body.is-authenticated .ani-p2-inventory .ani12e-hero { margin-bottom: 18px; }
+  body.is-authenticated .ani-p2-inventory .ani12e-primary-panel {
+    padding: var(--p2-padding); border-radius: 14px;
+  }
+  body.is-authenticated .ani-p2-inventory .ani12e-filter-tabs {
+    margin-bottom: 10px; padding: 4px; gap: 4px;
+  }
+  body.is-authenticated .ani-p2-inventory .ani12e-search-form {
+    padding: 9px 0 16px; gap: 10px;
+  }
+  body.is-authenticated .ani-p2-inventory .ani12e-search-form > div:first-child {
+    flex: 2 1 260px;
+  }
+  body.is-authenticated .ani-p2-inventory .ani12e-search-form > div:nth-child(2) {
+    flex: 1 1 180px;
+  }
+  body.is-authenticated .ani-p2-inventory .ani12e-inventory-table :is(th,td) { padding-block: 11px; }
+  /* Harvest reports: results first; optional filters and CSV exports collapsed. */
+  body.is-authenticated .ani-p2-reports > .ui-page-header { margin-bottom: 16px; }
+  body.is-authenticated .ani-p2-reports .mvp-harvest-totals {
+    margin-bottom: 16px; padding: var(--p2-padding);
+  }
+  body.is-authenticated .ani-p2-reports .ani12e-report-results { margin-top: 0; gap: 12px; }
+  body.is-authenticated .ani-p2-reports .ani12e-data-panel {
+    padding: var(--p2-padding); border-radius: 14px;
+  }
+  body.is-authenticated .ani-p2-reports .ani-p2-report-tools {
+    margin: 4px 0; overflow: clip; background: var(--ui-surface);
+    border: 1px solid var(--ui-border); border-radius: 12px;
+  }
+  body.is-authenticated .ani-p2-reports .ani-p2-report-tools > summary {
+    display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between;
+    gap: 12px; min-height: 52px; padding: 12px 18px;
+    color: var(--ui-primary); cursor: pointer; font-weight: 700;
+  }
+  body.is-authenticated .ani-p2-reports .ani-p2-report-tools[open] > summary {
+    border-bottom: 1px solid var(--ui-border);
+  }
+  body.is-authenticated .ani-p2-reports .ani-p2-report-tools > .panel {
+    border: 0; margin: 0; padding: 18px; background: transparent; border-radius: 0;
+  }
+  body.is-authenticated .ani-p2-reports .ani-p2-detail-note {
+    font-size: .8rem; font-weight: 600; color: var(--ui-text-secondary);
+  }
+  /* Farm & team: concise next step, optional later setup instructions. */
+  body.is-authenticated .ani-p2-farm .ani12d-farm-hero { margin-bottom: 16px; }
+  body.is-authenticated .ani-p2-farm .ani-p2-setup {
+    margin-top: 16px; padding: 18px 20px;
+    border: 1px solid var(--ui-border); border-radius: 14px;
+    background: var(--ui-surface-subtle);
+  }
+  body.is-authenticated .ani-p2-farm .ani-p2-setup-intro {
+    display: flex; align-items: center; justify-content: space-between; gap: 18px;
+  }
+  body.is-authenticated .ani-p2-farm .ani-p2-setup-intro > div { min-width: 0; flex: 1; }
+  body.is-authenticated .ani-p2-farm .ani-p2-setup-intro h2 {
+    margin: 3px 0 5px; font-size: 1.15rem;
+  }
+  body.is-authenticated .ani-p2-farm .ani-p2-setup-intro p { margin: 0; font-size: .88rem; }
+  body.is-authenticated .ani-p2-farm .ani-p2-setup-intro .ani-overline { color: var(--ui-gold); }
+  body.is-authenticated .ani-p2-farm .ani-p2-setup-intro > a { flex: 0 0 auto; }
+  body.is-authenticated .ani-p2-farm .ani-p2-setup-more > summary {
+    display: flex; align-items: center; min-height: 44px;
+    color: var(--ui-primary); cursor: pointer; font-size: .86rem; font-weight: 650;
+  }
+  body.is-authenticated .ani-p2-farm .ani-p2-setup-more .ani-journey-steps {
+    margin-top: 6px; padding-top: 10px;
+  }
+  body.is-authenticated .ani-p2-farm .ani12d-farm-summary {
+    gap: 12px; margin-bottom: 16px;
+  }
+  body.is-authenticated .ani-p2-farm .ani12d-management-grid { gap: 16px; }
+  body.is-authenticated .ani-p2-farm .ani12d-management-grid .panel {
+    padding: var(--p2-padding); border-radius: 14px;
+  }
+  /* Notifications: inbox comes first; caveats stay expandable. */
+  body.is-authenticated .ani-p2-notifications .sf-notifications-count {
+    padding: 8px 14px; border-radius: 12px;
+  }
+  body.is-authenticated .ani-p2-notifications .ani-p2-quiet-note {
+    margin-top: 10px; max-width: 75ch; font-size: .875rem;
+  }
+  body.is-authenticated .ani-p2-notifications .ani-p2-quiet-note > summary {
+    color: var(--ui-text-secondary); cursor: pointer; min-height: 34px;
+  }
+  body.is-authenticated .ani-p2-notifications .ani-p2-quiet-note p { margin: 8px 0 0; }
+  body.is-authenticated .ani-p2-notifications .sf-notifications-panel {
+    padding: var(--p2-padding); border-radius: 14px;
+  }
+  body.is-authenticated .ani-p2-notifications .ani-inbox-tabs { margin-bottom: 12px; }
+  /* Help: show a short answer before offering more troubleshooting. */
+  .ani-p2-help { display: grid; gap: 12px; max-width: 980px; }
+  .ani-p2-help .ani-p2-help-topic {
+    margin: 0; padding: 20px 24px; border-radius: 14px;
+  }
+  .ani-p2-help .ani-p2-help-topic h2 { margin: 0 0 8px; font-size: 1.13rem; }
+  .ani-p2-help .ani-p2-help-topic p {
+    margin: 0 0 7px; max-width: 76ch; font-size: .94rem; line-height: 1.55;
+  }
+  .ani-p2-help .ani-p2-help-extra > summary {
+    display: flex; align-items: center; min-height: 44px;
+    cursor: pointer; color: var(--ui-primary); font-size: .9rem; font-weight: 700;
+  }
+  .ani-p2-help .ani-p2-help-extra p { margin-top: 6px; }
+  /* Profile: primary identity stays prominent; duplication is tucked away. */
+  .ani-p2-account { display: grid; gap: 14px; max-width: 1040px; }
+  .ani-p2-account > .panel { margin: 0; padding: 20px 24px; border-radius: 14px; }
+  .ani-p2-account .ani-account-hero { padding-block: 20px; }
+  .ani-p2-account .sf-account-identity h2 { margin-bottom: 3px; font-size: 1.2rem; }
+  .ani-p2-account .ani-p2-account-details > summary {
+    cursor: pointer; display: flex; align-items: center;
+    min-height: 44px; color: var(--ui-primary); font-weight: 700;
+  }
+  .ani-p2-account .ani-p2-account-details[open] > summary { margin-bottom: 12px; }
+  .ani-p2-account .sf-account-links .sf-account-link-grid { gap: 8px; }
+  /* Admin overview: preserve compact operational data, soften redundant framing. */
+  body.is-authenticated .ani12f-admin-shell .ani-p2-admin .ani12c-admin-hero {
+    margin-bottom: 18px; padding: 0; border: 0; border-radius: 0;
+    box-shadow: none; background: transparent;
+  }
+  body.is-authenticated .ani12f-admin-shell .ani-p2-admin .ani12c-admin-hero h1 {
+    font-size: clamp(1.8rem, 2.4vw, 2.15rem); margin: 3px 0 5px;
+  }
+  body.is-authenticated .ani12f-admin-shell .ani-p2-admin .ani12c-admin-kpis {
+    gap: 12px; margin-bottom: 18px;
+  }
+  body.is-authenticated .ani12f-admin-shell .ani-p2-admin .ani12c-admin-kpis .admin-stat {
+    min-height: 100px; padding: 18px;
+  }
+  body.is-authenticated .ani12f-admin-shell .ani-p2-admin .ani12c-admin-priorities {
+    gap: 16px; margin-bottom: 18px;
+  }
+  @media (max-width: 800px) {
+    body.is-authenticated .ani-p2-page .ani-p2-hero .page-hero { align-items: flex-start; }
+    body.is-authenticated .ani-p2-dashboard .ani12c-dashboard-hero > .ani12c-hero-actions {
+      margin-left: 0; width: 100%;
+    }
+    body.is-authenticated .ani-p2-farm .ani-p2-setup-intro {
+      align-items: flex-start; flex-direction: column;
+    }
+  }
+  @media (max-width: 600px) {
+    body.is-authenticated .ani-p2-page .ani-p2-hero { margin-bottom: 16px; }
+    body.is-authenticated .ani-p2-farms .ani-entry-farm-list {
+      grid-template-columns: minmax(0,1fr);
+    }
+    body.is-authenticated .ani-p2-farms .ani-entry-farm-card .farm-card-body { padding: 18px; }
+    body.is-authenticated .ani-p2-dashboard .ani12c-metrics { gap: 8px; }
+    body.is-authenticated .ani-p2-dashboard .ani12c-metrics .ani-dashboard-priority-stat {
+      min-height: 82px; padding: 12px;
+    }
+    body.is-authenticated .ani-p2-inventory .ani12e-primary-panel { padding: 16px; }
+    body.is-authenticated .ani-p2-reports .ani-p2-report-tools > .panel { padding: 14px; }
+    .ani-p2-help .ani-p2-help-topic, .ani-p2-account > .panel { padding: 16px; }
+  }
+}

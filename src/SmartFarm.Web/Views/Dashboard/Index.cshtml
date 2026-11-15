@@ -19,11 +19,11 @@
         (savedWeather.RetrievedAtUtc < DateTime.UtcNow.AddHours(-12)
             || savedWeather.RetrievedAtUtc > DateTime.UtcNow.AddMinutes(5));
 }
-<div class="ani12c-farm-dashboard mvp-today @(role.IsOwner ? "ani12c-role-owner" : role.IsManager ? "ani12c-role-manager" : "ani12c-role-worker")">
+<div class="ani12c-farm-dashboard mvp-today ani-p2-page ani-p2-dashboard @(role.IsOwner ? "ani12c-role-owner" : role.IsManager ? "ani12c-role-manager" : "ani12c-role-worker")">
 <partial name="_FarmNavigation" model="farm.FarmId" />
 @if (TempData["Message"] is string message) { <p class="form-notice" role="status">@message</p> }
 @if (TempData["Error"] is string error) { <p class="error form-error" role="alert">@error</p> }
-<section class="page-hero reference-dashboard-hero ani-dashboard-hero ani12c-dashboard-hero" aria-labelledby="dashboard-heading">
+<section class="page-hero reference-dashboard-hero ani-dashboard-hero ani12c-dashboard-hero ani-p2-hero" aria-labelledby="dashboard-heading">
     <div>
         <h1 id="dashboard-heading">Today</h1>
         <p class="mvp-farm-context">@farm.FarmName</p>

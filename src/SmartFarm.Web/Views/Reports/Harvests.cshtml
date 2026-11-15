@@ -5,43 +5,9 @@
     var report = Model.Report;
     var hasFilters = report.FromDate.HasValue || report.ToDate.HasValue || report.PlotId.HasValue || report.CropTypeId.HasValue;
 }
-<div class="reference-screen reference-screen-reports ani12e-workspace ani12e-reports mvp-harvests">
+<div class="reference-screen reference-screen-reports ani12e-workspace ani12e-reports mvp-harvests ani-p2-page ani-p2-reports">
 <partial name="_FarmNavigation" model="report.FarmId" />
 <partial name="_UiPageHeader" model='@(new UiPageHeader("Harvests", report.FarmName + " · Dates follow " + report.TimeZoneId + ".", "Choose crop to harvest", Url.Action("Index", "Crops", new { farmId = report.FarmId }) + "#ani-current-heading", Id: "reports-heading"))' />
-<section class="panel" id="report-filters" aria-labelledby="report-filter-heading">
-    <h2 id="report-filter-heading">Filters &amp; downloads</h2>
-    <form method="get" asp-action="Harvests" class="report-filters sf-report-filters ani12e-report-filter-form">
-        <input type="hidden" name="farmId" value="@report.FarmId" />
-        <div><label for="from">From</label><input id="from" type="date" name="from" min="2000-01-01" max="2100-12-30" value="@(report.FromDate?.ToString("yyyy-MM-dd"))" /></div>
-        <div><label for="to">To</label><input id="to" type="date" name="to" min="2000-01-01" max="2100-12-30" value="@(report.ToDate?.ToString("yyyy-MM-dd"))" /></div>
-        <button type="submit">Apply filters</button>
-        <details class="mvp-report-filter-options" open="@(report.PlotId.HasValue || report.CropTypeId.HasValue)">
-            <summary>Filter by plot or crop (optional)</summary>
-            <div class="mvp-filter-fields">
-                <div><label for="plot">Plot</label><select id="plot" name="plotId"><option value="">All plots</option>
-                    @foreach (var plot in Model.Plots) { <option value="@plot.Id" selected="@(report.PlotId == plot.Id)">@plot.Name</option> }
-                </select></div>
-                <div><label for="crop">Crop type</label><select id="crop" name="cropTypeId"><option value="">All crops</option>
-                    @foreach (var crop in Model.CropTypes) { <option value="@crop.Id" selected="@(report.CropTypeId == crop.Id)">@crop.Name</option> }
-                </select></div>
-            </div>
-        </details>
-    </form>
-    <div class="action-links sf-report-actions ani12e-export-actions">
-        <a class="sf-button-outline" asp-action="Harvests" asp-route-farmId="@report.FarmId">Clear filters</a>
-        <a class="button" asp-action="ExportCsv" asp-route-farmId="@report.FarmId"
-           asp-route-from="@(report.FromDate?.ToString("yyyy-MM-dd"))" asp-route-to="@(report.ToDate?.ToString("yyyy-MM-dd"))"
-           asp-route-plotId="@report.PlotId" asp-route-cropTypeId="@report.CropTypeId">
-            Export records CSV
-        </a>
-        <a class="sf-button-outline" asp-action="ExportCycleCsv" asp-route-farmId="@report.FarmId"
-           asp-route-from="@(report.FromDate?.ToString("yyyy-MM-dd"))"
-           asp-route-to="@(report.ToDate?.ToString("yyyy-MM-dd"))"
-           asp-route-plotId="@report.PlotId" asp-route-cropTypeId="@report.CropTypeId">
-            Export cycle totals CSV
-        </a>
-    </div>
-</section>
 <section class="panel mvp-harvest-totals" aria-labelledby="harvest-unit-totals-heading">
     <h2 id="harvest-unit-totals-heading">Recorded yield by unit</h2>
     <p role="status">@(hasFilters ? "Filters applied — totals, records and CSV downloads use the selected scope." : "Showing all recorded harvest dates, plots and crops.")</p>
@@ -94,6 +60,43 @@
         </div>
     }
 </section>
+<details class="ani-p2-report-tools" id="report-filters" open="@(hasFilters ? "open" : null)">
+    <summary><span>Filters &amp; downloads</span><span class="ani-p2-detail-note">@(hasFilters ? "Filters applied" : "Optional")</span></summary>
+<section class="panel" aria-labelledby="report-filter-heading">
+    <h2 id="report-filter-heading">Filters &amp; downloads</h2>
+    <form method="get" asp-action="Harvests" class="report-filters sf-report-filters ani12e-report-filter-form">
+        <input type="hidden" name="farmId" value="@report.FarmId" />
+        <div><label for="from">From</label><input id="from" type="date" name="from" min="2000-01-01" max="2100-12-30" value="@(report.FromDate?.ToString("yyyy-MM-dd"))" /></div>
+        <div><label for="to">To</label><input id="to" type="date" name="to" min="2000-01-01" max="2100-12-30" value="@(report.ToDate?.ToString("yyyy-MM-dd"))" /></div>
+        <button type="submit">Apply filters</button>
+        <details class="mvp-report-filter-options" open="@(report.PlotId.HasValue || report.CropTypeId.HasValue)">
+            <summary>Filter by plot or crop (optional)</summary>
+            <div class="mvp-filter-fields">
+                <div><label for="plot">Plot</label><select id="plot" name="plotId"><option value="">All plots</option>
+                    @foreach (var plot in Model.Plots) { <option value="@plot.Id" selected="@(report.PlotId == plot.Id)">@plot.Name</option> }
+                </select></div>
+                <div><label for="crop">Crop type</label><select id="crop" name="cropTypeId"><option value="">All crops</option>
+                    @foreach (var crop in Model.CropTypes) { <option value="@crop.Id" selected="@(report.CropTypeId == crop.Id)">@crop.Name</option> }
+                </select></div>
+            </div>
+        </details>
+    </form>
+    <div class="action-links sf-report-actions ani12e-export-actions">
+        <a class="sf-button-outline" asp-action="Harvests" asp-route-farmId="@report.FarmId">Clear filters</a>
+        <a class="button" asp-action="ExportCsv" asp-route-farmId="@report.FarmId"
+           asp-route-from="@(report.FromDate?.ToString("yyyy-MM-dd"))" asp-route-to="@(report.ToDate?.ToString("yyyy-MM-dd"))"
+           asp-route-plotId="@report.PlotId" asp-route-cropTypeId="@report.CropTypeId">
+            Export records CSV
+        </a>
+        <a class="sf-button-outline" asp-action="ExportCycleCsv" asp-route-farmId="@report.FarmId"
+           asp-route-from="@(report.FromDate?.ToString("yyyy-MM-dd"))"
+           asp-route-to="@(report.ToDate?.ToString("yyyy-MM-dd"))"
+           asp-route-plotId="@report.PlotId" asp-route-cropTypeId="@report.CropTypeId">
+            Export cycle totals CSV
+        </a>
+    </div>
+</section>
+</details>
 <details class="mvp-report-breakdown" id="report-breakdown">
     <summary>Totals by planting cycle and month</summary>
 <section class="panel card sf-report-table-panel ani-report-table" aria-labelledby="report-by-cycle">
