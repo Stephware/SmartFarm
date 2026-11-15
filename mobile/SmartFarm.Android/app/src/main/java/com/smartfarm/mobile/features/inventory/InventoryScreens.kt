@@ -159,10 +159,16 @@ fun InventoryListScreen(
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant)
                 }
-                if (state.workspace.items.isEmpty() && !state.busy && state.error == null)
-                    FarmEmptyState("No inventory items yet.",
-                        if (canManage) "Add your first supply to track farm-wide stock."
-                        else "Your owner or manager can add supplies for this farm.")
+                if (state.workspace.items.isEmpty() && !state.busy && state.error == null) {
+                    if (state.offline) {
+                        FarmEmptyState("Supply records unavailable offline",
+                            "Reconnect to load saved stock balances. Do not assume stock is zero.")
+                    } else {
+                        FarmEmptyState("No inventory items yet.",
+                            if (canManage) "Add your first supply to track farm-wide stock."
+                            else "Your owner or manager can add supplies for this farm.")
+                    }
+                }
                 if (state.workspace.items.isNotEmpty() && visibleItems.isEmpty() && !state.busy) {
                     FarmEmptyState("No matching supplies", "Change the search or category to see more supplies.")
                     OutlinedButton(onClick = { search = ""; filter = "all" },

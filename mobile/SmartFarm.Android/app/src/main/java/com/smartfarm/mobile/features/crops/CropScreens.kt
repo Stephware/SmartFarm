@@ -149,6 +149,10 @@ fun CropScreen(
                         else -> "Completed, failed and cancelled crop cycles."
                     })
                     if (!state.busy && state.error == null && displayed.isEmpty()) {
+                        if (state.offline && state.cycles.isEmpty()) {
+                            FarmEmptyState("Crop records unavailable offline",
+                                "Reconnect to load crop records. No crop status is assumed.")
+                        } else {
                         FarmEmptyState(when (selectedView) {
                             "growing" -> "Nothing growing yet"
                             "planned" -> "No planting plans"
@@ -162,6 +166,7 @@ fun CropScreen(
                                 else "Upcoming planting plans will appear here."
                             else -> "Previous crop cycles will appear once they are closed."
                         })
+                        }
                         if (selectedView == "growing" && planned.isNotEmpty()) {
                             OutlinedButton(onClick = { selectedView = "planned" },
                                 modifier = Modifier.fillMaxWidth()) { Text("View planting plans") }
