@@ -33,6 +33,8 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.ui.semantics.liveRegion
 import androidx.compose.ui.semantics.LiveRegionMode
+import androidx.compose.ui.semantics.progressBarRangeInfo
+import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -156,13 +158,16 @@ fun FarmEmptyState(title: String, description: String, modifier: Modifier = Modi
 /** A true in-flight request. Never display empty counts as loaded while this is visible. */
 @Composable
 fun FarmLoadingState(label: String, modifier: Modifier = Modifier) {
-    Row(modifier.fillMaxWidth().padding(vertical = FarmSpacing.small),
+    Row(modifier.fillMaxWidth().padding(vertical = FarmSpacing.small)
+        .semantics(mergeDescendants = true) {
+            liveRegion = LiveRegionMode.Polite
+            progressBarRangeInfo = androidx.compose.ui.semantics.ProgressBarRangeInfo.Indeterminate
+        },
         horizontalArrangement = Arrangement.spacedBy(FarmSpacing.compact),
         verticalAlignment = Alignment.CenterVertically) {
-        CircularProgressIndicator(modifier = Modifier.size(20.dp), strokeWidth = 2.dp)
+        CircularProgressIndicator(modifier = Modifier.size(20.dp).clearAndSetSemantics {}, strokeWidth = 2.dp)
         Text(label, style = MaterialTheme.typography.bodyMedium,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
-            modifier = Modifier.semantics { liveRegion = LiveRegionMode.Polite })
+            color = MaterialTheme.colorScheme.onSurfaceVariant)
     }
 }
 
@@ -178,8 +183,10 @@ fun FarmErrorState(message: String, onRetry: () -> Unit,
                 color = MaterialTheme.colorScheme.onErrorContainer,
                 modifier = Modifier.semantics { liveRegion = LiveRegionMode.Assertive })
             OutlinedButton(onClick = onRetry, enabled = canRetry,
+                colors = androidx.compose.material3.ButtonDefaults.outlinedButtonColors(
+                    contentColor = MaterialTheme.colorScheme.onErrorContainer),
                 modifier = Modifier.defaultMinSize(minHeight = 48.dp)) {
-                Text("Try again", color = MaterialTheme.colorScheme.onErrorContainer)
+                Text("Try again")
             }
         }
     }

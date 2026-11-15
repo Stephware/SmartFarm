@@ -42,17 +42,29 @@ class EnrollmentScreenTest {
     @Test fun requestStatusDoesNotGrantFarmAccessAndFailedFormRetainsCode() {
         val state = mutableStateOf(FarmUiState(myRequests = listOf(request())))
         var sent = ""
-        compose.setContent { SmartFarmTheme { FarmListScreen(state.value, {}, { _, _, _, _, _ -> },
-            { sent = it; state.value = state.value.copy(error = "Code not recognized") }, {}) } }
+        var requests = 0
+        var hideKeyboard: () -> Unit = {}
+        var inputView: android.view.View? = null
+        compose.setContent {
+            val keyboard = androidx.compose.ui.platform.LocalSoftwareKeyboardController.current
+            val view = androidx.compose.ui.platform.LocalView.current
+            androidx.compose.runtime.SideEffect { hideKeyboard = { keyboard?.hide() }; inputView = view }
+            SmartFarmTheme { FarmListScreen(state.value, {}, { _, _, _, _, _ -> },
+                { requests++; sent = it; state.value = state.value.copy(error = "Code not recognized") }, {}) }
+        }
         compose.onNodeWithText("North farm: Pending · Awaiting owner approval").assertExists()
         compose.onNodeWithText("Join a farm").performClick()
         compose.onNodeWithText("Farm code").performScrollTo().performTextInput("ABCD12345678")
-        // Ensure the IME edit has reached Compose before tapping a button while
-        // the keyboard may still be animating on a slower emulator.
         compose.onNodeWithText("Farm code").assertTextContains("ABCD12345678")
-        compose.waitForIdle()
-        compose.onNodeWithText("Request access").performScrollTo().performClick()
-        compose.runOnIdle { assertEquals("ABCD12345678", sent) }
+        // Wait for stable IME insets before physically hit-testing the request button.
+        compose.runOnIdle { hideKeyboard() }
+        compose.waitUntil(5_000) {
+            inputView?.let { androidx.core.view.ViewCompat.getRootWindowInsets(it)
+                ?.isVisible(androidx.core.view.WindowInsetsCompat.Type.ime()) } == false
+        }
+        compose.onNodeWithText("Request access").performScrollTo()
+            .assertIsDisplayed().assertIsEnabled().performClick()
+        compose.runOnIdle { assertEquals("ABCD12345678", sent); assertEquals(1, requests) }
         compose.onNodeWithText("Farm code").assertTextContains("ABCD12345678")
         compose.onNodeWithText("Code not recognized").assertExists()
     }

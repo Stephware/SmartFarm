@@ -105,8 +105,11 @@ fun TaskScreen(
                     TextButton(onClick = onRetry, enabled = !state.busy) { Text("Refresh") }
                 }
                 if (state.busy) FarmLoadingState(
-                    if (state.tasks.isEmpty() && state.notifications.isEmpty()) "Loading farm tasks…"
-                    else "Refreshing farm tasks…")
+                    when {
+                        !isTasks -> if (state.notifications.isEmpty()) "Loading notifications…" else "Updating notifications…"
+                        state.tasks.isEmpty() -> "Loading farm tasks…"
+                        else -> "Updating farm tasks…"
+                    })
                 state.error?.let { FarmErrorState(it, onRetry, canRetry = !state.busy) }
                 state.notice?.let {
                     Text(it, color = MaterialTheme.colorScheme.primary,
@@ -165,7 +168,7 @@ fun TaskScreen(
             }
             if (selectedView == "today") {
                 item(key = "today-summary") {
-                    FarmSectionCard("My work", subtitle = if (today != null)
+                    if (!state.busy && state.error == null) FarmSectionCard("My work", subtitle = if (today != null)
                         "Farm date: ${TaskDisplay.dueLabel(today.toString())} · ${state.timeZoneId}"
                         else "Farm time zone unavailable. Ask an owner or manager to check settings.") {
                         Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
@@ -177,7 +180,7 @@ fun TaskScreen(
                     if (today == null) {
                         FarmEmptyState("Farm date unavailable",
                             "Reconnect and refresh before completing dated tasks.")
-                    } else if (!state.busy && overdue.isEmpty() && dueToday.isEmpty()) {
+                    } else if (!state.busy && state.error == null && overdue.isEmpty() && dueToday.isEmpty()) {
                         FarmEmptyState("Nothing due today",
                             if (upcoming.isNotEmpty()) "Your next assignment is ${TaskDisplay.dueLabel(upcoming.first().dueDate)}."
                             else "You're caught up. Check Upcoming or refresh for new work.")
@@ -202,7 +205,7 @@ fun TaskScreen(
                 if (today == null) item(key = "upcoming-date-error") {
                     FarmEmptyState("Farm date unavailable",
                         "Reconnect and refresh to view upcoming tasks.")
-                } else if (upcoming.isEmpty()) item(key = "upcoming-empty") {
+                } else if (upcoming.isEmpty() && !state.busy && state.error == null) item(key = "upcoming-empty") {
                     FarmEmptyState("No upcoming tasks",
                         "Your future assignments will appear here.")
                 } else item(key = "upcoming-heading") {
@@ -213,7 +216,7 @@ fun TaskScreen(
                 }
             }
             if (selectedView == "completed") {
-                if (closed.isEmpty()) item(key = "history-empty") {
+                if (closed.isEmpty() && !state.busy && state.error == null) item(key = "history-empty") {
                     FarmEmptyState("No completed tasks yet",
                         "Your completed, skipped or cancelled assignments will appear here.")
                 } else item(key = "history-heading") {
@@ -243,7 +246,7 @@ fun TaskScreen(
                         "Open tasks for this date. Dates follow the farm's time zone.")
                 }
                 val calendarTasks = assigned.filter { TaskWorkCenter.dueDate(it) == calendarDate }
-                if (calendarTasks.isEmpty()) item(key = "calendar-empty") {
+                if (calendarTasks.isEmpty() && !state.busy && state.error == null) item(key = "calendar-empty") {
                     FarmEmptyState("No assigned work on this date",
                         "Choose another day or return to Today.")
                 }
@@ -259,7 +262,7 @@ fun TaskScreen(
                     FarmSectionHeader("All farm tasks",
                         "Manage assignments and due dates. Existing completed records are read-only.")
                 }
-                if (farmTasks.isEmpty()) item(key = "manage-empty") {
+                if (farmTasks.isEmpty() && !state.busy && state.error == null) item(key = "manage-empty") {
                     FarmEmptyState("No farm tasks yet",
                         "Create a task above to assign work to your team.")
                 }

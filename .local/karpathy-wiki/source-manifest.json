@@ -2011,6 +2011,91 @@
           "sha256": "063508a0ecd533b6290ea5f9a418568d9307d8179b51410b9e8d8ecb5a4f5a2c"
         }
       ]
+    },
+    {
+      "date": "2026-11-16",
+      "revision": "56051f4753ca35ce4662fd709892c9616dbf1b53 + PR134 refinement (source hashes below)",
+      "snapshot": "raw/project/2026-11-16-phase4-data-states-review.md",
+      "sha256": "69ab204f08ee14405e949eb67bf2de390a57260a5cfe762de6233fb9143b02c8",
+      "scope": "MVC/Android Phase 4 data states, scoped paging and deterministic existing notification window; enrollment input readiness; native/browser/unit verification. Final CI/status belongs to PR134; UI Phase6 landing reserved.",
+      "source_files": [
+        {
+          "path": ".github/workflows/verify-smartfarm.yml",
+          "sha256": "56dd137c9f8de06346c25533dc6adde778eac16b9e0abe3ec6d7d05670a6af0e"
+        },
+        {
+          "path": "mobile/SmartFarm.Android/app/src/androidTest/java/com/smartfarm/mobile/EnrollmentScreenTest.kt",
+          "sha256": "e06856e76dd8dbb5f1b5d883b5c79b6614f19b151a928d05925b1d8785beed11"
+        },
+        {
+          "path": "mobile/SmartFarm.Android/app/src/androidTest/java/com/smartfarm/mobile/FarmDataStatesScreenTest.kt",
+          "sha256": "7e12519a7d5d368f997522eed59385142e30ce7b64fc6bd785875b4364028cd2"
+        },
+        {
+          "path": "mobile/SmartFarm.Android/app/src/main/java/com/smartfarm/mobile/features/crops/CropScreens.kt",
+          "sha256": "4d936469c67e405b455d9fdd6fab876de6add749f0151a0039282cb76e8d9195"
+        },
+        {
+          "path": "mobile/SmartFarm.Android/app/src/main/java/com/smartfarm/mobile/features/inventory/InventoryScreens.kt",
+          "sha256": "76108dfdcca67cbf355728330a06582e1a84d841ecb31d8b8c1b135b197ed6e5"
+        },
+        {
+          "path": "mobile/SmartFarm.Android/app/src/main/java/com/smartfarm/mobile/features/tasks/TaskScreens.kt",
+          "sha256": "5c478341894a5477e790719b9ad5da94944a3347f4789313c29c141a0ccdfc17"
+        },
+        {
+          "path": "mobile/SmartFarm.Android/app/src/main/java/com/smartfarm/mobile/ui/components/FarmDesignComponents.kt",
+          "sha256": "49e58ce5aa7bc78dbb07f11ef61fbb06a38034ba3c5b10bb9e3b758e47612ba4"
+        },
+        {
+          "path": "mobile/SmartFarm.Android/app/src/main/java/com/smartfarm/mobile/ui/components/OfflineDataNotice.kt",
+          "sha256": "70224a287b1a1570943432c395808bdcb18ead6ac475ea6fa463f85b60376c1b"
+        },
+        {
+          "path": "src/SmartFarm.Infrastructure/Repositories/FarmTaskRepository.cs",
+          "sha256": "7925870daf664e044c14ecbf3d9b9a2e29393ac7ff944feafc08907b75fe7706"
+        },
+        {
+          "path": "src/SmartFarm.Web/Controllers/NotificationsController.cs",
+          "sha256": "a2a4f1ccd7c0e11aa8b0d5f39afb78334c35d4cb06653affd97104645011ec3e"
+        },
+        {
+          "path": "src/SmartFarm.Web/Styles/anigo-data-states-phase4.css",
+          "sha256": "75b88767b77c95a25fda33673213aeafc9ec6dd7f5d68656d68c6a83a5467875"
+        },
+        {
+          "path": "src/SmartFarm.Web/Views/Inventory/Index.cshtml",
+          "sha256": "044c8662b6494d5a4ceff5bc818df3186d95e6b6edf2897b3f107152706e3e26"
+        },
+        {
+          "path": "src/SmartFarm.Web/Views/Notifications/Index.cshtml",
+          "sha256": "f5116111e741e98d0bf3df44ba5f2de9f1b7ea2786f8b973a2c3c037d32a04a8"
+        },
+        {
+          "path": "src/SmartFarm.Web/wwwroot/css/anigo-tailwind.css",
+          "sha256": "9b7f6c6c754af132893f8a319ad20c85d0bd767d392a57b3d6a6f3e8265e89de"
+        },
+        {
+          "path": "tests/SmartFarm.Auth.Tests/FarmEnrollmentWebTests.cs",
+          "sha256": "ad4e1922c94fc5dbbf4039ed75247cafa85e871dca1f9fc2db386baff0d7129a"
+        },
+        {
+          "path": "tests/browser/baselines/review.json",
+          "sha256": "58684368012597c681c985597d2d44747be01227556b46e55dc5fd49972f332c"
+        },
+        {
+          "path": "mobile/SmartFarm.Android/app/src/androidTest/java/com/smartfarm/mobile/Phase4VisualReviewTest.kt",
+          "sha256": "9db61fb01a4d8f5b2390c3aee273c7a83e7d7ffe15da5d2a2722951d8782c8cb"
+        },
+        {
+          "path": "tests/SmartFarm.Auth.Tests/Phase4DataStatesWebTests.cs",
+          "sha256": "e95e6cae3d55779c1d67810ba18ba8f0ad47359928d67bee16a2bf32a99adf2b"
+        },
+        {
+          "path": "tests/browser/phase4-data-states.cjs",
+          "sha256": "a53ebb75ff319f9749de8ccdf76aae8e26fc9e905efec7ebeed519bafe27ceb9"
+        }
+      ]
     }
   ]
 }

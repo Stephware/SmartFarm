@@ -107,7 +107,7 @@ fun CropScreen(
             Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
                 FarmHero("Crops", "Growing crops, planting plans and history.")
                 if (state.busy) FarmLoadingState(
-                    if (state.cycles.isEmpty()) "Loading crop records…" else "Refreshing crop records…")
+                    if (state.cycles.isEmpty()) "Loading crop records…" else "Updating crop records…")
                 state.error?.let { FarmErrorState(it, onRetry, canRetry = !state.busy) }
                 OfflineDataNotice(state.offline, state.cachedAtUtcMillis)
                 FlowRow(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(6.dp)) {
@@ -149,23 +149,29 @@ fun CropScreen(
                         else -> "Completed, failed and cancelled crop cycles."
                     })
                     if (!state.busy && state.error == null && displayed.isEmpty()) {
-                        if (state.offline && state.cycles.isEmpty()) {
+                        if (state.offline && state.cachedAtUtcMillis == null) {
                             FarmEmptyState("Crop records unavailable offline",
                                 "Reconnect to load crop records. No crop status is assumed.")
+                        } else if (state.offline) {
+                            FarmEmptyState(when (selectedView) {
+                                "growing" -> "No growing crops in saved records"
+                                "planned" -> "No planting plans in saved records"
+                                else -> "No past crops in saved records"
+                            }, "Reconnect to check the latest crop records.")
                         } else {
-                        FarmEmptyState(when (selectedView) {
-                            "growing" -> "Nothing growing yet"
-                            "planned" -> "No planting plans"
-                            else -> "No crop history yet"
-                        }, when (selectedView) {
-                            "growing" -> if (canManage)
-                                "Make a planting plan, then mark it as planted to start growing."
-                                else "Ask the farm manager to start a crop in one of your plots."
-                            "planned" -> if (canManage)
-                                "Choose Plan a crop to schedule your first planting."
-                                else "Upcoming planting plans will appear here."
-                            else -> "Previous crop cycles will appear once they are closed."
-                        })
+                            FarmEmptyState(when (selectedView) {
+                                "growing" -> "Nothing growing yet"
+                                "planned" -> "No planting plans"
+                                else -> "No crop history yet"
+                            }, when (selectedView) {
+                                "growing" -> if (canManage)
+                                    "Make a planting plan, then mark it as planted to start growing."
+                                    else "Ask the farm manager to start a crop in one of your plots."
+                                "planned" -> if (canManage)
+                                    "Choose Plan a crop to schedule your first planting."
+                                    else "Upcoming planting plans will appear here."
+                                else -> "Previous crop cycles will appear once they are closed."
+                            })
                         }
                         if (selectedView == "growing" && planned.isNotEmpty()) {
                             OutlinedButton(onClick = { selectedView = "planned" },

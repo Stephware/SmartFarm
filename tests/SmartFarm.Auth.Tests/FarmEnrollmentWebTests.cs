@@ -31,7 +31,7 @@ using Xunit;
 
 namespace SmartFarm.Auth.Tests;
 
-public sealed class FarmEnrollmentWebTests
+public sealed partial class FarmEnrollmentWebTests
 {
     [Theory]
     [InlineData("/FarmFinance/Record")]

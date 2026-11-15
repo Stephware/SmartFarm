@@ -198,3 +198,8 @@ Three native primary entries and a simpler existing Record sheet; My Farm groups
 - Disposition: Update
 - Raw: raw/project/2026-11-15-phase3-android-refinement.md
 - Updated: Frontend conventions and index; native adaptive/accessibility checks and explicit review/runtime limits. PR #133 remains unmerged.
+
+## [2026-11-16] ingest | Phase 4 data states and paging
+- Disposition: Update
+- Raw: raw/project/2026-11-16-phase4-data-states-review.md
+- Updated: Frontend conventions/index; cache/refresh truth, scoped pagination, native readability and dated verification limits. UI Phase 6 landing reserved; PR134 must not merge.

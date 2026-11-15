@@ -5,7 +5,7 @@
   body.is-authenticated .ani-p2-page .sf-empty-state {
     display: flex; flex-direction: column; align-items: flex-start; justify-content: center;
     gap: 8px; min-height: 0; max-width: none;
-    margin: 12px 0; padding: clamp(18px, 2.4vw, 26px);
+    margin: 12px 0; padding: 16px; text-align: start;
     background: var(--ui-surface-subtle); color: var(--ui-text);
     border: 1px dashed var(--ui-border); border-radius: 12px;
   }
@@ -55,8 +55,10 @@
   @media(max-width: 600px) {
     body.is-authenticated .ani-p4-pager { justify-content: space-between; }
     body.is-authenticated .ani-p4-pager span { flex: 1 1 100%; }
-    body.is-authenticated .ani-p4-empty,
-    body.is-authenticated .ani-p2-page .sf-empty-state { padding: 18px; }
+    /* Desktop flex bases become unwanted heights in the mobile column layout. */
+    body.is-authenticated .ani-p2-inventory .ani12e-search-form { align-items: stretch; }
+    body.is-authenticated .ani-p2-inventory .ani12e-search-form > div:first-child,
+    body.is-authenticated .ani-p2-inventory .ani12e-search-form > div:nth-child(2) { flex: 0 1 auto; }
   }
   @media(prefers-reduced-motion: reduce) {
     body.is-authenticated .ani-p4-pager a { transition: none; }

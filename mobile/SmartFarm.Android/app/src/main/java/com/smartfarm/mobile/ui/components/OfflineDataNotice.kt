@@ -38,8 +38,8 @@ fun OfflineDataNotice(offline: Boolean, savedAtUtcMillis: Long?) {
         Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(5.dp)) {
             Text("Viewing saved offline data", style = MaterialTheme.typography.titleSmall)
             Text(
-                "Offline copy from $saved. Details may have changed on the server. " +
-                    "Only queued field records work offline; edits to farm and crop settings need internet.",
+                "Offline copy from $saved. May be out of date. " +
+                    "Fieldwork waits to send; settings need internet.",
                 style = MaterialTheme.typography.bodyMedium
             )
         }
