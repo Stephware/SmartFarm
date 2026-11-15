@@ -1,8 +1,8 @@
 # Web and Android frontend conventions
 
 > Sources: SmartFarm repository, source review
-> Raw: [Phase 3 Android refinement](../../raw/project/2026-11-15-phase3-android-refinement.md); [Current documentation audit](../../raw/project/2026-11-11-documentation-audit.md); [Reference frontend merge](../../raw/project/2026-11-11-reference-frontend-merge.md); [Publication source check](../../raw/project/2026-11-12-documentation-publication.md); [MVP retirement](../../raw/project/2026-11-14-mvp-stage-5.md)
-> Updated: 2026-11-15
+> Raw: [Phase 4 data states](../../raw/project/2026-11-16-phase4-data-states-review.md); [Phase 3 Android refinement](../../raw/project/2026-11-15-phase3-android-refinement.md); [Current documentation audit](../../raw/project/2026-11-11-documentation-audit.md); [Reference frontend merge](../../raw/project/2026-11-11-reference-frontend-merge.md); [Publication source check](../../raw/project/2026-11-12-documentation-publication.md); [MVP retirement](../../raw/project/2026-11-14-mvp-stage-5.md)
+> Updated: 2026-11-16
 
 **Source scope:** Earlier detailed audit/acceptance is dated below. For source
 changes through `dev` at `3c5a8b0`, see [current source status](current-source-status.md),
@@ -66,6 +66,29 @@ are unchanged. The farmer-journey test waits for the keyboard to hide before
 physically tapping Save; it still verifies the actual queued harvest and confirmed
 totals. See the dated raw evidence for build/device checks and their limits. PR
 #133 targets `dev`; this task does not authorize a merge.
+
+## Phase 4 data states (PR #134, 2026-11-16)
+
+Keep genuine empty, in-flight, failed, saved-empty and populated states distinct.
+Cached empty crops/supplies describe the saved snapshot, not missing cache; failed
+or unfinished task refreshes never show an all-clear. Native loading merges its
+resource label and indeterminate-progress semantics; retries remain real actions.
+Keep names and every balance digit readable at large text sizes rather than
+truncating values or reducing the user's font setting. Reuse the compact shared
+empty/error components and preserve snapshot date/staleness/sending cautions.
+
+MVC Supplies pages show 25 matching rows while counts retain full farm scope.
+Notifications shows 20 rows per page within the existing 100-most-recent window;
+label that scope, including unread-empty messages. Preserve page/filter after
+mark-read, clamp after count changes and order ties by ID before the repository
+limit as well as in the view. Empty first-use lists need guidance and the permitted
+next action, not useless filters. Mobile column layouts must reset desktop flex
+bases; inspect the computed cascade and keyboard focus, not just source selectors.
+
+[Verification evidence](../../raw/project/2026-11-16-phase4-data-states-review.md)
+distinguishes local native/browser checks from live SQL, hardware and deployment.
+UI Phase 6's landing redesign remains planned; public goldens/thresholds are unchanged.
+This task authorizes PR #134 updates only, with no merge into `dev` or `main`.
 
 ## Product and accessibility constraints
 

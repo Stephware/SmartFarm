@@ -110,6 +110,10 @@ jobs:
         env:
           SMARTFARM_BROWSER_BASE_URL: http://127.0.0.1:5082
         run: node tests/browser/phase12e-smoke.cjs
+      - name: Check Phase 4 data states and paging in Chromium
+        env:
+          SMARTFARM_BROWSER_BASE_URL: http://127.0.0.1:5082
+        run: node tests/browser/phase4-data-states.cjs
       - name: Render test-only Super Admin Razor fixtures
         env:
           ANIGO_CAPTURE_ADMIN_FIXTURES: "1"

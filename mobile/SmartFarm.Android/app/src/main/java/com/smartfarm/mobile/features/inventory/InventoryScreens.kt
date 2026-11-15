@@ -27,7 +27,10 @@ import com.smartfarm.mobile.ui.components.FarmSectionHeader
 import com.smartfarm.mobile.ui.components.FarmStatusChip
 import com.smartfarm.mobile.ui.components.FarmStatusTone
 import com.smartfarm.mobile.ui.components.FarmEmptyState
+import com.smartfarm.mobile.ui.components.FarmLoadingState
+import com.smartfarm.mobile.ui.components.FarmErrorState
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
@@ -61,11 +64,13 @@ import com.smartfarm.mobile.ui.components.farmDateTime
 
 @Composable
 private fun Feedback(state: InventoryUiState, onRetry: () -> Unit) {
-    if (state.busy) CircularProgressIndicator()
-    state.error?.let {
-        Text(it, color = MaterialTheme.colorScheme.error, modifier = Modifier.semantics { liveRegion = LiveRegionMode.Assertive })
-        OutlinedButton(onClick = onRetry, enabled = !state.busy) { Text("Try again") }
-    }
+    if (state.busy) FarmLoadingState(
+        when {
+            state.itemId.isNotBlank() -> if (state.item == null) "Loading supply record…" else "Updating supply record…"
+            state.workspace.items.isEmpty() -> "Loading supplies…"
+            else -> "Updating supplies…"
+        })
+    state.error?.let { FarmErrorState(it, onRetry, canRetry = !state.busy) }
     OfflineDataNotice(state.offline, state.cachedAtUtcMillis)
             state.notice?.let { Text(it, color = MaterialTheme.colorScheme.primary, modifier = Modifier.semantics { liveRegion = LiveRegionMode.Polite }) }
 }
@@ -102,10 +107,12 @@ fun InventoryListScreen(
         item(key = "header") {
             Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
                 OutlinedButton(onClick = onBack) { Text("Back") }
-                FarmHero("Inventory", "Track farm-wide supplies and stock movements.")
+                FarmHero("Supplies", "Farm-wide stock and supply history.")
                 Feedback(state, onRetry)
+                // Do not show a zero-stock dashboard for a new or still-loading farm.
+                if (state.workspace.items.isNotEmpty()) {
                 FarmSectionCard("Stock overview",
-                    subtitle = "Farm-wide balances, excluding changes awaiting server confirmation.") {
+                    subtitle = "Confirmed farm balances; pending changes excluded.") {
                     Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
                         Column(Modifier.weight(1f)) {
                             Text("${state.workspace.items.size}", style = MaterialTheme.typography.headlineSmall)
@@ -119,11 +126,12 @@ fun InventoryListScreen(
                         }
                     }
                     if (state.workspace.lowStockCount > 0) {
-                        FarmStatusChip("Review supplies needing replenishment", FarmStatusTone.Warning)
                         OutlinedButton(onClick = { filter = "low" },
                             modifier = Modifier.fillMaxWidth()) { Text("Show low-stock supplies") }
                     }
                 }
+                }
+                if (state.workspace.items.isNotEmpty()) {
                 OutlinedTextField(search, { search = it },
                     label = { Text("Find a supply") }, singleLine = true,
                     placeholder = { Text("Search by name") }, modifier = Modifier.fillMaxWidth())
@@ -154,9 +162,21 @@ fun InventoryListScreen(
                 Text("${visibleItems.size} of ${state.workspace.items.size} supplies shown",
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant)
-                if (state.workspace.items.isEmpty() && !state.busy && state.error == null)
-                    FarmEmptyState("No inventory items yet.", "Create a supply record to start tracking farm stock.")
-                if (state.workspace.items.isNotEmpty() && visibleItems.isEmpty() && !state.busy) {
+                }
+                if (state.workspace.items.isEmpty() && !state.busy && state.error == null) {
+                    if (state.offline && state.cachedAtUtcMillis == null) {
+                        FarmEmptyState("Supply records unavailable offline",
+                            "Reconnect to load saved stock balances. Do not assume stock is zero.")
+                    } else if (state.offline) {
+                        FarmEmptyState("No supplies in saved records",
+                            "Reconnect to check the latest supply balances.")
+                    } else {
+                        FarmEmptyState("No inventory items yet.",
+                            if (canManage) "Add your first supply to track farm-wide stock."
+                            else "Your owner or manager can add supplies for this farm.")
+                    }
+                }
+                if (state.workspace.items.isNotEmpty() && visibleItems.isEmpty() && !state.busy && state.error == null) {
                     FarmEmptyState("No matching supplies", "Change the search or category to see more supplies.")
                     OutlinedButton(onClick = { search = ""; filter = "all" },
                         modifier = Modifier.fillMaxWidth()) { Text("Clear filters") }
@@ -193,20 +213,25 @@ fun InventoryListScreen(
         }
         items(visibleItems, key = { "stock-${it.id}" }) { item ->
             OutlinedCard(onClick = { onOpen(item.id) }, modifier = Modifier.fillMaxWidth().testTag("record-card")) {
-                Row(Modifier.fillMaxWidth().padding(14.dp),
-                    verticalAlignment = androidx.compose.ui.Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                    FarmLineIcon(FarmSymbol.Stock)
-                    Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(4.dp)) {
-                        Text(item.name, style = MaterialTheme.typography.titleMedium)
-                        Text(inventoryCategoryName(item.category), style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant)
-                        FarmStatusChip(if (item.isLowStock) "Low stock" else "In stock",
-                            if (item.isLowStock) FarmStatusTone.Warning else FarmStatusTone.Active)
+                Column(Modifier.fillMaxWidth().padding(14.dp),
+                    verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                    Row(Modifier.fillMaxWidth(),
+                        verticalAlignment = androidx.compose.ui.Alignment.Top,
+                        horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                        FarmLineIcon(FarmSymbol.Stock)
+                        Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                            Text(item.name, style = MaterialTheme.typography.titleMedium)
+                            Text(inventoryCategoryName(item.category), style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant)
+                            FarmStatusChip(if (item.isLowStock) "Low stock" else "In stock",
+                                if (item.isLowStock) FarmStatusTone.Warning else FarmStatusTone.Active)
+                        }
                     }
-                    Column(horizontalAlignment = androidx.compose.ui.Alignment.End,
+                    FlowRow(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp),
                         verticalArrangement = Arrangement.spacedBy(4.dp)) {
-                        Text(item.quantityOnHand.toPlainString(), style = MaterialTheme.typography.titleLarge)
+                        Text(item.quantityOnHand.toPlainString(), style = MaterialTheme.typography.bodyMedium,
+                            modifier = Modifier.weight(1f),
+                            fontWeight = androidx.compose.ui.text.font.FontWeight.SemiBold)
                         Text(item.unit, style = MaterialTheme.typography.bodySmall,
                             color = MaterialTheme.colorScheme.onSurfaceVariant)
                     }
