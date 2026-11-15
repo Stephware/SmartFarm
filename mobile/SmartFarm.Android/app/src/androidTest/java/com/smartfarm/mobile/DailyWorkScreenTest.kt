@@ -47,7 +47,11 @@ class DailyWorkScreenTest {
             }
         }
         compose.onNodeWithText("Calendar").performScrollTo().performClick()
-        compose.onNodeWithText("Assignments on " + TaskWorkCenter.today("Asia/Manila")).performScrollTo().assertExists()
+        // Calendar items live in a LazyColumn: scroll by matching the item before
+        // querying its child semantics (which may not yet be composed).
+        compose.onNodeWithTag("record-list").performScrollToNode(
+            hasText("Assignments on " + TaskWorkCenter.today("Asia/Manila")))
+        compose.onNodeWithText("Assignments on " + TaskWorkCenter.today("Asia/Manila")).assertExists()
         compose.onNodeWithTag("record-list").performScrollToNode(hasText("Inspect the rows"))
         compose.onNodeWithText("Inspect the rows").assertExists()
     }

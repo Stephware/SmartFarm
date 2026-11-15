@@ -1,0 +1,89 @@
+/* Phase 1: shared AniGo visual foundation.
+   The established Pine / Harvest Gold palette remains unchanged; this layer
+   normalizes type, spacing, and component geometry across MVC screens.
+   Page-specific layouts and functionality are refined in later phases. */
+@layer base {
+  body.is-authenticated {
+    --ui-font: "Manrope", "Segoe UI", system-ui, sans-serif;
+    --ui-weight-regular: 400;
+    --ui-weight-medium: 500;
+    --ui-weight-semibold: 600;
+    --ui-weight-bold: 700;
+    --ui-type-page: clamp(1.75rem, 2.2vw, 2rem);
+    --ui-type-section: 1.25rem;
+    --ui-type-card: 1.0625rem;
+    --ui-type-body: 1rem;
+    --ui-type-supporting: .875rem;
+    --ui-type-stat: clamp(1.625rem, 2vw, 2rem);
+    --ui-leading-body: 1.55;
+    --ui-space-1: 4px;
+    --ui-space-2: 8px;
+    --ui-space-3: 12px;
+    --ui-space-4: 16px;
+    --ui-space-5: 20px;
+    --ui-space-6: 24px;
+    --ui-space-7: 32px;
+    --ui-card-padding: var(--ui-space-6);
+    --ui-radius-card: 16px;
+    --ui-radius-field: 10px;
+    --ui-radius-button: 10px;
+    --ui-card-shadow: 0 2px 10px rgb(22 48 32 / 4%);
+  }
+  html[data-color-mode="dark"] body.is-authenticated {
+    --ui-card-shadow: 0 2px 10px rgb(0 0 0 / 12%);
+  }
+  body.is-authenticated { font: var(--ui-weight-regular) var(--ui-type-body)/var(--ui-leading-body) var(--ui-font); }
+  body.is-authenticated :is(h1, h2, h3, h4) {
+    font-family: var(--ui-font);
+    font-weight: var(--ui-weight-bold);
+    letter-spacing: -.025em;
+  }
+  body.is-authenticated h1 { font-size: var(--ui-type-page); }
+  body.is-authenticated h2 { font-size: var(--ui-type-section); }
+  body.is-authenticated h3 { font-size: var(--ui-type-card); }
+  body.is-authenticated p { line-height: var(--ui-leading-body); }
+  body.is-authenticated small { font-size: var(--ui-type-supporting); }
+}
+@layer components {
+  body.is-authenticated :is(.ui-page-title, .page-hero h1, .page-heading h1, .sf-ops-hero h1, .admin-page-heading h1) {
+    font-size: var(--ui-type-page);
+    font-weight: var(--ui-weight-bold);
+    line-height: 1.2;
+  }
+  body.is-authenticated :is(.ui-section-heading h2, .reference-panel-heading h2, .admin-section-heading h2, .card-head h2) {
+    font-size: var(--ui-type-section);
+    font-weight: var(--ui-weight-semibold);
+  }
+  body.is-authenticated :is(.ui-page-description, .page-hero p, .page-heading p) {
+    font-size: var(--ui-type-body);
+    line-height: var(--ui-leading-body);
+  }
+  body.is-authenticated :is(.ui-surface, .panel, .card, .sf-card) {
+    padding: var(--ui-card-padding);
+    border-radius: var(--ui-radius-card);
+    box-shadow: var(--ui-card-shadow);
+  }
+  body.is-authenticated :is(.ui-metric, .admin-stat, .stat) {
+    border-radius: var(--ui-radius-field);
+  }
+  body.is-authenticated :is(.button, .btn, .sf-button-primary, .sf-button-secondary, .sf-button-outline) {
+    font-weight: var(--ui-weight-semibold);
+    border-radius: var(--ui-radius-button);
+  }
+  body.is-authenticated :is(input:not([type="checkbox"]):not([type="radio"]), select, textarea) {
+    font-family: var(--ui-font);
+    border-radius: var(--ui-radius-field);
+  }
+  body.is-authenticated :is(.sf-status-chip, .status-badge, .farm-role-badge) {
+    font-size: var(--ui-type-supporting);
+    font-weight: var(--ui-weight-semibold);
+  }
+  @media (max-width: 600px) {
+    body.is-authenticated :is(.ui-surface, .panel, .card, .sf-card) {
+      padding: var(--ui-space-4);
+    }
+    body.is-authenticated :is(h1, .ui-page-title, .page-hero h1, .page-heading h1, .sf-ops-hero h1, .admin-page-heading h1) {
+      font-size: 1.75rem;
+    }
+  }
+}

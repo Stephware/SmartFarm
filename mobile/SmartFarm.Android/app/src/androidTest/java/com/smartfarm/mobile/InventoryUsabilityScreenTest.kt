@@ -52,6 +52,10 @@ class InventoryUsabilityScreenTest {
         compose.onNodeWithText("Quantity used (kg)").performScrollTo().performTextInput("2")
         compose.onNodeWithText("Save supply use").assertIsNotEnabled()
         compose.onNodeWithText("Choose recorded activity").performScrollTo().performClick()
+        // Popup content is created asynchronously after the keyboard is dismissed.
+        compose.waitUntil(5_000) {
+            compose.onAllNodesWithText("Fertilized north plot").fetchSemanticsNodes().isNotEmpty()
+        }
         compose.onNodeWithText("Fertilized north plot").performClick()
         compose.onNodeWithText("Save supply use").performScrollTo().performClick()
         compose.runOnIdle { assertEquals(3 to "activity", saved) }

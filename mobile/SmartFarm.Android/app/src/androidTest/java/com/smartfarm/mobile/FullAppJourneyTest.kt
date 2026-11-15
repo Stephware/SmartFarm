@@ -256,10 +256,10 @@ class FullAppJourneyTest {
             }
             compose.onNodeWithText("Record").performClick()
             compose.onNodeWithText("What did you do on the farm?").assertIsDisplayed()
-            val device = androidx.test.uiautomator.UiDevice.getInstance(
-                androidx.test.platform.app.InstrumentationRegistry.getInstrumentation())
-            device.waitForIdle()
-            device.pressBack()
+            // The sheet exposes a visible, accessible close action. Avoid relying
+            // on the emulator's hardware Back dispatch, which can target another
+            // window or the IME before the sheet.
+            compose.onNodeWithContentDescription("Close record menu").performClick()
             compose.waitUntil(10_000) {
                 compose.onAllNodesWithText("What did you do on the farm?").fetchSemanticsNodes().isEmpty()
             }
