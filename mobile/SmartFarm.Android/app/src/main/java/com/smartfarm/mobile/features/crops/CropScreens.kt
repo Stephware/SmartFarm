@@ -101,7 +101,7 @@ fun CropScreen(
     RecordPage {
         item(key = "overview") {
             Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                FarmHero("Crops", "See what's growing, plan planting, and check previous crops.")
+                FarmHero("Crops", "Growing crops, planting plans and history.")
                 if (state.busy) CircularProgressIndicator()
                 state.error?.let {
                     Text(it, color = MaterialTheme.colorScheme.error,
@@ -127,7 +127,7 @@ fun CropScreen(
                             modifier = Modifier.weight(1f).defaultMinSize(minHeight = 48.dp)) {
                             Text(if (selectedView == "plan") "Close plan" else "Plan a crop")
                         }
-                        OutlinedButton(onClick = {
+                        TextButton(onClick = {
                             selectedView = if (selectedView == "types") "growing" else "types"
                             selectedCycleId = null
                         }, modifier = Modifier.weight(1f).defaultMinSize(minHeight = 48.dp)) {
@@ -184,15 +184,20 @@ fun CropScreen(
                             horizontalArrangement = Arrangement.spacedBy(12.dp),
                             verticalAlignment = Alignment.CenterVertically) {
                             Column(Modifier.weight(1f),
-                                verticalArrangement = Arrangement.spacedBy(5.dp)) {
-                                Text(cycle.cropTypeName, style = MaterialTheme.typography.titleMedium)
+                                verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                                Row(Modifier.fillMaxWidth(),
+                                    horizontalArrangement = Arrangement.SpaceBetween,
+                                    verticalAlignment = Alignment.CenterVertically) {
+                                    Text(cycle.cropTypeName, style = MaterialTheme.typography.titleMedium,
+                                        modifier = Modifier.weight(1f))
+                                    FarmStatusChip(when (cycle.status) {
+                                        1 -> "Growing"; else -> cycle.statusName
+                                    }, if (cycle.status == 1) FarmStatusTone.Active
+                                        else if (cycle.status == 0) FarmStatusTone.Planned
+                                        else FarmStatusTone.Neutral)
+                                }
                                 Text(cycle.plotName, style = MaterialTheme.typography.bodyMedium,
                                     color = MaterialTheme.colorScheme.onSurfaceVariant)
-                                FarmStatusChip(when (cycle.status) {
-                                    1 -> "Growing"; else -> cycle.statusName
-                                }, if (cycle.status == 1) FarmStatusTone.Active
-                                    else if (cycle.status == 0) FarmStatusTone.Planned
-                                    else FarmStatusTone.Neutral)
                                 cycle.expectedHarvestDate?.let {
                                     Text("Expected harvest: $it", style = MaterialTheme.typography.bodySmall,
                                         color = MaterialTheme.colorScheme.onSurfaceVariant)

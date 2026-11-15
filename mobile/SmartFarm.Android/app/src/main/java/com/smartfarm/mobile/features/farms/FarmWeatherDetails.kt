@@ -5,8 +5,13 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.smartfarm.mobile.ui.components.FarmEmptyState
@@ -22,7 +27,8 @@ import java.time.format.DateTimeFormatter
 @Composable
 internal fun FarmWeatherDetails(state: FarmUiState) {
     val weather = state.weather
-    FarmSectionHeader("Saved farm forecast", "Forecast dates use your farm's time zone. This is not live weather.")
+    var showDailyForecast by rememberSaveable(state.selected?.id) { mutableStateOf(false) }
+    FarmSectionHeader("Saved farm forecast", "Saved predictions, not live measurements.")
     if (state.weatherOffline) FarmStatusChip(
         "Offline copy — reconnect to check new warnings", FarmStatusTone.Warning)
     when {
@@ -58,7 +64,11 @@ internal fun FarmWeatherDetails(state: FarmUiState) {
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant)
             }
-            FarmSectionHeader("Forecast by day", "Sorted dates, with source and last-check time.")
+            FarmSectionHeader("Forecast by day")
+            TextButton(onClick = { showDailyForecast = !showDailyForecast }) {
+                Text(if (showDailyForecast) "Hide daily forecast" else "Show daily forecast")
+            }
+            if (showDailyForecast) {
             if (days.isEmpty()) FarmEmptyState("No forecast days",
                 "Reconnect and reopen the farm after the weather worker refreshes.")
             days.forEach { day ->
@@ -76,7 +86,8 @@ internal fun FarmWeatherDetails(state: FarmUiState) {
                         color = MaterialTheme.colorScheme.onSurfaceVariant)
                 }
             }
-            FarmSectionHeader("Saved advisories", "Not a substitute for official current warnings.")
+            }
+            FarmSectionHeader("Saved advisories", "Check official warnings for current conditions.")
             val advisories = weather.advisories.filter { it.status == 0 }
             if (advisories.isEmpty()) FarmEmptyState("No active saved advisories",
                 "This does not rule out current hazards.")

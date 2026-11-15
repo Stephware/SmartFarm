@@ -12,6 +12,7 @@ import androidx.compose.material3.DatePickerDefaults
 import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Surface
+import androidx.compose.ui.Alignment
 import java.time.Instant
 import java.time.ZoneOffset
 import androidx.compose.material3.AlertDialog
@@ -67,6 +68,7 @@ fun TaskScreen(
     var adding by rememberSaveable(state.farmId) { mutableStateOf(false) }
     var editingId by rememberSaveable(state.farmId) { mutableStateOf<String?>(null) }
     var selectedView by rememberSaveable(state.farmId) { mutableStateOf("today") }
+    var showTaskHelp by rememberSaveable(state.farmId) { mutableStateOf(false) }
     LaunchedEffect(state.savedCount) {
         if (state.savedCount > 0) {
             adding = false
@@ -90,9 +92,14 @@ fun TaskScreen(
             Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
                 if (!isTasks) OutlinedButton(onClick = onBack,
                     modifier = Modifier.fillMaxWidth()) { Text("Back") }
-                FarmHero(if (isTasks) "My tasks" else "Notifications",
-                    if (isTasks) "Start with today's work. Use Calendar for other dates."
-                    else "Task reminders and farm advisories.")
+                Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.Top,
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    FarmHero(if (isTasks) "My tasks" else "Notifications",
+                        if (isTasks) "Today's work and upcoming assignments."
+                        else "Task reminders and farm advisories.",
+                        modifier = Modifier.weight(1f))
+                    TextButton(onClick = onRetry, enabled = !state.busy) { Text("Refresh") }
+                }
                 if (state.busy) CircularProgressIndicator()
                 state.error?.let {
                     Text(it, color = MaterialTheme.colorScheme.error,
@@ -102,11 +109,15 @@ fun TaskScreen(
                     Text(it, color = MaterialTheme.colorScheme.primary,
                         modifier = Modifier.semantics { liveRegion = LiveRegionMode.Polite })
                 }
-                OutlinedButton(onClick = onRetry, enabled = !state.busy) { Text("Refresh") }
                 if (isTasks) {
-                    Text("Task updates need internet. Offline field logs are available from an active crop.",
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    TextButton(onClick = { showTaskHelp = !showTaskHelp }) {
+                        Text(if (showTaskHelp) "Hide task help" else "About task updates")
+                    }
+                    if (showTaskHelp) {
+                        Text("Task updates need internet. Offline field logs are available from an active crop.",
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    }
                 }
             }
         }
@@ -124,15 +135,15 @@ fun TaskScreen(
                         }
                     }
                     Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                        OutlinedButton(onClick = { selectedView = "calendar" },
+                        TextButton(onClick = { selectedView = "calendar" },
                             modifier = Modifier.weight(1f)) { Text("Calendar") }
                         if (canManage) {
-                            OutlinedButton(onClick = { selectedView = "manage"; adding = false },
+                            TextButton(onClick = { selectedView = "manage"; adding = false },
                                 modifier = Modifier.weight(1f)) { Text("All farm tasks") }
                         }
                     }
                     if (canManage) {
-                        Button(onClick = {
+                        OutlinedButton(onClick = {
                             selectedView = "manage"
                             adding = !adding
                             editingId = null
