@@ -422,11 +422,19 @@ private fun NewTaskForm(state: TaskUiState, today: LocalDate?, onCreate: (TaskCr
             }
         }
         DateInput(due, "Due date", { due = it }, enabled = !state.busy)
+        if (due.isNotBlank() && !validDate)
+            Text("Choose a valid due date.", style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.error)
         CyclePicker(cycleId, state.cycles, { cycleId = it })
         TaskMemberPicker(assignee, state.members, { assignee = it }, !state.busy)
-        OutlinedTextField(description, { description = it },
+        OutlinedTextField(description, { description = it }, enabled = !state.busy,
+            isError = description.trim().length > 500,
             label = { Text("Instructions (optional)") }, minLines = 2,
             modifier = Modifier.fillMaxWidth())
+        if (description.trim().length > 500)
+            Text("Instructions must be 500 characters or fewer.",
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.error)
         Button(onClick = {
             onCreate(TaskCreateInput(type, LocalDate.parse(due.trim()).toString(),
                 description.trim().ifBlank { null }, cycleId, assignee))

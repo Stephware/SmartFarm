@@ -142,10 +142,21 @@ fun FarmListScreen(state: FarmUiState, onOpen: (String) -> Unit,
         if (creating) item(key = "create") {
             FarmSectionCard("Create farm", subtitle = "Start with the farm name and its area.") {
                 OutlinedTextField(name, { name = it }, label = { Text("Farm name") },
-                    singleLine = true, modifier = Modifier.fillMaxWidth())
+                    singleLine = true, enabled = !state.loading,
+                    isError = name.trim().length > 120,
+                    modifier = Modifier.fillMaxWidth())
+                if (name.trim().length > 120)
+                    Text("Farm name must be 120 characters or fewer.",
+                        color = MaterialTheme.colorScheme.error,
+                        style = MaterialTheme.typography.bodySmall)
                 OutlinedTextField(location, { location = it; latitude = ""; longitude = "" },
-                    label = { Text("City, town or farm address") },
+                    label = { Text("City, town or farm address") }, enabled = !state.loading,
+                    isError = location.trim().length > 250,
                     singleLine = true, modifier = Modifier.fillMaxWidth())
+                if (location.trim().length > 250)
+                    Text("Location must be 250 characters or fewer.",
+                        color = MaterialTheme.colorScheme.error,
+                        style = MaterialTheme.typography.bodySmall)
                 Text("You can add plots and crops after creating your farm.",
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant)
@@ -164,8 +175,9 @@ fun FarmListScreen(state: FarmUiState, onOpen: (String) -> Unit,
                 }
                 Button(onClick = { onCreate(name.trim(), location.trim(), zone, latitude, longitude) },
                     modifier = Modifier.fillMaxWidth().defaultMinSize(minHeight = 48.dp),
-                    enabled = !state.loading && !state.offline && name.isNotBlank() &&
-                        location.isNotBlank() && zone.isNotBlank() &&
+                    enabled = !state.loading && !state.offline &&
+                        name.trim().length in 1..120 && location.trim().length in 1..250 &&
+                        zone.isNotBlank() &&
                         (latitude.isBlank() == longitude.isBlank())) { Text("Create farm") }
             }
         }

@@ -146,6 +146,10 @@ fun HarvestScreen(
                             OutlinedTextField(notes, { notes = it }, enabled = !state.busy,
                                 isError = !validNotes, label = { Text("Notes (optional)") },
                                 minLines = 2, modifier = Modifier.fillMaxWidth())
+                            if (!validNotes)
+                                Text("Harvest notes must be 1,000 characters or fewer.",
+                                    style = MaterialTheme.typography.bodySmall,
+                                    color = MaterialTheme.colorScheme.error)
                             Text("Partial harvest · The crop stays active.",
                                 style = MaterialTheme.typography.bodyMedium,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant)
