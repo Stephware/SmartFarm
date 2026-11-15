@@ -1,5 +1,5 @@
 @model SmartFarm.Web.ViewModels.Shared.UiEmptyState
-<div class="sf-empty-state ani-p4-empty tw:min-w-0 tw:text-ani-text tw:rounded-ani-card" role="note">
+<div class="sf-empty-state tw:min-w-0 tw:text-ani-text tw:rounded-ani-card ani-p4-empty" role="note">
     <strong class="ani-p4-empty-title">@Model.Title</strong>
     <p>@Model.Description</p>
     @if (!string.IsNullOrWhiteSpace(Model.ActionText) && !string.IsNullOrWhiteSpace(Model.ActionUrl))
