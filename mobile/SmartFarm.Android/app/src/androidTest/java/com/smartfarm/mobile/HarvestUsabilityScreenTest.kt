@@ -43,8 +43,18 @@ class HarvestUsabilityScreenTest {
         compose.onNodeWithText("Harvested quantity (kg)").performScrollTo().performTextInput("1.5")
         // Dismiss the IME through Compose before tapping Save.
         compose.runOnIdle { hideKeyboard() }
-        compose.onNodeWithText("Save harvested amount").performScrollTo()
-            .assertIsDisplayed().assertIsEnabled().performClick()
+        // The form sits inside one tall LazyColumn item. On smaller emulator
+        // windows, performScrollTo can leave its Save button below the viewport,
+        // particularly while the keyboard is being dismissed. Scroll as a user
+        // would and keep the visibility assertion rather than clicking offscreen.
+        val saveHarvest = compose.onNodeWithText("Save harvested amount")
+        saveHarvest.performScrollTo()
+        for (attempt in 0 until 6) {
+            if (runCatching { saveHarvest.assertIsDisplayed() }.isSuccess) break
+            compose.onNodeWithTag("record-list").performTouchInput { swipeUp() }
+            compose.waitForIdle()
+        }
+        saveHarvest.assertIsDisplayed().assertIsEnabled().performClick()
         compose.runOnIdle {
             assertEquals("The harvest Save action must be delivered once", "1.5" to "", saved)
         }
