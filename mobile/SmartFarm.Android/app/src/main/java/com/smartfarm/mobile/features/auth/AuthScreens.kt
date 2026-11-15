@@ -258,7 +258,7 @@ private fun AuthScaffold(title: String, subtitle: String,
             contentAlignment = Alignment.TopCenter) {
             Column(Modifier.widthIn(max = 560.dp).fillMaxWidth()
                 .verticalScroll(rememberScrollState()).padding(20.dp),
-                verticalArrangement = Arrangement.spacedBy(16.dp)) {
+                verticalArrangement = Arrangement.spacedBy(14.dp)) {
                 FarmHero(title, subtitle)
                 content()
             }

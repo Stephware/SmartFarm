@@ -190,7 +190,7 @@ fun MonitoringScreen(
             FarmHero(when (quick) {
                 "watering" -> "Record watering"; "fertilizing" -> "Apply fertilizer"
                 "inspection" -> "Inspect crop"; "other" -> "Other fieldwork"; else -> "Crop monitoring"
-            }, cropLabel ?: "Selected crop · Record fieldwork, inspections and history.")
+            }, cropLabel ?: "Selected crop · Record activities and check history.")
             if (linkedTask) Text("Linked to your selected task. Completion is confirmed only after sending.",
                 style = MaterialTheme.typography.bodyMedium)
             if (state.busy) CircularProgressIndicator()
@@ -219,8 +219,8 @@ fun MonitoringScreen(
             }
 
             if (state.canRecord && focus != "history") {
-                Text("Save now, sync later: your record is first saved to this device.",
-                    style = MaterialTheme.typography.bodySmall,
+                Text("Saved on your phone first; sent when online.",
+                    style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant)
                 if (focus == "activity") {
                 FarmSectionCard("Record farm activity",

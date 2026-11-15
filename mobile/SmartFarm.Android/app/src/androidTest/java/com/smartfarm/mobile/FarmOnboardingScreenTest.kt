@@ -43,6 +43,18 @@ class FarmOnboardingScreenTest {
         compose.runOnIdle { assertEquals(1, plotOpens) }
     }
 
+    @Test fun setupStepsStayAvailableWithoutFillingTheHomeScreen() {
+        compose.setContent { SmartFarmTheme {
+            ownerScreen(FarmUiState(selected = farm()))
+        } }
+        compose.onNodeWithText("Get your farm ready").performScrollTo().assertExists()
+        compose.onNodeWithText("3. Record fieldwork from the Record button")
+            .assertDoesNotExist()
+        compose.onNodeWithText("See all setup steps").performScrollTo().performClick()
+        compose.onNodeWithText("3. Record fieldwork from the Record button")
+            .performScrollTo().assertExists()
+    }
+
     @Test fun existingPlotLeadsToCropPlanningWithoutInventingCropState() {
         var cropsOpened = 0
         val selected = farm()
