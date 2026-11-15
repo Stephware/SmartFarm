@@ -3,13 +3,17 @@ package com.smartfarm.mobile.features.farms
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.Surface
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -64,25 +68,32 @@ internal fun FarmHomeOverview(
 
     FarmSectionHeader("Your work today", "$dateText · ${farm.timeZoneId}")
 
-    Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+    FlowRow(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(10.dp),
+        verticalArrangement = Arrangement.spacedBy(8.dp)) {
         Button(onClick = onRecord,
-            modifier = Modifier.weight(1f).defaultMinSize(minHeight = 52.dp)) {
+            modifier = Modifier.weight(1f).widthIn(min = 160.dp).defaultMinSize(minHeight = 52.dp)) {
             Text("Record fieldwork")
         }
         OutlinedButton(onClick = onTasks,
-            modifier = Modifier.weight(1f).defaultMinSize(minHeight = 52.dp)) {
+            modifier = Modifier.weight(1f).widthIn(min = 160.dp).defaultMinSize(minHeight = 52.dp)) {
             Text("My tasks")
         }
     }
 
-    Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-        listOf("Water" to "watering", "Inspect" to "inspection", "Harvest" to "harvest")
-            .forEach { (label, action) ->
-                OutlinedButton(onClick = { onRecordAction(action) },
-                    modifier = Modifier.weight(1f).defaultMinSize(minHeight = 48.dp)) {
-                    Text(label)
+    // Secondary shortcuts use a single quiet surface instead of three full buttons.
+    Surface(modifier = Modifier.fillMaxWidth(), shape = MaterialTheme.shapes.medium,
+        color = MaterialTheme.colorScheme.surfaceContainerLow,
+        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant)) {
+        FlowRow(Modifier.fillMaxWidth().padding(horizontal = 6.dp, vertical = 3.dp),
+            horizontalArrangement = Arrangement.spacedBy(2.dp)) {
+            listOf("Water" to "watering", "Inspect" to "inspection",
+                "Harvest" to "harvest").forEach { (label, action) ->
+                TextButton(onClick = { onRecordAction(action) },
+                    modifier = Modifier.weight(1f).widthIn(min = 112.dp).defaultMinSize(minHeight = 48.dp)) {
+                    Text(label, style = MaterialTheme.typography.labelLarge)
                 }
             }
+        }
     }
 
     // Only actionable alerts appear here. Weather warnings are explicitly saved, not live.
@@ -122,11 +133,12 @@ internal fun FarmHomeOverview(
     }
 
     FarmSectionCard("Today's tasks",
-        subtitle = "Your assignments and, for owners, unassigned farm work.") {
+        subtitle = "Due work and the next assignments.") {
         when {
             state.offline -> {
-                FarmEmptyState("Tasks need a connection",
-                    "Reconnect to load current assignments. Offline field records can still be saved.")
+                Text("Tasks need a connection", style = MaterialTheme.typography.titleMedium)
+                Text("Reconnect to load current assignments. Offline field records can still be saved.",
+                    color = MaterialTheme.colorScheme.onSurfaceVariant)
             }
             tasks?.farmId != farm.id || tasks.busy -> Text("Loading today's work…")
             tasks.error != null -> {
@@ -141,9 +153,10 @@ internal fun FarmHomeOverview(
                     Text("Next: ${taskTypes.getOrElse(next.taskType) { "Task" }} · ${next.dueDate}",
                         color = MaterialTheme.colorScheme.onSurfaceVariant)
                 } else {
-                    FarmEmptyState("No tasks due today",
-                        if (state.plots.isEmpty()) "Set up your growing areas to begin."
-                        else "You're caught up. Open Tasks to see assignments.")
+                    Text("No tasks due today", style = MaterialTheme.typography.titleMedium)
+                    Text(if (state.plots.isEmpty()) "Set up your growing areas to begin."
+                        else "You're caught up. Open Tasks to see assignments.",
+                        color = MaterialTheme.colorScheme.onSurfaceVariant)
                 }
             }
             else -> {
@@ -187,7 +200,7 @@ internal fun FarmHomeOverview(
                 }
             }
         }
-        OutlinedButton(onClick = onTasks,
+        TextButton(onClick = onTasks,
             modifier = Modifier.fillMaxWidth().defaultMinSize(minHeight = 48.dp)) {
             Text("Open tasks")
         }

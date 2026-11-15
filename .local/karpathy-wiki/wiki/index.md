@@ -30,7 +30,7 @@ Architecture, behavior, conventions, decisions and dated implementation evidence
 | [Current progress](project/progress.md) | Confirmed PR61–78 provenance, Phases A–D, MVP stage status and dated results | 2026-11-14 |
 | [Functional verification](project/functional-verification.md) | Historical role/workflow runtime record, with current interpretation | 2026-11-11 |
 | [PR48 review](project/pr48-review.md) | Historical date-boundary fix/merge and scoped runtime evidence | 2026-11-11 |
-| [Frontend](project/frontend.md) | Current Razor/Compose visual system, accessible farmer-facing conventions | 2026-11-14 |
+| [Frontend](project/frontend.md) | Razor/Compose conventions; Phase 3 compact native layouts, accessible reflow and verification limits | 2026-11-15 |
 | [API contracts](project/api-contracts.md) | Routes, auth/errors, stable codes, compatibility and retry boundaries | 2026-11-12 |
 | [Finance and reports](project/finance-reports.md) | Manual cash, unit/cycle-safe reports, platform parity and secure exports | 2026-11-14 |
 

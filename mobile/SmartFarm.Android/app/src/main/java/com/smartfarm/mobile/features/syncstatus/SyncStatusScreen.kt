@@ -97,9 +97,8 @@ fun SyncStatusScreen(
         item(key = "header") {
             Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
                 OutlinedButton(onClick = onBack) { Text("Back") }
-                FarmHero("Offline sync",
-                    "Review records saved on this phone before the farm server confirms them.")
-                FarmSectionCard("Sync queue", subtitle = "Saved here, not yet included in confirmed totals.") {
+                FarmHero("Offline sync", "Records saved on this phone.")
+                FarmSectionCard("Sync queue", subtitle = "Waiting for server confirmation.") {
                     FlowRow(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp),
                         verticalArrangement = Arrangement.spacedBy(8.dp)) {
                         FarmStatusChip("Pending: ${summary.waiting}", FarmStatusTone.Planned)
@@ -154,8 +153,6 @@ fun SyncStatusScreen(
                     Text(it, color = MaterialTheme.colorScheme.primary,
                         modifier = Modifier.semantics { liveRegion = LiveRegionMode.Polite })
                 }
-                Text("A record is confirmed only after the server accepts it. Sync will run when a connection is available.",
-                    style = MaterialTheme.typography.bodyMedium)
                 Button(onClick = onSyncNow,
                     modifier = Modifier.fillMaxWidth().defaultMinSize(minHeight = 48.dp)) {
                     Text("Sync now")
@@ -170,6 +167,11 @@ fun SyncStatusScreen(
                             "Previously confirmed work is available in its farm history."
                         else "Choose another filter or view all farms to find saved records."
                     )
+                }
+                if (summary.total > 0) {
+                    Text("Records are confirmed only after server acceptance. Pending work stays on this phone.",
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant)
                 }
                 if (operations.size >= 100 || photos.size >= 100) {
                     Text("Showing the most recent local entries. Older records are kept on this device.",

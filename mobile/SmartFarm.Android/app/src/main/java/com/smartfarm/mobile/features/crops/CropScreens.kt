@@ -31,6 +31,8 @@ import com.smartfarm.mobile.ui.components.FarmStatusChip
 import com.smartfarm.mobile.ui.components.FarmStatusTone
 import com.smartfarm.mobile.ui.components.FarmEmptyState
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.FlowRow
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
@@ -101,7 +103,7 @@ fun CropScreen(
     RecordPage {
         item(key = "overview") {
             Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                FarmHero("Crops", "See what's growing, plan planting, and check previous crops.")
+                FarmHero("Crops", "Growing crops, planting plans and history.")
                 if (state.busy) CircularProgressIndicator()
                 state.error?.let {
                     Text(it, color = MaterialTheme.colorScheme.error,
@@ -109,28 +111,29 @@ fun CropScreen(
                     OutlinedButton(onClick = onRetry, enabled = !state.busy) { Text("Try again") }
                 }
                 OfflineDataNotice(state.offline, state.cachedAtUtcMillis)
-                Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                FlowRow(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(6.dp)) {
                     listOf("growing" to "Growing", "planned" to "Planned", "history" to "History")
                         .forEach { (key, label) ->
                             FilterChip(selected = selectedView == key,
                                 onClick = { selectedView = key; selectedCycleId = null },
-                                modifier = Modifier.weight(1f).defaultMinSize(minHeight = 48.dp),
+                                modifier = Modifier.defaultMinSize(minHeight = 48.dp),
                                 label = { Text(label) })
                         }
                 }
                 if (canManage) {
-                    Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    FlowRow(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp),
+                        verticalArrangement = Arrangement.spacedBy(4.dp)) {
                         Button(onClick = {
                             selectedView = if (selectedView == "plan") "planned" else "plan"
                             selectedCycleId = null
                         }, enabled = !state.offline && !state.busy,
-                            modifier = Modifier.weight(1f).defaultMinSize(minHeight = 48.dp)) {
+                            modifier = Modifier.weight(1f).widthIn(min = 140.dp).defaultMinSize(minHeight = 48.dp)) {
                             Text(if (selectedView == "plan") "Close plan" else "Plan a crop")
                         }
-                        OutlinedButton(onClick = {
+                        TextButton(onClick = {
                             selectedView = if (selectedView == "types") "growing" else "types"
                             selectedCycleId = null
-                        }, modifier = Modifier.weight(1f).defaultMinSize(minHeight = 48.dp)) {
+                        }, modifier = Modifier.weight(1f).widthIn(min = 140.dp).defaultMinSize(minHeight = 48.dp)) {
                             Text("Crop types")
                         }
                     }
@@ -184,15 +187,20 @@ fun CropScreen(
                             horizontalArrangement = Arrangement.spacedBy(12.dp),
                             verticalAlignment = Alignment.CenterVertically) {
                             Column(Modifier.weight(1f),
-                                verticalArrangement = Arrangement.spacedBy(5.dp)) {
-                                Text(cycle.cropTypeName, style = MaterialTheme.typography.titleMedium)
+                                verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                                FlowRow(Modifier.fillMaxWidth(),
+                                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                                    verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                                    Text(cycle.cropTypeName, style = MaterialTheme.typography.titleMedium,
+                                        modifier = Modifier.weight(1f).widthIn(min = 140.dp))
+                                    FarmStatusChip(when (cycle.status) {
+                                        1 -> "Growing"; else -> cycle.statusName
+                                    }, if (cycle.status == 1) FarmStatusTone.Active
+                                        else if (cycle.status == 0) FarmStatusTone.Planned
+                                        else FarmStatusTone.Neutral)
+                                }
                                 Text(cycle.plotName, style = MaterialTheme.typography.bodyMedium,
                                     color = MaterialTheme.colorScheme.onSurfaceVariant)
-                                FarmStatusChip(when (cycle.status) {
-                                    1 -> "Growing"; else -> cycle.statusName
-                                }, if (cycle.status == 1) FarmStatusTone.Active
-                                    else if (cycle.status == 0) FarmStatusTone.Planned
-                                    else FarmStatusTone.Neutral)
                                 cycle.expectedHarvestDate?.let {
                                     Text("Expected harvest: $it", style = MaterialTheme.typography.bodySmall,
                                         color = MaterialTheme.colorScheme.onSurfaceVariant)

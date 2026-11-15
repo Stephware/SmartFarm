@@ -93,7 +93,7 @@ fun HarvestScreen(
             Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
                 OutlinedButton(onClick = onBack) { Text("Back") }
                 FarmHero(if (canRecord) "Record harvest" else "Harvest records",
-                    "Save each harvest amount separately. Check confirmed totals and history.")
+                    "Record what you picked, then review confirmed totals.")
                 if (state.busy) CircularProgressIndicator()
                 state.error?.let {
                     Text(it, color = MaterialTheme.colorScheme.error,
@@ -146,15 +146,16 @@ fun HarvestScreen(
                             OutlinedTextField(notes, { notes = it }, enabled = !state.busy,
                                 isError = !validNotes, label = { Text("Notes (optional)") },
                                 minLines = 2, modifier = Modifier.fillMaxWidth())
-                            Text("This is one partial harvest. It does not finish the crop cycle.",
-                                style = MaterialTheme.typography.bodyMedium)
+                            Text("Partial harvest · The crop stays active.",
+                                style = MaterialTheme.typography.bodyMedium,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant)
                             Button(onClick = { onRecord(quantity.trim(), notes) },
                                 enabled = !state.busy && validQuantity && validNotes,
                                 modifier = Modifier.fillMaxWidth().defaultMinSize(minHeight = 48.dp)) {
                                 Text("Save harvested amount")
                             }
-                            Text("Saved on this phone first. The server sets the harvest date and confirms totals when sent.",
-                                style = MaterialTheme.typography.bodySmall,
+                            Text("Saved on this phone first. Totals update after server confirmation.",
+                                style = MaterialTheme.typography.bodyMedium,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant)
                         }
                     }

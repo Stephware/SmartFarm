@@ -1,8 +1,8 @@
 # Web and Android frontend conventions
 
 > Sources: SmartFarm repository, source review
-> Raw: [Current documentation audit](../../raw/project/2026-11-11-documentation-audit.md); [Reference frontend merge](../../raw/project/2026-11-11-reference-frontend-merge.md); [Publication source check](../../raw/project/2026-11-12-documentation-publication.md); [MVP retirement](../../raw/project/2026-11-14-mvp-stage-5.md)
-> Updated: 2026-11-14
+> Raw: [Phase 3 Android refinement](../../raw/project/2026-11-15-phase3-android-refinement.md); [Current documentation audit](../../raw/project/2026-11-11-documentation-audit.md); [Reference frontend merge](../../raw/project/2026-11-11-reference-frontend-merge.md); [Publication source check](../../raw/project/2026-11-12-documentation-publication.md); [MVP retirement](../../raw/project/2026-11-14-mvp-stage-5.md)
+> Updated: 2026-11-15
 
 **Source scope:** Earlier detailed audit/acceptance is dated below. For source
 changes through `dev` at `3c5a8b0`, see [current source status](current-source-status.md),
@@ -48,6 +48,24 @@ Keep large lists lazy with stable keys and inputs reachable with the keyboard.
 Crop artwork is local SVG on Web and vector drawable on Android with safe unknown
 fallback. Plot layout is schematic, not geographic/cadastral mapping. Location
 selection is a separate map/search surface with manual coordinate fallback.
+
+## Phase 3 Android refinement (PR #133, 2026-11-15)
+
+Phase 1–2 standards remain readable native sans-serif type, shared spacing and
+compact progressive disclosure. Phase 3 uses grouped My Farm rows, a fully opened
+scrollable Record sheet, quieter Today/task/crop controls and optional setup/help/
+forecast details. Long names, roles and action/filter rows reflow at large text
+sizes; navigation rows expose button semantics. Display `Field worker` without
+changing the `FieldWorker` role code. Keep saved forecast source and farm-local
+last-check time visible before expanding daily details.
+
+Preserve Today / Record / My Farm routes, all role gates, form validation and
+pending/server-confirmed distinctions. This refinement changes presentation and
+test readiness only; ViewModels, repositories, Room/WorkManager and API contracts
+are unchanged. The farmer-journey test waits for the keyboard to hide before
+physically tapping Save; it still verifies the actual queued harvest and confirmed
+totals. See the dated raw evidence for build/device checks and their limits. PR
+#133 targets `dev`; this task does not authorize a merge.
 
 ## Product and accessibility constraints
 

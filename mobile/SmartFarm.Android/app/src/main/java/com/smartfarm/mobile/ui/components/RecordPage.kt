@@ -25,7 +25,7 @@ fun RecordPage(content: LazyListScope.() -> Unit) {
         BoxWithConstraints(Modifier.fillMaxSize().padding(padding).consumeWindowInsets(padding).imePadding(), contentAlignment = Alignment.TopCenter) {
             val gutter = if (maxWidth < 600.dp) 16.dp else 28.dp
             LazyColumn(Modifier.widthIn(max = 840.dp).fillMaxWidth().testTag("record-list"),
-                contentPadding = PaddingValues(horizontal = gutter, vertical = 20.dp),
+                contentPadding = PaddingValues(horizontal = gutter, vertical = 16.dp),
                 verticalArrangement = Arrangement.spacedBy(12.dp), content = content)
         }
     }

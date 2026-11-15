@@ -66,4 +66,18 @@ class TaskWorkspaceScreenTest {
         compose.onNodeWithText("Water member-task").performScrollTo().assertExists()
         compose.onNodeWithText("Edit assignment").performScrollTo().assertExists()
     }
+    @Test fun taskHelpIsOptionalAndNeverHidesAssignments() {
+        compose.setContent { SmartFarmTheme {
+            TaskScreen(TaskUiState(farmId = "farm", timeZoneId = "Asia/Manila",
+                tasks = listOf(task("mine"))),
+                canManage = false, actorId = "worker",
+                onBack = {}, onRetry = {}, onComplete = {}, onRead = {})
+        } }
+        compose.onNodeWithText("About task updates").performClick()
+        compose.onNodeWithText("Task updates need internet. Offline field logs are available from an active crop.")
+            .assertExists()
+        compose.onNodeWithText("Hide task help").performClick()
+        compose.onNodeWithText("Water mine").performScrollTo().assertExists()
+    }
+
 }

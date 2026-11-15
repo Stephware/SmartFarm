@@ -209,14 +209,26 @@ class FullAppJourneyTest {
             val harvests = androidx.lifecycle.ViewModelProvider(compose.activity)[com.smartfarm.mobile.features.harvests.HarvestViewModel::class.java]
             compose.waitUntil(5000) { harvests.state.value.overview != null && !harvests.state.value.busy }
             compose.onNodeWithText("Harvested quantity (kg)").performScrollTo().performTextInput("2.500")
-            compose.onNodeWithText("Save harvested amount").performScrollTo().performClick()
-            compose.waitUntil(5000) {
+            // Wait for IME insets before hit-testing Save; a moving viewport can lose the tap.
+            compose.runOnIdle {
+                androidx.core.view.WindowCompat.getInsetsController(compose.activity.window,
+                    compose.activity.window.decorView).hide(androidx.core.view.WindowInsetsCompat.Type.ime())
+            }
+            compose.waitUntil(5_000) {
+                androidx.core.view.ViewCompat.getRootWindowInsets(compose.activity.window.decorView)
+                    ?.isVisible(androidx.core.view.WindowInsetsCompat.Type.ime()) == false
+            }
+            compose.onNodeWithText("Save harvested amount").performScrollTo()
+                .assertIsDisplayed().assertIsEnabled().performClick()
+            // Room queue writes are asynchronous. Keep the assertion against the
+            // actual saved harvest, but allow a slower CI emulator to persist it.
+            compose.waitUntil(15_000) {
                 runBlocking { dao.watch(journeyUserId).first().any { it.operationType == "harvest" } }
             }
             assertEquals(java.math.BigDecimal.ZERO, harvests.state.value.overview?.totalQuantity)
             syncOnline.set(true)
             assertTrue(runBlocking { container.syncRepository.uploadPending() })
-            compose.waitUntil(5000) { harvests.state.value.overview?.totalQuantity == java.math.BigDecimal("2.500") }
+            compose.waitUntil(15_000) { harvests.state.value.overview?.totalQuantity == java.math.BigDecimal("2.500") }
             compose.onNodeWithText("Back").performScrollTo().performClick()
             compose.waitUntil(10_000) {
                 compose.onAllNodesWithTag("farm-bottom-navigation").fetchSemanticsNodes().isNotEmpty()

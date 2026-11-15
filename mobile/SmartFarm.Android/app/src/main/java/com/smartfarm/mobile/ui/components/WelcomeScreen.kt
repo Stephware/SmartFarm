@@ -42,29 +42,24 @@ fun WelcomeScreen(
     Scaffold(topBar = { FarmAppBar() }) { padding ->
         Box(Modifier.fillMaxSize().padding(padding), contentAlignment = Alignment.TopCenter) {
             Column(Modifier.widthIn(max = 560.dp).fillMaxWidth().verticalScroll(rememberScrollState())
-                .padding(22.dp), verticalArrangement = Arrangement.spacedBy(18.dp)) {
+                .padding(FarmSpacing.medium),
+                verticalArrangement = Arrangement.spacedBy(FarmSpacing.medium)) {
                 Card(colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primary),
                     shape = MaterialTheme.shapes.large, modifier = Modifier.fillMaxWidth()) {
-                    Column(Modifier.fillMaxWidth().padding(16.dp),
+                    Column(Modifier.fillMaxWidth().padding(FarmSpacing.medium),
                         verticalArrangement = Arrangement.spacedBy(12.dp)) {
                         Text("Welcome to AniGo", style = MaterialTheme.typography.headlineLarge,
                             color = MaterialTheme.colorScheme.onPrimary)
                         Text("Your farms, fieldwork and harvests—organized in one place.",
                             style = MaterialTheme.typography.bodyLarge,
                             color = MaterialTheme.colorScheme.onPrimary)
-                        Text("Plan crops · Record fieldwork · Track harvests",
-                            color = MaterialTheme.colorScheme.onPrimary,
-                            style = MaterialTheme.typography.bodyMedium)
                     }
                 }
-                FarmSectionCard("Your farm workspace", subtitle = "Quick to learn and designed for work in the field.") {
+                FarmSectionCard("Get started", subtitle = "Open your farms or join a farming team.") {
                     Button(onClick = onLogin, modifier = Modifier.fillMaxWidth()) { Text("Log in") }
                     OutlinedButton(onClick = onRegister, modifier = Modifier.fillMaxWidth()) {
                         Text("Create account")
                     }
-                    Text("One account can access multiple farms. Your permissions follow each farm's role.",
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        style = MaterialTheme.typography.bodySmall)
                 }
                 if (BuildConfig.DEBUG) {
                     TextButton(onClick = { showDiagnostics = !showDiagnostics }) {

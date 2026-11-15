@@ -20,6 +20,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.fillMaxSize
@@ -190,7 +191,7 @@ fun MonitoringScreen(
             FarmHero(when (quick) {
                 "watering" -> "Record watering"; "fertilizing" -> "Apply fertilizer"
                 "inspection" -> "Inspect crop"; "other" -> "Other fieldwork"; else -> "Crop monitoring"
-            }, cropLabel ?: "Selected crop · Record fieldwork, inspections and history.")
+            }, cropLabel ?: "Selected crop · Record activities and check history.")
             if (linkedTask) Text("Linked to your selected task. Completion is confirmed only after sending.",
                 style = MaterialTheme.typography.bodyMedium)
             if (state.busy) CircularProgressIndicator()
@@ -200,11 +201,11 @@ fun MonitoringScreen(
             }
             state.notice?.let { Text(it, color = MaterialTheme.colorScheme.primary, modifier = Modifier.semantics { liveRegion = LiveRegionMode.Polite }) }
             OfflineDataNotice(state.offline, state.cachedAtUtcMillis)
-            Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+            FlowRow(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(6.dp)) {
                 listOf("activity" to "Activity", "inspection" to "Inspection",
                     "history" to "History").forEach { (key, label) ->
                     FilterChip(selected = focus == key, onClick = { focus = key },
-                        modifier = Modifier.weight(1f).defaultMinSize(minHeight = 48.dp),
+                        modifier = Modifier.defaultMinSize(minHeight = 48.dp),
                         label = { Text(label) })
                 }
             }
@@ -219,8 +220,8 @@ fun MonitoringScreen(
             }
 
             if (state.canRecord && focus != "history") {
-                Text("Save now, sync later: your record is first saved to this device.",
-                    style = MaterialTheme.typography.bodySmall,
+                Text("Saved on your phone first; sent when online.",
+                    style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant)
                 if (focus == "activity") {
                 FarmSectionCard("Record farm activity",
