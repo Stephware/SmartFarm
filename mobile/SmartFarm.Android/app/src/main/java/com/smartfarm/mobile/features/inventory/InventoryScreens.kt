@@ -16,6 +16,8 @@ import androidx.compose.material3.TextButton
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.OutlinedCard
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import com.smartfarm.mobile.ui.components.RecordPage
 import com.smartfarm.mobile.ui.components.FarmSymbol
 import com.smartfarm.mobile.ui.components.FarmLineIcon
@@ -230,6 +232,8 @@ fun InventoryItemScreen(
     farmTimeZone: String? = null
 ) {
     val item = state.item
+    val focusManager = LocalFocusManager.current
+    val keyboardController = LocalSoftwareKeyboardController.current
     var name by rememberSaveable(item?.id) { mutableStateOf(item?.name.orEmpty()) }
     var category by rememberSaveable(item?.id) { mutableStateOf(item?.category ?: 1) }
     var unit by rememberSaveable(item?.id) { mutableStateOf(item?.unit.orEmpty()) }
@@ -368,7 +372,13 @@ fun InventoryItemScreen(
                             "Record the crop activity first, then return here to use supplies.")
                     } else {
                         val chosen = state.activities.firstOrNull { it.id == selectedActivity }
-                        OutlinedButton(onClick = { activityMenu = true }, enabled = !state.busy,
+                        OutlinedButton(onClick = {
+                            // Close the quantity keyboard before opening the activity menu.
+                            // Otherwise the popup can be obscured or immediately dismissed.
+                            focusManager.clearFocus()
+                            keyboardController?.hide()
+                            activityMenu = true
+                        }, enabled = !state.busy,
                             modifier = Modifier.fillMaxWidth().defaultMinSize(minHeight = 48.dp)) {
                             Text(chosen?.label ?: "Choose recorded activity")
                         }
