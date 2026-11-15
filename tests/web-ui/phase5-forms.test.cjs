@@ -13,7 +13,6 @@ test("Phase 5 edit forms keep existing routes and optional settings", () => {
   const plot = read("Views/Farms/EditPlot.cshtml");
   const farm = read("Views/Farms/Create.cshtml");
   const tasks = read("Views/Tasks/Index.cshtml");
-  const layout = read("Views/Shared/_Layout.cshtml");
   for (const file of [plan, inventory, plot, farm, tasks]) {
     assert.match(file, /data-ani-p5-form/, "opted-in form must have safe submit handling");
     assert.match(file, /method="post"/);
@@ -28,7 +27,7 @@ test("Phase 5 edit forms keep existing routes and optional settings", () => {
   assert.match(plot, /Input\.RowVersion/);
   assert.match(tasks, /name="TaskType"/);
   assert.match(tasks, /name="AssignedToUserId"/);
-  assert.match(layout, /if \(signedIn\)[\s\S]*forms-workflow\.js/);
+  assert.match(read("wwwroot/js/site.js"), /data-ani-p5-form/);
 });
 
 function setup() {
