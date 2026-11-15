@@ -55,7 +55,7 @@ function setup() {
     checkValidity() { return !harvest.validationMessage; },
   };
   const window = { listeners: {}, addEventListener(type, callback) { this.listeners[type] = callback; } };
-  vm.runInNewContext(read("wwwroot/js/forms-workflow.js"), {
+  vm.runInNewContext(read("wwwroot/js/site.js").split("/* Phase 5:")[1].replace(/^/, "/* Phase 5:"), {
     document: { querySelectorAll: () => [form] }, window,
   });
   return { form, window, harvest, planting, error, attrs };
