@@ -2313,6 +2313,51 @@
           "sha256": "0df6cbb26b8185638868e91843a5620ee0ec8b1faaf91a4f58bc0b4abd221d23"
         }
       ]
+    },
+    {
+      "date": "2026-11-16",
+      "revision": "1ba20822ea34ec7b6c517aae1d290aad8299c07d + verified PR138 fixes (source hashes below)",
+      "snapshot": "raw/project/2026-11-16-phase7-dark-mode-verification.md",
+      "sha256": "ff2fd71fb9cc189f0e9e1a9927bf69dda714dd02a713a076a7a10e9402412a62",
+      "scope": "Charcoal native/MVC appearance, large-text and photo contrast fixes, reviewed actual Linux baselines; local157 device/65 JVM/600 .NET/79 Node checks. Exact-head CI on PR138; no merge.",
+      "source_files": [
+        {
+          "path": "src/SmartFarm.Web/Styles/anigo-foundation.css",
+          "sha256": "d834f8c3b286e2b27a0f34e18342c91fe75b9d78a766ee8aeea35416a9d670e8"
+        },
+        {
+          "path": "src/SmartFarm.Web/Styles/anigo-landing-phase6.css",
+          "sha256": "a798d58eda44e37ab170cbdcbe0ef994f26eba389ae85ff6a92d2a130aa1b8ce"
+        },
+        {
+          "path": "src/SmartFarm.Web/wwwroot/css/anigo-tailwind.css",
+          "sha256": "793725b48f7ad19d8ee18c32c6c62400606fccae2e457a3982a7a77477a11326"
+        },
+        {
+          "path": "mobile/SmartFarm.Android/app/src/main/java/com/smartfarm/mobile/ui/theme/Theme.kt",
+          "sha256": "d464798eebb435f400346d4ffaa3a22689c5aee6d203e5f254fab429f1e07f79"
+        },
+        {
+          "path": "mobile/SmartFarm.Android/app/src/main/java/com/smartfarm/mobile/ui/components/DateInput.kt",
+          "sha256": "fbb6790f5b5e9478ffef44ea6f9a48e245c0794bbb95c8f176aba0a5f0cd2ecb"
+        },
+        {
+          "path": "mobile/SmartFarm.Android/app/src/main/java/com/smartfarm/mobile/ui/components/WelcomeScreen.kt",
+          "sha256": "973ccf69ec2c969d71c5b3c3d933e8147aaa1dd8c71dced60d4a5fa7251a0b05"
+        },
+        {
+          "path": "mobile/SmartFarm.Android/app/src/main/res/values/themes.xml",
+          "sha256": "13fbe186a919ab3adbb9ca741e67e0c98ec60f4ead70bcab88e73d21267b4e74"
+        },
+        {
+          "path": "tests/browser/phase7-dark-mode.cjs",
+          "sha256": "8389b77ef3776ac8dc02e11b2a874cd41c71bd981159f28accf9f6d70692e134"
+        },
+        {
+          "path": "tests/browser/baselines/review.json",
+          "sha256": "4491b8f6360f3f0c8971df3531a410b11a7659df0064d389cd53e6eaa2748e16"
+        }
+      ]
     }
   ]
 }

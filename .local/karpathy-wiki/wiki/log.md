@@ -228,3 +228,8 @@ Three native primary entries and a simpler existing Record sheet; My Farm groups
 - Disposition: Update
 - Raw: raw/project/2026-11-16-phase5-native-picker-verification.md
 - Updated: Foreground/native-dialog test synchronization and changed ISO selection; intermittent CI trigger and exact-head acceptance remain explicitly distinct.
+
+## [2026-11-16] ingest | Phase 7 dark-mode verification
+- Disposition: Update
+- Raw: raw/project/2026-11-16-phase7-dark-mode-verification.md
+- Updated: Frontend charcoal/native-picker guidance, large-text/photo accessibility and reviewed-baseline evidence. Historical snapshots preserved; final exact-head CI remains on PR #138, no merge authorized.

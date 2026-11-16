@@ -6,7 +6,7 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
-import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.defaultMinSize
 import com.smartfarm.mobile.R
 import androidx.compose.foundation.layout.Arrangement
@@ -61,13 +61,13 @@ fun WelcomeScreen(
                     colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primary),
                     shape = MaterialTheme.shapes.large, modifier = Modifier.fillMaxWidth()
                 ) {
-                    Box(Modifier.fillMaxWidth().height(238.dp)) {
+                    Box(Modifier.fillMaxWidth().heightIn(min = 238.dp)) {
                         // Existing, optimized agricultural photo shared with the MVC landing.
                         Image(painterResource(R.drawable.ani6_fields_hero),
                             contentDescription = null, contentScale = ContentScale.Crop,
-                            modifier = Modifier.fillMaxSize())
-                        Box(Modifier.fillMaxSize().background(Brush.verticalGradient(
-                            listOf(Color(0x33102018), Color(0xE6102F22)))))
+                            modifier = Modifier.matchParentSize())
+                        Box(Modifier.matchParentSize().background(Brush.verticalGradient(
+                            listOf(Color(0xBF102018), Color(0xE6102F22)))))
                         Column(Modifier.align(Alignment.BottomStart).padding(FarmSpacing.large),
                             verticalArrangement = Arrangement.spacedBy(10.dp)) {
                             Text("ONE CONNECTED WORKSPACE",
