@@ -58,8 +58,20 @@ else {
                                 () => reject(new Error("Image decode timed out")), 15000))
                         ]);
                     });
-                    assert.equal(await page.evaluate(() => document.documentElement.scrollWidth > innerWidth),
-                        false, key + ": no document overflow");
+                    const overflow = await page.evaluate(() => ({
+                        over: document.documentElement.scrollWidth > innerWidth,
+                        viewport: innerWidth,
+                        scroll: document.documentElement.scrollWidth,
+                        offenders: [...document.querySelectorAll("body *")].filter(el => {
+                            const rect = el.getBoundingClientRect();
+                            return rect.width && (rect.right > innerWidth + 1 || rect.left < -1);
+                        }).slice(0,12).map(el => {
+                            const r = el.getBoundingClientRect();
+                            return el.tagName.toLowerCase() + "." + String(el.className).slice(0,55)
+                                + " x=" + r.left.toFixed(0) + "-" + r.right.toFixed(0);
+                        })
+                    }));
+                    assert.equal(overflow.over, false, key + ": no document overflow " + JSON.stringify(overflow));
                     assert.equal(await page.locator("html").getAttribute("data-color-mode"), mode);
                     const data = await page.screenshot({ fullPage: true, animations: "disabled" });
                     fs.writeFileSync(path.join(output, key + "-candidate.png"), data);

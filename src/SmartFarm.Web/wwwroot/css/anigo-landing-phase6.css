@@ -255,6 +255,10 @@ html[data-color-mode="dark"] .ani6-topbar .guest-nav-cta { color: #fff; }
 }
 @media (max-width:375px) {
   .ani6-topbar .ani6-account-links .guest-nav-cta { padding-inline: 8px; font-size: .7rem; }
+  .ani6-topbar .guest-logo { font-size: 1.08rem; gap: 6px; }
+  .ani6-topbar .ani6-mobile-menu summary { font-size: 0; width: 32px; justify-content: center; }
+  .ani6-topbar .ani6-mobile-menu summary .ico { width: 19px; height: 19px; }
+  body.is-guest.is-landing .guest-topbar.ani6-topbar { gap: 6px; }
   .ani6-hero h1 { font-size: 2.06rem; }
   .ani6-feature { flex-direction: column; }
   .ani6-feature p { line-height: 1.45; }
