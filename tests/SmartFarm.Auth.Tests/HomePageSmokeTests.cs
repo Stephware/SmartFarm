@@ -20,7 +20,8 @@ public sealed class HomePageSmokeTests : IClassFixture<WebApplicationFactory<Pro
         using var response = await _client.GetAsync("/");
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
         var html = await response.Content.ReadAsStringAsync();
-        Assert.Contains("Keep your farm organized", html);
+        Assert.Contains("Grow smarter. Manage", html);
+        Assert.Contains("every farm in", html);
         Assert.Contains("AniGo", html);
         Assert.DoesNotContain(">SmartFarm</a>", html);
         Assert.Contains("/Account/Login", html);

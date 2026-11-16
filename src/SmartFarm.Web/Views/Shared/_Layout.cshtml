@@ -152,7 +152,7 @@ else
         <a class="brand guest-logo" asp-controller="Home" asp-action="Index"><span class="logo-mark"><partial name="_Icon" model='@("leaf")' /></span>AniGo</a>
         @if (isLanding)
         {
-            <nav class="ani6-top-links" aria-label="Landing page sections">
+            <nav class="ani6-top-links" aria-label="Main navigation">
                 <a href="#home" aria-current="page">Home</a>
                 <a href="#how-it-works">How it works</a>
                 <a href="#features">Features</a>
@@ -160,7 +160,7 @@ else
                 <a href="#contact">Contact</a>
             </nav>
         }
-        <nav class="ani6-account-links" aria-label="Account actions">
+        <nav class="ani6-account-links" aria-label="@(isLanding ? "Account actions" : "Main navigation")">
             <button class="icon-button" type="button" data-color-mode-toggle aria-label="Use dark appearance" aria-pressed="false"><partial name="_Icon" model='@("sun")' /></button>
             <a class="ani6-login" asp-controller="Account" asp-action="Login">Log in</a>
             <a class="button guest-nav-cta" asp-controller="Account" asp-action="Register">Create account</a>

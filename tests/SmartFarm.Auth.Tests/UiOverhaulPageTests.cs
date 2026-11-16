@@ -17,7 +17,7 @@ public sealed class UiOverhaulPageTests : IClassFixture<WebApplicationFactory<Pr
         });
 
     [Theory]
-    [InlineData("/", "Every farm, crop, and harvest in one place.")]
+    [InlineData("/", "Grow smarter. Manage every farm in one place.")]
     [InlineData("/Account/Login", "Log in to AniGo")]
     [InlineData("/Account/Register", "Create your account")]
     public async Task PublicScreensKeepSkipLinkMainLandmarkAndAccessibleNavigation(
