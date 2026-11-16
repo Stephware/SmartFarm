@@ -30,7 +30,7 @@ body.is-guest.is-landing .guest-topbar.ani6-topbar {
   text-decoration: none; min-height: 40px; display: inline-flex; align-items: center; white-space: nowrap; }
 .ani6-topbar .ani6-top-links a:hover { color: var(--ui-primary); }
 .ani6-topbar .ani6-top-links a[aria-current="page"]::after { content: ""; position: absolute; bottom: 3px; left: 0; right: 0; height: 2px; background: #24743e; }
-.ani6-topbar .ani6-account-links { display: flex; align-items: center; gap: 10px; flex: 0 0 auto; }
+.ani6-topbar .ani6-account-links { display: flex; align-items: center; gap: 10px; flex: 0 0 auto; width: auto; }
 .ani6-topbar .ani6-login, .ani6-topbar .guest-nav-cta { min-height: 40px; padding: 9px 15px; border-radius: 8px;
   font-weight: 700; font-size: .84rem; white-space: nowrap; text-decoration: none; }
 .ani6-topbar .ani6-login { border: 1px solid #316a47; color: var(--ui-text); }
@@ -192,6 +192,7 @@ html[data-color-mode="dark"] .ani6-topbar .guest-nav-cta { color: #fff; }
   .ani6-mobile-menu summary { display: flex; align-items: center; gap: 5px; cursor: pointer;
     min-height: 44px; font-weight: 700; font-size: .85rem; }
   .ani6-mobile-menu summary .ico { width: 15px; height: 15px; }
+  .ani6-mobile-menu:not([open]) > nav { display: none; }
   .ani6-mobile-menu nav { display: grid; gap: 0; position: absolute; z-index: 10; right: 0; top: 100%; width: 190px;
     border: 1px solid var(--ui-border); border-radius: 10px; background: var(--ui-surface);
     box-shadow: 0 12px 28px rgb(0 0 0 / 17%); padding: 9px; }
