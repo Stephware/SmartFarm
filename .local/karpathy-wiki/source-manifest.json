@@ -2296,6 +2296,23 @@
           "sha256": "cc1e2f519a88626e5c1f6c8d4eff2a6a7c06f4c6c57f6fb44210a758255e03d3"
         }
       ]
+    },
+    {
+      "date": "2026-11-16",
+      "revision": "c32a3448f86b0988398d74aee97e9bc658b4c023 + native picker test revision (source hashes below)",
+      "snapshot": "raw/project/2026-11-16-phase5-native-picker-verification.md",
+      "sha256": "92533ce153ddcd2b46d0e4e64ece81a89c1db7beb6b22cea16986360594e42d2",
+      "scope": "Diagnostic CI150/7 checks; focused changed-date native Espresso5 pass. Final exact-head full-suite acceptance remains on PR135. No production changes.",
+      "source_files": [
+        {
+          "path": "mobile/SmartFarm.Android/app/src/androidTest/java/com/smartfarm/mobile/NavigationInputsTest.kt",
+          "sha256": "bf394609284dcb648e71c6447b5d873dd4cdd64c12ea83305a17235738d515f7"
+        },
+        {
+          "path": "mobile/SmartFarm.Android/app/src/main/java/com/smartfarm/mobile/ui/components/DateInput.kt",
+          "sha256": "0df6cbb26b8185638868e91843a5620ee0ec8b1faaf91a4f58bc0b4abd221d23"
+        }
+      ]
     }
   ]
 }

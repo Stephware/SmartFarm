@@ -1,7 +1,7 @@
 # Web and Android frontend conventions
 
 > Sources: SmartFarm repository, source review
-> Raw: [Final Phase 5 native appearance](../../raw/project/2026-11-16-phase5-final-native-appearance.md); [Phase 5 form review](../../raw/project/2026-11-16-phase5-forms-review.md); [Phase 4 data states](../../raw/project/2026-11-16-phase4-data-states-review.md); [Phase 3 Android refinement](../../raw/project/2026-11-15-phase3-android-refinement.md); [Current documentation audit](../../raw/project/2026-11-11-documentation-audit.md); [Reference frontend merge](../../raw/project/2026-11-11-reference-frontend-merge.md); [Publication source check](../../raw/project/2026-11-12-documentation-publication.md); [MVP retirement](../../raw/project/2026-11-14-mvp-stage-5.md); [Phase 4 final CI](../../raw/project/2026-11-16-phase4-final-ci.md)
+> Raw: [Native picker verification](../../raw/project/2026-11-16-phase5-native-picker-verification.md); [Final Phase 5 native appearance](../../raw/project/2026-11-16-phase5-final-native-appearance.md); [Phase 5 form review](../../raw/project/2026-11-16-phase5-forms-review.md); [Phase 4 data states](../../raw/project/2026-11-16-phase4-data-states-review.md); [Phase 3 Android refinement](../../raw/project/2026-11-15-phase3-android-refinement.md); [Current documentation audit](../../raw/project/2026-11-11-documentation-audit.md); [Reference frontend merge](../../raw/project/2026-11-11-reference-frontend-merge.md); [Publication source check](../../raw/project/2026-11-12-documentation-publication.md); [MVP retirement](../../raw/project/2026-11-14-mvp-stage-5.md); [Phase 4 final CI](../../raw/project/2026-11-16-phase4-final-ci.md)
 > Updated: 2026-11-16
 
 **Source scope:** Earlier detailed audit/acceptance is dated below. For source
@@ -101,7 +101,9 @@ both a heading and a submit button. Check real lazy-list composition, keyboard
 insets and unclipped bounds separately before calling a failure a scrolling bug.
 Keep date value/action spacing and long-note fields usable at enlarged text.
 Let the date action wrap when needed instead of squeezing the value into a narrow
-column; verify actual text layout as well as non-overlap.
+column; verify actual text layout as well as non-overlap. Native picker tests
+require foreground host focus and Espresso's dialog root; select a changed date,
+confirm once and assert the ISO callback. Do not hide focus failures by reopening.
 
 MVC opt-in forms reveal concealed invalid controls, cancel invalid submissions and
 preserve named submitters. Supply-edit validation re-renders the draft with its
