@@ -31,6 +31,10 @@ jobs:
       - name: Build
         run: dotnet build SmartFarm.slnx --configuration Release --no-restore
       - name: Test
+        # The many WebApplicationFactory hosts exceed Linux CI's 128-instance
+        # inotify quota. Polling avoids native watcher exhaustion in tests.
+        env:
+          DOTNET_USE_POLLING_FILE_WATCHER: "1"
         run: dotnet test SmartFarm.slnx --configuration Release --no-build --no-restore
       # SQL-backed workflow tests require a separately initialized disposable
       # database and are intentionally not run against developer/production data.

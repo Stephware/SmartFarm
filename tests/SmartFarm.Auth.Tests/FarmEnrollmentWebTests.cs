@@ -1,7 +1,4 @@
 using System.Net;
-using System.Collections.Concurrent;
-using Microsoft.AspNetCore.Hosting;
-using Microsoft.Extensions.Logging;
 using System.Text.RegularExpressions;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.AspNetCore.Authentication;
@@ -389,11 +386,9 @@ public sealed partial class FarmEnrollmentWebTests
             null, null, "v");
         var second = first with { Id = Guid.NewGuid(), PlotId = Guid.NewGuid(),
             PlotName = "South plot", CropTypeName = "Rice" };
-        using var diagnostic = new TestServerErrorLog();
-        using var app = App(cycles: [first, second]).WithWebHostBuilder(
-            builder => builder.ConfigureLogging(logging => logging.AddProvider(diagnostic)));
+        using var app = App(cycles: [first, second]);
         using var client = app.CreateClient();
-        var html = await GetPageWithDiagnostics(client, $"/Dashboard?farmId={FarmId}", diagnostic);
+        var html = await client.GetStringAsync($"/Dashboard?farmId={FarmId}");
         Assert.Contains("Choose crop to record", html);
         Assert.Contains("Choose a plot and crop", html);
         Assert.Contains("North plot", html);
@@ -1477,14 +1472,12 @@ public sealed partial class FarmEnrollmentWebTests
     [Fact]
     public async Task OwnerPanelSeparatesPendingDecisionsFromTerminalHistory()
     {
-        using var diagnostic = new TestServerErrorLog();
         using var app = App(enroll: (name, _) => name == "OwnerOverviewAsync"
             ? Task.FromResult(new FarmEnrollmentOverview("ABCD12345678", [Pending],
                 [Pending with { Id = Guid.NewGuid(), FullName = "Former Applicant", Status = "Canceled" }]))
-            : throw new NotSupportedException(name)).WithWebHostBuilder(
-                builder => builder.ConfigureLogging(logging => logging.AddProvider(diagnostic)));
+            : throw new NotSupportedException(name));
         using var client = app.CreateClient();
-        var html = await GetPageWithDiagnostics(client, $"/Farms/Details?id={FarmId}", diagnostic);
+        var html = await client.GetStringAsync($"/Farms/Details?id={FarmId}");
         Assert.Contains("Approve New Farmer", html);
         Assert.Contains("Former Applicant", html); Assert.Contains("Canceled", html);
         Assert.DoesNotContain("Approve Former Applicant", html);
@@ -1520,17 +1513,15 @@ public sealed partial class FarmEnrollmentWebTests
     public async Task OwnerDecisionsShareEnrollmentWriteBudgetAndReturnRetryAfter()
     {
         var decisions = 0;
-        using var diagnostic = new TestServerErrorLog();
         using var app = App(enroll: (name, _) => name switch
         {
             "MyRequestsAsync" => Task.FromResult<IReadOnlyList<FarmJoinRequestDetails>>([Pending]),
             "DecideAsync" => Decide(),
             _ => throw new NotSupportedException(name)
-        }).WithWebHostBuilder(builder => builder.ConfigureLogging(
-            logging => logging.AddProvider(diagnostic)));
+        });
         Task Decide() { decisions++; return Task.CompletedTask; }
         using var client = app.CreateClient(new() { AllowAutoRedirect = false });
-        var html = await GetPageWithDiagnostics(client, "/Farms", diagnostic);
+        var html = await client.GetStringAsync("/Farms");
         for (var attempt = 0; attempt < 9; attempt++)
         {
             using var response = await client.PostAsync("/Farms/RequestJoin", Form(html));
@@ -1925,39 +1916,6 @@ public sealed partial class FarmEnrollmentWebTests
         fields["__RequestVerificationToken"] = WebUtility.HtmlDecode(Regex.Match(html,
             "name=\"__RequestVerificationToken\"[^>]*value=\"([^\"]+)\"").Groups[1].Value);
         return new(fields);
-    }
-
-    // Test-only diagnostics: preserve the production error handler while surfacing
-    // the actual exception if a rare HTTP 500 recurs in the full CI suite.
-    private static async Task<string> GetPageWithDiagnostics(
-        HttpClient client, string route, TestServerErrorLog diagnostic)
-    {
-        using var response = await client.GetAsync(route);
-        var body = await response.Content.ReadAsStringAsync();
-        Assert.True(response.IsSuccessStatusCode,
-            $"GET {route} returned {(int)response.StatusCode}. Server errors: {diagnostic.Details} " +
-            $"Response: {body[..Math.Min(300, body.Length)]}");
-        return body;
-    }
-
-    private sealed class TestServerErrorLog : ILoggerProvider, ILogger
-    {
-        private readonly ConcurrentQueue<string> _messages = new();
-        public string Details => string.Join(Environment.NewLine, _messages);
-        public ILogger CreateLogger(string categoryName) => this;
-        public IDisposable BeginScope<TState>(TState state) where TState : notnull => EmptyScope.Instance;
-        public bool IsEnabled(LogLevel level) => level >= LogLevel.Error;
-        public void Log<TState>(LogLevel level, EventId id, TState state, Exception? exception,
-            Func<TState, Exception?, string> formatter)
-        {
-            if (level >= LogLevel.Error) _messages.Enqueue(formatter(state, exception) + "\n" + exception);
-        }
-        public void Dispose() { }
-        private sealed class EmptyScope : IDisposable
-        {
-            internal static readonly EmptyScope Instance = new();
-            public void Dispose() { }
-        }
     }
 
     private static WebApplicationFactory<Program> App(string role = "Owner", Func<string, object?[]?, object>? enroll = null, IReadOnlyList<FarmSummary>? farms = null, IReadOnlyList<PlotDetails>? plots = null,
