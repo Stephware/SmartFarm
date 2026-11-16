@@ -16,7 +16,7 @@ async function checkPage(page, url, expectedTitle) {
     const response = await page.goto(new URL(url, base).href, { waitUntil: "networkidle" });
     assert.equal(response?.status(), 200, `${url} should load without a server error`);
     assert.equal(await page.locator("main#main-content").count(), 1);
-    assert.equal((await page.locator("h1").first().innerText()).replace(/\\s+/g, " ").trim(), expectedTitle);
+    assert.equal((await page.locator("h1").first().innerText()).replace(/\s+/g, " ").trim(), expectedTitle);
     const measure = await page.evaluate(() => ({
         documentWidth: document.documentElement.scrollWidth,
         viewportWidth: window.innerWidth,
