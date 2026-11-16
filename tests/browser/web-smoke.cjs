@@ -60,16 +60,16 @@ async function checkAccessibility(page, screen, viewport) {
             const errors = [];
             page.on("pageerror", error => errors.push(error.message));
             try {
-                await checkPage(page, "/", "Every farm, crop, and harvest in one place.");
+                await checkPage(page, "/", "Grow smarter. Manage every farm in one place.");
                 if (label === "phone") {
                     // Entry choices should survive registration and the following login.
-                    await page.getByRole("link", { name: "Create an account to manage" }).click();
+                    await page.getByRole("link", { name: /I manage a farm/i }).click();
                     assert.equal(new URL(page.url()).searchParams.get("returnUrl"), "/Farms/Create");
                     assert.ok((await page.locator("form.auth-form").getAttribute("action")).includes("returnUrl="));
                     assert.equal(new URL(await page.locator(".auth-switch a").getAttribute("href"), base)
                         .searchParams.get("returnUrl"), "/Farms/Create");
                     await page.goto(new URL("/", base).href);
-                    await page.getByRole("link", { name: "Create an account to join" }).click();
+                    await page.getByRole("link", { name: /I work on a farm/i }).click();
                     assert.equal(new URL(page.url()).searchParams.get("returnUrl"), "/Farms#join-farm");
                     assert.equal(new URL(await page.locator(".auth-switch a").getAttribute("href"), base)
                         .searchParams.get("returnUrl"), "/Farms#join-farm");
@@ -117,7 +117,7 @@ async function checkAccessibility(page, screen, viewport) {
 
         const context = await browser.newContext({ viewport: { width: 1280, height: 900 } });
         const page = await context.newPage();
-        await checkPage(page, "/", "Every farm, crop, and harvest in one place.");
+        await checkPage(page, "/", "Grow smarter. Manage every farm in one place.");
         await page.keyboard.press("Tab");
         assert.equal(await page.evaluate(() => document.activeElement?.getAttribute("href")), "#main-content");
         await page.keyboard.press("Enter");
