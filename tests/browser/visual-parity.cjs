@@ -62,6 +62,12 @@ else {
                         over: document.documentElement.scrollWidth > innerWidth,
                         viewport: innerWidth,
                         scroll: document.documentElement.scrollWidth,
+                        isLanding: document.body.className,
+                        cssLoaded: [...document.styleSheets].map(s => s.href).filter(Boolean).slice(-4),
+                        probe: [...document.querySelectorAll('.ani6-login,.ani6-topbar .icon-button,.ani6-mobile-menu summary,.ani6-account-links')].map(el => {
+                            const r=el.getBoundingClientRect(), c=getComputedStyle(el);
+                            return {tag:el.tagName,className:el.className,display:c.display,width:r.width};
+                        }),
                         offenders: [...document.querySelectorAll("body *")].filter(el => {
                             const rect = el.getBoundingClientRect();
                             return rect.width && (rect.right > innerWidth + 1 || rect.left < -1);
