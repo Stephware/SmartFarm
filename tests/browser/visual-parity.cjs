@@ -15,8 +15,9 @@ const output = path.join(__dirname, "parity-output");
 const update = process.env.ANIGO_UPDATE_VISUAL_BASELINES === "1";
 const widths = [320, 375, 768, 1024, 1440];
 const pages = { landing: "/", login: "/Account/Login", registration: "/Account/Register" };
-const inputs = ["wwwroot/css/anigo-tailwind.css", "Views/Shared/_Layout.cshtml",
-    "Views/Home/Index.cshtml", "Views/Account/Login.cshtml", "Views/Account/Register.cshtml"];
+const inputs = ["wwwroot/css/anigo-tailwind.css", "wwwroot/css/anigo-landing-phase6.css",
+    "Views/Shared/_Layout.cshtml", "Views/Home/Index.cshtml",
+    "Views/Account/Login.cshtml", "Views/Account/Register.cshtml"];
 const hashes = Object.fromEntries(inputs.map(file => [file, crypto.createHash("sha256")
     .update(fs.readFileSync(path.join(root, "src/SmartFarm.Web", file))).digest("hex")]));
 fs.mkdirSync(output, { recursive: true });
