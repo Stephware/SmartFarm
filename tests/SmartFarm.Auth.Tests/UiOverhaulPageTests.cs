@@ -17,7 +17,7 @@ public sealed class UiOverhaulPageTests : IClassFixture<WebApplicationFactory<Pr
         });
 
     [Theory]
-    [InlineData("/", "Every farm, crop, and harvest in one place.")]
+    [InlineData("/", "Grow smarter. Manage every farm in one place.")]
     [InlineData("/Account/Login", "Log in to AniGo")]
     [InlineData("/Account/Register", "Create your account")]
     public async Task PublicScreensKeepSkipLinkMainLandmarkAndAccessibleNavigation(
@@ -27,11 +27,17 @@ public sealed class UiOverhaulPageTests : IClassFixture<WebApplicationFactory<Pr
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
         var html = await response.Content.ReadAsStringAsync();
 
-        Assert.Contains(expectedHeading, html);
+        if (path == "/")
+        {
+            Assert.Contains("Grow smarter. Manage", html);
+            Assert.Contains("every farm in", html);
+            Assert.Contains("one place.", html);
+        }
+        else Assert.Contains(expectedHeading, html);
         Assert.Contains("href=\"#main-content\"", html);
         Assert.Contains("id=\"main-content\"", html);
         Assert.Contains("tabindex=\"-1\"", html);
-        Assert.Contains("aria-label=\"Main navigation\"", html);
+        Assert.Contains(path == "/" ? "aria-label=\"Landing page sections\"" : "aria-label=\"Account actions\"", html);
         Assert.Contains("/css/anigo-tailwind.css", html);
         Assert.Contains("/Account/Login", html);
         Assert.Contains("/Account/Register", html);

@@ -15,8 +15,9 @@ const output = path.join(__dirname, "parity-output");
 const update = process.env.ANIGO_UPDATE_VISUAL_BASELINES === "1";
 const widths = [320, 375, 768, 1024, 1440];
 const pages = { landing: "/", login: "/Account/Login", registration: "/Account/Register" };
-const inputs = ["wwwroot/css/anigo-tailwind.css", "Views/Shared/_Layout.cshtml",
-    "Views/Home/Index.cshtml", "Views/Account/Login.cshtml", "Views/Account/Register.cshtml"];
+const inputs = ["wwwroot/css/anigo-tailwind.css",
+    "Views/Shared/_Layout.cshtml", "Views/Home/Index.cshtml",
+    "Views/Account/Login.cshtml", "Views/Account/Register.cshtml"];
 const hashes = Object.fromEntries(inputs.map(file => [file, crypto.createHash("sha256")
     .update(fs.readFileSync(path.join(root, "src/SmartFarm.Web", file))).digest("hex")]));
 fs.mkdirSync(output, { recursive: true });
@@ -57,8 +58,26 @@ else {
                                 () => reject(new Error("Image decode timed out")), 15000))
                         ]);
                     });
-                    assert.equal(await page.evaluate(() => document.documentElement.scrollWidth > innerWidth),
-                        false, key + ": no document overflow");
+                    const overflow = await page.evaluate(() => ({
+                        over: document.documentElement.scrollWidth > innerWidth,
+                        viewport: innerWidth,
+                        scroll: document.documentElement.scrollWidth,
+                        isLanding: document.body.className,
+                        cssLoaded: [...document.styleSheets].map(s => s.href).filter(Boolean).slice(-4),
+                        probe: [...document.querySelectorAll('.ani6-login,.ani6-topbar .icon-button,.ani6-mobile-menu summary,.ani6-account-links')].map(el => {
+                            const r=el.getBoundingClientRect(), c=getComputedStyle(el);
+                            return {tag:el.tagName,className:el.className,display:c.display,width:r.width};
+                        }),
+                        offenders: [...document.querySelectorAll("body *")].filter(el => {
+                            const rect = el.getBoundingClientRect();
+                            return rect.width && (rect.right > innerWidth + 1 || rect.left < -1);
+                        }).slice(0,12).map(el => {
+                            const r = el.getBoundingClientRect();
+                            return el.tagName.toLowerCase() + "." + String(el.className).slice(0,55)
+                                + " x=" + r.left.toFixed(0) + "-" + r.right.toFixed(0);
+                        })
+                    }));
+                    assert.equal(overflow.over, false, key + ": no document overflow " + JSON.stringify(overflow));
                     assert.equal(await page.locator("html").getAttribute("data-color-mode"), mode);
                     const data = await page.screenshot({ fullPage: true, animations: "disabled" });
                     fs.writeFileSync(path.join(output, key + "-candidate.png"), data);
