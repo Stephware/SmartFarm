@@ -52,6 +52,8 @@ function setup() {
     setAttribute(k, v) { attrs.set(k, v); },
     removeAttribute(k) { attrs.delete(k); },
     checkValidity() { return !harvest.validationMessage; },
+    reports: 0,
+    reportValidity() { this.reports++; return this.checkValidity(); },
   };
   const window = { listeners: {}, addEventListener(type, callback) { this.listeners[type] = callback; } };
   vm.runInNewContext(read("wwwroot/js/site.js").split("/* Phase 5:")[1].replace(/^/, "/* Phase 5:"), {
@@ -67,11 +69,13 @@ test("invalid harvest date gives actionable feedback and blocks the save guard",
   const event = { defaultPrevented: false, preventDefault() { this.defaultPrevented = true; } };
   form.listeners.submit(event);
   assert.notEqual(form.dataset.aniP5Submitting, "true");
+  assert.equal(event.defaultPrevented, true, "invalid submission must actually be cancelled");
+  assert.equal(form.reports, 1, "invalid submission must explain the problem");
   harvest.value = "2026-11-22";
   harvest.listeners.input();
   assert.equal(error.hidden, true);
   assert.equal(harvest.validationMessage, "");
-  form.listeners.submit(event);
+  form.listeners.submit({ defaultPrevented: false, preventDefault() { this.defaultPrevented = true; } });
   assert.equal(form.dataset.aniP5Submitting, "true");
 });
 

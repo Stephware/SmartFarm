@@ -1,0 +1,5 @@
+/* Keep optional form settings readable without changing the shared palette or public pages. */
+.ani-p5-form .ani-p5-optional > summary {
+    font-size: 14px;
+    line-height: 1.5;
+}

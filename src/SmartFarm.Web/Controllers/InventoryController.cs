@@ -99,8 +99,7 @@ public sealed class InventoryController : Controller
     {
         if (!ModelState.IsValid)
         {
-            TempData["Error"] = "Check item name, category, unit and reorder level.";
-            return RedirectToAction(nameof(Details), new { farmId, itemId });
+            return await InvalidEdit(farmId, itemId, input, ct);
         }
         try
         {
@@ -110,9 +109,22 @@ public sealed class InventoryController : Controller
         catch (FarmOperationException e)
         {
             if (e.Error == FarmError.NotFound) return NotFound();
-            TempData["Error"] = e.Message;
+            ModelState.AddModelError("", e.Message);
+            return await InvalidEdit(farmId, itemId, input, ct);
         }
         return RedirectToAction(nameof(Details), new { farmId, itemId });
+    }
+
+    private async Task<IActionResult> InvalidEdit(Guid farmId, Guid itemId,
+        InventoryItemInput input, CancellationToken ct)
+    {
+        var result = await Edit(farmId, itemId, ct);
+        if (result is ViewResult view && view.Model is InventoryEditPage model)
+        {
+            view.ViewName = "Edit";
+            view.ViewData.Model = model with { Input = input };
+        }
+        return result;
     }
 
     [HttpPost, ValidateAntiForgeryToken]

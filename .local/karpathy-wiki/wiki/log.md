@@ -203,3 +203,13 @@ Three native primary entries and a simpler existing Record sheet; My Farm groups
 - Disposition: Update
 - Raw: raw/project/2026-11-16-phase4-data-states-review.md
 - Updated: Frontend conventions/index; cache/refresh truth, scoped pagination, native readability and dated verification limits. UI Phase 6 landing reserved; PR134 must not merge.
+
+## [2026-11-16] ingest | Phase 5 form and workflow verification
+- Disposition: Update
+- Raw: raw/project/2026-11-16-phase5-forms-review.md
+- Updated: Frontend form validation, draft/version preservation, selector/large-text guidance and owner-assignment exception. Verified local results remain distinct from final PR checks and unverified SQL/hardware/providers; UI Phase 6/7 reserved.
+
+## [2026-11-16] ingest | Phase 5 final native form appearance
+- Disposition: Update
+- Raw: raw/project/2026-11-16-phase5-final-native-appearance.md
+- Updated: Frontend date wrapping guidance; append-only final source/test evidence preserves the earlier snapshot. Final local 150-device-test suite passed; remote PR checks remain separate.

@@ -1,6 +1,8 @@
 package com.smartfarm.mobile
 
 import androidx.compose.ui.test.junit4.createComposeRule
+import androidx.compose.ui.test.hasText
+import androidx.compose.ui.test.hasSetTextAction
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.onAllNodesWithTag
 import androidx.compose.ui.test.performScrollToIndex
@@ -51,7 +53,7 @@ class ResponsiveListsTest {
         val state = InventoryUiState(farmId = "farm", workspace = InventoryWorkspaceDto(items, 0))
         compose.setContent { SmartFarmTheme { InventoryListScreen(state, true, {}, {}, { _, _, _, _, _ -> }) } }
         compose.onNodeWithText("Add supply").performScrollTo().performClick()
-        compose.onNodeWithText("Name").performScrollTo().assertIsDisplayed()
+        compose.onNode(hasText("Supply name") and hasSetTextAction()).performScrollTo().assertIsDisplayed()
     }
 
     @Test fun longFarmListsComposeOnlyNearbyRecordsAndReachTheEnd() {

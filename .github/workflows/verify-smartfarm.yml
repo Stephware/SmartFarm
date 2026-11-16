@@ -114,6 +114,10 @@ jobs:
         env:
           SMARTFARM_BROWSER_BASE_URL: http://127.0.0.1:5082
         run: node tests/browser/phase4-data-states.cjs
+      - name: Check Phase 5 form workflows in Chromium
+        env:
+          SMARTFARM_BROWSER_BASE_URL: http://127.0.0.1:5082
+        run: node tests/browser/phase5-forms.cjs
       - name: Render test-only Super Admin Razor fixtures
         env:
           ANIGO_CAPTURE_ADMIN_FIXTURES: "1"

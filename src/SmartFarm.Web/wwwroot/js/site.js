@@ -132,6 +132,7 @@ for (const button of document.querySelectorAll("[data-copy-target]")) {
     };
     window.addEventListener('pageshow', recover);
     forms.forEach(form => {
+        form.addEventListener('invalid', event => revealConcealedTarget(event.target), true);
         const planting = form.querySelector('[data-ani-p5-start-date]');
         const harvest = form.querySelector('[data-ani-p5-end-date]');
         const dateError = form.querySelector('[data-ani-p5-date-error]');
@@ -152,7 +153,11 @@ for (const button of document.querySelectorAll("[data-copy-target]")) {
         form.addEventListener('submit', event => {
             if (event.defaultPrevented) return; // Respect confirmation cancellations.
             checkDates();
-            if (!form.checkValidity()) return; // Native/server validation remain authoritative.
+            if (!form.checkValidity()) {
+                event.preventDefault();
+                form.reportValidity();
+                return;
+            }
             if (form.dataset.aniP5Submitting === 'true') {
                 event.preventDefault();
                 return;

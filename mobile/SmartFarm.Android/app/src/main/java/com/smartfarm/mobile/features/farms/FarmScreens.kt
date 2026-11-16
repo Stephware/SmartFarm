@@ -49,6 +49,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.heading
+import androidx.compose.ui.semantics.error
 import androidx.compose.ui.semantics.liveRegion
 import androidx.compose.ui.semantics.LiveRegionMode
 import androidx.compose.runtime.Composable
@@ -114,6 +115,16 @@ fun FarmListScreen(state: FarmUiState, onOpen: (String) -> Unit,
     var creating by rememberSaveable { mutableStateOf(false) }
     var joining by rememberSaveable { mutableStateOf(false) }
     var locationOptions by rememberSaveable { mutableStateOf(false) }
+    val nameError = when {
+        name.isNotBlank() && name.trim().length < 2 -> "Farm name must be at least 2 characters."
+        name.trim().length > 120 -> "Farm name must be 120 characters or fewer."
+        else -> null
+    }
+    val locationError = when {
+        location.isNotBlank() && location.trim().length < 2 -> "Location must be at least 2 characters."
+        location.trim().length > 250 -> "Location must be 250 characters or fewer."
+        else -> null
+    }
 
     RecordPage {
         item(key = "header") {
@@ -143,18 +154,18 @@ fun FarmListScreen(state: FarmUiState, onOpen: (String) -> Unit,
             FarmSectionCard("Create farm", subtitle = "Start with the farm name and its area.") {
                 OutlinedTextField(name, { name = it }, label = { Text("Farm name") },
                     singleLine = true, enabled = !state.loading,
-                    isError = name.trim().length > 120,
-                    modifier = Modifier.fillMaxWidth())
-                if (name.trim().length > 120)
-                    Text("Farm name must be 120 characters or fewer.",
+                    isError = nameError != null,
+                    modifier = Modifier.fillMaxWidth().semantics { nameError?.let { error(it) } })
+                if (nameError != null)
+                    Text(nameError,
                         color = MaterialTheme.colorScheme.error,
                         style = MaterialTheme.typography.bodySmall)
                 OutlinedTextField(location, { location = it; latitude = ""; longitude = "" },
                     label = { Text("City, town or farm address") }, enabled = !state.loading,
-                    isError = location.trim().length > 250,
-                    singleLine = true, modifier = Modifier.fillMaxWidth())
-                if (location.trim().length > 250)
-                    Text("Location must be 250 characters or fewer.",
+                    isError = locationError != null,
+                    singleLine = true, modifier = Modifier.fillMaxWidth().semantics { locationError?.let { error(it) } })
+                if (locationError != null)
+                    Text(locationError,
                         color = MaterialTheme.colorScheme.error,
                         style = MaterialTheme.typography.bodySmall)
                 Text("You can add plots and crops after creating your farm.",
@@ -176,7 +187,7 @@ fun FarmListScreen(state: FarmUiState, onOpen: (String) -> Unit,
                 Button(onClick = { onCreate(name.trim(), location.trim(), zone, latitude, longitude) },
                     modifier = Modifier.fillMaxWidth().defaultMinSize(minHeight = 48.dp),
                     enabled = !state.loading && !state.offline &&
-                        name.trim().length in 1..120 && location.trim().length in 1..250 &&
+                        name.trim().length in 2..120 && location.trim().length in 2..250 &&
                         zone.isNotBlank() &&
                         (latitude.isBlank() == longitude.isBlank())) { Text("Create farm") }
             }

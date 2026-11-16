@@ -1,7 +1,7 @@
 # Web and Android frontend conventions
 
 > Sources: SmartFarm repository, source review
-> Raw: [Phase 4 data states](../../raw/project/2026-11-16-phase4-data-states-review.md); [Phase 3 Android refinement](../../raw/project/2026-11-15-phase3-android-refinement.md); [Current documentation audit](../../raw/project/2026-11-11-documentation-audit.md); [Reference frontend merge](../../raw/project/2026-11-11-reference-frontend-merge.md); [Publication source check](../../raw/project/2026-11-12-documentation-publication.md); [MVP retirement](../../raw/project/2026-11-14-mvp-stage-5.md)
+> Raw: [Final Phase 5 native appearance](../../raw/project/2026-11-16-phase5-final-native-appearance.md); [Phase 5 form review](../../raw/project/2026-11-16-phase5-forms-review.md); [Phase 4 data states](../../raw/project/2026-11-16-phase4-data-states-review.md); [Phase 3 Android refinement](../../raw/project/2026-11-15-phase3-android-refinement.md); [Current documentation audit](../../raw/project/2026-11-11-documentation-audit.md); [Reference frontend merge](../../raw/project/2026-11-11-reference-frontend-merge.md); [Publication source check](../../raw/project/2026-11-12-documentation-publication.md); [MVP retirement](../../raw/project/2026-11-14-mvp-stage-5.md)
 > Updated: 2026-11-16
 
 **Source scope:** Earlier detailed audit/acceptance is dated below. For source
@@ -89,6 +89,31 @@ bases; inspect the computed cascade and keyboard focus, not just source selector
 distinguishes local native/browser checks from live SQL, hardware and deployment.
 UI Phase 6's landing redesign remains planned; public goldens/thresholds are unchanged.
 This task authorizes PR #134 updates only, with no merge into `dev` or `main`.
+
+## Phase 5 forms and workflow feedback (PR #135)
+
+Use semantic button/editable-field selectors in native tests; text alone may match
+both a heading and a submit button. Check real lazy-list composition, keyboard
+insets and unclipped bounds separately before calling a failure a scrolling bug.
+Keep date value/action spacing and long-note fields usable at enlarged text.
+Let the date action wrap when needed instead of squeezing the value into a narrow
+column; verify actual text layout as well as non-overlap.
+
+MVC opt-in forms reveal concealed invalid controls, cancel invalid submissions and
+preserve named submitters. Supply-edit validation re-renders the draft with its
+submitted rowversion, never silently rebasing it; reuse live edit-access checks and
+the shared error summary. This does not establish universal create-form recovery.
+
+Native task drafts survive busy/error/choice refresh. Freeze in-flight editing and
+require current, explicitly resolved new-task choices. Never silently clear a crop
+or assignee. Existing owner assignments can be absent from member-choice rows:
+keep server validation authoritative rather than applying membership-only client
+rules to edits. Match required-field/date/length feedback across create and edit.
+
+[Verification evidence](../../raw/project/2026-11-16-phase5-forms-review.md) records
+150 local device tests and scoped browser checks, with SQL/hardware/provider limits.
+UI Phase 6 landing and UI Phase 7 palette work remain separate planned scope; this
+task authorizes review-only PR updates, not a merge.
 
 ## Product and accessibility constraints
 

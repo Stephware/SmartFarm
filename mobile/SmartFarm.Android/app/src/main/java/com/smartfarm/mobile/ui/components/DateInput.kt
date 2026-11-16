@@ -3,7 +3,8 @@ package com.smartfarm.mobile.ui.components
 import android.app.DatePickerDialog
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.FlowRow
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material3.OutlinedButton
@@ -22,6 +23,7 @@ import java.time.format.FormatStyle
 
 /** The entire 48dp row opens the picker, including on small screens or with large text. */
 @Composable
+@OptIn(ExperimentalLayoutApi::class)
 fun DateInput(value: String, label: String, onValueChange: (String) -> Unit, enabled: Boolean = true) {
     val context = LocalContext.current
     val date = runCatching { LocalDate.parse(value) }.getOrNull()
@@ -42,7 +44,8 @@ fun DateInput(value: String, label: String, onValueChange: (String) -> Unit, ena
                             ?: "No date selected") + ". Choose date"
                 }
         ) {
-            Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+            FlowRow(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp),
+                verticalArrangement = Arrangement.spacedBy(4.dp)) {
                 Text(date?.format(DateTimeFormatter.ofLocalizedDate(FormatStyle.MEDIUM))
                     ?: "No date selected",
                     style = MaterialTheme.typography.bodyLarge)
