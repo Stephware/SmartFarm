@@ -1,5 +1,5 @@
 {
-  "reviewed": false,
+  "reviewed": true,
   "sourceHashes": {
     "wwwroot/css/anigo-tailwind.css": "93529edb7f68504fe12903a274e555166cbd46234d5729b850b24941bb141853",
     "Views/Shared/_Layout.cshtml": "4f7bb345bf93014279efef13f260239edb4009649eb04bbd25f665a4d5bcaba5",
@@ -23,5 +23,5 @@
     "login": "/Account/Login",
     "registration": "/Account/Register"
   },
-  "note": "Phase 6: CSS compiled into one AniGo design system and all 30 public captures regenerated from the actual MVC site. Inspect representative light/dark desktop/mobile screenshots before marking reviewed=true. Old landing goldens were intentionally superseded."
+  "note": "Phase 6 (2026-11-16): single compiled AniGo CSS (Tailwind, without Preflight), user-approved photography-led landing and revised paths. Generated 30 actual ASP.NET Core Chromium screenshots at widths 320, 375, 768, 1024 and 1440 in light/dark. Representative full-page landing captures at 375 and 1440 in both themes were inspected after the final CSS compile, including hero, mobile navigation, four features, Plan/Work/Review, field-worker imagery, role actions, CTA and credits. Automated visual capture confirmed no document overflow at the other widths. Auth form routes/semantics and existing login/registration golden images are preserved. The redesigned landing PNGs supersede the old reviewed layout, not its functionality. Phase 7 global dark palette is intentionally unchanged."
 }
