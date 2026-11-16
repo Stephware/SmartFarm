@@ -25,7 +25,7 @@ const expected = {
 };
 
 const cssDark = source.split(':root[data-color-mode="dark"] {')[1].split("\n  }")[0];
-const compiledDark = compiled.split(":root[data-color-mode=dark]{")[1].split("}*,:before,:after{")[0];
+const compiledDark = compiled.split(":root[data-color-mode=dark]{color-scheme:dark;")[1].split("}*,:before,:after{")[0];
 function luminance(hex) {
   const rgb = hex.match(/[0-9a-f]{2}/gi).map(n => parseInt(n, 16) / 255)
     .map(n => n <= 0.04045 ? n / 12.92 : Math.pow((n + 0.055) / 1.055, 2.4));
