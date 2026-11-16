@@ -35,7 +35,7 @@ fs.mkdirSync(shots, { recursive: true });
         assert.equal(snapshot.mode, mode, "mode persisted");
         assert.equal(snapshot.overflows, false, "no overflow at " + width + "/" + mode);
         assert.equal(snapshot.page, mode === "dark" ? "#121917" : "#f5f7f5");
-        assert.equal(snapshot.card, mode === "dark" ? "#202b26" : "#ffffff");
+        assert.equal(snapshot.card, mode === "dark" ? "#202b26" : "#fff");
         assert.equal(snapshot.action, mode === "dark" ? "#397a58" : "");
         assert.equal(snapshot.button, mode === "dark" ? "rgb(57, 122, 88)" : "rgb(36, 140, 82)");
         const a11y = await new AxeBuilder({ page })
