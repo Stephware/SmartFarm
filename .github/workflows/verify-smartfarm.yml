@@ -122,6 +122,10 @@ jobs:
         env:
           SMARTFARM_BROWSER_BASE_URL: http://127.0.0.1:5082
         run: node tests/browser/phase5-forms.cjs
+      - name: Check Phase 6 landing usability in Chromium
+        env:
+          SMARTFARM_BROWSER_BASE_URL: http://127.0.0.1:5082
+        run: node tests/browser/phase6-landing.cjs
       - name: Render test-only Super Admin Razor fixtures
         env:
           ANIGO_CAPTURE_ADMIN_FIXTURES: "1"
