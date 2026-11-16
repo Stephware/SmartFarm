@@ -45,6 +45,15 @@ const widths = [320, 375, 768, 1024, 1440];
         assert.equal(await page.evaluate(() => document.documentElement.scrollWidth > innerWidth),
           false, `no horizontal overflow at ${width}/${mode}`);
         assert.equal(await page.locator("html").getAttribute("data-color-mode"), mode);
+        if (width <= 850) {
+          const menu = page.locator(".ani6-mobile-menu");
+          await menu.locator("summary").click();
+          assert.equal(await menu.locator('a[href="/Account/Login"]').isVisible(), true,
+            "Mobile menu retains direct login access");
+          assert.equal(await menu.locator("button[data-color-mode-toggle]").count(), 1,
+            "Mobile menu retains appearance switching");
+          await menu.locator("summary").click();
+        }
         for (const id of ["home", "features", "how-it-works", "about", "contact"]) {
           assert.equal(await page.locator(`#${id}`).count(), 1, `anchor ${id}`);
         }
