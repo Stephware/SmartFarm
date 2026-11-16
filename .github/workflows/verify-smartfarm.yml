@@ -126,6 +126,10 @@ jobs:
         env:
           SMARTFARM_BROWSER_BASE_URL: http://127.0.0.1:5082
         run: node tests/browser/phase6-landing.cjs
+      - name: Check Phase 7 theme contrast, responsive layouts and persistence
+        env:
+          SMARTFARM_BROWSER_BASE_URL: http://127.0.0.1:5082
+        run: node tests/browser/phase7-dark-mode.cjs
       - name: Render test-only Super Admin Razor fixtures
         env:
           ANIGO_CAPTURE_ADMIN_FIXTURES: "1"
