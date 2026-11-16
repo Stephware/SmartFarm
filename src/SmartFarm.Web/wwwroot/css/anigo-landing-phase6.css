@@ -101,7 +101,7 @@ body.is-guest.is-landing .guest-topbar.ani6-topbar {
 .ani6-step h3 { margin: 5px 0 3px; color: #173b29; font-size: 1.06rem; font-weight: 850; }
 .ani6-step p { color: #41554b; font-size: .88rem; line-height: 1.45; }
 
-.ani6-story { margin-top: 26px; display: grid; grid-template-columns: 1fr 1fr; height: 310px; min-height: 0;
+.ani6-story { margin-top: 26px; display: grid; grid-template-columns: 1fr 1fr; min-height: 310px;
   border-radius: 18px; overflow: hidden; background: #163d2c; }
 .ani6-story-photo { position: relative; min-height: 0; overflow: hidden; }
 .ani6-story-photo img { position: absolute; inset: 0; width: 100%; height: 100%; display: block; object-fit: cover; object-position: center 76%; }
