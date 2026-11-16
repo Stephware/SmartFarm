@@ -35,8 +35,8 @@ body.is-guest.is-landing .guest-topbar.ani6-topbar {
   font-weight: 700; font-size: .84rem; white-space: nowrap; text-decoration: none; }
 .ani6-topbar .ani6-login { border: 1px solid #316a47; color: var(--ui-text); }
 .ani6-topbar .ani6-login:hover { background: var(--ui-surface-subtle); }
-.ani6-topbar .guest-nav-cta { background: #16452e; color: #fff; border-color: #16452e; }
-.ani6-topbar .guest-nav-cta:hover { background: #22613f; color: #fff; }
+.ani6-topbar .guest-nav-cta { background: var(--ui-action, #16452e); color: #fff; border-color: var(--ui-action, #16452e); }
+.ani6-topbar .guest-nav-cta:hover { background: var(--ui-action-hover, #22613f); color: #fff; }
 .ani6-topbar .icon-button { padding: 8px; width: 40px; height: 40px; }
 .ani6-topbar .ani6-mobile-menu { display: none; }
 
@@ -61,8 +61,8 @@ body.is-guest.is-landing .guest-topbar.ani6-topbar {
   text-decoration: none; transition: background-color .18s ease, transform .18s ease; }
 .ani6-btn:hover { transform: translateY(-1px); }
 .ani6-btn .ico { width: 16px; height: 16px; }
-.ani6-btn-green { color: #fff!important; border: 1px solid #227447; background: #248c52; }
-.ani6-btn-green:hover { background: #1a7542; }
+.ani6-btn-green { color: #fff!important; border: 1px solid var(--ui-action, #227447); background: var(--ui-action, #248c52); }
+.ani6-btn-green:hover { background: var(--ui-action-hover, #1a7542); }
 .ani6-btn-outline { color: #fff!important; background: rgb(10 30 24 / 15%); border: 1px solid rgb(255 255 255 / 90%); }
 .ani6-btn-outline:hover { background: rgb(255 255 255 / 16%); }
 .ani6-play { border-radius: 50%; background: #f7f7ed; color: #19442c; width: 18px; height: 18px;
