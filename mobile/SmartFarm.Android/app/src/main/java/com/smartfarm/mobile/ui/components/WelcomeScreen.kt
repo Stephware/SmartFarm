@@ -1,5 +1,14 @@
 package com.smartfarm.mobile.ui.components
 
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.defaultMinSize
+import com.smartfarm.mobile.R
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
@@ -44,20 +53,38 @@ fun WelcomeScreen(
             Column(Modifier.widthIn(max = 560.dp).fillMaxWidth().verticalScroll(rememberScrollState())
                 .padding(FarmSpacing.medium),
                 verticalArrangement = Arrangement.spacedBy(FarmSpacing.medium)) {
-                Card(colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primary),
-                    shape = MaterialTheme.shapes.large, modifier = Modifier.fillMaxWidth()) {
-                    Column(Modifier.fillMaxWidth().padding(FarmSpacing.medium),
-                        verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                        Text("Welcome to AniGo", style = MaterialTheme.typography.headlineLarge,
-                            color = MaterialTheme.colorScheme.onPrimary)
-                        Text("Your farms, fieldwork and harvests—organized in one place.",
-                            style = MaterialTheme.typography.bodyLarge,
-                            color = MaterialTheme.colorScheme.onPrimary)
+                Card(
+                    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primary),
+                    shape = MaterialTheme.shapes.large, modifier = Modifier.fillMaxWidth()
+                ) {
+                    Box(Modifier.fillMaxWidth().height(238.dp)) {
+                        // Existing, optimized agricultural photo shared with the MVC landing.
+                        Image(painterResource(R.drawable.ani6_fields_hero),
+                            contentDescription = null, contentScale = ContentScale.Crop,
+                            modifier = Modifier.fillMaxSize())
+                        Box(Modifier.fillMaxSize().background(Brush.verticalGradient(
+                            listOf(Color(0x33102018), Color(0xE6102F22)))))
+                        Column(Modifier.align(Alignment.BottomStart).padding(FarmSpacing.large),
+                            verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                            Text("ONE CONNECTED WORKSPACE",
+                                style = MaterialTheme.typography.labelMedium,
+                                color = Color(0xFFF1CC7D))
+                            Text("Welcome to AniGo",
+                                style = MaterialTheme.typography.headlineLarge,
+                                color = Color.White)
+                            Text("Plan crops, record fieldwork, and track harvests in one place.",
+                                style = MaterialTheme.typography.bodyLarge,
+                                color = Color(0xFFF4F7F1))
+                        }
                     }
                 }
-                FarmSectionCard("Get started", subtitle = "Open your farms or join a farming team.") {
-                    Button(onClick = onLogin, modifier = Modifier.fillMaxWidth()) { Text("Log in") }
-                    OutlinedButton(onClick = onRegister, modifier = Modifier.fillMaxWidth()) {
+                FarmSectionCard("Get started", subtitle = "Use one account to manage a farm or join your team.") {
+                    Button(onClick = onLogin,
+                        modifier = Modifier.fillMaxWidth().defaultMinSize(minHeight = 48.dp)) {
+                        Text("Log in")
+                    }
+                    OutlinedButton(onClick = onRegister,
+                        modifier = Modifier.fillMaxWidth().defaultMinSize(minHeight = 48.dp)) {
                         Text("Create account")
                     }
                 }
