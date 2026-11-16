@@ -20,6 +20,7 @@ import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.MaterialTheme
@@ -39,6 +40,8 @@ import androidx.compose.ui.tooling.preview.Preview
 import com.smartfarm.mobile.BuildConfig
 import com.smartfarm.mobile.features.status.StatusUiState
 import com.smartfarm.mobile.ui.theme.SmartFarmTheme
+import com.smartfarm.mobile.ui.theme.AniGoPalette
+import com.smartfarm.mobile.ui.theme.LocalFarmAppearance
 
 @Composable
 fun WelcomeScreen(
@@ -48,6 +51,7 @@ fun WelcomeScreen(
     onRegister: () -> Unit = {}
 ) {
     var showDiagnostics by rememberSaveable { mutableStateOf(false) }
+    val darkMode = LocalFarmAppearance.current.dark
     Scaffold(topBar = { FarmAppBar() }) { padding ->
         Box(Modifier.fillMaxSize().padding(padding), contentAlignment = Alignment.TopCenter) {
             Column(Modifier.widthIn(max = 560.dp).fillMaxWidth().verticalScroll(rememberScrollState())
@@ -80,7 +84,12 @@ fun WelcomeScreen(
                 }
                 FarmSectionCard("Get started", subtitle = "Use one account to manage a farm or join your team.") {
                     Button(onClick = onLogin,
-                        modifier = Modifier.fillMaxWidth().defaultMinSize(minHeight = 48.dp)) {
+                        modifier = Modifier.fillMaxWidth().defaultMinSize(minHeight = 48.dp),
+                        colors = if (darkMode) ButtonDefaults.buttonColors(
+                            containerColor = AniGoPalette.darkAction,
+                            contentColor = AniGoPalette.onDarkAction
+                        ) else ButtonDefaults.buttonColors()
+                    ) {
                         Text("Log in")
                     }
                     OutlinedButton(onClick = onRegister,
