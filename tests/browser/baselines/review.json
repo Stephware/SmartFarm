@@ -1,10 +1,9 @@
 {
-  "reviewed": true,
+  "reviewed": false,
   "sourceHashes": {
-    "wwwroot/css/anigo-tailwind.css": "df5ebf61c7030af12c5c99793b8fd1f842e8d859a02042fb5f46d7ea383a8011",
-    "wwwroot/css/anigo-landing-phase6.css": "fd22200199ffabdd7c02ad94aef88b157d8b76d1a36090fbb6287f737a0b8e66",
-    "Views/Shared/_Layout.cshtml": "6551c9a52bbcadf6789a78c83e9ba2d6c3e09d3500319d1e9378ebdc20cb68bf",
-    "Views/Home/Index.cshtml": "119b0f6d016d3ea16861b91a5e4e245265bb8d080ae378910397c7d864ac90d9",
+    "wwwroot/css/anigo-tailwind.css": "93529edb7f68504fe12903a274e555166cbd46234d5729b850b24941bb141853",
+    "Views/Shared/_Layout.cshtml": "4f7bb345bf93014279efef13f260239edb4009649eb04bbd25f665a4d5bcaba5",
+    "Views/Home/Index.cshtml": "bbaf8b571f43f7006137cf21bc8c0e9462403fd4c3a078ee83772f772e6fdd47",
     "Views/Account/Login.cshtml": "2881d3e20d68f709abf12d244855199f92c86b54e1c434bd022625999ed5d053",
     "Views/Account/Register.cshtml": "ababbec811edc2e2be6a2d836c6d5f8f0178e14e3b018d00c9fe59769112906d"
   },
@@ -24,5 +23,5 @@
     "login": "/Account/Login",
     "registration": "/Account/Register"
   },
-  "note": "Phase 6 (November 16, 2026): approved user-supplied landing direction implemented with existing licensed AniGo photographs. All 30 actual MVC browser captures regenerated at 320/375/768/1024/1440 in light and dark. Full-page 1440 and 375 light/dark captures were visually inspected for photographic crop, header/CTA, four features, workflow, story, paths, footer, typography and contrast; 320/768/1024 were exercised by actual browser screenshot/overflow checks. Prior narrow header overflow corrected and story photo height/crop refined. New Phase 6 browser checks cover real photo loading, register/team links and WCAG serious/critical issues. Login/registration routes and behavior retained. These goldens and source hashes represent the reviewed Phase 6 change, not the earlier landing."
+  "note": "Phase 6: CSS compiled into one AniGo design system and all 30 public captures regenerated from the actual MVC site. Inspect representative light/dark desktop/mobile screenshots before marking reviewed=true. Old landing goldens were intentionally superseded."
 }
