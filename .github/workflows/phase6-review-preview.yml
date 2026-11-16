@@ -1,0 +1,31 @@
+# Temporary Phase 6 screenshot-review diagnostic; remove after review.
+name: Review Phase 6 screenshot candidates
+on:
+  push:
+    branches: ["feature/anigo-phase6-visual-landing"]
+permissions:
+  contents: read
+jobs:
+  preview:
+    if: "contains(github.event.head_commit.message, '[phase6-preview]')"
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - name: Generate condensed preview from committed screenshots
+        run: |
+          python3 -m pip install --quiet pillow --break-system-packages
+          python3 - <<'PY'
+          from PIL import Image, ImageOps
+          from io import BytesIO
+          import base64
+          files=["landing-light-1440","landing-light-375","landing-dark-1440","landing-dark-375"]
+          for name in files:
+              img=Image.open("tests/browser/baselines/"+name+".png").convert("RGB")
+              if img.width > 660:
+                  img.thumbnail((660, 20000))
+              out=BytesIO()
+              img.save(out,format="JPEG",quality=57,optimize=True)
+              print("ANI6_PREVIEW_BEGIN:"+name)
+              print(base64.b64encode(out.getvalue()).decode())
+              print("ANI6_PREVIEW_END:"+name)
+          PY
