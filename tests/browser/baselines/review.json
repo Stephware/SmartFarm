@@ -1,5 +1,5 @@
 {
-  "reviewed": false,
+  "reviewed": true,
   "sourceHashes": {
     "wwwroot/css/anigo-tailwind.css": "df5ebf61c7030af12c5c99793b8fd1f842e8d859a02042fb5f46d7ea383a8011",
     "wwwroot/css/anigo-landing-phase6.css": "fd22200199ffabdd7c02ad94aef88b157d8b76d1a36090fbb6287f737a0b8e66",
@@ -24,5 +24,5 @@
     "login": "/Account/Login",
     "registration": "/Account/Register"
   },
-  "note": "Phase 6: generated all 30 candidate screenshots on Linux from the user-approved photo-led landing direction. These new rendered screenshots MUST be visually inspected before reviewed=true. Login/registration behavior and photos remain unchanged."
+  "note": "Phase 6 (November 16, 2026): approved user-supplied landing direction implemented with existing licensed AniGo photographs. All 30 actual MVC browser captures regenerated at 320/375/768/1024/1440 in light and dark. Full-page 1440 and 375 light/dark captures were visually inspected for photographic crop, header/CTA, four features, workflow, story, paths, footer, typography and contrast; 320/768/1024 were exercised by actual browser screenshot/overflow checks. Prior narrow header overflow corrected and story photo height/crop refined. New Phase 6 browser checks cover real photo loading, register/team links and WCAG serious/critical issues. Login/registration routes and behavior retained. These goldens and source hashes represent the reviewed Phase 6 change, not the earlier landing."
 }

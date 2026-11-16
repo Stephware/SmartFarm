@@ -24,3 +24,12 @@ For an intentional redesign:
 These anonymous pages contain no account or farm records. Authenticated role,
 data and validation checks remain separate; public goldens do not prove those
 workflows.
+
+
+Phase 6 (2026-11-16): the public landing has an intentionally new approved
+photography-led composition. The 10 landing PNGs were regenerated from the
+real MVC site at all five widths and both color modes, then representative
+1440px/375px full-page screenshots reviewed. The previous landing PNGs are
+not valid comparison baselines. Login and registration routes remain included
+in the same 30-image review set. The independent Phase 6 Chromium test also
+checks image decoding, farm-route destinations, overflow and accessibility.
