@@ -1,8 +1,8 @@
 # Dependencies and local development
 
 > Sources: SmartFarm build manifests, launch profiles, scripts, and tests
-> Raw: [Architecture sources](../../raw/project/2026-10-27-architecture-source.md); [Android sources](../../raw/project/2026-10-27-android-source.md); [Progress sources](../../raw/project/2026-10-27-progress-source.md); [Database sources](../../raw/project/2026-10-27-database-source.md); [Host test fixes and results](../../raw/project/2026-10-27-host-test-fixes.md); [JPEG fixture and photo verification](../../raw/project/2026-10-27-valid-jpeg-photo-fixture.md); [Functional E2E evidence](../../raw/project/2026-10-27-functional-e2e.md); [PR48 fix and merge](../../raw/project/2026-10-28-pr48-fix-and-merge.md); [Current documentation audit](../../raw/project/2026-11-11-documentation-audit.md); [Documentation verification](../../raw/project/2026-11-11-documentation-verification.md); [Reference frontend merge](../../raw/project/2026-11-11-reference-frontend-merge.md); [Publication source check](../../raw/project/2026-11-12-documentation-publication.md)
-> Updated: 2026-11-12
+> Raw: [Agent workflow refresh](../../raw/project/2026-11-16-agent-workflow-refresh.md); [Architecture sources](../../raw/project/2026-10-27-architecture-source.md); [Android sources](../../raw/project/2026-10-27-android-source.md); [Progress sources](../../raw/project/2026-10-27-progress-source.md); [Database sources](../../raw/project/2026-10-27-database-source.md); [Host test fixes and results](../../raw/project/2026-10-27-host-test-fixes.md); [JPEG fixture and photo verification](../../raw/project/2026-10-27-valid-jpeg-photo-fixture.md); [Functional E2E evidence](../../raw/project/2026-10-27-functional-e2e.md); [PR48 fix and merge](../../raw/project/2026-10-28-pr48-fix-and-merge.md); [Current documentation audit](../../raw/project/2026-11-11-documentation-audit.md); [Documentation verification](../../raw/project/2026-11-11-documentation-verification.md); [Reference frontend merge](../../raw/project/2026-11-11-reference-frontend-merge.md); [Publication source check](../../raw/project/2026-11-12-documentation-publication.md)
+> Updated: 2026-11-16
 
 **Source scope:** Earlier detailed audit/acceptance is dated below. For source
 changes through `dev` at `3c5a8b0`, see [current source status](current-source-status.md),
@@ -63,12 +63,26 @@ may return without SQL work; normal green suites/CI are not integration evidence
 Never aim them at a populated developer or production database. Source names such
 as `StandaloneApiIntegrationTest` can mean MockWebServer, not a live backend.
 
-CI now has `verify-smartfarm.yml` for Release .NET tests, Android build/JVM and
-device-test compilation, and `phase-a-stability.yml` for backup/schema/script checks.
-CI additionally runs Node, public Chromium and Tailwind/parity checks; neither
-workflow supplies a SQL instance, Android emulator or deployment. Workflow existence
-does not prove a green remote run or enforced branch rules. Placeholder test
-folders outside the solution do not establish coverage.
+Current CI has three workflows: `verify-smartfarm.yml` runs Release .NET/Node,
+Android build/JVM/device-test compilation, Chromium and Tailwind/parity checks;
+`phase-a-stability.yml` checks backup/schema/scripts; `android-ui-smoke.yml`
+executes the full instrumented suite and farmer journey on an Android emulator for
+matching PRs. Read the exact commit's job results and XML counts, not historical
+counts or workflow presence. None supplies disposable SQL, physical-device or
+provider/deployment acceptance. Placeholder folders do not establish coverage.
+
+MVC tests use project-scoped `test.runsettings` to disable unused live JSON reload
+and avoid exhausting Linux inotify instances while starting many test hosts.
+Production host configuration is unchanged. For keyboard-driven device tests,
+wait for actual IME/window readiness before scrolling and physically tapping;
+keep visibility, submission-count and business-result assertions.
+
+After significant changes, check affected AGENTS/PRODUCT/workflow guidance as well
+as wiki evidence. Discover installed skill instructions rather than copying cached
+commands; see [engineering workflow](../../../../docs/superpowers/README.md).
+Impeccable context is loaded once per session, with native guidance for Android;
+explicit freshness checks use its installed doctor workflow. Approved future
+landing/showcase work is code-first; UI Phase 6 remains separate from maintenance.
 
 ## Host test maintenance
 

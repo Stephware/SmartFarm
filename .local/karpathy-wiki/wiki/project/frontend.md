@@ -1,7 +1,7 @@
 # Web and Android frontend conventions
 
 > Sources: SmartFarm repository, source review
-> Raw: [Final Phase 5 native appearance](../../raw/project/2026-11-16-phase5-final-native-appearance.md); [Phase 5 form review](../../raw/project/2026-11-16-phase5-forms-review.md); [Phase 4 data states](../../raw/project/2026-11-16-phase4-data-states-review.md); [Phase 3 Android refinement](../../raw/project/2026-11-15-phase3-android-refinement.md); [Current documentation audit](../../raw/project/2026-11-11-documentation-audit.md); [Reference frontend merge](../../raw/project/2026-11-11-reference-frontend-merge.md); [Publication source check](../../raw/project/2026-11-12-documentation-publication.md); [MVP retirement](../../raw/project/2026-11-14-mvp-stage-5.md)
+> Raw: [Final Phase 5 native appearance](../../raw/project/2026-11-16-phase5-final-native-appearance.md); [Phase 5 form review](../../raw/project/2026-11-16-phase5-forms-review.md); [Phase 4 data states](../../raw/project/2026-11-16-phase4-data-states-review.md); [Phase 3 Android refinement](../../raw/project/2026-11-15-phase3-android-refinement.md); [Current documentation audit](../../raw/project/2026-11-11-documentation-audit.md); [Reference frontend merge](../../raw/project/2026-11-11-reference-frontend-merge.md); [Publication source check](../../raw/project/2026-11-12-documentation-publication.md); [MVP retirement](../../raw/project/2026-11-14-mvp-stage-5.md); [Phase 4 final CI](../../raw/project/2026-11-16-phase4-final-ci.md)
 > Updated: 2026-11-16
 
 **Source scope:** Earlier detailed audit/acceptance is dated below. For source
@@ -88,7 +88,11 @@ bases; inspect the computed cascade and keyboard focus, not just source selector
 [Verification evidence](../../raw/project/2026-11-16-phase4-data-states-review.md)
 distinguishes local native/browser checks from live SQL, hardware and deployment.
 UI Phase 6's landing redesign remains planned; public goldens/thresholds are unchanged.
-This task authorizes PR #134 updates only, with no merge into `dev` or `main`.
+The task did not authorize a merge. Final application head `2b4ccdc` passed all
+seven CI jobs, including all 139 emulator tests without failures or skips. GitHub
+subsequently records an external merge by `Stephware`; this agent did not merge.
+See [final CI and integration evidence](../../raw/project/2026-11-16-phase4-final-ci.md).
+Later workflow/context maintenance remains distinct from that application head.
 
 ## Phase 5 forms and workflow feedback (PR #135)
 

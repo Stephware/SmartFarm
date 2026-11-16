@@ -1,6 +1,6 @@
 # SmartFarm engineering workflow
 
-> **Current goal (planned, 2026-11-13):** [Farmer-first MVP](../../PRODUCT.md) and [execution stages](plans/2026-11-13-mvp-simplification.md). Old UI phase documents are historical; don't expand/retain old finance, plot-layout, timeline or analytics UI just because they appear in those plans. Run only relevant skills and validations to avoid needless Codex context.
+> **Current direction:** [Farmer-first MVP](../../PRODUCT.md); simplification Stages 1–5 are implemented and Stage 6 technical evidence/limits are recorded in the [execution plan](plans/2026-11-13-mvp-simplification.md). Later UI phases have their own PR scope; landing redesign remains reserved for UI Phase 6. Old UI plans do not authorize restoring retired finance, plot-layout, timeline or analytics screens.
 
 
 Baseline review at `ac624be`; publication source check at `3c5a8b0` on 2026-11-12.
@@ -10,7 +10,7 @@ Start with [AGENTS.md](../../AGENTS.md) and the [knowledge index](../../.local/k
 
 ## Choose the necessary workflow steps
 
-**Default: read PRODUCT + current plan stage → inspect relevant source → implement minimally → test → update relevant knowledge.** Invoke Karpathy, Superpowers, Ponytail, or Impeccable only when their skills actually apply; don't invoke all of them for routine edits.
+**Default: Karpathy → Superpowers → Ponytail → Impeccable (UI/UX) → Testing → Knowledge Update.** Read PRODUCT/current scope and relevant knowledge/source first; select only applicable installed instructions. This is one complementary workflow, not a requirement to invoke every skill or duplicate plans for routine edits.
 
 Use each tool for its responsibility. Read its installed `SKILL.md` when applicable;
 do not run every process for every task or duplicate a plan/checklist across tools.
@@ -30,6 +30,14 @@ Installed names include `karpathy-llm-wiki`, `superpowers:using-superpowers`,
 `superpowers:requesting-code-review`, `superpowers:verification-before-completion`,
 `impeccable`, and `ponytail:ponytail`. Use the session's discovered installation
 paths; do not hardcode a plugin cache version into a new project dependency.
+
+When implementation or installed skill instructions change, refresh only affected
+project guidance, links and verification claims. Never edit global skill packages
+as a side effect of repository maintenance. For an explicit Impeccable freshness
+request, follow its installed `doctor` instructions; separate schema drift from
+unverified product/design changes. PRODUCT's platform is adaptive Web/native
+Android; the approved landing/showcase default is code-first in `.impeccable/config.json`.
+Do not rerun context per screen or invent a DESIGN.md from a maintenance request.
 
 ## Before changing behavior
 
@@ -84,8 +92,11 @@ application behavior just to test documentation.
 
 Select checks from [development](../../.local/karpathy-wiki/wiki/project/development.md).
 A normal green backend suite can omit SQL work; set disposable SQL inputs explicitly.
-CI compiles Android instrumentation but does not execute it. Run real device/UI
-checks for changed flows when available, and state unavailable checks precisely.
+`verify-smartfarm.yml` compiles instrumentation and runs Android JVM tests;
+`android-ui-smoke.yml` separately executes the full device suite and farmer journey
+on an emulator for matching PRs. Inspect the exact head's jobs and test artifacts;
+workflow presence is not proof of execution. Run relevant local device/UI checks
+when available, and state unavailable checks precisely.
 Never use populated SmartFarmDB for write tests. Backup scripts do not replace a
 disposable recovery rehearsal.
 

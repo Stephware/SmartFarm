@@ -9,6 +9,14 @@ Read, in order:
 
 Do **not** load the entire wiki, raw snapshots, old phase plans, or all skills by default. Current source overrides historical wiki descriptions. Earlier instructions to preserve finance, advanced insights, dedicated Plot Layout, timeline, platform announcements, and support tickets describe the **old implementation**, not the desired MVP. Do not mistake the plan for completed work.
 
+## Integrated tools and freshness
+Use **Karpathy → Superpowers → Ponytail → Impeccable (UI/UX) → Testing → Knowledge Update**, selecting only applicable steps; one task does not need four competing plans.
+- **Karpathy:** consult relevant knowledge, verify source, preserve decisions and add sanitized evidence after significant verified changes.
+- **Superpowers:** follow the installed skills' actual planning, debugging, TDD, implementation, review and verification triggers.
+- **Ponytail:** reuse existing components/patterns and built-ins; smallest complete solution, minimal dependencies. Keep security, validation, error handling, accessibility and essential tests.
+- **Impeccable:** read the installed skill, load context once per session and apply the relevant Web/native playbook; inspect rendered results. Approved future landing/showcase work is code-first (`.impeccable/config.json`); no Phase 6 redesign is authorized by maintenance.
+Discover current installed skill paths each session; never assume a cached package version or old command remains current. After significant changes, check affected instructions/links/CI claims as well as wiki evidence; distinguish historical results from current verification. Skill packages do not auto-update with this repository and must not be silently rewritten. See [engineering workflow](docs/superpowers/README.md).
+
 ## Nonnegotiable MVP
 - MVC: farm and plot setup; crop plans/calendar; supplies and stock history; partial harvests and simple reports.
 - API: authorized crop activity, crop observations, photo, harvest and inventory records, plus offline sync endpoints.

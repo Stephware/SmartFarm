@@ -24,7 +24,7 @@ Architecture, behavior, conventions, decisions and dated implementation evidence
 | [Database](project/database.md) | SQL-first base/finance split, issue upgrades, concurrency and migration boundaries | 2026-11-12 |
 | [Android and offline sync](project/android.md) | Room/cache, scoped confirmations/refresh, receipts, sessions and offline limits | 2026-11-14 |
 | [Tasks, weather, and automation](project/automation.md) | Enabled Worker defaults, task/stock/weather jobs, stored forecasts and notifications | 2026-11-12 |
-| [Dependencies and development](project/development.md) | Build pins, local hosts, checks, real CI scope and test isolation | 2026-11-12 |
+| [Dependencies and development](project/development.md) | Build pins, local hosts, checks, real CI scope and test isolation | 2026-11-16 |
 | [Development decisions](project/decisions.md) | Implemented constraints, inferred consequences and integrated agent workflow | 2026-11-12 |
 | [Known issues and incomplete work](project/known-issues.md) | Current gaps versus resolved/historical failures and runtime unknowns | 2026-11-12 |
 | [Current progress](project/progress.md) | Confirmed PR61–78 provenance, Phases A–D, MVP stage status and dated results | 2026-11-14 |
