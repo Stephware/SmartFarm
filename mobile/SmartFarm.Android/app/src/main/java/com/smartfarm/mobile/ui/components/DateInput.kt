@@ -20,19 +20,22 @@ import androidx.compose.ui.unit.dp
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import java.time.format.FormatStyle
+import com.smartfarm.mobile.R
+import com.smartfarm.mobile.ui.theme.LocalFarmAppearance
 
 /** The entire 48dp row opens the picker, including on small screens or with large text. */
 @Composable
 @OptIn(ExperimentalLayoutApi::class)
 fun DateInput(value: String, label: String, onValueChange: (String) -> Unit, enabled: Boolean = true) {
     val context = LocalContext.current
+    val dark = LocalFarmAppearance.current.dark
     val date = runCatching { LocalDate.parse(value) }.getOrNull()
     Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
         Text(label, style = MaterialTheme.typography.labelLarge)
         OutlinedButton(
             onClick = {
                 val initial = date ?: LocalDate.now()
-                DatePickerDialog(context, { _, year, month, day ->
+                DatePickerDialog(context, if (dark) R.style.Theme_SmartFarm_DatePicker_Dark else 0, { _, year, month, day ->
                     onValueChange(LocalDate.of(year, month + 1, day).toString())
                 }, initial.year, initial.monthValue - 1, initial.dayOfMonth).show()
             },

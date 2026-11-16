@@ -1,7 +1,7 @@
 # Web and Android frontend conventions
 
 > Sources: SmartFarm repository, source review
-> Raw: [Native picker verification](../../raw/project/2026-11-16-phase5-native-picker-verification.md); [Final Phase 5 native appearance](../../raw/project/2026-11-16-phase5-final-native-appearance.md); [Phase 5 form review](../../raw/project/2026-11-16-phase5-forms-review.md); [Phase 4 data states](../../raw/project/2026-11-16-phase4-data-states-review.md); [Phase 3 Android refinement](../../raw/project/2026-11-15-phase3-android-refinement.md); [Current documentation audit](../../raw/project/2026-11-11-documentation-audit.md); [Reference frontend merge](../../raw/project/2026-11-11-reference-frontend-merge.md); [Publication source check](../../raw/project/2026-11-12-documentation-publication.md); [MVP retirement](../../raw/project/2026-11-14-mvp-stage-5.md); [Phase 4 final CI](../../raw/project/2026-11-16-phase4-final-ci.md)
+> Raw: [Phase 7 dark-mode verification](../../raw/project/2026-11-16-phase7-dark-mode-verification.md); [Native picker verification](../../raw/project/2026-11-16-phase5-native-picker-verification.md); [Final Phase 5 native appearance](../../raw/project/2026-11-16-phase5-final-native-appearance.md); [Phase 5 form review](../../raw/project/2026-11-16-phase5-forms-review.md); [Phase 4 data states](../../raw/project/2026-11-16-phase4-data-states-review.md); [Phase 3 Android refinement](../../raw/project/2026-11-15-phase3-android-refinement.md); [Current documentation audit](../../raw/project/2026-11-11-documentation-audit.md); [Reference frontend merge](../../raw/project/2026-11-11-reference-frontend-merge.md); [Publication source check](../../raw/project/2026-11-12-documentation-publication.md); [MVP retirement](../../raw/project/2026-11-14-mvp-stage-5.md); [Phase 4 final CI](../../raw/project/2026-11-16-phase4-final-ci.md)
 > Updated: 2026-11-16
 
 **Source scope:** Earlier detailed audit/acceptance is dated below. For source
@@ -48,6 +48,27 @@ Keep large lists lazy with stable keys and inputs reachable with the keyboard.
 Crop artwork is local SVG on Web and vector drawable on Android with safe unknown
 fallback. Plot layout is schematic, not geographic/cadastral mapping. Location
 selection is a separate map/search surface with manual coordinate fallback.
+
+## Phase 7 charcoal dark mode (PR #138)
+
+MVC and Compose now use charcoal backgrounds, pine navigation and harvest-gold
+accents, with accessible mint links and separate action colors. Preserve the light
+palette and Phase 6 composition. Native framework dialogs do not automatically
+inherit Compose colors: `DateInput` explicitly selects the dark picker style only
+for the saved dark choice, retaining the default light dialog and ISO callback.
+Account switching is tested through the real control and persisted preference.
+
+Welcome photo content grows with enlarged text; image overlays and landing CTA
+contrast remain readable in either mode. Keep landing navigation, actions and
+credits wrapping under text enlargement. Public baselines were regenerated from
+the actual MVC host with pinned Linux Chromium, inspected, then compared without
+relaxing the gate. Dark images intentionally changed; light auth images remain
+identical. This is agent visual review, not farmer testing or hardware acceptance.
+
+[Dated verification and limits](../../raw/project/2026-11-16-phase7-dark-mode-verification.md)
+record local builds, regression suites and emulator/browser checks. Read PR #138
+for final exact-head CI and review/merge status. No merge is authorized by this task.
+Earlier Phase 4/5 references to reserved Phase 6/7 work are historical.
 
 ## Phase 3 Android refinement (PR #133, 2026-11-15)
 

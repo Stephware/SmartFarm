@@ -30,6 +30,9 @@ internal object AniGoPalette {
     val goldInk = Color(0xFF80601D)
     val goldSoft = Color(0xFFFFF2D8)
     val cream = Color(0xFFF7F8F4)
+    // Filled action buttons may use this accessible deep-green/white pair.
+    val darkAction = Color(0xFF397A58)
+    val onDarkAction = Color.White
 }
 
 internal val LightColors = lightColorScheme(
@@ -53,23 +56,25 @@ internal val LightColors = lightColorScheme(
 )
 
 internal val DarkColors = darkColorScheme(
-    primary = Color(0xFFC6E6CF), onPrimary = AniGoPalette.pine,
-    primaryContainer = Color(0xFF244C35), onPrimaryContainer = Color(0xFFDDF4E2),
-    secondary = Color(0xFFF4D28B), onSecondary = Color(0xFF3F2D0B),
-    secondaryContainer = Color(0xFF493B1C), onSecondaryContainer = Color(0xFFFCE4AC),
-    tertiary = Color(0xFFF1BE6B), onTertiary = Color(0xFF34280B),
-    tertiaryContainer = Color(0xFF51421F), onTertiaryContainer = Color(0xFFFFF0C9),
-    background = Color(0xFF111D16), onBackground = Color(0xFFF2F5ED),
-    surface = Color(0xFF1D2C22), onSurface = Color(0xFFF2F5ED),
-    surfaceVariant = Color(0xFF34463A), onSurfaceVariant = Color(0xFFC1D0C2),
-    surfaceTint = Color(0xFFC6E6CF), surfaceDim = Color(0xFF111D16),
-    surfaceBright = Color(0xFF34483A),
-    surfaceContainerLowest = Color(0xFF111913), surfaceContainerLow = Color(0xFF19271D),
-    surfaceContainer = Color(0xFF26352C), surfaceContainerHigh = Color(0xFF2D4032),
-    surfaceContainerHighest = Color(0xFF364A3B),
-    outline = Color(0xFF94A79B), outlineVariant = Color(0xFF526457),
-    error = Color(0xFFFFB3B5), onError = Color(0xFF680016),
-    errorContainer = Color(0xFF8F0025), onErrorContainer = Color(0xFFFFDADE)
+    // Phase 7: charcoal-first surfaces; readable mint is for text/icons,
+    // while deep pine and harvest gold distinguish navigation and meaning.
+    primary = Color(0xFF8FCFA5), onPrimary = Color(0xFF102518),
+    primaryContainer = Color(0xFF19382C), onPrimaryContainer = Color(0xFFF1F4F0),
+    secondary = Color(0xFFD4AD61), onSecondary = Color(0xFF34260B),
+    secondaryContainer = Color(0xFF3A3220), onSecondaryContainer = Color(0xFFF1D7A7),
+    tertiary = Color(0xFFB6C5BB), onTertiary = Color(0xFF121917),
+    tertiaryContainer = Color(0xFF2C6045), onTertiaryContainer = Color(0xFFF1F4F0),
+    background = Color(0xFF121917), onBackground = Color(0xFFF1F4F0),
+    surface = Color(0xFF202B26), onSurface = Color(0xFFF1F4F0),
+    surfaceVariant = Color(0xFF2A3832), onSurfaceVariant = Color(0xFFB6C5BB),
+    surfaceTint = Color(0xFF8FCFA5), surfaceDim = Color(0xFF121917),
+    surfaceBright = Color(0xFF34453D),
+    surfaceContainerLowest = Color(0xFF121917), surfaceContainerLow = Color(0xFF1C2420),
+    surfaceContainer = Color(0xFF202B26), surfaceContainerHigh = Color(0xFF2A3832),
+    surfaceContainerHighest = Color(0xFF34453D),
+    outline = Color(0xFF82998B), outlineVariant = Color(0xFF405148),
+    error = Color(0xFFFFB4BE), onError = Color(0xFF48191F),
+    errorContainer = Color(0xFF482731), onErrorContainer = Color(0xFFFFDCE0)
 )
 
 // Readable native sans-serif type scale; users can still increase Android font size.

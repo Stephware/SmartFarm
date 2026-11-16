@@ -3,4 +3,14 @@
         <item name="android:fontFamily">sans</item>
         <item name="android:windowLightStatusBar">true</item>
     </style>
+    <style name="Theme.SmartFarm.DatePicker.Dark" parent="android:style/Theme.Material.Dialog.Alert">
+        <item name="android:colorBackground">#202B26</item>
+        <item name="android:colorAccent">#8FCFA5</item>
+        <item name="android:textColorPrimary">#F1F4F0</item>
+        <item name="android:textColorSecondary">#B6C5BB</item>
+        <item name="android:datePickerStyle">@style/Widget.SmartFarm.DatePicker.Dark</item>
+    </style>
+    <style name="Widget.SmartFarm.DatePicker.Dark" parent="android:style/Widget.Material.DatePicker">
+        <item name="android:headerBackground">#19382C</item>
+    </style>
 </resources>

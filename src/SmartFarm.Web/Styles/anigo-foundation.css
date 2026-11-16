@@ -58,34 +58,39 @@
     --content-width: var(--ui-content-width); --shadow: none; --shadow-card: none;
   }
   :root[data-color-mode="dark"] {
+    /* Phase 7: charcoal-first workspace, with pine for navigation and actions. */
     color-scheme: dark;
-    --ui-page: #111d17;
-    --ui-surface: #1b2b21;
-    --ui-surface-subtle: #263b2d;
-    --ui-text: #edf4ee;
-    --ui-text-secondary: #b9cbbd;
-    --ui-border: #425b49;
-    --ui-outline: #8ba493;
-    --ui-primary: #acd5b7;
-    --ui-primary-hover: #d0e8d6;
-    --ui-on-primary: #163421;
-    --ui-gold: #e6c77f;
-    --ui-gold-soft: #3d321b;
-    --ui-success: #b2dfbd;
-    --ui-success-soft: #254330;
-    --ui-warning: #f2d797;
-    --ui-warning-soft: #43361b;
+    --ui-page: #121917;
+    --ui-surface: #202b26;
+    --ui-surface-subtle: #2a3832;
+    --ui-text: #f1f4f0;
+    --ui-text-secondary: #b6c5bb;
+    --ui-border: #405148;
+    --ui-outline: #82998b;
+    /* Links and text accents are brighter than filled actions for readability. */
+    --ui-primary: #8fcfa5;
+    --ui-primary-hover: #b9e7c7;
+    --ui-on-primary: #102518;
+    --ui-gold: #d4ad61;
+    --ui-gold-soft: #3a3220;
+    --ui-success: #99ddb0;
+    --ui-success-soft: #244132;
+    --ui-warning: #efcf88;
+    --ui-warning-soft: #403621;
     --ui-danger: #ffb4be;
     --ui-danger-soft: #482731;
     --ui-info: #b4d8ed;
     --ui-info-soft: #223d4b;
-    --ui-focus: #f0d18c;
-    --ui-nav: #142b1f;
-    --ui-nav-text: #edf6ef;
-    --ui-nav-muted: #bbd1c2;
-    --ui-nav-selected: #2b4b37;
+    --ui-focus: #d4ad61;
+    --ui-nav: #19382c;
+    --ui-nav-text: #f1f4f0;
+    --ui-nav-muted: #b9cbbb;
+    --ui-nav-selected: #2c6045;
     --ui-overlay: rgb(0 8 3 / 72%);
     --ui-elevation: 0 8px 28px rgb(0 0 0 / 28%);
+    --ui-action: #397a58;
+    --ui-action-hover: #3e835e;
+    --ui-on-action: #fff;
   }
   *, *::before, *::after { box-sizing: border-box; }
   html { font-family: var(--ui-font); font-size: 100%; scroll-padding-top: 96px; }
@@ -205,11 +210,11 @@
 
   button, .button, .btn, .sf-button-outline, .sf-button-secondary, .sf-button-primary, .button-danger, .admin-button-secondary {
     min-height: 44px; padding: 10px 16px; border: 1px solid transparent; border-radius: 8px;
-    background: var(--primary); color: var(--on-primary); font-size: .875rem; font-weight: 650;
+    background: var(--ui-action, var(--primary)); color: var(--ui-on-action, var(--on-primary)); font-size: .875rem; font-weight: 650;
     line-height: 1.5; text-decoration: none; box-shadow: none;
   }
   .button, .btn, .sf-button-outline, .sf-button-secondary, .sf-button-primary { display: inline-flex; align-items: center; justify-content: center; gap: 8px; }
-  button:hover, .button:hover, .btn:hover { background: var(--primary-hover); color: var(--on-primary); transform: none; }
+  button:hover, .button:hover, .btn:hover { background: var(--ui-action-hover, var(--primary-hover)); color: var(--ui-on-action, var(--on-primary)); transform: none; }
   .sf-button-outline, .sf-button-secondary, .admin-button-secondary, .btn.ghost { background: var(--surface); color: var(--primary); border-color: var(--outline); }
   .sf-button-outline:hover, .sf-button-secondary:hover, .admin-button-secondary:hover, .btn.ghost:hover { background: var(--soft); color: var(--primary); }
   .button-danger, button.danger, .danger-button { color: var(--danger); background: var(--surface); border-color: var(--danger); }
@@ -219,7 +224,7 @@
   .icon-button, .color-mode-toggle { padding: 10px; background: var(--surface); color: var(--text); border-color: var(--stroke); }
   .ani-password-toggle { min-width: 44px; min-height: 44px; padding: 8px; background: transparent; color: var(--primary); font-size: .875rem; }
   .ani-password-toggle:hover { background: var(--soft); color: var(--primary); }
-  button:disabled:hover { background: var(--primary); color: var(--on-primary); }
+  button:disabled:hover { background: var(--ui-action, var(--primary)); color: var(--ui-on-action, var(--on-primary)); }
   [aria-busy="true"] { cursor: progress; }
   label { display: block; margin: 0 0 8px; font-size: .875rem; font-weight: 650; line-height: 1.5; color: var(--text); }
   input:not([type="checkbox"]):not([type="radio"]):not([type="hidden"]), select, textarea { width: 100%; max-width: 100%; min-width: 0; min-height: 44px; padding: 10px 12px; border: 1px solid var(--outline); border-radius: var(--ui-field-radius); background: var(--surface); color: var(--text); font: 400 1rem/1.5 var(--ui-font); box-shadow: none; }

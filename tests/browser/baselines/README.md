@@ -33,3 +33,11 @@ real MVC site at all five widths and both color modes, then representative
 not valid comparison baselines. Login and registration routes remain included
 in the same 30-image review set. The independent Phase 6 Chromium test also
 checks image decoding, farm-route destinations, overflow and accessibility.
+
+Phase 7 (2026-11-16): Codex inspected all 30 actual MVC captures from the pinned
+Linux runner. Fifteen dark images adopt the charcoal/pine/gold palette; five light
+landing images include targeted photo/CTA contrast fixes. All image dimensions
+match the previous set, and ten light login/registration images are byte-identical.
+The Phase 6 composition is retained. Comparison mode passed all 30 after review;
+no tolerance or test changes were used to approve the new images. Theme persistence,
+form drafts, enlarged text and A/AA checks remain separate browser assertions.
