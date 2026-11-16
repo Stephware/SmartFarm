@@ -5,11 +5,10 @@
 <div class="reference-screen reference-screen-crops ani12d-edit-plan">
 <section class="panel card sf-edit-form-panel ani12d-edit-form">
 
-    <p class="ani-overline">Crop planning</p>
     <h1>Edit planting plan</h1>
     <p class="sf-muted">Update @Model.Cycle.CropTypeName on @Model.Cycle.PlotName. Saved crop history is retained.</p>
     <div asp-validation-summary="ModelOnly" class="error" role="alert"></div>
-    <form class="sf-crop-form ani12d-edit-fields" asp-action="EditPlan" asp-route-farmId="@Model.Farm.Id"
+    <form class="sf-crop-form ani12d-edit-fields ani-p5-form" data-ani-p5-form asp-action="EditPlan" asp-route-farmId="@Model.Farm.Id"
           asp-route-cycleId="@Model.Cycle.Id" method="post">
         <input type="hidden" asp-for="Input.RowVersion" />
         <h2>Crop and dates</h2>
@@ -21,13 +20,18 @@
             }
         </select>
         <label asp-for="Input.PlannedPlantingDate">Planned planting date</label>
-        <input asp-for="Input.PlannedPlantingDate" type="date" required />
+        <input asp-for="Input.PlannedPlantingDate" type="date" data-ani-p5-start-date required />
         <label asp-for="Input.ExpectedHarvestDate">Expected harvest (optional)</label>
-        <input asp-for="Input.ExpectedHarvestDate" type="date" />
-        <h2>Optional harvest and watering settings</h2>
-        <label asp-for="Input.HarvestUnit">Harvest unit</label><input asp-for="Input.HarvestUnit" maxlength="20" />
-        <label asp-for="Input.WateringIntervalDays">Watering interval days</label>
-        <input asp-for="Input.WateringIntervalDays" type="number" min="1" max="32767" />
+        <input asp-for="Input.ExpectedHarvestDate" type="date" data-ani-p5-end-date aria-describedby="ani-p5-plan-date-error" />
+        <p class="error" id="ani-p5-plan-date-error" data-ani-p5-date-error role="status" hidden></p>
+        <details class="sf-edit-disclosure ani-p5-optional" open="@(!ViewData.ModelState.IsValid ? "open" : null)">
+            <summary>Optional harvest and watering settings</summary>
+            <p class="sf-muted">Change these only if the crop's unit or watering schedule needs adjusting.</p>
+            <label asp-for="Input.HarvestUnit">Harvest unit</label>
+            <input asp-for="Input.HarvestUnit" maxlength="20" />
+            <label asp-for="Input.WateringIntervalDays">Watering interval days</label>
+            <input asp-for="Input.WateringIntervalDays" type="number" min="1" max="32767" />
+        </details>
         <div class="ani12d-form-actions"><button type="submit">Save changes</button>
         <a class="sf-button-outline" asp-action="Index" asp-route-farmId="@Model.Farm.Id" asp-fragment="@("crop-cycle-" + Model.Cycle.Id)">Cancel</a></div>
     </form>

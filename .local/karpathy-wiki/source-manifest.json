@@ -2178,6 +2178,141 @@
           "sha256": "336e8243c2e74b3c04c4e545ddfec4b77049cdc62a1f52808b34ff49a93631ac"
         }
       ]
+    },
+    {
+      "date": "2026-11-16",
+      "revision": "6253447a77136664894fa3c9f16d1fc107a83a11 + verified PR135 refinements (source hashes below)",
+      "snapshot": "raw/project/2026-11-16-phase5-forms-review.md",
+      "sha256": "63f911b1e1dfd6f5af5c5a0b0bbef1854163825ec79eb365978821119a2fd951",
+      "scope": "Phase5 form validation/draft/busy/choice recovery, semantic selectors, large-text spacing and scoped native/browser verification; no merge, UI Phase6/7 reserved. Final remote status belongs to PR135.",
+      "source_files": [
+        {
+          "path": ".github/workflows/verify-smartfarm.yml",
+          "sha256": "a57ab0a4557d2638dffd3d21fc8beac28079ed3f664d57269a263269f8721edf"
+        },
+        {
+          "path": "mobile/SmartFarm.Android/app/src/androidTest/java/com/smartfarm/mobile/Phase5FormFeedbackScreenTest.kt",
+          "sha256": "684ae67a7aadbc2bfee1ffc74f21a03075ad82e2b91fca5cb0b7e95dfbcdb6e7"
+        },
+        {
+          "path": "mobile/SmartFarm.Android/app/src/androidTest/java/com/smartfarm/mobile/Phase5FormWorkflowTest.kt",
+          "sha256": "93d0751bcea17d1652411b358231c5e9a75ab90fd443e0c293fa6ffcc17eb982"
+        },
+        {
+          "path": "mobile/SmartFarm.Android/app/src/androidTest/java/com/smartfarm/mobile/ResponsiveListsTest.kt",
+          "sha256": "0d7e849d348b08e3930371d3e31026e143eff1c6f7fa49637b49dd4b26ba5bba"
+        },
+        {
+          "path": "mobile/SmartFarm.Android/app/src/main/java/com/smartfarm/mobile/features/crops/CropScreens.kt",
+          "sha256": "b333e4a15ec1f07d05680fa030e73b2f80c85363a4e9c72606015fdf7f360635"
+        },
+        {
+          "path": "mobile/SmartFarm.Android/app/src/main/java/com/smartfarm/mobile/features/farms/FarmScreens.kt",
+          "sha256": "9579bc4f98e98462b4ed88b3fd06aa9e23d49cddb4a0cae76b3a6836dd3eb75a"
+        },
+        {
+          "path": "mobile/SmartFarm.Android/app/src/main/java/com/smartfarm/mobile/features/harvests/HarvestScreen.kt",
+          "sha256": "aa6d03a00aad88f15951028e90c6627486cefacebf958060d8a224f721bda997"
+        },
+        {
+          "path": "mobile/SmartFarm.Android/app/src/main/java/com/smartfarm/mobile/features/tasks/TaskScreens.kt",
+          "sha256": "080c9183a2bd0aaa23caed495bf9eadce501376dcbcffea8037953ea8fc50188"
+        },
+        {
+          "path": "mobile/SmartFarm.Android/app/src/main/java/com/smartfarm/mobile/ui/components/DateInput.kt",
+          "sha256": "2431d51fa119f24d8aa9dd7f7e6ae08fef45bd7787e8ff73128a321e1398efe4"
+        },
+        {
+          "path": "src/SmartFarm.Web/Controllers/InventoryController.cs",
+          "sha256": "7112b3cdd9c49824a799aa9a49918bfe53986d18f654e88bbd56af5cfaaa3462"
+        },
+        {
+          "path": "src/SmartFarm.Web/Styles/anigo-forms-phase5.css",
+          "sha256": "591b3360925f8da31fbe6d77d59c2891ebbcccd04fb9c6fdcb4e471beee00966"
+        },
+        {
+          "path": "src/SmartFarm.Web/Styles/anigo-tailwind.css",
+          "sha256": "2c2a600a188d2567b2a7dde1a98cc951b1e6ee1ca7e53d5d82ec0f7e3e6d546e"
+        },
+        {
+          "path": "src/SmartFarm.Web/Views/Crops/EditPlan.cshtml",
+          "sha256": "0f31ed38bbad6736b906116ce27bda9cabe9883f9dcc8420d0f7bb14ed2e3a56"
+        },
+        {
+          "path": "src/SmartFarm.Web/Views/Farms/Create.cshtml",
+          "sha256": "4261289dc5da9d615e31783f86856ed120a5712028be820387008a688a589ad4"
+        },
+        {
+          "path": "src/SmartFarm.Web/Views/Farms/EditPlot.cshtml",
+          "sha256": "1062781ec81a7bd3034131c6c8841b41df7ba90ededf0f79650c6d695eca2695"
+        },
+        {
+          "path": "src/SmartFarm.Web/Views/Inventory/Edit.cshtml",
+          "sha256": "b335aca71c374075726e0e85940cf0381beb3e10b5f5e02bd1f8c324c5bd9ba2"
+        },
+        {
+          "path": "src/SmartFarm.Web/wwwroot/css/anigo-tailwind.css",
+          "sha256": "54c94048cf8b7a870d0fb26297b097105d6f6d826e7acf0211082e82c85850d4"
+        },
+        {
+          "path": "src/SmartFarm.Web/wwwroot/js/site.js",
+          "sha256": "186ca5adafb703ca71244379a75322269bd04e6e89276b4ee67e2f5846c45f69"
+        },
+        {
+          "path": "tests/SmartFarm.Auth.Tests/Phase5FormsWebTests.cs",
+          "sha256": "434fd87b5dfbe7da8a6e4a78d57282153a7b39a627726979fe2d97b7c5b98c8c"
+        },
+        {
+          "path": "tests/browser/baselines/review.json",
+          "sha256": "3e63efb817b9b7ef8f9ab45abacd744c4cabb8eb130e45b8f4bdeecea87716ee"
+        },
+        {
+          "path": "tests/browser/phase5-forms.cjs",
+          "sha256": "2e0571cdb10d00d53bed3e9111f547e7d8e779bd434be7d400423cbfda42b796"
+        },
+        {
+          "path": "tests/web-ui/phase5-forms.test.cjs",
+          "sha256": "75de9c4402984d7a6431230e02553ae102d06065765f96d03491ba0fe5cc1688"
+        }
+      ]
+    },
+    {
+      "date": "2026-11-16",
+      "revision": "6253447a77136664894fa3c9f16d1fc107a83a11 + final verified PR135 native appearance (source hashes below)",
+      "snapshot": "raw/project/2026-11-16-phase5-final-native-appearance.md",
+      "sha256": "6ba634734e85f8b009261ed54666cb317a5c10b34ccd7413c64692f2338b4dc8",
+      "scope": "Superseding final DateInput wrapping and stronger full-validity overlong-name regression; final local150 device tests pass, no merge or UI Phase6/7 work.",
+      "source_files": [
+        {
+          "path": "mobile/SmartFarm.Android/app/src/main/java/com/smartfarm/mobile/ui/components/DateInput.kt",
+          "sha256": "0df6cbb26b8185638868e91843a5620ee0ec8b1faaf91a4f58bc0b4abd221d23"
+        },
+        {
+          "path": "mobile/SmartFarm.Android/app/src/androidTest/java/com/smartfarm/mobile/Phase5FormWorkflowTest.kt",
+          "sha256": "2768475f2a56206829a4acbdd0915027ba62df231dae208edd8fc7a1f4334bfe"
+        },
+        {
+          "path": "mobile/SmartFarm.Android/app/src/androidTest/java/com/smartfarm/mobile/Phase5FormFeedbackScreenTest.kt",
+          "sha256": "cc1e2f519a88626e5c1f6c8d4eff2a6a7c06f4c6c57f6fb44210a758255e03d3"
+        }
+      ]
+    },
+    {
+      "date": "2026-11-16",
+      "revision": "c32a3448f86b0988398d74aee97e9bc658b4c023 + native picker test revision (source hashes below)",
+      "snapshot": "raw/project/2026-11-16-phase5-native-picker-verification.md",
+      "sha256": "92533ce153ddcd2b46d0e4e64ece81a89c1db7beb6b22cea16986360594e42d2",
+      "scope": "Diagnostic CI150/7 checks; focused changed-date native Espresso5 pass. Final exact-head full-suite acceptance remains on PR135. No production changes.",
+      "source_files": [
+        {
+          "path": "mobile/SmartFarm.Android/app/src/androidTest/java/com/smartfarm/mobile/NavigationInputsTest.kt",
+          "sha256": "bf394609284dcb648e71c6447b5d873dd4cdd64c12ea83305a17235738d515f7"
+        },
+        {
+          "path": "mobile/SmartFarm.Android/app/src/main/java/com/smartfarm/mobile/ui/components/DateInput.kt",
+          "sha256": "0df6cbb26b8185638868e91843a5620ee0ec8b1faaf91a4f58bc0b4abd221d23"
+        }
+      ]
     }
   ]
 }

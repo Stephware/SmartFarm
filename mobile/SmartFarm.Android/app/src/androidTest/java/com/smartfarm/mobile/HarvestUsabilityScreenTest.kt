@@ -4,6 +4,9 @@ import androidx.compose.ui.test.*
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.runtime.SideEffect
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
+import androidx.compose.ui.platform.LocalView
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
 import com.smartfarm.mobile.data.remote.dto.HarvestEntryDto
 import com.smartfarm.mobile.data.remote.dto.HarvestOverviewDto
 import com.smartfarm.mobile.features.harvests.HarvestScreen
@@ -29,10 +32,15 @@ class HarvestUsabilityScreenTest {
 
     @Test fun quickHarvestStartsWithEntryAndPreservesConfirmedTotals() {
         var hideKeyboard: () -> Unit = {}
+        var testView: android.view.View? = null
         var saved: Pair<String, String>? = null
         compose.setContent {
             val keyboard = LocalSoftwareKeyboardController.current
-            SideEffect { hideKeyboard = { keyboard?.hide() } }
+            val localView = LocalView.current
+            SideEffect {
+                hideKeyboard = { keyboard?.hide() }
+                testView = localView
+            }
             SmartFarmTheme {
             HarvestScreen(HarvestUiState(farmId = "farm", cycleId = "cycle",
                 overview = overview()), onBack = {},
@@ -41,20 +49,27 @@ class HarvestUsabilityScreenTest {
         } }
         compose.onNodeWithText("Save harvested amount").assertExists()
         compose.onNodeWithText("Harvested quantity (kg)").performScrollTo().performTextInput("1.5")
-        // Dismiss the IME through Compose before tapping Save.
+        // Hiding the IME is asynchronous. A visible button can receive a tap
+        // that dismisses the keyboard instead of submitting the harvest.
+        // Wait for the actual window inset to close before physical scrolling.
         compose.runOnIdle { hideKeyboard() }
-        // The form sits inside one tall LazyColumn item. On smaller emulator
-        // windows, performScrollTo can leave its Save button below the viewport,
-        // particularly while the keyboard is being dismissed. Scroll as a user
-        // would and keep the visibility assertion rather than clicking offscreen.
-        val saveHarvest = compose.onNodeWithText("Save harvested amount")
-        saveHarvest.performScrollTo()
+        compose.waitUntil(5_000) {
+            testView?.let {
+                ViewCompat.getRootWindowInsets(it)?.isVisible(WindowInsetsCompat.Type.ime())
+            } == false
+        }
+        val saveMatcher = hasText("Save harvested amount") and hasClickAction()
+        compose.onNodeWithTag("record-list").performScrollToNode(saveMatcher)
+        val saveHarvest = compose.onNode(saveMatcher).performScrollTo()
+        // The card itself is a tall LazyColumn item; ensure its child is
+        // physically visible on smaller displays instead of clicking offscreen.
         for (attempt in 0 until 6) {
-            if (runCatching { saveHarvest.assertIsDisplayed() }.isSuccess) break
+            if (saveHarvest.isDisplayed()) break
             compose.onNodeWithTag("record-list").performTouchInput { swipeUp() }
             compose.waitForIdle()
         }
         saveHarvest.assertIsDisplayed().assertIsEnabled().performClick()
+        compose.waitForIdle()
         compose.runOnIdle {
             assertEquals("The harvest Save action must be delivered once", "1.5" to "", saved)
         }

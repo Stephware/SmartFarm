@@ -1,26 +1,29 @@
 @model SmartFarm.Web.ViewModels.Inventory.InventoryEditPage
 @{
-    ViewData["Title"] = "Edit inventory item";
+    ViewData["Title"] = "Edit supply";
 }
 <div class="reference-screen reference-screen-inventory ani12e-workspace ani12e-edit-inventory">
 <section class="panel card sf-edit-form-panel sf-ops-edit-panel ani12e-form-panel">
 
-    <p class="ani-overline">Farm inventory</p>
-    <h1>Edit inventory item</h1>
+    <h1>Edit supply</h1>
     <p class="sf-muted">Update the supply details without changing its transaction history.</p>
-    <div asp-validation-summary="ModelOnly" class="error" role="alert"></div>
-    <form class="sf-ops-form ani12e-fields" asp-action="Edit" asp-route-farmId="@Model.Farm.Id" asp-route-itemId="@Model.ItemId" method="post">
+    <form class="sf-ops-form ani12e-fields ani-p5-form" data-ani-p5-form asp-action="Edit" asp-route-farmId="@Model.Farm.Id" asp-route-itemId="@Model.ItemId" method="post">
         <input asp-for="Input.RowVersion" type="hidden" />
-        <label asp-for="Input.Name">Item name</label><input asp-for="Input.Name" required />
+        <label asp-for="Input.Name">Supply name</label><input asp-for="Input.Name" required minlength="2" maxlength="120" />
         <label asp-for="Input.Category"></label>
         <select asp-for="Input.Category">
             <option value="1">Seeds</option><option value="2">Fertilizers</option>
             <option value="3">Pesticides</option><option value="4">Other</option>
         </select>
-        <label asp-for="Input.Unit"></label><input asp-for="Input.Unit" required />
-        <label asp-for="Input.Description"></label><textarea asp-for="Input.Description"></textarea>
-        <label asp-for="Input.ReorderLevel">Low-stock threshold</label>
-        <input asp-for="Input.ReorderLevel" type="number" step="0.001" min="0" />
+        <label asp-for="Input.Unit"></label><input asp-for="Input.Unit" required maxlength="20" />
+        <details class="sf-edit-disclosure ani-p5-optional" open="@(!ViewData.ModelState.IsValid ? "open" : null)">
+            <summary>Optional notes and low-stock alert</summary>
+            <p class="sf-muted">These settings help identify the supply and flag when it may need replenishment.</p>
+            <label asp-for="Input.Description"></label>
+            <textarea asp-for="Input.Description" maxlength="500"></textarea>
+            <label asp-for="Input.ReorderLevel">Low-stock threshold</label>
+            <input asp-for="Input.ReorderLevel" type="number" step="0.001" min="0" inputmode="decimal" />
+        </details>
         <div class="ani12e-form-actions"><button type="submit">Save details</button>
         <a class="sf-button-outline" asp-action="Details" asp-route-farmId="@Model.Farm.Id" asp-route-itemId="@Model.ItemId">Cancel</a></div>
     </form>

@@ -289,7 +289,7 @@
             </div>
         </div>
         <p class="sf-muted">Choose what needs doing and when. A crop or person can be assigned later.</p>
-        <form asp-action="Create" asp-route-farmId="@Model.Farm.Id" method="post" class="sf-ops-form sf-create-task-form">
+        <form asp-action="Create" asp-route-farmId="@Model.Farm.Id" method="post" class="sf-ops-form sf-create-task-form ani-p5-form" data-ani-p5-form>
             <div>
                 <label for="taskType">Task type</label>
                 <select name="TaskType" id="taskType">
@@ -301,7 +301,8 @@
             </div>
             <div>
                 <label for="taskDue">Due date</label>
-                <input type="date" id="taskDue" name="DueDate" required />
+                <input type="date" id="taskDue" name="DueDate" required aria-describedby="ani-p5-task-due-help" />
+                <p class="hint" id="ani-p5-task-due-help">Choose when this task should be done in your farm's time zone.</p>
             </div>
             <div>
                 <label for="taskCrop">Crop cycle (optional)</label>
@@ -324,7 +325,7 @@
                 </select>
             </div>
             <div class="sf-form-wide">
-                <label for="taskDescription">Description</label>
+                <label for="taskDescription">Instructions (optional)</label>
                 <textarea id="taskDescription" name="Description" maxlength="500"></textarea>
             </div>
             <div class="sf-form-wide">

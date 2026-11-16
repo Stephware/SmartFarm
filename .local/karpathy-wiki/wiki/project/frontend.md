@@ -1,7 +1,7 @@
 # Web and Android frontend conventions
 
 > Sources: SmartFarm repository, source review
-> Raw: [Phase 4 final CI](../../raw/project/2026-11-16-phase4-final-ci.md); [Phase 4 data states](../../raw/project/2026-11-16-phase4-data-states-review.md); [Phase 3 Android refinement](../../raw/project/2026-11-15-phase3-android-refinement.md); [Current documentation audit](../../raw/project/2026-11-11-documentation-audit.md); [Reference frontend merge](../../raw/project/2026-11-11-reference-frontend-merge.md); [Publication source check](../../raw/project/2026-11-12-documentation-publication.md); [MVP retirement](../../raw/project/2026-11-14-mvp-stage-5.md)
+> Raw: [Native picker verification](../../raw/project/2026-11-16-phase5-native-picker-verification.md); [Final Phase 5 native appearance](../../raw/project/2026-11-16-phase5-final-native-appearance.md); [Phase 5 form review](../../raw/project/2026-11-16-phase5-forms-review.md); [Phase 4 data states](../../raw/project/2026-11-16-phase4-data-states-review.md); [Phase 3 Android refinement](../../raw/project/2026-11-15-phase3-android-refinement.md); [Current documentation audit](../../raw/project/2026-11-11-documentation-audit.md); [Reference frontend merge](../../raw/project/2026-11-11-reference-frontend-merge.md); [Publication source check](../../raw/project/2026-11-12-documentation-publication.md); [MVP retirement](../../raw/project/2026-11-14-mvp-stage-5.md); [Phase 4 final CI](../../raw/project/2026-11-16-phase4-final-ci.md)
 > Updated: 2026-11-16
 
 **Source scope:** Earlier detailed audit/acceptance is dated below. For source
@@ -93,6 +93,33 @@ seven CI jobs, including all 139 emulator tests without failures or skips. GitHu
 subsequently records an external merge by `Stephware`; this agent did not merge.
 See [final CI and integration evidence](../../raw/project/2026-11-16-phase4-final-ci.md).
 Later workflow/context maintenance remains distinct from that application head.
+
+## Phase 5 forms and workflow feedback (PR #135)
+
+Use semantic button/editable-field selectors in native tests; text alone may match
+both a heading and a submit button. Check real lazy-list composition, keyboard
+insets and unclipped bounds separately before calling a failure a scrolling bug.
+Keep date value/action spacing and long-note fields usable at enlarged text.
+Let the date action wrap when needed instead of squeezing the value into a narrow
+column; verify actual text layout as well as non-overlap. Native picker tests
+require foreground host focus and Espresso's dialog root; select a changed date,
+confirm once and assert the ISO callback. Do not hide focus failures by reopening.
+
+MVC opt-in forms reveal concealed invalid controls, cancel invalid submissions and
+preserve named submitters. Supply-edit validation re-renders the draft with its
+submitted rowversion, never silently rebasing it; reuse live edit-access checks and
+the shared error summary. This does not establish universal create-form recovery.
+
+Native task drafts survive busy/error/choice refresh. Freeze in-flight editing and
+require current, explicitly resolved new-task choices. Never silently clear a crop
+or assignee. Existing owner assignments can be absent from member-choice rows:
+keep server validation authoritative rather than applying membership-only client
+rules to edits. Match required-field/date/length feedback across create and edit.
+
+[Verification evidence](../../raw/project/2026-11-16-phase5-forms-review.md) records
+150 local device tests and scoped browser checks, with SQL/hardware/provider limits.
+UI Phase 6 landing and UI Phase 7 palette work remain separate planned scope; this
+task authorizes review-only PR updates, not a merge.
 
 ## Product and accessibility constraints
 

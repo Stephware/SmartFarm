@@ -91,6 +91,7 @@ fun TaskScreen(
     val closed = TaskDisplay.myHistory(state.tasks, actorId, isOwner)
     val isTasks = state.farmId != null
     val farmTasks = if (canManage) TaskDisplay.farmTasks(state.tasks) else emptyList()
+    val hasTaskDraft = canManage && selectedView == "manage" && (adding || editingId != null)
     RecordPage {
         item(key = "header") {
             Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
@@ -107,7 +108,7 @@ fun TaskScreen(
                 if (state.busy) FarmLoadingState(
                     when {
                         !isTasks -> if (state.notifications.isEmpty()) "Loading notifications…" else "Updating notifications…"
-                        state.tasks.isEmpty() -> "Loading farm tasks…"
+                        state.tasks.isEmpty() && !hasTaskDraft -> "Loading farm tasks…"
                         else -> "Updating farm tasks…"
                     })
                 state.error?.let { FarmErrorState(it, onRetry, canRetry = !state.busy) }
@@ -128,8 +129,8 @@ fun TaskScreen(
             }
         }
 
-        if (isTasks && (state.error == null || state.tasks.isNotEmpty()) &&
-            (!state.busy || state.tasks.isNotEmpty())) {
+        if (isTasks && (state.error == null || state.tasks.isNotEmpty() || hasTaskDraft) &&
+            (!state.busy || state.tasks.isNotEmpty() || hasTaskDraft)) {
             item(key = "task-tabs") {
                 Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
                     FlowRow(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(6.dp)) {
@@ -255,7 +256,7 @@ fun TaskScreen(
                 }
             }
             if (selectedView == "manage" && canManage) {
-                if (adding && state.choicesReady) item(key = "new-task") {
+                if (adding) item(key = "new-task") {
                     NewTaskForm(state, today, onCreate)
                 }
                 item(key = "manage-heading") {
@@ -376,7 +377,7 @@ private fun TaskMemberPicker(
 ) {
     var expanded by rememberSaveable { mutableStateOf(false) }
     val label = members.firstOrNull { it.userId == selected }?.fullName
-        ?: if (selected == null) "Unassigned (owner receives reminder)" else "Unavailable member"
+        ?: if (selected == null) "Unassigned (owner receives reminder)" else "Person not in current choices"
     Column {
         Text("Assign to", style = MaterialTheme.typography.labelLarge)
         OutlinedButton(onClick = { expanded = true }, enabled = enabled) { Text(label) }
@@ -399,11 +400,14 @@ private fun NewTaskForm(state: TaskUiState, today: LocalDate?, onCreate: (TaskCr
     var cycleId by rememberSaveable(state.farmId) { mutableStateOf<String?>(null) }
     var assignee by rememberSaveable(state.farmId) { mutableStateOf<String?>(null) }
     val validDate = runCatching { LocalDate.parse(due.trim()) }.isSuccess
+    val validCycle = cycleId == null || state.cycles.any { it.id == cycleId && it.status in 0..1 }
+    val validAssignee = assignee == null || state.members.any { it.userId == assignee }
     FarmSectionCard("New task", subtitle = "Choose a preset or enter your own instructions.") {
         Row(Modifier.horizontalScroll(rememberScrollState()),
             horizontalArrangement = Arrangement.spacedBy(8.dp)) {
             WorkTaskPresets.options.forEach { preset ->
                 FilterChip(selected = type == preset.type,
+                    enabled = !state.busy,
                     onClick = { type = preset.type; description = preset.suggestedDescription },
                     label = { Text(preset.label) })
             }
@@ -412,25 +416,39 @@ private fun NewTaskForm(state: TaskUiState, today: LocalDate?, onCreate: (TaskCr
         Text("Selected: " + taskNames.getOrElse(type) { "Task" },
             style = MaterialTheme.typography.bodySmall,
             color = MaterialTheme.colorScheme.onSurfaceVariant)
-        OutlinedButton(onClick = { moreTypes = true }) { Text("Other task types") }
+        OutlinedButton(onClick = { moreTypes = true }, enabled = !state.busy) { Text("Other task types") }
         DropdownMenu(expanded = moreTypes, onDismissRequest = { moreTypes = false }) {
             listOf(1, 6).forEach { code ->
-                DropdownMenuItem(text = { Text(taskNames[code]) }, onClick = {
+                DropdownMenuItem(text = { Text(taskNames[code]) }, enabled = !state.busy, onClick = {
                     type = code
                     moreTypes = false
                 })
             }
         }
         DateInput(due, "Due date", { due = it }, enabled = !state.busy)
-        CyclePicker(cycleId, state.cycles, { cycleId = it })
-        TaskMemberPicker(assignee, state.members, { assignee = it }, !state.busy)
-        OutlinedTextField(description, { description = it },
-            label = { Text("Instructions (optional)") }, minLines = 2,
+        if (due.isNotBlank() && !validDate)
+            Text("Choose a valid due date.", style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.error)
+        CyclePicker(cycleId, state.cycles, { cycleId = it }, !state.busy && state.choicesReady)
+        if (state.choicesReady && !validCycle)
+            Text("Choose a listed crop or No crop cycle before creating this task.",
+                style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.error)
+        TaskMemberPicker(assignee, state.members, { assignee = it }, !state.busy && state.choicesReady)
+        if (state.choicesReady && !validAssignee)
+            Text("Choose a listed person or Unassigned before creating this task.",
+                style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.error)
+        OutlinedTextField(description, { description = it }, enabled = !state.busy,
+            isError = description.trim().length > 500,
+            label = { Text("Instructions (optional)") }, minLines = 2, maxLines = 4,
             modifier = Modifier.fillMaxWidth())
+        if (description.trim().length > 500)
+            Text("Instructions must be 500 characters or fewer.",
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.error)
         Button(onClick = {
             onCreate(TaskCreateInput(type, LocalDate.parse(due.trim()).toString(),
                 description.trim().ifBlank { null }, cycleId, assignee))
-        }, enabled = state.choicesReady && !state.busy && validDate &&
+        }, enabled = state.choicesReady && !state.busy && validDate && validCycle && validAssignee &&
             description.trim().length <= 500,
             modifier = Modifier.fillMaxWidth()) { Text("Create task") }
     }
@@ -438,22 +456,23 @@ private fun NewTaskForm(state: TaskUiState, today: LocalDate?, onCreate: (TaskCr
 
 @Composable
 private fun CyclePicker(
-    selected: String?, cycles: List<CropCycleDto>, onSelect: (String?) -> Unit
+    selected: String?, cycles: List<CropCycleDto>, onSelect: (String?) -> Unit, enabled: Boolean
 ) {
     var expanded by rememberSaveable { mutableStateOf(false) }
     val eligible = cycles.filter { it.status == 0 || it.status == 1 }
     val label = eligible.firstOrNull { it.id == selected }?.let {
         "${it.cropTypeName} · ${it.plotName}"
-    } ?: "No crop cycle"
+    } ?: if (selected == null) "No crop cycle" else "Selected crop not listed"
     Column {
         Text("Crop cycle (optional)", style = MaterialTheme.typography.labelLarge)
-        OutlinedButton(onClick = { expanded = true }) { Text(label) }
+        OutlinedButton(onClick = { expanded = true }, enabled = enabled) { Text(label) }
         DropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
-            DropdownMenuItem(text = { Text("No crop cycle") }, onClick = {
+            DropdownMenuItem(text = { Text("No crop cycle") }, enabled = enabled, onClick = {
                 onSelect(null); expanded = false
             })
             eligible.forEach { cycle ->
                 DropdownMenuItem(text = { Text("${cycle.cropTypeName} · ${cycle.plotName}") },
+                    enabled = enabled,
                     onClick = { onSelect(cycle.id); expanded = false })
             }
         }
@@ -471,9 +490,15 @@ private fun EditTaskForm(
     val validDate = runCatching { LocalDate.parse(due.trim()) }.isSuccess
     Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
         DateInput(due, "Due date", { due = it }, enabled = !state.busy)
+        // Existing assignees may be the owner, who is absent from member choices; the server validates them.
         TaskMemberPicker(assignee, state.members, { assignee = it }, !state.busy)
-        OutlinedTextField(description, { description = it },
-            label = { Text("Instructions") }, modifier = Modifier.fillMaxWidth())
+        OutlinedTextField(description, { description = it }, enabled = !state.busy,
+            isError = description.trim().length > 500,
+            label = { Text("Instructions") }, minLines = 2, maxLines = 4,
+            modifier = Modifier.fillMaxWidth())
+        if (description.trim().length > 500)
+            Text("Instructions must be 500 characters or fewer.",
+                style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.error)
         Button(onClick = {
             onUpdate(task, TaskUpdateInput(LocalDate.parse(due.trim()).toString(),
                 description.trim().ifBlank { null }, assignee, task.rowVersion))

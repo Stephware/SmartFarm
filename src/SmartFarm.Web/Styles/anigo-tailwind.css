@@ -22,6 +22,7 @@
 @import "./anigo-design-foundation.css";
 @import "./anigo-web-phase2.css";
 @import "./anigo-data-states-phase4.css";
+@import "./anigo-forms-phase5.css";
 @import "tailwindcss/theme.css" layer(theme) prefix(tw);
 @import "tailwindcss/utilities.css" layer(utilities) prefix(tw) source(none);
 @source "../Views";

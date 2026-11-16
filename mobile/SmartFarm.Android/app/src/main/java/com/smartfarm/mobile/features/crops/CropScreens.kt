@@ -285,6 +285,15 @@ fun CropScreen(
                                 harvestDate.isBlank() ||
                                     !java.time.LocalDate.parse(harvestDate).isBefore(planting)
                             }.getOrDefault(false)
+                            if (!valid && (plannedDate.isNotBlank() || harvestDate.isNotBlank())) {
+                                val plantingValid = runCatching {
+                                    java.time.LocalDate.parse(plannedDate)
+                                }.isSuccess
+                                Text(if (!plantingValid) "Enter a valid planting date."
+                                     else "Expected harvest cannot be before planting date.",
+                                    style = MaterialTheme.typography.bodySmall,
+                                    color = MaterialTheme.colorScheme.error)
+                            }
                             Button(onClick = { onPlan(selectedPlot, selectedType, plannedDate, harvestDate) },
                                 enabled = !state.busy && selectedPlot.isNotBlank() &&
                                     selectedType.isNotBlank() && valid,
@@ -431,6 +440,13 @@ private fun CycleCard(
                     editHarvest.isBlank() ||
                         !java.time.LocalDate.parse(editHarvest).isBefore(planting)
                 }.getOrDefault(false)
+                if (!planValid && (editDate.isNotBlank() || editHarvest.isNotBlank())) {
+                    val plantingValid = runCatching { java.time.LocalDate.parse(editDate) }.isSuccess
+                    Text(if (!plantingValid) "Enter a valid planting date."
+                         else "Expected harvest cannot be before planting date.",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.error)
+                }
                 OutlinedButton(onClick = { onUpdatePlan(cycle, editDate, editHarvest) },
                     enabled = !busy && planValid, modifier = Modifier.fillMaxWidth()) {
                     Text("Update planting plan")

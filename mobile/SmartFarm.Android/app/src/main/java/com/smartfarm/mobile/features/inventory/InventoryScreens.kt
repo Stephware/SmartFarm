@@ -190,7 +190,14 @@ fun InventoryListScreen(
         if (creating && canManage && !state.offline) item(key = "create") {
             FarmSectionCard("Create stock item",
                 subtitle = "Set the opening balance and an optional low-stock threshold.") {
-                OutlinedTextField(name, { name = it }, enabled = !state.busy, label = { Text("Name") }, modifier = Modifier.fillMaxWidth())
+                OutlinedTextField(name, { name = it }, enabled = !state.busy,
+                    label = { Text("Supply name") }, singleLine = true,
+                    isError = name.isNotBlank() && name.trim().length !in 2..120,
+                    modifier = Modifier.fillMaxWidth())
+                if (name.isNotBlank() && name.trim().length !in 2..120)
+                    Text("Use a supply name between 2 and 120 characters.",
+                        color = MaterialTheme.colorScheme.error,
+                        style = MaterialTheme.typography.bodySmall)
                 Row(Modifier.horizontalScroll(rememberScrollState()),
                     horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                     listOf("Seeds", "Fertilizers", "Pesticides", "Other").forEachIndexed { index, label ->
@@ -198,15 +205,34 @@ fun InventoryListScreen(
                             enabled = !state.busy, label = { Text(label) })
                     }
                 }
-                OutlinedTextField(unit, { unit = it }, enabled = !state.busy, label = { Text("Unit (kg, L, pcs)") },
+                OutlinedTextField(unit, { unit = it }, enabled = !state.busy,
+                    isError = unit.isNotBlank() && unit.trim().length > 20,
+                    label = { Text("Unit (kg, L, pcs)") }, singleLine = true,
                     modifier = Modifier.fillMaxWidth())
-                OutlinedTextField(opening, { opening = it }, enabled = !state.busy, label = { Text("Opening quantity") },
+                if (unit.isNotBlank() && unit.trim().length > 20)
+                    Text("Unit must be 20 characters or fewer.",
+                        color = MaterialTheme.colorScheme.error,
+                        style = MaterialTheme.typography.bodySmall)
+                OutlinedTextField(opening, { opening = it }, enabled = !state.busy,
+                    isError = opening.isNotBlank() && !openingValid,
+                    label = { Text("Opening quantity") },
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal))
-                OutlinedTextField(reorder, { reorder = it }, enabled = !state.busy, label = { Text("Low-stock threshold (optional)") },
+                if (opening.isNotBlank() && !openingValid)
+                    Text("Enter a nonnegative quantity with up to 3 decimal places.",
+                        color = MaterialTheme.colorScheme.error,
+                        style = MaterialTheme.typography.bodySmall)
+                OutlinedTextField(reorder, { reorder = it }, enabled = !state.busy,
+                    isError = !reorderValid,
+                    label = { Text("Low-stock threshold (optional)") },
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal))
-                Button(onClick = { onCreate(name, category, unit, opening, reorder) },
+                if (!reorderValid)
+                    Text("Enter a nonnegative threshold with up to 3 decimal places.",
+                        color = MaterialTheme.colorScheme.error,
+                        style = MaterialTheme.typography.bodySmall)
+                Button(onClick = { onCreate(name.trim(), category, unit.trim(), opening.trim(), reorder.trim()) },
                     enabled = !state.busy && name.trim().length in 2..120 &&
-                        unit.isNotBlank() && unit.length <= 20 && openingValid && reorderValid) {
+                        unit.trim().length in 1..20 && openingValid && reorderValid,
+                    modifier = Modifier.fillMaxWidth().defaultMinSize(minHeight = 48.dp)) {
                     Text("Create supply")
                 }
             }
