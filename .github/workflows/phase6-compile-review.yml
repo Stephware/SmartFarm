@@ -1,0 +1,85 @@
+# Temporary branch-only builder; remove after one reviewed Phase 6 CSS/screenshot update.
+name: Build Phase 6 design bundle and review captures
+on:
+  push:
+    branches: ["feature/anigo-phase6-visual-landing"]
+permissions:
+  contents: write
+jobs:
+  build-and-capture:
+    if: "!contains(github.event.head_commit.message, '[phase6-built]')"
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 10.0.x
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - name: Compile the single design stylesheet
+        run: |
+          npm ci --no-audit --no-fund
+          npm run css:build
+          node --test tests/web-ui/*.test.cjs
+      - name: Build the MVC application
+        run: dotnet build src/SmartFarm.Web/SmartFarm.Web.csproj --configuration Release
+      - name: Install Chromium tools
+        run: |
+          npm install --no-save --no-package-lock playwright@1.56.1 pngjs@7.0.0 pixelmatch@5.3.0
+          npx playwright install --with-deps chromium
+      - name: Start the MVC site on localhost
+        env:
+          ASPNETCORE_ENVIRONMENT: Development
+          ASPNETCORE_URLS: http://127.0.0.1:5082
+        run: |
+          (cd src/SmartFarm.Web && dotnet bin/Release/net10.0/SmartFarm.Web.dll) > /tmp/anigo-phase6.log 2>&1 &
+          for attempt in $(seq 1 60); do
+            if curl --fail --silent http://127.0.0.1:5082/ >/dev/null; then exit 0; fi
+            sleep 1
+          done
+          cat /tmp/anigo-phase6.log; exit 1
+      - name: Capture actual responsive web screenshots
+        env:
+          ANIGO_UPDATE_VISUAL_BASELINES: "1"
+          ANIGO_CANDIDATE_URL: http://127.0.0.1:5082
+        run: node tests/browser/visual-parity.cjs
+      - name: Record candidate screenshot hashes
+        run: |
+          node - <<'NODE'
+          const fs=require("fs"),path=require("path"),crypto=require("crypto");
+          const root="src/SmartFarm.Web/";
+          const files=["wwwroot/css/anigo-tailwind.css","Views/Shared/_Layout.cshtml",
+            "Views/Home/Index.cshtml","Views/Account/Login.cshtml","Views/Account/Register.cshtml"];
+          const p="tests/browser/baselines/review.json",r=JSON.parse(fs.readFileSync(p,"utf8"));
+          r.sourceHashes=Object.fromEntries(files.map(f=>[f,crypto.createHash("sha256")
+            .update(fs.readFileSync(path.join(root,f))).digest("hex")]));
+          r.reviewed=false;
+          r.note="Phase 6: CSS compiled into one AniGo design system and all 30 public captures regenerated from the actual MVC site. Inspect representative light/dark desktop/mobile screenshots before marking reviewed=true. Old landing goldens were intentionally superseded.";
+          fs.writeFileSync(p,JSON.stringify(r,null,2)+"\n");
+          NODE
+      - name: Print compressed previews for visual inspection
+        run: |
+          python3 -m pip install --quiet pillow --break-system-packages
+          python3 - <<'PY'
+          from PIL import Image
+          from io import BytesIO
+          import base64
+          for name in ("landing-light-1440","landing-light-375","landing-dark-1440","landing-dark-375"):
+              img=Image.open("tests/browser/baselines/"+name+".png").convert("RGB")
+              if img.width>660: img.thumbnail((660,20000))
+              data=BytesIO()
+              img.save(data,format="JPEG",quality=57,optimize=True)
+              print("ANI6_PREVIEW_BEGIN:"+name)
+              print(base64.b64encode(data.getvalue()).decode())
+              print("ANI6_PREVIEW_END:"+name)
+          PY
+      - name: Commit build and reviewed-candidate screenshots to this branch
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add src/SmartFarm.Web/wwwroot/css/anigo-tailwind.css tests/browser/baselines/
+          if git diff --cached --quiet; then exit 0; fi
+          git commit -m "[phase6-built] Compile AniGo and capture Phase 6 candidates"
+          git push origin HEAD:feature/anigo-phase6-visual-landing
