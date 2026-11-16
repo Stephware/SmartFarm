@@ -2,8 +2,8 @@
   "reviewed": false,
   "sourceHashes": {
     "wwwroot/css/anigo-tailwind.css": "df5ebf61c7030af12c5c99793b8fd1f842e8d859a02042fb5f46d7ea383a8011",
-    "wwwroot/css/anigo-landing-phase6.css": "b7ff50fa6ba90e3729161c3eedc08b72e5ee33a52abc80fabd5e80518ac41374",
-    "Views/Shared/_Layout.cshtml": "6fab09f53ff04d12b54a191114ae3e9a2a81ac4d64a3f831400884eb3da7f89d",
+    "wwwroot/css/anigo-landing-phase6.css": "fd22200199ffabdd7c02ad94aef88b157d8b76d1a36090fbb6287f737a0b8e66",
+    "Views/Shared/_Layout.cshtml": "6551c9a52bbcadf6789a78c83e9ba2d6c3e09d3500319d1e9378ebdc20cb68bf",
     "Views/Home/Index.cshtml": "119b0f6d016d3ea16861b91a5e4e245265bb8d080ae378910397c7d864ac90d9",
     "Views/Account/Login.cshtml": "2881d3e20d68f709abf12d244855199f92c86b54e1c434bd022625999ed5d053",
     "Views/Account/Register.cshtml": "ababbec811edc2e2be6a2d836c6d5f8f0178e14e3b018d00c9fe59769112906d"
