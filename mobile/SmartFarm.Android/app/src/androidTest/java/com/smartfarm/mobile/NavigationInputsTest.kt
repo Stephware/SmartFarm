@@ -60,24 +60,31 @@ class NavigationInputsTest {
             // Android 35 emulators may not expose framework dialog buttons to
             // UI Automator immediately. Look up the native positive button by
             // resource and accessible text, then fall back to Espresso's dialog root.
-            val confirm = device.wait(
-                androidx.test.uiautomator.Until.findObject(ok), 8_000L)
+            fun nativeConfirm() = device.wait(
+                androidx.test.uiautomator.Until.findObject(ok), 5_000L)
                 ?: device.wait(androidx.test.uiautomator.Until.findObject(
-                    androidx.test.uiautomator.By.res("android", "button1")), 3_000L)
+                    androidx.test.uiautomator.By.res("android", "button1")), 2_000L)
                 ?: device.wait(androidx.test.uiautomator.Until.findObject(
-                    androidx.test.uiautomator.By.text("OK")), 3_000L)
+                    androidx.test.uiautomator.By.text("OK")), 2_000L)
                 ?: device.wait(androidx.test.uiautomator.Until.findObject(
-                    androidx.test.uiautomator.By.text("Set")), 3_000L)
-            if (confirm != null) {
-                confirm.click()
-            } else {
-                // Espresso can access the native dialog's View hierarchy even
-                // when the accessibility snapshot omits the positive button.
-                androidx.test.espresso.Espresso.onView(
-                    androidx.test.espresso.matcher.ViewMatchers.withId(android.R.id.button1)
-                ).inRoot(androidx.test.espresso.matcher.RootMatchers.isDialog())
-                    .perform(androidx.test.espresso.action.ViewActions.click())
+                    androidx.test.uiautomator.By.text("Set")), 2_000L)
+            var confirm = nativeConfirm()
+            if (confirm == null) {
+                // A framework dialog can be created but fail to acquire window
+                // focus on a headless emulator. Espresso's isDialog fallback
+                // cannot click that unfocused root. Dismiss and reopen it once,
+                // then require a real accessible native confirmation control.
+                device.pressBack()
+                compose.waitForIdle()
+                compose.onNodeWithContentDescription(
+                    "Planting date: $formatted. Choose date").performClick()
+                compose.waitForIdle()
+                device.waitForIdle()
+                confirm = nativeConfirm()
             }
+            org.junit.Assert.assertNotNull(
+                "Native DatePickerDialog must expose a focused confirmation button", confirm)
+            confirm!!.click()
             compose.waitUntil(5_000) { selected == selectedDate }
             compose.runOnIdle { assertEquals(selectedDate, selected) }
         } finally {
