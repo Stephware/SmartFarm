@@ -1,5 +1,6 @@
 @{
     var signedIn = User.Identity?.IsAuthenticated == true;
+    var isLanding = ViewContext.RouteData.Values["controller"]?.ToString() == "Home" && ViewContext.RouteData.Values["action"]?.ToString() == "Index";
     var currentController = ViewContext.RouteData.Values["controller"]?.ToString();
     var currentAction = ViewContext.RouteData.Values["action"]?.ToString();
     var accountName = User.Identity?.Name ?? "Your account";
@@ -17,11 +18,15 @@
     <script src="~/js/color-mode.js" asp-append-version="true"></script>
     <link rel="preload" href="~/fonts/manrope/Manrope-Variable.ttf" as="font" type="font/ttf" crossorigin />
     <link rel="stylesheet" href="~/css/anigo-tailwind.css" asp-append-version="true" />
+    @if (isLanding)
+    {
+        <link rel="stylesheet" href="~/css/anigo-landing-phase6.css" asp-append-version="true" />
+    }
     <script src="~/js/site.js" asp-append-version="true" defer></script>
     <script src="~/js/farm-navigation.js" asp-append-version="true" defer></script>
     <script src="~/js/access-polish.js" asp-append-version="true" defer></script>
 </head>
-<body class="@(signedIn ? "is-authenticated" : "is-guest")">
+<body class="@(signedIn ? "is-authenticated" : "is-guest") @(isLanding ? "is-landing" : "")">
 <a class="skip-link" href="#main-content">Skip to content</a>
 @if (signedIn)
 {
@@ -147,13 +152,34 @@
 }
 else
 {
-    <header class="site-header guest-topbar">
+    <header class="site-header guest-topbar @(isLanding ? "ani6-topbar" : "")">
         <a class="brand guest-logo" asp-controller="Home" asp-action="Index"><span class="logo-mark"><partial name="_Icon" model='@("leaf")' /></span>AniGo</a>
-        <nav aria-label="Main navigation">
+        @if (isLanding)
+        {
+            <nav class="ani6-top-links" aria-label="Landing page sections">
+                <a href="#home" aria-current="page">Home</a>
+                <a href="#how-it-works">How it works</a>
+                <a href="#features">Features</a>
+                <a href="#about">About</a>
+                <a href="#contact">Contact</a>
+            </nav>
+        }
+        <nav class="ani6-account-links" aria-label="Account actions">
             <button class="icon-button" type="button" data-color-mode-toggle aria-label="Use dark appearance" aria-pressed="false"><partial name="_Icon" model='@("sun")' /></button>
-            <a asp-controller="Account" asp-action="Login">Log in</a>
+            <a class="ani6-login" asp-controller="Account" asp-action="Login">Log in</a>
             <a class="button guest-nav-cta" asp-controller="Account" asp-action="Register">Create account</a>
         </nav>
+        @if (isLanding)
+        {
+            <details class="ani6-mobile-menu">
+                <summary>Menu <partial name="_Icon" model='@("down")' /></summary>
+                <nav aria-label="Landing page mobile sections">
+                    <a href="#home">Home</a><a href="#how-it-works">How it works</a>
+                    <a href="#features">Features</a><a href="#about">About</a>
+                    <a href="#contact">Contact</a>
+                </nav>
+            </details>
+        }
     </header>
     <main class="page guest-page" id="main-content" tabindex="-1"><partial name="_ValidationSummary" />@RenderBody()</main>
 }
