@@ -41,6 +41,13 @@ const cases = [
                 const form = page.locator("form[data-ani-p5-form]");
                 if (name.endsWith("tasks-worker")) assert.equal(await form.count(), 0);
                 else assert.equal(await form.count(), 1);
+                if (name === "12d-edit-plan" || name === "12d-edit-plot") {
+                    const actions = form.locator(".ani12d-form-actions");
+                    const save = await actions.locator("button").boundingBox();
+                    const cancel = await actions.locator("a").boundingBox();
+                    assert.ok(Math.abs(save.y + save.height / 2 - cancel.y - cancel.height / 2) <= 1,
+                        name + ": save and cancel must align without an inherited button margin");
+                }
                 for (const summary of await form.locator("details.ani-p5-optional > summary").all()) {
                     const size = await summary.evaluate(el => ({ height: el.getBoundingClientRect().height,
                         font: parseFloat(getComputedStyle(el).fontSize) }));
