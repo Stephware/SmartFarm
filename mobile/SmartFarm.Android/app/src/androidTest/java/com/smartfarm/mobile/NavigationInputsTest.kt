@@ -87,6 +87,25 @@ class NavigationInputsTest {
             confirm!!.click()
             compose.waitUntil(5_000) { selected == selectedDate }
             compose.runOnIdle { assertEquals(selectedDate, selected) }
+        } catch (failure: Throwable) {
+            // Preserve the failed window, rather than guessing why its controls vanished.
+            val instrumentation = androidx.test.platform.app.InstrumentationRegistry.getInstrumentation()
+            val directory = java.io.File(instrumentation.targetContext.getExternalFilesDir(null),
+                "date-picker-failure").apply { mkdirs() }
+            device.takeScreenshot(java.io.File(directory, "screen.png"))
+            device.dumpWindowHierarchy(java.io.File(directory, "hierarchy.xml"))
+            for (service in listOf("window", "power")) {
+                android.os.ParcelFileDescriptor.AutoCloseInputStream(
+                    instrumentation.uiAutomation.executeShellCommand("dumpsys $service")
+                ).use { input -> java.io.File(directory, "$service.txt").outputStream().use(input::copyTo) }
+            }
+            instrumentation.runOnMainSync {
+                java.io.File(directory, "roots.txt").writeText(
+                    android.view.inspector.WindowInspector.getGlobalWindowViews().joinToString("\n") {
+                        "$it shown=${it.isShown} focus=${it.hasWindowFocus()} visibility=${it.windowVisibility}"
+                    })
+            }
+            throw failure
         } finally {
             // Never leave a native dialog open for the next Compose test.
             if (device.hasObject(ok)) device.pressBack()
