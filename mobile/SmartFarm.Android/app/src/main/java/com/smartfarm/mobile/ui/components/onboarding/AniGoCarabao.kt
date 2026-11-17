@@ -21,7 +21,7 @@ import androidx.compose.ui.unit.dp
  *
  * One stable character silhouette is used for all poses: tan salakot, curved cream horns,
  * warm brown coat, dark-green AniGo kerchief and pale muzzle. Phase 2 uses still frames.
- * The four bounded frame variants are reserved for Phase 3's one-shot pose animations.
+ * The four bounded frame variants drive Phase 3's one-shot walk and wave motion.
  *
  * All artwork uses Compose Canvas paths; no downloaded, unlicensed or remotely loaded files.
  */
@@ -47,7 +47,8 @@ private val Leaf = Color(0xFF428751)
 fun AniGoCarabao(
     pose: AniGoCarabaoPose,
     modifier: Modifier = Modifier,
-    frame: Int = 0
+    frame: Int = 0,
+    walking: Boolean = false
 ) {
     val key = ((frame % 4) + 4) % 4
     Canvas(modifier) {
@@ -56,7 +57,7 @@ fun AniGoCarabao(
         withTransform({ scale(sx, sy, pivot = Offset.Zero) }) {
             drawOval(Color(0x17392518), Offset(83f, 369f), Size(246f, 15f))
             drawTail()
-            drawLegs()
+            drawLegs(if (walking) key else null)
             drawTorso()
             drawArms(pose, key)
             drawEars()
@@ -109,21 +110,37 @@ private fun DrawScope.drawTail() {
     }, BodyShade)
 }
 
-private fun DrawScope.drawLegs() {
-    shape(path {
-        moveTo(130f, 310f); cubicTo(137f, 307f, 183f, 307f, 193f, 318f)
-        lineTo(184f, 368f); quadraticTo(178f, 375f, 143f, 375f)
-        quadraticTo(129f, 373f, 126f, 359f); close()
-    }, BodyShade)
-    shape(path {
-        moveTo(211f, 319f); quadraticTo(232f, 309f, 270f, 315f)
-        lineTo(283f, 361f); quadraticTo(287f, 375f, 270f, 377f)
-        lineTo(236f, 377f); quadraticTo(222f, 370f, 218f, 349f); close()
-    }, BodyShade)
-    drawPath(path {
-        moveTo(128f, 352f); quadraticTo(149f, 362f, 185f, 356f)
-        moveTo(223f, 353f); quadraticTo(252f, 365f, 281f, 351f)
-    }, Color(0xFF674532), style = Stroke(4f, cap = StrokeCap.Round))
+/** Tiny alternating steps on the same original legs; neutral poses do not move.
+ * Four repeatable frame states avoid any new character artwork or shape mismatch.
+ */
+private fun DrawScope.drawLegs(step: Int?) {
+    val stride = when (step) {
+        0 -> -8f
+        1 -> -3f
+        2 -> 8f
+        3 -> 3f
+        else -> 0f
+    }
+    val leftLift = if (step == 1 || step == 2) -7f else 0f
+    val rightLift = if (step == 0 || step == 3) -7f else 0f
+    withTransform({ translate(stride, leftLift) }) {
+        shape(path {
+            moveTo(130f, 310f); cubicTo(137f, 307f, 183f, 307f, 193f, 318f)
+            lineTo(184f, 368f); quadraticTo(178f, 375f, 143f, 375f)
+            quadraticTo(129f, 373f, 126f, 359f); close()
+        }, BodyShade)
+        line(path { moveTo(128f, 352f); quadraticTo(149f, 362f, 185f, 356f) },
+            Color(0xFF674532), 4f)
+    }
+    withTransform({ translate(-stride, rightLift) }) {
+        shape(path {
+            moveTo(211f, 319f); quadraticTo(232f, 309f, 270f, 315f)
+            lineTo(283f, 361f); quadraticTo(287f, 375f, 270f, 377f)
+            lineTo(236f, 377f); quadraticTo(222f, 370f, 218f, 349f); close()
+        }, BodyShade)
+        line(path { moveTo(223f, 353f); quadraticTo(252f, 365f, 281f, 351f) },
+            Color(0xFF674532), 4f)
+    }
 }
 
 private fun DrawScope.drawTorso() {
