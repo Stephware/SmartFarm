@@ -1,5 +1,9 @@
 package com.smartfarm.mobile.ui.components
 
+import androidx.compose.foundation.Image
+import androidx.compose.ui.res.painterResource
+import com.smartfarm.mobile.R
+import com.smartfarm.mobile.ui.theme.LocalFarmAppearance
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
@@ -221,14 +225,21 @@ fun FarmAppBar(modifier: Modifier = Modifier) {
                 .padding(horizontal = 16.dp), verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.spacedBy(9.dp)) {
                 val compact = LocalConfiguration.current.screenWidthDp < 375
-                Surface(shape = RoundedCornerShape(10.dp),
-                    color = MaterialTheme.colorScheme.primaryContainer,
-                    modifier = Modifier.semantics { contentDescription = "AniGo" }) {
-                    FarmLineIcon(FarmSymbol.Crop, Modifier.padding(8.dp).size(23.dp))
-                }
-                if (!compact) {
-                    Text("AniGo", style = MaterialTheme.typography.titleLarge,
-                        fontWeight = FontWeight.ExtraBold)
+                if (compact) {
+                    // Use the approved symbol at narrow sizes without competing with farm controls.
+                    Surface(shape = RoundedCornerShape(10.dp),
+                        color = Color(0xFFF9F8F4)) {
+                        Image(painter = painterResource(R.drawable.ani_go_mark),
+                            contentDescription = "AniGo",
+                            modifier = Modifier.padding(3.dp).size(32.dp))
+                    }
+                } else {
+                    Image(
+                        painter = painterResource(if (LocalFarmAppearance.current.dark)
+                            R.drawable.ani_go_logo_on_dark else R.drawable.ani_go_logo),
+                        contentDescription = "AniGo",
+                        modifier = Modifier.width(132.dp).height(36.dp)
+                    )
                 }
                 Box(Modifier.weight(1f))
                 if (navigation != null) {
