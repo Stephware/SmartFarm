@@ -129,40 +129,7 @@ fun HarvestScreen(
                         }
                     }
 
-                    if (selectedView == "record") {
-                        FarmSectionCard("Harvested amount",
-                            subtitle = "Record only what was actually harvested today.") {
-                            OutlinedTextField(quantity, { quantity = it },
-                                enabled = !state.busy,
-                                isError = quantity.isNotBlank() && !validQuantity,
-                                label = { Text("Harvested quantity (${overview.unit})") },
-                                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
-                                singleLine = true, modifier = Modifier.fillMaxWidth())
-                            if (quantity.isNotBlank() && !validQuantity) {
-                                Text("Use a positive quantity, with at most 3 decimal places.",
-                                    style = MaterialTheme.typography.bodySmall,
-                                    color = MaterialTheme.colorScheme.error)
-                            }
-                            OutlinedTextField(notes, { notes = it }, enabled = !state.busy,
-                                isError = !validNotes, label = { Text("Notes (optional)") },
-                                minLines = 2, maxLines = 4, modifier = Modifier.fillMaxWidth())
-                            if (!validNotes)
-                                Text("Harvest notes must be 1,000 characters or fewer.",
-                                    style = MaterialTheme.typography.bodySmall,
-                                    color = MaterialTheme.colorScheme.error)
-                            Text("Partial harvest · The crop stays active.",
-                                style = MaterialTheme.typography.bodyMedium,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant)
-                            Button(onClick = { onRecord(quantity.trim(), notes) },
-                                enabled = !state.busy && validQuantity && validNotes,
-                                modifier = Modifier.fillMaxWidth().defaultMinSize(minHeight = 48.dp)) {
-                                Text("Save harvested amount")
-                            }
-                            Text("Saved on this phone first. Totals update after server confirmation.",
-                                style = MaterialTheme.typography.bodyMedium,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant)
-                        }
-                    }
+
 
                     PendingRecords(pending, state.farmId, state.cycleId, setOf("harvest"), onSync)
 
@@ -206,6 +173,44 @@ fun HarvestScreen(
                         }
                     }
                 }
+            }
+        }
+        // Keep the harvest form in its own lazy item. A tall header/summary item
+        // prevents Compose and TalkBack from reliably revealing the Save action.
+        if (overview != null && selectedView == "record") {
+            item(key = "harvest-form") {
+                        FarmSectionCard("Harvested amount",
+                            subtitle = "Record only what was actually harvested today.") {
+                            OutlinedTextField(quantity, { quantity = it },
+                                enabled = !state.busy,
+                                isError = quantity.isNotBlank() && !validQuantity,
+                                label = { Text("Harvested quantity (${overview.unit})") },
+                                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
+                                singleLine = true, modifier = Modifier.fillMaxWidth())
+                            if (quantity.isNotBlank() && !validQuantity) {
+                                Text("Use a positive quantity, with at most 3 decimal places.",
+                                    style = MaterialTheme.typography.bodySmall,
+                                    color = MaterialTheme.colorScheme.error)
+                            }
+                            OutlinedTextField(notes, { notes = it }, enabled = !state.busy,
+                                isError = !validNotes, label = { Text("Notes (optional)") },
+                                minLines = 2, maxLines = 4, modifier = Modifier.fillMaxWidth())
+                            if (!validNotes)
+                                Text("Harvest notes must be 1,000 characters or fewer.",
+                                    style = MaterialTheme.typography.bodySmall,
+                                    color = MaterialTheme.colorScheme.error)
+                            Text("Partial harvest · The crop stays active.",
+                                style = MaterialTheme.typography.bodyMedium,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant)
+                            Button(onClick = { onRecord(quantity.trim(), notes) },
+                                enabled = !state.busy && validQuantity && validNotes,
+                                modifier = Modifier.fillMaxWidth().defaultMinSize(minHeight = 48.dp)) {
+                                Text("Save harvested amount")
+                            }
+                            Text("Saved on this phone first. Totals update after server confirmation.",
+                                style = MaterialTheme.typography.bodyMedium,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant)
+                        }
             }
         }
         if (selectedView == "history") {
