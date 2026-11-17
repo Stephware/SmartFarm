@@ -123,6 +123,57 @@ class CarabaoOnboardingPreviewTest {
     }
 
     @Test
+    fun farmAndCropDemonstrationsShowCompleteExamplesWithReducedMotion() {
+        compose.setContent {
+            SmartFarmTheme {
+                AniGoOnboardingScreen(onExit = {}, motionAllowed = false)
+            }
+        }
+        compose.onNodeWithText("Riverside Farm").assertExists()
+        compose.onNodeWithText("North Plot").assertExists()
+        compose.onNodeWithText("South Plot").assertExists()
+        compose.onNodeWithText("Owner & team members").assertExists()
+        compose.onNodeWithText("Replay example").assertDoesNotExist()
+        compose.onNodeWithText("Next →").performClick()
+        compose.waitForIdle()
+        compose.onNodeWithText("Rice planting").assertExists()
+        compose.onNodeWithText("Growing").assertExists()
+        compose.onNodeWithText("Upcoming: crop activities").assertExists()
+    }
+
+    @Test
+    fun animatedFarmAndCropExamplesCanReplayAndNavigateNormally() {
+        var exits = 0
+        compose.setContent {
+            SmartFarmTheme {
+                AniGoOnboardingScreen(
+                    onExit = { exits++ },
+                    motionAllowed = true,
+                    introAutoPlay = false
+                )
+            }
+        }
+        compose.onNodeWithText("Skip intro").performClick()
+        compose.waitForIdle()
+        compose.onNodeWithText("Your farm, organized").assertIsDisplayed()
+        compose.onNodeWithText("South Plot").assertExists()
+        compose.onNodeWithText("Replay example").performClick()
+        compose.waitForIdle()
+        compose.onNodeWithText("Owner & team members").assertExists()
+        compose.onNodeWithText("Next →").performClick()
+        compose.waitForIdle()
+        compose.onNodeWithText("Grow with a plan").assertIsDisplayed()
+        compose.onNodeWithText("Upcoming: crop activities").assertExists()
+        compose.onNodeWithText("Replay example").performClick()
+        compose.waitForIdle()
+        compose.onNodeWithText("Growing").assertExists()
+        compose.onNodeWithText("Next →").performClick()
+        compose.waitForIdle()
+        compose.onNodeWithText("Record work as you go").assertIsDisplayed()
+        compose.runOnIdle { assertEquals(0, exits) }
+    }
+
+    @Test
     fun captureAllFourActualComposePagesForVisualReview() {
         compose.setContent {
             SmartFarmTheme { AniGoOnboardingScreen(onExit = {}, motionAllowed = false) }
