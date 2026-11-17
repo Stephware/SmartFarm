@@ -69,7 +69,7 @@ fun AniGoCarabao(
             when (pose) {
                 AniGoCarabaoPose.PLANT -> drawSeedling(key)
                 AniGoCarabaoPose.RECORD -> drawClipboard(key)
-                AniGoCarabaoPose.HARVEST -> drawHarvestBasket()
+                AniGoCarabaoPose.HARVEST -> drawHarvestBasket(key)
                 else -> Unit
             }
             if (pose == AniGoCarabaoPose.WAVE || pose == AniGoCarabaoPose.CELEBRATE ||
@@ -332,21 +332,26 @@ private fun DrawScope.drawClipboard(frame: Int) {
     }
 }
 
-private fun DrawScope.drawHarvestBasket() {
-    shape(path {
-        moveTo(244f, 312f); quadraticTo(287f, 270f, 337f, 308f)
-        lineTo(327f, 360f); quadraticTo(285f, 376f, 254f, 355f); close()
-    }, Hat, 3f)
-    shape(path {
-        moveTo(252f, 299f); quadraticTo(278f, 269f, 298f, 299f)
-        quadraticTo(313f, 267f, 329f, 303f)
-        quadraticTo(350f, 274f, 346f, 311f); close()
-    }, Leaf, 3f)
-    drawOval(Color(0xFFFFC14A), Offset(268f, 279f), Size(25f, 43f))
-    drawOval(Color(0xFFFFC14A), Offset(300f, 281f), Size(24f, 38f))
-    drawCircle(Color(0xFFDE6D48), 15f, Offset(310f, 304f))
-    line(path { moveTo(252f, 319f); quadraticTo(293f, 332f, 333f, 319f) }, HatShade, 4f)
-    line(path { moveTo(264f, 338f); quadraticTo(292f, 348f, 321f, 337f) }, HatShade, 4f)
+private fun DrawScope.drawHarvestBasket(frame: Int) {
+    // The held basket moves just a few vector units, timed with harvest records;
+    // horns, hat, body and kerchief remain exactly the same in every pose.
+    val lift = if (frame == 2) -6f else if (frame == 1 || frame == 3) -3f else 0f
+    withTransform({ translate(0f, lift) }) {
+        shape(path {
+            moveTo(244f, 312f); quadraticTo(287f, 270f, 337f, 308f)
+            lineTo(327f, 360f); quadraticTo(285f, 376f, 254f, 355f); close()
+        }, Hat, 3f)
+        shape(path {
+            moveTo(252f, 299f); quadraticTo(278f, 269f, 298f, 299f)
+            quadraticTo(313f, 267f, 329f, 303f)
+            quadraticTo(350f, 274f, 346f, 311f); close()
+        }, Leaf, 3f)
+        drawOval(Color(0xFFFFC14A), Offset(268f, 279f), Size(25f, 43f))
+        drawOval(Color(0xFFFFC14A), Offset(300f, 281f), Size(24f, 38f))
+        drawCircle(Color(0xFFDE6D48), 15f, Offset(310f, 304f))
+        line(path { moveTo(252f, 319f); quadraticTo(293f, 332f, 333f, 319f) }, HatShade, 4f)
+        line(path { moveTo(264f, 338f); quadraticTo(292f, 348f, 321f, 337f) }, HatShade, 4f)
+    }
 }
 
 @Preview(showBackground = true)
