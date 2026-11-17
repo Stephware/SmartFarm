@@ -11,6 +11,7 @@ import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsNotEnabled
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithText
+import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollTo
 import androidx.compose.ui.test.DeviceConfigurationOverride
@@ -157,14 +158,16 @@ class CarabaoOnboardingPreviewTest {
         compose.waitForIdle()
         compose.onNodeWithText("Your farm, organized").assertIsDisplayed()
         compose.onNodeWithText("South Plot").assertExists()
-        compose.onNodeWithText("Replay example").performClick()
+        compose.onNodeWithContentDescription("Replay farm management example")
+            .performScrollTo().performClick()
         compose.waitForIdle()
         compose.onNodeWithText("Owner & team members").assertExists()
         compose.onNodeWithText("Next →").performClick()
         compose.waitForIdle()
         compose.onNodeWithText("Grow with a plan").assertIsDisplayed()
         compose.onNodeWithText("Upcoming: crop activities").assertExists()
-        compose.onNodeWithText("Replay example").performClick()
+        compose.onNodeWithContentDescription("Replay crop planning example")
+            .performScrollTo().performClick()
         compose.waitForIdle()
         compose.onNodeWithText("Growing").assertExists()
         compose.onNodeWithText("Next →").performClick()
