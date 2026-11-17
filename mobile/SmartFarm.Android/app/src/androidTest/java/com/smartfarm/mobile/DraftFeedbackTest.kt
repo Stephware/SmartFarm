@@ -3,6 +3,9 @@ package com.smartfarm.mobile
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.runtime.SideEffect
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
+import androidx.compose.ui.platform.LocalView
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.assertCountEquals
@@ -12,6 +15,7 @@ import androidx.compose.ui.test.performTextInput
 import androidx.compose.ui.test.assertTextContains
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsNotEnabled
+import androidx.compose.ui.test.assertIsEnabled
 import androidx.compose.runtime.mutableStateOf
 import androidx.activity.result.ActivityResultRegistry
 import androidx.activity.result.ActivityResultRegistryOwner
@@ -32,30 +36,50 @@ import com.smartfarm.mobile.features.monitoring.MonitoringUiState
 import com.smartfarm.mobile.ui.theme.SmartFarmTheme
 import org.junit.Rule
 import org.junit.Test
+import org.junit.Assert.assertEquals
 
 class DraftFeedbackTest {
     @get:Rule val compose = createComposeRule()
 
     @Test fun draftRemainsOnFailureAndClearsOnlyAfterLocalSave() {
         var hideKeyboard: () -> Unit = {}
+        var view: android.view.View? = null
         var saved: (() -> Unit)? = null
+        var calls = 0
         val state = mutableStateOf(MonitoringUiState(farmId = "farm", cycleId = "crop", canRecord = true))
         compose.setContent {
             val keyboard = LocalSoftwareKeyboardController.current
-            SideEffect { hideKeyboard = { keyboard?.hide() } }
+            val currentView = LocalView.current
+            SideEffect { hideKeyboard = { keyboard?.hide() }; view = currentView }
             SmartFarmTheme {
                 MonitoringScreen(state.value, onBack = {},
-                    onActivity = { _, _ -> saved = {
-                        state.value = state.value.copy(saveReceipts = mapOf("farm/crop/activity" to "saved"))
-                    } },
+                    onActivity = { kind, notes ->
+                        assertEquals(1, kind)
+                        assertEquals("Watered north field", notes)
+                        calls++
+                        if (calls == 1) state.value = state.value.copy(error = "Local save failed.")
+                        else saved = {
+                            state.value = state.value.copy(error = null,
+                                saveReceipts = mapOf("farm/crop/activity" to "saved"))
+                        }
+                    },
                     onObservation = { _, _, _, _ -> }, onUpload = { _, _ -> }, onPreview = {}, onThumbnail = { byteArrayOf() }, onDismissPreview = {})
             }
         }
         compose.onNodeWithText("Notes (optional)").performScrollTo().performTextInput("Watered north field")
         // Dismiss the IME through Compose, without Espresso's window-focus dependency.
         compose.runOnIdle { hideKeyboard() }
-        compose.onNodeWithText("Save activity").performScrollTo().assertIsDisplayed().performClick()
-        compose.onNodeWithText("Notes (optional)").assertTextContains("Watered north field")
+        // Native keyboard animation can move the lazy form after Compose is idle.
+        compose.waitUntil(5_000) {
+            view?.let { ViewCompat.getRootWindowInsets(it)?.isVisible(WindowInsetsCompat.Type.ime()) } == false
+        }
+        compose.onNodeWithText("Save activity").performScrollTo().assertIsDisplayed().assertIsEnabled().performClick()
+        compose.runOnIdle { assertEquals(1, calls) }
+        compose.onNodeWithText("Local save failed.").assertIsDisplayed()
+        compose.onNodeWithText("Notes (optional)").performScrollTo().assertTextContains("Watered north field")
+        compose.onNodeWithText("Save activity").performScrollTo().assertIsEnabled().performClick()
+        compose.runOnIdle { assertEquals(2, calls) }
+        compose.onNodeWithText("Notes (optional)").performScrollTo().assertTextContains("Watered north field")
         compose.runOnIdle {
             val acceptSave = requireNotNull(saved) {
                 "Save activity must call onActivity before a local receipt can clear the draft"
