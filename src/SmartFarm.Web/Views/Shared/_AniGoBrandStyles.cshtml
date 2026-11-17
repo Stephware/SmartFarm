@@ -17,10 +17,14 @@ html[data-color-mode="dark"] .anigo-logo-pair .anigo-logo-dark { display: block;
 }
 .anigo-guest-brand .anigo-logo-pair { width: 154px; }
 .anigo-mobile-brand .anigo-logo-pair { width: 116px; }
-.anigo-footer-brand img { width: 158px; max-width: 100%; }
+.anigo-footer-brand .anigo-logo-pair { width: 158px; }
 .anigo-footer-brand { line-height: 0; }
 .anigo-auth-brand { display: flex; align-items: center; margin: 0 0 20px; }
 .anigo-auth-brand .anigo-logo-pair { width: 166px; }
+@@media (max-width: 690px) {
+    /* Mobile already displays the AniGo header logo immediately above the auth form. */
+    .anigo-auth-brand { display: none; }
+}
 @@media (max-width: 400px) {
     .anigo-mobile-brand .anigo-logo-pair { width: 106px; }
     .anigo-guest-brand .anigo-logo-pair { width: 128px; }
