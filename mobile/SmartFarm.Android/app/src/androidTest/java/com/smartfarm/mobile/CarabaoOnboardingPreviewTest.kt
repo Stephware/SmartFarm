@@ -27,6 +27,7 @@ import com.smartfarm.mobile.ui.components.onboarding.anigoInitialRoute
 import com.smartfarm.mobile.features.auth.AccountScreen
 import com.smartfarm.mobile.features.auth.AuthUiState
 import com.smartfarm.mobile.ui.components.onboarding.AniGoOnboardingScreen
+import com.smartfarm.mobile.ui.components.onboarding.AniGoFarmIntro
 import com.smartfarm.mobile.ui.theme.SmartFarmTheme
 import org.junit.Assert.assertEquals
 import org.junit.Rule
@@ -335,20 +336,88 @@ class CarabaoOnboardingPreviewTest {
 
     @Test
     fun captureAllFourActualComposePagesForVisualReview() {
-        compose.setContent {
-            SmartFarmTheme { AniGoOnboardingScreen(onExit = {}, motionAllowed = false) }
+        withAppearance(dark = false) {
+            compose.setContent {
+                SmartFarmTheme { AniGoOnboardingScreen(onExit = {}, motionAllowed = false) }
+            }
+            captureAllGuidePages("light")
         }
-        saveScreenshot("01-farm")
+    }
+
+    @Test
+    fun captureDarkThemeOnboardingPagesForVisualReview() {
+        withAppearance(dark = true) {
+            compose.setContent {
+                SmartFarmTheme { AniGoOnboardingScreen(onExit = {}, motionAllowed = false) }
+            }
+            captureAllGuidePages("dark")
+        }
+    }
+
+    @Test
+    fun captureFinishedIntroWithActualComposeArtForVisualReview() {
+        withAppearance(dark = false) {
+            compose.setContent {
+                SmartFarmTheme {
+                    AniGoFarmIntro(
+                        onFinished = {},
+                        motionAllowed = true,
+                        autoPlay = false,
+                        previewProgress = .91f
+                    )
+                }
+            }
+            compose.waitForIdle()
+            compose.onNodeWithText("A better way to care for your farm.").assertIsDisplayed()
+            saveScreenshot("intro-light")
+        }
+    }
+
+    @Test
+    fun captureCompactLargeTextGuideForVisualReview() {
+        withAppearance(dark = false) {
+            compose.setContent {
+                DeviceConfigurationOverride(
+                    DeviceConfigurationOverride.ForcedSize(DpSize(320.dp, 720.dp))
+                ) {
+                    DeviceConfigurationOverride(DeviceConfigurationOverride.FontScale(1.6f)) {
+                        SmartFarmTheme {
+                            AniGoOnboardingScreen(onExit = {}, motionAllowed = false)
+                        }
+                    }
+                }
+            }
+            compose.onNodeWithText("Riverside Farm").performScrollTo()
+            saveScreenshot("farm-320dp-large-text")
+        }
+    }
+
+    private fun captureAllGuidePages(theme: String) {
+        compose.waitForIdle()
+        saveScreenshot("01-farm-$theme")
         repeat(3) { index ->
             compose.onNodeWithText("Next →").performClick()
             compose.waitForIdle()
-            saveScreenshot(
-                when (index) {
-                    0 -> "02-crop"
-                    1 -> "03-work"
-                    else -> "04-harvest"
-                }
-            )
+            val label = when (index) {
+                0 -> "02-crop"
+                1 -> "03-work"
+                else -> "04-harvest"
+            }
+            saveScreenshot("$label-$theme")
+        }
+    }
+
+    private fun withAppearance(dark: Boolean, action: () -> Unit) {
+        val context = InstrumentationRegistry.getInstrumentation().targetContext
+        val preferences = context.getSharedPreferences(
+            "appearance", android.content.Context.MODE_PRIVATE
+        )
+        val old = preferences.getBoolean("dark", false)
+        preferences.edit().putBoolean("dark", dark).commit()
+        try {
+            action()
+        } finally {
+            preferences.edit().putBoolean("dark", old).commit()
         }
     }
 
