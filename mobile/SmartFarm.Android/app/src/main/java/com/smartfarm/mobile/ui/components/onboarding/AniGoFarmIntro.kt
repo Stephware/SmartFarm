@@ -43,13 +43,15 @@ import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.compose.LocalLifecycleOwner
+import androidx.lifecycle.compose.currentStateAsState
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.smartfarm.mobile.R
 import com.smartfarm.mobile.ui.theme.LocalFarmAppearance
-import kotlinx.coroutines.delay
 import kotlin.math.PI
 import kotlin.math.sin
 
@@ -59,7 +61,6 @@ import kotlin.math.sin
  * Skip and the system Back key both reveal the existing four-page guide.
  * All scenery is local Canvas work; no video, network dependency or audio.
  */
-private const val INTRO_DURATION_MS = 2550
 private val Pine = Color(0xFF145239)
 private val Gold = Color(0xFFCBA14E)
 private val Cream = Color(0xFFFBF8F0)
@@ -89,21 +90,31 @@ fun AniGoFarmIntro(
 ) {
     val latestFinish by rememberUpdatedState(onFinished)
     val progress = remember { Animatable(0f) }
+    val lifecycleState by LocalLifecycleOwner.current.lifecycle.currentStateAsState()
+    val activityResumed = lifecycleState.isAtLeast(Lifecycle.State.RESUMED)
     val dark = LocalFarmAppearance.current.dark
     val ink = if (dark) Color(0xFFF2F4EC) else Color(0xFF103D2B)
     val bg = if (dark) Color(0xFF14251B) else Cream
 
-    LaunchedEffect(motionAllowed, autoPlay) {
+    LaunchedEffect(motionAllowed, autoPlay, activityResumed) {
         if (!motionAllowed) {
             latestFinish()
             return@LaunchedEffect
         }
-        if (!autoPlay) return@LaunchedEffect // Hold the first frame for deterministic UI review/tests.
-        // Deliberately bounded: finishes once, never restarts or loops on this route.
-        progress.animateTo(
-            targetValue = 1f,
-            animationSpec = tween(INTRO_DURATION_MS, easing = LinearEasing)
-        )
+        if (!autoPlay || !activityResumed) return@LaunchedEffect
+
+        // Never advance a partially completed intro while the activity is
+        // backgrounded. Return at the remaining duration, not from frame 1.
+        if (progress.value < 1f) {
+            progress.animateTo(
+                targetValue = 1f,
+                animationSpec = tween(
+                    durationMillis = (AniGoGuideMotion.IntroMillis *
+                        (1f - progress.value)).toInt().coerceAtLeast(1),
+                    easing = LinearEasing
+                )
+            )
+        }
         latestFinish()
     }
 
@@ -112,7 +123,7 @@ fun AniGoFarmIntro(
     val arrival = FastOutSlowInEasing.transform(walkLinear)
     val walking = walkLinear < 1f
     val pose = if (value > 0.74f) AniGoCarabaoPose.WAVE else AniGoCarabaoPose.GUIDE
-    val frame = ((value * INTRO_DURATION_MS / 145f).toInt()).coerceAtLeast(0) % 4
+    val frame = ((value * AniGoGuideMotion.IntroMillis / 145f).toInt()).coerceAtLeast(0) % 4
     val logoOpacity = ((value - 0.34f) / 0.24f).coerceIn(0f, 1f)
     val titleOpacity = ((value - 0.62f) / 0.22f).coerceIn(0f, 1f)
     val mascotBounce = if (walking) sin(value * 2f * PI.toFloat() * 12f) * 5f else 0f
@@ -125,7 +136,7 @@ fun AniGoFarmIntro(
             .background(bg)
             .windowInsetsPadding(WindowInsets.safeDrawing)
     ) {
-        val small = maxHeight < 620.dp
+        val small = maxHeight < 620.dp || maxWidth < 340.dp
         val characterSize = if (small) 190.dp else 250.dp
         val stepDistance = with(density) { (maxWidth * 0.85f).toPx() }
         val yBouncePx = with(density) { mascotBounce.dp.toPx() }
