@@ -32,7 +32,7 @@ class PhotoAuthScreensTest {
                 WelcomeScreen(onLogin = { login++ }, onRegister = { registration++ })
             }
         }
-        compose.onNodeWithText("Welcome to AniGo").assertExists()
+        compose.onNodeWithText("Your farm starts here.").assertExists()
         compose.onNodeWithContentDescription("AniGo").assertIsDisplayed()
         compose.onNodeWithText("Log in").performScrollTo().performClick()
         compose.onNodeWithText("Create account").performScrollTo().performClick()
@@ -97,7 +97,7 @@ class PhotoAuthScreensTest {
             SmartFarmTheme { ForgotPasswordScreen(onLogin = { back++ }) }
         }
         compose.onNodeWithText("Forgot your password?").assertExists()
-        compose.onNodeWithText("Email password reset is not available in this AniGo version.")
+        compose.onNodeWithText("Email password reset is not available yet.")
             .performScrollTo().assertIsDisplayed()
         compose.onNodeWithText("Send reset link").assertDoesNotExist()
         compose.onNodeWithText("Back to log in").performScrollTo().performClick()
