@@ -289,7 +289,7 @@ private fun GuidePageContent(
                 Spacer(Modifier.height(9.dp))
                 Text("Illustrative example · no farm records are created",
                     style = MaterialTheme.typography.labelSmall, color = secondary)
-                if (animatedDemo) {
+                if (animatedDemo && motionAllowed) {
                     TextButton(
                         onClick = { replayCount++ },
                         modifier = Modifier.align(Alignment.End).heightIn(min = 48.dp)
