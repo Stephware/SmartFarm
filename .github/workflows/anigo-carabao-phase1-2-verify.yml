@@ -65,17 +65,13 @@ jobs:
           ram-size: 3072M
           disable-animations: true
           working-directory: mobile/SmartFarm.Android
-          script: |
-            bash ./gradlew --no-daemon :app:connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.smartfarm.mobile.CarabaoOnboardingPreviewTest
-            RESULT=$?
-            mkdir -p app/build/ui-screenshots
-            echo 'Checking saved Compose screenshot locations'
-            adb shell ls -al /sdcard/Android/data/com.smartfarm.mobile/files/anigo-onboarding/ || true
-            adb shell ls -al /sdcard/Android/data/com.smartfarm.mobile.test/files/anigo-onboarding/ || true
-            adb pull /sdcard/Android/data/com.smartfarm.mobile/files/anigo-onboarding/. app/build/ui-screenshots/ || true
-            adb pull /sdcard/Android/data/com.smartfarm.mobile.test/files/anigo-onboarding/. app/build/ui-screenshots/ || true
-            find app/build/ui-screenshots -type f -maxdepth 2 -print
-            exit "$RESULT"
+          script: >-
+            bash -c 'bash ./gradlew --no-daemon :app:connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.smartfarm.mobile.CarabaoOnboardingPreviewTest;
+            result=$?;
+            mkdir -p app/build/ui-screenshots;
+            adb exec-out run-as com.smartfarm.mobile tar -cf - -C files anigo-onboarding | tar -xf - -C app/build/ui-screenshots/ || true;
+            find app/build/ui-screenshots -type f -print;
+            exit "$result"'
       - name: Save test results
         if: always()
         uses: actions/upload-artifact@v4
