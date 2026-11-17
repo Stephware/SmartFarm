@@ -263,33 +263,48 @@ private fun GuidePageContent(
     dark: Boolean,
     ink: Color,
     secondary: Color,
-    active: Boolean,
+    pageActive: Boolean,
+    activityResumed: Boolean,
     motionAllowed: Boolean
 ) {
     val details = copy[page]
-    // Every slide now teaches a staged sample workflow. No state is persisted,
-    // and the samples never touch the API, Room or actual farm inventory.
-    val animatedDemo = page in 0 until PageCount
     var replayCount by remember(page) { mutableIntStateOf(0) }
-    val progress = remember(page) { Animatable(if (!motionAllowed) 1f else 0f) }
-    LaunchedEffect(active, motionAllowed, replayCount) {
-        if (!animatedDemo) return@LaunchedEffect
-        if (!active) {
-            progress.snapTo(if (motionAllowed) 0f else 1f)
-        } else if (!motionAllowed) {
-            progress.snapTo(1f)
-        } else {
-            progress.snapTo(0f)
-            progress.animateTo(
-                targetValue = 1f,
-                animationSpec = tween(durationMillis = if (page >= 2) 2200 else 1900,
-                    easing = FastOutSlowInEasing)
-            )
+    var lastHandledReplay by remember(page) { mutableIntStateOf(0) }
+    val progress = remember(page) { Animatable(if (motionAllowed) 0f else 1f) }
+
+    // Cancel when off-page, pause/resume with activity lifecycle, and run once
+    // per visit. Explicit Replay resets only this page to its first frame.
+    LaunchedEffect(pageActive, activityResumed, motionAllowed, replayCount) {
+        when {
+            !pageActive -> progress.snapTo(if (motionAllowed) 0f else 1f)
+            !motionAllowed -> progress.snapTo(1f)
+            !activityResumed -> Unit
+            else -> {
+                if (replayCount != lastHandledReplay) {
+                    lastHandledReplay = replayCount
+                    progress.snapTo(0f)
+                }
+                if (progress.value < 1f) {
+                    progress.animateTo(
+                        1f,
+                        animationSpec = tween(
+                            durationMillis = (AniGoGuideMotion.DemoMillis *
+                                (1f - progress.value)).toInt().coerceAtLeast(1),
+                            easing = LinearEasing
+                        )
+                    )
+                }
+            }
         }
     }
-    val exampleProgress = if (animatedDemo) progress.value else 1f
-    val gestureFrame = if (animatedDemo && active && motionAllowed)
-        (exampleProgress * 12f).toInt() % 4 else 0
+
+    val exampleProgress = progress.value
+    val gesture = if (pageActive && activityResumed && motionAllowed)
+        AniGoGuideMotion.gesture(page, exampleProgress)
+        else AniGoGuideMotion.MascotGesture()
+    val density = LocalDensity.current
+    val gestureLiftPx = with(density) { gesture.liftDp.dp.toPx() }
+    val needsStack = density.fontScale >= 1.45f
     Column(
         Modifier.fillMaxSize().verticalScroll(rememberScrollState())
             .padding(horizontal = 20.dp, vertical = 14.dp),
@@ -301,36 +316,62 @@ private fun GuidePageContent(
         Text(details.description, color = secondary, textAlign = TextAlign.Center,
             style = MaterialTheme.typography.bodyLarge)
         Spacer(Modifier.height(20.dp))
-        Box(
-            Modifier.fillMaxWidth().height(280.dp).clip(RoundedCornerShape(24.dp)).background(
-                Brush.verticalGradient(if (dark)
-                    listOf(Color(0xFF20392C), Color(0xFF375340))
-                    else listOf(Color(0xFFEFF7EC), Color(0xFFFFF2D7)))
+        // The normal composition is photo/mascot left and sample card right.
+        // At 320dp or large system text, stack them to avoid clipped cards.
+        BoxWithConstraints(Modifier.fillMaxWidth()) {
+            val compact = needsStack || maxWidth < 295.dp
+            val backdrop = Brush.verticalGradient(
+                if (dark) listOf(Color(0xFF20392C), Color(0xFF375340))
+                else listOf(Color(0xFFEFF7EC), Color(0xFFFFF2D7))
             )
-        ) {
-            FieldBackdrop(dark, Modifier.fillMaxSize())
-            AniGoCarabao(
-                details.pose,
-                frame = gestureFrame,
-                modifier = Modifier.align(Alignment.BottomStart)
-                    .padding(start = 1.dp, bottom = 4.dp).size(203.dp)
-                    .graphicsLayer {
-                        // Subtle, one-shot response synchronized to the demo.
-                        if (animatedDemo && active && motionAllowed) {
-                            translationY = (1f - exampleProgress) * 12f
-                            rotationZ = (1f - exampleProgress) * -2f
-                        }
+            if (compact) {
+                Column(
+                    Modifier.fillMaxWidth().clip(RoundedCornerShape(24.dp))
+                        .background(backdrop)
+                ) {
+                    Box(Modifier.fillMaxWidth().height(200.dp)) {
+                        FieldBackdrop(dark, Modifier.fillMaxSize())
+                        AniGoCarabao(
+                            pose = details.pose,
+                            frame = gesture.frame,
+                            modifier = Modifier.align(Alignment.BottomCenter)
+                                .size(190.dp)
+                                .graphicsLayer {
+                                    translationY = gestureLiftPx
+                                    rotationZ = gesture.tiltDegrees
+                                }
+                        )
                     }
-            )
-            Box(
-                modifier = Modifier.align(Alignment.CenterEnd).padding(end = 10.dp, bottom = 10.dp)
-                    .width(151.dp)
-            ) {
-                when (page) {
-                    0 -> AniGoFarmManagementDemo(progress = exampleProgress)
-                    1 -> AniGoCropPlanningDemo(progress = exampleProgress)
-                    2 -> AniGoFieldworkDemo(progress = exampleProgress)
-                    else -> AniGoHarvestDemo(progress = exampleProgress)
+                    Box(Modifier.fillMaxWidth().padding(12.dp)) {
+                        AniGoGuideExample(page, exampleProgress)
+                    }
+                }
+            } else {
+                val characterSize = (maxWidth * 0.52f).coerceAtMost(203.dp)
+                val cardWidth = (maxWidth * 0.48f).coerceIn(136.dp, 168.dp)
+                Box(
+                    Modifier.fillMaxWidth().height(288.dp)
+                        .clip(RoundedCornerShape(24.dp)).background(backdrop)
+                ) {
+                    FieldBackdrop(dark, Modifier.fillMaxSize())
+                    AniGoCarabao(
+                        pose = details.pose,
+                        frame = gesture.frame,
+                        modifier = Modifier.align(Alignment.BottomStart)
+                            .padding(start = 1.dp, bottom = 4.dp)
+                            .size(characterSize)
+                            .graphicsLayer {
+                                translationY = gestureLiftPx
+                                rotationZ = gesture.tiltDegrees
+                            }
+                    )
+                    Box(
+                        Modifier.align(Alignment.CenterEnd)
+                            .padding(end = 10.dp, bottom = 10.dp)
+                            .width(cardWidth)
+                    ) {
+                        AniGoGuideExample(page, exampleProgress)
+                    }
                 }
             }
         }
@@ -347,7 +388,7 @@ private fun GuidePageContent(
                 Spacer(Modifier.height(9.dp))
                 Text("Illustrative example · no farm records are created",
                     style = MaterialTheme.typography.labelSmall, color = secondary)
-                if (animatedDemo && motionAllowed) {
+                if (pageActive && motionAllowed) {
                     TextButton(
                         onClick = { replayCount++ },
                         modifier = Modifier.align(Alignment.End)
@@ -372,24 +413,12 @@ private fun GuidePageContent(
 }
 
 @Composable
-private fun DemoCard(title: String, subtitle: String, values: List<String>) {
-    Surface(
-        color = Color(0xFFFFFEFC), shadowElevation = 5.dp,
-        shape = RoundedCornerShape(16.dp),
-        modifier = Modifier.fillMaxWidth().border(1.dp, Color(0xFFDFE4D9), RoundedCornerShape(16.dp))
-    ) {
-        Column(Modifier.padding(12.dp), verticalArrangement = Arrangement.spacedBy(9.dp)) {
-            Text("EXAMPLE", color = Color(0xFF8F6827),
-                style = MaterialTheme.typography.labelSmall, fontWeight = FontWeight.Bold)
-            Text(title, color = Ink, fontWeight = FontWeight.Bold,
-                style = MaterialTheme.typography.titleSmall)
-            Text(subtitle, color = Muted, style = MaterialTheme.typography.labelSmall)
-            values.forEach { value ->
-                Text(value, color = if (value.startsWith("✓")) Pine else Ink,
-                    style = MaterialTheme.typography.labelSmall,
-                    fontWeight = FontWeight.Medium)
-            }
-        }
+private fun AniGoGuideExample(page: Int, progress: Float) {
+    when (page) {
+        0 -> AniGoFarmManagementDemo(progress)
+        1 -> AniGoCropPlanningDemo(progress)
+        2 -> AniGoFieldworkDemo(progress)
+        else -> AniGoHarvestDemo(progress)
     }
 }
 
