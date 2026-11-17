@@ -35,7 +35,6 @@ else {
         ...(process.env.ANIGO_BROWSER_CHANNEL ? { channel: process.env.ANIGO_BROWSER_CHANNEL } : {}) });
     const findings = [];
     let captured = 0;
-    let pixelIdentical = 0;
     try {
         for (const mode of ["light", "dark"]) {
             const context = await browser.newContext({ reducedMotion: "reduce", deviceScaleFactor: 1,
@@ -99,7 +98,6 @@ else {
                         actual.width, actual.height, { threshold: 0.15, includeAA: false });
                     const ratio = changed / (actual.width * actual.height);
                     if (changed) fs.writeFileSync(path.join(output, key + "-diff.png"), PNG.sync.write(difference));
-                    if (changed === 0) pixelIdentical++;
                     console.log("BASELINE", key, (ratio * 100).toFixed(3) + "% changed");
                     // Allow rasterizer differences; composition/content changes remain failures.
                     if (ratio > 0.015) findings.push(key + ": " + (ratio * 100).toFixed(3) + "% changed");
@@ -117,24 +115,8 @@ else {
         } else {
             assert.deepEqual(findings, [], "Reviewed visual baseline regressions: " + findings.join("; "));
             const reviewed = JSON.parse(fs.readFileSync(path.join(directory, "review.json")));
-            const changedInputs = inputs.filter(file => reviewed.sourceHashes[file] !== hashes[file]);
-            if (changedInputs.length > 0) {
-                // Single, audited Phase 2 exception: the signed-in mobile header
-                // changed, but the 30 already-reviewed PUBLIC screens remain
-                // exactly pixel-identical. A different layout hash, any additional
-                // changed input, or a single changed public pixel still fails.
-                assert.deepEqual(changedInputs, ["Views/Shared/_Layout.cshtml"],
-                    "Unreviewed public source changes require new visual approval.");
-                assert.equal(hashes["Views/Shared/_Layout.cshtml"],
-                    "0f6196e93de5aa41b9ca4c5257d2f68d7f17dc9f8c335a3cd6911f61e2e1ca86",
-                    "Only the exact reviewed Phase 2 signed-in header revision is allowed.");
-                assert.equal(pixelIdentical, 30,
-                    "Source-only exception requires all 30 public images pixel-identical.");
-                console.log("PASS Phase 2 authenticated-header-only change: 30/30 public baselines pixel-identical");
-            } else {
-                assert.deepEqual(reviewed.sourceHashes, hashes,
-                    "Unreviewed public presentation change.");
-            }
+            assert.deepEqual(reviewed.sourceHashes, hashes,
+                "Public source hash changed; compare the screenshots and update reviewed provenance without bypassing the guard.");
             console.log("PASS 30 reviewed light/dark visual baselines");
         }
     } finally { await browser.close(); }
