@@ -22,6 +22,10 @@ import androidx.compose.ui.test.ForcedSize
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import com.smartfarm.mobile.ui.components.WelcomeScreen
+import com.smartfarm.mobile.ui.components.onboarding.AniGoOnboardingStore
+import com.smartfarm.mobile.ui.components.onboarding.anigoInitialRoute
+import com.smartfarm.mobile.features.auth.AccountScreen
+import com.smartfarm.mobile.features.auth.AuthUiState
 import com.smartfarm.mobile.ui.components.onboarding.AniGoOnboardingScreen
 import com.smartfarm.mobile.ui.theme.SmartFarmTheme
 import org.junit.Assert.assertEquals
@@ -31,6 +35,50 @@ import org.junit.Test
 @OptIn(ExperimentalTestApi::class)
 class CarabaoOnboardingPreviewTest {
     @get:Rule val compose = createComposeRule()
+
+    @Test
+    fun firstRunFlagPersistsAcrossStoreInstancesWithoutAccountOrNetwork() {
+        val context = InstrumentationRegistry.getInstrumentation().targetContext
+        val testPrefs = "anigo_onboarding_instrumentation"
+        val preferences = context.getSharedPreferences(testPrefs, android.content.Context.MODE_PRIVATE)
+        preferences.edit().clear().commit()
+        try {
+            val fresh = AniGoOnboardingStore.create(context, testPrefs)
+            org.junit.Assert.assertFalse(fresh.isCompleted())
+            assertEquals("onboarding", anigoInitialRoute(fresh.isCompleted()))
+            org.junit.Assert.assertTrue(fresh.markCompleted())
+
+            val restarted = AniGoOnboardingStore.create(context, testPrefs)
+            org.junit.Assert.assertTrue(restarted.isCompleted())
+            assertEquals("welcome", anigoInitialRoute(restarted.isCompleted()))
+            // Replaying or signing out does not reset the one-time completion.
+            org.junit.Assert.assertTrue(restarted.isCompleted())
+        } finally {
+            preferences.edit().clear().commit()
+        }
+    }
+
+    @Test
+    fun myAccountCanReplayGuideWithoutLoggingOutOrMutatingCompletion() {
+        var replays = 0
+        var logouts = 0
+        compose.setContent {
+            SmartFarmTheme {
+                AccountScreen(
+                    state = AuthUiState(),
+                    onLogout = { logouts++ },
+                    onFarms = {},
+                    onSync = {},
+                    onReplayGuide = { replays++ }
+                )
+            }
+        }
+        compose.onNodeWithText("Replay AniGo guide").performScrollTo().performClick()
+        compose.runOnIdle {
+            assertEquals(1, replays)
+            assertEquals(0, logouts)
+        }
+    }
 
     @Test
     fun previewIsOptInAndDoesNotChangeExistingAuthenticationChoices() {
