@@ -208,9 +208,9 @@ private fun GuidePageContent(
     motionAllowed: Boolean
 ) {
     val details = copy[page]
-    // Only the first two slides animate in Phase 4. Progress is local sample
-    // presentation state and never changes backend, Room or user preferences.
-    val animatedDemo = page == 0 || page == 1
+    // Every slide now teaches a staged sample workflow. No state is persisted,
+    // and the samples never touch the API, Room or actual farm inventory.
+    val animatedDemo = page in 0 until PageCount
     var replayCount by remember(page) { mutableIntStateOf(0) }
     val progress = remember(page) { Animatable(if (!motionAllowed) 1f else 0f) }
     LaunchedEffect(active, motionAllowed, replayCount) {
@@ -223,7 +223,8 @@ private fun GuidePageContent(
             progress.snapTo(0f)
             progress.animateTo(
                 targetValue = 1f,
-                animationSpec = tween(durationMillis = 1900, easing = FastOutSlowInEasing)
+                animationSpec = tween(durationMillis = if (page >= 2) 2200 else 1900,
+                    easing = FastOutSlowInEasing)
             )
         }
     }
@@ -269,10 +270,8 @@ private fun GuidePageContent(
                 when (page) {
                     0 -> AniGoFarmManagementDemo(progress = exampleProgress)
                     1 -> AniGoCropPlanningDemo(progress = exampleProgress)
-                    2 -> DemoCard("Today's work", "Sample fieldwork",
-                        listOf("✓ Water crops", "✓ Inspect leaves", "○ Take a photo"))
-                    else -> DemoCard("Harvest records", "Sample crop history",
-                        listOf("85 kg harvested", "✓ Batch 1 · 50 kg", "✓ Batch 2 · 35 kg"))
+                    2 -> AniGoFieldworkDemo(progress = exampleProgress)
+                    else -> AniGoHarvestDemo(progress = exampleProgress)
                 }
             }
         }
@@ -295,9 +294,12 @@ private fun GuidePageContent(
                         modifier = Modifier.align(Alignment.End)
                             .heightIn(min = 48.dp)
                             .semantics {
-                                contentDescription = if (page == 0)
-                                    "Replay farm management example"
-                                else "Replay crop planning example"
+                                contentDescription = when (page) {
+                                    0 -> "Replay farm management example"
+                                    1 -> "Replay crop planning example"
+                                    2 -> "Replay fieldwork example"
+                                    else -> "Replay harvest example"
+                                }
                             }
                     ) {
                         Text("Replay example", color = ink,
