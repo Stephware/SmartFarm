@@ -1,5 +1,12 @@
 package com.smartfarm.mobile
 
+import android.graphics.Bitmap
+import androidx.compose.ui.graphics.asAndroidBitmap
+import androidx.compose.ui.test.captureToImage
+import androidx.compose.ui.test.onRoot
+import androidx.test.platform.app.InstrumentationRegistry
+import java.io.File
+import java.io.FileOutputStream
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsNotEnabled
 import androidx.compose.ui.test.junit4.createComposeRule
@@ -86,5 +93,34 @@ class CarabaoOnboardingPreviewTest {
         }
         compose.onNodeWithText("Skip").assertIsDisplayed().performClick()
         compose.runOnIdle { assertEquals(1, exits) }
+    }
+
+    @Test
+    fun captureAllFourActualComposePagesForVisualReview() {
+        compose.setContent {
+            SmartFarmTheme { AniGoOnboardingScreen(onExit = {}) }
+        }
+        saveScreenshot("01-farm")
+        repeat(3) { index ->
+            compose.onNodeWithText("Next →").performClick()
+            compose.waitForIdle()
+            saveScreenshot(
+                when (index) {
+                    0 -> "02-crop"
+                    1 -> "03-work"
+                    else -> "04-harvest"
+                }
+            )
+        }
+    }
+
+    private fun saveScreenshot(filename: String) {
+        val context = InstrumentationRegistry.getInstrumentation().targetContext
+        val directory = File(context.getExternalFilesDir(null), "anigo-onboarding")
+        directory.mkdirs()
+        FileOutputStream(File(directory, filename + ".png")).use { out ->
+            compose.onRoot().captureToImage().asAndroidBitmap()
+                .compress(Bitmap.CompressFormat.PNG, 100, out)
+        }
     }
 }
