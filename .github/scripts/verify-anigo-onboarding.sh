@@ -9,7 +9,7 @@ bash ./gradlew --no-daemon :app:connectedDebugAndroidTest \
 test_exit=$?
 
 mkdir -p app/build/ui-screenshots
-adb shell run-as com.smartfarm.mobile ls -l files/anigo-onboarding || true
+adb shell ls -l /sdcard/Pictures/AniGoOnboardingAudit || true
 missing=0
 for name in \
   01-farm-light 02-crop-light 03-work-light 04-harvest-light \
@@ -17,8 +17,8 @@ for name in \
   intro-light farm-320dp-large-text
 do
   destination="app/build/ui-screenshots/${name}.png"
-  if ! adb exec-out run-as com.smartfarm.mobile \
-    cat "files/anigo-onboarding/${name}.png" > "$destination"
+  if ! adb pull \
+    "/sdcard/Pictures/AniGoOnboardingAudit/${name}.png" "$destination"
   then
     echo "::error::Cannot export screenshot: ${name}"
     missing=1
