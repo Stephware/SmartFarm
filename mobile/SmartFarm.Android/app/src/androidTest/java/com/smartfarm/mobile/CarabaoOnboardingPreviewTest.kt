@@ -177,6 +177,69 @@ class CarabaoOnboardingPreviewTest {
     }
 
     @Test
+    fun fieldworkAndHarvestExamplesShowAccurateFinalStatesWithoutMotion() {
+        compose.setContent {
+            SmartFarmTheme { AniGoOnboardingScreen(onExit = {}, motionAllowed = false) }
+        }
+        repeat(2) {
+            compose.onNodeWithText("Next →").performClick()
+            compose.waitForIdle()
+        }
+        compose.onNodeWithText("Record work as you go").assertIsDisplayed()
+        compose.onNodeWithText("Watering").assertExists()
+        compose.onNodeWithText("Leaf inspection").assertExists()
+        compose.onNodeWithText("Photo").assertExists()
+        compose.onNodeWithText("Saved on device").assertExists()
+        compose.onNodeWithText("Pending sync").assertExists()
+        compose.onNodeWithContentDescription("Replay fieldwork example").assertDoesNotExist()
+        compose.onNodeWithText("Next →").performClick()
+        compose.waitForIdle()
+        compose.onNodeWithText("From field to harvest").assertIsDisplayed()
+        compose.onNodeWithText("Batch 1 · 50 kg").assertExists()
+        compose.onNodeWithText("Batch 2 · 35 kg").assertExists()
+        compose.onNodeWithText("85 kg").assertExists()
+        compose.onNodeWithText("View farm supplies separately").assertExists()
+        compose.onNodeWithContentDescription("Replay harvest example").assertDoesNotExist()
+    }
+
+    @Test
+    fun fieldworkAndHarvestExamplesReplayWithoutChangingNavigationOrRecords() {
+        var exitCount = 0
+        compose.setContent {
+            SmartFarmTheme {
+                AniGoOnboardingScreen(
+                    onExit = { exitCount++ },
+                    motionAllowed = true,
+                    introAutoPlay = false
+                )
+            }
+        }
+        compose.onNodeWithText("Skip intro").performClick()
+        compose.waitForIdle()
+        repeat(2) {
+            compose.onNodeWithText("Next →").performClick()
+            compose.waitForIdle()
+        }
+        compose.onNodeWithText("Record work as you go").assertIsDisplayed()
+        compose.onNodeWithText("Pending sync").assertExists()
+        compose.onNodeWithContentDescription("Replay fieldwork example")
+            .performScrollTo().performClick()
+        compose.waitForIdle()
+        compose.onNodeWithText("Saved on device").assertExists()
+
+        compose.onNodeWithText("Next →").performClick()
+        compose.waitForIdle()
+        compose.onNodeWithText("From field to harvest").assertIsDisplayed()
+        compose.onNodeWithText("85 kg").assertExists()
+        compose.onNodeWithContentDescription("Replay harvest example")
+            .performScrollTo().performClick()
+        compose.waitForIdle()
+        compose.onNodeWithText("Batch 2 · 35 kg").assertExists()
+        compose.onNodeWithText("Continue to AniGo").assertIsDisplayed()
+        compose.runOnIdle { assertEquals(0, exitCount) }
+    }
+
+    @Test
     fun captureAllFourActualComposePagesForVisualReview() {
         compose.setContent {
             SmartFarmTheme { AniGoOnboardingScreen(onExit = {}, motionAllowed = false) }
