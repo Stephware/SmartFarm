@@ -305,8 +305,13 @@ private fun GuidePageContent(
     val density = LocalDensity.current
     val gestureLiftPx = with(density) { gesture.liftDp.dp.toPx() }
     val needsStack = density.fontScale >= 1.45f
+    val pageScroll = rememberScrollState()
+    // A returning user should see this slide's heading, not a scrolled-down card.
+    LaunchedEffect(pageActive) {
+        if (pageActive) pageScroll.scrollTo(0)
+    }
     Column(
-        Modifier.fillMaxSize().verticalScroll(rememberScrollState())
+        Modifier.fillMaxSize().verticalScroll(pageScroll)
             .padding(horizontal = 20.dp, vertical = 14.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
