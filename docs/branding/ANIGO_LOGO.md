@@ -12,7 +12,7 @@ This is the approved AniGo logo treatment for the MVC web frontend, Super Admin,
 - `src/SmartFarm.Web/wwwroot/images/branding/anigo-logo.svg` – canonical horizontal SVG for light surfaces.
 - `src/SmartFarm.Web/wwwroot/images/branding/anigo-logo-on-dark.svg` – same geometry with cream instead of green for dark surfaces.
 - `src/SmartFarm.Web/wwwroot/images/branding/anigo-mark.svg` – icon-only A; usable as a favicon.
-- `src/SmartFarm.Web/wwwroot/css/anigo-branding.css` – web sizing and dark-mode switching.
+- `src/SmartFarm.Web/Views/Shared/_AniGoBrandStyles.cshtml` – shared web sizing and dark-mode switching, inlined without another stylesheet request.
 - `mobile/SmartFarm.Android/app/src/main/res/drawable/ani_go_logo*.xml` – Android shared-header full wordmark.
 - `mobile/SmartFarm.Android/app/src/main/res/drawable/ani_go_mark.xml` – Android compact header mark.
 - `mobile/SmartFarm.Android/app/src/main/res/mipmap-anydpi-v26/ic_launcher.xml` – Android adaptive app icon using the A mark.
