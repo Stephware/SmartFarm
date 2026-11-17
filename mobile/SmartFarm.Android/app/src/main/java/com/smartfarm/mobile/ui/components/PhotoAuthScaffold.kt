@@ -1,6 +1,5 @@
 package com.smartfarm.mobile.ui.components
 
-import android.app.Activity
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -40,18 +39,16 @@ import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.core.view.WindowCompat
 import com.smartfarm.mobile.R
 import com.smartfarm.mobile.ui.theme.AniGoPalette
 import com.smartfarm.mobile.ui.theme.LocalFarmAppearance
+import com.smartfarm.mobile.ui.theme.LocalPhotoAuthBars
 
 /**
  * Shared Option 1 photo-led authentication surface. Uses AniGo's existing, licensed farm
@@ -68,23 +65,11 @@ fun PhotoAuthScaffold(
     compactHero: Boolean = false,
     content: @Composable ColumnScope.() -> Unit
 ) {
-    val view = LocalView.current
-    val activity = LocalContext.current as? Activity
+    val photoBars = LocalPhotoAuthBars.current
     // Full-bleed image is dark underneath the system bars, in both app themes.
-    DisposableEffect(activity, view) {
-        if (activity != null) {
-            val bars = WindowCompat.getInsetsController(activity.window, view)
-            val oldStatus = bars.isAppearanceLightStatusBars
-            val oldNavigation = bars.isAppearanceLightNavigationBars
-            bars.isAppearanceLightStatusBars = false
-            bars.isAppearanceLightNavigationBars = false
-            onDispose {
-                bars.isAppearanceLightStatusBars = oldStatus
-                bars.isAppearanceLightNavigationBars = oldNavigation
-            }
-        } else {
-            onDispose { }
-        }
+    DisposableEffect(photoBars) {
+        photoBars(true)
+        onDispose { photoBars(false) }
     }
 
     val ink = MaterialTheme.colorScheme.onSurface

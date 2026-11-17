@@ -19,6 +19,7 @@ import com.smartfarm.mobile.ui.theme.SmartFarmTheme
 import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
+import org.junit.Assert.assertTrue
 import org.junit.Rule
 import org.junit.Test
 
@@ -45,11 +46,21 @@ class Phase6WelcomeScreenTest {
                 }
             }
         }
-        for (text in listOf("ONE CONNECTED WORKSPACE", "Welcome to AniGo",
-            "Plan crops, record fieldwork, and track harvests in one place.")) {
+        for (text in listOf("YOUR FARM, ORGANIZED", "Welcome to AniGo",
+            "Plan crops, record fieldwork and track harvests in one place.",
+            "Get started", "Manage your own farm or join an existing team with one account.")) {
             val layouts = mutableListOf<TextLayoutResult>()
             compose.onNodeWithText(text).performSemanticsAction(SemanticsActions.GetTextLayoutResult) { it(layouts) }
-            assertFalse("Welcome hero must show its complete text: $text", layouts.single().hasVisualOverflow)
+            val layout = layouts.single()
+            assertFalse("Welcome must show every line: $text", layout.didOverflowHeight)
+            assertEquals("Welcome must show the complete copy: $text", text.length,
+                layout.getLineEnd(layout.lineCount - 1, visibleEnd = true))
+            // A short label's paragraph can retain the wider measurement constraint.
+            // Check the rendered lines against the actual text box, not paragraph width.
+            for (line in 0 until layout.lineCount) {
+                assertTrue("Welcome text must fit horizontally: $text (line $line)",
+                    layout.getLineLeft(line) >= 0f && layout.getLineRight(line) <= layout.size.width)
+            }
         }
         compose.onNodeWithText("Log in").performScrollTo().performClick()
         compose.onNodeWithText("Create account").performScrollTo().performClick()
