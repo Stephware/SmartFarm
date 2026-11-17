@@ -33,6 +33,10 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -54,7 +58,7 @@ import com.smartfarm.mobile.ui.theme.SmartFarmTheme
 import kotlinx.coroutines.launch
 
 /**
- * Phase 2 static preview. Phase 3 adds intro/pose animation; Phase 7 handles
+ * Phase 3 adds a one-shot, skippable carabao walking introduction; Phase 7 handles
  * completion persistence. No network calls, account changes, or farm writes.
  */
 private const val PageCount = 4
@@ -89,6 +93,17 @@ private val copy = listOf(
 
 @Composable
 fun AniGoOnboardingScreen(onExit: () -> Unit, modifier: Modifier = Modifier) {
+    // Launch only when the user chooses the optional guide. The intro is not a
+    // fifth learning page; completed/skipped intro state survives rotation.
+    var showIntro by rememberSaveable { mutableStateOf(true) }
+    if (showIntro) {
+        AniGoFarmIntro(
+            onFinished = { showIntro = false },
+            modifier = modifier
+        )
+        return
+    }
+
     val pager = rememberPagerState(pageCount = { PageCount })
     val scope = rememberCoroutineScope()
     val dark = LocalFarmAppearance.current.dark
