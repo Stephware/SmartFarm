@@ -33,6 +33,7 @@ import com.smartfarm.mobile.features.auth.AccountScreen
 import com.smartfarm.mobile.features.auth.AuthViewModel
 import com.smartfarm.mobile.features.status.StatusViewModel
 import com.smartfarm.mobile.features.auth.LoginScreen
+import com.smartfarm.mobile.features.auth.ForgotPasswordScreen
 import com.smartfarm.mobile.features.auth.RegisterScreen
 import com.smartfarm.mobile.ui.components.WelcomeScreen
 import com.smartfarm.mobile.features.farms.FarmViewModel
@@ -232,7 +233,15 @@ fun SmartFarmNavHost(auth: AuthViewModel, farms: FarmViewModel, crops: CropViewM
                         navController.navigate("farms") { popUpTo("welcome") }
                     }
                 },
-                onRegister = { navController.navigate("register") })
+                onRegister = { navController.navigate("register") },
+                onForgotPassword = { navController.navigate("forgot-password") })
+        }
+        composable("forgot-password") {
+            ForgotPasswordScreen(onLogin = {
+                if (!navController.popBackStack("login", inclusive = false)) {
+                    navController.navigate("login") { launchSingleTop = true }
+                }
+            })
         }
         composable("register") {
             RegisterScreen(state,
