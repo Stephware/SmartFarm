@@ -114,7 +114,13 @@ class FullAppJourneyTest {
         }
         server.start(5081)
         try {
+            compose.skipFirstRunGuideIfShown()
             compose.onNodeWithText("Your farm starts here.").assertExists()
+            compose.onNodeWithText("Explore AniGo with our farm guide").performScrollTo().performClick()
+            compose.skipFirstRunGuideIfShown()
+            compose.onNodeWithText("Your farm starts here.").assertIsDisplayed()
+            assertTrue(com.smartfarm.mobile.ui.components.onboarding.AniGoOnboardingStore
+                .create(compose.activity).isCompleted())
             compose.onNode(hasText("Log in") and hasClickAction()).performClick()
             compose.onNodeWithText("Email address").performTextInput("farmer@example.test")
             compose.onNodeWithText("Password").performTextInput("Password2026")
@@ -307,6 +313,9 @@ class FullAppJourneyTest {
             compose.onNodeWithText("My Farm").performClick()
             compose.onNodeWithTag("record-list").performScrollToNode(hasText("My account"))
             compose.onNodeWithText("My account").performClick()
+            compose.onNodeWithText("Replay AniGo guide").performScrollTo().performClick()
+            compose.skipFirstRunGuideIfShown()
+            compose.onNodeWithTag("request-sign-out").assertExists()
             compose.onNodeWithTag("request-sign-out").performScrollTo().performClick()
             compose.onNodeWithText("Sign out of your account?").assertExists()
             compose.onNodeWithText("Keep working").performClick()
@@ -316,6 +325,11 @@ class FullAppJourneyTest {
                 compose.onAllNodesWithText("Your farm starts here.").fetchSemanticsNodes().isNotEmpty()
             }
             assertTrue("Server should receive task completion", completed.get())
+            compose.activityRule.scenario.recreate()
+            compose.waitUntil(10_000) {
+                compose.onAllNodesWithText("Your farm starts here.").fetchSemanticsNodes().isNotEmpty()
+            }
+            compose.onNodeWithText("Skip").assertDoesNotExist()
         } finally {
             runBlocking { dao.watch(journeyUserId).first().filter { it.operationId !in priorIds }
                 .forEach { dao.remove(it.operationId, journeyUserId) } }

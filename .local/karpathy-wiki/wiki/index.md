@@ -22,7 +22,7 @@ Architecture, behavior, conventions, decisions and dated implementation evidence
 | [Architecture](project/architecture.md) | Independent hosts, service boundaries, live farm access and private media | 2026-11-12 |
 | [Features](project/features.md) | Implemented modules, roles and critical business rules | 2026-11-14 |
 | [Database](project/database.md) | SQL-first base/finance split, issue upgrades, concurrency and migration boundaries | 2026-11-12 |
-| [Android and offline sync](project/android.md) | Room/cache, scoped confirmations/refresh, receipts, sessions and offline limits | 2026-11-14 |
+| [Android and offline sync](project/android.md) | Room/cache, scoped confirmations/refresh, receipts, sessions and offline limits | 2026-11-18 |
 | [Tasks, weather, and automation](project/automation.md) | Enabled Worker defaults, task/stock/weather jobs, stored forecasts and notifications | 2026-11-12 |
 | [Dependencies and development](project/development.md) | Build pins, local hosts, checks, real CI scope and test isolation | 2026-11-16 |
 | [Development decisions](project/decisions.md) | Implemented constraints, inferred consequences and integrated agent workflow | 2026-11-12 |

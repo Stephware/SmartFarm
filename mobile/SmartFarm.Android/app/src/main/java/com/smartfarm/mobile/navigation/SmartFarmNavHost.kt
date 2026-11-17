@@ -36,6 +36,9 @@ import com.smartfarm.mobile.features.auth.LoginScreen
 import com.smartfarm.mobile.features.auth.ForgotPasswordScreen
 import com.smartfarm.mobile.features.auth.RegisterScreen
 import com.smartfarm.mobile.ui.components.WelcomeScreen
+import com.smartfarm.mobile.ui.components.onboarding.AniGoOnboardingScreen
+import com.smartfarm.mobile.ui.components.onboarding.AniGoOnboardingStore
+import com.smartfarm.mobile.ui.components.onboarding.anigoInitialRoute
 import com.smartfarm.mobile.features.farms.FarmViewModel
 import com.smartfarm.mobile.features.crops.CropViewModel
 import com.smartfarm.mobile.features.crops.CropScreen
@@ -67,6 +70,12 @@ fun SmartFarmNavHost(auth: AuthViewModel, farms: FarmViewModel, crops: CropViewM
         "farm/{farmId}", "myfarm/{farmId}"
     ) && currentFarmId.isNotBlank()
     val appContext = LocalContext.current
+    // Stable for this NavHost instance: completing the tour navigates explicitly
+    // to Welcome. On subsequent app launches the persisted flag selects Welcome.
+    val onboardingStore = remember(appContext) { AniGoOnboardingStore.create(appContext) }
+    val initialRoute = remember(onboardingStore) {
+        anigoInitialRoute(onboardingStore.isCompleted())
+    }
     val resolver = appContext.contentResolver
     val state by auth.state.collectAsStateWithLifecycle()
     val pending by sync.operations.collectAsStateWithLifecycle()
@@ -215,16 +224,29 @@ fun SmartFarmNavHost(auth: AuthViewModel, farms: FarmViewModel, crops: CropViewM
     }
     NavHost(
         navController = navController,
-        startDestination = "welcome",
+        startDestination = initialRoute,
         modifier = Modifier.weight(1f)
     ) {
+        composable("onboarding") {
+            AniGoOnboardingScreen(onExit = {
+                onboardingStore.markCompleted()
+                navController.navigate("welcome") {
+                    popUpTo("onboarding") { inclusive = true }
+                    launchSingleTop = true
+                }
+            })
+        }
         composable("welcome") {
             val statusState by status.state.collectAsStateWithLifecycle()
             WelcomeScreen(
                 status = statusState,
                 onCheckBackend = { status.check() },
                 onLogin = { navController.navigate("login") },
-                onRegister = { navController.navigate("register") })
+                onRegister = { navController.navigate("register") },
+                onPreviewGuide = { navController.navigate("onboarding-preview") { launchSingleTop = true } })
+        }
+        composable("onboarding-preview") {
+            AniGoOnboardingScreen(onExit = { navController.popBackStack() })
         }
         composable("login") {
             LoginScreen(state,
@@ -269,7 +291,10 @@ fun SmartFarmNavHost(auth: AuthViewModel, farms: FarmViewModel, crops: CropViewM
             }, onFarms = { navController.navigate("farms") },
                 onSync = { navController.navigate("sync") },
                 onNotifications = { navController.navigate("notifications") },
-                pendingSyncCount = accountQueue.total)
+                pendingSyncCount = accountQueue.total,
+                onReplayGuide = {
+                    navController.navigate("onboarding-preview") { launchSingleTop = true }
+                })
         }
         composable("sync") {
             val pending by sync.operations.collectAsStateWithLifecycle()

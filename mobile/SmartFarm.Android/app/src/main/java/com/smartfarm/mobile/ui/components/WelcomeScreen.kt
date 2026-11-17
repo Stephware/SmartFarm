@@ -24,7 +24,8 @@ fun WelcomeScreen(
     status: StatusUiState = StatusUiState(),
     onCheckBackend: () -> Unit = {},
     onLogin: () -> Unit = {},
-    onRegister: () -> Unit = {}
+    onRegister: () -> Unit = {},
+    onPreviewGuide: (() -> Unit)? = null
 ) {
     var showDiagnostics by rememberSaveable { mutableStateOf(false) }
     PhotoAuthScaffold(
@@ -39,6 +40,12 @@ fun WelcomeScreen(
             modifier = Modifier.fillMaxWidth().defaultMinSize(minHeight = 48.dp),
             shape = RoundedCornerShape(14.dp)
         ) { Text("Create account") }
+
+        if (onPreviewGuide != null) {
+            TextButton(onClick = onPreviewGuide, modifier = Modifier.fillMaxWidth()) {
+                Text("Explore AniGo with our farm guide")
+            }
+        }
 
         // Diagnostics are never the prominent call-to-action and are stripped in release builds.
         if (BuildConfig.DEBUG) {
