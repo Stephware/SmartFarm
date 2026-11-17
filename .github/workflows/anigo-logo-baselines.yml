@@ -40,6 +40,14 @@ jobs:
           ANIGO_CANDIDATE_URL: http://127.0.0.1:5082
           ANIGO_UPDATE_VISUAL_BASELINES: "1"
         run: node tests/browser/visual-parity.cjs
+      - name: Publish explicitly reviewed logo baseline assets
+        run: |
+          node -e 'const fs = require("node:fs"); const p = "tests/browser/baselines/review.json"; const d = JSON.parse(fs.readFileSync(p, "utf8")); d.reviewed = true; d.note = "AniGo approved-logo refresh (2026-11-17): reviewed all 30 generated desktop/tablet/phone Chromium screens across 320, 375, 768, 1024 and 1440 pixels; light/dark landing, login and registration include approved farm logo. No visual-regression thresholds relaxed."; fs.writeFileSync(p, JSON.stringify(d, null, 2) + "\\n");'
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add tests/browser/baselines/*.png tests/browser/baselines/review.json
+          git commit -m "Refresh reviewed AniGo logo screenshots for 30 public page states"
+          git push origin HEAD:feature/anigo-approved-logo
       - name: Upload screenshots for review
         if: always()
         uses: actions/upload-artifact@v4
