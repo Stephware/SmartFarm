@@ -1,16 +1,17 @@
-# AniGo carabao onboarding — Phases 1–5 review
+# AniGo carabao onboarding — Phases 1–6 review
 
 ## Scope and review workflow
 
 This branch prototypes the approved carabao-guided Android onboarding without changing the web UI, authentication, API, farm database or persistence of the walkthrough.
 
-- Phase 1: `AniGoCarabao.kt` contains a reusable, native Compose Canvas carabao illustrated in six expressive poses: `WAVE`, `GUIDE`, `PLANT`, `RECORD`, `HARVEST`, and `CELEBRATE`. All poses share the same straw hat, cream horns, brown fur and green AniGo bandana. `frame = 0..3` drives the original arm/gesture variations; optional `walking` switches on alternating leg steps during the intro. Pages 1–2 now use the same bounded vector gesture frames, while pages 3–4 remain still.
+- Phase 1: `AniGoCarabao.kt` contains a reusable, native Compose Canvas carabao illustrated in six expressive poses: `WAVE`, `GUIDE`, `PLANT`, `RECORD`, `HARVEST`, and `CELEBRATE`. All poses share the same straw hat, cream horns, brown fur and green AniGo bandana. `frame = 0..3` drives the original arm/gesture variations; optional `walking` switches on alternating leg steps during the intro. All four pages use the same bounded vector frames; the motion is now synchronized with actual teaching milestones rather than continuous movement.
 - Phase 2: `AniGoOnboardingScreen.kt` uses four swipeable learning pages, the existing AniGo logo, progress segments, a responsive field illustration, sample UI feature cards, Back / Next / Skip, and a final Continue button. Content is entirely illustrative and explicitly labeled.
 - Entry: select **Explore AniGo with our farm guide** on the Android Welcome screen. The new `onboarding-preview` route returns to the normal Welcome screen with Skip or Continue. Login, registration, diagnostics and current welcome photograph remain untouched.
-- Light and dark themes follow the existing `LocalFarmAppearance` setting. Guide copy and controls scroll/fit on compact phones and larger accessibility text.
+- Light and dark themes follow the existing `LocalFarmAppearance` setting. Guide copy and controls scroll/fit on compact phones and larger accessibility text. At 320dp width or 1.45× text scale, the illustration and teaching card stack vertically rather than overlapping.
 - Phase 3: `AniGoFarmIntro.kt` runs a **single 2.55-second animated scene** when the opt-in guide opens: a carabao walks across a layered field, alternates native vector step frames, stops, waves, and the AniGo logo/headline fade in. An explicit **Skip intro** button or Android Back key immediately opens page 1. The sequence has no repeating loops or remote media.
 - If Android's global animation duration scale is disabled, the introduction is bypassed and page 1 is shown directly. Intro completion is saved across configuration changes in the guide via `rememberSaveable`; there is no first-launch persistence yet.
 - Phase 4: `AniGoFeatureDemos.kt` provides two bounded, self-contained teaching animations. **Farm management:** a sample Riverside Farm workspace appears, followed by North Plot, South Plot and team context; the carabao performs small guiding gestures. **Crop planning:** a rice crop plan progresses through Plan → Plant → Grow, with a small seedling growing while the carabao makes subtle planting gestures. Each page runs once after becoming active; off-screen animations cancel, revisiting the page restarts its demo, and an accessible **Replay example** action appears if motion is allowed. OS reduced-motion mode instead immediately shows the complete static sample, without a misleading Replay control. These are illustrative Compose components and **do not create farms, plots or crop calendar records**.
+- Phase 6: `AniGoGuideMotion.kt` centralizes 2.1-second lesson timing, event-aligned gestures and a neutral final mascot pose. The guide now uses a 240ms intro-to-page fade, animated settled-page progress markers, and guarded navigation. Android's native Back key goes to the preceding slide before exiting at the first slide; Skip/Continue exit only once to the original Welcome screen. Animation pauses in the background and resumes at the remaining duration instead of looping/restarting; off-page lessons are cancelled. Buttons are disabled while pager scrolling settles. A dedicated 320dp / 1.6× text layout prevents the sample record card from obscuring the mascot or clipping content. Unit and instrumentation tests cover these behaviors.
 - A single carabao vector implementation is intentional: do not use per-page separately generated character PNGs, which can introduce inconsistent horns, hats, eyes or scale. Inspect the **actual emulator rendering** against the approved reference before wider animation rollout.
 
 ## Screens and demonstrations
@@ -29,14 +30,14 @@ The source of truth is `PRODUCT.md`: Android's real navigation remains Today, Re
 - Phase 3 is implemented: skippable one-shot intro, alternating walk frames and wave pose.
 - Phase 4 implemented: animated farm workspace and crop plan on pages 1 and 2, plus manual replay.
 - Phase 5 implemented: staged fieldwork and harvest demonstrations on pages 3 and 4, using the same bounded 2.2-second Compose animations with per-page Replay and accessibility labels. Page 3 shows a watering activity, leaf inspection, and attached photo, followed by **Saved on device** and **Pending sync** (never a fake upload success). Page 4 shows two independent partial rice harvests of **50 kg** and **35 kg**, totaling **85 kg**; farm supplies are viewed separately. The harvest pose's basket moves slightly during the demonstration. All figures and events are illustrative; no data is written to Room or backend.
-- Phase 6: onboarding animation refinement and integration after artwork approval.
+- Phase 6 implemented: synchronized mascot/demo choreography, responsive art/card layout, intro-to-guide transitions, background motion pause/resume and native Back navigation. Visual approval of the vector mascot is still pending.
 - Phase 7: first-run completion preference, replay-from-settings behavior, and any automatic first-launch routing.
 - Phase 8: final accessibility, performance, screenshot review and merge decision.
 
 ## Verification criteria
 
 1. Android debug compile, Compose UI test compile, unit tests.
-2. Real emulator: intro Skip/Back, four screens, swipe and buttons, Skip/Continue returning to Welcome, no auth regressions. All four demo sequences, replay, pending-sync wording, summed partial harvests, and reduced-motion final states should also pass.
+2. Real emulator: intro Skip/Back, all four teaching pages, swipe and buttons, native Android Back through the pages, guarded Skip/Continue returning to Welcome, no auth regressions. All four demo sequences, replay, pending-sync wording, summed partial harvests, and reduced-motion final states must also pass.
 3. At 320dp width and 1.6× font size, accessible controls stay visible and descriptive content remains scrollable.
 4. Review artwork at 320dp and normal device widths; check horn/hat/body/prop alignment and dark-mode contrast.
 5. Preserve opt-in entry and the `WelcomeScreen` default callback contract used by existing tests.
