@@ -23,6 +23,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawing
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
@@ -33,7 +34,6 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -55,12 +55,14 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.testTag
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.compose.currentStateAsState
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
@@ -68,6 +70,7 @@ import androidx.compose.ui.unit.dp
 import com.smartfarm.mobile.R
 import com.smartfarm.mobile.ui.theme.LocalFarmAppearance
 import com.smartfarm.mobile.ui.theme.SmartFarmTheme
+import com.smartfarm.mobile.ui.theme.AniGoPalette
 import kotlinx.coroutines.launch
 
 /**
@@ -76,10 +79,7 @@ import kotlinx.coroutines.launch
  */
 private const val PageCount = 4
 private val Pine = Color(0xFF145239)
-private val Ink = Color(0xFF0B3928)
-private val Gold = Color(0xFFCBA14E)
 private val Cream = Color(0xFFFBF8F0)
-private val Muted = Color(0xFF61756A)
 
 private data class PageCopy(
     val title: String, val description: String, val detail: String, val pose: AniGoCarabaoPose
@@ -130,6 +130,12 @@ fun AniGoOnboardingScreen(
     val scope = rememberCoroutineScope()
     val selectedPage = pager.settledPage
     val changingPage = pager.isScrollInProgress
+    val goToPage: (Int) -> Unit = { target ->
+        scope.launch {
+            if (motionAllowed) pager.animateScrollToPage(target)
+            else pager.scrollToPage(target)
+        }
+    }
 
     // Fade in smoothly after the skippable introduction. Respect backgrounding.
     val guideEntry = remember { Animatable(if (motionAllowed) 0f else 1f) }
@@ -155,103 +161,109 @@ fun AniGoOnboardingScreen(
     }
     BackHandler(enabled = !exiting) {
         if (!changingPage) {
-            if (selectedPage > 0) scope.launch {
-                pager.animateScrollToPage(selectedPage - 1)
-            } else exitOnce()
+            if (selectedPage > 0) goToPage(selectedPage - 1) else exitOnce()
         }
     }
     val dark = LocalFarmAppearance.current.dark
-    val background = if (dark) Color(0xFF101F18) else Cream
-    val foreground = if (dark) Color(0xFFECF4EB) else Ink
-    val secondary = if (dark) Color(0xFFC7D4CA) else Muted
+    val colors = MaterialTheme.colorScheme
+    val background = if (dark) colors.background else Cream
+    val foreground = colors.onBackground
+    val secondary = colors.onSurfaceVariant
 
-    Column(
+    BoxWithConstraints(
         modifier.fillMaxSize().background(background).windowInsetsPadding(WindowInsets.safeDrawing)
-            .graphicsLayer { alpha = guideEntry.value },
-        horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Row(
-            Modifier.fillMaxWidth().padding(horizontal = 20.dp, vertical = 10.dp),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
+        val shortWindow = maxHeight < 500.dp
+        Column(
+            Modifier.fillMaxSize().graphicsLayer { alpha = guideEntry.value },
+            horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Image(
-                painter = painterResource(
-                    if (dark) R.drawable.ani_go_logo_on_dark else R.drawable.ani_go_logo
-                ),
-                contentDescription = "AniGo",
-                contentScale = ContentScale.Fit,
-                modifier = Modifier.width(130.dp).height(38.dp)
-            )
-            TextButton(
-                onClick = { exitOnce() },
-                enabled = !exiting,
-                modifier = Modifier.heightIn(min = 48.dp)
+            Row(
+                Modifier.widthIn(max = 560.dp).fillMaxWidth()
+                    .padding(horizontal = 20.dp, vertical = if (shortWindow) 0.dp else 10.dp),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
             ) {
-                Text("Skip", color = secondary)
-            }
-        }
-        Row(
-            Modifier.fillMaxWidth().padding(horizontal = 24.dp, vertical = 7.dp)
-                .semantics {
-                    contentDescription = "Step " + (selectedPage + 1) + " of " + PageCount
-                },
-            horizontalArrangement = Arrangement.spacedBy(8.dp)
-        ) {
-            repeat(PageCount) { index ->
-                val marker by animateColorAsState(
-                    targetValue = if (index <= selectedPage) Pine
-                        else if (dark) Color(0xFF3A5244) else Color(0xFFE4E5DA),
-                    animationSpec = tween(
-                        durationMillis = if (motionAllowed)
-                            AniGoGuideMotion.GuideEnterMillis else 0
+                Image(
+                    painter = painterResource(
+                        if (dark) R.drawable.ani_go_logo_on_dark else R.drawable.ani_go_logo
                     ),
-                    label = "AniGo onboarding step"
+                    contentDescription = "AniGo",
+                    contentScale = ContentScale.Fit,
+                    modifier = Modifier.width(130.dp).height(if (shortWindow) 28.dp else 38.dp)
                 )
-                Box(Modifier.weight(1f).height(5.dp).clip(CircleShape).background(marker))
+                TextButton(
+                    onClick = { exitOnce() },
+                    enabled = !exiting,
+                    modifier = Modifier.heightIn(min = 48.dp)
+                ) {
+                    Text("Skip", color = secondary)
+                }
             }
-        }
-        HorizontalPager(
-            state = pager,
-            beyondViewportPageCount = 1,
-            modifier = Modifier.fillMaxWidth().weight(1f)
-        ) { page ->
-            GuidePageContent(
-                page = page, dark = dark, ink = foreground, secondary = secondary,
-                pageActive = selectedPage == page && !changingPage,
-                activityResumed = activityResumed,
-                motionAllowed = motionAllowed
-            )
-        }
-
-        Row(
-            Modifier.fillMaxWidth().padding(start = 20.dp, end = 20.dp, top = 8.dp, bottom = 14.dp),
-            horizontalArrangement = Arrangement.spacedBy(10.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            TextButton(
-                onClick = {
-                    if (!changingPage && selectedPage > 0) scope.launch {
-                        pager.animateScrollToPage(selectedPage - 1)
-                    }
-                },
-                enabled = selectedPage > 0 && !changingPage && !exiting,
-                modifier = Modifier.width(92.dp).heightIn(min = 52.dp)
-            ) { Text("Back", color = if (selectedPage == 0) secondary else foreground) }
-            Button(
-                onClick = {
-                    if (!changingPage) {
-                        if (selectedPage == PageCount - 1) exitOnce()
-                        else scope.launch { pager.animateScrollToPage(selectedPage + 1) }
-                    }
-                },
-                enabled = !changingPage && !exiting,
-                modifier = Modifier.weight(1f).heightIn(min = 54.dp),
-                shape = RoundedCornerShape(14.dp),
-                colors = ButtonDefaults.buttonColors(containerColor = Pine, contentColor = Color.White)
+            Row(
+                Modifier.widthIn(max = 560.dp).fillMaxWidth()
+                    .padding(horizontal = 24.dp, vertical = if (shortWindow) 2.dp else 7.dp)
+                    .semantics {
+                        contentDescription = "Step " + (selectedPage + 1) + " of " + PageCount
+                    },
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                Text(if (selectedPage == PageCount - 1) "Continue to AniGo" else "Next →",
-                    fontWeight = FontWeight.Bold)
+                repeat(PageCount) { index ->
+                    val marker by animateColorAsState(
+                        targetValue = if (index <= selectedPage) colors.primary else colors.outlineVariant,
+                        animationSpec = tween(
+                            durationMillis = if (motionAllowed)
+                                AniGoGuideMotion.GuideEnterMillis else 0
+                        ),
+                        label = "AniGo onboarding step"
+                    )
+                    Box(Modifier.weight(1f).height(5.dp).clip(CircleShape).background(marker))
+                }
+            }
+            HorizontalPager(
+                state = pager,
+                beyondViewportPageCount = 1,
+                modifier = Modifier.widthIn(max = 560.dp).fillMaxWidth().weight(1f)
+            ) { page ->
+                GuidePageContent(
+                    page = page, dark = dark, ink = foreground, secondary = secondary,
+                    pageActive = selectedPage == page && !changingPage,
+                    activityResumed = activityResumed,
+                    motionAllowed = motionAllowed
+                )
+            }
+
+            Row(
+                Modifier.widthIn(max = 560.dp).fillMaxWidth()
+                    .padding(start = 20.dp, end = 20.dp,
+                        top = if (shortWindow) 0.dp else 8.dp, bottom = if (shortWindow) 4.dp else 14.dp),
+                horizontalArrangement = Arrangement.spacedBy(10.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                TextButton(
+                    onClick = {
+                        if (!changingPage && selectedPage > 0) goToPage(selectedPage - 1)
+                    },
+                    enabled = selectedPage > 0 && !changingPage && !exiting,
+                    modifier = Modifier.width(92.dp).heightIn(min = if (shortWindow) 48.dp else 52.dp)
+                ) { Text("Back", color = if (selectedPage == 0) secondary else foreground) }
+                Button(
+                    onClick = {
+                        if (!changingPage) {
+                            if (selectedPage == PageCount - 1) exitOnce()
+                            else goToPage(selectedPage + 1)
+                        }
+                    },
+                    enabled = !changingPage && !exiting,
+                    modifier = Modifier.weight(1f).heightIn(min = if (shortWindow) 48.dp else 54.dp),
+                    shape = RoundedCornerShape(14.dp),
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = if (dark) AniGoPalette.darkAction else Pine,
+                        contentColor = Color.White)
+                ) {
+                    Text(if (selectedPage == PageCount - 1) "Continue to AniGo" else "Next →",
+                        fontWeight = FontWeight.Bold)
+                }
             }
         }
     }
@@ -310,85 +322,85 @@ private fun GuidePageContent(
     LaunchedEffect(pageActive) {
         if (pageActive) pageScroll.scrollTo(0)
     }
-    Column(
-        Modifier.fillMaxSize().verticalScroll(pageScroll)
-            .padding(horizontal = 20.dp, vertical = 14.dp),
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        Text(details.title, color = ink, textAlign = TextAlign.Center,
-            style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.ExtraBold)
-        Spacer(Modifier.height(10.dp))
-        Text(details.description, color = secondary, textAlign = TextAlign.Center,
-            style = MaterialTheme.typography.bodyLarge)
-        Spacer(Modifier.height(20.dp))
-        // The normal composition is photo/mascot left and sample card right.
-        // At 320dp or large system text, stack them to avoid clipped cards.
-        BoxWithConstraints(Modifier.fillMaxWidth()) {
-            val compact = needsStack || maxWidth < 295.dp
-            val backdrop = Brush.verticalGradient(
-                if (dark) listOf(Color(0xFF20392C), Color(0xFF375340))
-                else listOf(Color(0xFFEFF7EC), Color(0xFFFFF2D7))
-            )
-            if (compact) {
-                Column(
-                    Modifier.fillMaxWidth().clip(RoundedCornerShape(24.dp))
-                        .background(backdrop)
-                ) {
-                    Box(Modifier.fillMaxWidth().height(200.dp)) {
-                        FieldBackdrop(dark, Modifier.fillMaxSize())
+    BoxWithConstraints(Modifier.fillMaxSize()) {
+        val viewportHeight = maxHeight
+        Column(
+            Modifier.fillMaxWidth().testTag("onboarding-page-$page")
+                .verticalScroll(pageScroll).heightIn(min = viewportHeight)
+                .padding(horizontal = 20.dp, vertical = 14.dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center
+        ) {
+            Text(details.title, color = ink, textAlign = TextAlign.Center,
+                style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.ExtraBold,
+                modifier = Modifier.semantics { heading() })
+            Spacer(Modifier.height(10.dp))
+            Text(details.description, color = secondary, textAlign = TextAlign.Center,
+                style = MaterialTheme.typography.bodyLarge)
+            Spacer(Modifier.height(20.dp))
+            // Keep the guide and illustrative record together without hiding either.
+            // At 320dp or large system text, stack them to avoid clipped cards.
+            BoxWithConstraints(Modifier.fillMaxWidth()) {
+                val compact = needsStack || maxWidth < 295.dp
+                val backdrop = Brush.verticalGradient(
+                    if (dark) listOf(Color(0xFF20392C), Color(0xFF375340))
+                    else listOf(Color(0xFFEFF7EC), Color(0xFFFFF2D7))
+                )
+                if (compact) {
+                    Column(
+                        Modifier.fillMaxWidth().clip(RoundedCornerShape(24.dp))
+                            .background(backdrop)
+                    ) {
+                        Box(Modifier.fillMaxWidth().height(180.dp)) {
+                            FieldBackdrop(dark, Modifier.fillMaxSize())
+                            AniGoCarabao(
+                                pose = details.pose,
+                                frame = gesture.frame,
+                                modifier = Modifier.align(Alignment.BottomCenter)
+                                    .size(180.dp)
+                                    .graphicsLayer {
+                                        translationY = gestureLiftPx
+                                        rotationZ = gesture.tiltDegrees
+                                    }
+                            )
+                        }
+                        Box(Modifier.fillMaxWidth().padding(12.dp)) {
+                            AniGoGuideExample(page, exampleProgress, viewportHeight < 300.dp)
+                        }
+                    }
+                } else {
+                    val shortPage = viewportHeight < 300.dp
+                    val characterSize = (maxWidth * 0.52f)
+                        .coerceAtMost(if (shortPage) 152.dp else 240.dp)
+                    val cardWidth = (maxWidth * 0.48f).coerceIn(136.dp, 240.dp)
+                    Box(
+                        Modifier.fillMaxWidth().heightIn(min = if (shortPage) 180.dp else 240.dp)
+                            .clip(RoundedCornerShape(24.dp)).background(backdrop)
+                    ) {
+                        FieldBackdrop(dark, Modifier.matchParentSize())
                         AniGoCarabao(
                             pose = details.pose,
                             frame = gesture.frame,
-                            modifier = Modifier.align(Alignment.BottomCenter)
-                                .size(190.dp)
+                            modifier = Modifier.align(Alignment.CenterStart)
+                                .padding(start = 1.dp, bottom = 4.dp)
+                                .size(characterSize)
                                 .graphicsLayer {
                                     translationY = gestureLiftPx
                                     rotationZ = gesture.tiltDegrees
                                 }
                         )
-                    }
-                    Box(Modifier.fillMaxWidth().padding(12.dp)) {
-                        AniGoGuideExample(page, exampleProgress)
-                    }
-                }
-            } else {
-                val characterSize = (maxWidth * 0.52f).coerceAtMost(203.dp)
-                val cardWidth = (maxWidth * 0.48f).coerceIn(136.dp, 168.dp)
-                Box(
-                    Modifier.fillMaxWidth().height(288.dp)
-                        .clip(RoundedCornerShape(24.dp)).background(backdrop)
-                ) {
-                    FieldBackdrop(dark, Modifier.fillMaxSize())
-                    AniGoCarabao(
-                        pose = details.pose,
-                        frame = gesture.frame,
-                        modifier = Modifier.align(Alignment.BottomStart)
-                            .padding(start = 1.dp, bottom = 4.dp)
-                            .size(characterSize)
-                            .graphicsLayer {
-                                translationY = gestureLiftPx
-                                rotationZ = gesture.tiltDegrees
-                            }
-                    )
-                    Box(
-                        Modifier.align(Alignment.CenterEnd)
-                            .padding(end = 10.dp, bottom = 10.dp)
-                            .width(cardWidth)
-                    ) {
-                        AniGoGuideExample(page, exampleProgress)
+                        Box(
+                            Modifier.align(Alignment.CenterEnd)
+                                .padding(end = 10.dp, top = 12.dp, bottom = 12.dp)
+                                .width(cardWidth)
+                        ) {
+                            AniGoGuideExample(page, exampleProgress, shortPage)
+                        }
                     }
                 }
             }
-        }
-        Spacer(Modifier.height(17.dp))
-        Surface(shape = RoundedCornerShape(16.dp),
-            color = if (dark) Color(0xFF21372A) else Color.White,
-            tonalElevation = 1.dp, modifier = Modifier.fillMaxWidth()
-        ) {
-            Column(Modifier.padding(horizontal = 17.dp, vertical = 14.dp)) {
-                Text("HOW ANIGO HELPS", color = Gold,
-                    style = MaterialTheme.typography.labelSmall, fontWeight = FontWeight.Bold)
-                Spacer(Modifier.height(7.dp))
+            Spacer(Modifier.height(17.dp))
+            Column(Modifier.fillMaxWidth().padding(horizontal = 4.dp)) {
                 Text(details.detail, color = ink, style = MaterialTheme.typography.bodyMedium)
                 Spacer(Modifier.height(9.dp))
                 Text("Illustrative example · no farm records are created",
@@ -418,11 +430,11 @@ private fun GuidePageContent(
 }
 
 @Composable
-private fun AniGoGuideExample(page: Int, progress: Float) {
+private fun AniGoGuideExample(page: Int, progress: Float, compact: Boolean) {
     when (page) {
         0 -> AniGoFarmManagementDemo(progress)
         1 -> AniGoCropPlanningDemo(progress)
-        2 -> AniGoFieldworkDemo(progress)
+        2 -> AniGoFieldworkDemo(progress, compact = compact)
         else -> AniGoHarvestDemo(progress)
     }
 }

@@ -7,6 +7,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.StrokeJoin
@@ -42,6 +44,17 @@ private val Kerchief = Color(0xFF10583B)
 private val Cream = Color(0xFFFFFCF1)
 private val Gold = Color(0xFFF3B530)
 private val Leaf = Color(0xFF428751)
+// Shade the existing shapes and palette consistently across every pose.
+private val CoatFill = Brush.linearGradient(listOf(BodyLight, Body, BodyShade),
+    start = Offset(110f, 100f), end = Offset(325f, 365f))
+private val HatFill = Brush.linearGradient(listOf(HatLight, Hat, HatShade),
+    start = Offset(145f, 38f), end = Offset(280f, 140f))
+private val BrimFill = Brush.linearGradient(listOf(HatLight, Hat),
+    start = Offset(160f, 112f), end = Offset(225f, 158f))
+private val HornFill = Brush.verticalGradient(listOf(Cream, Horn, HornShade),
+    startY = 65f, endY = 150f)
+private val BandanaFill = Brush.linearGradient(listOf(Kerchief, Color(0xFF0C3D2B)),
+    start = Offset(180f, 262f), end = Offset(245f, 330f))
 
 @Composable
 fun AniGoCarabao(
@@ -91,7 +104,14 @@ fun AniGoCarabao(
 private fun path(build: Path.() -> Unit): Path = Path().apply(build)
 
 private fun DrawScope.shape(path: Path, fill: Color, strokeWidth: Float = 4f) {
-    drawPath(path, fill)
+    drawPath(path, when (fill) {
+        Body -> CoatFill
+        Hat -> HatFill
+        HatLight -> BrimFill
+        Horn -> HornFill
+        Kerchief -> BandanaFill
+        else -> SolidColor(fill)
+    })
     drawPath(path, Outline, style = Stroke(
         width = strokeWidth, cap = StrokeCap.Round, join = StrokeJoin.Round
     ))
@@ -152,7 +172,8 @@ private fun DrawScope.drawTorso() {
         cubicTo(307f, 276f, 288f, 251f, 259f, 241f)
         close()
     }, Body)
-    drawOval(BodyLight, Offset(142f, 267f), Size(131f, 76f))
+    drawOval(Brush.radialGradient(listOf(BodyLight, Body),
+        center = Offset(180f, 290f), radius = 95f), Offset(142f, 267f), Size(131f, 76f))
 }
 
 private fun DrawScope.drawArms(pose: AniGoCarabaoPose, frame: Int) {
@@ -228,7 +249,8 @@ private fun DrawScope.drawHead() {
         cubicTo(143f, 279f, 96f, 244f, 98f, 189f)
         cubicTo(98f, 161f, 103f, 143f, 111f, 126f); close()
     }, Body)
-    drawOval(BodyLight, Offset(124f, 129f), Size(159f, 108f))
+    drawOval(Brush.radialGradient(listOf(BodyLight, Body),
+        center = Offset(180f, 160f), radius = 105f), Offset(124f, 129f), Size(159f, 108f))
     shape(path {
         moveTo(171f, 178f); cubicTo(192f, 162f, 241f, 163f, 263f, 178f)
         cubicTo(292f, 203f, 281f, 238f, 250f, 249f)

@@ -19,9 +19,13 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.offset
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.layout.safeDrawing
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.windowInsetsPadding
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -33,7 +37,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
@@ -55,10 +58,8 @@ import com.smartfarm.mobile.ui.theme.LocalFarmAppearance
 import kotlin.math.PI
 import kotlin.math.sin
 
-/** One-shot intro shown only when the user explicitly opens the guide preview.
- *
- * In Phase 3 this is not shown on every app launch or saved to preferences.
- * Skip and the system Back key both reveal the existing four-page guide.
+/** One-shot intro for first-run guidance and explicit replays.
+ * Skip and the system Back key both reveal the four-page guide.
  * All scenery is local Canvas work; no video, network dependency or audio.
  */
 private val Pine = Color(0xFF145239)
@@ -68,9 +69,10 @@ private val Cream = Color(0xFFFBF8F0)
 @Composable
 internal fun anigoMotionAllowed(): Boolean {
     val context = LocalContext.current
+    val lifecycleState by LocalLifecycleOwner.current.lifecycle.currentStateAsState()
     // Honor the OS "remove animations" / animator-duration-scale setting.
     // A missing or unreadable setting defaults to enabled.
-    return remember(context) {
+    return remember(context, lifecycleState) {
         runCatching {
             Settings.Global.getFloat(
                 context.contentResolver,
@@ -96,8 +98,8 @@ fun AniGoFarmIntro(
     val lifecycleState by LocalLifecycleOwner.current.lifecycle.currentStateAsState()
     val activityResumed = lifecycleState.isAtLeast(Lifecycle.State.RESUMED)
     val dark = LocalFarmAppearance.current.dark
-    val ink = if (dark) Color(0xFFF2F4EC) else Color(0xFF103D2B)
-    val bg = if (dark) Color(0xFF14251B) else Cream
+    val ink = MaterialTheme.colorScheme.onBackground
+    val bg = if (dark) MaterialTheme.colorScheme.background else Cream
 
     LaunchedEffect(motionAllowed, autoPlay, activityResumed) {
         if (!motionAllowed) {
@@ -140,6 +142,7 @@ fun AniGoFarmIntro(
             .windowInsetsPadding(WindowInsets.safeDrawing)
     ) {
         val small = maxHeight < 620.dp || maxWidth < 340.dp
+        val stacked = maxHeight < 520.dp || density.fontScale >= 1.45f
         val characterSize = if (small) 190.dp else 250.dp
         val stepDistance = with(density) { (maxWidth * 0.85f).toPx() }
         val yBouncePx = with(density) { mascotBounce.dp.toPx() }
@@ -148,8 +151,11 @@ fun AniGoFarmIntro(
 
         Column(
             Modifier.align(Alignment.TopCenter)
-                .fillMaxWidth()
-                .padding(top = if (small) 64.dp else 94.dp, start = 22.dp, end = 22.dp),
+                .widthIn(max = 560.dp).fillMaxWidth()
+                .background(if (stacked) bg else Color.Transparent)
+                .verticalScroll(rememberScrollState())
+                .padding(top = if (small || stacked) 64.dp else 94.dp,
+                    start = 22.dp, end = 22.dp, bottom = 24.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Image(
@@ -173,19 +179,27 @@ fun AniGoFarmIntro(
             Spacer(Modifier.height(8.dp))
             Text(
                 "Come along. I'll show you around.",
-                color = if (dark) Color(0xFFE4D7BC) else Pine,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
                 textAlign = TextAlign.Center,
                 style = MaterialTheme.typography.bodyMedium,
                 modifier = Modifier.graphicsLayer { alpha = titleOpacity }
             )
+            if (stacked) {
+                Spacer(Modifier.height(16.dp))
+                AniGoCarabao(pose, Modifier.size(180.dp), frame, walking)
+                Text("Your farm, your crops, your progress",
+                    color = ink, style = MaterialTheme.typography.bodyMedium,
+                    textAlign = TextAlign.Center)
+            }
         }
 
+        if (!stacked) {
         AniGoCarabao(
             pose = pose,
             frame = frame,
             walking = walking,
-            modifier = Modifier.align(Alignment.BottomCenter)
-                .padding(bottom = if (small) 64.dp else 91.dp)
+            modifier = Modifier.align(Alignment.Center)
+                .offset(y = if (small) 48.dp else 72.dp)
                 .size(characterSize)
                 .graphicsLayer {
                     translationX = -stepDistance * (1f - arrival)
@@ -197,13 +211,16 @@ fun AniGoFarmIntro(
         Text(
             "Your farm, your crops, your progress",
             style = MaterialTheme.typography.bodyMedium,
-            color = if (dark) Color(0xFFF3E9CE) else Pine,
+            color = ink,
             fontWeight = FontWeight.SemiBold,
             textAlign = TextAlign.Center,
             modifier = Modifier.align(Alignment.BottomCenter)
                 .padding(bottom = 24.dp, start = 20.dp, end = 20.dp)
                 .graphicsLayer { alpha = titleOpacity }
+                .background(bg.copy(alpha = .94f), RoundedCornerShape(10.dp))
+                .padding(horizontal = 12.dp, vertical = 6.dp)
         )
+        }
 
         TextButton(
             onClick = { latestFinish() },
@@ -223,7 +240,7 @@ private fun AniGoIntroLandscape(dark: Boolean, modifier: Modifier = Modifier) {
 
         drawRect(
             brush = Brush.verticalGradient(
-                if (dark) listOf(Color(0xFF14251B), Color(0xFF244A31), Color(0xFF50603A))
+                if (dark) listOf(Color(0xFF121917), Color(0xFF202B26), Color(0xFF354334))
                 else listOf(Color(0xFFFAF9F2), Color(0xFFE9F5EC), Color(0xFFE8E6C6))
             )
         )

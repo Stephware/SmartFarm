@@ -32,16 +32,15 @@ import androidx.compose.ui.unit.dp
  * In particular, "saved locally" represents a pending example, NOT a server upload.
  * Harvest figures represent two distinct partial harvests in the same unit (kg).
  */
-private val FieldGreen = Color(0xFF145239)
-private val FieldGold = Color(0xFFCBA14E)
-private val FieldInk = Color(0xFF173D2B)
-private val FieldMuted = Color(0xFF66756A)
-private val FieldGrey = Color(0xFFE3E9DF)
-private val FieldAmber = Color(0xFF966823)
+private val FieldGreen: Color @Composable get() = MaterialTheme.colorScheme.primary
+private val FieldGold: Color @Composable get() = MaterialTheme.colorScheme.secondary
+private val FieldMuted: Color @Composable get() = MaterialTheme.colorScheme.onSurfaceVariant
+private val FieldGrey: Color @Composable get() = MaterialTheme.colorScheme.outlineVariant
+private val FieldAmber: Color @Composable get() = MaterialTheme.colorScheme.secondary
 
 /** Checklist builds in order; final state explicitly means queued, not synchronized. */
 @Composable
-fun AniGoFieldworkDemo(progress: Float, modifier: Modifier = Modifier) {
+fun AniGoFieldworkDemo(progress: Float, modifier: Modifier = Modifier, compact: Boolean = false) {
     val p = progress.coerceIn(0f, 1f)
     val stage = when {
         p >= .82f -> 4
@@ -52,26 +51,26 @@ fun AniGoFieldworkDemo(progress: Float, modifier: Modifier = Modifier) {
     Box(modifier.semantics {
         contentDescription = "Sample fieldwork, step $stage of 4; local save pending sync; demonstration only"
     }) {
-        ExampleCard("Today's fieldwork", "Sample: North Plot", "Inspection example") {
+        ExampleCard("Today's fieldwork", "Sample: North Plot") {
             if (p >= .10f) {
                 IntroRow(
                     title = "Watering",
                     subtext = "Activity recorded",
-                    opacity = reveal(p, .10f)
+                    opacity = reveal(p, .10f), compact = compact
                 )
             }
             if (p >= .36f) {
                 IntroRow(
                     title = "Leaf inspection",
                     subtext = "Observation added",
-                    opacity = reveal(p, .36f)
+                    opacity = reveal(p, .36f), compact = compact
                 )
             }
             if (p >= .59f) {
                 IntroRow(
                     title = "Photo",
                     subtext = "Attached to record",
-                    opacity = reveal(p, .59f)
+                    opacity = reveal(p, .59f), compact = compact
                 )
             }
             // The example shows the important distinction between recording on a
@@ -119,7 +118,7 @@ fun AniGoHarvestDemo(progress: Float, modifier: Modifier = Modifier) {
     Box(modifier.semantics {
         contentDescription = "Sample harvest, step $stage of 4; two separate harvest batches total $totalKg kilograms; demonstration only"
     }) {
-        ExampleCard("Harvest records", "Sample: Rice crop", "Harvest example") {
+        ExampleCard("Harvest records", "Sample: Rice crop") {
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(4.dp),

@@ -233,3 +233,8 @@ Three native primary entries and a simpler existing Record sheet; My Farm groups
 - Disposition: Update
 - Raw: raw/project/2026-11-16-phase7-dark-mode-verification.md
 - Updated: Frontend charcoal/native-picker guidance, large-text/photo accessibility and reviewed-baseline evidence. Historical snapshots preserved; final exact-head CI remains on PR #138, no merge authorized.
+
+## [2026-11-18] ingest | Android and offline synchronization
+- Disposition: Update
+- Raw: raw/project/2026-11-18-carabao-onboarding-refinement.md
+- Updated: Feature-branch carabao first-run/replay behavior, reduced-motion refresh, responsive theme refinement and draft/visual approval limits. Historical raw sources and offline/security decisions preserved.

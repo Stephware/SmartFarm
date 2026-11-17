@@ -5,7 +5,8 @@
 set -uo pipefail
 
 bash ./gradlew --no-daemon :app:connectedDebugAndroidTest \
-  -Pandroid.testInstrumentationRunnerArguments.class=com.smartfarm.mobile.CarabaoOnboardingPreviewTest,com.smartfarm.mobile.PhotoAuthScreensTest,com.smartfarm.mobile.Phase6WelcomeScreenTest,com.smartfarm.mobile.FarmOnboardingScreenTest,com.smartfarm.mobile.WelcomeScreenTest
+  -PsmartfarmDebugApiUrl=http://127.0.0.1:5081/ \
+  -Pandroid.testInstrumentationRunnerArguments.class=com.smartfarm.mobile.CarabaoOnboardingPreviewTest,com.smartfarm.mobile.FullAppJourneyTest,com.smartfarm.mobile.PhotoAuthScreensTest,com.smartfarm.mobile.Phase6WelcomeScreenTest,com.smartfarm.mobile.FarmOnboardingScreenTest,com.smartfarm.mobile.WelcomeScreenTest
 test_exit=$?
 
 mkdir -p app/build/ui-screenshots
@@ -14,7 +15,10 @@ missing=0
 for name in \
   01-farm-light 02-crop-light 03-work-light 04-harvest-light \
   01-farm-dark 02-crop-dark 03-work-dark 04-harvest-dark \
-  intro-light farm-320dp-large-text
+  01-farm-tablet-light 02-crop-tablet-light 03-work-tablet-light 04-harvest-tablet-light \
+  01-farm-landscape-dark 02-crop-landscape-dark 03-work-landscape-dark 04-harvest-landscape-dark \
+  intro-light intro-dark intro-landscape-dark-large-text farm-320dp-large-text \
+  large-text-dark-1 large-text-dark-2 large-text-dark-3 large-text-dark-4
 do
   destination="app/build/ui-screenshots/${name}.png"
   if ! adb pull \
@@ -38,4 +42,4 @@ if [ "$missing" -ne 0 ]; then
   echo "::error::At least one required visual-review capture is missing"
   exit 1
 fi
-echo "Android tests and all 10 PNG visual captures passed."
+echo "Android tests and all 24 PNG visual captures passed."

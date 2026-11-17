@@ -2,7 +2,6 @@ package com.smartfarm.mobile.ui.components.onboarding
 
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -24,6 +23,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.drawscope.Stroke
@@ -38,12 +38,12 @@ import androidx.compose.ui.unit.dp
  * deterministic progress, no ViewModel/API/Room writes or any real farm state.
  * The caller advances [progress] once per active page and may reset it to replay.
  */
-private val Pine = Color(0xFF145239)
-private val Gold = Color(0xFFCBA14E)
-private val Ink = Color(0xFF173D2B)
-private val Muted = Color(0xFF66756A)
+private val Pine: Color @Composable get() = MaterialTheme.colorScheme.primary
+private val Gold: Color @Composable get() = MaterialTheme.colorScheme.secondary
+private val Ink: Color @Composable get() = MaterialTheme.colorScheme.onSurface
+private val Muted: Color @Composable get() = MaterialTheme.colorScheme.onSurfaceVariant
 private val Leaf = Color(0xFF4B9C54)
-private val Border = Color(0xFFE3E9DF)
+private val Border: Color @Composable get() = MaterialTheme.colorScheme.outlineVariant
 
 internal fun reveal(progress: Float, start: Float): Float =
     ((progress - start) / 0.13f).coerceIn(0f, 1f)
@@ -52,21 +52,18 @@ internal fun reveal(progress: Float, start: Float): Float =
 internal fun ExampleCard(
     title: String,
     subtitle: String,
-    label: String,
     content: @Composable () -> Unit
 ) {
     Surface(
-        color = Color(0xFFFFFEFC),
-        shadowElevation = 6.dp,
+        color = MaterialTheme.colorScheme.surface,
+        shadowElevation = 2.dp,
         shape = RoundedCornerShape(16.dp),
-        modifier = Modifier.fillMaxWidth().border(1.dp, Border, RoundedCornerShape(16.dp))
+        modifier = Modifier.fillMaxWidth()
     ) {
         Column(
-            Modifier.padding(horizontal = 11.dp, vertical = 12.dp),
-            verticalArrangement = Arrangement.spacedBy(7.dp)
+            Modifier.padding(horizontal = 11.dp, vertical = 10.dp),
+            verticalArrangement = Arrangement.spacedBy(6.dp)
         ) {
-            Text(label.uppercase(), color = Color(0xFF946A27),
-                style = MaterialTheme.typography.labelSmall, fontWeight = FontWeight.Bold)
             Text(title, color = Ink, style = MaterialTheme.typography.titleSmall,
                 fontWeight = FontWeight.ExtraBold)
             Text(subtitle, color = Muted, style = MaterialTheme.typography.labelSmall)
@@ -80,7 +77,8 @@ internal fun IntroRow(
     title: String,
     subtext: String,
     color: Color = Pine,
-    opacity: Float = 1f
+    opacity: Float = 1f,
+    compact: Boolean = false
 ) {
     Row(
         modifier = Modifier.fillMaxWidth()
@@ -96,13 +94,17 @@ internal fun IntroRow(
                 .background(color.copy(alpha = .16f)),
             contentAlignment = Alignment.Center
         ) {
-            Text("✓", color = color, style = MaterialTheme.typography.labelSmall,
-                fontWeight = FontWeight.ExtraBold)
+            Canvas(Modifier.size(14.dp)) {
+                drawLine(color, Offset(size.width * .15f, size.height * .5f),
+                    Offset(size.width * .4f, size.height * .75f), 2.dp.toPx(), StrokeCap.Round)
+                drawLine(color, Offset(size.width * .4f, size.height * .75f),
+                    Offset(size.width * .85f, size.height * .2f), 2.dp.toPx(), StrokeCap.Round)
+            }
         }
         Column(Modifier.weight(1f)) {
             Text(title, color = Ink, style = MaterialTheme.typography.labelSmall,
                 fontWeight = FontWeight.SemiBold)
-            Text(subtext, color = Muted, style = MaterialTheme.typography.labelSmall)
+            if (!compact) Text(subtext, color = Muted, style = MaterialTheme.typography.labelSmall)
         }
     }
 }
@@ -119,7 +121,7 @@ fun AniGoFarmManagementDemo(progress: Float, modifier: Modifier = Modifier) {
     Box(modifier.semantics {
         contentDescription = "Sample farm setup, step $phase of 4; demonstration only"
     }) {
-        ExampleCard("Riverside Farm", "Sample farm workspace", "Farm added") {
+        ExampleCard("Riverside Farm", "Sample farm workspace") {
             if (progress >= .18f) {
                 IntroRow("North Plot", "Crop area",
                     opacity = reveal(progress, .18f))
@@ -155,7 +157,7 @@ fun AniGoCropPlanningDemo(progress: Float, modifier: Modifier = Modifier) {
     Box(modifier.semantics {
         contentDescription = "Sample crop plan, step $phase of 4; demonstration only"
     }) {
-        ExampleCard("Rice planting", "Sample crop calendar", "Crop plan") {
+        ExampleCard("Rice planting", "Sample crop calendar") {
             Row(
                 Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.Center,

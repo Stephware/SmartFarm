@@ -1,4 +1,4 @@
-# AniGo carabao onboarding — Phases 1–7 review
+# AniGo carabao onboarding — Phases 1–8 review
 
 ## Scope and review workflow
 
@@ -32,7 +32,7 @@ The source of truth is `PRODUCT.md`: Android's real navigation remains Today, Re
 - Phase 5 implemented: staged fieldwork and harvest demonstrations on pages 3 and 4, using the same bounded 2.2-second Compose animations with per-page Replay and accessibility labels. Page 3 shows a watering activity, leaf inspection, and attached photo, followed by **Saved on device** and **Pending sync** (never a fake upload success). Page 4 shows two independent partial rice harvests of **50 kg** and **35 kg**, totaling **85 kg**; farm supplies are viewed separately. The harvest pose's basket moves slightly during the demonstration. All figures and events are illustrative; no data is written to Room or backend.
 - Phase 6 implemented: synchronized mascot/demo choreography, responsive art/card layout, intro-to-guide transitions, background motion pause/resume and native Back navigation. Visual approval of the vector mascot is still pending.
 - Phase 7 implemented: `AniGoOnboardingStore.kt` saves a device-wide `completed_v1` flag in private Android SharedPreferences on Skip, completion, or exiting page 1. `SmartFarmNavHost` uses a stable first-run start destination and pops onboarding off the back stack before opening Welcome. Replay from Welcome or My Account never modifies the completion flag. Signing out or switching farms/users does not re-trigger the guide. Fresh app storage reinstates first-run guidance; a crash before completion leaves it available on next launch. No account, server, Room, or farm data is stored with the preference. Includes route-unit, real-preferences instrumentation, and My Account replay tests.
-- Phase 8: final accessibility, performance, screenshot review and merge decision.
+- Phase 8: native screenshot, accessibility/lifecycle and regression verification; final integration/refinement and creative approval limits are recorded in [the audit](ANIGO_CARABAO_PHASE8_AUDIT.md). PR #145 remains Draft; technical checks do not grant mascot approval or permission to merge.
 
 ## Verification criteria
 
@@ -43,3 +43,7 @@ The source of truth is `PRODUCT.md`: Android's real navigation remains Today, Re
 5. First-launch routing must show the guide only until Skip/Continue/Back completes it, then always show Welcome on subsequent launches. Replays from Welcome or My Account return to their originating screen without resetting completion. Signing out does not trigger the guide again. Preserve the `WelcomeScreen` default callback contract and existing auth flows.
 
 **Artwork note:** Phase 1 is a first native vector interpretation of the approved reference, not an exported/cropped copy of the user's previous generated raster mockup. Intro motion now uses that geometry; its final visual approval is still needed before animating or promoting it into other pages.
+
+## Final refinement
+
+The final pass integrates current dev auth/logo and regression fixes, preserves the six shared character poses, adds restrained palette shading, uses charcoal theme roles for dark samples, and compacts short-window layouts without shrinking touch targets. Reduced-motion paging is immediate and returning from system settings refreshes the animation preference. Background/resume, swipe/recreation, first-run persistence and both replay routes have focused regression coverage. Screenshot export verifies 24 fresh PNGs; the dedicated audit includes the full loopback farmer journey. See the audit and PR #145 for exact-head results and remaining visual/device limits. No original approved reference artwork was available to establish an exact visual match.
