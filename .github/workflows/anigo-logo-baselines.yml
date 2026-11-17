@@ -1,4 +1,5 @@
 name: AniGo Logo Baseline Review
+# Re-capture after light footer contrast and compact mobile authentication adjustments.
 on:
   push:
     branches: [feature/anigo-approved-logo]
