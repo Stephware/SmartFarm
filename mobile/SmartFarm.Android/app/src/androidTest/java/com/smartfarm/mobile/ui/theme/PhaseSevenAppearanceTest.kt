@@ -57,7 +57,19 @@ class PhaseSevenAppearanceTest {
         preferences.edit().putBoolean("dark", true).commit()
         var selected = ""
         compose.setContent { SmartFarmTheme { DateInput("2026-11-16", "Due date", { selected = it }) } }
-        compose.waitUntil(5_000) { compose.activity.hasWindowFocus() }
+        // A resumed host can still be behind a system panel or launcher window.
+        androidx.test.uiautomator.UiDevice.getInstance(
+            androidx.test.platform.app.InstrumentationRegistry.getInstrumentation()).pressHome()
+        compose.activityRule.scenario.onActivity { host ->
+            // persistentId also supports the app's API 26 test hosts.
+            host.getSystemService(android.app.ActivityManager::class.java).appTasks
+                .single { it.taskInfo.persistentId == host.taskId }.moveToFront()
+        }
+        compose.waitUntil(5_000) {
+            var focused = false
+            compose.activityRule.scenario.onActivity { focused = it.hasWindowFocus() }
+            focused
+        }
         compose.onNodeWithContentDescription("Due date:", substring = true).performClick()
         var open = true
         try {

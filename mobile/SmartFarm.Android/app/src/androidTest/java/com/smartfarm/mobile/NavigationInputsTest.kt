@@ -56,7 +56,19 @@ class NavigationInputsTest {
         // Compose injects touches directly into its View, even before window focus.
         // Native dialogs need the host to be foreground before that injected tap.
         try {
-            compose.waitUntil(5_000) { compose.activity.hasWindowFocus() }
+            // A resumed host can still be behind a system panel or launcher window.
+            androidx.test.uiautomator.UiDevice.getInstance(
+                androidx.test.platform.app.InstrumentationRegistry.getInstrumentation()).pressHome()
+            compose.activityRule.scenario.onActivity { host ->
+                // persistentId also supports the app's API 26 test hosts.
+                host.getSystemService(android.app.ActivityManager::class.java).appTasks
+                    .single { it.taskInfo.persistentId == host.taskId }.moveToFront()
+            }
+            compose.waitUntil(5_000) {
+                var focused = false
+                compose.activityRule.scenario.onActivity { focused = it.hasWindowFocus() }
+                focused
+            }
             compose.onNodeWithContentDescription(
                 "Planting date: $formatted. Choose date").assertIsDisplayed().performClick()
             // This is an in-app framework dialog: Espresso synchronizes its focused
