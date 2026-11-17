@@ -1,4 +1,4 @@
-# AniGo carabao onboarding — Phases 1–4 review
+# AniGo carabao onboarding — Phases 1–5 review
 
 ## Scope and review workflow
 
@@ -19,15 +19,16 @@ This branch prototypes the approved carabao-guided Android onboarding without ch
 | --- | --- | --- | --- |
 | 1. Your farm, organized | GUIDE | Staged farm and plot cards (Phase 4) | Create a farm or join a team with owner approval |
 | 2. Grow with a plan | PLANT | Growing seedling and staged planting milestones (Phase 4) | Crop plans and planting calendar |
-| 3. Record work as you go | RECORD | Watering, inspection and photo checklist | Daily recording and accurate offline/sync language |
-| 4. From field to harvest | HARVEST | Two sample partial harvest records | Harvests, supplies and distinct measurement units |
+| 3. Record work as you go | RECORD | Staged watering, inspection, photo and pending-sync status (Phase 5) | Daily recording and accurate offline/sync language |
+| 4. From field to harvest | HARVEST | Two animated partial harvest entries and summed total (Phase 5) | Harvests, supplies and distinct measurement units |
 
 The source of truth is `PRODUCT.md`: Android's real navigation remains Today, Record and My Farm. The guide is an **optional preview**, not a fourth top-level destination. No example data is written to a production/local database.
 
 ## Follow-on work deliberately deferred
 
 - Phase 3 is implemented: skippable one-shot intro, alternating walk frames and wave pose.
-- Phase 4 implemented: animated farm workspace and crop plan on pages 1 and 2, plus manual replay. Phase 5 remains: fieldwork and harvest demonstrations.
+- Phase 4 implemented: animated farm workspace and crop plan on pages 1 and 2, plus manual replay.
+- Phase 5 implemented: staged fieldwork and harvest demonstrations on pages 3 and 4, using the same bounded 2.2-second Compose animations with per-page Replay and accessibility labels. Page 3 shows a watering activity, leaf inspection, and attached photo, followed by **Saved on device** and **Pending sync** (never a fake upload success). Page 4 shows two independent partial rice harvests of **50 kg** and **35 kg**, totaling **85 kg**; farm supplies are viewed separately. The harvest pose's basket moves slightly during the demonstration. All figures and events are illustrative; no data is written to Room or backend.
 - Phase 6: onboarding animation refinement and integration after artwork approval.
 - Phase 7: first-run completion preference, replay-from-settings behavior, and any automatic first-launch routing.
 - Phase 8: final accessibility, performance, screenshot review and merge decision.
@@ -35,7 +36,7 @@ The source of truth is `PRODUCT.md`: Android's real navigation remains Today, Re
 ## Verification criteria
 
 1. Android debug compile, Compose UI test compile, unit tests.
-2. Real emulator: intro Skip/Back, four screens, swipe and buttons, Skip/Continue returning to Welcome, no auth regressions. Farm and crop demo staging, replay, and reduced-motion final states should also pass.
+2. Real emulator: intro Skip/Back, four screens, swipe and buttons, Skip/Continue returning to Welcome, no auth regressions. All four demo sequences, replay, pending-sync wording, summed partial harvests, and reduced-motion final states should also pass.
 3. At 320dp width and 1.6× font size, accessible controls stay visible and descriptive content remains scrollable.
 4. Review artwork at 320dp and normal device widths; check horn/hat/body/prop alignment and dark-mode contrast.
 5. Preserve opt-in entry and the `WelcomeScreen` default callback contract used by existing tests.
