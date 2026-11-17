@@ -79,7 +79,7 @@ private val copy = listOf(
         AniGoCarabaoPose.PLANT),
     PageCopy("Record work as you go",
         "Log watering, inspections, photos, and supported field activities.",
-        "Some Android records can be saved offline and synchronized later. A local save is not server confirmation.",
+        "Some Android records can be saved offline and synchronized later. Local save is not server confirmation.",
         AniGoCarabaoPose.RECORD),
     PageCopy("From field to harvest",
         "Record harvests, review supplies, and follow your farm's progress.",
