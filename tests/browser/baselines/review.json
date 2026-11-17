@@ -2,7 +2,7 @@
   "reviewed": true,
   "sourceHashes": {
     "wwwroot/css/anigo-tailwind.css": "793725b48f7ad19d8ee18c32c6c62400606fccae2e457a3982a7a77477a11326",
-    "Views/Shared/_Layout.cshtml": "0f6196e93de5aa41b9ca4c5257d2f68d7f17dc9f8c335a3cd6911f61e2e1ca86",
+    "Views/Shared/_Layout.cshtml": "5cc162972d7e7fa6aa7110118518e8399581dbc95035cc91afdbc30324221101",
     "Views/Home/Index.cshtml": "a8c090b40aafeaa8b0c0a4b842924981f4ea31445a691deb29d63ebe2b8af381",
     "Views/Account/Login.cshtml": "edf2f346bafdd2c1489eb17748840c488366778a9659b3193c1367758b067f3d",
     "Views/Account/Register.cshtml": "148b14df8f205454f5b85cd076be72a575eef2af0c792924949915baa09e6531"
@@ -23,5 +23,5 @@
     "login": "/Account/Login",
     "registration": "/Account/Register"
   },
-  "note": "Approved AniGo public goldens retained unchanged. PR #142 changes the signed-in mobile header only. GitHub Actions run 44113306387 compared all 30 landing/login/register screenshots at 320, 375, 768, 1024 and 1440 pixels in light/dark: every image 0.000% different. No golden PNGs, thresholds, or reviewed flag modified."
+  "note": "PR #142 signed-in mobile logo placement only: CI runs 44113306387, 44114261262, and 44115107034 compared all 30 approved light/dark landing, login and registration screenshots (320/375/768/1024/1440). Every pixel comparison reported 0.000% change. Only the verified _Layout.cshtml SHA-256 source fingerprint was updated; existing golden PNGs and visual thresholds were preserved."
 }
