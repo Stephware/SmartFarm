@@ -292,7 +292,13 @@ private fun GuidePageContent(
                 if (animatedDemo && motionAllowed) {
                     TextButton(
                         onClick = { replayCount++ },
-                        modifier = Modifier.align(Alignment.End).heightIn(min = 48.dp)
+                        modifier = Modifier.align(Alignment.End)
+                            .heightIn(min = 48.dp)
+                            .semantics {
+                                contentDescription = if (page == 0)
+                                    "Replay farm management example"
+                                else "Replay crop planning example"
+                            }
                     ) {
                         Text("Replay example", color = ink,
                             style = MaterialTheme.typography.labelMedium,
