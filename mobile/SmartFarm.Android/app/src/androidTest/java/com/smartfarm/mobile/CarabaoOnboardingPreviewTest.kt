@@ -97,15 +97,15 @@ class CarabaoOnboardingPreviewTest {
 
     @Test
     fun optionalAnimatedIntroductionCanBeSkippedWithoutExitingTheGuide() {
-        // Freeze the Compose clock so the brief intro cannot finish while we
-        // inspect the Skip button on an emulator that may disable animations.
-        compose.mainClock.autoAdvance = false
+        // Hold the intro before its one-shot animation starts; the production
+        // default still auto-plays on real devices.
         var exits = 0
         compose.setContent {
-            SmartFarmTheme { AniGoOnboardingScreen(onExit = { exits++ }, motionAllowed = true) }
+            SmartFarmTheme { AniGoOnboardingScreen(
+                onExit = { exits++ }, motionAllowed = true, introAutoPlay = false
+            ) }
         }
         compose.onNodeWithText("Skip intro").assertIsDisplayed().performClick()
-        compose.mainClock.autoAdvance = true
         compose.waitForIdle()
         compose.onNodeWithText("Your farm, organized").assertIsDisplayed()
         compose.runOnIdle { assertEquals(0, exits) }
