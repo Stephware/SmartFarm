@@ -1,14 +1,16 @@
 package com.smartfarm.mobile.ui.components.onboarding
 
+import androidx.activity.compose.BackHandler
+import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.Animatable
-import androidx.compose.animation.core.FastOutSlowInEasing
+import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -52,6 +54,10 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalDensity
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.compose.LocalLifecycleOwner
+import androidx.lifecycle.compose.currentStateAsState
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
@@ -118,15 +124,50 @@ fun AniGoOnboardingScreen(
         return
     }
 
+    val lifecycleState by LocalLifecycleOwner.current.lifecycle.currentStateAsState()
+    val activityResumed = lifecycleState.isAtLeast(Lifecycle.State.RESUMED)
     val pager = rememberPagerState(pageCount = { PageCount })
     val scope = rememberCoroutineScope()
+    val selectedPage = pager.settledPage
+    val changingPage = pager.isScrollInProgress
+
+    // Fade in smoothly after the skippable introduction. Respect backgrounding.
+    val guideEntry = remember { Animatable(if (motionAllowed) 0f else 1f) }
+    LaunchedEffect(activityResumed, motionAllowed) {
+        if (!motionAllowed) guideEntry.snapTo(1f)
+        else if (activityResumed && guideEntry.value < 1f) {
+            guideEntry.animateTo(
+                targetValue = 1f,
+                animationSpec = tween(
+                    durationMillis = (AniGoGuideMotion.GuideEnterMillis *
+                        (1f - guideEntry.value)).toInt().coerceAtLeast(1)
+                )
+            )
+        }
+    }
+
+    var exiting by rememberSaveable { mutableStateOf(false) }
+    val exitOnce = {
+        if (!exiting) {
+            exiting = true
+            onExit()
+        }
+    }
+    BackHandler(enabled = !exiting) {
+        if (!changingPage) {
+            if (selectedPage > 0) scope.launch {
+                pager.animateScrollToPage(selectedPage - 1)
+            } else exitOnce()
+        }
+    }
     val dark = LocalFarmAppearance.current.dark
     val background = if (dark) Color(0xFF101F18) else Cream
     val foreground = if (dark) Color(0xFFECF4EB) else Ink
     val secondary = if (dark) Color(0xFFC7D4CA) else Muted
 
     Column(
-        modifier.fillMaxSize().background(background).windowInsetsPadding(WindowInsets.safeDrawing),
+        modifier.fillMaxSize().background(background).windowInsetsPadding(WindowInsets.safeDrawing)
+            .graphicsLayer { alpha = guideEntry.value },
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Row(
@@ -142,22 +183,32 @@ fun AniGoOnboardingScreen(
                 contentScale = ContentScale.Fit,
                 modifier = Modifier.width(130.dp).height(38.dp)
             )
-            TextButton(onClick = onExit, modifier = Modifier.heightIn(min = 48.dp)) {
+            TextButton(
+                onClick = { exitOnce() },
+                enabled = !exiting,
+                modifier = Modifier.heightIn(min = 48.dp)
+            ) {
                 Text("Skip", color = secondary)
             }
         }
         Row(
             Modifier.fillMaxWidth().padding(horizontal = 24.dp, vertical = 7.dp)
                 .semantics {
-                    contentDescription = "Step " + (pager.currentPage + 1) + " of " + PageCount
+                    contentDescription = "Step " + (selectedPage + 1) + " of " + PageCount
                 },
             horizontalArrangement = Arrangement.spacedBy(8.dp)
         ) {
             repeat(PageCount) { index ->
-                Box(Modifier.weight(1f).height(5.dp).clip(CircleShape).background(
-                    if (index <= pager.currentPage) Pine
-                    else if (dark) Color(0xFF3A5244) else Color(0xFFE4E5DA)
-                ))
+                val marker by animateColorAsState(
+                    targetValue = if (index <= selectedPage) Pine
+                        else if (dark) Color(0xFF3A5244) else Color(0xFFE4E5DA),
+                    animationSpec = tween(
+                        durationMillis = if (motionAllowed)
+                            AniGoGuideMotion.GuideEnterMillis else 0
+                    ),
+                    label = "AniGo onboarding step"
+                )
+                Box(Modifier.weight(1f).height(5.dp).clip(CircleShape).background(marker))
             }
         }
         HorizontalPager(
@@ -167,7 +218,8 @@ fun AniGoOnboardingScreen(
         ) { page ->
             GuidePageContent(
                 page = page, dark = dark, ink = foreground, secondary = secondary,
-                active = pager.currentPage == page && !pager.isScrollInProgress,
+                pageActive = selectedPage == page && !changingPage,
+                activityResumed = activityResumed,
                 motionAllowed = motionAllowed
             )
         }
@@ -178,20 +230,27 @@ fun AniGoOnboardingScreen(
             verticalAlignment = Alignment.CenterVertically
         ) {
             TextButton(
-                onClick = { scope.launch { pager.animateScrollToPage(pager.currentPage - 1) } },
-                enabled = pager.currentPage > 0,
+                onClick = {
+                    if (!changingPage && selectedPage > 0) scope.launch {
+                        pager.animateScrollToPage(selectedPage - 1)
+                    }
+                },
+                enabled = selectedPage > 0 && !changingPage && !exiting,
                 modifier = Modifier.width(92.dp).heightIn(min = 52.dp)
-            ) { Text("Back", color = if (pager.currentPage == 0) secondary else foreground) }
+            ) { Text("Back", color = if (selectedPage == 0) secondary else foreground) }
             Button(
                 onClick = {
-                    if (pager.currentPage == PageCount - 1) onExit()
-                    else scope.launch { pager.animateScrollToPage(pager.currentPage + 1) }
+                    if (!changingPage) {
+                        if (selectedPage == PageCount - 1) exitOnce()
+                        else scope.launch { pager.animateScrollToPage(selectedPage + 1) }
+                    }
                 },
+                enabled = !changingPage && !exiting,
                 modifier = Modifier.weight(1f).heightIn(min = 54.dp),
                 shape = RoundedCornerShape(14.dp),
                 colors = ButtonDefaults.buttonColors(containerColor = Pine, contentColor = Color.White)
             ) {
-                Text(if (pager.currentPage == PageCount - 1) "Continue to AniGo" else "Next →",
+                Text(if (selectedPage == PageCount - 1) "Continue to AniGo" else "Next →",
                     fontWeight = FontWeight.Bold)
             }
         }
