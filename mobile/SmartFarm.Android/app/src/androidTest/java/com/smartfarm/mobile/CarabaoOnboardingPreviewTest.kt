@@ -116,7 +116,7 @@ class CarabaoOnboardingPreviewTest {
 
     private fun saveScreenshot(filename: String) {
         val context = InstrumentationRegistry.getInstrumentation().targetContext
-        val directory = File(context.getExternalFilesDir(null), "anigo-onboarding")
+        val directory = File(context.filesDir, "anigo-onboarding")
         directory.mkdirs()
         FileOutputStream(File(directory, filename + ".png")).use { out ->
             compose.onRoot().captureToImage().asAndroidBitmap()
