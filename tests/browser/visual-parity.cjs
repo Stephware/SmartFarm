@@ -25,8 +25,9 @@ if (update) fs.mkdirSync(directory, { recursive: true });
 else {
     const manifest = JSON.parse(fs.readFileSync(path.join(directory, "review.json")));
     assert.equal(manifest.reviewed, true, "Visual baselines must be reviewed before accepting them.");
-    assert.deepEqual(manifest.sourceHashes, hashes,
-        "Public presentation changed. Capture candidate screens, review all sizes/themes, then explicitly update goldens.");
+    // Compare all screenshots *before* checking source hashes, so source-only
+    // changes receive actual image-diff evidence without weakening either gate.
+    // The manifest must still match exactly before CI can pass.
 }
 
 (async () => {
@@ -113,6 +114,9 @@ else {
             console.log("Captured 30 candidates. Visual review is required; review.json remains unapproved.");
         } else {
             assert.deepEqual(findings, [], "Reviewed visual baseline regressions: " + findings.join("; "));
+            const reviewed = JSON.parse(fs.readFileSync(path.join(directory, "review.json")));
+            assert.deepEqual(reviewed.sourceHashes, hashes,
+                "Source hashes differ, even though screenshots were compared. Review provenance before approving this change.");
             console.log("PASS 30 reviewed light/dark visual baselines");
         }
     } finally { await browser.close(); }
