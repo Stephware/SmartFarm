@@ -198,7 +198,7 @@ fun ForgotPasswordScreen(onLogin: () -> Unit) {
 @Composable
 fun AccountScreen(state: AuthUiState, onLogout: () -> Unit, onFarms: () -> Unit,
     onSync: () -> Unit, onNotifications: () -> Unit = {},
-    pendingSyncCount: Int = 0) {
+    pendingSyncCount: Int = 0, onReplayGuide: (() -> Unit)? = null) {
     var confirmingLogout by rememberSaveable { mutableStateOf(false) }
     val name = state.account?.fullName.orEmpty()
     AuthScaffold("My account", "Your details and personal app settings.") {
@@ -239,6 +239,18 @@ fun AccountScreen(state: AuthUiState, onLogout: () -> Unit, onFarms: () -> Unit,
                 horizontalArrangement = Arrangement.SpaceBetween) {
                 Text("Dark theme", style = MaterialTheme.typography.bodyLarge)
                 Switch(checked = appearance.dark, onCheckedChange = null)
+            }
+        }
+        if (onReplayGuide != null) {
+            FarmSectionCard("Help & onboarding",
+                subtitle = "Review how to organize farms, crops, fieldwork, and harvests.") {
+                OutlinedButton(
+                    onClick = onReplayGuide,
+                    modifier = Modifier.fillMaxWidth().defaultMinSize(minHeight = 48.dp)
+                        .testTag("replay-anigo-guide")
+                ) {
+                    Text("Replay AniGo guide")
+                }
             }
         }
         if (pendingSyncCount > 0) {
