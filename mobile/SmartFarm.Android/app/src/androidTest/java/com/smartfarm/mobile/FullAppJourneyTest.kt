@@ -187,7 +187,19 @@ class FullAppJourneyTest {
             compose.onNodeWithText("Choose supply").performScrollTo().performClick()
             compose.onNodeWithText("Test fertilizer", substring = true).performClick()
             compose.onNodeWithText("Quantity used (kg)").performScrollTo().performTextInput("1.250")
-            compose.onNodeWithText("Save activity and supply use").performScrollTo().performClick()
+            // Native IME insets can still move the form after text input is idle.
+            // Settle the viewport before physically tapping the combined-save button.
+            compose.runOnIdle {
+                WindowCompat.getInsetsController(compose.activity.window,
+                    compose.activity.window.decorView).hide(androidx.core.view.WindowInsetsCompat.Type.ime())
+            }
+            compose.waitUntil(5_000) {
+                androidx.core.view.ViewCompat.getRootWindowInsets(compose.activity.window.decorView)
+                    ?.isVisible(androidx.core.view.WindowInsetsCompat.Type.ime()) == false
+            }
+            compose.onNodeWithText("Quantity used (kg)").assertTextContains("1.250")
+            compose.onNodeWithText("Save activity and supply use").performScrollTo()
+                .assertIsDisplayed().assertIsEnabled().performClick()
             compose.waitUntil(10_000) {
                 runBlocking { dao.watch(journeyUserId).first().any { it.operationId !in priorIds && it.operationType == "activity_stock" } }
             }
