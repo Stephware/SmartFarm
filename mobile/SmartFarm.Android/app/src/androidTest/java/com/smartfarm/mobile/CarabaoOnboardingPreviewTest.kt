@@ -5,6 +5,7 @@ import androidx.compose.ui.graphics.asAndroidBitmap
 import androidx.compose.ui.test.captureToImage
 import androidx.compose.ui.test.onRoot
 import androidx.test.platform.app.InstrumentationRegistry
+import androidx.test.espresso.Espresso
 import java.io.File
 import java.io.FileOutputStream
 import androidx.compose.ui.test.assertIsDisplayed
@@ -237,6 +238,51 @@ class CarabaoOnboardingPreviewTest {
         compose.onNodeWithText("Batch 2 · 35 kg").assertExists()
         compose.onNodeWithText("Continue to AniGo").assertIsDisplayed()
         compose.runOnIdle { assertEquals(0, exitCount) }
+    }
+
+    @Test
+    fun nativeAndroidBackMovesThroughGuidePagesBeforeExiting() {
+        var exits = 0
+        compose.setContent {
+            SmartFarmTheme {
+                AniGoOnboardingScreen(onExit = { exits++ }, motionAllowed = false)
+            }
+        }
+        compose.onNodeWithText("Next →").performClick()
+        compose.waitForIdle()
+        compose.onNodeWithText("Grow with a plan").assertIsDisplayed()
+
+        Espresso.pressBack()
+        compose.waitForIdle()
+        compose.onNodeWithText("Your farm, organized").assertIsDisplayed()
+        compose.runOnIdle { assertEquals(0, exits) }
+
+        Espresso.pressBack()
+        compose.runOnIdle { assertEquals(1, exits) }
+    }
+
+    @Test
+    fun compactLargeTextStacksIllustrationAndKeepsSampleRecordsReachable() {
+        compose.setContent {
+            DeviceConfigurationOverride(
+                DeviceConfigurationOverride.ForcedSize(DpSize(320.dp, 720.dp))
+            ) {
+                DeviceConfigurationOverride(DeviceConfigurationOverride.FontScale(1.6f)) {
+                    SmartFarmTheme {
+                        AniGoOnboardingScreen(onExit = {}, motionAllowed = false)
+                    }
+                }
+            }
+        }
+        compose.onNodeWithText("Riverside Farm").performScrollTo().assertIsDisplayed()
+        compose.onNodeWithText("North Plot").performScrollTo().assertIsDisplayed()
+        compose.onNodeWithText("Next →").performClick()
+        compose.waitForIdle()
+        compose.onNodeWithText("Rice planting").performScrollTo().assertIsDisplayed()
+        compose.onNodeWithText("Growing").performScrollTo().assertIsDisplayed()
+        compose.onNodeWithText("Back").performClick()
+        compose.waitForIdle()
+        compose.onNodeWithText("Your farm, organized").assertIsDisplayed()
     }
 
     @Test
