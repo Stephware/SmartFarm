@@ -86,10 +86,13 @@ fun AniGoFarmIntro(
     onFinished: () -> Unit,
     modifier: Modifier = Modifier,
     motionAllowed: Boolean = anigoMotionAllowed(),
-    autoPlay: Boolean = true
+    autoPlay: Boolean = true,
+    previewProgress: Float = 0f
 ) {
     val latestFinish by rememberUpdatedState(onFinished)
-    val progress = remember { Animatable(0f) }
+    // Static review frames use the exact runtime illustration and UI layers.
+    // Real entry paths keep the 0f default and play the normal intro.
+    val progress = remember { Animatable(previewProgress.coerceIn(0f, 1f)) }
     val lifecycleState by LocalLifecycleOwner.current.lifecycle.currentStateAsState()
     val activityResumed = lifecycleState.isAtLeast(Lifecycle.State.RESUMED)
     val dark = LocalFarmAppearance.current.dark
