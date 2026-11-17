@@ -133,7 +133,8 @@ class Phase5FormWorkflowTest {
         action("Save harvested amount").assertIsEnabled().performClick()
         compose.runOnIdle { assertEquals(1, calls); assertEquals("1.500" to "First picking", sent) }
         action("Save harvested amount").assertIsNotEnabled()
-        // Confirmed totals are a separate lazy item from the harvest form.
+        // The total is in a separate lazy item: scroll it into composition,
+        // then ensure a queued partial harvest did not alter confirmed totals.
         compose.onNodeWithTag("record-list").performScrollToNode(hasText("2 kg"))
         compose.onNodeWithText("2 kg").assertExists()
     }
