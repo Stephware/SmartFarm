@@ -2,6 +2,7 @@ package com.smartfarm.mobile
 
 import androidx.compose.ui.test.*
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
+import androidx.core.view.WindowCompat
 import java.time.LocalDate
 import java.time.ZoneId
 import java.util.concurrent.atomic.AtomicBoolean
@@ -12,6 +13,7 @@ import okhttp3.mockwebserver.RecordedRequest
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.flow.first
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Assume.assumeTrue
 import org.junit.Rule
@@ -116,13 +118,27 @@ class FullAppJourneyTest {
             compose.onNodeWithText("Log in").performClick()
             compose.onNodeWithText("Email address").performTextInput("farmer@example.test")
             compose.onNodeWithText("Password").performTextInput("Password2026")
-            compose.onNodeWithText("Log in to my farms").performClick()
+            compose.runOnIdle {
+                val bars = WindowCompat.getInsetsController(compose.activity.window, compose.activity.window.decorView)
+                assertFalse("Photo auth must keep readable status icons after navigation and input",
+                    bars.isAppearanceLightStatusBars)
+                assertFalse("Photo auth must keep readable navigation icons after navigation and input",
+                    bars.isAppearanceLightNavigationBars)
+            }
+            compose.onNodeWithText("Log in").performScrollTo().performClick()
             compose.waitUntil(15_000) {
                 compose.onAllNodesWithText("Green Valley Farm").fetchSemanticsNodes().isNotEmpty()
             }
             compose.onNodeWithText("Green Valley Farm").performClick()
             compose.waitUntil(15_000) {
                 compose.onAllNodesWithTag("farm-bottom-navigation").fetchSemanticsNodes().isNotEmpty()
+            }
+            compose.runOnIdle {
+                val dark = compose.activity.getSharedPreferences("appearance", android.content.Context.MODE_PRIVATE)
+                    .getBoolean("dark", false)
+                val bars = WindowCompat.getInsetsController(compose.activity.window, compose.activity.window.decorView)
+                assertEquals("Workspace must restore its theme's status icons", !dark, bars.isAppearanceLightStatusBars)
+                assertEquals("Workspace must restore its theme's navigation icons", !dark, bars.isAppearanceLightNavigationBars)
             }
 
             compose.waitUntil(15_000) {

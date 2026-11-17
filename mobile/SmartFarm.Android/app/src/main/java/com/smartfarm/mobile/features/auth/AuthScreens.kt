@@ -3,6 +3,7 @@ package com.smartfarm.mobile.features.auth
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.consumeWindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
@@ -51,75 +52,146 @@ import androidx.compose.material3.Switch
 import com.smartfarm.mobile.ui.components.FarmAppBar
 import com.smartfarm.mobile.ui.components.FarmHero
 import com.smartfarm.mobile.ui.components.FarmSectionCard
+import com.smartfarm.mobile.ui.components.PhotoAuthScaffold
+import com.smartfarm.mobile.ui.components.PhotoAuthPrimaryButton
 
 @Composable
-fun LoginScreen(state: AuthUiState, onSubmit: (String, String) -> Unit, onRegister: () -> Unit) {
+fun LoginScreen(
+    state: AuthUiState,
+    onSubmit: (String, String) -> Unit,
+    onRegister: () -> Unit,
+    onForgotPassword: () -> Unit = {}
+) {
     var email by rememberSaveable { mutableStateOf("") }
-    // Never save credentials to saved instance state.
+    // Credentials must never enter saved instance state or local storage.
     var password by remember { mutableStateOf("") }
     val ready = looksLikeEmail(email) && password.isNotBlank()
-    AuthScaffold("Welcome back", "Log in to open your farms and pick up today's work.") {
-        FarmSectionCard("Log in", subtitle = "Use your AniGo account details.") {
-            OutlinedTextField(
-                email, { email = it }, label = { Text("Email address") },
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email,
-                    imeAction = ImeAction.Next), modifier = Modifier.fillMaxWidth(),
-                isError = email.isNotBlank() && !looksLikeEmail(email), singleLine = true
-            )
-            if (email.isNotBlank() && !looksLikeEmail(email))
-                Text("Enter a valid email address.", color = MaterialTheme.colorScheme.error,
-                    style = MaterialTheme.typography.bodySmall)
-            PasswordInput("Password", password, { password = it }, imeAction = ImeAction.Done)
-            Feedback(state)
-            Button(onClick = { onSubmit(email.trim(), password) },
-                enabled = !state.busy && ready, modifier = Modifier.fillMaxWidth()) {
-                Text("Log in to my farms")
-            }
-            Text("New to AniGo?", color = MaterialTheme.colorScheme.onSurfaceVariant)
-            OutlinedButton(onClick = onRegister, enabled = !state.busy,
-                modifier = Modifier.fillMaxWidth()) { Text("Create an account") }
+
+    PhotoAuthScaffold(
+        headline = "Good to have you back.",
+        description = "Your fields, crops and team — all in one connected place.",
+        formTitle = "Log in to AniGo",
+        formSubtitle = "Pick up right where you left off."
+    ) {
+        OutlinedTextField(
+            email, { email = it }, label = { Text("Email address") },
+            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email, imeAction = ImeAction.Next),
+            modifier = Modifier.fillMaxWidth(),
+            shape = RoundedCornerShape(14.dp),
+            isError = email.isNotBlank() && !looksLikeEmail(email), singleLine = true
+        )
+        if (email.isNotBlank() && !looksLikeEmail(email)) {
+            Text("Enter a valid email address.", color = MaterialTheme.colorScheme.error,
+                style = MaterialTheme.typography.bodySmall)
         }
+        PasswordInput("Password", password, { password = it }, imeAction = ImeAction.Done)
+        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.End) {
+            TextButton(onClick = onForgotPassword, enabled = !state.busy) {
+                Text("Forgot password?")
+            }
+        }
+        Feedback(state)
+        PhotoAuthPrimaryButton(
+            label = "Log in",
+            onClick = { onSubmit(email.trim(), password) },
+            enabled = !state.busy && ready
+        )
+        Text("New to AniGo?", color = MaterialTheme.colorScheme.onSurfaceVariant,
+            modifier = Modifier.align(Alignment.CenterHorizontally))
+        OutlinedButton(
+            onClick = onRegister, enabled = !state.busy,
+            modifier = Modifier.fillMaxWidth().defaultMinSize(minHeight = 48.dp),
+            shape = RoundedCornerShape(14.dp)
+        ) { Text("Create account") }
     }
 }
 
 @Composable
-fun RegisterScreen(state: AuthUiState, onSubmit: (String, String, String) -> Unit,
-    onLogin: () -> Unit) {
+fun RegisterScreen(
+    state: AuthUiState,
+    onSubmit: (String, String, String) -> Unit,
+    onLogin: () -> Unit
+) {
     var name by rememberSaveable { mutableStateOf("") }
     var email by rememberSaveable { mutableStateOf("") }
-    // Passwords are intentionally never stored with rememberSaveable.
+    // Preserve the existing three-field registration contract; never save passwords.
     var password by remember { mutableStateOf("") }
     val canCreate = registrationReady(name, email, password)
-    AuthScaffold("Grow with AniGo", "Create an account to manage your farm or join a team.") {
-        FarmSectionCard("Create your account", subtitle = "One account can work with multiple farms.") {
-            OutlinedTextField(name, { name = it }, label = { Text("Full name") },
-                modifier = Modifier.fillMaxWidth(), singleLine = true,
-                keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next),
-                isError = name.isNotBlank() && name.trim().length !in 2..120)
-            OutlinedTextField(email, { email = it }, label = { Text("Email address") },
-                modifier = Modifier.fillMaxWidth(), singleLine = true,
-                isError = email.isNotBlank() && !looksLikeEmail(email),
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email,
-                    imeAction = ImeAction.Next))
-            if (email.isNotBlank() && !looksLikeEmail(email))
-                Text("Enter a valid email address.", color = MaterialTheme.colorScheme.error,
-                    style = MaterialTheme.typography.bodySmall)
-            PasswordInput("Password", password, { password = it }, imeAction = ImeAction.Next,
-                error = password.isNotBlank() && !meetsPasswordGuidance(password))
-            Text("Use 10–128 characters with uppercase, lowercase and a number.",
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
+
+    PhotoAuthScaffold(
+        headline = "Grow with AniGo.",
+        description = "Plan crops, organize fieldwork and manage your farm in one place.",
+        formTitle = "Create your account",
+        formSubtitle = "One account can manage a farm or join a team.",
+        compactHero = true
+    ) {
+        OutlinedTextField(
+            name, { name = it }, label = { Text("Full name") },
+            modifier = Modifier.fillMaxWidth(), singleLine = true,
+            shape = RoundedCornerShape(14.dp),
+            keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next),
+            isError = name.isNotBlank() && name.trim().length !in 2..120
+        )
+        OutlinedTextField(
+            email, { email = it }, label = { Text("Email address") },
+            modifier = Modifier.fillMaxWidth(), singleLine = true,
+            shape = RoundedCornerShape(14.dp),
+            isError = email.isNotBlank() && !looksLikeEmail(email),
+            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email, imeAction = ImeAction.Next)
+        )
+        if (email.isNotBlank() && !looksLikeEmail(email)) {
+            Text("Enter a valid email address.", color = MaterialTheme.colorScheme.error,
                 style = MaterialTheme.typography.bodySmall)
-            Feedback(state)
-            Button(onClick = { onSubmit(name.trim(), email.trim(), password) },
-                enabled = !state.busy && canCreate, modifier = Modifier.fillMaxWidth()) {
-                Text("Create account")
-            }
-            Text("After registering, sign in to create a farm or request to join one.",
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                style = MaterialTheme.typography.bodySmall)
-            OutlinedButton(onClick = onLogin, enabled = !state.busy,
-                modifier = Modifier.fillMaxWidth()) { Text("Back to log in") }
         }
+        PasswordInput(
+            "Password", password, { password = it },
+            imeAction = ImeAction.Done,
+            error = password.isNotBlank() && !meetsPasswordGuidance(password)
+        )
+        Text("Use 10–128 characters with uppercase, lowercase and a number.",
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            style = MaterialTheme.typography.bodySmall)
+        Feedback(state)
+        PhotoAuthPrimaryButton(
+            label = "Create account",
+            onClick = { onSubmit(name.trim(), email.trim(), password) },
+            enabled = !state.busy && canCreate
+        )
+        Text("After registering, sign in to create a farm or request to join one.",
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            style = MaterialTheme.typography.bodySmall)
+        OutlinedButton(
+            onClick = onLogin, enabled = !state.busy,
+            modifier = Modifier.fillMaxWidth().defaultMinSize(minHeight = 48.dp),
+            shape = RoundedCornerShape(14.dp)
+        ) { Text("Back to log in") }
+    }
+}
+
+/**
+ * Account recovery is deliberately informative until a verified email/token reset service exists.
+ * Never collect an email or claim a reset link has been sent without a working backend.
+ */
+@Composable
+fun ForgotPasswordScreen(onLogin: () -> Unit) {
+    PhotoAuthScaffold(
+        headline = "Need help signing in?",
+        description = "Keep your farm work within reach.",
+        formTitle = "Forgot your password?",
+        formSubtitle = "Account recovery information",
+        compactHero = true
+    ) {
+        Text(
+            "Email password reset is not available in this AniGo version.",
+            color = MaterialTheme.colorScheme.onSurface,
+            style = MaterialTheme.typography.bodyLarge
+        )
+        Text(
+            "No reset link can be sent yet. Contact your AniGo system administrator for account assistance.",
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            style = MaterialTheme.typography.bodyMedium
+        )
+        PhotoAuthPrimaryButton("Back to log in", onClick = onLogin)
     }
 }
 
@@ -226,6 +298,7 @@ private fun PasswordInput(label: String, value: String, onChange: (String) -> Un
     var visible by remember { mutableStateOf(false) }
     OutlinedTextField(
         value, onChange, label = { Text(label) }, modifier = Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(14.dp),
         isError = error, singleLine = true,
         visualTransformation = if (visible) VisualTransformation.None else PasswordVisualTransformation(),
         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password, imeAction = imeAction),

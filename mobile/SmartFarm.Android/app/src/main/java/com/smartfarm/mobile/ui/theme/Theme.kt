@@ -4,6 +4,7 @@ import androidx.compose.runtime.compositionLocalOf
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
@@ -105,22 +106,30 @@ internal val FarmShapes = Shapes(
 /** Appearance is the only persisted preference here; authentication stays memory-only. */
 data class FarmAppearance(val dark: Boolean, val selectDark: (Boolean) -> Unit)
 val LocalFarmAppearance = compositionLocalOf { FarmAppearance(false) {} }
+internal val LocalPhotoAuthBars = compositionLocalOf<(Boolean) -> Unit> { {} }
 
 @Composable
 fun SmartFarmTheme(content: @Composable () -> Unit) {
     val context = LocalContext.current
     val preferences = remember(context) { context.getSharedPreferences("appearance", android.content.Context.MODE_PRIVATE) }
     val dark = remember { mutableStateOf(preferences.getBoolean("dark", false)) }
+    // Count scopes because outgoing/incoming auth routes overlap during navigation.
+    val photoAuthScreens = remember { mutableIntStateOf(0) }
+    val photoBarScope: (Boolean) -> Unit = remember {
+        { entering -> photoAuthScreens.intValue += if (entering) 1 else -1 }
+    }
+    val lightSystemBars = !dark.value && photoAuthScreens.intValue == 0
     val view = LocalView.current
     SideEffect {
         (context as? android.app.Activity)?.let { activity ->
             WindowCompat.getInsetsController(activity.window, view).apply {
-                isAppearanceLightStatusBars = !dark.value
-                isAppearanceLightNavigationBars = !dark.value
+                isAppearanceLightStatusBars = lightSystemBars
+                isAppearanceLightNavigationBars = lightSystemBars
             }
         }
     }
-    CompositionLocalProvider(LocalFarmAppearance provides FarmAppearance(dark.value) { selected ->
+    CompositionLocalProvider(LocalPhotoAuthBars provides photoBarScope,
+        LocalFarmAppearance provides FarmAppearance(dark.value) { selected ->
         dark.value = selected
         preferences.edit().putBoolean("dark", selected).apply()
     }) {
