@@ -84,7 +84,8 @@ internal fun anigoMotionAllowed(): Boolean {
 fun AniGoFarmIntro(
     onFinished: () -> Unit,
     modifier: Modifier = Modifier,
-    motionAllowed: Boolean = anigoMotionAllowed()
+    motionAllowed: Boolean = anigoMotionAllowed(),
+    autoPlay: Boolean = true
 ) {
     val latestFinish by rememberUpdatedState(onFinished)
     val progress = remember { Animatable(0f) }
@@ -92,11 +93,12 @@ fun AniGoFarmIntro(
     val ink = if (dark) Color(0xFFF2F4EC) else Color(0xFF103D2B)
     val bg = if (dark) Color(0xFF14251B) else Cream
 
-    LaunchedEffect(motionAllowed) {
+    LaunchedEffect(motionAllowed, autoPlay) {
         if (!motionAllowed) {
             latestFinish()
             return@LaunchedEffect
         }
+        if (!autoPlay) return@LaunchedEffect // Hold the first frame for deterministic UI review/tests.
         // Deliberately bounded: finishes once, never restarts or loops on this route.
         progress.animateTo(
             targetValue = 1f,
