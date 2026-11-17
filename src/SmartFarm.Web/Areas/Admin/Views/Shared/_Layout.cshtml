@@ -9,19 +9,21 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="theme-color" content="#153D2D" />
+    <link rel="icon" type="image/svg+xml" href="~/images/branding/anigo-mark.svg" asp-append-version="true" />
     <title>@ViewData["Title"] - AniGo Administration</title>
     <script src="~/js/color-mode.js" asp-append-version="true"></script>
     <link rel="preload" href="~/fonts/manrope/Manrope-Variable.ttf" as="font" type="font/ttf" crossorigin />
     <link rel="stylesheet" href="~/css/anigo-tailwind.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/anigo-branding.css" asp-append-version="true" />
     <script src="~/js/site.js" asp-append-version="true" defer></script>
 </head>
 <body class="is-authenticated">
 <a class="skip-link" href="#main-content">Skip to content</a>
 <div class="app-shell admin-shell ani12f-admin-shell">
     <aside class="sidebar app-sidebar" aria-label="Platform administration">
-        <a class="logo brand sidebar-brand" asp-area="Admin" asp-controller="Dashboard" asp-action="Index">
-            <span class="logo-mark"><partial name="~/Views/Shared/_Icon.cshtml" model='@("leaf")' /></span>
-            <span>AniGo<small>Platform administration</small></span>
+        <a class="logo brand sidebar-brand anigo-sidebar-brand" asp-area="Admin" asp-controller="Dashboard" asp-action="Index" aria-label="AniGo administration">
+            <img class="anigo-sidebar-logo" src="~/images/branding/anigo-logo-on-dark.svg" asp-append-version="true" alt="" width="1120" height="297" />
+            <small class="anigo-sidebar-caption">Platform administration</small>
         </a>
         <div class="sidebar-workspace">
             <p class="side-group-label">Administration</p>
@@ -70,7 +72,7 @@
     <div class="app-body content-shell">
         <header class="site-header app-topbar topbar">
             <div class="crumb"><a asp-area="Admin" asp-controller="Dashboard" asp-action="Index">Admin overview</a><span aria-hidden="true">/</span><strong>@(ViewData["Title"] ?? "Administration")</strong></div>
-            <a class="mobile-brand" asp-area="Admin" asp-controller="Dashboard" asp-action="Index">AniGo Admin</a>
+            <a class="mobile-brand anigo-mobile-brand" asp-area="Admin" asp-controller="Dashboard" asp-action="Index" aria-label="AniGo administration"><span class="anigo-logo-pair anigo-mobile-logo" aria-hidden="true"><img class="anigo-logo-light" src="~/images/branding/anigo-logo.svg" asp-append-version="true" alt="" width="1120" height="297" /><img class="anigo-logo-dark" src="~/images/branding/anigo-logo-on-dark.svg" asp-append-version="true" alt="" width="1120" height="297" /></span></a>
             <nav class="top-actions app-topbar-actions" aria-label="Administration settings">
                 <button class="icon-button color-mode-toggle" type="button" data-color-mode-toggle
                         aria-label="Use dark appearance" aria-pressed="false">
