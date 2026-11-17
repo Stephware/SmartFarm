@@ -23,5 +23,5 @@
     "login": "/Account/Login",
     "registration": "/Account/Register"
   },
-  "note": "AniGo approved-logo refresh (2026-11-17): reviewed all 30 generated desktop/tablet/phone Chromium screens across 320, 375, 768, 1024 and 1440 pixels; light/dark landing, login and registration include approved farm logo. No visual-regression thresholds relaxed."
+  "note": "Approved AniGo public goldens retained unchanged. PR #142 changes the signed-in mobile header only. GitHub Actions run 44113306387 compared all 30 landing/login/register screenshots at 320, 375, 768, 1024 and 1440 pixels in light/dark: every image 0.000% different. No golden PNGs, thresholds, or reviewed flag modified."
 }
