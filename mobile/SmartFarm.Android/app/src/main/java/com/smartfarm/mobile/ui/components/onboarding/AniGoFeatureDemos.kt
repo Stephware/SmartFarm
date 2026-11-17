@@ -34,7 +34,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 
 /**
- * Phase 4's teaching cards. This is a standalone presentation layer: sample labels,
+ * Phase 4–5 teaching cards. This is a standalone presentation layer: sample labels,
  * deterministic progress, no ViewModel/API/Room writes or any real farm state.
  * The caller advances [progress] once per active page and may reset it to replay.
  */
@@ -45,11 +45,11 @@ private val Muted = Color(0xFF66756A)
 private val Leaf = Color(0xFF4B9C54)
 private val Border = Color(0xFFE3E9DF)
 
-private fun reveal(progress: Float, start: Float): Float =
+internal fun reveal(progress: Float, start: Float): Float =
     ((progress - start) / 0.13f).coerceIn(0f, 1f)
 
 @Composable
-private fun ExampleCard(
+internal fun ExampleCard(
     title: String,
     subtitle: String,
     label: String,
@@ -76,7 +76,7 @@ private fun ExampleCard(
 }
 
 @Composable
-private fun IntroRow(
+internal fun IntroRow(
     title: String,
     subtext: String,
     color: Color = Pine,
