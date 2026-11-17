@@ -4,6 +4,8 @@ import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.runtime.SideEffect
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.platform.LocalView
+import androidx.compose.ui.platform.LocalFocusManager
+import android.os.SystemClock
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.compose.ui.test.onNodeWithText
@@ -41,6 +43,27 @@ import org.junit.Assert.assertEquals
 class DraftFeedbackTest {
     @get:Rule val compose = createComposeRule()
 
+    /**
+     * The Android IME animates independently from Compose's idling clock.
+     * Wait for actual root-inset visibility and a stable inset height before
+     * scrolling or tapping coordinates in a form.
+     */
+    private fun awaitStableIme(view: () -> android.view.View?, visible: Boolean) {
+        var previousHeight = -1
+        var unchangedSince = SystemClock.uptimeMillis()
+        compose.waitUntil(7_000) {
+            val insets = view()?.let(ViewCompat::getRootWindowInsets)
+            val height = insets?.getInsets(WindowInsetsCompat.Type.ime())?.bottom ?: -1
+            if (height != previousHeight) {
+                previousHeight = height
+                unchangedSince = SystemClock.uptimeMillis()
+            }
+            val matchesVisibility = insets?.isVisible(WindowInsetsCompat.Type.ime()) == visible
+            matchesVisibility && height >= 0 &&
+                SystemClock.uptimeMillis() - unchangedSince >= 200L
+        }
+    }
+
     @Test fun draftRemainsOnFailureAndClearsOnlyAfterLocalSave() {
         var hideKeyboard: () -> Unit = {}
         var view: android.view.View? = null
@@ -49,8 +72,16 @@ class DraftFeedbackTest {
         val state = mutableStateOf(MonitoringUiState(farmId = "farm", cycleId = "crop", canRecord = true))
         compose.setContent {
             val keyboard = LocalSoftwareKeyboardController.current
+            val focus = LocalFocusManager.current
             val currentView = LocalView.current
-            SideEffect { hideKeyboard = { keyboard?.hide() }; view = currentView }
+            SideEffect {
+                hideKeyboard = {
+                    // Remove focus so the IME cannot reopen during the Save tap.
+                    focus.clearFocus(force = true)
+                    keyboard?.hide()
+                }
+                view = currentView
+            }
             SmartFarmTheme {
                 MonitoringScreen(state.value, onBack = {},
                     onActivity = { kind, notes ->
@@ -70,10 +101,10 @@ class DraftFeedbackTest {
         // Dismiss the IME through Compose, without Espresso's window-focus dependency.
         compose.runOnIdle { hideKeyboard() }
         // Native keyboard animation can move the lazy form after Compose is idle.
-        compose.waitUntil(5_000) {
-            view?.let { ViewCompat.getRootWindowInsets(it)?.isVisible(WindowInsetsCompat.Type.ime()) } == false
-        }
-        compose.onNodeWithText("Save activity").performScrollTo().assertIsDisplayed().assertIsEnabled().performClick()
+        awaitStableIme({ view }, visible = false)
+        compose.onNodeWithText("Save activity").performScrollTo()
+        compose.waitUntil(5_000) { compose.onNodeWithText("Save activity").isDisplayed() }
+        compose.onNodeWithText("Save activity").assertIsEnabled().performClick()
         compose.runOnIdle { assertEquals(1, calls) }
         compose.onNodeWithText("Local save failed.").assertIsDisplayed()
         compose.onNodeWithText("Notes (optional)").performScrollTo().assertTextContains("Watered north field")
@@ -150,11 +181,18 @@ class DraftFeedbackTest {
     }
 
     @Test fun registrationSubmitCanBeScrolledAboveTheKeyboard() {
-        compose.setContent { SmartFarmTheme { RegisterScreen(AuthUiState(), { _, _, _ -> }, {}) } }
+        var view: android.view.View? = null
+        compose.setContent {
+            val currentView = LocalView.current
+            SideEffect { view = currentView }
+            SmartFarmTheme { RegisterScreen(AuthUiState(), { _, _, _ -> }, {}) }
+        }
         compose.onNodeWithText("Password").performScrollTo().performTextInput("Password2026")
+        // Do not scroll while the native keyboard is still moving the viewport.
+        // The button must remain reachable with the IME OPEN, not only after hiding it.
+        awaitStableIme({ view }, visible = true)
         compose.onNodeWithText("Create account").performScrollTo()
-        // The system keyboard animates outside Compose's idling clock.
-        compose.waitUntil(5000) { compose.onNodeWithText("Create account").isDisplayed() }
+        compose.waitUntil(5_000) { compose.onNodeWithText("Create account").isDisplayed() }
         compose.onNodeWithText("Create account").assertIsDisplayed()
     }
 }
