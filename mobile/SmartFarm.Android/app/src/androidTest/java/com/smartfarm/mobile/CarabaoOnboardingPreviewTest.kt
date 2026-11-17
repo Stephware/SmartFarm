@@ -58,7 +58,7 @@ class CarabaoOnboardingPreviewTest {
     fun fourSlidesCanBeViewedAndBackNavigatedWithoutCreatingFarmData() {
         var exits = 0
         compose.setContent {
-            SmartFarmTheme { AniGoOnboardingScreen(onExit = { exits++ }) }
+            SmartFarmTheme { AniGoOnboardingScreen(onExit = { exits++ }, motionAllowed = false) }
         }
         compose.onNodeWithText("Your farm, organized").assertIsDisplayed()
         compose.onNodeWithText("Riverside Farm").assertExists()
@@ -87,7 +87,7 @@ class CarabaoOnboardingPreviewTest {
         compose.setContent {
             DeviceConfigurationOverride(DeviceConfigurationOverride.ForcedSize(DpSize(320.dp, 720.dp))) {
                 DeviceConfigurationOverride(DeviceConfigurationOverride.FontScale(1.6f)) {
-                    SmartFarmTheme { AniGoOnboardingScreen(onExit = { exits++ }) }
+                    SmartFarmTheme { AniGoOnboardingScreen(onExit = { exits++ }, motionAllowed = false) }
                 }
             }
         }
@@ -96,9 +96,36 @@ class CarabaoOnboardingPreviewTest {
     }
 
     @Test
+    fun optionalAnimatedIntroductionCanBeSkippedWithoutExitingTheGuide() {
+        // Freeze the Compose clock so the brief intro cannot finish while we
+        // inspect the Skip button on an emulator that may disable animations.
+        compose.mainClock.autoAdvance = false
+        var exits = 0
+        compose.setContent {
+            SmartFarmTheme { AniGoOnboardingScreen(onExit = { exits++ }, motionAllowed = true) }
+        }
+        compose.onNodeWithText("Skip intro").assertIsDisplayed().performClick()
+        compose.mainClock.autoAdvance = true
+        compose.waitForIdle()
+        compose.onNodeWithText("Your farm, organized").assertIsDisplayed()
+        compose.runOnIdle { assertEquals(0, exits) }
+    }
+
+    @Test
+    fun reducedMotionBypassesIntroductionAndKeepsGuideAvailable() {
+        var exits = 0
+        compose.setContent {
+            SmartFarmTheme { AniGoOnboardingScreen(onExit = { exits++ }, motionAllowed = false) }
+        }
+        compose.onNodeWithText("Your farm, organized").assertIsDisplayed()
+        compose.onNodeWithText("Skip").performClick()
+        compose.runOnIdle { assertEquals(1, exits) }
+    }
+
+    @Test
     fun captureAllFourActualComposePagesForVisualReview() {
         compose.setContent {
-            SmartFarmTheme { AniGoOnboardingScreen(onExit = {}) }
+            SmartFarmTheme { AniGoOnboardingScreen(onExit = {}, motionAllowed = false) }
         }
         saveScreenshot("01-farm")
         repeat(3) { index ->
