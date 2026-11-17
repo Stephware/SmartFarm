@@ -208,12 +208,21 @@ jobs:
           cat /tmp/anigo-candidate.log
           exit 1
       - name: Check reviewed responsive visual baselines
+        id: visual_check
         env:
           ANIGO_CANDIDATE_URL: http://127.0.0.1:5082
         run: |
           git rev-parse HEAD
           git diff --exit-code HEAD -- tests/browser/baselines/review.json
           sha256sum tests/browser/baselines/review.json
+          node tests/browser/visual-parity.cjs
+      - name: Capture unapproved candidate screenshots for visual review
+        if: failure() && steps.visual_check.outcome == 'failure'
+        env:
+          ANIGO_CANDIDATE_URL: http://127.0.0.1:5082
+          ANIGO_UPDATE_VISUAL_BASELINES: '1'
+        run: |
+          # Files stay in the runner/artifact; this never commits or approves goldens.
           node tests/browser/visual-parity.cjs
       - name: Save candidate/diff screenshots
         if: always()

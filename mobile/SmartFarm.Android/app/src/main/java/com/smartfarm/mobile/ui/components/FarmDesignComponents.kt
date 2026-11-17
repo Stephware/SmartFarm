@@ -224,23 +224,17 @@ fun FarmAppBar(modifier: Modifier = Modifier) {
             Row(Modifier.fillMaxWidth().defaultMinSize(minHeight = 60.dp)
                 .padding(horizontal = 16.dp), verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.spacedBy(9.dp)) {
-                val compact = LocalConfiguration.current.screenWidthDp < 375
-                if (compact) {
-                    // Use the approved symbol at narrow sizes without competing with farm controls.
-                    Surface(shape = RoundedCornerShape(10.dp),
-                        color = Color(0xFFF9F8F4)) {
-                        Image(painter = painterResource(R.drawable.ani_go_mark),
-                            contentDescription = "AniGo",
-                            modifier = Modifier.padding(3.dp).size(32.dp))
-                    }
-                } else {
-                    Image(
-                        painter = painterResource(if (LocalFarmAppearance.current.dark)
-                            R.drawable.ani_go_logo_on_dark else R.drawable.ani_go_logo),
-                        contentDescription = "AniGo",
-                        modifier = Modifier.width(132.dp).height(36.dp)
-                    )
-                }
+                // Persistent workspace app bars carry the official A mark only.
+                // The backing Material surface (not the overall app theme alone)
+                // selects the matching light/dark mark; page/farm titles stay primary.
+                Image(
+                    painter = painterResource(
+                        if (LocalFarmAppearance.current.dark) R.drawable.ani_go_mark_on_dark
+                        else R.drawable.ani_go_mark
+                    ),
+                    contentDescription = "AniGo",
+                    modifier = Modifier.size(40.dp)
+                )
                 Box(Modifier.weight(1f))
                 if (navigation != null) {
                     androidx.compose.material3.OutlinedButton(onClick = navigation.onFarms,

@@ -267,18 +267,23 @@ fun TaskScreen(
                     FarmEmptyState("No farm tasks yet",
                         "Create a task above to assign work to your team.")
                 }
-                items(farmTasks.size, key = { "manage-${farmTasks[it].id}" }) { index ->
-                    val task = farmTasks[index]
-                    TodayTaskCard(task, state, canManage, actorId, onComplete, onOpenCrop,
-                        showAssignee = true)
-                    if (task.status == 0 && state.choicesReady) {
-                        Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                farmTasks.forEach { task ->
+                    item(key = "manage-${task.id}") {
+                        TodayTaskCard(task, state, canManage, actorId, onComplete, onOpenCrop,
+                            showAssignee = true)
+                        if (task.status == 0 && state.choicesReady) {
                             OutlinedButton(onClick = {
                                 editingId = if (editingId == task.id) null else task.id
                             }, modifier = Modifier.fillMaxWidth()) {
                                 Text(if (editingId == task.id) "Close task editor" else "Edit assignment")
                             }
-                            if (editingId == task.id) EditTaskForm(task, state, onUpdate)
+                        }
+                    }
+                    // The edit form is a separate lazy item so its Save button can
+                    // be scrolled fully into view at larger font scales and 320dp.
+                    if (task.status == 0 && state.choicesReady && editingId == task.id) {
+                        item(key = "edit-${task.id}") {
+                            EditTaskForm(task, state, onUpdate)
                         }
                     }
                 }
