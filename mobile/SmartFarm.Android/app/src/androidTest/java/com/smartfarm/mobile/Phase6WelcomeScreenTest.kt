@@ -46,7 +46,7 @@ class Phase6WelcomeScreenTest {
                 }
             }
         }
-        for (text in listOf("YOUR FARM, ORGANIZED", "Welcome to AniGo",
+        for (text in listOf("YOUR FARM, ORGANIZED", "Your farm starts here.",
             "Plan crops, record fieldwork and track harvests in one place.",
             "Get started", "Manage your own farm or join an existing team with one account.")) {
             val layouts = mutableListOf<TextLayoutResult>()
