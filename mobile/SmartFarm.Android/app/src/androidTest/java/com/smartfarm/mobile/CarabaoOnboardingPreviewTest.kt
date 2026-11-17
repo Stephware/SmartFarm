@@ -1,5 +1,8 @@
 package com.smartfarm.mobile
 
+import android.content.ContentValues
+import android.os.Environment
+import android.provider.MediaStore
 import android.graphics.Bitmap
 import androidx.compose.ui.graphics.asAndroidBitmap
 import androidx.compose.ui.test.captureToImage
@@ -423,11 +426,24 @@ class CarabaoOnboardingPreviewTest {
 
     private fun saveScreenshot(filename: String) {
         val context = InstrumentationRegistry.getInstrumentation().targetContext
-        val directory = File(context.filesDir, "anigo-onboarding")
-        directory.mkdirs()
-        FileOutputStream(File(directory, filename + ".png")).use { out ->
-            compose.onRoot().captureToImage().asAndroidBitmap()
-                .compress(Bitmap.CompressFormat.PNG, 100, out)
-        }
+        // MediaStore entries survive the test runner's app-uninstall cleanup.
+        // App-private storage does not, and cannot be inspected after Gradle exits.
+        val uri = requireNotNull(context.contentResolver.insert(
+            MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
+            ContentValues().apply {
+                put(MediaStore.MediaColumns.DISPLAY_NAME, filename + ".png")
+                put(MediaStore.MediaColumns.MIME_TYPE, "image/png")
+                put(
+                    MediaStore.MediaColumns.RELATIVE_PATH,
+                    Environment.DIRECTORY_PICTURES + "/AniGoOnboardingAudit"
+                )
+            }
+        )) { "Failed to create review screenshot: $filename" }
+        context.contentResolver.openOutputStream(uri)?.use { output ->
+            check(
+                compose.onRoot().captureToImage().asAndroidBitmap()
+                    .compress(Bitmap.CompressFormat.PNG, 100, output)
+            ) { "Failed to render review screenshot: $filename" }
+        } ?: error("Cannot write review screenshot: $filename")
     }
 }
