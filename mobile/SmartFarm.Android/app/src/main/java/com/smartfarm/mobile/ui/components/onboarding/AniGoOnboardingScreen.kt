@@ -95,7 +95,8 @@ private val copy = listOf(
 fun AniGoOnboardingScreen(
     onExit: () -> Unit,
     modifier: Modifier = Modifier,
-    motionAllowed: Boolean = anigoMotionAllowed()
+    motionAllowed: Boolean = anigoMotionAllowed(),
+    introAutoPlay: Boolean = true
 ) {
     // The intro is a one-shot before the four learning pages, not a fifth page.
     // The OS reduced-motion setting can bypass it; completion survives rotation.
@@ -104,7 +105,8 @@ fun AniGoOnboardingScreen(
         AniGoFarmIntro(
             onFinished = { showIntro = false },
             modifier = modifier,
-            motionAllowed = motionAllowed
+            motionAllowed = motionAllowed,
+            autoPlay = introAutoPlay
         )
         return
     }
