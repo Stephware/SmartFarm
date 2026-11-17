@@ -26,7 +26,7 @@ test("Web auth retains the single official guest wordmark in the shared header",
     assert.doesNotMatch(screen, /ANI GO\s*\//, name + " must not repeat the brand as a kicker");
   }
   assert.doesNotMatch(brandCss, /\.anigo-auth-brand/, "remove dead duplicate-logo CSS");
-  assert.match(login, /<h1 id="login-heading">Log in to your farm workspace<\/h1>/);
+  assert.match(login, /<h1 id="login-heading">Log in<\/h1>/);
   assert.match(register, /<h1 id="register-heading">Create your account<\/h1>/);
   assert.match(login, /asp-action="Login"/);
   assert.match(register, /asp-action="Register"/);
