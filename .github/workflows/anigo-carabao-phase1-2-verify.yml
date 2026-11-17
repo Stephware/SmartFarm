@@ -1,4 +1,4 @@
-name: AniGo carabao onboarding preview verification
+name: AniGo carabao onboarding final audit
 on:
   push:
     branches: [feature/anigo-carabao-onboarding]
@@ -12,7 +12,7 @@ concurrency:
   cancel-in-progress: true
 jobs:
   android:
-    name: Compile and test AniGo onboarding
+    name: Build and test AniGo onboarding
     runs-on: ubuntu-latest
     timeout-minutes: 40
     steps:
@@ -32,7 +32,7 @@ jobs:
         working-directory: mobile/SmartFarm.Android
         run: bash ./gradlew --no-daemon :app:assembleDebug :app:assembleAndroidTest :app:testDebugUnitTest
   emulator:
-    name: Validate Android onboarding on emulator
+    name: Emulator tests and visual captures
     runs-on: ubuntu-latest
     timeout-minutes: 55
     needs: android
@@ -65,13 +65,26 @@ jobs:
           ram-size: 3072M
           disable-animations: true
           working-directory: mobile/SmartFarm.Android
-          script: >-
-            bash -c 'bash ./gradlew --no-daemon :app:connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.smartfarm.mobile.CarabaoOnboardingPreviewTest;
-            result=$?;
-            mkdir -p app/build/ui-screenshots;
-            adb exec-out run-as com.smartfarm.mobile tar -cf - -C files anigo-onboarding | tar -xf - -C app/build/ui-screenshots/ || true;
-            find app/build/ui-screenshots -type f -print;
-            exit "$result"'
+          script: |
+            set +e
+            bash ./gradlew --no-daemon :app:connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.smartfarm.mobile.CarabaoOnboardingPreviewTest
+            TEST_EXIT=$?
+            mkdir -p app/build/ui-screenshots
+            adb shell run-as com.smartfarm.mobile ls -l files/anigo-onboarding || true
+            MISSING=0
+            for image in 01-farm-light 02-crop-light 03-work-light 04-harvest-light 01-farm-dark 02-crop-dark 03-work-dark 04-harvest-dark intro-light farm-320dp-large-text; do
+              destination="app/build/ui-screenshots/${image}.png"
+              if ! adb exec-out run-as com.smartfarm.mobile cat "files/anigo-onboarding/${image}.png" > "$destination"; then
+                echo "::error::Cannot read screenshot ${image}"
+                MISSING=1
+              elif ! file --mime-type "$destination" | grep -q "image/png"; then
+                echo "::error::Missing or invalid PNG screenshot ${image}"
+                MISSING=1
+              fi
+            done
+            find app/build/ui-screenshots -type f -printf '%f %s bytes\n'
+            if [ "$TEST_EXIT" -ne 0 ]; then exit "$TEST_EXIT"; fi
+            if [ "$MISSING" -ne 0 ]; then exit 1; fi
       - name: Save test results
         if: always()
         uses: actions/upload-artifact@v4
