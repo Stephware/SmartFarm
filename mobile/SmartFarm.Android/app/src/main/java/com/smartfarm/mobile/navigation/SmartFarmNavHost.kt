@@ -36,6 +36,7 @@ import com.smartfarm.mobile.features.auth.LoginScreen
 import com.smartfarm.mobile.features.auth.ForgotPasswordScreen
 import com.smartfarm.mobile.features.auth.RegisterScreen
 import com.smartfarm.mobile.ui.components.WelcomeScreen
+import com.smartfarm.mobile.ui.components.onboarding.AniGoOnboardingScreen
 import com.smartfarm.mobile.features.farms.FarmViewModel
 import com.smartfarm.mobile.features.crops.CropViewModel
 import com.smartfarm.mobile.features.crops.CropScreen
@@ -224,7 +225,11 @@ fun SmartFarmNavHost(auth: AuthViewModel, farms: FarmViewModel, crops: CropViewM
                 status = statusState,
                 onCheckBackend = { status.check() },
                 onLogin = { navController.navigate("login") },
-                onRegister = { navController.navigate("register") })
+                onRegister = { navController.navigate("register") },
+                onPreviewGuide = { navController.navigate("onboarding-preview") { launchSingleTop = true } })
+        }
+        composable("onboarding-preview") {
+            AniGoOnboardingScreen(onExit = { navController.popBackStack() })
         }
         composable("login") {
             LoginScreen(state,
