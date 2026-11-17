@@ -5,6 +5,7 @@ import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsNotEnabled
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithText
+import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollTo
 import androidx.compose.ui.test.performTextInput
@@ -13,6 +14,7 @@ import com.smartfarm.mobile.features.auth.ForgotPasswordScreen
 import com.smartfarm.mobile.features.auth.LoginScreen
 import com.smartfarm.mobile.features.auth.RegisterScreen
 import com.smartfarm.mobile.ui.components.WelcomeScreen
+import com.smartfarm.mobile.ui.components.FarmAppBar
 import com.smartfarm.mobile.ui.theme.SmartFarmTheme
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
@@ -31,6 +33,7 @@ class PhotoAuthScreensTest {
             }
         }
         compose.onNodeWithText("Welcome to AniGo").assertExists()
+        compose.onNodeWithContentDescription("AniGo").assertIsDisplayed()
         compose.onNodeWithText("Log in").performScrollTo().performClick()
         compose.onNodeWithText("Create account").performScrollTo().performClick()
         compose.runOnIdle { assertEquals(1, login); assertEquals(1, registration) }
@@ -49,6 +52,7 @@ class PhotoAuthScreensTest {
             }
         }
         compose.onNodeWithText("Good to have you back.").assertExists()
+        compose.onNodeWithContentDescription("AniGo").assertIsDisplayed()
         compose.onNodeWithText("Log in").performScrollTo().assertIsNotEnabled()
         compose.onNodeWithText("Forgot password?").performScrollTo().performClick()
         compose.onNodeWithText("Create account").performScrollTo().performClick()
@@ -80,6 +84,11 @@ class PhotoAuthScreensTest {
         compose.runOnIdle {
             assertEquals(listOf("Sam Rivera", "sam@example.com", "Password2026"), captured)
         }
+    }
+
+    @Test fun signedInAppBarKeepsAccessibleBrandMark() {
+        compose.setContent { SmartFarmTheme { FarmAppBar() } }
+        compose.onNodeWithContentDescription("AniGo").assertIsDisplayed()
     }
 
     @Test fun recoveryDoesNotPretendToSendAnUnsupportedEmail() {
