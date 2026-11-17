@@ -16,18 +16,13 @@ html[data-color-mode="dark"] .anigo-logo-pair .anigo-logo-dark { display: block;
     font-size: .70rem; font-weight: 600; line-height: 1.2; letter-spacing: .035em;
 }
 .anigo-guest-brand .anigo-logo-pair { width: 154px; }
-.anigo-mobile-brand .anigo-logo-pair { width: 116px; }
+/* Signed-in mobile workspaces use the A mark only; full wordmarks stay on
+   public/desktop surfaces. The mark uses the actual surface's theme variant. */
+.anigo-mobile-brand .anigo-logo-pair { width: 42px; height: 42px; display: inline-flex; align-items: center; justify-content: center; }
+.anigo-mobile-brand .anigo-mobile-logo img { width: 100%; height: auto; max-height: 42px; object-fit: contain; }
 .anigo-footer-brand .anigo-logo-pair { width: 158px; }
 .anigo-footer-brand { line-height: 0; }
-.anigo-auth-brand { display: flex; align-items: center; margin: 0 0 20px; }
-.anigo-auth-brand .anigo-logo-pair { width: 166px; }
-@@media (max-width: 690px) {
-    /* Mobile already displays the AniGo header logo immediately above the auth form. */
-    .anigo-auth-brand { display: none; }
-}
 @@media (max-width: 400px) {
-    .anigo-mobile-brand .anigo-logo-pair { width: 106px; }
     .anigo-guest-brand .anigo-logo-pair { width: 128px; }
-    .anigo-auth-brand .anigo-logo-pair { width: 146px; }
 }
 </style>

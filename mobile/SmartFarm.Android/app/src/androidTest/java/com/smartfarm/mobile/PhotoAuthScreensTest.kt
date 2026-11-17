@@ -4,7 +4,10 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsNotEnabled
 import androidx.compose.ui.test.junit4.createComposeRule
+import androidx.compose.ui.test.hasText
+import androidx.compose.ui.test.hasClickAction
 import androidx.compose.ui.test.onNodeWithText
+import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollTo
 import androidx.compose.ui.test.performTextInput
@@ -13,6 +16,7 @@ import com.smartfarm.mobile.features.auth.ForgotPasswordScreen
 import com.smartfarm.mobile.features.auth.LoginScreen
 import com.smartfarm.mobile.features.auth.RegisterScreen
 import com.smartfarm.mobile.ui.components.WelcomeScreen
+import com.smartfarm.mobile.ui.components.FarmAppBar
 import com.smartfarm.mobile.ui.theme.SmartFarmTheme
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
@@ -30,8 +34,9 @@ class PhotoAuthScreensTest {
                 WelcomeScreen(onLogin = { login++ }, onRegister = { registration++ })
             }
         }
-        compose.onNodeWithText("Welcome to AniGo").assertExists()
-        compose.onNodeWithText("Log in").performScrollTo().performClick()
+        compose.onNodeWithText("Your farm starts here.").assertExists()
+        compose.onNodeWithContentDescription("AniGo").assertIsDisplayed()
+        compose.onNode(hasText("Log in") and hasClickAction()).performScrollTo().performClick()
         compose.onNodeWithText("Create account").performScrollTo().performClick()
         compose.runOnIdle { assertEquals(1, login); assertEquals(1, registration) }
     }
@@ -49,12 +54,13 @@ class PhotoAuthScreensTest {
             }
         }
         compose.onNodeWithText("Good to have you back.").assertExists()
-        compose.onNodeWithText("Log in").performScrollTo().assertIsNotEnabled()
+        compose.onNodeWithContentDescription("AniGo").assertIsDisplayed()
+        compose.onNode(hasText("Log in") and hasClickAction()).performScrollTo().assertIsNotEnabled()
         compose.onNodeWithText("Forgot password?").performScrollTo().performClick()
         compose.onNodeWithText("Create account").performScrollTo().performClick()
         compose.onNodeWithText("Email address").performScrollTo().performTextInput("farmer@example.com")
         compose.onNodeWithText("Password").performScrollTo().performTextInput("Password2026")
-        compose.onNodeWithText("Log in").performScrollTo().performClick()
+        compose.onNode(hasText("Log in") and hasClickAction()).performScrollTo().performClick()
         compose.runOnIdle {
             assertEquals(1, reset)
             assertEquals(1, registration)
@@ -82,13 +88,18 @@ class PhotoAuthScreensTest {
         }
     }
 
+    @Test fun signedInAppBarKeepsAccessibleBrandMark() {
+        compose.setContent { SmartFarmTheme { FarmAppBar() } }
+        compose.onNodeWithContentDescription("AniGo").assertIsDisplayed()
+    }
+
     @Test fun recoveryDoesNotPretendToSendAnUnsupportedEmail() {
         var back = 0
         compose.setContent {
             SmartFarmTheme { ForgotPasswordScreen(onLogin = { back++ }) }
         }
         compose.onNodeWithText("Forgot your password?").assertExists()
-        compose.onNodeWithText("Email password reset is not available in this AniGo version.")
+        compose.onNodeWithText("Email password reset is not available yet.")
             .performScrollTo().assertIsDisplayed()
         compose.onNodeWithText("Send reset link").assertDoesNotExist()
         compose.onNodeWithText("Back to log in").performScrollTo().performClick()

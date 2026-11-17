@@ -29,7 +29,7 @@ fun WelcomeScreen(
 ) {
     var showDiagnostics by rememberSaveable { mutableStateOf(false) }
     PhotoAuthScaffold(
-        headline = "Welcome to AniGo",
+        headline = "Your farm starts here.",
         description = "Plan crops, record fieldwork and track harvests in one place.",
         formTitle = "Get started",
         formSubtitle = "Manage your own farm or join an existing team with one account."

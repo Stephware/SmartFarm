@@ -10,11 +10,11 @@
             <p class="ani6-kicker ani6-kicker-light">Practical farm management</p>
             <h1 id="ani-entry-title">Grow smarter. Manage<br class="ani6-desktop-break" />
                 every farm in <em>one place.</em></h1>
-            <p class="ani6-lede">Plan crops, coordinate fieldwork, track harvests, and keep your farm records organized with AniGo.</p>
+            <p class="ani6-lede">Plan crops, coordinate fieldwork, track harvests, and keep your farm records organized.</p>
             <div class="ani6-hero-actions">
                 <a class="ani6-btn ani6-btn-green" asp-controller="@(signedIn ? "Farms" : "Account")"
                    asp-action="@(signedIn ? "Index" : "Register")">
-                    @(signedIn ? "Open my farms" : "Get started with AniGo")
+                    @(signedIn ? "Open my farms" : "Get started")
                     <partial name="_Icon" model='@("arrow")' />
                 </a>
                 <a class="ani6-btn ani6-btn-outline" href="#how-it-works">
@@ -89,7 +89,7 @@
         <section class="ani6-start" id="get-started" aria-labelledby="ani6-start-title">
             <header class="ani6-section-head">
                 <p class="ani6-kicker">Start where you are</p>
-                <h2 id="ani6-start-title">How would you like to use AniGo?</h2>
+                <h2 id="ani6-start-title">How would you like to get started?</h2>
                 <p>Start your own farm or join an existing team. You can do both with the same account.</p>
             </header>
             <div class="ani6-paths">
@@ -125,7 +125,7 @@
             <img src="~/images/photography/fields-detail.webp" alt=""
                  width="1440" height="960" loading="lazy" decoding="async" />
             <div><h2 id="ani6-cta-title">Ready to organize your farm?</h2>
-                <p>Create your AniGo account and start managing your farm today.</p></div>
+                <p>Create an account and start managing your farm today.</p></div>
             <a class="ani6-btn ani6-btn-white" asp-controller="@(signedIn ? "Farms" : "Account")"
                asp-action="@(signedIn ? "Index" : "Register")">
                 @(signedIn ? "Open my farms" : "Create account") <partial name="_Icon" model='@("arrow")' />

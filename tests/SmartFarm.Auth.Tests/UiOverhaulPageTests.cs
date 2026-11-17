@@ -18,7 +18,7 @@ public sealed class UiOverhaulPageTests : IClassFixture<WebApplicationFactory<Pr
 
     [Theory]
     [InlineData("/", "Grow smarter. Manage every farm in one place.")]
-    [InlineData("/Account/Login", "Log in to AniGo")]
+    [InlineData("/Account/Login", "Log in")]
     [InlineData("/Account/Register", "Create your account")]
     public async Task PublicScreensKeepSkipLinkMainLandmarkAndAccessibleNavigation(
         string path, string expectedHeading)
@@ -72,7 +72,7 @@ public sealed class UiOverhaulPageTests : IClassFixture<WebApplicationFactory<Pr
     public async Task PublicStartChoicesExplainOwnerAndWorkerApproval()
     {
         var landing = await _client.GetStringAsync("/");
-        Assert.Contains("How would you like to use AniGo?", landing);
+        Assert.Contains("How would you like to get started?", landing);
         Assert.Contains("I manage a farm", landing);
         Assert.Contains("I work on a farm", landing);
         Assert.Contains("wait for the owner to approve", landing);

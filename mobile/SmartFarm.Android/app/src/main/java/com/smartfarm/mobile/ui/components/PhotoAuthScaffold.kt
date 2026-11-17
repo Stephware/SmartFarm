@@ -1,6 +1,5 @@
 package com.smartfarm.mobile.ui.components
 
-import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -8,7 +7,6 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
@@ -18,7 +16,6 @@ import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawing
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.rememberScrollState
@@ -35,9 +32,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.Path
-import androidx.compose.ui.graphics.StrokeCap
-import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.semantics.heading
@@ -101,18 +95,15 @@ fun PhotoAuthScaffold(
                     Modifier.fillMaxWidth().padding(horizontal = 24.dp, vertical = 24.dp),
                     verticalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(12.dp)
-                    ) {
-                        AniGoPhotoMark()
-                        Text(
-                            "AniGo",
-                            style = MaterialTheme.typography.headlineMedium,
-                            fontWeight = FontWeight.Bold,
-                            color = Color.White
-                        )
-                    }
+                    // The photo is already darkened: use the official cream/gold
+                    // full wordmark, never a hand-drawn substitute or typed duplicate.
+                    Image(
+                        painter = painterResource(R.drawable.ani_go_logo_on_dark),
+                        contentDescription = "AniGo",
+                        contentScale = ContentScale.Fit,
+                        alignment = Alignment.CenterStart,
+                        modifier = Modifier.widthIn(max = 164.dp).height(48.dp)
+                    )
                     Spacer(Modifier.height(if (compactHero) 32.dp else 82.dp))
                     Text(
                         "YOUR FARM, ORGANIZED",
@@ -183,36 +174,4 @@ fun PhotoAuthPrimaryButton(
             contentColor = Color.White
         )
     ) { Text(label, style = MaterialTheme.typography.labelLarge) }
-}
-
-@Composable
-private fun AniGoPhotoMark() {
-    Surface(
-        color = Color(0xFFF2F5EE),
-        shape = RoundedCornerShape(13.dp),
-        modifier = Modifier.size(48.dp)
-    ) {
-        Box(contentAlignment = Alignment.Center) {
-            Canvas(Modifier.size(30.dp)) {
-                val stroke = Stroke(width = 2.dp.toPx(), cap = StrokeCap.Round)
-                val w = size.width
-                val h = size.height
-                val leftLeaf = Path().apply {
-                    moveTo(w * .49f, h * .53f)
-                    cubicTo(w * .08f, h * .52f, w * .11f, h * .13f, w * .18f, h * .16f)
-                    cubicTo(w * .44f, h * .16f, w * .54f, h * .31f, w * .49f, h * .53f)
-                }
-                val rightLeaf = Path().apply {
-                    moveTo(w * .51f, h * .50f)
-                    cubicTo(w * .60f, h * .13f, w * .89f, h * .16f, w * .87f, h * .16f)
-                    cubicTo(w * .87f, h * .45f, w * .72f, h * .55f, w * .51f, h * .50f)
-                }
-                val green = Color(0xFF153D2D)
-                drawPath(leftLeaf, green, style = stroke)
-                drawPath(rightLeaf, green, style = stroke)
-                drawLine(green, start = androidx.compose.ui.geometry.Offset(w * .50f, h * .50f),
-                    end = androidx.compose.ui.geometry.Offset(w * .50f, h * .91f), strokeWidth = 2.dp.toPx())
-            }
-        }
-    }
 }
