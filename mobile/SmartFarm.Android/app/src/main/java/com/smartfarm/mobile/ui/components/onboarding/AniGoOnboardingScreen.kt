@@ -92,14 +92,19 @@ private val copy = listOf(
 )
 
 @Composable
-fun AniGoOnboardingScreen(onExit: () -> Unit, modifier: Modifier = Modifier) {
-    // Launch only when the user chooses the optional guide. The intro is not a
-    // fifth learning page; completed/skipped intro state survives rotation.
-    var showIntro by rememberSaveable { mutableStateOf(true) }
+fun AniGoOnboardingScreen(
+    onExit: () -> Unit,
+    modifier: Modifier = Modifier,
+    motionAllowed: Boolean = anigoMotionAllowed()
+) {
+    // The intro is a one-shot before the four learning pages, not a fifth page.
+    // The OS reduced-motion setting can bypass it; completion survives rotation.
+    var showIntro by rememberSaveable { mutableStateOf(motionAllowed) }
     if (showIntro) {
         AniGoFarmIntro(
             onFinished = { showIntro = false },
-            modifier = modifier
+            modifier = modifier,
+            motionAllowed = motionAllowed
         )
         return
     }
