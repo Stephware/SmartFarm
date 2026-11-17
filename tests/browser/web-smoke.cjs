@@ -92,7 +92,7 @@ async function checkAccessibility(page, screen, viewport) {
                 if (label === "phone" || label === "desktop")
                     await checkAccessibility(page, "landing", label);
                 await page.screenshot({ path: path.join(screenshots, `landing-${label}.png`), fullPage: true });
-                await checkPage(page, "/Account/Login", "Log in to AniGo");
+                await checkPage(page, "/Account/Login", "Log in");
                 if (label === "phone" || label === "desktop")
                     await checkAccessibility(page, "login", label);
                 assert.equal(await page.locator('input[name="Email"][type="email"]').count(), 1);

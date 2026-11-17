@@ -41,3 +41,10 @@ match the previous set, and ten light login/registration images are byte-identic
 The Phase 6 composition is retained. Comparison mode passed all 30 after review;
 no tolerance or test changes were used to approve the new images. Theme persistence,
 form drafts, enlarged text and A/AA checks remain separate browser assertions.
+
+Phase 3 branding cleanup (2026-11-18, PR #144): Codex inspected all 30 real MVC
+Linux Chromium candidates before approval. The single official header wordmark,
+landing footer, farmer photos and functional controls remain. Removing duplicate
+auth logos and repeated name copy intentionally updates 26 PNGs and 14 page
+heights; four mobile registration PNGs remain identical. Responsive/public A/AA,
+enlarged-text and persistence checks passed. Keep comparison thresholds unchanged.

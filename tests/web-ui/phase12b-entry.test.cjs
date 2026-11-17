@@ -49,8 +49,8 @@ test("Entry flows preserve accessible forms, routes and owner approval rules", (
         assert.match(file, /data-password-toggle/);
         assert.doesNotMatch(file, /<form[^>]*novalidate/);
     }
-    assert.match(landing, /Get started with AniGo/);
-    assert.match(landing, /How would you like to use AniGo\?/);
+    assert.match(landing, /Get started/);
+    assert.match(landing, /How would you like to get started\?/);
     assert.match(landing, /wait for the owner to approve/);
     assert.match(register, /A farm owner must approve join requests/);
     assert.match(farms, /id="join-farm"/);

@@ -114,8 +114,8 @@ class FullAppJourneyTest {
         }
         server.start(5081)
         try {
-            compose.onNodeWithText("Welcome to AniGo").assertExists()
-            compose.onNodeWithText("Log in").performClick()
+            compose.onNodeWithText("Your farm starts here.").assertExists()
+            compose.onNode(hasText("Log in") and hasClickAction()).performClick()
             compose.onNodeWithText("Email address").performTextInput("farmer@example.test")
             compose.onNodeWithText("Password").performTextInput("Password2026")
             compose.runOnIdle {
@@ -125,7 +125,7 @@ class FullAppJourneyTest {
                 assertFalse("Photo auth must keep readable navigation icons after navigation and input",
                     bars.isAppearanceLightNavigationBars)
             }
-            compose.onNodeWithText("Log in").performScrollTo().performClick()
+            compose.onNode(hasText("Log in") and hasClickAction()).performScrollTo().performClick()
             compose.waitUntil(15_000) {
                 compose.onAllNodesWithText("Green Valley Farm").fetchSemanticsNodes().isNotEmpty()
             }
@@ -187,7 +187,19 @@ class FullAppJourneyTest {
             compose.onNodeWithText("Choose supply").performScrollTo().performClick()
             compose.onNodeWithText("Test fertilizer", substring = true).performClick()
             compose.onNodeWithText("Quantity used (kg)").performScrollTo().performTextInput("1.250")
-            compose.onNodeWithText("Save activity and supply use").performScrollTo().performClick()
+            // Native IME insets can still move the form after text input is idle.
+            // Settle the viewport before physically tapping the combined-save button.
+            compose.runOnIdle {
+                WindowCompat.getInsetsController(compose.activity.window,
+                    compose.activity.window.decorView).hide(androidx.core.view.WindowInsetsCompat.Type.ime())
+            }
+            compose.waitUntil(5_000) {
+                androidx.core.view.ViewCompat.getRootWindowInsets(compose.activity.window.decorView)
+                    ?.isVisible(androidx.core.view.WindowInsetsCompat.Type.ime()) == false
+            }
+            compose.onNodeWithText("Quantity used (kg)").assertTextContains("1.250")
+            compose.onNodeWithText("Save activity and supply use").performScrollTo()
+                .assertIsDisplayed().assertIsEnabled().performClick()
             compose.waitUntil(10_000) {
                 runBlocking { dao.watch(journeyUserId).first().any { it.operationId !in priorIds && it.operationType == "activity_stock" } }
             }
@@ -296,12 +308,12 @@ class FullAppJourneyTest {
             compose.onNodeWithTag("record-list").performScrollToNode(hasText("My account"))
             compose.onNodeWithText("My account").performClick()
             compose.onNodeWithTag("request-sign-out").performScrollTo().performClick()
-            compose.onNodeWithText("Sign out of AniGo?").assertExists()
+            compose.onNodeWithText("Sign out of your account?").assertExists()
             compose.onNodeWithText("Keep working").performClick()
             compose.onNodeWithTag("request-sign-out").performClick()
             compose.onNodeWithTag("confirm-sign-out").performClick()
             compose.waitUntil(10_000) {
-                compose.onAllNodesWithText("Welcome to AniGo").fetchSemanticsNodes().isNotEmpty()
+                compose.onAllNodesWithText("Your farm starts here.").fetchSemanticsNodes().isNotEmpty()
             }
             assertTrue("Server should receive task completion", completed.get())
         } finally {

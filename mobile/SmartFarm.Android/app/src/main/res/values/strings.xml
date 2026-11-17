@@ -1,5 +1,5 @@
 <resources>
     <string name="app_name">AniGo</string>
-    <string name="welcome">Welcome to AniGo</string>
+    <string name="welcome">Your farm starts here.</string>
     <string name="welcome_description">Your farming companion.</string>
 </resources>

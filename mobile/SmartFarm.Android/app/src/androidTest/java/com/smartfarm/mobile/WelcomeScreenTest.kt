@@ -12,7 +12,7 @@ class WelcomeScreenTest {
     @get:Rule val compose = createAndroidComposeRule<MainActivity>()
 
     @Test fun welcomeScreenIsDisplayed() {
-        compose.onNodeWithText("Welcome to AniGo").assertIsDisplayed()
+        compose.onNodeWithText("Your farm starts here.").assertIsDisplayed()
         compose.onNodeWithText("Developer diagnostics").performScrollTo().performClick()
         compose.onNodeWithText("Check backend").performScrollTo().assertIsDisplayed()
     }
