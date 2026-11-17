@@ -1,5 +1,8 @@
 package com.smartfarm.mobile.ui.components.onboarding
 
+import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.FastOutSlowInEasing
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -33,6 +36,9 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -40,6 +46,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
@@ -157,7 +164,13 @@ fun AniGoOnboardingScreen(
             state = pager,
             beyondViewportPageCount = 1,
             modifier = Modifier.fillMaxWidth().weight(1f)
-        ) { page -> GuidePageContent(page, dark, foreground, secondary) }
+        ) { page ->
+            GuidePageContent(
+                page = page, dark = dark, ink = foreground, secondary = secondary,
+                active = pager.currentPage == page && !pager.isScrollInProgress,
+                motionAllowed = motionAllowed
+            )
+        }
 
         Row(
             Modifier.fillMaxWidth().padding(start = 20.dp, end = 20.dp, top = 8.dp, bottom = 14.dp),
@@ -186,8 +199,37 @@ fun AniGoOnboardingScreen(
 }
 
 @Composable
-private fun GuidePageContent(page: Int, dark: Boolean, ink: Color, secondary: Color) {
+private fun GuidePageContent(
+    page: Int,
+    dark: Boolean,
+    ink: Color,
+    secondary: Color,
+    active: Boolean,
+    motionAllowed: Boolean
+) {
     val details = copy[page]
+    // Only the first two slides animate in Phase 4. Progress is local sample
+    // presentation state and never changes backend, Room or user preferences.
+    val animatedDemo = page == 0 || page == 1
+    var replayCount by remember(page) { mutableIntStateOf(0) }
+    val progress = remember(page) { Animatable(if (!motionAllowed) 1f else 0f) }
+    LaunchedEffect(active, motionAllowed, replayCount) {
+        if (!animatedDemo) return@LaunchedEffect
+        if (!active) {
+            progress.snapTo(if (motionAllowed) 0f else 1f)
+        } else if (!motionAllowed) {
+            progress.snapTo(1f)
+        } else {
+            progress.snapTo(0f)
+            progress.animateTo(
+                targetValue = 1f,
+                animationSpec = tween(durationMillis = 1900, easing = FastOutSlowInEasing)
+            )
+        }
+    }
+    val exampleProgress = if (animatedDemo) progress.value else 1f
+    val gestureFrame = if (animatedDemo && active && motionAllowed)
+        (exampleProgress * 12f).toInt() % 4 else 0
     Column(
         Modifier.fillMaxSize().verticalScroll(rememberScrollState())
             .padding(horizontal = 20.dp, vertical = 14.dp),
@@ -207,17 +249,26 @@ private fun GuidePageContent(page: Int, dark: Boolean, ink: Color, secondary: Co
             )
         ) {
             FieldBackdrop(dark, Modifier.fillMaxSize())
-            AniGoCarabao(details.pose, modifier = Modifier.align(Alignment.BottomStart)
-                .padding(start = 1.dp, bottom = 4.dp).size(203.dp))
+            AniGoCarabao(
+                details.pose,
+                frame = gestureFrame,
+                modifier = Modifier.align(Alignment.BottomStart)
+                    .padding(start = 1.dp, bottom = 4.dp).size(203.dp)
+                    .graphicsLayer {
+                        // Subtle, one-shot response synchronized to the demo.
+                        if (animatedDemo && active && motionAllowed) {
+                            translationY = (1f - exampleProgress) * 12f
+                            rotationZ = (1f - exampleProgress) * -2f
+                        }
+                    }
+            )
             Box(
                 modifier = Modifier.align(Alignment.CenterEnd).padding(end = 10.dp, bottom = 10.dp)
                     .width(151.dp)
             ) {
                 when (page) {
-                    0 -> DemoCard("Riverside Farm", "Farm workspace",
-                        listOf("✓ North Plot", "✓ South Plot", "Team & roles"))
-                    1 -> DemoCard("Rice planting", "Sample crop plan",
-                        listOf("✓ Plan • Plant", "○ Grow • Harvest", "Crop calendar"))
+                    0 -> AniGoFarmManagementDemo(progress = exampleProgress)
+                    1 -> AniGoCropPlanningDemo(progress = exampleProgress)
                     2 -> DemoCard("Today's work", "Sample fieldwork",
                         listOf("✓ Water crops", "✓ Inspect leaves", "○ Take a photo"))
                     else -> DemoCard("Harvest records", "Sample crop history",
@@ -238,6 +289,16 @@ private fun GuidePageContent(page: Int, dark: Boolean, ink: Color, secondary: Co
                 Spacer(Modifier.height(9.dp))
                 Text("Illustrative example · no farm records are created",
                     style = MaterialTheme.typography.labelSmall, color = secondary)
+                if (animatedDemo) {
+                    TextButton(
+                        onClick = { replayCount++ },
+                        modifier = Modifier.align(Alignment.End).heightIn(min = 48.dp)
+                    ) {
+                        Text("Replay example", color = ink,
+                            style = MaterialTheme.typography.labelMedium,
+                            fontWeight = FontWeight.SemiBold)
+                    }
+                }
             }
         }
     }
