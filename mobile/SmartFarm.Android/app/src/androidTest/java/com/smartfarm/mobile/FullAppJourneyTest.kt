@@ -114,8 +114,8 @@ class FullAppJourneyTest {
         }
         server.start(5081)
         try {
-            compose.onNodeWithText("Welcome to AniGo").assertExists()
-            compose.onNodeWithText("Log in").performClick()
+            compose.onNodeWithText("Your farm starts here.").assertExists()
+            compose.onNode(hasText("Log in") and hasClickAction()).performClick()
             compose.onNodeWithText("Email address").performTextInput("farmer@example.test")
             compose.onNodeWithText("Password").performTextInput("Password2026")
             compose.runOnIdle {
@@ -125,7 +125,7 @@ class FullAppJourneyTest {
                 assertFalse("Photo auth must keep readable navigation icons after navigation and input",
                     bars.isAppearanceLightNavigationBars)
             }
-            compose.onNodeWithText("Log in").performScrollTo().performClick()
+            compose.onNode(hasText("Log in") and hasClickAction()).performScrollTo().performClick()
             compose.waitUntil(15_000) {
                 compose.onAllNodesWithText("Green Valley Farm").fetchSemanticsNodes().isNotEmpty()
             }
@@ -296,12 +296,12 @@ class FullAppJourneyTest {
             compose.onNodeWithTag("record-list").performScrollToNode(hasText("My account"))
             compose.onNodeWithText("My account").performClick()
             compose.onNodeWithTag("request-sign-out").performScrollTo().performClick()
-            compose.onNodeWithText("Sign out of AniGo?").assertExists()
+            compose.onNodeWithText("Sign out of your account?").assertExists()
             compose.onNodeWithText("Keep working").performClick()
             compose.onNodeWithTag("request-sign-out").performClick()
             compose.onNodeWithTag("confirm-sign-out").performClick()
             compose.waitUntil(10_000) {
-                compose.onAllNodesWithText("Welcome to AniGo").fetchSemanticsNodes().isNotEmpty()
+                compose.onAllNodesWithText("Your farm starts here.").fetchSemanticsNodes().isNotEmpty()
             }
             assertTrue("Server should receive task completion", completed.get())
         } finally {

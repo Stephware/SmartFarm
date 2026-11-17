@@ -43,7 +43,7 @@ class SecondaryNavigationScreenTest {
         } }
         compose.onNodeWithText("Work saved on this phone").performScrollTo().assertExists()
         compose.onNodeWithTag("request-sign-out").performScrollTo().performClick()
-        compose.onNodeWithText("Sign out of AniGo?").assertExists()
+        compose.onNodeWithText("Sign out of your account?").assertExists()
         compose.onNodeWithText("3 unsynced records", substring = true).assertExists()
         compose.runOnIdle { assertEquals(false, loggedOut) }
         compose.onNodeWithText("Keep working").performClick()

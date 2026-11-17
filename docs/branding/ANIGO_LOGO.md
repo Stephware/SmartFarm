@@ -68,4 +68,12 @@ Phase 2 established the placements; Phase 3 removes the desktop login/registrati
 
 **Retained intentionally:** Original approved logo colors and geometry; `aria-label`, `contentDescription`, website `<title>` and favicon/app label; landing copyright and photo-license attribution; product name when required for context; registration/login validation, route return URLs, working offline/data operations, and password reset limitations. Do not remove necessary accessible names merely to reach a numeric count.
 
-Automated source regression coverage: `tests/web-ui/anigo-brand-redundancy.test.cjs`, together with the Phase 1 asset tests and Phase 2 placement tests. Phase 4 remains responsible for actual multi-width/multi-theme screenshot review and final contrast/spacing acceptance. Any changed public screenshot goldens require manual inspection; never mark newly generated baselines reviewed merely to satisfy CI.
+Automated source regression coverage: `tests/web-ui/anigo-brand-redundancy.test.cjs`, together with the Phase 1 asset tests and Phase 2 placement tests. Any changed public screenshot goldens require manual inspection; never mark newly generated baselines reviewed merely to satisfy CI.
+
+PR #144 public-screen verification (2026-11-18): Codex reviewed all 30 actual MVC
+captures across five widths and both themes, including full-size representatives.
+The intentional duplicate-wordmark/copy changes preserve the approved logos,
+photography and functional controls. Public navigation, A/AA, enlarged-text and
+theme-persistence checks passed. This is agent visual review of the changed public
+routes; broader Phase 4 and physical-device acceptance remain separate. Consult
+PR #144 for the final exact-head CI results.

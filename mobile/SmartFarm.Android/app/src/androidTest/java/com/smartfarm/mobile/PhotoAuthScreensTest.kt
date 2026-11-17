@@ -4,6 +4,8 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsNotEnabled
 import androidx.compose.ui.test.junit4.createComposeRule
+import androidx.compose.ui.test.hasText
+import androidx.compose.ui.test.hasClickAction
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.performClick
@@ -34,7 +36,7 @@ class PhotoAuthScreensTest {
         }
         compose.onNodeWithText("Your farm starts here.").assertExists()
         compose.onNodeWithContentDescription("AniGo").assertIsDisplayed()
-        compose.onNodeWithText("Log in").performScrollTo().performClick()
+        compose.onNode(hasText("Log in") and hasClickAction()).performScrollTo().performClick()
         compose.onNodeWithText("Create account").performScrollTo().performClick()
         compose.runOnIdle { assertEquals(1, login); assertEquals(1, registration) }
     }
@@ -53,12 +55,12 @@ class PhotoAuthScreensTest {
         }
         compose.onNodeWithText("Good to have you back.").assertExists()
         compose.onNodeWithContentDescription("AniGo").assertIsDisplayed()
-        compose.onNodeWithText("Log in").performScrollTo().assertIsNotEnabled()
+        compose.onNode(hasText("Log in") and hasClickAction()).performScrollTo().assertIsNotEnabled()
         compose.onNodeWithText("Forgot password?").performScrollTo().performClick()
         compose.onNodeWithText("Create account").performScrollTo().performClick()
         compose.onNodeWithText("Email address").performScrollTo().performTextInput("farmer@example.com")
         compose.onNodeWithText("Password").performScrollTo().performTextInput("Password2026")
-        compose.onNodeWithText("Log in").performScrollTo().performClick()
+        compose.onNode(hasText("Log in") and hasClickAction()).performScrollTo().performClick()
         compose.runOnIdle {
             assertEquals(1, reset)
             assertEquals(1, registration)
