@@ -1,4 +1,4 @@
-# AniGo carabao onboarding — Phases 1–3 review
+# AniGo carabao onboarding — Phases 1–4 review
 
 ## Scope and review workflow
 
@@ -10,14 +10,15 @@ This branch prototypes the approved carabao-guided Android onboarding without ch
 - Light and dark themes follow the existing `LocalFarmAppearance` setting. Guide copy and controls scroll/fit on compact phones and larger accessibility text.
 - Phase 3: `AniGoFarmIntro.kt` runs a **single 2.55-second animated scene** when the opt-in guide opens: a carabao walks across a layered field, alternates native vector step frames, stops, waves, and the AniGo logo/headline fade in. An explicit **Skip intro** button or Android Back key immediately opens page 1. The sequence has no repeating loops or remote media.
 - If Android's global animation duration scale is disabled, the introduction is bypassed and page 1 is shown directly. Intro completion is saved across configuration changes in the guide via `rememberSaveable`; there is no first-launch persistence yet.
+- Phase 4: `AniGoFeatureDemos.kt` provides two bounded, self-contained teaching animations. **Farm management:** a sample Riverside Farm workspace appears, followed by North Plot, South Plot and team context; the carabao performs small guiding gestures. **Crop planning:** a rice crop plan progresses through Plan → Plant → Grow, with a small seedling growing while the carabao makes subtle planting gestures. Each page runs once after becoming active; off-screen animations cancel, revisiting the page restarts its demo, and an accessible **Replay example** action appears if motion is allowed. OS reduced-motion mode instead immediately shows the complete static sample, without a misleading Replay control. These are illustrative Compose components and **do not create farms, plots or crop calendar records**.
 - A single carabao vector implementation is intentional: do not use per-page separately generated character PNGs, which can introduce inconsistent horns, hats, eyes or scale. Inspect the **actual emulator rendering** against the approved reference before wider animation rollout.
 
 ## Screens and demonstrations
 
 | Page | Carabao pose | On-screen example | What is taught |
 | --- | --- | --- | --- |
-| 1. Your farm, organized | GUIDE | Sample farm and plot cards | Create a farm or join a team with owner approval |
-| 2. Grow with a plan | PLANT | Rice planting milestones | Crop plans and planting calendar |
+| 1. Your farm, organized | GUIDE | Staged farm and plot cards (Phase 4) | Create a farm or join a team with owner approval |
+| 2. Grow with a plan | PLANT | Growing seedling and staged planting milestones (Phase 4) | Crop plans and planting calendar |
 | 3. Record work as you go | RECORD | Watering, inspection and photo checklist | Daily recording and accurate offline/sync language |
 | 4. From field to harvest | HARVEST | Two sample partial harvest records | Harvests, supplies and distinct measurement units |
 
@@ -26,7 +27,7 @@ The source of truth is `PRODUCT.md`: Android's real navigation remains Today, Re
 ## Follow-on work deliberately deferred
 
 - Phase 3 is implemented: skippable one-shot intro, alternating walk frames and wave pose.
-- Phases 4–5: animated / staged feature demonstrations (the current cards are intentionally static).
+- Phase 4 implemented: animated farm workspace and crop plan on pages 1 and 2, plus manual replay. Phase 5 remains: fieldwork and harvest demonstrations.
 - Phase 6: onboarding animation refinement and integration after artwork approval.
 - Phase 7: first-run completion preference, replay-from-settings behavior, and any automatic first-launch routing.
 - Phase 8: final accessibility, performance, screenshot review and merge decision.
@@ -34,7 +35,7 @@ The source of truth is `PRODUCT.md`: Android's real navigation remains Today, Re
 ## Verification criteria
 
 1. Android debug compile, Compose UI test compile, unit tests.
-2. Real emulator: intro Skip/Back, four screens, swipe and buttons, Skip/Continue returning to Welcome, no auth regressions.
+2. Real emulator: intro Skip/Back, four screens, swipe and buttons, Skip/Continue returning to Welcome, no auth regressions. Farm and crop demo staging, replay, and reduced-motion final states should also pass.
 3. At 320dp width and 1.6× font size, accessible controls stay visible and descriptive content remains scrollable.
 4. Review artwork at 320dp and normal device widths; check horn/hat/body/prop alignment and dark-mode contrast.
 5. Preserve opt-in entry and the `WelcomeScreen` default callback contract used by existing tests.
