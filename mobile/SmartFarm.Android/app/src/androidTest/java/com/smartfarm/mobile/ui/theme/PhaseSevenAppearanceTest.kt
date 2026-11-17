@@ -61,8 +61,9 @@ class PhaseSevenAppearanceTest {
         androidx.test.uiautomator.UiDevice.getInstance(
             androidx.test.platform.app.InstrumentationRegistry.getInstrumentation()).pressHome()
         compose.activityRule.scenario.onActivity { host ->
+            // persistentId also supports the app's API 26 test hosts.
             host.getSystemService(android.app.ActivityManager::class.java).appTasks
-                .single { it.taskInfo.taskId == host.taskId }.moveToFront()
+                .single { it.taskInfo.persistentId == host.taskId }.moveToFront()
         }
         compose.waitUntil(5_000) {
             var focused = false
