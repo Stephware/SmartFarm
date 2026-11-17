@@ -70,7 +70,7 @@ fun LoginScreen(
     PhotoAuthScaffold(
         headline = "Good to have you back.",
         description = "Your fields, crops and team — all in one connected place.",
-        formTitle = "Log in to AniGo",
+        formTitle = "Log in",
         formSubtitle = "Pick up right where you left off."
     ) {
         OutlinedTextField(
@@ -96,7 +96,7 @@ fun LoginScreen(
             onClick = { onSubmit(email.trim(), password) },
             enabled = !state.busy && ready
         )
-        Text("New to AniGo?", color = MaterialTheme.colorScheme.onSurfaceVariant,
+        Text("New here?", color = MaterialTheme.colorScheme.onSurfaceVariant,
             modifier = Modifier.align(Alignment.CenterHorizontally))
         OutlinedButton(
             onClick = onRegister, enabled = !state.busy,
@@ -119,7 +119,7 @@ fun RegisterScreen(
     val canCreate = registrationReady(name, email, password)
 
     PhotoAuthScaffold(
-        headline = "Grow with AniGo.",
+        headline = "Grow with confidence.",
         description = "Plan crops, organize fieldwork and manage your farm in one place.",
         formTitle = "Create your account",
         formSubtitle = "One account can manage a farm or join a team.",
@@ -182,12 +182,12 @@ fun ForgotPasswordScreen(onLogin: () -> Unit) {
         compactHero = true
     ) {
         Text(
-            "Email password reset is not available in this AniGo version.",
+            "Email password reset is not available yet.",
             color = MaterialTheme.colorScheme.onSurface,
             style = MaterialTheme.typography.bodyLarge
         )
         Text(
-            "No reset link can be sent yet. Contact your AniGo system administrator for account assistance.",
+            "No reset link can be sent yet. Contact your system administrator for account assistance.",
             color = MaterialTheme.colorScheme.onSurfaceVariant,
             style = MaterialTheme.typography.bodyMedium
         )
@@ -272,7 +272,7 @@ fun AccountScreen(state: AuthUiState, onLogout: () -> Unit, onFarms: () -> Unit,
     }
     if (confirmingLogout) {
         AlertDialog(onDismissRequest = { confirmingLogout = false },
-            title = { Text("Sign out of AniGo?") },
+            title = { Text("Sign out of your account?") },
             text = {
                 Text(if (pendingSyncCount > 0)
                     "$pendingSyncCount unsynced ${if (pendingSyncCount == 1) "record is" else "records are"} saved on this phone for this account. " +
