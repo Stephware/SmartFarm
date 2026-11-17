@@ -133,6 +133,10 @@ class Phase5FormWorkflowTest {
         action("Save harvested amount").assertIsEnabled().performClick()
         compose.runOnIdle { assertEquals(1, calls); assertEquals("1.500" to "First picking", sent) }
         action("Save harvested amount").assertIsNotEnabled()
+        // The confirmed-total card is a different lazy-list item from the form.
+        // Scroll it into composition before checking that the pending harvest did
+        // not alter server-confirmed totals.
+        compose.onNodeWithTag("record-list").performScrollToNode(hasText("2 kg"))
         compose.onNodeWithText("2 kg").assertExists()
     }
 
