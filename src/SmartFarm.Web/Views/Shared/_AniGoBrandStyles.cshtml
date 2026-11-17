@@ -1,0 +1,29 @@
+@* Shared small AniGo identity styles. Keep the site's single compiled CSS asset. *@
+<style>
+/* Approved AniGo identity: preserve the original green/gold artwork. */
+.anigo-logo-pair { display: inline-block; width: 160px; max-width: 100%; flex: 0 0 auto; line-height: 0; }
+.anigo-logo-pair img, .anigo-sidebar-logo, .anigo-footer-brand img { display: block; width: 100%; height: auto; object-fit: contain; }
+.anigo-logo-pair .anigo-logo-dark { display: none; }
+html[data-color-mode="dark"] .anigo-logo-pair .anigo-logo-light { display: none; }
+html[data-color-mode="dark"] .anigo-logo-pair .anigo-logo-dark { display: block; }
+.anigo-sidebar-brand, .app-sidebar .anigo-sidebar-brand {
+    display: flex; flex-direction: column; align-items: flex-start; justify-content: center;
+    gap: 2px; padding-block: 8px 13px; text-decoration: none;
+}
+.anigo-sidebar-logo { width: 164px; max-width: 100%; }
+.anigo-sidebar-caption, .anigo-sidebar-brand .anigo-sidebar-caption {
+    display: block; padding-left: 4px; color: #e4d6b7;
+    font-size: .70rem; font-weight: 600; line-height: 1.2; letter-spacing: .035em;
+}
+.anigo-guest-brand .anigo-logo-pair { width: 154px; }
+.anigo-mobile-brand .anigo-logo-pair { width: 116px; }
+.anigo-footer-brand img { width: 158px; max-width: 100%; }
+.anigo-footer-brand { line-height: 0; }
+.anigo-auth-brand { display: flex; align-items: center; margin: 0 0 20px; }
+.anigo-auth-brand .anigo-logo-pair { width: 166px; }
+@@media (max-width: 400px) {
+    .anigo-mobile-brand .anigo-logo-pair { width: 106px; }
+    .anigo-guest-brand .anigo-logo-pair { width: 128px; }
+    .anigo-auth-brand .anigo-logo-pair { width: 146px; }
+}
+</style>
