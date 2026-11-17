@@ -14,10 +14,12 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="theme-color" content="#153D2D" />
+    <link rel="icon" type="image/svg+xml" href="~/images/branding/anigo-mark.svg" asp-append-version="true" />
     <title>@ViewData["Title"] - AniGo</title>
     <script src="~/js/color-mode.js" asp-append-version="true"></script>
     <link rel="preload" href="~/fonts/manrope/Manrope-Variable.ttf" as="font" type="font/ttf" crossorigin />
     <link rel="stylesheet" href="~/css/anigo-tailwind.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/anigo-branding.css" asp-append-version="true" />
     <script src="~/js/site.js" asp-append-version="true" defer></script>
     <script src="~/js/farm-navigation.js" asp-append-version="true" defer></script>
     <script src="~/js/access-polish.js" asp-append-version="true" defer></script>
@@ -28,9 +30,9 @@
 {
     <div class="app-shell">
         <aside class="app-sidebar sidebar" aria-label="Workspace navigation">
-            <a class="logo brand sidebar-brand" asp-controller="Farms" asp-action="Index">
-                <span class="logo-mark"><partial name="_Icon" model='@("leaf")' /></span>
-                <span>AniGo<small>Farm management</small></span>
+            <a class="logo brand sidebar-brand anigo-sidebar-brand" asp-controller="Farms" asp-action="Index" aria-label="AniGo farm management">
+                <img class="anigo-sidebar-logo" src="~/images/branding/anigo-logo-on-dark.svg" asp-append-version="true" alt="" width="1120" height="297" />
+                <small class="anigo-sidebar-caption">Farm management</small>
             </a>
             <div class="sidebar-workspace">
                 <p class="side-group-label">Workspace</p>
@@ -107,7 +109,7 @@
                         <strong aria-current="page">@(ViewData["Title"] ?? "Overview")</strong>
                     }
                 </nav>
-                <a class="mobile-brand mobile-title" asp-controller="Farms" asp-action="Index"><partial name="_Icon" model='@("leaf")' />AniGo</a>
+                <a class="mobile-brand mobile-title anigo-mobile-brand" asp-controller="Farms" asp-action="Index" aria-label="AniGo home"><span class="anigo-logo-pair anigo-mobile-logo" aria-hidden="true"><img class="anigo-logo-light" src="~/images/branding/anigo-logo.svg" asp-append-version="true" alt="" width="1120" height="297" /><img class="anigo-logo-dark" src="~/images/branding/anigo-logo-on-dark.svg" asp-append-version="true" alt="" width="1120" height="297" /></span></a>
                 <nav class="top-actions app-topbar-actions" aria-label="Quick account links">
                     <a class="farm-picker" asp-controller="Farms" asp-action="Index"
                        aria-label="Choose farm. Current: @(ViewData["FarmName"] ?? "My farms")"
@@ -149,7 +151,7 @@
 else
 {
     <header class="site-header guest-topbar @(isLanding ? "ani6-topbar" : "")">
-        <a class="brand guest-logo" asp-controller="Home" asp-action="Index"><span class="logo-mark"><partial name="_Icon" model='@("leaf")' /></span>AniGo</a>
+        <a class="brand guest-logo anigo-guest-brand" asp-controller="Home" asp-action="Index" aria-label="AniGo home"><span class="anigo-logo-pair anigo-guest-logo" aria-hidden="true"><img class="anigo-logo-light" src="~/images/branding/anigo-logo.svg" asp-append-version="true" alt="" width="1120" height="297" /><img class="anigo-logo-dark" src="~/images/branding/anigo-logo-on-dark.svg" asp-append-version="true" alt="" width="1120" height="297" /></span></a>
         @if (isLanding)
         {
             <nav class="ani6-top-links" aria-label="Landing page sections">
