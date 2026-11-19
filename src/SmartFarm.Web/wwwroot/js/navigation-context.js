@@ -20,7 +20,7 @@
         } catch { return null; }
     };
     const store = (url, intent) => {
-        if (url.origin !== current.origin || url.hash) return;
+        if (url.origin !== current.origin) return;
         try {
             storage.setItem(key(url), JSON.stringify({
                 y: Math.max(0, window.scrollY || 0),
