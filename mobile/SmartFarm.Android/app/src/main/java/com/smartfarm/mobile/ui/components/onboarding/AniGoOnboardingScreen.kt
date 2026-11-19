@@ -34,6 +34,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -82,26 +83,34 @@ private val Pine = Color(0xFF145239)
 private val Cream = Color(0xFFFBF8F0)
 
 private data class PageCopy(
-    val title: String, val description: String, val detail: String, val pose: AniGoCarabaoPose
+    val title: String,
+    val description: String,
+    val detail: String,
+    val pose: AniGoCarabaoPose,
+    val aniTip: String
 )
 
 private val copy = listOf(
     PageCopy("Your farm, organized",
         "Manage a farm or join a team. Keep plots and records in one workspace.",
         "Create your farm, or join another farm with its owner's approval.",
-        AniGoCarabaoPose.GUIDE),
+        AniGoCarabaoPose.GUIDE,
+        "Start your own farm, or ask to join someone's team."),
     PageCopy("Grow with a plan",
         "Plan crops, set planting dates, and see what comes next.",
         "Keep your crop calendar and growing activities organized.",
-        AniGoCarabaoPose.PLANT),
+        AniGoCarabaoPose.PLANT,
+        "Choose what to grow, then follow each stage of your plan."),
     PageCopy("Record work as you go",
         "Log watering, inspections, photos, and supported field activities.",
         "Some Android records can be saved offline and synchronized later. Local save is not server confirmation.",
-        AniGoCarabaoPose.RECORD),
+        AniGoCarabaoPose.RECORD,
+        "Some records stay on your phone until you can sync them."),
     PageCopy("From field to harvest",
         "Record harvests, review supplies, and follow your farm's progress.",
         "Multiple partial harvests can be recorded for a crop, with units kept separate.",
-        AniGoCarabaoPose.HARVEST)
+        AniGoCarabaoPose.HARVEST,
+        "Harvest a little today? Record each batch as you go.")
 )
 
 @Composable
@@ -203,6 +212,16 @@ fun AniGoOnboardingScreen(
                 ) {
                     Text("Skip", color = secondary)
                 }
+            }
+            if (!shortWindow) {
+                Text(
+                    if (includeWelcome && selectedPage == 0) "MEET YOUR FARM GUIDE"
+                    else "LESSON ${selectedPage + if (includeWelcome) 0 else 1} OF $LessonCount",
+                    color = secondary,
+                    style = MaterialTheme.typography.labelSmall,
+                    fontWeight = FontWeight.SemiBold,
+                    modifier = Modifier.padding(top = 3.dp, bottom = 2.dp)
+                )
             }
             Row(
                 Modifier.widthIn(max = 560.dp).fillMaxWidth()
@@ -344,17 +363,25 @@ private fun GuidePageContent(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center
         ) {
+            Text(
+                "ANI'S FARM TOUR  ·  ${page + 1} / $LessonCount",
+                color = MaterialTheme.colorScheme.primary,
+                style = MaterialTheme.typography.labelMedium,
+                fontWeight = FontWeight.Bold,
+                modifier = Modifier.testTag("anigo-lesson-label-$page")
+            )
+            Spacer(Modifier.height(7.dp))
             Text(details.title, color = ink, textAlign = TextAlign.Center,
                 style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.ExtraBold,
                 modifier = Modifier.semantics { heading() })
             Spacer(Modifier.height(10.dp))
             Text(details.description, color = secondary, textAlign = TextAlign.Center,
                 style = MaterialTheme.typography.bodyLarge)
-            Spacer(Modifier.height(20.dp))
-            // Keep the guide and illustrative record together without hiding either.
-            // At 320dp or large system text, stack them to avoid clipped cards.
-            BoxWithConstraints(Modifier.fillMaxWidth()) {
-                val compact = needsStack || maxWidth < 295.dp
+            Spacer(Modifier.height(14.dp))
+            // Portrait phones lead with the illustrated guide and give the farm
+            // example a readable full-width card. Tablet / landscape stay side by side.
+            BoxWithConstraints(Modifier.fillMaxWidth().testTag("anigo-lesson-stage-$page")) {
+                val compact = needsStack || (maxWidth < 480.dp && viewportHeight >= 500.dp)
                 val backdrop = Brush.verticalGradient(
                     if (dark) listOf(Color(0xFF20392C), Color(0xFF375340))
                     else listOf(Color(0xFFEFF7EC), Color(0xFFFFF2D7))
@@ -364,13 +391,14 @@ private fun GuidePageContent(
                         Modifier.fillMaxWidth().clip(RoundedCornerShape(24.dp))
                             .background(backdrop)
                     ) {
-                        Box(Modifier.fillMaxWidth().height(180.dp)) {
+                        val stageHeight = if (viewportHeight < 650.dp) 166.dp else 194.dp
+                        Box(Modifier.fillMaxWidth().height(stageHeight)) {
                             FieldBackdrop(dark, Modifier.fillMaxSize())
                             AniGoCarabao(
                                 pose = details.pose,
                                 frame = gesture.frame,
                                 modifier = Modifier.align(Alignment.BottomCenter)
-                                    .size(180.dp)
+                                    .size(stageHeight)
                                     .graphicsLayer {
                                         translationY = gestureLiftPx
                                         rotationZ = gesture.tiltDegrees
@@ -412,7 +440,9 @@ private fun GuidePageContent(
                     }
                 }
             }
-            Spacer(Modifier.height(17.dp))
+            Spacer(Modifier.height(12.dp))
+            AniGoLessonTip(details.aniTip, dark, page)
+            Spacer(Modifier.height(13.dp))
             Column(Modifier.fillMaxWidth().padding(horizontal = 4.dp)) {
                 Text(details.detail, color = ink, style = MaterialTheme.typography.bodyMedium)
                 Spacer(Modifier.height(9.dp))
@@ -438,6 +468,36 @@ private fun GuidePageContent(
                     }
                 }
             }
+        }
+    }
+}
+
+/**
+ * Short, readable character dialogue. The sample card above stays illustrative;
+ * the tip explains the action in farmer-friendly language without extra steps.
+ */
+@Composable
+private fun AniGoLessonTip(tip: String, dark: Boolean, page: Int) {
+    Surface(
+        shape = RoundedCornerShape(18.dp),
+        color = if (dark) Color(0xFF2A4836) else Color.White,
+        tonalElevation = 1.dp,
+        shadowElevation = 1.dp,
+        modifier = Modifier.fillMaxWidth().testTag("anigo-lesson-tip-$page")
+    ) {
+        Column(Modifier.padding(horizontal = 15.dp, vertical = 12.dp)) {
+            Text(
+                "ANI SAYS",
+                color = if (dark) Color(0xFFF5CB7B) else Pine,
+                style = MaterialTheme.typography.labelSmall,
+                fontWeight = FontWeight.ExtraBold
+            )
+            Spacer(Modifier.height(4.dp))
+            Text(
+                tip,
+                color = if (dark) Color.White else Color(0xFF233A2C),
+                style = MaterialTheme.typography.bodyMedium
+            )
         }
     }
 }
