@@ -186,7 +186,8 @@ fun AniGoFarmIntro(
             )
             if (stacked) {
                 Spacer(Modifier.height(16.dp))
-                AniGoCarabao(pose, Modifier.size(180.dp), frame, walking)
+                AniGoCarabao(pose, Modifier.size(180.dp), frame, walking,
+                    talking = !walking && value > 0.75f && value < 0.98f)
                 Text("Your farm, your crops, your progress",
                     color = ink, style = MaterialTheme.typography.bodyMedium,
                     textAlign = TextAlign.Center)
@@ -198,6 +199,7 @@ fun AniGoFarmIntro(
             pose = pose,
             frame = frame,
             walking = walking,
+            talking = !walking && value > 0.75f && value < 0.98f,
             modifier = Modifier.align(Alignment.Center)
                 .offset(y = if (small) 48.dp else 72.dp)
                 .size(characterSize)
