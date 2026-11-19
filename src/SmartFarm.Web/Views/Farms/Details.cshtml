@@ -10,7 +10,7 @@
 <section class="panel card sf-farm-hero ani12d-farm-hero ani-p2-hero" aria-labelledby="farm-heading">
     <div class="sf-page-header page-hero">
         <div>
-            <p><a class="ani12d-back" asp-action="Index">← All my farms</a></p>
+            <p><a class="ani12d-back anigo-back-control" asp-action="Index" title="Back to my farms"><partial name="_Icon" model='@("chevLeft")' /><span class="visually-hidden">Back to my farms</span></a></p>
             <p class="ani-overline">Farm workspace</p>
 
             <h1 id="farm-heading">@Model.Farm.Name</h1>
