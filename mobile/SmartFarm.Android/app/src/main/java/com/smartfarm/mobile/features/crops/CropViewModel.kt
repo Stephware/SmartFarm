@@ -86,24 +86,28 @@ class CropViewModel(
     }
 
     fun createType(name: String, unit: String, growth: String, watering: String, onSaved: () -> Unit = {}) = work(
-        after = { mutable.value = mutable.value.copy(typeSaveVersion = mutable.value.typeSaveVersion + 1) }
+        after = {
+            mutable.value = mutable.value.copy(typeSaveVersion = mutable.value.typeSaveVersion + 1)
+            onSaved()
+        }
     ) { farmId ->
         crops.createType(farmId, CropTypeInputDto(name.trim(),
             growth.takeIf { it.isNotBlank() }?.toIntOrNull(),
             watering.takeIf { it.isNotBlank() }?.toIntOrNull(),
             unit.trim()))
-        onSaved()
     }
 
     fun plan(plotId: String, typeId: String, date: String, expected: String, onSaved: () -> Unit = {}) = work(
-        after = { mutable.value = mutable.value.copy(planSaveVersion = mutable.value.planSaveVersion + 1) }
+        after = {
+            mutable.value = mutable.value.copy(planSaveVersion = mutable.value.planSaveVersion + 1)
+            onSaved()
+        }
     ) { farmId ->
         val planting = LocalDate.parse(date)
         val harvest = expected.takeIf { it.isNotBlank() }?.let(LocalDate::parse)
         require(harvest == null || !harvest.isBefore(planting))
         crops.plan(farmId, plotId, CropCyclePlanDto(
             typeId, planting.toString(), harvest?.toString()))
-        onSaved()
     }
 
     fun updatePlan(cycle: CropCycleDto, date: String, expected: String) = work(
