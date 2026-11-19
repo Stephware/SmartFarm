@@ -16,7 +16,7 @@ First launch shows a skippable intro and four illustrative lessons until a priva
 
 ## Back navigation — Phases A–D (feature branch)
 
-Secondary destinations use actual history before an explicit route parent; successful login clears auth history. Today/My Farm stacks do not accumulate tab copies; changing farms removes old farm detail routes. Shared pinned headers supply titles, 48dp Back targets and caller labels. Root Farms remains a root; its Account action and contextual global pages reuse existing entries.
+Secondary destinations use actual history before an explicit route parent; successful login clears auth history. Today/My Farm stacks do not accumulate tab copies; changing farms removes old farm detail routes. Shared pinned headers supply titles, 48dp Back targets and caller labels. Root Farms remains a root; its Account action and contextual global pages reuse existing entries. Photo-auth Back headers paint the status inset pine as well as the toolbar, keeping the existing white system icons readable in light mode; a native pixel regression covers this.
 
 Meaningful edits register per destination, including stopped entries and recreation. Back/farm/root changes offer Keep editing/Discard only when input would be lost. Collapsed editors retain drafts. Confirmed form receipts clear the matching draft; task refresh/completion is not a form save. Queued Room operations/photos are never discarded by navigation. Onboarding system Back exits the intro; Skip intro still advances to lessons, and replay returns to its actual caller.
 

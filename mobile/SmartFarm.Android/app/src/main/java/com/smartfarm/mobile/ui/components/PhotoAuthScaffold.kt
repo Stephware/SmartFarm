@@ -74,7 +74,7 @@ fun PhotoAuthScaffold(
     Scaffold(modifier = modifier, topBar = {
         MaterialTheme(colorScheme = MaterialTheme.colorScheme.copy(
             surface = Color(0xFF122C20), onSurface = Color.White)) {
-            PageNavigationHeader(modifier = Modifier.statusBarsPadding())
+            PageNavigationHeader(modifier = Modifier.background(Color(0xFF122C20)).statusBarsPadding())
         }
     }) { pagePadding ->
     Box(Modifier.fillMaxSize().padding(pagePadding).consumeWindowInsets(pagePadding).background(Color(0xFF122C20))) {
