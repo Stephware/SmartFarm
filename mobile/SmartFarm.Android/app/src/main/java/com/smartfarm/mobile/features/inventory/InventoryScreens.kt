@@ -95,8 +95,18 @@ fun InventoryListScreen(
     var search by rememberSaveable(state.farmId) { mutableStateOf("") }
     var filter by rememberSaveable(state.farmId) { mutableStateOf("all") }
     var categoryMenu by rememberSaveable(state.farmId) { mutableStateOf(false) }
-    UnsavedChanges("new-supply", name.isNotEmpty() || category != 1 || unit != "kg" ||
-        opening != "0" || reorder.isNotEmpty(), name, category.toString(), unit, opening, reorder)
+    val exitGuard = com.smartfarm.mobile.ui.components.LocalExitGuard.current
+    UnsavedChanges("new-supply", creating && (name.isNotEmpty() || category != 1 || unit != "kg" ||
+        opening != "0" || reorder.isNotEmpty()), name, category.toString(), unit, opening, reorder)
+    var handledCreate by rememberSaveable(state.farmId) { mutableStateOf(state.createSaveVersion) }
+    LaunchedEffect(state.createSaveVersion) {
+        if (state.createSaveVersion > handledCreate) {
+            handledCreate = state.createSaveVersion
+            creating = false
+            name = ""; category = 1; unit = "kg"; opening = "0"; reorder = ""
+            exitGuard?.clear("new-supply")
+        }
+    }
     val visibleItems = inventoryVisibleItems(state.workspace.items, filter, search)
     val openingValid = opening.trim().toBigDecimalOrNull()?.let {
         it >= BigDecimal.ZERO && it.stripTrailingZeros().scale() <= 3 &&
@@ -185,7 +195,16 @@ fun InventoryListScreen(
                         modifier = Modifier.fillMaxWidth()) { Text("Clear filters") }
                 }
                 if (canManage && !state.offline)
-                    Button(onClick = { creating = !creating }, modifier = Modifier.fillMaxWidth()) {
+                    Button(onClick = {
+                        if (creating) {
+                            val close: () -> Unit = {
+                                creating = false
+                                name = ""; category = 1; unit = "kg"; opening = "0"; reorder = ""
+                                exitGuard?.clear("new-supply")
+                            }
+                            if (exitGuard != null) exitGuard.requestForm("new-supply", close) else close()
+                        } else creating = true
+                    }, modifier = Modifier.fillMaxWidth()) {
                         Text(if (creating) "Close new supply form" else "Add supply")
                     }
             }
@@ -302,6 +321,20 @@ fun InventoryItemScreen(
     var historyFilter by rememberSaveable(item?.id) { mutableStateOf("all") }
 
     var editingDetails by rememberSaveable(item?.id) { mutableStateOf(false) }
+    var handledDetailsSave by rememberSaveable(state.farmId, state.itemId) {
+        mutableStateOf(state.detailsSaveVersion)
+    }
+    LaunchedEffect(state.detailsSaveVersion) {
+        if (state.detailsSaveVersion > handledDetailsSave) {
+            handledDetailsSave = state.detailsSaveVersion
+            editingDetails = false
+            state.item?.let { updated ->
+                name = updated.name; category = updated.category; unit = updated.unit
+                description = updated.description.orEmpty()
+                reorder = updated.reorderLevel?.toPlainString().orEmpty()
+            }
+        }
+    }
     val receipt = state.saveReceipts["${state.farmId}/${state.itemId}"]
     var handled by rememberSaveable(state.farmId, state.itemId) { mutableStateOf(receipt) }
     LaunchedEffect(receipt) {
