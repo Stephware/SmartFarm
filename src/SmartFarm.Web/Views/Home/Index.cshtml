@@ -17,9 +17,6 @@
                     @(signedIn ? "Open my farms" : "Get started")
                     <partial name="_Icon" model='@("arrow")' />
                 </a>
-                <a class="ani6-btn ani6-btn-outline" href="#how-it-works">
-                    <span class="ani6-play" aria-hidden="true">▶</span> See how it works
-                </a>
             </div>
         </div>
     </section>
@@ -44,48 +41,6 @@
     </section>
 
     <div class="ani6-content ani6-container">
-        <section class="ani6-workflow" id="how-it-works" aria-labelledby="ani6-flow-title">
-            <header class="ani6-section-head">
-                <p class="ani6-kicker">One connected workspace</p>
-                <h2 id="ani6-flow-title">From planting to harvest, all in one flow.</h2>
-                <p>Simple steps for the everyday work that keeps your farm running.</p>
-            </header>
-            <ol class="ani6-steps">
-                <li class="ani6-step">
-                    <span class="ani6-step-icon" aria-hidden="true"><partial name="_Icon" model='@("sprout")' /></span>
-                    <div class="ani6-step-copy"><span class="ani6-step-number">01</span><h3>Plan</h3>
-                        <p>Organize plots, crop cycles, and planting dates.</p></div>
-                </li>
-                <li class="ani6-step">
-                    <span class="ani6-step-icon" aria-hidden="true"><partial name="_Icon" model='@("checkSquare")' /></span>
-                    <div class="ani6-step-copy"><span class="ani6-step-number">02</span><h3>Work</h3>
-                        <p>Assign tasks, record fieldwork, and save crop photos.</p></div>
-                </li>
-                <li class="ani6-step">
-                    <span class="ani6-step-icon" aria-hidden="true"><partial name="_Icon" model='@("chart")' /></span>
-                    <div class="ani6-step-copy"><span class="ani6-step-number">03</span><h3>Review</h3>
-                        <p>Check harvests, supplies, and farm reports.</p></div>
-                </li>
-            </ol>
-        </section>
-
-        <section class="ani6-story" id="about" aria-labelledby="ani6-story-title">
-            <div class="ani6-story-photo">
-                <img src="~/images/photography/farmers-working.webp" loading="lazy" decoding="async"
-                     alt="Farmers working among green crops" width="900" height="1120" />
-            </div>
-            <div class="ani6-story-panel">
-                <p class="ani6-kicker ani6-kicker-light">Made for real farm work</p>
-                <h2 id="ani6-story-title">Less time looking for records.<br />More time in the field.</h2>
-                <p>Everything you need to manage crops, people, and resources in one practical workspace.</p>
-                <ul class="ani6-benefits">
-                    <li><partial name="_Icon" model='@("check")' />Clear next steps for every role</li>
-                    <li><partial name="_Icon" model='@("check")' />Records organized by farm, plot, and crop</li>
-                    <li><partial name="_Icon" model='@("check")' />Web and mobile workflows, with offline Android field records</li>
-                </ul>
-            </div>
-        </section>
-
         <section class="ani6-start" id="get-started" aria-labelledby="ani6-start-title">
             <header class="ani6-section-head">
                 <p class="ani6-kicker">Start where you are</p>
@@ -133,7 +88,7 @@
         </section>
     </div>
 
-    <footer class="ani6-footer" id="contact">
+    <footer class="ani6-footer">
         <div class="ani6-container ani6-footer-main">
             <a class="ani6-footer-brand anigo-footer-brand" asp-controller="Home" asp-action="Index" aria-label="AniGo home">
                 <span class="anigo-logo-pair anigo-footer-logo" aria-hidden="true">
@@ -141,16 +96,7 @@
                     <img class="anigo-logo-dark" src="~/images/branding/anigo-logo-on-dark.svg" asp-append-version="true" alt="" width="1120" height="297" />
                 </span>
             </a>
-            <nav aria-label="Landing page footer">
-                <a href="#home">Home</a><a href="#how-it-works">How it works</a>
-                <a href="#features">Features</a><a href="#about">About</a>
-                <a asp-controller="Home" asp-action="Help">Help &amp; contact</a>
-            </nav>
             <small>© @DateTime.UtcNow.Year AniGo. All rights reserved.</small>
         </div>
-        <details class="ani6-credits ani6-container">
-            <summary>Photo credits and sources</summary>
-            <p>Illustrative agriculture photos from <a href="https://unsplash.com/@@quangpraha" target="_blank" rel="noopener noreferrer">Quang Nguyen Vinh</a>, <a href="https://unsplash.com/@@liyichuan" target="_blank" rel="noopener noreferrer">YiChuan Li</a>, and <a href="https://images.unsplash.com/photo-1730697897470-0efaee4922de" target="_blank" rel="noopener noreferrer">Unsplash</a>. No image represents an AniGo customer farm. These illustrations are not a farm record. <a href="https://unsplash.com/license" target="_blank" rel="noopener noreferrer">Image license</a>.</p>
-        </details>
     </footer>
 </div>
