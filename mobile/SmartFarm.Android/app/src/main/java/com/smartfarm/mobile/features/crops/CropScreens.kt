@@ -256,7 +256,14 @@ fun CropScreen(
                         }
                     }
                     if (selectedCycleId == cycle.id) {
-                        TextButton(onClick = { selectedCycleId = null }) { Text("Close crop details") }
+                        TextButton(onClick = {
+                            val dismiss: () -> Unit = {
+                                exitGuard?.clear("cycle-${cycle.id}")
+                                selectedCycleId = null
+                            }
+                            if (exitGuard != null) exitGuard.requestForm("cycle-${cycle.id}", dismiss)
+                            else dismiss()
+                        }) { Text("Close crop details") }
                         formState.SaveableStateProvider("cycle-${cycle.id}") {
                             CycleCard(cycle, canManage && !state.offline, state.busy,
                                 onUpdatePlan, onTransition, onMonitoring, onHarvests, onQuickMonitoring)
