@@ -90,6 +90,8 @@ fun AniGoCarabao(
             pose == AniGoCarabaoPose.RECORD -> "AniGo carabao recording fieldwork"
             pose == AniGoCarabaoPose.HARVEST -> "AniGo carabao holding a harvest basket"
             pose == AniGoCarabaoPose.CELEBRATE -> "AniGo carabao celebrating"
+            pose == AniGoCarabaoPose.GUIDE -> "AniGo carabao pointing to farm records"
+            pose == AniGoCarabaoPose.WAVE -> "AniGo carabao waving"
             else -> "AniGo carabao mascot"
         },
         contentScale = ContentScale.Fit,
