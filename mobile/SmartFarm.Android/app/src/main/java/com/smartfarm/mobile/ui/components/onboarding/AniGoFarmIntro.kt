@@ -159,6 +159,7 @@ fun AniGoFarmIntro(
         if (compactLandscape) {
             // Short landscape screens need an explicit two-column composition.
             // The old vertical stack put the carabao below the visible viewport.
+            val landscapeMascotSize = if (maxWidth < 550.dp) 124.dp else 168.dp
             Row(
                 Modifier.align(Alignment.Center)
                     .widthIn(max = 680.dp).fillMaxWidth()
@@ -213,7 +214,7 @@ fun AniGoFarmIntro(
                     pose = pose,
                     frame = frame,
                     walking = walking,
-                    modifier = Modifier.size(if (maxWidth < 550.dp) 124.dp else 168.dp)
+                    modifier = Modifier.size(landscapeMascotSize)
                         .testTag("anigo-intro-landscape-mascot")
                         .graphicsLayer {
                             translationX = -stepDistance * (1f - arrival)
