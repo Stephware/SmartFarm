@@ -287,6 +287,12 @@ fun InventoryListScreen(
                 }
             }
         }
+        if (visibleItems.size > visibleLimit) item(key = "supplies-more") {
+            OutlinedButton(onClick = { visibleLimit += 20 },
+                modifier = Modifier.fillMaxWidth().defaultMinSize(minHeight = 48.dp)) {
+                Text("Show 20 more supplies (${visibleItems.size - visibleLimit} remaining)")
+            }
+        }
 
     }
 }
