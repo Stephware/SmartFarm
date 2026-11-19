@@ -35,6 +35,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.semantics.LiveRegionMode
 import androidx.compose.ui.semantics.liveRegion
@@ -253,7 +254,7 @@ fun TaskScreen(
             if (selectedView == "calendar") {
                 item(key = "calendar") {
                     val picker = rememberDatePickerState(
-                        initialDisplayedMonthMillis = today?.atStartOfDay(ZoneOffset.UTC)
+                        initialDisplayedMonthMillis = (calendarDate ?: today)?.atStartOfDay(ZoneOffset.UTC)
                             ?.toInstant()?.toEpochMilli()
                     )
                     LaunchedEffect(picker.selectedDateMillis) {
@@ -267,7 +268,8 @@ fun TaskScreen(
                         FarmSectionHeader("Task calendar", "Choose a date to see that day's assignments.")
                         Surface(shape = MaterialTheme.shapes.medium,
                             color = MaterialTheme.colorScheme.surface) {
-                            DatePicker(state = picker, showModeToggle = false,
+                            DatePicker(state = picker, modifier = Modifier.testTag("task-calendar-picker"),
+                                showModeToggle = false,
                                 title = null, headline = null,
                                 colors = DatePickerDefaults.colors(
                                     containerColor = MaterialTheme.colorScheme.surface))
