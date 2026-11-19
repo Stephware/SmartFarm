@@ -1,5 +1,6 @@
 package com.smartfarm.mobile
 
+import androidx.compose.foundation.layout.Column
 import androidx.compose.material3.Button
 import androidx.compose.material3.Text
 import androidx.compose.runtime.SideEffect
@@ -13,6 +14,8 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.smartfarm.mobile.navigation.navigateToSignedInFarms
 import com.smartfarm.mobile.navigation.navigateToSignedOutWelcome
+import com.smartfarm.mobile.ui.components.onboarding.AniGoOnboardingScreen
+import com.smartfarm.mobile.ui.components.onboarding.anigoReplayExitLabel
 import com.smartfarm.mobile.ui.theme.SmartFarmTheme
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNull
@@ -64,6 +67,38 @@ class AniGoSessionNavigationTest {
         }
     }
 
+    @Test
+    fun optionalGuideReplayClosesBackToWelcomeOrAccountWithoutAuthTransition() {
+        lateinit var controller: NavHostController
+        render(start = "welcome", onController = { controller = it })
+
+        compose.onNodeWithText("Explore guide").performClick()
+        compose.onNodeWithText("Welcome to AniGo!").assertIsDisplayed()
+        compose.onNodeWithText("Close guide").performClick()
+        compose.waitForIdle()
+        compose.runOnIdle {
+            assertEquals("welcome", controller.currentBackStackEntry?.destination?.route)
+            assertNull("Guest replay should not add a destination after closing", controller.previousBackStackEntry)
+        }
+
+        compose.onNodeWithText("Open login").performClick()
+        compose.onNodeWithText("Sign in").performClick()
+        compose.onNodeWithText("Open account").performClick()
+        compose.onNodeWithText("Replay guide").performClick()
+        compose.onNodeWithText("Welcome to AniGo!").assertIsDisplayed()
+        repeat(4) {
+            compose.onNodeWithText("Next →").performClick()
+            compose.waitForIdle()
+        }
+        compose.onNodeWithText("Back to My Account").assertIsDisplayed().performClick()
+        compose.waitForIdle()
+        compose.onNodeWithText("Replay guide").assertIsDisplayed()
+        compose.runOnIdle {
+            assertEquals("account", controller.currentBackStackEntry?.destination?.route)
+            assertEquals("farms", controller.previousBackStackEntry?.destination?.route)
+        }
+    }
+
     private fun render(start: String, onController: (NavHostController) -> Unit) {
         compose.setContent {
             SmartFarmTheme {
@@ -71,7 +106,10 @@ class AniGoSessionNavigationTest {
                 SideEffect { onController(nav) }
                 NavHost(navController = nav, startDestination = start) {
                     composable("welcome") {
-                        Button(onClick = { nav.navigate("login") }) { Text("Open login") }
+                        Column {
+                            Button(onClick = { nav.navigate("login") }) { Text("Open login") }
+                            Button(onClick = { nav.navigate("onboarding-preview") }) { Text("Explore guide") }
+                        }
                     }
                     composable("login") {
                         Button(onClick = { nav.navigateToSignedInFarms() }) { Text("Sign in") }
@@ -80,7 +118,19 @@ class AniGoSessionNavigationTest {
                         Button(onClick = { nav.navigate("account") }) { Text("Open account") }
                     }
                     composable("account") {
-                        Button(onClick = { nav.navigateToSignedOutWelcome() }) { Text("Sign out") }
+                        Column {
+                            Button(onClick = { nav.navigateToSignedOutWelcome() }) { Text("Sign out") }
+                            Button(onClick = { nav.navigate("onboarding-preview") }) { Text("Replay guide") }
+                        }
+                    }
+                    composable("onboarding-preview") {
+                        val authenticated = nav.previousBackStackEntry?.destination?.route == "account"
+                        AniGoOnboardingScreen(
+                            onExit = { nav.popBackStack() },
+                            motionAllowed = false,
+                            completionLabel = anigoReplayExitLabel(authenticated),
+                            skipLabel = "Close guide"
+                        )
                     }
                 }
             }
