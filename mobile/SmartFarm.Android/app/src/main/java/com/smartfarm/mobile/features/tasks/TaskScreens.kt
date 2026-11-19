@@ -73,6 +73,9 @@ fun TaskScreen(
     var adding by rememberSaveable(state.farmId) { mutableStateOf(false) }
     var editingId by rememberSaveable(state.farmId) { mutableStateOf<String?>(null) }
     var selectedView by rememberSaveable(state.farmId) { mutableStateOf("today") }
+    var selectedCalendarDay by rememberSaveable(state.farmId) { mutableStateOf<String?>(null) }
+    var completedLimit by rememberSaveable(state.farmId) { mutableStateOf(20) }
+    var manageLimit by rememberSaveable(state.farmId) { mutableStateOf(20) }
     var showTaskHelp by rememberSaveable(state.farmId) { mutableStateOf(false) }
     val formState = androidx.compose.runtime.saveable.rememberSaveableStateHolder()
     var handledSave by rememberSaveable(state.farmId) { mutableStateOf(state.lastFormSave?.receipt) }
@@ -94,8 +97,9 @@ fun TaskScreen(
     val today = state.timeZoneId?.let { zone ->
         runCatching { TaskWorkCenter.today(zone) }.getOrNull()
     }
-    val calendar = rememberDatePickerState(initialSelectedDateMillis = today?.atStartOfDay(ZoneOffset.UTC)?.toInstant()?.toEpochMilli())
-    val calendarDate = calendar.selectedDateMillis?.let { Instant.ofEpochMilli(it).atZone(ZoneOffset.UTC).toLocalDate() }
+    // Compose DatePicker encodes calendar dates at UTC midnight; the farm's "today"
+    // is still determined only by the configured farm time zone above.
+    val calendarDate = selectedCalendarDay?.let { runCatching { LocalDate.parse(it) }.getOrNull() }
     val assigned = TaskWorkCenter.myOpenTasks(state.tasks, actorId, isOwner)
     val overdue = today?.let { TaskWorkCenter.overdue(assigned, it) }.orEmpty()
     val dueToday = today?.let { TaskWorkCenter.dueToday(assigned, it) }.orEmpty()
@@ -154,7 +158,9 @@ fun TaskScreen(
                     }
                     Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                         TextButton(onClick = { selectedView = "calendar" },
-                            modifier = Modifier.weight(1f)) { Text("Calendar") }
+                            modifier = Modifier.weight(1f)) {
+                            Text(if (selectedView == "day") "Change date" else "Calendar")
+                        }
                         if (canManage) {
                             TextButton(onClick = { selectedView = "manage"; adding = false },
                                 modifier = Modifier.weight(1f)) { Text("All farm tasks") }
@@ -234,31 +240,49 @@ fun TaskScreen(
                     FarmSectionHeader("My task history",
                         "Your closed assignments. Records cannot be edited here.")
                 }
-                items(closed.size, key = { "history-${closed[it].id}" }) { index ->
+                items(closed.take(completedLimit).size, key = { "history-${closed[it].id}" }) { index ->
                     TodayTaskCard(closed[index], state, canManage, actorId, onComplete, onOpenCrop)
+                }
+                if (closed.size > completedLimit) item(key = "completed-more") {
+                    OutlinedButton(onClick = { completedLimit += 20 },
+                        modifier = Modifier.fillMaxWidth().defaultMinSize(minHeight = 48.dp)) {
+                        Text("Show 20 more completed tasks (${closed.size - completedLimit} remaining)")
+                    }
                 }
             }
             if (selectedView == "calendar") {
                 item(key = "calendar") {
+                    val picker = rememberDatePickerState()
+                    LaunchedEffect(picker.selectedDateMillis) {
+                        picker.selectedDateMillis?.let { millis ->
+                            selectedCalendarDay = Instant.ofEpochMilli(millis)
+                                .atZone(ZoneOffset.UTC).toLocalDate().toString()
+                            selectedView = "day"
+                        }
+                    }
                     Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                        FarmSectionHeader("Task calendar", "Choose a date to review your assignments.")
+                        FarmSectionHeader("Task calendar", "Choose a date to see that day's assignments.")
                         Surface(shape = MaterialTheme.shapes.medium,
                             color = MaterialTheme.colorScheme.surface) {
-                            DatePicker(state = calendar, showModeToggle = false,
+                            DatePicker(state = picker, showModeToggle = false,
                                 title = null, headline = null,
                                 colors = DatePickerDefaults.colors(
                                     containerColor = MaterialTheme.colorScheme.surface))
                         }
                     }
                 }
+            }
+            if (selectedView == "day") {
                 item(key = "calendar-heading") {
                     FarmSectionHeader("Assignments on " +
                         (calendarDate?.toString() ?: "selected date"),
-                        "Open tasks for this date. Dates follow the farm's time zone.")
+                        "Calendar closed after selection. Tap Change date to pick another day.")
                 }
-                val calendarTasks = assigned.filter { TaskWorkCenter.dueDate(it) == calendarDate }
+                val calendarTasks = (if (canManage) farmTasks else (assigned + closed).distinctBy { it.id })
+                    .filter { TaskWorkCenter.dueDate(it) == calendarDate }
+                    .sortedWith(compareBy<TaskDto> { it.status != 0 }.thenBy { it.dueDate })
                 if (calendarTasks.isEmpty() && !state.busy && state.error == null) item(key = "calendar-empty") {
-                    FarmEmptyState("No assigned work on this date",
+                    FarmEmptyState("No assignments on this date",
                         "Choose another day or return to Today.")
                 }
                 items(calendarTasks.size, key = { "calendar-${calendarTasks[it].id}" }) { index ->
@@ -277,7 +301,7 @@ fun TaskScreen(
                     FarmEmptyState("No farm tasks yet",
                         "Create a task above to assign work to your team.")
                 }
-                farmTasks.forEach { task ->
+                farmTasks.take(manageLimit).forEach { task ->
                     item(key = "manage-${task.id}") {
                         TodayTaskCard(task, state, canManage, actorId, onComplete, onOpenCrop,
                             showAssignee = true)
