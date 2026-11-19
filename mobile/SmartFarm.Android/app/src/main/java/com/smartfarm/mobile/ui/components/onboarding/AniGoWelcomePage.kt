@@ -106,7 +106,7 @@ internal fun AniGoWelcomePage(
                 AniGoCarabao(
                     pose = AniGoCarabaoPose.WAVE,
                     frame = talkingFrame,
-                    talking = active && activityResumed && motionAllowed && talkingFrame == 1,
+                    talking = active && activityResumed && motionAllowed,
                     modifier = Modifier.align(Alignment.BottomStart).size(mascotSize)
                 )
                 Surface(
