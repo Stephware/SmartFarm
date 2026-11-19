@@ -201,8 +201,10 @@ fun FarmErrorState(message: String, onRetry: () -> Unit,
 fun FarmHero(title: String, subtitle: String, modifier: Modifier = Modifier) {
     Column(modifier.fillMaxWidth().padding(top = 2.dp, bottom = 6.dp),
         verticalArrangement = Arrangement.spacedBy(5.dp)) {
-        Text(title, style = MaterialTheme.typography.headlineMedium,
-            modifier = Modifier.semantics { heading() })
+        if (LocalPageNavigation.current?.let { it.onBack != null && it.title == title } != true) {
+            Text(title, style = MaterialTheme.typography.headlineMedium,
+                modifier = Modifier.semantics { heading() })
+        }
         Text(subtitle, style = MaterialTheme.typography.bodyMedium,
             color = MaterialTheme.colorScheme.onSurfaceVariant)
     }
@@ -217,10 +219,12 @@ val LocalFarmHeaderNavigation = compositionLocalOf<FarmHeaderNavigation?> { null
 
 /** Brand and screen context remain outside the scrolling workspace. */
 @Composable
-fun FarmAppBar(modifier: Modifier = Modifier) {
+fun FarmAppBar(modifier: Modifier = Modifier, title: String? = null,
+    onBack: (() -> Unit)? = null, backLabel: String = "Back") {
     val navigation = LocalFarmHeaderNavigation.current
     Surface(modifier.fillMaxWidth(), color = MaterialTheme.colorScheme.surface) {
         Column(Modifier.statusBarsPadding()) {
+            PageNavigationHeader(title, onBack, backLabel)
             Row(Modifier.fillMaxWidth().defaultMinSize(minHeight = 60.dp)
                 .padding(horizontal = 16.dp), verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.spacedBy(9.dp)) {

@@ -1,5 +1,6 @@
 package com.smartfarm.mobile.features.crops
 
+import com.smartfarm.mobile.ui.components.UnsavedChanges
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Box
@@ -89,6 +90,11 @@ fun CropScreen(
     var chooseCrop by rememberSaveable(state.farmId) { mutableStateOf(false) }
     var addingType by rememberSaveable(state.farmId) { mutableStateOf(false) }
 
+    UnsavedChanges("crop-type", typeName.isNotEmpty() || unit != "kg" || growth.isNotEmpty() || watering.isNotEmpty(),
+        typeName, unit, growth, watering)
+    UnsavedChanges("crop-plan", selectedPlot.isNotEmpty() || selectedType.isNotEmpty() ||
+        plannedDate.isNotEmpty() || harvestDate.isNotEmpty(), selectedPlot, selectedType, plannedDate, harvestDate)
+    val formState = androidx.compose.runtime.saveable.rememberSaveableStateHolder()
     val active = state.cycles.filter { it.status == 1 }
         .sortedWith(compareBy<CropCycleDto>({ it.plotName }, { it.cropTypeName }))
     val planned = state.cycles.filter { it.status == 0 }
@@ -102,7 +108,7 @@ fun CropScreen(
         else -> emptyList()
     }
     val browse = selectedView in setOf("growing", "planned", "history")
-    RecordPage {
+    RecordPage(title = "Crops", onBack = onBack) {
         item(key = "overview") {
             Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
                 FarmHero("Crops", "Growing crops, planting plans and history.")
@@ -222,8 +228,10 @@ fun CropScreen(
                     }
                     if (selectedCycleId == cycle.id) {
                         TextButton(onClick = { selectedCycleId = null }) { Text("Close crop details") }
-                        CycleCard(cycle, canManage && !state.offline, state.busy,
-                            onUpdatePlan, onTransition, onMonitoring, onHarvests, onQuickMonitoring)
+                        formState.SaveableStateProvider("cycle-${cycle.id}") {
+                            CycleCard(cycle, canManage && !state.offline, state.busy,
+                                onUpdatePlan, onTransition, onMonitoring, onHarvests, onQuickMonitoring)
+                        }
                     }
                 }
             }
@@ -371,6 +379,9 @@ private fun CycleCard(
     var plantedDate by rememberSaveable(cycle.id, cycle.rowVersion) { mutableStateOf("") }
     var reason by rememberSaveable(cycle.id, cycle.rowVersion) { mutableStateOf("") }
     var confirmation by rememberSaveable(cycle.id) { mutableStateOf<Int?>(null) }
+    UnsavedChanges("cycle-${cycle.id}", editDate != cycle.plannedPlantingDate ||
+        editHarvest != cycle.expectedHarvestDate.orEmpty() || plantedDate.isNotEmpty() || reason.isNotEmpty(),
+        editDate, editHarvest, plantedDate, reason)
     var advanced by rememberSaveable(cycle.id) { mutableStateOf(false) }
 
     FarmSectionCard("${cycle.cropTypeName} · ${cycle.plotName}",

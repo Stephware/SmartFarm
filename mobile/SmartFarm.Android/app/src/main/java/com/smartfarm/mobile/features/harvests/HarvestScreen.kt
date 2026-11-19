@@ -1,5 +1,6 @@
 package com.smartfarm.mobile.features.harvests
 
+import com.smartfarm.mobile.ui.components.UnsavedChanges
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -72,6 +73,7 @@ fun HarvestScreen(
         }
     }
 
+    UnsavedChanges("harvest", quantity.isNotEmpty() || notes.isNotEmpty())
     val overview = state.overview
     val canRecord = overview?.canRecord == true
     val selectedView = if (!canRecord) "history" else view
@@ -88,10 +90,10 @@ fun HarvestScreen(
         }
     }.sortedByDescending { it.harvestedAtUtc }
 
-    RecordPage {
+    RecordPage(title = "Harvests", onBack = onBack) {
         item(key = "header") {
             Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                OutlinedButton(onClick = onBack) { Text("Back") }
+
                 FarmHero(if (canRecord) "Record harvest" else "Harvest records",
                     "Record what you picked, then review confirmed totals.")
                 if (state.busy) CircularProgressIndicator()
@@ -234,8 +236,11 @@ fun HarvestScreen(
     }
 
     confirmVoidId?.let { harvestId ->
+        val exit = com.smartfarm.mobile.ui.components.rememberExitGuard()
+        androidx.compose.runtime.SideEffect { exit.update("void", voidReason.isNotEmpty()) }
+        val dismiss = { exit.request { confirmVoidId = null; voidReason = "" } }
         AlertDialog(
-            onDismissRequest = { confirmVoidId = null },
+            onDismissRequest = dismiss,
             title = { Text("Void harvest record?") },
             text = {
                 Column {
@@ -252,8 +257,9 @@ fun HarvestScreen(
                     }) { Text("Void harvest") }
             },
             dismissButton = {
-                TextButton(onClick = { confirmVoidId = null }) { Text("Cancel") }
+                TextButton(onClick = dismiss) { Text("Cancel") }
             }
         )
+        com.smartfarm.mobile.ui.components.DiscardChangesDialog(exit)
     }
 }

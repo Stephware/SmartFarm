@@ -39,7 +39,7 @@ test("Desktop and guest entry points still display the official complete wordmar
 });
 
 test("Android workspace app bar selects compact mark for both theme surfaces", () => {
-  const bar = farmComponents.split("fun FarmAppBar(modifier: Modifier = Modifier) {")[1]
+  const bar = farmComponents.split("fun FarmAppBar(")[1]
     .split("Box(Modifier.weight(1f))")[0];
   assert.match(bar, /R\.drawable\.ani_go_mark_on_dark/);
   assert.match(bar, /R\.drawable\.ani_go_mark\b/);

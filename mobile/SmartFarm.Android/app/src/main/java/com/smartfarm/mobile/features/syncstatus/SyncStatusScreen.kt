@@ -93,10 +93,10 @@ fun SyncStatusScreen(
     val confirmed = progress.confirmedFarms.any { (farm, count) -> count > 0 && (farmId == null || farm == farmId) }
     fun farmLabel(id: String): String = farmNames[id] ?: "Farm ${id.take(8)}"
 
-    RecordPage {
+    RecordPage(title = "Offline sync", onBack = onBack) {
         item(key = "header") {
             Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                OutlinedButton(onClick = onBack) { Text("Back") }
+
                 FarmHero("Offline sync", "Records saved on this phone.")
                 FarmSectionCard("Sync queue", subtitle = "Waiting for server confirmation.") {
                     FlowRow(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp),

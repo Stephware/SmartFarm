@@ -178,6 +178,17 @@ public sealed class Phase12FAdminViewTests
     }
 
     [Fact]
+    public async Task MfaSetupOffersASafeParentOutsideTheMfaGatedAdminArea()
+    {
+        using var app = new WebApplicationFactory<Program>();
+        var html = await RenderAsync(app.Services, "Security", "Setup",
+            new AdminMfaSetupPage("TEST-ONLY-KEY-DO-NOT-USE", "test-admin@example.test"));
+        Assert.Matches("<a[^>]*href=\"/account/profile\"[^>]*>[^<]*Back to my account</a>", html);
+        Assert.Contains("Enable two-factor authentication", html);
+        Assert.Contains("__RequestVerificationToken", html);
+    }
+
+    [Fact]
     public async Task Phase12FAdminBrowserFixtures()
     {
         if (Environment.GetEnvironmentVariable("ANIGO_CAPTURE_ADMIN_FIXTURES") != "1") return;

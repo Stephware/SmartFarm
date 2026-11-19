@@ -91,9 +91,11 @@ fun AniGoFarmIntro(
     modifier: Modifier = Modifier,
     motionAllowed: Boolean = anigoMotionAllowed(),
     autoPlay: Boolean = true,
-    previewProgress: Float = 0f
+    previewProgress: Float = 0f,
+    onBack: () -> Unit = onFinished
 ) {
     val latestFinish by rememberUpdatedState(onFinished)
+    val latestBack by rememberUpdatedState(onBack)
     // Static review frames use the exact runtime illustration and UI layers.
     // Real entry paths keep the 0f default and play the normal intro.
     val progress = remember { Animatable(previewProgress.coerceIn(0f, 1f)) }
@@ -140,7 +142,7 @@ fun AniGoFarmIntro(
     val mascotBounce = if (walking) sin(value * 2f * PI.toFloat() * 12f) * 5f else 0f
     val density = LocalDensity.current
 
-    BackHandler { latestFinish() }
+    BackHandler { latestBack() }
 
     BoxWithConstraints(
         modifier.fillMaxSize()

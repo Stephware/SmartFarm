@@ -238,3 +238,8 @@ Three native primary entries and a simpler existing Record sheet; My Farm groups
 - Disposition: Update
 - Raw: raw/project/2026-11-18-carabao-onboarding-refinement.md
 - Updated: Feature-branch carabao first-run/replay behavior, reduced-motion refresh, responsive theme refinement and draft/visual approval limits. Historical raw sources and offline/security decisions preserved.
+
+## [2026-11-19] ingest | Coordinated Back navigation
+- Disposition: Update
+- Raw: raw/project/2026-11-19-navigation-ux.md
+- Updated: Android actual-caller/fallback stacks, pinned headers, meaningful and restored draft guards, scoped form receipts, onboarding Back, MVC parent links and verification limits. Historical snapshots and business/security contracts preserved; Draft PR CI/merge status remains separate.

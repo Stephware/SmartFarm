@@ -5,8 +5,7 @@
 <div class="reference-screen reference-screen-inventory ani12e-workspace ani12e-edit-inventory">
 <section class="panel card sf-edit-form-panel sf-ops-edit-panel ani12e-form-panel">
 
-    <h1>Edit supply</h1>
-    <p class="sf-muted">Update the supply details without changing its transaction history.</p>
+    <partial name="_UiPageHeader" model='@(new UiPageHeader("Edit supply", "Update the supply details without changing its transaction history.", BackText: "Back to supply", BackUrl: Url.Action("Details", "Inventory", new { farmId = Model.Farm.Id, itemId = Model.ItemId })))' />
     <form class="sf-ops-form ani12e-fields ani-p5-form" data-ani-p5-form asp-action="Edit" asp-route-farmId="@Model.Farm.Id" asp-route-itemId="@Model.ItemId" method="post">
         <input asp-for="Input.RowVersion" type="hidden" />
         <label asp-for="Input.Name">Supply name</label><input asp-for="Input.Name" required minlength="2" maxlength="120" />

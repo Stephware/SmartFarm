@@ -1,5 +1,12 @@
 package com.smartfarm.mobile.navigation
 
+import com.smartfarm.mobile.ui.components.ExitGuard
+import com.smartfarm.mobile.ui.components.LocalExitGuard
+import com.smartfarm.mobile.ui.components.rememberExitGuard
+import com.smartfarm.mobile.ui.components.DiscardChangesDialog
+import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import com.smartfarm.mobile.ui.components.LocalFarmHeaderNavigation
@@ -13,6 +20,13 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.LaunchedEffect
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.navigation.NavBackStackEntry
+import androidx.navigation.NavGraphBuilder
+import androidx.navigation.NamedNavArgument
+import androidx.activity.compose.BackHandler
+import androidx.activity.compose.LocalActivity
+import com.smartfarm.mobile.ui.components.LocalPageNavigation
+import com.smartfarm.mobile.ui.components.PageNavigation
 import androidx.navigation.NavType
 import androidx.navigation.navArgument
 import androidx.navigation.compose.NavHost
@@ -64,6 +78,7 @@ import com.smartfarm.mobile.features.farms.FarmDetailScreen
 @Composable
 fun SmartFarmNavHost(auth: AuthViewModel, farms: FarmViewModel, crops: CropViewModel, monitoring: MonitoringViewModel, inventory: InventoryViewModel, harvests: HarvestViewModel, status: StatusViewModel, sync: SyncStatusViewModel, tasks: com.smartfarm.mobile.features.tasks.TaskViewModel, insights: FarmInsightsViewModel) {
     val navController = rememberNavController()
+    val activity = LocalActivity.current
     val currentEntry by navController.currentBackStackEntryAsState()
     val currentRoute = currentEntry?.destination?.route
     val currentFarmId = currentEntry?.arguments?.getString("farmId").orEmpty()
@@ -106,13 +121,17 @@ fun SmartFarmNavHost(auth: AuthViewModel, farms: FarmViewModel, crops: CropViewM
     var showFarmSwitcher by rememberSaveable { mutableStateOf(false) }
     var recordForFarm by rememberSaveable { mutableStateOf<String?>(null) }
     var recordAction by rememberSaveable { mutableStateOf<String?>(null) }
-    var pendingFarmSwitch by rememberSaveable { mutableStateOf<String?>(null) }
+    val drafts = rememberNavigationDrafts()
+    val exitGuards = drafts.guards
+    val guardOwners = remember { mutableMapOf<String, NavBackStackEntry>() }
+    val rootExit = rememberExitGuard()
+    val keyboard = LocalSoftwareKeyboardController.current
+    val focus = LocalFocusManager.current
     var farmScopeUserId by rememberSaveable { mutableStateOf<String?>(null) }
     LaunchedEffect(state.account?.id) {
         showFarmSwitcher = false
         recordForFarm = null
         recordAction = null
-        pendingFarmSwitch = null
         // Keep the same user's farm context through Activity recreation.
         if (farmScopeUserId != state.account?.id) {
             farms.clear()
@@ -127,33 +146,34 @@ fun SmartFarmNavHost(auth: AuthViewModel, farms: FarmViewModel, crops: CropViewM
             recordForFarm = currentFarmId
             if (crops.state.value.farmId != currentFarmId) crops.load(currentFarmId)
         } else {
-            val route = destination.replace("{farmId}", currentFarmId)
-            navController.navigate(route) {
-                launchSingleTop = true
-                restoreState = true
-                popUpTo("farm/$currentFarmId") { saveState = true }
-            }
+            navController.openWorkspace(currentFarmId, destination)
         }
     }
 
     fun completeFarmSwitch(target: String) {
         showFarmSwitcher = false
-        pendingFarmSwitch = null
         if (target == "__all__") {
-            navController.navigate("farms") { launchSingleTop = true }
+            navController.openFarms()
         } else if (target != currentFarmId) {
-            navController.navigate("farm/$target") {
-                popUpTo("farms") { inclusive = false }
-                launchSingleTop = true
-            }
+            navController.switchFarm(target)
         }
+    }
+    fun acceptOnSuccess(form: String): () -> Unit {
+        return exitGuards[currentEntry?.id]?.acceptAfterSave(form) ?: {}
+    }
+    fun requestRootChange(action: () -> Unit) {
+        keyboard?.hide()
+        focus.clearFocus()
+        // Farms itself is retained. Check every destination that a root pop can remove,
+        // including a draft parked below a global Sync/Account/Notifications page.
+        rootExit.update("leaving-stack", exitGuards.any { (id, guard) ->
+            drafts.routes[id] != "farms" && guard.dirty
+        })
+        rootExit.request { action(); drafts.clearLeavingFarms() }
     }
     fun requestFarmSwitch(target: String) {
         showFarmSwitcher = false
-        if (requiresExitConfirmation(currentRoute,
-                currentEntry?.arguments?.getString("section"))) {
-            pendingFarmSwitch = target
-        } else completeFarmSwitch(target)
+        requestRootChange { completeFarmSwitch(target) }
     }
 
     val openTaskRecord: (String, com.smartfarm.mobile.data.remote.api.TaskDto) -> Unit = { farmId, task ->
@@ -177,13 +197,13 @@ fun SmartFarmNavHost(auth: AuthViewModel, farms: FarmViewModel, crops: CropViewM
         FarmDetailScreen(farmState,
             onBack = {
                 if (section == "Overview") {
-                    navController.navigate("farms") { launchSingleTop = true }
-                } else navController.popBackStack()
+                    navController.openFarms()
+                } else navController.backOrParent()
             },
             onSaveFarm = { name, location, zone, latitude, longitude ->
                 farms.saveFarm(name, location, zone, latitude, longitude) {} },
-            onArchiveFarm = { farms.archiveFarm { navController.navigate("farms") } },
-            onAddPlot = { name, area -> farms.addPlot(name, area) },
+            onArchiveFarm = { farms.archiveFarm { navController.openFarms() } },
+            onAddPlot = { name, area -> farms.addPlot(name, area, acceptOnSuccess("new-plot")) },
             onSavePlot = { plot, name, area -> farms.savePlot(plot, name, area) },
             onArchivePlot = { plot -> farms.archivePlot(plot) },
             onCrops = { navController.navigate("crops/$farmId") },
@@ -200,7 +220,7 @@ fun SmartFarmNavHost(auth: AuthViewModel, farms: FarmViewModel, crops: CropViewM
             section = section,
             onWeather = { navController.navigate("farm/$farmId/weather") },
             onPlots = { navController.navigate("farm/$farmId/plots") },
-            onSync = { navController.navigate("sync") },
+            onSync = { navController.openSecondary("sync") },
             onRecord = {
                 recordAction = null
                 recordForFarm = farmId
@@ -213,6 +233,54 @@ fun SmartFarmNavHost(auth: AuthViewModel, farms: FarmViewModel, crops: CropViewM
             },
             homeSync = com.smartfarm.mobile.features.farms.homeSyncSummary(
                 pending, pendingPhotos, farmId, state.account?.id))
+    }
+
+    // Each destination owns its header and system Back, including during transitions.
+    fun NavGraphBuilder.page(route: String, arguments: List<NamedNavArgument> = emptyList(),
+        content: @Composable (NavBackStackEntry) -> Unit) {
+        composable(route, arguments = arguments) { entry ->
+            val root = route in setOf("welcome", "onboarding", "onboarding-preview", "farms",
+                "farm/{farmId}", "myfarm/{farmId}", "more/{farmId}")
+            val previous = navController.previousBackStackEntry
+            val title = navigationTitle(route, entry.arguments?.getString("section"), entry.arguments?.getString("quick"))
+            val parent = previous?.let { navigationTitle(it.destination.route,
+                it.arguments?.getString("section"), it.arguments?.getString("quick")) }
+                ?: navigationTitle(navigationParent(route, entry.arguments?.getString("farmId").orEmpty()))
+            val guard = rememberExitGuard(exitGuards[entry.id])
+            DisposableEffect(entry.id, guard) {
+                exitGuards[entry.id] = guard
+                drafts.routes[entry.id] = route
+                if (guardOwners.put(entry.id, entry) == null) {
+                    entry.lifecycle.addObserver(object : androidx.lifecycle.LifecycleEventObserver {
+                        override fun onStateChanged(source: androidx.lifecycle.LifecycleOwner, event: androidx.lifecycle.Lifecycle.Event) {
+                            if (event == androidx.lifecycle.Lifecycle.Event.ON_DESTROY) {
+                                drafts.remove(entry.id)
+                                guardOwners.remove(entry.id)
+                                source.lifecycle.removeObserver(this)
+                            }
+                        }
+                    })
+                }
+                // A stopped back-stack entry still owns its draft; retain its guard.
+                onDispose { }
+            }
+            val back = {
+                keyboard?.hide()
+                focus.clearFocus()
+                guard.request {
+                    if (navController.previousBackStackEntry == null && navigationParent(route,
+                        entry.arguments?.getString("farmId").orEmpty()) == null) activity?.finish()
+                    else navController.backOrParent()
+                }
+            }
+            BackHandler(enabled = route !in setOf("welcome", "onboarding", "onboarding-preview") &&
+                (guard.dirty || previous != null || navigationParent(route, entry.arguments?.getString("farmId").orEmpty()) != null)) { back() }
+            CompositionLocalProvider(LocalExitGuard provides guard,
+                LocalPageNavigation provides PageNavigation(title, "Back to $parent", if (root) null else back)) {
+                content(entry)
+                DiscardChangesDialog(guard)
+            }
+        }
     }
 
     Scaffold(
@@ -228,13 +296,13 @@ fun SmartFarmNavHost(auth: AuthViewModel, farms: FarmViewModel, crops: CropViewM
         FarmHeaderNavigation(headerFarm.selected?.takeIf { it.id == currentFarmId }?.name,
             onFarms = {
                 if (currentFarmId.isBlank()) {
-                    navController.navigate("farms") { launchSingleTop = true }
+                    requestRootChange { navController.openFarms() }
                 } else showFarmSwitcher = true
             },
-            onNotifications = { navController.navigate("notifications") { launchSingleTop = true } },
+            onNotifications = { navController.openSecondary("notifications") },
             queuedCount = accountQueue.total,
             reviewCount = accountQueue.needsReview,
-            onSync = { navController.navigate("sync") { launchSingleTop = true } })) {
+            onSync = { navController.openSecondary("sync") })) {
     Row(Modifier.fillMaxSize().padding(workspacePadding)) {
     if (state.account != null && showFarmTabs && expandedWorkspace) {
         FarmWorkspaceBar(selectedRoute = currentRoute.orEmpty(), onNavigate = navigateWorkspace, expanded = true)
@@ -244,7 +312,7 @@ fun SmartFarmNavHost(auth: AuthViewModel, farms: FarmViewModel, crops: CropViewM
         startDestination = initialRoute,
         modifier = Modifier.weight(1f)
     ) {
-        composable("onboarding") {
+        page("onboarding") {
             AniGoOnboardingScreen(onExit = {
                 onboardingStore.markCompleted()
                 navController.navigate("welcome") {
@@ -253,7 +321,7 @@ fun SmartFarmNavHost(auth: AuthViewModel, farms: FarmViewModel, crops: CropViewM
                 }
             })
         }
-        composable("welcome") {
+        page("welcome") {
             val statusState by status.state.collectAsStateWithLifecycle()
             WelcomeScreen(
                 status = statusState,
@@ -262,44 +330,47 @@ fun SmartFarmNavHost(auth: AuthViewModel, farms: FarmViewModel, crops: CropViewM
                 onRegister = { navController.navigate("register") },
                 onPreviewGuide = { navController.navigate("onboarding-preview") { launchSingleTop = true } })
         }
-        composable("onboarding-preview") {
-            // Opt-in replay is not a first-run completion: return to the caller
-            // without changing the device-wide completion flag or session.
+        page("onboarding-preview") {
             AniGoOnboardingScreen(
-                onExit = { navController.popBackStack() },
+                onExit = {
+                    if (navController.previousBackStackEntry == null && state.account != null) navController.openFarms()
+                    else navController.backOrParent()
+                },
                 completionLabel = anigoReplayExitLabel(state.account != null),
                 skipLabel = "Close guide"
             )
         }
-        composable("login") {
+        page("login") {
             LoginScreen(state,
                 onSubmit = { email, password ->
                     auth.login(email, password) {
-                        navController.navigateToSignedInFarms()
+                        drafts.clear()
+                        navController.authenticationSucceeded()
                     }
                 },
-                onRegister = { navController.navigate("register") },
+                onRegister = { exitGuards[currentEntry?.id]?.request { navController.openAuth("register") } },
                 onForgotPassword = { navController.navigate("forgot-password") })
         }
-        composable("forgot-password") {
+        page("forgot-password") {
             ForgotPasswordScreen(onLogin = {
                 if (!navController.popBackStack("login", inclusive = false)) {
                     navController.navigate("login") { launchSingleTop = true }
                 }
             })
         }
-        composable("register") {
+        page("register") {
             RegisterScreen(state,
                 onSubmit = { name, email, password ->
                     auth.register(name, email, password) {
-                        navController.navigate("login") { popUpTo("welcome") }
+                        navController.openAuth("login")
                     }
                 },
-                onLogin = { navController.navigate("login") })
+                onLogin = { exitGuards[currentEntry?.id]?.request { navController.openAuth("login") } })
         }
-        composable("account") {
+        page("account") {
             AccountScreen(state, onLogout = {
                 auth.logout()
+                drafts.clear()
                 farms.clear()
                 crops.clear()
                 monitoring.clear()
@@ -310,18 +381,16 @@ fun SmartFarmNavHost(auth: AuthViewModel, farms: FarmViewModel, crops: CropViewM
                 insights.clear()
                 sync.clear()
                 tasks.clear()
-                // Clear authenticated destinations even when Welcome was never
-                // part of this session's back stack.
-                navController.navigateToSignedOutWelcome()
-            }, onFarms = { navController.navigate("farms") },
-                onSync = { navController.navigate("sync") },
-                onNotifications = { navController.navigate("notifications") },
+                navController.navigate("welcome") { popUpTo(navController.graph.id) { inclusive = true }; launchSingleTop = true }
+            }, onFarms = { requestRootChange { navController.openFarms() } },
+                onSync = { navController.openSecondary("sync") },
+                onNotifications = { navController.openSecondary("notifications") },
                 pendingSyncCount = accountQueue.total,
                 onReplayGuide = {
                     navController.navigate("onboarding-preview") { launchSingleTop = true }
                 })
         }
-        composable("sync") {
+        page("sync") {
             val pending by sync.operations.collectAsStateWithLifecycle()
             val photos by sync.photos.collectAsStateWithLifecycle()
             val preview by sync.stockPreview.collectAsStateWithLifecycle()
@@ -329,7 +398,7 @@ fun SmartFarmNavHost(auth: AuthViewModel, farms: FarmViewModel, crops: CropViewM
             val syncNotice by sync.notice.collectAsStateWithLifecycle()
             LaunchedEffect(Unit) { sync.load() }
             SyncStatusScreen(pending, photos, preview, syncError,
-                onBack = { navController.popBackStack() },
+                onBack = { navController.backOrParent() },
                 onRetry = { sync.retry(it) },
                 onDiscard = { sync.discard(it) },
                 onRetryPhoto = { sync.retryPhoto(it) },
@@ -343,31 +412,33 @@ fun SmartFarmNavHost(auth: AuthViewModel, farms: FarmViewModel, crops: CropViewM
                 farmTimeZones = headerFarm.farms.associate { it.id to it.timeZoneId },
                 notice = syncNotice,
                 farmTimeZone = headerFarm.selected?.timeZoneId,
-                onAccount = { navController.navigate("account") })
+                onAccount = { navController.openSecondary("account") })
         }
-        composable("farms") {
+        page("farms") {
             val farmState by farms.state.collectAsStateWithLifecycle()
             LaunchedEffect(Unit) { farms.load() }
             FarmListScreen(farmState,
                 onOpen = { navController.navigate("farm/$it") },
                 onCreate = { name, location, zone, latitude, longitude ->
+                    val saved = acceptOnSuccess("farm-create")
                     farms.create(name, location, zone, latitude, longitude) {
+                    saved()
                     navController.navigate("farm/$it")
                 } },
-                onRequest = farms::requestToJoin,
-                onBack = { navController.navigate("account") }, onRetry = { farms.load() },
+                onRequest = { farms.requestToJoin(it, acceptOnSuccess("farm-join")) },
+                onBack = { navController.openSecondary("account") }, onRetry = { farms.load() },
                 onCancelRequest = farms::cancelJoinRequest)
         }
-        composable("farm/{farmId}") { entry ->
+        page("farm/{farmId}") { entry ->
             farmDestination(entry.arguments?.getString("farmId").orEmpty(), "Overview")
         }
-        composable("farm/{farmId}/{section}") { entry ->
+        page("farm/{farmId}/{section}") { entry ->
             val farmId = entry.arguments?.getString("farmId").orEmpty()
             val section = safeFarmSection(entry.arguments?.getString("section"))
                 .replaceFirstChar { it.uppercase() }
             farmDestination(farmId, section)
         }
-        composable("myfarm/{farmId}") { entry ->
+        page("myfarm/{farmId}") { entry ->
             val farmId = entry.arguments?.getString("farmId").orEmpty()
             val farmState by farms.state.collectAsStateWithLifecycle()
             LaunchedEffect(farmId) {
@@ -383,12 +454,12 @@ fun SmartFarmNavHost(auth: AuthViewModel, farms: FarmViewModel, crops: CropViewM
                     "insights" -> navController.navigate("insights/$farmId")
                     "members", "plots", "settings", "weather" ->
                         navController.navigate("farm/$farmId/$choice")
-                    "notifications", "sync", "account" -> navController.navigate(choice)
+                    "notifications", "sync", "account" -> navController.openSecondary(choice)
                     "switch" -> showFarmSwitcher = true
                 }
             }, pendingSync = currentQueue.total, reviewSync = currentQueue.needsReview)
         }
-        composable("more/{farmId}") { entry ->
+        page("more/{farmId}") { entry ->
             val farmId = entry.arguments?.getString("farmId").orEmpty()
             LaunchedEffect(farmId) {
                 navController.navigate("myfarm/$farmId") {
@@ -397,17 +468,18 @@ fun SmartFarmNavHost(auth: AuthViewModel, farms: FarmViewModel, crops: CropViewM
                 }
             }
         }
-        composable("tasks/{farmId}") { entry ->
+        page("tasks/{farmId}") { entry ->
             val farmId = entry.arguments?.getString("farmId").orEmpty()
             val taskState by tasks.state.collectAsStateWithLifecycle()
             val farmState by farms.state.collectAsStateWithLifecycle()
             LaunchedEffect(farmId, confirmationVersion) { tasks.load(farmId) }
-            com.smartfarm.mobile.features.tasks.TaskScreen(taskState,
+            com.smartfarm.mobile.features.tasks.TaskScreen(taskState.takeIf { it.farmId == farmId }
+                ?: com.smartfarm.mobile.features.tasks.TaskUiState(farmId = farmId, busy = true),
                 canManage = farmState.selected?.id == farmId &&
                     farmState.selected?.role in listOf("Owner", "Manager"),
                 actorId = state.account?.id,
                 isOwner = farmState.selected?.id == farmId && farmState.selected?.role == "Owner",
-                onBack = { navController.popBackStack() },
+                onBack = { navController.backOrParent() },
                 onRetry = { tasks.load(farmId) }, onComplete = tasks::complete, onRead = tasks::read,
                 onCreate = tasks::create, onUpdate = tasks::update,
                 onOpenCrop = { task ->
@@ -417,14 +489,15 @@ fun SmartFarmNavHost(auth: AuthViewModel, farms: FarmViewModel, crops: CropViewM
                     }
                 })
         }
-        composable("notifications") {
+        page("notifications") {
             val taskState by tasks.state.collectAsStateWithLifecycle()
             LaunchedEffect(Unit) { tasks.load() }
-            com.smartfarm.mobile.features.tasks.TaskScreen(taskState, false, state.account?.id,
-                onBack = { navController.popBackStack() }, onRetry = { tasks.load() },
+            com.smartfarm.mobile.features.tasks.TaskScreen(taskState.takeIf { it.farmId == null }
+                ?: com.smartfarm.mobile.features.tasks.TaskUiState(busy = true), false, state.account?.id,
+                onBack = { navController.backOrParent() }, onRetry = { tasks.load() },
                 onComplete = tasks::complete, onRead = tasks::read)
         }
-        composable("crops/{farmId}") { entry ->
+        page("crops/{farmId}") { entry ->
             val farmId = entry.arguments?.getString("farmId").orEmpty()
             val cropState by crops.state.collectAsStateWithLifecycle()
             val farmState by farms.state.collectAsStateWithLifecycle()
@@ -432,12 +505,12 @@ fun SmartFarmNavHost(auth: AuthViewModel, farms: FarmViewModel, crops: CropViewM
             CropScreen(cropState,
                 canManage = farmState.selected?.id == farmId &&
                     farmState.selected?.role in listOf("Owner", "Manager"),
-                onBack = { navController.popBackStack() },
+                onBack = { navController.backOrParent() },
                 onCreateType = { name, unit, growth, watering ->
-                    crops.createType(name, unit, growth, watering)
+                    crops.createType(name, unit, growth, watering, acceptOnSuccess("crop-type"))
                 },
                 onPlan = { plotId, typeId, date, expected ->
-                    crops.plan(plotId, typeId, date, expected)
+                    crops.plan(plotId, typeId, date, expected, acceptOnSuccess("crop-plan"))
                 },
                 onUpdatePlan = { cycle, date, expected -> crops.updatePlan(cycle, date, expected) },
                 onMonitoring = { cycle -> navController.navigate("monitor/$farmId/${cycle.id}") },
@@ -446,11 +519,11 @@ fun SmartFarmNavHost(auth: AuthViewModel, farms: FarmViewModel, crops: CropViewM
                 },
                 onHarvests = { cycle -> navController.navigate("harvests/$farmId/${cycle.id}") },
                 onTransition = { cycle, status, planted, reason ->
-                    crops.transition(cycle, status, planted, reason)
+                    crops.transition(cycle, status, planted, reason, acceptOnSuccess("cycle-${cycle.id}"))
                 }, onRetry = { crops.load(farmId) },
                 onPlots = { navController.navigate("farm/$farmId/plots") })
         }
-        composable("monitor/{farmId}/{cycleId}?quick={quick}&taskId={taskId}",
+        page("monitor/{farmId}/{cycleId}?quick={quick}&taskId={taskId}",
             arguments = listOf(navArgument("quick") {
                 type = NavType.StringType
                 defaultValue = ""
@@ -471,7 +544,7 @@ fun SmartFarmNavHost(auth: AuthViewModel, farms: FarmViewModel, crops: CropViewM
             }
             MonitoringScreen(monitoringState.takeIf { it.farmId == farmId && it.cycleId == cycleId }
                 ?: com.smartfarm.mobile.features.monitoring.MonitoringUiState(farmId = farmId, cycleId = cycleId, busy = true),
-                onBack = { navController.popBackStack() },
+                onBack = { navController.backOrParent() },
                 onActivity = { kind, notes -> monitoring.logActivity(kind, notes, taskId) },
                 onObservation = { health, growth, notes, photo ->
                     monitoring.observe(health, growth, notes, photo, resolver)
@@ -482,7 +555,7 @@ fun SmartFarmNavHost(auth: AuthViewModel, farms: FarmViewModel, crops: CropViewM
                 onPreview = { monitoring.preview(it) },
                 onThumbnail = { monitoring.thumbnail(it) },
                 onDismissPreview = { monitoring.dismissPreview() }, pending = pending,
-                onSync = { navController.navigate("sync") },
+                onSync = { navController.openSecondary("sync") },
                 onRetry = { monitoring.load(farmId, cycleId) },
                 quick = entry.arguments?.getString("quick").orEmpty(), linkedTask = !taskId.isNullOrBlank(),
                 cropLabel = cropState.takeIf { it.farmId == farmId }?.cycles
@@ -500,7 +573,7 @@ fun SmartFarmNavHost(auth: AuthViewModel, farms: FarmViewModel, crops: CropViewM
                     monitoring.logActivityWithStock(type, notes, item, quantity, taskId)
                 })
         }
-        composable("inventory/{farmId}") { entry ->
+        page("inventory/{farmId}") { entry ->
             val farmId = entry.arguments?.getString("farmId").orEmpty()
             val state by inventory.state.collectAsStateWithLifecycle()
             val farmState by farms.state.collectAsStateWithLifecycle()
@@ -511,13 +584,13 @@ fun SmartFarmNavHost(auth: AuthViewModel, farms: FarmViewModel, crops: CropViewM
             InventoryListScreen(state,
                 canManage = !state.accessDenied && farmState.selected?.id == farmId &&
                     farmState.selected?.role in listOf("Owner", "Manager"),
-                onBack = { navController.popBackStack() },
+                onBack = { navController.backOrParent() },
                 onOpen = { navController.navigate("inventory/$farmId/$it") },
                 onCreate = { name, category, unit, opening, reorder ->
-                    inventory.create(name, category, unit, opening, reorder)
+                    inventory.create(name, category, unit, opening, reorder, acceptOnSuccess("new-supply"))
                 }, onRetry = { inventory.load(farmId) })
         }
-        composable("inventory/{farmId}/{itemId}") { entry ->
+        page("inventory/{farmId}/{itemId}") { entry ->
             val farmId = entry.arguments?.getString("farmId").orEmpty()
             val itemId = entry.arguments?.getString("itemId").orEmpty()
             val state by inventory.state.collectAsStateWithLifecycle()
@@ -529,20 +602,20 @@ fun SmartFarmNavHost(auth: AuthViewModel, farms: FarmViewModel, crops: CropViewM
             InventoryItemScreen(state,
                 canManage = !state.accessDenied && farmState.selected?.id == farmId &&
                     farmState.selected?.role in listOf("Owner", "Manager"),
-                onBack = { navController.popBackStack() },
+                onBack = { navController.backOrParent() },
                 onSave = { name, category, unit, description, reorder ->
                     inventory.update(name, category, unit, description, reorder)
                 },
-                onArchive = { inventory.archive { navController.popBackStack() } },
+                onArchive = { inventory.archive { navController.backOrParent() } },
                 onMovement = { kind, quantity, activityId, reason ->
                     inventory.movement(kind, quantity, activityId, reason)
                 },
                 onReverse = { transactionId, reason -> inventory.reverse(transactionId, reason) },
-                pending = pending, onSync = { navController.navigate("sync") },
+                pending = pending, onSync = { navController.openSecondary("sync") },
                 onRetry = { inventory.loadItem(farmId, itemId) },
                 farmTimeZone = farmState.selected?.takeIf { it.id == farmId }?.timeZoneId)
         }
-        composable("insights/{farmId}") { entry ->
+        page("insights/{farmId}") { entry ->
             val farmId = entry.arguments?.getString("farmId").orEmpty()
             val insightState by insights.state.collectAsStateWithLifecycle()
             val farmState by farms.state.collectAsStateWithLifecycle()
@@ -554,11 +627,11 @@ fun SmartFarmNavHost(auth: AuthViewModel, farms: FarmViewModel, crops: CropViewM
             FarmInsightsScreen(
                 state = insightState,
                 farmTimeZone = farmState.selected?.takeIf { it.id == farmId }?.timeZoneId,
-                onBack = { navController.popBackStack() },
+                onBack = { navController.backOrParent() },
                 onReload = { from, to -> insights.load(farmId, from, to) }
             )
         }
-        composable("harvests/{farmId}/{cycleId}") { entry ->
+        page("harvests/{farmId}/{cycleId}") { entry ->
             val farmId = entry.arguments?.getString("farmId").orEmpty()
             val cycleId = entry.arguments?.getString("cycleId").orEmpty()
             val harvestState by harvests.state.collectAsStateWithLifecycle()
@@ -568,10 +641,10 @@ fun SmartFarmNavHost(auth: AuthViewModel, farms: FarmViewModel, crops: CropViewM
             }
             HarvestScreen(
                 state = harvestState,
-                onBack = { navController.popBackStack() },
+                onBack = { navController.backOrParent() },
                 onRecord = { quantity, notes -> harvests.record(quantity, notes) },
                 onVoid = { harvestId, reason -> harvests.void(harvestId, reason) },
-                pending = pending, onSync = { navController.navigate("sync") },
+                pending = pending, onSync = { navController.openSecondary("sync") },
                 onRetry = { harvests.load(farmId, cycleId) },
                 farmTimeZone = farms.state.collectAsStateWithLifecycle().value.selected
                     ?.takeIf { it.id == farmId }?.timeZoneId
@@ -579,6 +652,7 @@ fun SmartFarmNavHost(auth: AuthViewModel, farms: FarmViewModel, crops: CropViewM
         }
     }
     } // Row
+    DiscardChangesDialog(rootExit)
     if (state.account != null && showFarmSwitcher) {
         FarmSwitcherSheet(
             farms = headerFarm.farms, currentFarmId = currentFarmId,
@@ -588,22 +662,6 @@ fun SmartFarmNavHost(auth: AuthViewModel, farms: FarmViewModel, crops: CropViewM
             },
             onAllFarms = { requestFarmSwitch("__all__") },
             onDismiss = { showFarmSwitcher = false }
-        )
-    }
-    if (state.account != null && pendingFarmSwitch != null) {
-        AlertDialog(
-            onDismissRequest = { pendingFarmSwitch = null },
-            title = { Text("Leave this screen?") },
-            text = { Text("Save any unfinished form details before switching. Saved offline records will remain on this device.") },
-            confirmButton = {
-                TextButton(onClick = {
-                    val target = pendingFarmSwitch
-                    if (target != null) completeFarmSwitch(target)
-                }) { Text("Leave screen") }
-            },
-            dismissButton = {
-                TextButton(onClick = { pendingFarmSwitch = null }) { Text("Keep working") }
-            }
         )
     }
     if (state.account != null && !recordForFarm.isNullOrBlank()) {

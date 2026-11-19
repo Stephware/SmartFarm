@@ -226,7 +226,7 @@ class FullAppJourneyTest {
             compose.onNodeWithText("Confirmed fertilizer after reconnect").performScrollTo().assertExists()
             // Hardware Back can dismiss the quantity keyboard without leaving the form.
             // Use the explicit screen action, then wait for the workspace navigation.
-            compose.onNodeWithText("Back").performScrollTo().performClick()
+            compose.onNodeWithTag("page-back").assertIsDisplayed().performClick()
             compose.waitUntil(10_000) {
                 compose.onAllNodesWithTag("farm-bottom-navigation").fetchSemanticsNodes().isNotEmpty()
             }
@@ -263,7 +263,7 @@ class FullAppJourneyTest {
             syncOnline.set(true)
             assertTrue(runBlocking { container.syncRepository.uploadPending() })
             compose.waitUntil(15_000) { harvests.state.value.overview?.totalQuantity == java.math.BigDecimal("2.500") }
-            compose.onNodeWithText("Back").performScrollTo().performClick()
+            compose.onNodeWithTag("page-back").assertIsDisplayed().performClick()
             compose.waitUntil(10_000) {
                 compose.onAllNodesWithTag("farm-bottom-navigation").fetchSemanticsNodes().isNotEmpty()
             }
@@ -276,21 +276,32 @@ class FullAppJourneyTest {
                 compose.onAllNodesWithContentDescription("Switch farm: Green Valley Farm").fetchSemanticsNodes().isNotEmpty()
             }
             compose.onNodeWithText("Farm time zone unavailable. Only unfiltered reports can be shown.").assertDoesNotExist()
-            compose.onNodeWithText("Back").performScrollTo().performClick()
+            compose.onNodeWithTag("page-back").assertIsDisplayed().performClick()
             compose.waitUntil(10_000) {
                 compose.onAllNodesWithText("Farm records").fetchSemanticsNodes().isNotEmpty()
             }
             compose.onNodeWithTag("record-list").performScrollToNode(hasText("Farm settings"))
             compose.onNodeWithText("Farm settings").performClick()
             compose.onNodeWithText("Name").performScrollTo().performTextReplacement("Unsaved farm name")
-            compose.onNodeWithContentDescription("Switch farm: Green Valley Farm").performClick()
-            compose.onNodeWithText("Second Farm").performClick()
-            compose.onNodeWithText("Leave this screen?").assertExists()
-            compose.onNodeWithText("Keep working").performClick()
+            // A global page must not hide the dirty settings entry from a root pop.
+            compose.onNodeWithContentDescription("Notifications").performClick()
+            compose.activityRule.scenario.recreate()
+            compose.waitUntil(5_000) {
+                compose.onAllNodesWithContentDescription("Switch farm: My farms").fetchSemanticsNodes().isNotEmpty()
+            }
+            compose.onNodeWithContentDescription("Switch farm: My farms").performClick()
+            compose.onNodeWithText("Discard unsaved changes?").assertIsDisplayed()
+            compose.onNodeWithText("Keep editing").performClick()
+            compose.onNodeWithTag("page-back").performClick()
             compose.onNodeWithText("Unsaved farm name").assertExists()
             compose.onNodeWithContentDescription("Switch farm: Green Valley Farm").performClick()
             compose.onNodeWithText("Second Farm").performClick()
-            compose.onNodeWithText("Leave screen").performClick()
+            compose.onNodeWithText("Discard unsaved changes?").assertExists()
+            compose.onNodeWithText("Keep editing").performClick()
+            compose.onNodeWithText("Unsaved farm name").assertExists()
+            compose.onNodeWithContentDescription("Switch farm: Green Valley Farm").performClick()
+            compose.onNodeWithText("Second Farm").performClick()
+            compose.onNodeWithText("Discard changes").performClick()
             compose.waitUntil(15_000) {
                 compose.onAllNodesWithContentDescription("Switch farm: Second Farm").fetchSemanticsNodes().isNotEmpty()
             }

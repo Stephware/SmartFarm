@@ -19,6 +19,8 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
+data class TaskFormSave(val form: String, val receipt: String)
+
 data class TaskUiState(
     val farmId: String? = null,
     val busy: Boolean = false,
@@ -31,7 +33,8 @@ data class TaskUiState(
     val timeZoneId: String? = null,
     val choicesReady: Boolean = false,
     val choicesError: String? = null,
-    val savedCount: Int = 0
+    val savedCount: Int = 0,
+    val lastFormSave: TaskFormSave? = null
 )
 
 class TaskViewModel(
@@ -42,10 +45,11 @@ class TaskViewModel(
     private val mutable = MutableStateFlow(TaskUiState())
     val state = mutable.asStateFlow()
     private var job: Job? = null
+    private val formSaves = mutableMapOf<String, TaskFormSave>()
 
     fun load(farmId: String? = null) {
         job?.cancel()
-        mutable.value = TaskUiState(farmId = farmId, busy = true)
+        mutable.value = TaskUiState(farmId = farmId, busy = true, lastFormSave = formSaves[farmId])
         job = viewModelScope.launch {
             try {
                 if (farmId == null) {
@@ -74,7 +78,7 @@ class TaskViewModel(
                         choicesError = "Farm options could not be loaded. Refresh before creating or editing tasks."
                     )
                 }
-                mutable.value = context
+                mutable.value = context.copy(lastFormSave = formSaves[farmId])
             } catch (cancelled: CancellationException) {
                 throw cancelled
             } catch (error: Exception) {
@@ -89,15 +93,18 @@ class TaskViewModel(
         }
     }
 
-    private fun change(farmId: String?, success: String, mutation: suspend () -> Unit) {
+    private fun change(farmId: String?, success: String, form: String? = null, mutation: suspend () -> Unit) {
         if (mutable.value.busy || farmId != mutable.value.farmId) return
         mutable.value = mutable.value.copy(busy = true, error = null, notice = null)
         job = viewModelScope.launch {
             try {
                 mutation()
+                if (farmId != null && form != null) {
+                    formSaves[farmId] = TaskFormSave(form, java.util.UUID.randomUUID().toString())
+                }
                 // A successful response is definitive. Refresh failures never imply retrying POST.
                 mutable.value = mutable.value.copy(
-                    notice = success, savedCount = mutable.value.savedCount + 1
+                    notice = success, savedCount = mutable.value.savedCount + 1, lastFormSave = formSaves[farmId]
                 )
                 try {
                     if (farmId == null) {
@@ -128,13 +135,13 @@ class TaskViewModel(
     fun create(input: TaskCreateInput) {
         val current = mutable.value
         if (!current.choicesReady || current.farmId == null) return
-        change(current.farmId, "Task created.") { repository.create(current.farmId, input) }
+        change(current.farmId, "Task created.", "new-task") { repository.create(current.farmId, input) }
     }
 
     fun update(task: TaskDto, input: TaskUpdateInput) {
         val current = mutable.value
         if (!current.choicesReady || current.farmId != task.farmId) return
-        change(task.farmId, "Task updated.") { repository.update(task, input) }
+        change(task.farmId, "Task updated.", "task-${task.id}") { repository.update(task, input) }
     }
 
     fun complete(task: TaskDto) = change(task.farmId, "Task completed.") {
@@ -145,6 +152,7 @@ class TaskViewModel(
 
     fun clear() {
         job?.cancel()
+        formSaves.clear()
         mutable.value = TaskUiState()
     }
 

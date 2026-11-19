@@ -1,5 +1,6 @@
 package com.smartfarm.mobile.features.auth
 
+import com.smartfarm.mobile.ui.components.UnsavedChanges
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -65,6 +66,7 @@ fun LoginScreen(
     var email by rememberSaveable { mutableStateOf("") }
     // Credentials must never enter saved instance state or local storage.
     var password by remember { mutableStateOf("") }
+    UnsavedChanges("login", email.isNotEmpty() || password.isNotEmpty())
     val ready = looksLikeEmail(email) && password.isNotBlank()
 
     PhotoAuthScaffold(
@@ -116,6 +118,7 @@ fun RegisterScreen(
     var email by rememberSaveable { mutableStateOf("") }
     // Preserve the existing three-field registration contract; never save passwords.
     var password by remember { mutableStateOf("") }
+    UnsavedChanges("registration", name.isNotEmpty() || email.isNotEmpty() || password.isNotEmpty())
     val canCreate = registrationReady(name, email, password)
 
     PhotoAuthScaffold(
@@ -164,7 +167,7 @@ fun RegisterScreen(
             onClick = onLogin, enabled = !state.busy,
             modifier = Modifier.fillMaxWidth().defaultMinSize(minHeight = 48.dp),
             shape = RoundedCornerShape(14.dp)
-        ) { Text("Back to log in") }
+        ) { Text("Log in instead") }
     }
 }
 
@@ -191,7 +194,9 @@ fun ForgotPasswordScreen(onLogin: () -> Unit) {
             color = MaterialTheme.colorScheme.onSurfaceVariant,
             style = MaterialTheme.typography.bodyMedium
         )
-        PhotoAuthPrimaryButton("Back to log in", onClick = onLogin)
+        if (com.smartfarm.mobile.ui.components.LocalPageNavigation.current?.onBack == null) {
+            PhotoAuthPrimaryButton("Back to log in", onClick = onLogin)
+        }
     }
 }
 
