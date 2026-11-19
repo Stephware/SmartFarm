@@ -39,6 +39,7 @@ import com.smartfarm.mobile.ui.components.WelcomeScreen
 import com.smartfarm.mobile.ui.components.onboarding.AniGoOnboardingScreen
 import com.smartfarm.mobile.ui.components.onboarding.AniGoOnboardingStore
 import com.smartfarm.mobile.ui.components.onboarding.anigoInitialRoute
+import com.smartfarm.mobile.ui.components.onboarding.anigoReplayExitLabel
 import com.smartfarm.mobile.features.farms.FarmViewModel
 import com.smartfarm.mobile.features.crops.CropViewModel
 import com.smartfarm.mobile.features.crops.CropScreen
@@ -262,13 +263,24 @@ fun SmartFarmNavHost(auth: AuthViewModel, farms: FarmViewModel, crops: CropViewM
                 onPreviewGuide = { navController.navigate("onboarding-preview") { launchSingleTop = true } })
         }
         composable("onboarding-preview") {
-            AniGoOnboardingScreen(onExit = { navController.popBackStack() })
+            // Opt-in replay is not a first-run completion: return to the caller
+            // without changing the device-wide completion flag or session.
+            AniGoOnboardingScreen(
+                onExit = { navController.popBackStack() },
+                completionLabel = anigoReplayExitLabel(state.account != null),
+                skipLabel = "Close guide"
+            )
         }
         composable("login") {
             LoginScreen(state,
                 onSubmit = { email, password ->
                     auth.login(email, password) {
-                        navController.navigate("farms") { popUpTo("welcome") }
+                        navController.navigate("farms") {
+                            // Prevent Back from reopening login or registration
+                            // while the user is authenticated.
+                            popUpTo(navController.graph.id) { inclusive = false }
+                            launchSingleTop = true
+                        }
                     }
                 },
                 onRegister = { navController.navigate("register") },
@@ -303,7 +315,12 @@ fun SmartFarmNavHost(auth: AuthViewModel, farms: FarmViewModel, crops: CropViewM
                 insights.clear()
                 sync.clear()
                 tasks.clear()
-                navController.navigate("welcome") { popUpTo("welcome") { inclusive = true } }
+                // Welcome may not exist in the stack when the session began at
+                // Farms. Clear every authenticated destination on sign-out.
+                navController.navigate("welcome") {
+                    popUpTo(navController.graph.id) { inclusive = false }
+                    launchSingleTop = true
+                }
             }, onFarms = { navController.navigate("farms") },
                 onSync = { navController.navigate("sync") },
                 onNotifications = { navController.navigate("notifications") },
