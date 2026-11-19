@@ -181,6 +181,76 @@ class CarabaoOnboardingPreviewTest {
     }
 
     @Test
+    fun phoneLessonsShowReadableAniGuidanceAndRetainAllExamples() {
+        compose.setContent {
+            DeviceConfigurationOverride(DeviceConfigurationOverride.ForcedSize(DpSize(360.dp, 780.dp))) {
+                SmartFarmTheme {
+                    AniGoOnboardingScreen(includeWelcome = false, onExit = {}, motionAllowed = false)
+                }
+            }
+        }
+        val tips = listOf(
+            "Start your own farm, or ask to join someone's team.",
+            "Choose what to grow, then follow each stage of your plan.",
+            "Some records stay on your phone until you can sync them.",
+            "Harvest a little today? Record each batch as you go."
+        )
+        tips.forEachIndexed { page, tip ->
+            compose.onNode(hasTestTag("anigo-lesson-stage-$page")).assertExists()
+            compose.onNodeWithText("ANI'S FARM TOUR  ·  ${page + 1} / 4").assertExists()
+            compose.onNodeWithText(tip).performScrollTo().assertIsDisplayed()
+            compose.onNodeWithText("Skip").assertIsDisplayed()
+            if (page < 3) {
+                compose.onNodeWithText("Next →").performClick()
+                compose.waitForIdle()
+            } else {
+                compose.onNodeWithText("Continue to AniGo").assertIsDisplayed()
+            }
+        }
+    }
+
+    @Test
+    fun capturePhoneWelcomeAndFirstGuideLessonForVisualReview() {
+        withAppearance(dark = false) {
+            compose.setContent {
+                DeviceConfigurationOverride(DeviceConfigurationOverride.ForcedSize(DpSize(360.dp, 780.dp))) {
+                    SmartFarmTheme {
+                        AniGoOnboardingScreen(onExit = {}, motionAllowed = false)
+                    }
+                }
+            }
+            compose.onNodeWithText("Welcome to AniGo!").assertIsDisplayed()
+            compose.onNodeWithText("Hi! I'm Ani, your farm buddy.").assertExists()
+            saveScreenshot("00-welcome-phone-light")
+            compose.onNodeWithText("Next →").performClick()
+            compose.waitForIdle()
+            compose.onNodeWithText("Your farm, organized").assertIsDisplayed()
+            saveScreenshot("01-farm-phone-light")
+        }
+    }
+
+    @Test
+    fun capturePhoneHarvestAndTipForVisualReview() {
+        withAppearance(dark = true) {
+            compose.setContent {
+                DeviceConfigurationOverride(DeviceConfigurationOverride.ForcedSize(DpSize(390.dp, 840.dp))) {
+                    SmartFarmTheme {
+                        AniGoOnboardingScreen(includeWelcome = false, onExit = {}, motionAllowed = false)
+                    }
+                }
+            }
+            repeat(3) {
+                compose.onNodeWithText("Next →").performClick()
+                compose.waitForIdle()
+            }
+            compose.onNodeWithText("From field to harvest").assertIsDisplayed()
+            compose.onNodeWithText("Harvest a little today? Record each batch as you go.")
+                .performScrollTo().assertIsDisplayed()
+            saveScreenshot("04-harvest-phone-dark")
+        }
+    }
+
+    @Test
     fun firstRunFlagPersistsAcrossStoreInstancesWithoutAccountOrNetwork() {
         val context = InstrumentationRegistry.getInstrumentation().targetContext
         val testPrefs = "anigo_onboarding_instrumentation"
