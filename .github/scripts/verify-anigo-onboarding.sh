@@ -18,7 +18,7 @@ for name in \
   01-farm-dark 02-crop-dark 03-work-dark 04-harvest-dark \
   01-farm-tablet-light 02-crop-tablet-light 03-work-tablet-light 04-harvest-tablet-light \
   01-farm-landscape-dark 02-crop-landscape-dark 03-work-landscape-dark 04-harvest-landscape-dark \
-  intro-light intro-dark intro-landscape-dark-large-text farm-320dp-large-text \
+  intro-light intro-dark intro-landscape-dark-large-text intro-landscape-light-large-text farm-320dp-large-text \
   large-text-dark-1 large-text-dark-2 large-text-dark-3 large-text-dark-4
 do
   destination="app/build/ui-screenshots/${name}.png"
@@ -43,4 +43,4 @@ if [ "$missing" -ne 0 ]; then
   echo "::error::At least one required visual-review capture is missing"
   exit 1
 fi
-echo "Android tests and all 29 PNG visual captures passed."
+echo "Android tests and all 30 PNG visual captures passed."
