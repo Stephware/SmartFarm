@@ -2,7 +2,7 @@
 @{
     ViewData["Title"] = "Announcement details";
 }
-<a class="admin-back" asp-area="Admin" asp-controller="Announcements" asp-action="Index">← All announcements</a>
+<a class="admin-back anigo-back-control" asp-area="Admin" asp-controller="Announcements" asp-action="Index" title="Back to announcements"><partial name="~/Views/Shared/_Icon.cshtml" model='@("chevLeft")' /><span class="visually-hidden">Back to announcements</span></a>
 <div class="page-heading admin-page-heading">
     <div><h1>@Model.Title</h1>
         <p class="sf-muted">Created @Model.CreatedAtUtc.ToString("MMM d, yyyy HH:mm") UTC</p></div>
