@@ -4,6 +4,9 @@ import com.smartfarm.mobile.navigation.safeFarmSection
 import com.smartfarm.mobile.navigation.quickRecordRoute
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNull
+import org.junit.Assert.assertFalse
+import org.junit.Assert.assertNotNull
+import com.smartfarm.mobile.ui.components.ExitGuard
 import org.junit.Test
 
 class FarmNavigationModelTest {
@@ -12,6 +15,24 @@ class FarmNavigationModelTest {
         assertEquals("members", safeFarmSection("members"))
         assertEquals("overview", safeFarmSection("unknown"))
         assertEquals("overview", safeFarmSection("../inventory"))
+    }
+    @Test fun changingFarmsWarnsBeforeLeavingAForm() {
+        // Replaces the old route-only policy: visiting a form is not an edit.
+        val guard = ExitGuard()
+        var farmChanges = 0
+        guard.update("plot", false)
+        guard.request { farmChanges++ }
+        assertEquals(1, farmChanges)
+        guard.update("plot", true)
+        guard.request { farmChanges++ }
+        assertEquals(1, farmChanges)
+        assertNotNull(guard.pending)
+        guard.keepEditing()
+        assertFalse(guard.pending != null)
+        assertEquals(1, farmChanges)
+        guard.request { farmChanges++ }
+        guard.discard()
+        assertEquals(2, farmChanges)
     }
     @Test fun shortcutsUseExistingRecordsAndRespectActiveCycleSelection() {
         assertEquals("monitor/farm/cycle?quick=watering",quickRecordRoute("farm","watering","cycle"))

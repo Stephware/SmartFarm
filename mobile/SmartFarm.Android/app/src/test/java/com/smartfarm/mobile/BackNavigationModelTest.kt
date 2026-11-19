@@ -30,4 +30,11 @@ class BackNavigationModelTest {
         assertEquals("Record watering", navigationTitle("monitor/{farmId}/{cycleId}?quick={quick}&taskId={taskId}", quick = "watering"))
         assertEquals("Supplies", navigationTitle("inventory/{farmId}"))
     }
+    @Test fun directEntryLabelsNameTheirConcreteFallbackParent() {
+        assertEquals("Crops", navigationTitle(navigationParent("monitor/{farmId}/{cycleId}", "f")))
+        assertEquals("Supplies", navigationTitle(navigationParent("inventory/{farmId}/{itemId}", "f")))
+        assertEquals("Today", navigationTitle(navigationParent("tasks/{farmId}", "f")))
+        assertEquals("Today", navigationTitle("farm/{farmId}/{section}", "unknown"))
+    }
+
 }

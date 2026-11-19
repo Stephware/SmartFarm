@@ -38,11 +38,16 @@ internal fun navigationTitle(route: String?, section: String? = null, quick: Str
         "watering" -> "Record watering"; "fertilizing" -> "Record fertilizing"
         "inspection" -> "Record inspection"; "other" -> "Record activity"; else -> "Crop monitoring"
     }
-    route == "farm/{farmId}/{section}" -> when (section) {
-        "plots" -> "Farm plots"; "members" -> "Team & access"; "settings" -> "Farm settings"; else -> "Farm weather"
+    route == "farm/{farmId}/{section}" -> when (safeFarmSection(section)) {
+        "plots" -> "Farm plots"; "members" -> "Team & access"; "settings" -> "Farm settings"
+        "weather" -> "Farm weather"; else -> "Today"
     }
     route == "myfarm/{farmId}" -> "My Farm"
     route == "farm/{farmId}" -> "Today"
+    // Missing-history parents are concrete routes rather than destination templates.
+    route?.startsWith("crops/") == true -> "Crops"
+    route?.startsWith("inventory/") == true -> "Supplies"
+    route?.startsWith("farm/") == true -> "Today"
     else -> "Welcome"
 }
 
