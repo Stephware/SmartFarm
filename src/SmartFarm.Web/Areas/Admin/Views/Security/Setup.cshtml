@@ -3,7 +3,7 @@
     ViewData["Title"] = "Admin authenticator setup";
 }
 <section class="panel admin-security-setup" aria-labelledby="setup-title">
-    <a class="ui-back-link" asp-area="" asp-controller="Account" asp-action="Profile">Back to my account</a>
+    <a class="ui-back-link anigo-back-control" asp-area="" asp-controller="Account" asp-action="Profile" title="Back to my account"><partial name="~/Views/Shared/_Icon.cshtml" model='@("chevLeft")' /><span class="visually-hidden">Back to my account</span></a>
     <p class="sf-kicker">REQUIRED ADMIN SECURITY</p>
     <h1 id="setup-title">Set up your authenticator</h1>
     <p>Super Admin access requires an authenticator app. Enter this account in

@@ -10,7 +10,7 @@
 <section class="panel card sf-ops-hero sf-harvest-hero ani12e-hero" aria-labelledby="harvests-heading">
     <div class="sf-page-header page-hero">
         <div>
-            <p><a asp-controller="Crops" asp-action="Index" asp-route-farmId="@cycle.FarmId">← Crop management</a></p>
+            <p><a class="anigo-back-control" asp-controller="Crops" asp-action="Index" asp-route-farmId="@cycle.FarmId" title="Back to crops"><partial name="_Icon" model='@("chevLeft")' /><span class="visually-hidden">Back to crops</span></a></p>
 
             <p class="ani-overline">Crop harvests</p>
             <h1 id="harvests-heading">Harvests · @cycle.CropTypeName</h1>

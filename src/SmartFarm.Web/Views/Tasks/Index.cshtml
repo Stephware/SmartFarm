@@ -73,27 +73,27 @@
     <nav class="ani-task-tabs filter-row ani12e-filter-tabs" aria-label="Filter farm tasks">
         <a class="@(Model.SelectedView == "today" ? "is-selected" : "")"
            aria-current="@(Model.SelectedView == "today" ? "page" : null)"
-           asp-controller="Tasks" asp-action="Index" asp-route-farmId="@Model.Farm.Id" asp-route-view="today">
+           asp-controller="Tasks" asp-action="Index" asp-route-farmId="@Model.Farm.Id" asp-route-view="today" asp-fragment="task-list-heading">
             Due / overdue <span>@todayCount</span>
         </a>
         <a class="@(Model.SelectedView == "mine" ? "is-selected" : "")"
            aria-current="@(Model.SelectedView == "mine" ? "page" : null)"
-           asp-controller="Tasks" asp-action="Index" asp-route-farmId="@Model.Farm.Id" asp-route-view="mine">
+           asp-controller="Tasks" asp-action="Index" asp-route-farmId="@Model.Farm.Id" asp-route-view="mine" asp-fragment="task-list-heading">
             Assigned to me <span>@mineCount</span>
         </a>
         <a class="@(Model.SelectedView == "upcoming" ? "is-selected" : "")"
            aria-current="@(Model.SelectedView == "upcoming" ? "page" : null)"
-           asp-controller="Tasks" asp-action="Index" asp-route-farmId="@Model.Farm.Id" asp-route-view="upcoming">
+           asp-controller="Tasks" asp-action="Index" asp-route-farmId="@Model.Farm.Id" asp-route-view="upcoming" asp-fragment="task-list-heading">
             Upcoming <span>@upcomingCount</span>
         </a>
         <a class="@(Model.SelectedView == "completed" ? "is-selected" : "")"
            aria-current="@(Model.SelectedView == "completed" ? "page" : null)"
-           asp-controller="Tasks" asp-action="Index" asp-route-farmId="@Model.Farm.Id" asp-route-view="completed">
+           asp-controller="Tasks" asp-action="Index" asp-route-farmId="@Model.Farm.Id" asp-route-view="completed" asp-fragment="task-list-heading">
             Closed <span>@closedCount</span>
         </a>
         <a class="@(Model.SelectedView == "all" ? "is-selected" : "")"
            aria-current="@(Model.SelectedView == "all" ? "page" : null)"
-           asp-controller="Tasks" asp-action="Index" asp-route-farmId="@Model.Farm.Id" asp-route-view="all">
+           asp-controller="Tasks" asp-action="Index" asp-route-farmId="@Model.Farm.Id" asp-route-view="all" asp-fragment="task-list-heading">
             All <span>@Model.Tasks.Count</span>
         </a>
     </nav>

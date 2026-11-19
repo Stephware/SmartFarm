@@ -2,7 +2,7 @@
 @{
     ViewData["Title"] = "Sync history";
 }
-<a class="admin-back" asp-area="Admin" asp-controller="Monitoring" asp-action="Index">← Back to monitoring</a>
+<a class="admin-back anigo-back-control" asp-area="Admin" asp-controller="Monitoring" asp-action="Index" title="Back to monitoring"><partial name="~/Views/Shared/_Icon.cshtml" model='@("chevLeft")' /><span class="visually-hidden">Back to monitoring</span></a>
 <div class="page-heading admin-page-heading">
     <div><p class="sf-kicker">ANDROID DATA SYNC</p><h1>Sync history</h1>
         <p class="sf-muted">Search server-recorded operations without exposing crop data or upload payloads.</p></div>

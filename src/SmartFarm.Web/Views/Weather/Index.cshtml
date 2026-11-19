@@ -27,7 +27,7 @@
 <section class="panel card sf-weather-hero ani-weather-hero ani12e-hero" aria-labelledby="weather-heading">
     <div class="sf-page-header page-hero">
         <div>
-            <p><a asp-controller="Farms" asp-action="Details" asp-route-id="@Model.FarmId">← Back to farm</a></p>
+            <p><a class="anigo-back-control" asp-controller="Farms" asp-action="Details" asp-route-id="@Model.FarmId" title="Back to farm"><partial name="_Icon" model='@("chevLeft")' /><span class="visually-hidden">Back to farm</span></a></p>
 
             <p class="ani-overline">Farm conditions</p>
             <h1 id="weather-heading">Farm weather</h1>

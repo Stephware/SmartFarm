@@ -18,7 +18,7 @@
     <div class="sf-page-header page-hero">
         <div>
             <p><a asp-controller="Crops" asp-action="Index"
-                  asp-route-farmId="@cycle.FarmId">← Crop management</a></p>
+                  asp-route-farmId="@cycle.FarmId" class="anigo-back-control" title="Back to crops"><partial name="_Icon" model='@("chevLeft")' /><span class="visually-hidden">Back to crops</span></a></p>
 
             <h1 id="monitoring-heading">@cycle.CropTypeName — @cycle.PlotName</h1>
             <p class="sf-muted">Record completed fieldwork or inspect this crop. Attach photos after saving an inspection.</p>

@@ -31,7 +31,7 @@
 <section class="panel card sf-ops-hero ani12e-hero ani-p2-hero" aria-labelledby="inventory-heading">
     <div class="sf-page-header page-hero">
         <div>
-            <p><a asp-controller="Farms" asp-action="Details" asp-route-id="@Model.Farm.Id">← @Model.Farm.Name</a></p>
+            <p class="mvp-farm-context"><a asp-controller="Farms" asp-action="Details" asp-route-id="@Model.Farm.Id">Farm: @Model.Farm.Name</a></p>
 
             <h1 id="inventory-heading">Supplies</h1>
             <p class="sf-muted">Find a supply, check its balance, and record what came in or was used.</p>
@@ -40,7 +40,7 @@
     </div>
     @if (Model.Workspace.LowStockCount > 0)
     {
-        <a class="ani-inventory-alert" asp-action="Index" asp-route-farmId="@Model.Farm.Id" asp-route-filter="low">
+        <a class="ani-inventory-alert" asp-action="Index" asp-route-farmId="@Model.Farm.Id" asp-route-filter="low" asp-fragment="inventory-list-heading">
             <strong>@Model.Workspace.LowStockCount low-stock supply @(Model.Workspace.LowStockCount == 1 ? "item" : "items")</strong>
             <span>Review items that need replenishment →</span>
         </a>
@@ -61,12 +61,12 @@
     {
         <div class="ani-inventory-shortcuts ani12e-filter-tabs" aria-label="Quick supply filters">
             <a class="@(Model.SelectedFilter == "all" ? "is-selected" : "")" asp-action="Index"
-               asp-route-farmId="@Model.Farm.Id" aria-current="@(Model.SelectedFilter == "all" ? "page" : null)">All supplies (@Model.Workspace.Items.Count)</a>
+               asp-route-farmId="@Model.Farm.Id" asp-fragment="inventory-list-heading" aria-current="@(Model.SelectedFilter == "all" ? "page" : null)">All supplies (@Model.Workspace.Items.Count)</a>
             <a class="@(Model.SelectedFilter == "low" ? "is-selected" : "")" asp-action="Index"
-               asp-route-farmId="@Model.Farm.Id" asp-route-filter="low"
+               asp-route-farmId="@Model.Farm.Id" asp-route-filter="low" asp-fragment="inventory-list-heading"
                aria-current="@(Model.SelectedFilter == "low" ? "page" : null)">Needs restocking (@Model.Workspace.LowStockCount)</a>
         </div>
-        <form class="ani-inventory-filter ani12e-search-form" asp-action="Index" asp-route-farmId="@Model.Farm.Id" method="get">
+        <form class="ani-inventory-filter ani12e-search-form" asp-action="Index" asp-route-farmId="@Model.Farm.Id" asp-fragment="inventory-list-heading" method="get">
             <input type="hidden" name="farmId" value="@Model.Farm.Id" />
             <div>
                 <label for="inventory-search">Find a supply</label>
@@ -85,7 +85,7 @@
                 </select>
             </div>
             <button type="submit">Apply</button>
-            <a class="sf-button-outline" asp-action="Index" asp-route-farmId="@Model.Farm.Id">Clear</a>
+            <a class="sf-button-outline" asp-action="Index" asp-route-farmId="@Model.Farm.Id" asp-fragment="inventory-list-heading">Clear</a>
         </form>
     }
     @if (Model.Workspace.Items.Count == 0)
@@ -137,13 +137,13 @@
                 {
                     <a asp-action="Index" asp-route-farmId="@Model.Farm.Id"
                        asp-route-filter="@Model.SelectedFilter" asp-route-search="@Model.Search"
-                       asp-route-page="@(currentPage - 1)" rel="prev">Previous</a>
+                       asp-route-page="@(currentPage - 1)" asp-fragment="inventory-list-heading" rel="prev">Previous</a>
                 }
                 @if (currentPage < pageCount)
                 {
                     <a asp-action="Index" asp-route-farmId="@Model.Farm.Id"
                        asp-route-filter="@Model.SelectedFilter" asp-route-search="@Model.Search"
-                       asp-route-page="@(currentPage + 1)" rel="next">Next</a>
+                       asp-route-page="@(currentPage + 1)" asp-fragment="inventory-list-heading" rel="next">Next</a>
                 }
             </nav>
         }

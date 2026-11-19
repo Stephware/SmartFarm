@@ -2,7 +2,7 @@
 @{
     ViewData["Title"] = "User details";
 }
-<a class="admin-back" asp-area="Admin" asp-controller="Users" asp-action="Index">← Back to users</a>
+<a class="admin-back anigo-back-control" asp-area="Admin" asp-controller="Users" asp-action="Index" title="Back to users"><partial name="~/Views/Shared/_Icon.cshtml" model='@("chevLeft")' /><span class="visually-hidden">Back to users</span></a>
 <div class="page-heading admin-page-heading">
     <div><p class="sf-kicker">USER ACCOUNT</p><h1>@Model.User.Name</h1>
         <p class="sf-muted">@Model.User.Email</p></div>
