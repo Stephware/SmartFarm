@@ -3,7 +3,10 @@
     <div class="ui-page-intro">
         @if (!string.IsNullOrWhiteSpace(Model.BackUrl))
         {
-            <a class="ui-back-link" href="@Model.BackUrl">@Model.BackText</a>
+            <a class="ui-back-link anigo-back-control" href="@Model.BackUrl" title="@Model.BackText">
+                <partial name="_Icon" model='@("chevLeft")' />
+                <span class="visually-hidden">@Model.BackText</span>
+            </a>
         }
         <h1 class="ui-page-title" id="@Model.Id">@Model.Title</h1>
         <p class="ui-page-description">@Model.Description</p>
