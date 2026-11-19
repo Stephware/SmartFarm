@@ -157,7 +157,9 @@ fun FarmListScreen(state: FarmUiState, onOpen: (String) -> Unit,
         item(key = "header") {
             Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
                 FarmHero("My farms", "Choose a farm to start work, or join a team.")
-                Progress(state, onRetry)
+                // Dialog validation is shown inside the active form, not twice
+                // (once behind the modal and again in the modal).
+                Progress(if (creating || joining) state.copy(error = null) else state, onRetry)
                 if (state.farms.isEmpty() && !state.loading && state.error == null)
                     FarmEmptyState("No farms yet", "Start your own farm or enter the code from an owner.")
                 FlowRow(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(10.dp),
