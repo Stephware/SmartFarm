@@ -4,6 +4,12 @@
     ViewData["FarmName"] = Model.Report.FarmName;
     var report = Model.Report;
     var hasFilters = report.FromDate.HasValue || report.ToDate.HasValue || report.PlotId.HasValue || report.CropTypeId.HasValue;
+    const int pageSize = 20;
+    var reportItems = report.Entries.Take(100).ToList();
+    var pageCount = Math.Max(1, (reportItems.Count + pageSize - 1) / pageSize);
+    var requestedPage = int.TryParse(Context.Request.Query["page"].ToString(), out var parsedPage) ? parsedPage : 1;
+    var currentPage = Math.Clamp(requestedPage, 1, pageCount);
+    var visibleEntries = reportItems.Skip((currentPage - 1) * pageSize).Take(pageSize).ToList();
 }
 <div class="reference-screen reference-screen-reports ani12e-workspace ani12e-reports mvp-harvests ani-p2-page ani-p2-reports">
 <partial name="_FarmNavigation" model="report.FarmId" />
@@ -31,7 +37,7 @@
 <section class="ani-report-main-content ani12e-report-results" aria-label="Harvest report results">
 <section class="panel card sf-report-table-panel ani-report-table ani12e-data-panel" aria-labelledby="report-history-heading">
     <header class="reference-panel-heading"><h2 id="report-history-heading">Recent harvests</h2></header>
-    <p class="hint">Latest 100 matching records, including voided entries. For the complete list, use Export records CSV in Filters &amp; downloads.</p>
+    <p class="hint">Showing @visibleEntries.Count on this page from the latest @reportItems.Count matching records (maximum 100, including voided entries). For the complete history, use Export records CSV.</p>
     @if (report.Entries.Count == 0)
     {
         <div class="sf-empty-state"><strong>No harvest entries to show.</strong>
@@ -46,7 +52,7 @@
                 <caption class="visually-hidden">Harvest record history</caption>
                 <thead><tr><th scope="col">Farm date</th><th scope="col">Crop / plot</th><th scope="col">Quantity</th><th scope="col">Status</th></tr></thead>
                 <tbody>
-                @foreach (var item in report.Entries.Take(100))
+                @foreach (var item in visibleEntries)
                 {
                     <tr>
                         <td>@item.FarmDate.ToString("yyyy-MM-dd")</td>
@@ -58,6 +64,28 @@
                 </tbody>
             </table>
         </div>
+        @if (pageCount > 1)
+        {
+            <nav class="ani-p4-pager ani-f2-pager" aria-label="Harvest record pages">
+                <span>Page @currentPage of @pageCount</span>
+                @if (currentPage > 1)
+                {
+                    <a asp-action="Harvests" asp-route-farmId="@report.FarmId"
+                       asp-route-from="@(report.FromDate?.ToString("yyyy-MM-dd"))"
+                       asp-route-to="@(report.ToDate?.ToString("yyyy-MM-dd"))"
+                       asp-route-plotId="@report.PlotId" asp-route-cropTypeId="@report.CropTypeId"
+                       asp-route-page="@(currentPage - 1)" asp-fragment="report-history-heading" rel="prev">Previous</a>
+                }
+                @if (currentPage < pageCount)
+                {
+                    <a asp-action="Harvests" asp-route-farmId="@report.FarmId"
+                       asp-route-from="@(report.FromDate?.ToString("yyyy-MM-dd"))"
+                       asp-route-to="@(report.ToDate?.ToString("yyyy-MM-dd"))"
+                       asp-route-plotId="@report.PlotId" asp-route-cropTypeId="@report.CropTypeId"
+                       asp-route-page="@(currentPage + 1)" asp-fragment="report-history-heading" rel="next">Next</a>
+                }
+            </nav>
+        }
     }
 </section>
 <details class="ani-p2-report-tools" id="report-filters" open="@(hasFilters ? "open" : null)">
