@@ -3,7 +3,7 @@
     ViewData["Title"] = "Two-factor sign in";
 }
 <section class="panel narrow admin-login-panel" aria-labelledby="mfa-heading">
-    <a class="ui-back-link" asp-action="Login" asp-route-returnUrl="@Model.ReturnUrl">Back to log in</a>
+    <a class="ui-back-link anigo-back-control" asp-action="Login" asp-route-returnUrl="@Model.ReturnUrl" title="Back to log in"><partial name="_Icon" model='@("chevLeft")' /><span class="visually-hidden">Back to log in</span></a>
     <p class="sf-kicker">PROTECTED SIGN IN</p>
     <h1 id="mfa-heading">Authenticator verification</h1>
     <p>Enter the six-digit code from your authenticator app to finish signing in.</p>
