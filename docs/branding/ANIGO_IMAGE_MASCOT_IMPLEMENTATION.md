@@ -42,6 +42,19 @@ After Skip or completion, the device-local completion flag prevents automatic re
 - All content is sample-only, does not write to farm/inventory/harvest databases, and does not require network connectivity.
 - Existing four lesson-focused instrumentation tests intentionally bypass the extra Welcome page using `includeWelcome=false`. New tests verify the complete six-scene production flow and welcome screenshots.
 
+### Step 3 — character-led onboarding screens
+
+The existing six-scene journey is retained: intro, welcome, farm, crop plan, fieldwork, and harvest. This step refines the screens without adding account requirements, modifying farm records, or changing navigation.
+
+- The welcome slide introduces Ani as the friendly farm guide while retaining the speech bubble and short talking-to-wave animation from Step 2.
+- Each of the four lessons now has an explicit lesson label and a short, distinct **ANI SAYS** explanation, alongside the existing feature demonstration and the sample-only disclosure.
+- On ordinary portrait phones, the illustrative carabao leads a vertically stacked stage with a full-width, more readable example card. Tablet and short landscape layouts keep the efficient side-by-side composition; 320dp / 1.6× system-text stacking stays available.
+- The progress display distinguishes the welcome slide from the four lessons. Existing Swipe, Back, Next, Skip, Continue, Android Back and opt-in Replay behavior are unchanged.
+- New device tests verify all four tips and the compact presentation; required light-phone welcome/farm and dark-phone harvest screenshots extend the existing visual audit from 26 to **29** PNGs.
+- Accessibility retains a heading, readable theme-aware contrast, bounded animation, meaningful illustration descriptions, 48dp minimum navigation targets, and optional reduced motion. Existing offline/sync and partial-harvest examples remain accurate.
+
+Final screen composition still needs owner visual review on an actual phone before release. The Step 3 CI run validates code and captures, not artistic approval.
+
 ### Release gates
 
 - Confirm Android build, unit tests, UI instrumentation, and bitmap decoding across device sizes.
