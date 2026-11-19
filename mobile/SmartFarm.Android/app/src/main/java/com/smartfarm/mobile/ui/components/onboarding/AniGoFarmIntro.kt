@@ -127,8 +127,12 @@ fun AniGoFarmIntro(
     val walkLinear = ((value - 0.04f) / 0.66f).coerceIn(0f, 1f)
     val arrival = FastOutSlowInEasing.transform(walkLinear)
     val walking = walkLinear < 1f
-    val pose = if (value > 0.74f) AniGoCarabaoPose.WAVE else AniGoCarabaoPose.GUIDE
-    val frame = ((value * AniGoGuideMotion.IntroMillis / 145f).toInt()).coerceAtLeast(0) % 4
+    // Keep the FULL-BODY carabao throughout its entrance. Switching from full
+    // walking art to a talking bust before the scene transition caused a jump.
+    // The open/closed-mouth bust animation belongs on the following Welcome slide.
+    val pose = AniGoCarabaoPose.WAVE
+    val walkFrame = ((value * AniGoGuideMotion.IntroMillis / 145f).toInt()).coerceAtLeast(0) % 4
+    val frame = if (walking) walkFrame else 3
     val logoOpacity = ((value - 0.34f) / 0.24f).coerceIn(0f, 1f)
     val titleOpacity = ((value - 0.62f) / 0.22f).coerceIn(0f, 1f)
     val mascotBounce = if (walking) sin(value * 2f * PI.toFloat() * 12f) * 5f else 0f
@@ -186,8 +190,7 @@ fun AniGoFarmIntro(
             )
             if (stacked) {
                 Spacer(Modifier.height(16.dp))
-                AniGoCarabao(pose, Modifier.size(180.dp), frame, walking,
-                    talking = !walking && value > 0.75f && value < 0.98f)
+                AniGoCarabao(pose, Modifier.size(180.dp), frame, walking = true)
                 Text("Your farm, your crops, your progress",
                     color = ink, style = MaterialTheme.typography.bodyMedium,
                     textAlign = TextAlign.Center)
@@ -198,8 +201,7 @@ fun AniGoFarmIntro(
         AniGoCarabao(
             pose = pose,
             frame = frame,
-            walking = walking,
-            talking = !walking && value > 0.75f && value < 0.98f,
+            walking = true,
             modifier = Modifier.align(Alignment.Center)
                 .offset(y = if (small) 48.dp else 72.dp)
                 .size(characterSize)
