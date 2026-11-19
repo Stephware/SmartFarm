@@ -352,8 +352,8 @@ fun FarmDetailScreen(state: FarmUiState, onBack: () -> Unit,
     UnsavedChanges("farm-settings", visibleSection == "Settings" && farm != null &&
         (name != farm.name || location != farm.locationText || zone != farm.timeZoneId ||
             latitude != farm.latitude?.toPlainString().orEmpty() || longitude != farm.longitude?.toPlainString().orEmpty()))
-    UnsavedChanges("new-plot", plotName.isNotEmpty() || plotArea.isNotEmpty(), plotName, plotArea)
     val sectionState = rememberSaveableStateHolder()
+    val exitGuard = LocalExitGuard.current
 
     val hasFarmSwitcher = LocalFarmHeaderNavigation.current != null
     FarmPage(if (visibleSection == "Overview") "Today · ${farm?.name ?: "Farm"}" else
@@ -414,6 +414,28 @@ fun FarmDetailScreen(state: FarmUiState, onBack: () -> Unit,
                     var openPlotId by rememberSaveable(farm.id) { mutableStateOf<String?>(null) }
                     var addingPlot by rememberSaveable(farm.id) { mutableStateOf(false) }
                     var plotFilter by rememberSaveable(farm.id) { mutableStateOf("") }
+                    UnsavedChanges("new-plot", addingPlot && (plotName.isNotEmpty() || plotArea.isNotEmpty()),
+                        plotName, plotArea)
+                    var handledPlotSave by rememberSaveable(farm.id) { mutableStateOf(state.plotSaveVersion) }
+                    var handledPlotEdit by rememberSaveable(farm.id) { mutableStateOf(state.plotEditSaveVersion) }
+                    LaunchedEffect(state.plotSaveVersion) {
+                        if (state.plotSaveVersion > handledPlotSave) {
+                            handledPlotSave = state.plotSaveVersion
+                            addingPlot = false
+                            plotName = ""; plotArea = ""
+                            exitGuard?.clear("new-plot")
+                        }
+                    }
+                    LaunchedEffect(state.plotEditSaveVersion) {
+                        if (state.plotEditSaveVersion > handledPlotEdit) {
+                            handledPlotEdit = state.plotEditSaveVersion
+                            state.savedPlotId?.let { saved ->
+                                if (openPlotId == saved) openPlotId = null
+                                exitGuard?.clear("plot-$saved")
+                                sectionState.removeState("plot-edit-$saved")
+                            }
+                        }
+                    }
                     FarmSectionHeader("Growing plots",
                         "Choose a plot to view its crops. Edit one plot at a time.")
                     if (canManage) {
