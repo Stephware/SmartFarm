@@ -55,6 +55,15 @@ The existing six-scene journey is retained: intro, welcome, farm, crop plan, fie
 
 Final screen composition still needs owner visual review on an actual phone before release. The Step 3 CI run validates code and captures, not artistic approval.
 
+### Step 4 — first-time, authenticated and replay routing
+
+- **First launch:** an unauthenticated device with no `completed_v1` flag opens the illustrated intro, Welcome lesson, and four guides. Skip, native Back from the beginning, or final Continue persists the device-local flag before navigating to the real welcome/sign-in screen.
+- **Returning device:** after the flag is set, subsequent launches go to Welcome rather than replaying the tour. Signing out or changing users does not clear this preference; clearing app data restarts the first-run experience.
+- **Authenticated session:** an already signed-in user starts in Farms, and an account becoming authenticated while the automatic first-run guide is open bypasses it. Logging in now clears *all* guest destinations; signing out clears *all* authenticated destinations, including when the application originally started in Farms without Welcome in its back stack.
+- **Optional replay:** Welcome guests and signed-in My Account users can open the identical illustrated guide without altering the completion flag or signing in/out. The preview has a **Close guide** action, then either **Back to Welcome** or **Back to My Account** on the final lesson; Back returns to the previous page or original screen as appropriate.
+- Navigation regression tests use a real Compose NavHost to assert guest/login and authenticated/sign-out back-stack isolation, including direct Farms starts and completed guest/account replays. The full farmer journey test helper also recognizes the optional replay's Close guide label.
+- Authentication remains in memory as before. No server, Room, farm permission, or API contract changed.
+
 ### Release gates
 
 - Confirm Android build, unit tests, UI instrumentation, and bitmap decoding across device sizes.
