@@ -39,39 +39,3 @@
     .mvp-harvests .sf-report-actions a { flex: 1 1 150px; }
   }
 }
-
-/* F0: consistent, accessible secondary-page Back buttons and anchor targets. */
-@layer components {
-  a.anigo-back-control {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    box-sizing: border-box;
-    width: 44px;
-    height: 44px;
-    min-width: 44px;
-    min-height: 44px;
-    padding: 0;
-    border: 1px solid var(--ui-border, var(--divider));
-    border-radius: 12px;
-    color: var(--ui-primary, var(--primary));
-    background: var(--ui-surface, var(--surface));
-    text-decoration: none;
-    vertical-align: middle;
-    transition: background-color 140ms ease, border-color 140ms ease;
-  }
-  a.anigo-back-control:hover {
-    border-color: var(--ui-primary, var(--primary));
-    background: var(--ui-surface-subtle, var(--soft));
-    text-decoration: none;
-  }
-  a.anigo-back-control:focus-visible {
-    outline: 3px solid var(--focus);
-    outline-offset: 3px;
-  }
-  a.anigo-back-control .ico { width: 21px; height: 21px; flex: none; }
-  .app-main [id], .admin-main [id] { scroll-margin-top: 100px; }
-  @media (prefers-reduced-motion: reduce) {
-    a.anigo-back-control { transition: none; }
-  }
-}
