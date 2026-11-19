@@ -12,8 +12,13 @@ internal fun ComposeContentTestRule.skipFirstRunGuideIfShown() {
         onNodeWithText("Skip intro").performClick()
         waitForIdle()
     }
-    if (onAllNodesWithText("Skip").fetchSemanticsNodes().isNotEmpty()) {
-        onNodeWithText("Skip").performClick()
+    val exitText = when {
+        onAllNodesWithText("Skip").fetchSemanticsNodes().isNotEmpty() -> "Skip"
+        onAllNodesWithText("Close guide").fetchSemanticsNodes().isNotEmpty() -> "Close guide"
+        else -> null
+    }
+    if (exitText != null) {
+        onNodeWithText(exitText).performClick()
         waitForIdle()
     }
 }
