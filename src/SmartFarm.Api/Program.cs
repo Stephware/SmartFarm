@@ -54,6 +54,7 @@ builder.Services.Configure<Microsoft.AspNetCore.Mvc.ApiBehaviorOptions>(options 
     }));
 builder.Services.AddEnrollmentRateLimiting();
 builder.Services.AddAccountRecovery(builder.Configuration);
+SmartFarm.Infrastructure.Integrations.Gemini.GeminiRegistration.AddWeatherGuidance(builder.Services, builder.Configuration);
 builder.Services.AddSmartFarmPersistence(builder.Configuration.GetConnectionString("SmartFarm"));
 builder.Services.AddSmartFarmBusinessServices();
 builder.Services.AddSmartFarmWeather(builder.Configuration);
