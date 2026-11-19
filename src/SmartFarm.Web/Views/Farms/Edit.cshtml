@@ -4,7 +4,7 @@
 }
 <div class="reference-screen reference-screen-farms ani-entry-farm-form-shell">
 <header class="sf-settings-heading">
-    <a asp-action="Details" asp-route-id="@Model.FarmId">← Back to farm</a>
+    <a class="anigo-back-control" asp-action="Details" asp-route-id="@Model.FarmId" title="Back to farm"><partial name="_Icon" model='@("chevLeft")' /><span class="visually-hidden">Back to farm</span></a>
 
     <p class="ani-entry-eyebrow">FARM SETTINGS</p>
     <h1>Edit farm</h1>
