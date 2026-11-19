@@ -6,6 +6,7 @@ import androidx.compose.ui.test.hasSetTextAction
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.onAllNodesWithTag
 import androidx.compose.ui.test.performScrollToIndex
+import androidx.compose.ui.test.performScrollToNode
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.DeviceConfigurationOverride
 import androidx.compose.ui.test.FontScale
@@ -61,7 +62,11 @@ class ResponsiveListsTest {
         compose.setContent { SmartFarmTheme { FarmListScreen(FarmUiState(farms = farms), {}, { _, _, _, _, _ -> }, {}, {}) } }
         assertTrue(compose.onAllNodesWithTag("record-card").fetchSemanticsNodes().size < 30)
         compose.onNodeWithText("Farm 200").assertDoesNotExist()
-        compose.onAllNodesWithTag("record-list")[0].performScrollToIndex(200)
+        repeat(9) {
+            compose.onNodeWithText("Show 20 more farms", substring = true)
+                .performScrollTo().performClick()
+        }
+        compose.onAllNodesWithTag("record-list")[0].performScrollToNode(hasText("Farm 200"))
         compose.onNodeWithText("Farm 200").assertIsDisplayed()
     }
 
