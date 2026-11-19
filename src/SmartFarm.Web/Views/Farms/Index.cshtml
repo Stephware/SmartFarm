@@ -1,6 +1,15 @@
 @model SmartFarm.Web.ViewModels.Farms.FarmIndexViewModel
 @{
     ViewData["Title"] = "My farms";
+    const int pageSize = 8;
+    var totalFarmPages = Math.Max(1, (Model.Farms.Count + pageSize - 1) / pageSize);
+    var requestedFarmPage = int.TryParse(Context.Request.Query["page"].ToString(), out var farmPage) ? farmPage : 1;
+    var currentFarmPage = Math.Clamp(requestedFarmPage, 1, totalFarmPages);
+    var visibleFarms = Model.Farms.Skip((currentFarmPage - 1) * pageSize).Take(pageSize).ToList();
+    var totalRequestPages = Math.Max(1, (Model.JoinRequests.Count + pageSize - 1) / pageSize);
+    var requestedRequestPage = int.TryParse(Context.Request.Query["requestsPage"].ToString(), out var requestPage) ? requestPage : 1;
+    var currentRequestPage = Math.Clamp(requestedRequestPage, 1, totalRequestPages);
+    var visibleRequests = Model.JoinRequests.Skip((currentRequestPage - 1) * pageSize).Take(pageSize).ToList();
 }
 <div class="reference-screen reference-screen-farms ani-entry-farms-page ani-p2-page ani-p2-farms">
 <header class="ani-entry-farms-heading">
@@ -41,9 +50,9 @@
     }
     else
     {
-        <h2 class="ani-entry-farm-section-label">Your farms</h2>
+        <h2 class="ani-entry-farm-section-label" id="farm-library-heading">Your farms</h2>
         <ul class="farm-select-grid responsive-two ani-entry-farm-list">
-            @foreach (var farm in Model.Farms)
+            @foreach (var farm in visibleFarms)
             {
                 <li class="farm-select-card card ani-entry-farm-card">
                     <div class="farm-card-body card-body">
@@ -61,6 +70,24 @@
                 </li>
             }
         </ul>
+        @if (totalFarmPages > 1)
+        {
+            <nav class="ani-p4-pager ani-f2-pager" aria-label="Farm pages">
+                <span>Page @currentFarmPage of @totalFarmPages · @Model.Farms.Count farms</span>
+                @if (currentFarmPage > 1)
+                {
+                    <a asp-action="Index" asp-route-page="@(currentFarmPage - 1)"
+                       asp-route-requestsPage="@currentRequestPage" asp-fragment="farm-library-heading"
+                       rel="prev">Previous</a>
+                }
+                @if (currentFarmPage < totalFarmPages)
+                {
+                    <a asp-action="Index" asp-route-page="@(currentFarmPage + 1)"
+                       asp-route-requestsPage="@currentRequestPage" asp-fragment="farm-library-heading"
+                       rel="next">Next</a>
+                }
+            </nav>
+        }
     }
 </section>
 
@@ -127,7 +154,7 @@
         else
         {
             <ul class="join-requests-list">
-                @foreach (var request in Model.JoinRequests)
+                @foreach (var request in visibleRequests)
                 {
                     var statusClass = request.Status == "Pending" ? "sf-status-chip--planned" :
                         request.Status == "Approved" ? "sf-status-chip--active" : "sf-status-chip--neutral";
@@ -156,6 +183,24 @@
                     </li>
                 }
             </ul>
+            @if (totalRequestPages > 1)
+            {
+                <nav class="ani-p4-pager ani-f2-pager" aria-label="Join request pages">
+                    <span>Page @currentRequestPage of @totalRequestPages · @Model.JoinRequests.Count requests</span>
+                    @if (currentRequestPage > 1)
+                    {
+                        <a asp-action="Index" asp-route-page="@currentFarmPage"
+                           asp-route-requestsPage="@(currentRequestPage - 1)" asp-fragment="requests-heading"
+                           rel="prev">Previous</a>
+                    }
+                    @if (currentRequestPage < totalRequestPages)
+                    {
+                        <a asp-action="Index" asp-route-page="@currentFarmPage"
+                           asp-route-requestsPage="@(currentRequestPage + 1)" asp-fragment="requests-heading"
+                           rel="next">Next</a>
+                    }
+                </nav>
+            }
         }
     </section>
     }
