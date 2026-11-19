@@ -49,15 +49,18 @@ class DailyWorkScreenTest {
         }
         compose.onNodeWithText("Calendar").performScrollTo().performClick()
         val today = TaskWorkCenter.today("Asia/Manila")
-        compose.onNodeWithTag("record-list").performScrollToNode(hasText("Task calendar"))
-        compose.onNode(hasText(today.dayOfMonth.toString()) and hasClickAction())
-            .performClick()
+        compose.onNodeWithTag("record-list").performScrollToNode(hasText("Show today's tasks"))
+        compose.onNodeWithTag("task-calendar-picker").assertExists()
+        compose.onNodeWithText("Show today's tasks").performClick()
         compose.onNodeWithText("Task calendar").assertDoesNotExist()
         compose.onNodeWithTag("record-list").performScrollToNode(
             hasText("Assignments on " + today))
         compose.onNodeWithText("Assignments on " + today).assertExists()
         compose.onNodeWithTag("record-list").performScrollToNode(hasText("Inspect the rows"))
         compose.onNodeWithText("Inspect the rows").assertExists()
+        compose.onNodeWithText("Change date").performScrollTo().performClick()
+        compose.onNodeWithTag("record-list").performScrollToNode(hasText("Show today's tasks"))
+        compose.onNodeWithTag("task-calendar-picker").assertExists()
     }
 
     @Test fun managerCanCreateTaskUsingExistingCallback() {
