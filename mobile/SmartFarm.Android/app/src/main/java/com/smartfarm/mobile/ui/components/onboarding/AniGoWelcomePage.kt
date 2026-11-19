@@ -78,6 +78,14 @@ internal fun AniGoWelcomePage(
             verticalArrangement = Arrangement.Center
         ) {
             Text(
+                "MEET ANI  ·  YOUR FARM BUDDY",
+                style = MaterialTheme.typography.labelMedium,
+                color = MaterialTheme.colorScheme.primary,
+                fontWeight = FontWeight.ExtraBold,
+                textAlign = TextAlign.Center
+            )
+            Spacer(Modifier.height(8.dp))
+            Text(
                 "Welcome to AniGo!",
                 style = MaterialTheme.typography.headlineMedium,
                 color = foreground,
@@ -87,7 +95,7 @@ internal fun AniGoWelcomePage(
             )
             Spacer(Modifier.height(10.dp))
             Text(
-                "Your friendly farm companion for smarter and simpler farm management.",
+                "Your farm, crops, and harvests—made a little easier.",
                 style = MaterialTheme.typography.bodyLarge,
                 color = secondary,
                 textAlign = TextAlign.Center
@@ -130,7 +138,7 @@ internal fun AniGoWelcomePage(
             }
             Spacer(Modifier.height(17.dp))
             Text(
-                "Let's care for your farm, one step at a time.",
+                "I'll show you four simple ways to get started.",
                 color = foreground,
                 textAlign = TextAlign.Center,
                 style = MaterialTheme.typography.bodyMedium
