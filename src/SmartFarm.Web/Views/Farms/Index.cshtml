@@ -80,6 +80,7 @@
         <input type="hidden" name="TimeZoneId" value="Asia/Manila" />
         <p class="hint">Uses Philippine time. Add a precise map pin later in Farm settings.</p>
         <button class="button" type="submit">Create farm &amp; continue</button>
+        <span class="visually-hidden" role="status" aria-live="polite" data-ani-form-progress></span>
     </form>
     <p class="ani-modal-alternative"><a asp-controller="Farms" asp-action="Create">Use the detailed setup with map options</a></p>
 </section>
@@ -105,6 +106,7 @@
             <p class="hint" id="join-code-help">Submitting a code sends a request; it does not give immediate access.</p>
             @Html.ValidationMessage("FarmCode", null, new { @class = "error" })
             <button type="submit">Request to join</button>
+            <span class="visually-hidden" role="status" aria-live="polite" data-ani-form-progress></span>
         </form>
     </section>
     @if (Model.RequestError is not null || Model.JoinRequests.Count > 0)
