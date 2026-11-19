@@ -77,7 +77,7 @@ import kotlinx.coroutines.launch
  * Phase 3 adds a one-shot, skippable carabao walking introduction; Phase 7 handles
  * completion persistence. No network calls, account changes, or farm writes.
  */
-private const val PageCount = 4
+private const val LessonCount = 4
 private val Pine = Color(0xFF145239)
 private val Cream = Color(0xFFFBF8F0)
 
@@ -109,7 +109,8 @@ fun AniGoOnboardingScreen(
     onExit: () -> Unit,
     modifier: Modifier = Modifier,
     motionAllowed: Boolean = anigoMotionAllowed(),
-    introAutoPlay: Boolean = true
+    introAutoPlay: Boolean = true,
+    includeWelcome: Boolean = true
 ) {
     // The intro is a one-shot before the four learning pages, not a fifth page.
     // The OS reduced-motion setting can bypass it; completion survives rotation.
@@ -126,7 +127,10 @@ fun AniGoOnboardingScreen(
 
     val lifecycleState by LocalLifecycleOwner.current.lifecycle.currentStateAsState()
     val activityResumed = lifecycleState.isAtLeast(Lifecycle.State.RESUMED)
-    val pager = rememberPagerState(pageCount = { PageCount })
+    // Approved six-scene journey: animated intro, welcome, then four lessons.
+    // The legacy slide-only test path remains available to verify each lesson.
+    val pageCount = LessonCount + if (includeWelcome) 1 else 0
+    val pager = rememberPagerState(pageCount = { pageCount })
     val scope = rememberCoroutineScope()
     val selectedPage = pager.settledPage
     val changingPage = pager.isScrollInProgress
@@ -204,11 +208,11 @@ fun AniGoOnboardingScreen(
                 Modifier.widthIn(max = 560.dp).fillMaxWidth()
                     .padding(horizontal = 24.dp, vertical = if (shortWindow) 2.dp else 7.dp)
                     .semantics {
-                        contentDescription = "Step " + (selectedPage + 1) + " of " + PageCount
+                        contentDescription = "Step " + (selectedPage + 1) + " of " + pageCount
                     },
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                repeat(PageCount) { index ->
+                repeat(pageCount) { index ->
                     val marker by animateColorAsState(
                         targetValue = if (index <= selectedPage) colors.primary else colors.outlineVariant,
                         animationSpec = tween(
@@ -225,12 +229,21 @@ fun AniGoOnboardingScreen(
                 beyondViewportPageCount = 1,
                 modifier = Modifier.widthIn(max = 560.dp).fillMaxWidth().weight(1f)
             ) { page ->
-                GuidePageContent(
-                    page = page, dark = dark, ink = foreground, secondary = secondary,
-                    pageActive = selectedPage == page && !changingPage,
-                    activityResumed = activityResumed,
-                    motionAllowed = motionAllowed
-                )
+                if (includeWelcome && page == 0) {
+                    AniGoWelcomePage(
+                        active = selectedPage == page && !changingPage,
+                        activityResumed = activityResumed,
+                        motionAllowed = motionAllowed
+                    )
+                } else {
+                    GuidePageContent(
+                        page = page - if (includeWelcome) 1 else 0,
+                        dark = dark, ink = foreground, secondary = secondary,
+                        pageActive = selectedPage == page && !changingPage,
+                        activityResumed = activityResumed,
+                        motionAllowed = motionAllowed
+                    )
+                }
             }
 
             Row(
@@ -250,7 +263,7 @@ fun AniGoOnboardingScreen(
                 Button(
                     onClick = {
                         if (!changingPage) {
-                            if (selectedPage == PageCount - 1) exitOnce()
+                            if (selectedPage == pageCount - 1) exitOnce()
                             else goToPage(selectedPage + 1)
                         }
                     },
@@ -261,7 +274,7 @@ fun AniGoOnboardingScreen(
                         containerColor = if (dark) AniGoPalette.darkAction else Pine,
                         contentColor = Color.White)
                 ) {
-                    Text(if (selectedPage == PageCount - 1) "Continue to AniGo" else "Next →",
+                    Text(if (selectedPage == pageCount - 1) "Continue to AniGo" else "Next →",
                         fontWeight = FontWeight.Bold)
                 }
             }
