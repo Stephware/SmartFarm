@@ -266,6 +266,14 @@ fun TaskScreen(
                     }
                     Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
                         FarmSectionHeader("Task calendar", "Choose a date to see that day's assignments.")
+                        if (today != null) {
+                            OutlinedButton(onClick = {
+                                selectedCalendarDay = today.toString()
+                                selectedView = "day"
+                            }, modifier = Modifier.fillMaxWidth().defaultMinSize(minHeight = 48.dp)) {
+                                Text("Show today's tasks")
+                            }
+                        }
                         Surface(shape = MaterialTheme.shapes.medium,
                             color = MaterialTheme.colorScheme.surface) {
                             DatePicker(state = picker, modifier = Modifier.testTag("task-calendar-picker"),
