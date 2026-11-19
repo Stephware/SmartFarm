@@ -788,6 +788,31 @@ public sealed partial class FarmEnrollmentWebTests
         Assert.Contains("Task marked completed.", after);
     }
 
+    [Fact]
+    public async Task CalendarTaskDeepLinkSelectsContainingPageWithStableOrdering()
+    {
+        var date = new DateOnly(2026, 11, 13);
+        var tasks = Enumerable.Range(0, 25).Select(index =>
+            new FarmTaskDetails(Guid.NewGuid(), FarmId, null, Actor,
+                2, date, 0, "Check farm area " + index,
+                DateTime.UtcNow, null, "v")).ToArray();
+        var ordered = tasks.OrderBy(task => task.Id).ToArray();
+        var first = ordered[0];
+        var target = ordered[^1];
+        using var app = App("Owner", taskList: tasks);
+        using var client = app.CreateClient();
+        var url = $"/Tasks?farmId={FarmId}&view=all&date=2026-11-13&taskId={target.Id}";
+        var html = await client.GetStringAsync(url);
+        Assert.Contains("Tasks for Fri, Nov 13, 2026", html);
+        Assert.Contains("Page 3 of 3", html);
+        Assert.Contains("id=\"task-" + target.Id + "\"", html);
+        Assert.DoesNotContain("id=\"task-" + first.Id + "\"", html);
+
+        var explicitFirstPage = await client.GetStringAsync(url + "&page=1");
+        Assert.Contains("Page 1 of 3", explicitFirstPage);
+        Assert.DoesNotContain("id=\"task-" + target.Id + "\"", explicitFirstPage);
+    }
+
     [Theory]
     [InlineData(true)]
     [InlineData(false)]
