@@ -23,21 +23,19 @@ test("Real photo assets are bundled and optimized WebP, not external runtime dep
         assert.equal(bytes.toString("ascii", 8, 12), "WEBP");
     }
     assert.match(landing, /fields-hero\.webp/);
-    assert.match(landing, /farmers-working\.webp/);
+    assert.match(register, /farmers-working\.webp/);
     assert.match(login, /fields-detail\.webp/);
     assert.match(register, /farmers-working\.webp/);
-    assert.match(landing, /Photos?|photography/i);
+    assert.match(landing, /fields-hero\.webp/);
     assert.doesNotMatch(landing + login + register, /images\/crops\/.*?\.svg/);
     // Attribution hyperlinks may point to the original source; rendered photos must be local.
     assert.doesNotMatch(landing + login + register, /<img[^>]+src=["']https:\/\/images\.unsplash\.com/);
 });
 test("Editorial photographs are not presented as real farm records", () => {
-    assert.match(landing, /not a farm record/i);
-    assert.match(landing, /No image represents an AniGo customer farm/);
-    assert.match(login, /Agricultural photography for illustration only/);
-    assert.match(register, /Agricultural photography for illustration only/);
+    assert.doesNotMatch(landing + login + register,
+        /Photo credits and sources|illustration only|No image represents an AniGo customer farm/);
     assert.doesNotMatch(farms, /images\/photography/);
-    assert.match(landing, /Unsplash/);
+    assert.match(landing, /Record Fieldwork|Plan Crops|Track Harvests/);
 });
 test("Entry flows preserve accessible forms, routes and owner approval rules", () => {
     for (const [file, fields] of [
@@ -85,7 +83,7 @@ test("Completion keeps create/join intent and mobile control usability", () => {
     assert.ok(styles.includes('min-height: 44px; min-width: 72px'));
     assert.ok(styles.includes('max-width:420px'));
     assert.ok(styles.includes('list-style: disclosure-closed inside'));
-    assert.ok(landing.includes('Photo credits and sources'));
+    assert.ok(!landing.includes('Photo credits and sources'));
 });
 
 test("New visual composition remains scoped and respects responsive / reduced motion", () => {
