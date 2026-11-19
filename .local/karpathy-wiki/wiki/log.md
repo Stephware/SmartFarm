@@ -248,3 +248,8 @@ Three native primary entries and a simpler existing Record sheet; My Farm groups
 - Disposition: Update
 - Raw: raw/project/2026-11-20-backend-b0-b5.md
 - Updated: API contracts; Database; Tasks, weather, and automation; Dependencies and development
+
+## [2026-11-20] ingest | Backend integration on current dev
+- Disposition: Update
+- Raw: raw/project/2026-11-20-backend-b0-b5-integration.md
+- Updated: Dependencies and development

@@ -2460,6 +2460,13 @@
           "sha256": "e766ce960decab0ed4525306d6be221874a911c4f66eb91c27854353207c78dd"
         }
       ]
+    },
+    {
+      "date": "2026-11-20",
+      "revision": "d3384b1a rebased on current dev add44d95",
+      "snapshot": "raw/project/2026-11-20-backend-b0-b5-integration.md",
+      "sha256": "205d47a1a138dac1c22c2ae842f614c5e46b156ae777842862dd19f3a8f86c61",
+      "scope": "Integrated strict disposable SQL/Node/Android checks after independent frontend PR148; no frontend modifications in backend diff, provider/local schema limits retained."
     }
   ]
 }
