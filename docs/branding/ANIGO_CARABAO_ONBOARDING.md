@@ -1,5 +1,7 @@
 # AniGo carabao onboarding — Phases 1–8 review
 
+> **Current production implementation (November 2026):** The earlier Compose Canvas mascot described below has been replaced by the user-approved, image-based WebP sprite atlas with walking and talking frames, plus a separate Welcome slide. For definitive current implementation details see [`ANIGO_IMAGE_MASCOT_IMPLEMENTATION.md`](./ANIGO_IMAGE_MASCOT_IMPLEMENTATION.md). Historic phase notes are retained for traceability.
+
 ## Scope and review workflow
 
 This branch implements the approved carabao-guided Android onboarding without changing the web UI, authentication, API, or farm database. Phase 7 adds only a local completion preference for the instructional walkthrough.
