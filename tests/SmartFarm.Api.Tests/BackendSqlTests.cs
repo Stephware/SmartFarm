@@ -106,4 +106,37 @@ public sealed class BackendSqlTests(BackendSqlFixture fixture) : IClassFixture<B
         var data = await client.GetFromJsonAsync<JsonElement>($"/api/farms/{DemoDataset.Id("farm0")}/records/activities");
         Assert.EndsWith("Z", data.GetProperty("items")[0].GetProperty("record").GetProperty("occurredAtUtc").GetString());
     }
+    [Fact]
+    public async Task WeatherCategoriesAndAniAcknowledgmentUseCurrentFarmAccess()
+    {
+        if (fixture.Factory is null) return;
+        using var client = await fixture.Client("owner");
+        var farm = DemoDataset.Id("farm0");
+        foreach (var category in new[] { "recent", "active", "upcoming", "resolved", "history" })
+            Assert.Equal(HttpStatusCode.OK, (await client.GetAsync($"/api/farms/{farm}/weather/records?category={category}&pageSize=1")).StatusCode);
+        var alerts = await client.GetFromJsonAsync<JsonElement>("/api/notifications/alerts?pageSize=100");
+        var alert = alerts.GetProperty("items").EnumerateArray().Single(a => a.GetProperty("id").GetGuid() == DemoDataset.Id("notification0"));
+        Assert.Equal(farm, alert.GetProperty("farmId").GetGuid());
+        Assert.False(alert.GetProperty("shouldInterrupt").GetBoolean()); // synthetic records are never real warnings
+        Assert.Equal(HttpStatusCode.NoContent, (await client.PutAsync($"/api/notifications/{DemoDataset.Id("notification0")}/acknowledge", null)).StatusCode);
+        Assert.Equal(HttpStatusCode.NoContent, (await client.PutAsync($"/api/notifications/{DemoDataset.Id("notification0")}/acknowledge", null)).StatusCode);
+        using var outsider = await fixture.Client("applicant");
+        Assert.Equal(HttpStatusCode.NotFound, (await outsider.GetAsync($"/api/farms/{farm}/weather/records")).StatusCode);
+        Assert.Equal(HttpStatusCode.NotFound, (await outsider.PutAsync($"/api/notifications/{DemoDataset.Id("notification0")}/acknowledge", null)).StatusCode);
+        using var worker = await fixture.Client("worker");
+        using var scope = fixture.Factory.Services.CreateScope();
+        var db = scope.ServiceProvider.GetRequiredService<SmartFarmDbContext>();
+        var member = await db.FarmMembers.SingleAsync(m => m.Id == DemoDataset.Id("member0worker"));
+        member.RemovedAtUtc = DateTime.UtcNow; await db.SaveChangesAsync();
+        try
+        {
+            var result = await worker.GetFromJsonAsync<JsonElement>("/api/notifications/alerts");
+            Assert.DoesNotContain(result.GetProperty("items").EnumerateArray(), a => a.GetProperty("id").GetGuid() == DemoDataset.Id("reminder"));
+            Assert.Equal(HttpStatusCode.NotFound, (await worker.PutAsync($"/api/notifications/{DemoDataset.Id("reminder")}/acknowledge", null)).StatusCode);
+            var legacy = await worker.GetFromJsonAsync<JsonElement>("/api/notifications");
+            Assert.DoesNotContain(legacy.EnumerateArray(), a => a.GetProperty("id").GetGuid() == DemoDataset.Id("reminder"));
+        }
+        finally { member.RemovedAtUtc = null; await db.SaveChangesAsync(); }
+    }
+
 }

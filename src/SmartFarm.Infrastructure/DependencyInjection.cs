@@ -64,6 +64,9 @@ public static class DependencyInjection
     public static IServiceCollection AddSmartFarmBusinessServices(this IServiceCollection services)
     {
         services.AddSmartFarmRepositories();
+        services.AddSingleton(TimeProvider.System);
+        services.AddScoped<SmartFarm.Infrastructure.Services.Weather.WeatherFeedService>();
+        services.AddScoped<SmartFarm.Infrastructure.Services.Queries.NotificationAlertService>();
         services.AddScoped<SmartFarm.Infrastructure.Identity.UserPreferencesService>();
         services.AddScoped<SmartFarm.Infrastructure.Services.Queries.FarmRecordQueryService>();
         services.AddScoped<IFarmAccessService, FarmAccessService>();

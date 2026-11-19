@@ -97,7 +97,7 @@ public sealed class FarmRecordQueryService(SmartFarmDbContext db, IFarmAccessSer
     {
         try { p.Validate(); } catch (ArgumentException e) { throw new FarmOperationException(FarmError.InvalidInput, e.Message); }
         if (actor == Guid.Empty) throw new FarmOperationException(FarmError.NotFound, "Resource not found.");
-        var q = db.Notifications.AsNoTracking().Where(n => n.UserId == actor &&
+        var q = NotificationVisibility.ForActor(db, actor).AsNoTracking().Where(n =>
             (p.Type == null || n.Type == p.Type) && (p.Unread == null || (n.ReadAtUtc == null) == p.Unread) &&
             (p.Search == null || n.Title.Contains(p.Search) || n.Message.Contains(p.Search)));
         return await Page(p.Sort == "asc" ? q.OrderBy(n => n.CreatedAtUtc).ThenBy(n => n.Id) : q.OrderByDescending(n => n.CreatedAtUtc).ThenByDescending(n => n.Id), p,
