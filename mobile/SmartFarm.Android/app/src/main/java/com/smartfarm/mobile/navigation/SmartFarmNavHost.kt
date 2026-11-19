@@ -307,7 +307,8 @@ fun SmartFarmNavHost(auth: AuthViewModel, farms: FarmViewModel, crops: CropViewM
             onNotifications = { navController.openSecondary("notifications") },
             queuedCount = accountQueue.total,
             reviewCount = accountQueue.needsReview,
-            onSync = { navController.openSecondary("sync") })) {
+            onSync = { navController.openSecondary("sync") },
+            onAccount = { navController.openSecondary("account") })) {
     Row(Modifier.fillMaxSize().padding(workspacePadding)) {
     if (state.account != null && showFarmTabs && expandedWorkspace) {
         FarmWorkspaceBar(selectedRoute = currentRoute.orEmpty(), onNavigate = navigateWorkspace, expanded = true)
