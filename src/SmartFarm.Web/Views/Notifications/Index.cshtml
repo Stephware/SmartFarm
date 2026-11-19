@@ -95,13 +95,13 @@
                 {
                     <a asp-controller="Notifications" asp-action="Index"
                        asp-route-view="@(unreadOnly ? "unread" : null)"
-                       asp-route-page="@(currentPage - 1)" rel="prev">Previous</a>
+                       asp-route-page="@(currentPage - 1)" asp-fragment="notifications-list-heading" rel="prev">Previous</a>
                 }
                 @if (currentPage < pageCount)
                 {
                     <a asp-controller="Notifications" asp-action="Index"
                        asp-route-view="@(unreadOnly ? "unread" : null)"
-                       asp-route-page="@(currentPage + 1)" rel="next">Next</a>
+                       asp-route-page="@(currentPage + 1)" asp-fragment="notifications-list-heading" rel="next">Next</a>
                 }
             </nav>
         }
