@@ -237,7 +237,7 @@ fun AniGoOnboardingScreen(
                     )
                 } else {
                     GuidePageContent(
-                        page = page - if (includeWelcome) 1 else 0,
+                        page = page - (if (includeWelcome) 1 else 0),
                         dark = dark, ink = foreground, secondary = secondary,
                         pageActive = selectedPage == page && !changingPage,
                         activityResumed = activityResumed,
