@@ -119,7 +119,9 @@ fun AniGoOnboardingScreen(
     modifier: Modifier = Modifier,
     motionAllowed: Boolean = anigoMotionAllowed(),
     introAutoPlay: Boolean = true,
-    includeWelcome: Boolean = true
+    includeWelcome: Boolean = true,
+    completionLabel: String = "Continue to AniGo",
+    skipLabel: String = "Skip"
 ) {
     // The intro is a one-shot before the four learning pages, not a fifth page.
     // The OS reduced-motion setting can bypass it; completion survives rotation.
@@ -210,7 +212,7 @@ fun AniGoOnboardingScreen(
                     enabled = !exiting,
                     modifier = Modifier.heightIn(min = 48.dp)
                 ) {
-                    Text("Skip", color = secondary)
+                    Text(skipLabel, color = secondary)
                 }
             }
             if (!shortWindow) {
@@ -293,7 +295,7 @@ fun AniGoOnboardingScreen(
                         containerColor = if (dark) AniGoPalette.darkAction else Pine,
                         contentColor = Color.White)
                 ) {
-                    Text(if (selectedPage == pageCount - 1) "Continue to AniGo" else "Next →",
+                    Text(if (selectedPage == pageCount - 1) completionLabel else "Next →",
                         fontWeight = FontWeight.Bold)
                 }
             }
