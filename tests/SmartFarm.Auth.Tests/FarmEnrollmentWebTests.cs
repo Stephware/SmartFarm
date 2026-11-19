@@ -788,6 +788,31 @@ public sealed partial class FarmEnrollmentWebTests
         Assert.Contains("Task marked completed.", after);
     }
 
+    [Fact]
+    public async Task CalendarTaskDeepLinkSelectsContainingPageWithStableOrdering()
+    {
+        var date = new DateOnly(2026, 11, 13);
+        var tasks = Enumerable.Range(0, 25).Select(index =>
+            new FarmTaskDetails(Guid.NewGuid(), FarmId, null, Actor,
+                2, date, 0, "Check farm area " + index,
+                DateTime.UtcNow, null, "v")).ToArray();
+        var ordered = tasks.OrderBy(task => task.Id).ToArray();
+        var first = ordered[0];
+        var target = ordered[^1];
+        using var app = App("Owner", taskList: tasks);
+        using var client = app.CreateClient();
+        var url = $"/Tasks?farmId={FarmId}&view=all&date=2026-11-13&taskId={target.Id}";
+        var html = await client.GetStringAsync(url);
+        Assert.Contains("Tasks for Fri, Nov 13, 2026", html);
+        Assert.Contains("Page 3 of 3", html);
+        Assert.Contains("id=\"task-" + target.Id + "\"", html);
+        Assert.DoesNotContain("id=\"task-" + first.Id + "\"", html);
+
+        var explicitFirstPage = await client.GetStringAsync(url + "&page=1");
+        Assert.Contains("Page 1 of 3", explicitFirstPage);
+        Assert.DoesNotContain("id=\"task-" + target.Id + "\"", explicitFirstPage);
+    }
+
     [Theory]
     [InlineData(true)]
     [InlineData(false)]
@@ -1753,7 +1778,14 @@ public sealed partial class FarmEnrollmentWebTests
         var reportHtml = await client.GetStringAsync($"/Reports/Harvests?farmId={FarmId}");
 
         Assert.Contains("ani12e-task-workspace", tasks);
-        Assert.Contains("ani12e-mobile-agenda", tasks);
+        Assert.Contains("calendar=open", tasks);
+        Assert.DoesNotContain("ani12e-mobile-agenda", tasks); // Calendar stays closed until requested.
+        var openCalendar = await client.GetStringAsync($"/Tasks?farmId={FarmId}&view=all&calendar=open&month=2026-11");
+        Assert.Contains("ani12e-mobile-agenda", openCalendar);
+        var selectedDay = await client.GetStringAsync($"/Tasks?farmId={FarmId}&view=all&date=2026-11-13");
+        Assert.Contains("Tasks for Fri, Nov 13, 2026", selectedDay);
+        Assert.Contains("Water North plot", selectedDay);
+        Assert.DoesNotContain("ani12e-mobile-agenda", selectedDay);
         Assert.Contains("Water North plot", tasks);
         Assert.Contains("ani12e-recording-grid", monitoring);
         Assert.Contains("ani12e-photo-panel", monitoring);

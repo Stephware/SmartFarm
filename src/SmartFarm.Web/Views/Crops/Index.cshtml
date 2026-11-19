@@ -13,6 +13,20 @@
     var selectedPlotCycle = selectedPlot is null ? null :
         currentCycles.FirstOrDefault(c => c.PlotId == selectedPlot.Id);
     var finishedCycles = Model.Cycles.Count(c => c.Status is not (CropCycleStatus.Active or CropCycleStatus.Planned));
+    var allCycleRecords = Model.Cycles
+        .OrderBy(c => c.Status is CropCycleStatus.Active or CropCycleStatus.Planned ? 0 : 1)
+        .ThenByDescending(c => c.PlantedDate ?? c.PlannedPlantingDate).ToList();
+    const int cyclePageSize = 12;
+    var cyclePageCount = Math.Max(1, (allCycleRecords.Count + cyclePageSize - 1) / cyclePageSize);
+    Guid? focusedCycleId = Model.TransitionCycleId;
+    if (focusedCycleId is null && Guid.TryParse(Context.Request.Query["cycleId"].ToString(), out var requestedCycleId))
+        focusedCycleId = requestedCycleId;
+    var matchingCycleIndex = focusedCycleId is { } focusedId
+        ? allCycleRecords.FindIndex(c => c.Id == focusedId) : -1;
+    var requestedCyclePage = int.TryParse(Context.Request.Query["page"].ToString(), out var parsedCyclePage)
+        ? parsedCyclePage : matchingCycleIndex >= 0 ? matchingCycleIndex / cyclePageSize + 1 : 1;
+    var currentCyclePage = Math.Clamp(requestedCyclePage, 1, cyclePageCount);
+    var visibleCycles = allCycleRecords.Skip((currentCyclePage - 1) * cyclePageSize).Take(cyclePageSize).ToList();
 }
 <div class="reference-screen reference-screen-crops ani12d-crop-workspace ani-p2-page ani-p2-crops">
 <partial name="_FarmNavigation" model="Model.Farm.Id" />
@@ -226,16 +240,15 @@
 </section>
 }
 
-<details class="mvp-workspace-details" open="@(Model.TransitionCycleId is not null)">
+<details class="mvp-workspace-details" open="@(Model.TransitionCycleId is not null || Context.Request.Query.ContainsKey("page"))">
     <summary>Crop records and status (@Model.Cycles.Count)</summary>
 <section class="panel card sf-crop-cycles ani12d-crop-records" aria-labelledby="crop-cycles-heading">
     <div class="sf-section-line card-head"><div><h2 id="crop-cycles-heading">Crop records</h2>
         <p class="sf-muted">Open a crop for monitoring or harvests. Owners and managers can update its planting status.</p></div>
-        <span class="sf-muted">@Model.Cycles.Count total · @finishedCycles finished/ended</span></div>
+        <span class="sf-muted">@visibleCycles.Count on this page · @Model.Cycles.Count total · @finishedCycles finished/ended</span></div>
     @if (Model.Cycles.Count == 0) { <p>No crop cycles have been planned yet.</p> }
     <div class="sf-crop-card-grid reference-cycle-grid ani12d-record-grid">
-    @foreach (var cycle in Model.Cycles.OrderBy(c => c.Status is CropCycleStatus.Active or CropCycleStatus.Planned ? 0 : 1)
-        .ThenByDescending(c => c.PlantedDate ?? c.PlannedPlantingDate))
+    @foreach (var cycle in visibleCycles)
     {
         <article class="crop-cycle sf-crop-record ani-crop-record ani12d-record" id="crop-cycle-@cycle.Id">
             <div class="sf-crop-card-heading">
@@ -324,6 +337,22 @@
         </article>
     }
     </div>
+    @if (cyclePageCount > 1)
+    {
+        <nav class="ani-p4-pager ani-f2-pager" aria-label="Crop record pages">
+            <span>Page @currentCyclePage of @cyclePageCount</span>
+            @if (currentCyclePage > 1)
+            {
+                <a asp-controller="Crops" asp-action="Index" asp-route-farmId="@Model.Farm.Id"
+                   asp-route-page="@(currentCyclePage - 1)" asp-fragment="crop-cycles-heading" rel="prev">Previous</a>
+            }
+            @if (currentCyclePage < cyclePageCount)
+            {
+                <a asp-controller="Crops" asp-action="Index" asp-route-farmId="@Model.Farm.Id"
+                   asp-route-page="@(currentCyclePage + 1)" asp-fragment="crop-cycles-heading" rel="next">Next</a>
+            }
+        </nav>
+    }
 </section>
 </details>
 

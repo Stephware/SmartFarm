@@ -37,7 +37,7 @@ public sealed class UiOverhaulPageTests : IClassFixture<WebApplicationFactory<Pr
         Assert.Contains("href=\"#main-content\"", html);
         Assert.Contains("id=\"main-content\"", html);
         Assert.Contains("tabindex=\"-1\"", html);
-        Assert.Contains(path == "/" ? "aria-label=\"Landing page sections\"" : "aria-label=\"Account actions\"", html);
+        Assert.Contains("aria-label=\"Account actions\"", html);
         Assert.Contains("/css/anigo-tailwind.css", html);
         Assert.Contains("/Account/Login", html);
         Assert.Contains("/Account/Register", html);

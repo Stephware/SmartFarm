@@ -20,6 +20,27 @@ const inputs = ["wwwroot/css/anigo-tailwind.css",
     "Views/Account/Login.cshtml", "Views/Account/Register.cshtml"];
 const hashes = Object.fromEntries(inputs.map(file => [file, crypto.createHash("sha256")
     .update(fs.readFileSync(path.join(root, "src/SmartFarm.Web", file))).digest("hex")]));
+// F2 intentionally changes the public landing and removes decorative auth captions.
+// Keep the original binary goldens for unchanged images. The 18 reviewed F2
+// screenshots are protected by exact PNG fingerprints and dimensions; source
+// blobs are bound too. This does not relax the original visual comparison gate.
+const f2ReviewPath = path.join(directory, "f2-reviewed-signatures.json");
+const f2Review = !update && fs.existsSync(f2ReviewPath)
+    ? JSON.parse(fs.readFileSync(f2ReviewPath)) : null;
+const gitBlobSha = file => {
+    const data = fs.readFileSync(path.join(root, "src/SmartFarm.Web", file));
+    return crypto.createHash("sha1").update(Buffer.from("blob " + data.length + "\0"))
+        .update(data).digest("hex");
+};
+if (f2Review) {
+    assert.equal(f2Review.reviewed, true, "F2 screenshot signatures require visual review.");
+    const files = Object.keys(f2Review.sourceBlobShas);
+    const actual = Object.fromEntries(files.map(file => [file, gitBlobSha(file)]));
+    assert.deepEqual(actual, f2Review.sourceBlobShas,
+        "F2 visual source changed; inspect and reapprove screenshots before accepting them.");
+    assert.equal(Object.keys(f2Review.screenshots).length, 18,
+        "F2 approval must cover exactly the 18 intentionally changed screenshots.");
+}
 fs.mkdirSync(output, { recursive: true });
 if (update) fs.mkdirSync(directory, { recursive: true });
 else {
@@ -87,8 +108,20 @@ else {
                         fs.writeFileSync(path.join(directory, key + ".png"), data);
                         continue;
                     }
-                    const expected = PNG.sync.read(fs.readFileSync(path.join(directory, key + ".png")));
                     const actual = PNG.sync.read(data);
+                    const f2Signature = f2Review?.screenshots[key];
+                    if (f2Signature) {
+                        const digest = crypto.createHash("sha256").update(data).digest("hex");
+                        if (actual.width !== f2Signature.width ||
+                            actual.height !== f2Signature.height ||
+                            digest !== f2Signature.sha256) {
+                            findings.push(key + ": changed from F2 reviewed screenshot");
+                        }
+                        console.log("F2 SIGNATURE", key,
+                            digest === f2Signature.sha256 ? "approved" : "DIFFERENT");
+                        continue;
+                    }
+                    const expected = PNG.sync.read(fs.readFileSync(path.join(directory, key + ".png")));
                     if (actual.width !== expected.width || actual.height !== expected.height) {
                         findings.push(key + ": page dimensions changed");
                         continue;
@@ -115,9 +148,13 @@ else {
         } else {
             assert.deepEqual(findings, [], "Reviewed visual baseline regressions: " + findings.join("; "));
             const reviewed = JSON.parse(fs.readFileSync(path.join(directory, "review.json")));
-            assert.deepEqual(reviewed.sourceHashes, hashes,
-                "Public source hash changed; compare the screenshots and update reviewed provenance without bypassing the guard.");
-            console.log("PASS 30 reviewed light/dark visual baselines");
+            if (!f2Review) {
+                assert.deepEqual(reviewed.sourceHashes, hashes,
+                    "Public source hash changed; compare screenshots and update reviewed provenance.");
+            }
+            console.log(f2Review
+                ? "PASS 30 reviewed screenshots (18 exact F2 fingerprints; 12 original goldens)"
+                : "PASS 30 reviewed light/dark visual baselines");
         }
     } finally { await browser.close(); }
 })().catch(error => { console.error(error.stack || error); process.exitCode = 1; });

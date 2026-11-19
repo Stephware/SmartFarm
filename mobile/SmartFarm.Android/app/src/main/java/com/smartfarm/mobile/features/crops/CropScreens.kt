@@ -137,6 +137,7 @@ fun CropScreen(
         else -> emptyList()
     }
     val browse = selectedView in setOf("growing", "planned", "history")
+    var displayedLimit by rememberSaveable(state.farmId, selectedView) { mutableStateOf(20) }
     RecordPage(title = "Crops", onBack = onBack) {
         item(key = "overview") {
             Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
@@ -223,7 +224,7 @@ fun CropScreen(
         }
 
         if (browse) {
-            items(displayed, key = { "crop-${it.id}" }) { cycle ->
+            items(displayed.take(displayedLimit), key = { "crop-${it.id}" }) { cycle ->
                 Column(Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(8.dp)) {
                     OutlinedCard(onClick = {
                         selectedCycleId = if (selectedCycleId == cycle.id) null else cycle.id
@@ -269,6 +270,12 @@ fun CropScreen(
                                 onUpdatePlan, onTransition, onMonitoring, onHarvests, onQuickMonitoring)
                         }
                     }
+                }
+            }
+            if (displayed.size > displayedLimit) item(key = "crops-more") {
+                OutlinedButton(onClick = { displayedLimit += 20 },
+                    modifier = Modifier.fillMaxWidth().defaultMinSize(minHeight = 48.dp)) {
+                    Text("Show 20 more crop records (${displayed.size - displayedLimit} remaining)")
                 }
             }
         }

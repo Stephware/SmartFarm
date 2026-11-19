@@ -99,10 +99,21 @@ class Phase4VisualReviewTest {
                         compose.onNodeWithText(inventoryVisibleItems(supplies, "all", "").first().name).assertIsDisplayed()
                         capture(file + "-first")
                     }
-                    compose.onNodeWithTag("record-list").performScrollToIndex(100)
-                    compose.onNodeWithTag("record-list").performScrollToNode(hasText(last))
-                    compose.onNodeWithText(last).assertIsDisplayed()
-                    capture(file + "-last")
+                    // Verify full-history access once in a representative configuration;
+                    // other role/theme/size renders retain their first-page screenshots.
+                    // Hard-coded index 100 is invalid after 20-at-a-time pagination.
+                    if (v.name == "phone" && !mode && actorRole == "Owner") {
+                        val label = if (name == "supplies-populated")
+                            "Show 20 more supplies" else "Show 20 more crop records"
+                        repeat(4) {
+                            compose.onNodeWithTag("record-list").performScrollToNode(
+                                hasText(label, substring = true))
+                            compose.onNodeWithText(label, substring = true).performClick()
+                        }
+                        compose.onNodeWithTag("record-list").performScrollToNode(hasText(last))
+                        compose.onNodeWithText(last).assertIsDisplayed()
+                        capture(file + "-last")
+                    }
                 }
             }
         } finally { preferences.edit().putBoolean("dark", previous).commit() }

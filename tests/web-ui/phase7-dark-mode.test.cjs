@@ -70,9 +70,11 @@ test("Phase 7 Android follows charcoal-first system without changing light palet
   assert.match(light, /surface = Color\.White/);
 });
 
-test("Approved Phase 6 photography and route-oriented landing remain untouched", () => {
+test("F2 retains approved local photography and real entry routes without redundant landing sections", () => {
   const landing = read("src/SmartFarm.Web/Views/Home/Index.cshtml");
+  const register = read("src/SmartFarm.Web/Views/Account/Register.cshtml");
   assert.match(landing, /fields-hero\.webp/);
-  assert.match(landing, /farmers-working\.webp/);
+  assert.match(register, /farmers-working\.webp/);
   assert.match(landing, /asp-route-returnUrl=/);
+  assert.doesNotMatch(landing, /Photo credits and sources|See how it works/);
 });

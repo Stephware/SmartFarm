@@ -29,7 +29,8 @@ const widths = [320, 375, 768, 1024, 1440];
         });
         assert.equal(await page.locator("#ani-entry-title").count(), 1);
         assert.equal(await page.locator(".ani6-features .ani6-feature").count(), 4);
-        assert.equal(await page.locator(".ani6-steps .ani6-step").count(), 3);
+        assert.equal(await page.locator(".ani6-steps .ani6-step").count(), 0,
+          "Redundant workflow section was deliberately removed in F2");
         assert.equal(await page.locator(".ani6-paths .ani6-path").count(), 2);
         assert.equal(await page.locator(".ani6-hero-image").count(), 1);
         const heroLoaded = await page.locator(".ani6-hero-image").evaluate(img => img.naturalWidth > 0);
@@ -45,17 +46,25 @@ const widths = [320, 375, 768, 1024, 1440];
         assert.equal(await page.evaluate(() => document.documentElement.scrollWidth > innerWidth),
           false, `no horizontal overflow at ${width}/${mode}`);
         assert.equal(await page.locator("html").getAttribute("data-color-mode"), mode);
-        if (width <= 850) {
-          const menu = page.locator(".ani6-mobile-menu");
+        const menu = page.locator(".ani6-mobile-menu");
+        if (width <= 600) {
+          assert.equal(await menu.locator("summary").isVisible(), true,
+            "Compact mobile menu remains accessible");
           await menu.locator("summary").click();
           assert.equal(await menu.locator('a[href="/Account/Login"]').isVisible(), true,
             "Mobile menu retains direct login access");
           assert.equal(await menu.locator("button[data-color-mode-toggle]").count(), 1,
             "Mobile menu retains appearance switching");
           await menu.locator("summary").click();
+        } else {
+          assert.equal(await page.locator(".ani6-account-links .ani6-login").isVisible(), true,
+            "Login remains visible on larger viewports");
         }
-        for (const id of ["home", "features", "how-it-works", "about", "contact"]) {
-          assert.equal(await page.locator(`#${id}`).count(), 1, `anchor ${id}`);
+        for (const id of ["home", "features", "get-started"]) {
+          assert.equal(await page.locator(`#${id}`).count(), 1, `active section ${id}`);
+        }
+        for (const id of ["how-it-works", "about", "contact"]) {
+          assert.equal(await page.locator(`#${id}`).count(), 0, `removed section ${id}`);
         }
         const a11y = await new AxeBuilder({ page }).withTags(["wcag2a", "wcag2aa", "wcag21a", "wcag21aa"])
           .analyze();

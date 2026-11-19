@@ -4,6 +4,7 @@ import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.hasText
+import androidx.compose.ui.test.hasClickAction
 import androidx.compose.ui.test.performScrollToNode
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollTo
@@ -47,13 +48,19 @@ class DailyWorkScreenTest {
             }
         }
         compose.onNodeWithText("Calendar").performScrollTo().performClick()
-        // Calendar items live in a LazyColumn: scroll by matching the item before
-        // querying its child semantics (which may not yet be composed).
+        val today = TaskWorkCenter.today("Asia/Manila")
+        compose.onNodeWithTag("record-list").performScrollToNode(hasText("Show today's tasks"))
+        compose.onNodeWithTag("task-calendar-picker").assertExists()
+        compose.onNodeWithText("Show today's tasks").performClick()
+        compose.onNodeWithText("Task calendar").assertDoesNotExist()
         compose.onNodeWithTag("record-list").performScrollToNode(
-            hasText("Assignments on " + TaskWorkCenter.today("Asia/Manila")))
-        compose.onNodeWithText("Assignments on " + TaskWorkCenter.today("Asia/Manila")).assertExists()
+            hasText("Assignments on " + today))
+        compose.onNodeWithText("Assignments on " + today).assertExists()
         compose.onNodeWithTag("record-list").performScrollToNode(hasText("Inspect the rows"))
         compose.onNodeWithText("Inspect the rows").assertExists()
+        compose.onNodeWithText("Change date").performScrollTo().performClick()
+        compose.onNodeWithTag("record-list").performScrollToNode(hasText("Show today's tasks"))
+        compose.onNodeWithTag("task-calendar-picker").assertExists()
     }
 
     @Test fun managerCanCreateTaskUsingExistingCallback() {

@@ -143,7 +143,7 @@
             }
             else
             {
-                <ul class="sf-home-task-list">
+                <ul class="sf-home-task-list ani-f2-today-scroll" tabindex="0" aria-label="Today's work — scroll to review tasks">
                 @foreach (var task in work.DueTasks)
                 {
                     <li class="@(task.DueDate < farm.FarmToday ? "ani-task-overdue" : "")">
@@ -168,6 +168,10 @@
                     </li>
                 }
                 </ul>
+                @if (work.OverdueCount + work.DueTodayCount > work.DueTasks.Count)
+                {
+                    <p class="ani-f2-list-note">Showing @work.DueTasks.Count of @(work.OverdueCount + work.DueTodayCount) due tasks. Open all tasks to review the rest.</p>
+                }
             }
             @if (work.UpcomingTasks.Count > 0)
             {
