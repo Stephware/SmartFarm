@@ -16,7 +16,7 @@
 <section class="panel card sf-notifications-hero ani-p2-hero" aria-labelledby="notifications-heading">
     <div class="sf-page-header page-hero">
         <div>
-            <p><a asp-controller="Farms" asp-action="Index">← My farms</a></p>
+            <p><a class="anigo-back-control" asp-controller="Farms" asp-action="Index" title="Back to my farms"><partial name="_Icon" model='@("chevLeft")' /><span class="visually-hidden">Back to my farms</span></a></p>
 
             <h1 id="notifications-heading">Notifications</h1>
             <p class="sf-muted">Recent updates and saved reminders for your farms.</p>
