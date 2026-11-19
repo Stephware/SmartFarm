@@ -174,7 +174,7 @@ fun FarmListScreen(state: FarmUiState, onOpen: (String) -> Unit,
                     }
                 }
                 if (state.farms.isNotEmpty()) {
-                    Text("Your farms (${state.farms.size})", style = MaterialTheme.typography.titleLarge,
+                    Text("Your farms", style = MaterialTheme.typography.titleLarge,
                         modifier = Modifier.semantics { heading() })
                 }
             }
