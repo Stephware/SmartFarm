@@ -108,6 +108,7 @@ fun InventoryListScreen(
         }
     }
     val visibleItems = inventoryVisibleItems(state.workspace.items, filter, search)
+    var visibleLimit by rememberSaveable(state.farmId, search, filter) { mutableStateOf(20) }
     val openingValid = opening.trim().toBigDecimalOrNull()?.let {
         it >= BigDecimal.ZERO && it.stripTrailingZeros().scale() <= 3 &&
             it <= BigDecimal("999999999999999.999")
@@ -172,7 +173,7 @@ fun InventoryListScreen(
                         }
                     }
                 }
-                Text("${visibleItems.size} of ${state.workspace.items.size} supplies shown",
+                Text("${visibleItems.take(visibleLimit).size} of ${visibleItems.size} matching supplies (${state.workspace.items.size} total)",
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant)
                 }
@@ -259,7 +260,7 @@ fun InventoryListScreen(
                 }
             }
         }
-        items(visibleItems, key = { "stock-${it.id}" }) { item ->
+        items(visibleItems.take(visibleLimit), key = { "stock-${it.id}" }) { item ->
             OutlinedCard(onClick = { onOpen(item.id) }, modifier = Modifier.fillMaxWidth().testTag("record-card")) {
                 Column(Modifier.fillMaxWidth().padding(14.dp),
                     verticalArrangement = Arrangement.spacedBy(8.dp)) {
