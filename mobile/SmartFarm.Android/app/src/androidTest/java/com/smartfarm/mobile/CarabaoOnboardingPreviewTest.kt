@@ -16,6 +16,7 @@ import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsNotEnabled
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithText
+import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollTo
@@ -50,6 +51,7 @@ import com.smartfarm.mobile.ui.components.onboarding.AniGoWelcomePage
 import com.smartfarm.mobile.ui.components.onboarding.anigoMotionAllowed
 import com.smartfarm.mobile.ui.theme.SmartFarmTheme
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertTrue
 import org.junit.Rule
 import org.junit.Test
 
@@ -774,15 +776,46 @@ class CarabaoOnboardingPreviewTest {
                     }
                 }
             }
-            compose.onNodeWithText("A better way to care for your farm.")
-                .performScrollTo().assertIsDisplayed()
+            compose.onNodeWithText("A better way to care for your farm.").assertIsDisplayed()
+            compose.onNodeWithText("Your farm, your crops, your progress").assertIsDisplayed()
             compose.onNodeWithText("Skip intro").assertIsDisplayed()
+            assertLandscapeIntroMascotFullyVisible()
             saveScreenshot("intro-landscape-dark-large-text")
-            compose.onNodeWithText("Your farm, your crops, your progress")
-                .performScrollTo().assertIsDisplayed()
             compose.onNodeWithText("Skip intro").performClick()
             compose.runOnIdle { assertEquals(1, finishes) }
         }
+    }
+
+    @Test
+    fun compactLightLandscapeIntroShowsFullMascotAndReadableCopy() {
+        withAppearance(dark = false) {
+            compose.setContent {
+                DeviceConfigurationOverride(DeviceConfigurationOverride.ForcedSize(DpSize(720.dp, 400.dp))) {
+                    DeviceConfigurationOverride(DeviceConfigurationOverride.FontScale(1.6f)) {
+                        SmartFarmTheme {
+                            AniGoFarmIntro(onFinished = {}, motionAllowed = true,
+                                autoPlay = false, previewProgress = .91f)
+                        }
+                    }
+                }
+            }
+            compose.onNodeWithText("A better way to care for your farm.").assertIsDisplayed()
+            compose.onNodeWithText("Your farm, your crops, your progress").assertIsDisplayed()
+            compose.onNodeWithText("Skip intro").assertIsDisplayed()
+            assertLandscapeIntroMascotFullyVisible()
+            saveScreenshot("intro-landscape-light-large-text")
+        }
+    }
+
+    private fun assertLandscapeIntroMascotFullyVisible() {
+        val mascot = compose.onNodeWithTag("anigo-intro-landscape-mascot")
+            .assertIsDisplayed().fetchSemanticsNode().boundsInRoot
+        val screen = compose.onRoot().fetchSemanticsNode().boundsInRoot
+        assertTrue(
+            "AniGo mascot must fit entirely within short-landscape viewport",
+            mascot.left >= screen.left && mascot.right <= screen.right &&
+                mascot.top >= screen.top && mascot.bottom <= screen.bottom
+        )
     }
 
     @Test
