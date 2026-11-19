@@ -2,7 +2,7 @@
 @{
     ViewData["Title"] = "Support request";
 }
-<a class="admin-back" asp-area="" asp-controller="Support" asp-action="History">← Previous requests</a>
+<a class="admin-back anigo-back-control" asp-area="" asp-controller="Support" asp-action="History" title="Back to previous requests"><partial name="_Icon" model='@("chevLeft")' /><span class="visually-hidden">Back to previous requests</span></a>
 <div class="page-heading admin-page-heading">
     <div><p class="sf-kicker">@Model.Ticket.Category.ToUpperInvariant() SUPPORT</p><h1>@Model.Ticket.Title</h1>
         <p class="sf-muted">Sent @Model.Ticket.CreatedAtUtc.ToString("MMM d, yyyy") UTC
