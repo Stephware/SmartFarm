@@ -213,7 +213,8 @@ fun FarmHero(title: String, subtitle: String, modifier: Modifier = Modifier) {
 data class FarmHeaderNavigation(
     val farmName: String?, val onFarms: () -> Unit, val onNotifications: () -> Unit,
     val queuedCount: Int = 0, val reviewCount: Int = 0,
-    val onSync: (() -> Unit)? = null
+    val onSync: (() -> Unit)? = null,
+    val onAccount: (() -> Unit)? = null
 )
 val LocalFarmHeaderNavigation = compositionLocalOf<FarmHeaderNavigation?> { null }
 
@@ -286,6 +287,12 @@ fun FarmAppBar(modifier: Modifier = Modifier, title: String? = null,
                         modifier = Modifier.semantics { contentDescription = "Notifications" }) {
                         FarmLineIcon(FarmSymbol.Bell)
                     }
+                    navigation.onAccount?.let { openAccount ->
+                        androidx.compose.material3.IconButton(onClick = openAccount,
+                            modifier = Modifier.semantics { contentDescription = "My account" }) {
+                            FarmLineIcon(FarmSymbol.Account)
+                        }
+                    }
                 }
             }
             androidx.compose.material3.HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
@@ -293,7 +300,7 @@ fun FarmAppBar(modifier: Modifier = Modifier, title: String? = null,
     }
 }
 
-enum class FarmSymbol { Crop, Plots, Tasks, Clock, Stock, Weather, Reports, Offline, Bell, ChevronRight }
+enum class FarmSymbol { Crop, Plots, Tasks, Clock, Stock, Weather, Reports, Offline, Bell, ChevronRight, Account }
 
 /** One stroke system for metrics, shortcuts and offline indicators. */
 @Composable
@@ -339,6 +346,15 @@ fun FarmLineIcon(symbol: FarmSymbol, modifier: Modifier = Modifier, tint: Color 
                     cubicTo(17*u,2*u,7*u,2*u,7*u,9*u); lineTo(7*u,13*u); close()
                 }
                 drawPath(bell,tint,style=Stroke(stroke)); line(10f,21f,14f,21f)
+            }
+            FarmSymbol.Account -> {
+                drawCircle(tint, 10*u, Offset(12*u,12*u), style = Stroke(stroke))
+                drawCircle(tint, 3*u, Offset(12*u,9*u), style = Stroke(stroke))
+                val shoulders = Path().apply {
+                    moveTo(5*u,19*u)
+                    cubicTo(5*u,14*u,19*u,14*u,19*u,19*u)
+                }
+                drawPath(shoulders, tint, style = Stroke(stroke))
             }
             FarmSymbol.ChevronRight -> {
                 val start = if (layoutDirection == LayoutDirection.Rtl) 15f else 9f
