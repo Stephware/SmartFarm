@@ -60,9 +60,9 @@
             if (event.defaultPrevented || form.method.toLowerCase() !== "post") return;
             let action;
             try { action = new URL(form.action || current.href, current); } catch { return; }
-            if (action.origin === current.origin && action.pathname === current.pathname) {
-                store(current, "submit");
-            }
+            // MVC often POSTS to a different action, then redirects to this same
+            // view. Keep its previous position without guessing redirect targets.
+            if (action.origin === current.origin) store(current, "submit");
         });
     }
 
