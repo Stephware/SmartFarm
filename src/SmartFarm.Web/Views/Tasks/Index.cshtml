@@ -44,11 +44,18 @@
         shown = Model.Tasks.Where(t => t.DueDate == activeDate).ToList();
     var ordered = shown.OrderBy(t => t.Status == 0 ? 0 : 1)
         .ThenBy(t => t.DueDate)
-        .ThenBy(t => t.AssignedToUserId == actorId ? 0 : 1).ToList();
+        .ThenBy(t => t.AssignedToUserId == actorId ? 0 : 1)
+        .ThenBy(t => t.Id).ToList();
     const int pageSize = 12;
     var paginates = selectedDay.HasValue || Model.SelectedView is "all" or "completed" or "upcoming";
     var pageCount = paginates ? Math.Max(1, (ordered.Count + pageSize - 1) / pageSize) : 1;
-    var requestedPage = int.TryParse(Context.Request.Query["page"], out var parsedPage) ? parsedPage : 1;
+    var requestedTaskId = Guid.TryParse(Context.Request.Query["taskId"].ToString(), out var selectedTaskId)
+        ? (Guid?)selectedTaskId : null;
+    var focusedTaskIndex = requestedTaskId is { } taskId
+        ? ordered.FindIndex(task => task.Id == taskId) : -1;
+    var requestedPage = int.TryParse(Context.Request.Query["page"], out var parsedPage)
+        ? parsedPage : focusedTaskIndex >= 0 && paginates
+            ? focusedTaskIndex / pageSize + 1 : 1;
     var currentPage = Math.Clamp(requestedPage, 1, pageCount);
     var visibleTasks = paginates
         ? ordered.Skip((currentPage - 1) * pageSize).Take(pageSize).ToList() : ordered;
@@ -324,7 +331,8 @@
                         <span><strong>@scheduled.TaskTypeName</strong><small>@scheduled.StatusName</small></span>
                         <a asp-action="Index" asp-route-farmId="@Model.Farm.Id" asp-route-view="all"
                            asp-route-date="@scheduled.DueDate.ToString("yyyy-MM-dd")"
-                           asp-fragment="task-list-heading">View date</a>
+                           asp-route-taskId="@scheduled.Id"
+                           asp-fragment="@("task-" + scheduled.Id)">View task</a>
                     </li>
                 }
                 </ol>
