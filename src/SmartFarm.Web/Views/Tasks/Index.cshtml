@@ -7,6 +7,13 @@
     if (calendarMonth is not null && DateOnly.TryParseExact(Context.Request.Query["month"] + "-01", "yyyy-MM-dd",
         System.Globalization.CultureInfo.InvariantCulture, System.Globalization.DateTimeStyles.None, out var selectedMonth)
         && selectedMonth.Year is >= 2000 and <= 2100) calendarMonth = selectedMonth;
+    DateOnly? selectedDay = null;
+    if (DateOnly.TryParseExact(Context.Request.Query["date"].ToString(), "yyyy-MM-dd",
+        System.Globalization.CultureInfo.InvariantCulture, System.Globalization.DateTimeStyles.None, out var chosenDate)
+        && chosenDate.Year is >= 2000 and <= 2100) selectedDay = chosenDate;
+    var calendarOpen = selectedDay is null && (Context.Request.Query["calendar"].ToString() == "open"
+        || Context.Request.Query.ContainsKey("month"));
+    if (selectedDay is { } dayToShow) calendarMonth = new DateOnly(dayToShow.Year, dayToShow.Month, 1);
     var canManage = Model.Farm.Role is "Owner" or "Manager";
     var actorId = Guid.TryParse(User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value, out var userId)
         ? userId : Guid.Empty;
@@ -33,9 +40,18 @@
         "completed" => Model.Tasks.Where(t => t.Status != 0).ToList(),
         _ => Model.Tasks.ToList()
     };
+    if (selectedDay is { } activeDate)
+        shown = Model.Tasks.Where(t => t.DueDate == activeDate).ToList();
     var ordered = shown.OrderBy(t => t.Status == 0 ? 0 : 1)
         .ThenBy(t => t.DueDate)
         .ThenBy(t => t.AssignedToUserId == actorId ? 0 : 1).ToList();
+    const int pageSize = 12;
+    var paginates = selectedDay.HasValue || Model.SelectedView is "all" or "completed" or "upcoming";
+    var pageCount = paginates ? Math.Max(1, (ordered.Count + pageSize - 1) / pageSize) : 1;
+    var requestedPage = int.TryParse(Context.Request.Query["page"], out var parsedPage) ? parsedPage : 1;
+    var currentPage = Math.Clamp(requestedPage, 1, pageCount);
+    var visibleTasks = paginates
+        ? ordered.Skip((currentPage - 1) * pageSize).Take(pageSize).ToList() : ordered;
 }
 <div class="reference-screen reference-screen-tasks ani12e-workspace ani12e-tasks">
 <partial name="_FarmNavigation" model="Model.Farm.Id" />
@@ -68,7 +84,7 @@
 <section class="panel card sf-task-panel ani12e-primary-panel" aria-labelledby="task-list-heading">
     <div class="sf-section-line card-head">
         <h2 id="task-list-heading">Work to do</h2>
-        <span>@shown.Count visible of @Model.Tasks.Count</span>
+        <span>@visibleTasks.Count on this page · @shown.Count matching of @Model.Tasks.Count</span>
     </div>
     <nav class="ani-task-tabs filter-row ani12e-filter-tabs" aria-label="Filter farm tasks">
         <a class="@(Model.SelectedView == "today" ? "is-selected" : "")"
@@ -96,7 +112,21 @@
            asp-controller="Tasks" asp-action="Index" asp-route-farmId="@Model.Farm.Id" asp-route-view="all" asp-fragment="task-list-heading">
             All <span>@Model.Tasks.Count</span>
         </a>
+        <a class="ani-f2-calendar-action @(calendarOpen ? "is-selected" : "")"
+           aria-current="@(calendarOpen ? "page" : null)"
+           asp-controller="Tasks" asp-action="Index" asp-route-farmId="@Model.Farm.Id"
+           asp-route-view="all" asp-route-calendar="open"
+           asp-route-month="@(calendarMonth?.ToString("yyyy-MM"))" asp-fragment="task-calendar-heading">Calendar</a>
     </nav>
+    @if (selectedDay is { } selectedDate)
+    {
+        <div class="ani-f2-selected-day" role="status">
+            <strong>Tasks for @selectedDate.ToString("ddd, MMM d, yyyy")</strong>
+            <a asp-action="Index" asp-route-farmId="@Model.Farm.Id" asp-route-view="all"
+               asp-route-calendar="open" asp-route-month="@selectedDate.ToString("yyyy-MM")"
+               asp-fragment="task-calendar-heading">Change date</a>
+        </div>
+    }
     @if (Model.Tasks.Count == 0)
     {
         <partial name="_UiEmptyState" model='@(new UiEmptyState(
@@ -106,7 +136,7 @@
             canManage ? "Add a task →" : null,
             canManage ? "#add-task" : null))' />
     }
-    else if (Model.FarmToday is null && Model.SelectedView is "today" or "upcoming")
+    else if (selectedDay is null && Model.FarmToday is null && Model.SelectedView is "today" or "upcoming")
     {
         <div class="sf-empty-state" role="status">
             <strong>Farm time zone unavailable.</strong>
@@ -117,8 +147,9 @@
     else if (shown.Count == 0)
     {
         <div class="sf-empty-state">
-            <strong>No tasks in this view.</strong>
-            <p>@(Model.SelectedView == "today" ? "Nothing is overdue or due today." :
+            <strong>@(selectedDay.HasValue ? "No tasks for this date." : "No tasks in this view.")</strong>
+            <p>@(selectedDay.HasValue ? "Select a different day from Calendar." :
+                 Model.SelectedView == "today" ? "Nothing is overdue or due today." :
                  Model.SelectedView == "mine" ? "No open tasks are assigned to you. Check due work or ask your farm manager about assignments." :
                  Model.SelectedView == "upcoming" ? "No upcoming work is scheduled." :
                  "No tasks have been closed yet.")</p>
@@ -128,7 +159,7 @@
     else
     {
         <ul class="sf-task-list checklist ani12e-task-list">
-        @foreach (var task in ordered)
+        @foreach (var task in visibleTasks)
         {
             <li id="task-@task.Id" class="sf-task-item ani12e-task-card @(task.Status == 0 ? "sf-task-open" : "sf-task-closed") @(task.Status == 0 && Model.FarmToday is { } date && task.DueDate < date ? "ani-task-urgent" : "")">
                 <div class="sf-task-main">
@@ -225,9 +256,27 @@
             </li>
         }
         </ul>
+        @if (pageCount > 1)
+        {
+            <nav class="ani-p4-pager ani-f2-pager" aria-label="Task result pages">
+                <span>Page @currentPage of @pageCount</span>
+                @if (currentPage > 1)
+                {
+                    <a asp-action="Index" asp-route-farmId="@Model.Farm.Id" asp-route-view="@Model.SelectedView"
+                       asp-route-date="@(selectedDay?.ToString("yyyy-MM-dd"))"
+                       asp-route-page="@(currentPage - 1)" asp-fragment="task-list-heading" rel="prev">Previous</a>
+                }
+                @if (currentPage < pageCount)
+                {
+                    <a asp-action="Index" asp-route-farmId="@Model.Farm.Id" asp-route-view="@Model.SelectedView"
+                       asp-route-date="@(selectedDay?.ToString("yyyy-MM-dd"))"
+                       asp-route-page="@(currentPage + 1)" asp-fragment="task-list-heading" rel="next">Next</a>
+                }
+            </nav>
+        }
     }
 </section>
-@if (calendarMonth is { } month)
+@if (calendarOpen && calendarMonth is { } month)
 {
     <section class="panel card reference-task-calendar ani12e-task-calendar" aria-labelledby="task-calendar-heading">
         <header class="reference-panel-heading"><h2 id="task-calendar-heading">Task calendar</h2></header>
@@ -245,13 +294,17 @@
                     var date = new DateOnly(month.Year, month.Month, day);
                     var due = Model.Tasks.Where(t => t.DueDate == date).OrderBy(t => t.Id).ToList();
                     <div class="cal-cell @(due.Count > 0 ? "has-events" : "") @(date == Model.FarmToday ? "is-today" : "")">
-                    @if (due.Count > 0) { <a asp-action="Index" asp-route-farmId="@Model.Farm.Id" asp-route-view="all" asp-route-month="@month.ToString("yyyy-MM")" asp-fragment="@("task-" + due[0].Id)" aria-label="@date.ToString("MMMM d"), @due.Count tasks"><time datetime="@date.ToString("yyyy-MM-dd")">@day</time><span class="calendar-event-dot" aria-hidden="true"></span></a> }
-                    else { <time datetime="@date.ToString("yyyy-MM-dd")">@day</time> }
+                    <a asp-action="Index" asp-route-farmId="@Model.Farm.Id" asp-route-view="all"
+                       asp-route-date="@date.ToString("yyyy-MM-dd")" asp-fragment="task-list-heading"
+                       aria-label="@date.ToString("MMMM d"), @due.Count tasks">
+                        <time datetime="@date.ToString("yyyy-MM-dd")">@day</time>
+                        @if (due.Count > 0) { <span class="calendar-event-dot" aria-hidden="true"></span> }
+                    </a>
                     </div>
                 }
             </div>
         </div>
-        <p class="hint">Dates use @Model.Farm.TimeZoneId. Select a marked date to open its task records.</p>
+        <p class="hint">Dates follow @Model.Farm.TimeZoneId. Select any date to see its tasks; the calendar closes after selection.</p>
         @{
             var monthTasks = Model.Tasks.Where(t => t.DueDate.Year == month.Year && t.DueDate.Month == month.Month)
                 .OrderBy(t => t.DueDate).ThenBy(t => t.Status).ToList();
@@ -270,7 +323,8 @@
                         <time datetime="@scheduled.DueDate.ToString("yyyy-MM-dd")">@scheduled.DueDate.ToString("MMM d")</time>
                         <span><strong>@scheduled.TaskTypeName</strong><small>@scheduled.StatusName</small></span>
                         <a asp-action="Index" asp-route-farmId="@Model.Farm.Id" asp-route-view="all"
-                           asp-fragment="@("task-" + scheduled.Id)">View task</a>
+                           asp-route-date="@scheduled.DueDate.ToString("yyyy-MM-dd")"
+                           asp-fragment="task-list-heading">View date</a>
                     </li>
                 }
                 </ol>
