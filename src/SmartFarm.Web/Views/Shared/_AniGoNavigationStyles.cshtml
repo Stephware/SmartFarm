@@ -1,0 +1,36 @@
+@* F0 navigation styles stay shared by farm and administration layouts.
+   Keep the generated Tailwind asset unchanged until the next approved design-system build. *@
+<style>
+a.anigo-back-control {
+    box-sizing: border-box;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    vertical-align: middle;
+    width: 44px;
+    height: 44px;
+    min-width: 44px;
+    min-height: 44px;
+    padding: 0;
+    border: 1px solid var(--ui-border, var(--stroke));
+    border-radius: 12px;
+    color: var(--ui-primary, var(--pine));
+    background: var(--ui-surface, var(--card));
+    text-decoration: none;
+    transition: background-color 140ms ease, border-color 140ms ease;
+}
+a.anigo-back-control:hover {
+    background: var(--ui-surface-subtle, var(--soft));
+    border-color: var(--ui-primary, var(--pine));
+    text-decoration: none;
+}
+a.anigo-back-control:focus-visible {
+    outline: 3px solid var(--focus);
+    outline-offset: 3px;
+}
+a.anigo-back-control .ico { width: 21px; height: 21px; flex: none; }
+.app-main [id], .admin-main [id] { scroll-margin-top: 100px; }
+@media (prefers-reduced-motion: reduce) {
+    a.anigo-back-control { transition: none; }
+}
+</style>
