@@ -78,7 +78,11 @@ public sealed class FormRecoveryTests
         using var app = CreateApp();
         using var client = app.CreateClient();
         var html = await client.GetStringAsync($"{path}?id={FarmId}&farmId={FarmId}&plotId={Cycle.PlotId}&cycleId={CycleId}");
-        var link = Regex.Match(html, "<a[^>]*class=\"ui-back-link\"[^>]*>" + label + "</a>").Value;
+        var link = Regex.Match(html,
+            "<a[^>]*class=\"[^\"]*ui-back-link[^\"]*\"[^>]*>.*?</a>",
+            RegexOptions.Singleline).Value;
+        Assert.Contains($"<span class=\"visually-hidden\">{label}</span>", link);
+        Assert.Contains("chevLeft", link);
         Assert.NotEmpty(link);
         Assert.Contains(parent, link);
         Assert.Contains(FarmId.ToString(), link);
