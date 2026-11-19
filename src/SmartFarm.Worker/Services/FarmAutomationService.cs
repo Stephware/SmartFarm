@@ -14,7 +14,7 @@ public sealed class FarmAutomationService(
     ILogger<FarmAutomationService> logger) : IFarmAutomationService
 {
     private static DateOnly LocalDate(Farm farm, DateTime utcNow) =>
-        SmartFarm.Core.Services.FarmTime.Today(utcNow, farm.TimeZoneId);
+        TaskRules.FarmDate(farm.TimeZoneId, utcNow);
 
     public async Task GenerateTasksAndRemindersAsync(CancellationToken ct = default)
     {

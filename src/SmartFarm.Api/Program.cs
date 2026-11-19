@@ -106,6 +106,7 @@ app.Use(async (context, next) =>
         context.Response.StatusCode = StatusCodes.Status503ServiceUnavailable;
         await context.Response.WriteAsJsonAsync(new
         {
+            code = "service.database_unavailable",
             status = "unhealthy",
             message = "SmartFarm database request failed. Check the API terminal and /health/database."
         });

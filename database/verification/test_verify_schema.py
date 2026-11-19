@@ -83,6 +83,14 @@ class SchemaTests(unittest.TestCase):
             with self.assertRaises(verifier.UnsupportedSql):
                 verifier.default_expression(value, value.split(' AS ')[1][:-1])
 
+    def test_live_integer_convert_defaults_match_exact_casts(self):
+        self.assertEqual(verifier.default_expression('CONVERT([tinyint],(0))', 'tinyint'), '0')
+        self.assertEqual(verifier.default_expression('CONVERT([bit],(1))', 'bit'), '1')
+        for expr, kind in [('CONVERT([tinyint],(256))', 'tinyint'), ('CONVERT([int],(1))', 'smallint'),
+                           ('CONVERT([int],(1),0)', 'int')]:
+            with self.assertRaises(verifier.UnsupportedSql):
+                verifier.default_expression(expr, kind)
+
     def test_literal_comma_and_comment_markers_preserved(self):
         sql = SIMPLE.replace('Name NVARCHAR(20) NOT NULL', "Name NVARCHAR(20) NOT NULL CONSTRAINT DF_Sample_Name DEFAULT (N'a,--b/*c*/')")
         self.assertEqual(verifier.parse_schema(sql)['columns'][('Sample', 'Name')]['default'],

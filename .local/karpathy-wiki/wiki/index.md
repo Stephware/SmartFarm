@@ -21,17 +21,17 @@ Architecture, behavior, conventions, decisions and dated implementation evidence
 | [Current source status](project/current-source-status.md) | Publication delta: admin/MFA, Android navigation, Tailwind, CI and extended-schema verifier limits | 2026-11-14 |
 | [Architecture](project/architecture.md) | Independent hosts, service boundaries, live farm access and private media | 2026-11-12 |
 | [Features](project/features.md) | Implemented modules, roles and critical business rules | 2026-11-14 |
-| [Database](project/database.md) | SQL-first base/finance split, issue upgrades, concurrency and migration boundaries | 2026-11-12 |
+| [Database](project/database.md) | SQL-first scope and guarded demo seeding; populated-local drift, disposable backup/apply evidence | 2026-11-20 |
 | [Android and offline sync](project/android.md) | Navigation/dirty-draft guards, Room/cache, scoped confirmations, receipts and session limits | 2026-11-19 |
-| [Tasks, weather, and automation](project/automation.md) | Enabled Worker defaults, task/stock/weather jobs, stored forecasts and notifications | 2026-11-12 |
-| [Dependencies and development](project/development.md) | Build pins, local hosts, checks, real CI scope and test isolation | 2026-11-16 |
+| [Tasks, weather, and automation](project/automation.md) | Saved-weather categories, current-access Ani alerts, optional guidance and retained Worker rules | 2026-11-20 |
+| [Dependencies and development](project/development.md) | B0–B5 strict disposable SQL, Release/Android checks and explicit provider/release limits | 2026-11-20 |
 | [Development decisions](project/decisions.md) | Implemented constraints, inferred consequences and integrated agent workflow | 2026-11-12 |
 | [Known issues and incomplete work](project/known-issues.md) | Current gaps versus resolved/historical failures and runtime unknowns | 2026-11-12 |
 | [Current progress](project/progress.md) | Confirmed PR61–78 provenance, Phases A–D, MVP stage status and dated results | 2026-11-14 |
 | [Functional verification](project/functional-verification.md) | Historical role/workflow runtime record, with current interpretation | 2026-11-11 |
 | [PR48 review](project/pr48-review.md) | Historical date-boundary fix/merge and scoped runtime evidence | 2026-11-11 |
 | [Frontend](project/frontend.md) | Phase 3–7 layouts/forms, charcoal themes, native dialog appearance, reviewed baselines and verification limits | 2026-11-16 |
-| [API contracts](project/api-contracts.md) | Routes, auth/errors, stable codes, compatibility and retry boundaries | 2026-11-12 |
+| [API contracts](project/api-contracts.md) | Backend pages/time/language, alerts, recovery and optional guidance; legacy sync compatibility | 2026-11-20 |
 | [Finance and reports](project/finance-reports.md) | Manual cash, unit/cycle-safe reports, platform parity and secure exports | 2026-11-14 |
 
 Maintenance/provenance: [runbook](../README.md), [source manifest](../source-manifest.json),

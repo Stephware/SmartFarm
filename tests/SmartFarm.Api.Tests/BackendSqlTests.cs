@@ -21,6 +21,7 @@ namespace SmartFarm.Api.Tests;
 
 public sealed class BackendSqlFixture : IAsyncLifetime
 {
+    private static readonly SemaphoreSlim SeedGate = new(1, 1);
     public WebApplicationFactory<Program>? Factory { get; private set; }
     public string? Connection => Environment.GetEnvironmentVariable("SMARTFARM_TEST_CONNECTION");
     public async Task InitializeAsync()
@@ -42,6 +43,9 @@ public sealed class BackendSqlFixture : IAsyncLifetime
                 services.AddDbContext<SmartFarmDbContext>(o => o.UseSqlServer(Connection));
             });
         });
+        await SeedGate.WaitAsync();
+        try
+        {
         using var scope = Factory.Services.CreateScope();
         var db = scope.ServiceProvider.GetRequiredService<SmartFarmDbContext>();
         if (await db.Farms.AnyAsync(f => f.Id == DemoDataset.Id("farm0"))) return;
@@ -49,6 +53,8 @@ public sealed class BackendSqlFixture : IAsyncLifetime
         foreach (var user in rows.OfType<SmartFarmUser>())
             user.PasswordHash = new PasswordHasher<SmartFarmUser>().HashPassword(user, "BackendTest2026!");
         db.AddRange(rows); await db.SaveChangesAsync();
+        }
+        finally { SeedGate.Release(); }
     }
     public async Task<HttpClient> Client(string role)
     {
@@ -153,7 +159,7 @@ public sealed class BackendSqlTests(BackendSqlFixture fixture) : IClassFixture<B
         Assert.Equal(HttpStatusCode.OK, known.StatusCode); Assert.Equal(known.StatusCode, unknown.StatusCode);
         Assert.Equal(await known.Content.ReadAsStringAsync(), await unknown.Content.ReadAsStringAsync());
         var sender = fixture.Factory.Services.GetRequiredService<SmartFarm.Infrastructure.Email.CaptureEmailSender>();
-        var mail = Assert.Single(sender.Messages, m => m.To == email && m.Kind == "password.reset");
+        var mail = await CapturedMail.WaitAsync(sender, email, "password.reset");
         var link = mail.Body.Split('\n').Single(line => line.StartsWith("https://", StringComparison.Ordinal));
         var uri = new Uri(link); Assert.Equal("farmer.example.test", uri.Host);
         var query = Microsoft.AspNetCore.WebUtilities.QueryHelpers.ParseQuery(uri.Query);
@@ -162,13 +168,29 @@ public sealed class BackendSqlTests(BackendSqlFixture fixture) : IClassFixture<B
         Assert.Equal(HttpStatusCode.BadRequest, invalid.StatusCode);
         using var reset = await client.PostAsJsonAsync("/api/auth/reset-password", new { email, token, password = "ChangedTest2026!" });
         Assert.Equal(HttpStatusCode.OK, reset.StatusCode);
-        Assert.Single(sender.Messages, m => m.To == email && m.Kind == "password.changed");
+        await CapturedMail.WaitAsync(sender, email, "password.changed");
         Assert.Equal(HttpStatusCode.BadRequest, (await client.PostAsJsonAsync("/api/auth/reset-password", new { email, token, password = "AnotherTest2026!" })).StatusCode);
         using var stale = fixture.Factory.CreateClient();
         stale.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", tokens.GetProperty("accessToken").GetString());
         Assert.Equal(HttpStatusCode.Unauthorized, (await stale.GetAsync("/api/auth/me")).StatusCode);
         Assert.Equal(HttpStatusCode.Unauthorized, (await client.PostAsJsonAsync("/api/auth/refresh", new { refreshToken = tokens.GetProperty("refreshToken").GetString() })).StatusCode);
         Assert.Equal(HttpStatusCode.OK, (await client.PostAsJsonAsync("/api/auth/login", new { email, password = "ChangedTest2026!" })).StatusCode);
+    }
+
+    [Fact]
+    public async Task LoginAndIdentityValidationExposeStableErrorCodes()
+    {
+        if (fixture.Factory is null) return;
+        using var client = fixture.Factory.CreateClient();
+        var email = $"codes-{Guid.NewGuid():N}@example.test";
+        (await client.PostAsJsonAsync("/api/auth/register", new { fullName = "Codes Test", email, password = "CodesTest2026!" })).EnsureSuccessStatusCode();
+        using var login = await client.PostAsJsonAsync("/api/auth/login", new { email, password = "WrongPassword2026!" });
+        var loginError = await login.Content.ReadFromJsonAsync<JsonElement>();
+        Assert.Equal("auth.invalid_credentials", loginError.GetProperty("code").GetString());
+        using var weak = await client.PostAsJsonAsync("/api/auth/register", new { fullName = "Codes Test", email = "weak-" + email, password = "abcdefghij" });
+        var weakError = await weak.Content.ReadFromJsonAsync<JsonElement>();
+        Assert.Equal("auth.registration_failed", weakError.GetProperty("code").GetString());
+        Assert.Contains(weakError.GetProperty("errorCodes").EnumerateArray(), e => e.GetString() == "PasswordRequiresDigit");
     }
 
 }

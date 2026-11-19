@@ -54,13 +54,13 @@ public sealed class SyncOperationsController(
         Result(async () =>
         {
             if (operationId == Guid.Empty || input.FarmId == Guid.Empty || input.TargetId == Guid.Empty)
-                return BadRequest(new { message = "Valid operation, farm and target IDs are required." });
+                return BadRequest(new { code = "sync.invalid_ids", message = "Valid operation, farm and target IDs are required." });
             if (input.OperationType is not ("activity" or "activity_stock" or "observation" or "inventory" or "harvest"))
-                return BadRequest(new { message = "Unsupported sync operation." });
+                return BadRequest(new { code = "sync.unsupported_type", message = "Unsupported sync operation." });
 
             // Never reveal another farm's ledger or apply writes under another account.
             if (!await access.CanAsync(input.FarmId, ActorId, FarmAction.View, ct))
-                return NotFound(new { message = "Resource not found." });
+                return NotFound(new { code = "resource.not_found", message = "Resource not found." });
 
             var valid = input.OperationType switch
             {
@@ -76,7 +76,7 @@ public sealed class SyncOperationsController(
                     input.ActivityStock is null && input.Observation is null && input.Movement is null
             };
             if (!valid)
-                return BadRequest(new { message = "Provide exactly one matching operation payload." });
+                return BadRequest(new { code = "sync.payload_mismatch", message = "Provide exactly one matching operation payload." });
 
             var hash = SHA256.HashData(JsonSerializer.SerializeToUtf8Bytes(input));
             await using var transaction = await db.Database.BeginTransactionAsync(IsolationLevel.Serializable, ct);
@@ -94,7 +94,7 @@ public sealed class SyncOperationsController(
                 if (previous.UserId != ActorId || previous.FarmId != input.FarmId ||
                     previous.OperationType != input.OperationType ||
                     !CryptographicOperations.FixedTimeEquals(previous.RequestHash, hash))
-                    return Conflict(new { message = "Operation ID was already used with different data." });
+                    return Conflict(new { code = "sync.operation_conflict", message = "Operation ID was already used with different data." });
 
                 var saved = JsonSerializer.Deserialize<JsonElement>(previous.ResultJson!);
                 return Ok(new SyncWriteResult(operationId, input.OperationType, saved, true));
@@ -114,7 +114,9 @@ public sealed class SyncOperationsController(
                     input.FarmId, input.TargetId, ActorId, input.Harvest!, ct)
             };
 
-            var resultJson = JsonSerializer.Serialize(result, new JsonSerializerOptions(JsonSerializerDefaults.Web));
+            var resultOptions = new JsonSerializerOptions(JsonSerializerDefaults.Web);
+            resultOptions.Converters.Add(new SmartFarm.Core.Services.UtcDateTimeConverter());
+            var resultJson = JsonSerializer.Serialize(result, resultOptions);
             db.SyncOperations.Add(new SyncOperation
             {
                 OperationId = operationId,

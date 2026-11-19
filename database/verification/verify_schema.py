@@ -201,6 +201,12 @@ def default_expression(sql, column_type):
     if re.fullmatch(r"N?'(?:''|[^'])*'", text):
         return text
     text = text.lower()
+    convert = re.fullmatch(r'convert\(\s*\[?(bit|tinyint|smallint|int|bigint)\]?\s*,\s*(.+)\)', text)
+    if convert:
+        require(convert[1] == column_type, 'Default CONVERT target must match column type')
+        literal = default_expression(convert[2], column_type)
+        require(re.fullmatch(r'-?\d+', literal), 'Integer CONVERT default must be a literal')
+        return default_expression(f'cast({literal} as {column_type})', column_type)
     cast = re.fullmatch(r'cast\s*\(\s*(-?\d+(?:\.\d+)?)\s+as\s+(bit|tinyint|smallint|int|bigint|decimal\(\d+,\s*\d+\))\s*\)', text)
     if cast:
         target = re.sub(r'\s', '', cast[2])

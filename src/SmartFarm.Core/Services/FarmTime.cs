@@ -18,6 +18,23 @@ public static class FarmTime
         ? value.ToUniversalTime() : DateTime.SpecifyKind(value, DateTimeKind.Utc);
     public static DateTimeOffset Local(DateTime utc, string? zone) =>
         TimeZoneInfo.ConvertTime(new DateTimeOffset(Utc(utc)), Resolve(zone));
+    // UTC search handles skipped dates and repeated midnights without relying on local-time gap flags.
+    public static DateTime StartOfDayUtc(DateOnly day, string? zoneId)
+    {
+        var zone = Resolve(zoneId);
+        var midnight = day.ToDateTime(TimeOnly.MinValue).Ticks;
+        var margin = TimeSpan.FromDays(2).Ticks;
+        var low = Math.Max(DateTime.MinValue.Ticks, midnight - margin);
+        var high = Math.Min(DateTime.MaxValue.Ticks, midnight + margin);
+        while (low < high)
+        {
+            var middle = low + (high - low) / 2;
+            var local = TimeZoneInfo.ConvertTimeFromUtc(new DateTime(middle, DateTimeKind.Utc), zone);
+            if (DateOnly.FromDateTime(local) < day) low = middle + 1;
+            else high = middle;
+        }
+        return new DateTime(low, DateTimeKind.Utc);
+    }
     public static DateOnly Today(DateTime utc, string? zone) => DateOnly.FromDateTime(Local(utc, zone).DateTime);
 }
 

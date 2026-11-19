@@ -41,4 +41,12 @@ public sealed class BackendFoundationTests
         Assert.Throws<ArgumentException>(() => new PageRequest { From = new(2026, 2, 2), To = new(2026, 2, 1) }.Validate());
         Assert.Equal(25, new PageRequest().PageSize);
     }
+    [Theory]
+    [InlineData("America/Sao_Paulo", "2018-11-04", "2018-11-04T03:00:00Z")]
+    [InlineData("America/Havana", "2020-11-01", "2020-11-01T04:00:00Z")]
+    [InlineData("Pacific/Apia", "2011-12-30", "2011-12-30T10:00:00Z")]
+    [InlineData("Asia/Manila", "0001-01-01", "0001-01-01T00:00:00Z")]
+    public void FarmDayBoundsIncludeFirstValidInstantWhenMidnightIsMissingOrRepeated(string zone, string day, string expected) =>
+        Assert.Equal(DateTime.Parse(expected, null, System.Globalization.DateTimeStyles.AdjustToUniversal), FarmTime.StartOfDayUtc(DateOnly.Parse(day), zone));
+
 }

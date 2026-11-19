@@ -57,14 +57,26 @@ public sealed class GeminiGuidanceTests
         Assert.Equal("rice", GuidanceCatalog.CanonicalCrop("Palay"));
         Assert.NotEqual(GuidanceCatalog.Text("rain.roots", "en"), GuidanceCatalog.Text("rain.roots", "fil"));
     }
+    [Fact]
+    public async Task BrokenResponseStreamFallsBackInsteadOfThrowing()
+    {
+        var handler = new Handler(Valid) { BrokenStream = true };
+        Assert.Null(await Client(handler).SelectAsync(Context));
+    }
+    private sealed class BrokenStream : MemoryStream
+    {
+        public override ValueTask<int> ReadAsync(Memory<byte> buffer, CancellationToken ct = default) =>
+            ValueTask.FromException<int>(new IOException("provider disconnected"));
+    }
     private sealed class Handler(string output) : HttpMessageHandler
     {
         public int Calls; public string? Uri; public string? Key; public string? Body;
-        public bool Timeout; public HttpStatusCode Status = HttpStatusCode.OK;
+        public bool Timeout; public bool BrokenStream; public HttpStatusCode Status = HttpStatusCode.OK;
         protected override async Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken ct)
         {
             Calls++; Uri=request.RequestUri!.ToString(); Key=request.Headers.GetValues("x-goog-api-key").Single(); Body=await request.Content!.ReadAsStringAsync(ct);
             if (Timeout) throw new TaskCanceledException();
+            if (BrokenStream) return new HttpResponseMessage(HttpStatusCode.OK) { Content = new StreamContent(new BrokenStream()) };
             return new HttpResponseMessage(Status) { Content = new StringContent(JsonSerializer.Serialize(new { candidates = new[] { new { finishReason = "STOP", content = new { parts = new[] { new { text = output } } } } } }), Encoding.UTF8, "application/json") };
         }
     }

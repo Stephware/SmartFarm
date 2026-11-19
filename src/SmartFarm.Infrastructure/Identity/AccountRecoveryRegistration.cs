@@ -15,6 +15,8 @@ public static class AccountRecoveryRegistration
         services.Configure<SecurityStampValidatorOptions>(o => o.ValidationInterval = TimeSpan.Zero);
         services.AddSingleton(TimeProvider.System);
         services.AddSingleton<RecoveryThrottle>();
+        services.AddSingleton<RecoveryEmailQueue>();
+        services.AddHostedService(sp => sp.GetRequiredService<RecoveryEmailQueue>());
         services.AddSingleton<CaptureEmailSender>();
         services.AddTransient<SmtpSecurityEmailSender>();
         services.AddSingleton<ISecurityEmailSender>(sp => sp.GetRequiredService<Microsoft.Extensions.Options.IOptions<EmailOptions>>().Value.Mode switch

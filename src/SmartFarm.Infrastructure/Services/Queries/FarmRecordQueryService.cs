@@ -20,8 +20,8 @@ public sealed class FarmRecordQueryService(SmartFarmDbContext db, IFarmAccessSer
         await Require(farmId, actor, resource is "members" or "enrollment" ? FarmAction.ManageMembers : FarmAction.View, ct);
         try { p.Validate(); } catch (ArgumentException e) { throw new FarmOperationException(FarmError.InvalidInput, e.Message); }
         var zone = await db.Farms.Where(f => f.Id == farmId).Select(f => f.TimeZoneId).SingleAsync(ct);
-        DateTime? startUtc = p.From is { } lo ? TimeZoneInfo.ConvertTimeToUtc(lo.ToDateTime(TimeOnly.MinValue), FarmTime.Resolve(zone)) : null;
-        DateTime? until = p.To is { } hi && hi < DateOnly.MaxValue ? TimeZoneInfo.ConvertTimeToUtc(hi.AddDays(1).ToDateTime(TimeOnly.MinValue), FarmTime.Resolve(zone)) : null;
+        DateTime? startUtc = p.From is { } lo ? FarmTime.StartOfDayUtc(lo, zone) : null;
+        DateTime? until = p.To is { } hi && hi < DateOnly.MaxValue ? FarmTime.StartOfDayUtc(hi.AddDays(1), zone) : null;
         var cycles = db.CropCycles.Where(c => db.Plots.Any(plot => plot.Id == c.PlotId && plot.FarmId == farmId));
         var search = p.Search?.Trim();
         switch (resource)

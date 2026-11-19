@@ -41,7 +41,7 @@ Schema/migration baseline: SQL-first scripts plus explicit EF baseline/enrollmen
 
 ## B1 time, language, errors and pages
 
-Farm setup defaults to `Asia/Manila`; preserve each configured zone. SQL instant columns remain UTC `datetime2`, farm dates remain ISO `yyyy-MM-dd`. API instant fields now serialize with `Z` even when SQL materializes an Unspecified DateTime; offset-bearing inputs normalize to UTC. Date-only values never acquire an offset. Invalid legacy weather zones fall back to Manila for reads; new farm validation still rejects invalid zones.
+Farm setup defaults to `Asia/Manila`; preserve each configured zone. SQL instant columns remain UTC `datetime2`, farm dates remain ISO `yyyy-MM-dd`. API DTO instant fields and newly persisted sync results serialize with `Z` even when SQL materializes an Unspecified DateTime; historical sync ledger JSON is replayed exactly as stored and may contain older zone-less UTC values; offset-bearing inputs normalize to UTC. Date-only values never acquire an offset. Invalid legacy weather zones fall back to Manila for reads; new farm validation still rejects invalid zones.
 
 `GET/PUT /api/auth/preferences` returns/accepts `{ "language": "en" | "fil" }`, persisted in existing Identity user claims (`anigo:language`). Default is English. `BackendMessages` defines stable message IDs and English/Filipino deterministic guidance. Existing stored messages remain historical text; clients can render supplied keys and structured facts. Numeric enum values do not change. Domain failures retain `message` and add `code`: `resource.not_found`, `record.conflict`, `record.invalidinput`. Invalid model binding returns `validation.invalid` plus keyed validation errors; clients should use codes/field names rather than parse English descriptions.
 
@@ -61,7 +61,7 @@ Common parameters: `page` (1–100000, default 1), `pageSize` (1–100, default 
 | enrollment | enrollmentStatus=Pending/Approved/Rejected/Canceled, from/to | id/userId/status/requestedAtUtc/reviewedAtUtc/fullName/email; requested instant |
 | notifications | type, unread | existing NotificationDetails; created instant |
 
-Record `from/to` are inclusive farm-local dates; task dates are compared directly, instant histories use local-midnight UTC bounds. Invalid bounds/sort/size return 400. No new schema migration is required for B1.
+Record `from/to` are inclusive farm-local dates; task dates are compared directly, instant histories use local-midnight UTC bounds. Invalid bounds/sort/size return 400. UTC day boundaries handle skipped/repeated local midnights; Worker scheduling continues to reject invalid zones rather than guess. Authentication adds `auth.invalid_credentials`, `auth.registration_failed` with Identity `errorCodes`, and `auth.registered`. Sync/photo/retired-invitation errors add stable codes, and rate limits add `limit.exceeded`. Existing human-readable messages remain for older clients. No new schema migration is required for B1.
 
 ## B2 saved weather and Ani alerts
 
@@ -76,6 +76,8 @@ Existing Hangfire schedules, missing-reading rules, severity thresholds and dedu
 ## B3 account recovery and email
 
 API: `POST /api/auth/forgot-password {email}` always returns 200 `recovery.requested` for syntactically valid addresses regardless of account existence/disabled state/provider availability. `POST /api/auth/reset-password {email,token,password}` returns 200 `recovery.completed` or 400 `recovery.invalid`. Unknown/expired/reused tokens do not disclose accounts. Tokens are Base64URL-wrapped Identity tokens, expire after one hour, and rotate security stamps on successful reset. API access tokens now revalidate stamps/current account on protected requests; refresh already validates stamps. Web cookies revalidate stamps on every request. MFA remains configured independently and reset does not disable it. Anonymous endpoints ignore an attached expired session; protected endpoints reject it.
+
+The request endpoint hands account lookup/token generation/delivery to a bounded 100-item background queue before returning, for both known and unknown addresses. It never waits for account-dependent SMTP latency. Queue items expire after two minutes; this transient queue is not durable across restarts. Successful resets also queue confirmation email.
 
 Rate limits are 5 recovery requests and 10 completions per IP per 15 minutes, with Retry-After. An additional bounded in-process per-email hash throttle permits one email per 10 minutes, including unknown addresses. Distributed deployments need coordinated edge/provider limits; these memory limits/cache reset with a process restart.
 

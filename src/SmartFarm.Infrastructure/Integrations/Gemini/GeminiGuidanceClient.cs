@@ -95,7 +95,7 @@ public sealed class GeminiGuidanceClient(HttpClient http, IOptions<GeminiOptions
             return selection;
         }
         catch (OperationCanceledException) when (ct.IsCancellationRequested) { throw; }
-        catch (Exception error) when (error is HttpRequestException or OperationCanceledException or JsonException or
+        catch (Exception error) when (error is HttpRequestException or IOException or OperationCanceledException or JsonException or
             KeyNotFoundException or InvalidOperationException or ArgumentException)
         {
             logger.LogWarning("Gemini guidance unavailable ({FailureType}).", error.GetType().Name);

@@ -33,9 +33,11 @@ public sealed class RecoveryThrottle(TimeProvider clock)
 {
     private readonly object gate = new();
     private readonly Dictionary<string, DateTimeOffset> sent = new();
+    private static string Key(string email) => Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(email.ToUpperInvariant())));
+    public void Release(string email) { lock (gate) sent.Remove(Key(email)); }
     public bool TryAcquire(string email)
     {
-        var key = Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(email.ToUpperInvariant())));
+        var key = Key(email);
         lock (gate)
         {
             var now = clock.GetUtcNow();
@@ -48,12 +50,22 @@ public sealed class RecoveryThrottle(TimeProvider clock)
 
 public sealed class AccountRecoveryService(UserManager<SmartFarmUser> users, UserPreferencesService preferences,
     ISecurityEmailSender sender, IOptions<AccountRecoveryOptions> options, IHostEnvironment environment,
-    RecoveryThrottle throttle, TimeProvider clock, ILogger<AccountRecoveryService> logger)
+    RecoveryThrottle throttle, RecoveryEmailQueue queue, TimeProvider clock, ILogger<AccountRecoveryService> logger)
 {
-    public async Task RequestAsync(string email, CancellationToken ct = default)
+    public Task RequestAsync(string email, CancellationToken ct = default)
     {
+        ct.ThrowIfCancellationRequested();
         email = email.Trim();
-        if (!throttle.TryAcquire(email)) return;
+        if (throttle.TryAcquire(email) && !queue.TryRequest(email))
+        {
+            throttle.Release(email);
+            logger.LogWarning("Security email queue is full.");
+        }
+        return Task.CompletedTask;
+    }
+
+    internal async Task SendRequestedAsync(string email, CancellationToken ct)
+    {
         if (!options.Value.ValidOrigin(environment.IsDevelopment()))
         { logger.LogWarning("Password recovery is unavailable: configure a valid ApplicationOrigin."); return; }
         var user = await users.FindByEmailAsync(email);
@@ -64,7 +76,7 @@ public sealed class AccountRecoveryService(UserManager<SmartFarmUser> users, Use
         var body = language == "fil"
             ? $"Hiniling ang pagpapalit ng iyong password. Magagamit ang link sa loob ng isang oras. Kung hindi ikaw ang humiling nito, huwag pansinin ang email.\n{link}\nOras sa Pilipinas: {LocalTime()}"
             : $"A password reset was requested. This link expires in one hour. If you did not request it, ignore this email.\n{link}\nPhilippine time: {LocalTime()}";
-        await Deliver(new(user.Email!, "password.reset", language == "fil" ? "AniGo: Palitan ang password" : "AniGo: Reset your password", body), ct);
+        await DeliverAsync(new(user.Email!, "password.reset", language == "fil" ? "AniGo: Palitan ang password" : "AniGo: Reset your password", body), ct);
     }
 
     public async Task<bool> ResetAsync(ResetPasswordInput input, CancellationToken ct = default)
@@ -78,13 +90,14 @@ public sealed class AccountRecoveryService(UserManager<SmartFarmUser> users, Use
         if (!result.Succeeded) return false;
         // ResetPasswordAsync rotates Identity's security stamp; cookies/access/refresh validate it.
         var language = await preferences.LanguageAsync(user.Id, ct);
-        await Deliver(new(user.Email!, "password.changed", language == "fil" ? "AniGo: Napalitan ang password" : "AniGo: Password changed",
+        if (!queue.TryConfirmation(new(user.Email!, "password.changed", language == "fil" ? "AniGo: Napalitan ang password" : "AniGo: Password changed",
             language == "fil" ? $"Napalitan ang iyong password. Kung hindi ikaw ito, bawiin agad ang iyong account. Oras sa Pilipinas: {LocalTime()}"
-                : $"Your password was changed. If this was not you, recover your account immediately. Philippine time: {LocalTime()}"), ct);
+                : $"Your password was changed. If this was not you, recover your account immediately. Philippine time: {LocalTime()}")))
+            logger.LogWarning("Security confirmation email queue is full.");
         return true;
     }
     private string LocalTime() => FarmTime.Local(clock.GetUtcNow().UtcDateTime, FarmTime.DefaultZone).ToString("yyyy-MM-dd HH:mm zzz", CultureInfo.InvariantCulture);
-    private async Task Deliver(SecurityEmail message, CancellationToken ct)
+    internal async Task DeliverAsync(SecurityEmail message, CancellationToken ct)
     {
         try
         {

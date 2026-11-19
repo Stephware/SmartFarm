@@ -1,8 +1,12 @@
 # Database and schema workflow
 
 > Sources: SmartFarm SQL, EF model, migration and schema-test sources
-> Raw: [Database sources](../../raw/project/2026-10-27-database-source.md); [Feature sources](../../raw/project/2026-10-27-features-source.md); [backend source review](../../raw/project/2026-11-11-backend-current.md); [reports source review](../../raw/project/2026-11-11-reports-current.md); [Current documentation audit](../../raw/project/2026-11-11-documentation-audit.md); [Publication source check](../../raw/project/2026-11-12-documentation-publication.md)
-> Updated: 2026-11-12
+> Raw: [Database sources](../../raw/project/2026-10-27-database-source.md); [Feature sources](../../raw/project/2026-10-27-features-source.md); [backend source review](../../raw/project/2026-11-11-backend-current.md); [reports source review](../../raw/project/2026-11-11-reports-current.md); [Current documentation audit](../../raw/project/2026-11-11-documentation-audit.md); [Publication source check](../../raw/project/2026-11-12-documentation-publication.md); [Backend B0–B5 evidence](../../raw/project/2026-11-20-backend-b0-b5.md)
+> Updated: 2026-11-20
+
+## Backend demo safety update
+
+The explicit [demo seeder](../../../../tools/SmartFarm.DemoSeeder/Program.cs) compares the full EF model with live catalog metadata and requires a native checksum backup/VERIFYONLY before writes. The populated local Development database has 11 schema differences and was left unchanged: no backup or seed applied. A separate disposable database matched the model; backup, 40 synthetic records, repeat preservation and live role-isolated login were verified. No new migrations or migration-history adoption occurred. Photos require an explicit local source. See the [backend contract](../../../../docs/backend-integration.md) for identifiers and unapplied prerequisites.
 
 **Source scope:** Earlier detailed audit/acceptance is dated below. For source
 changes through `dev` at `3c5a8b0`, see [current source status](current-source-status.md),

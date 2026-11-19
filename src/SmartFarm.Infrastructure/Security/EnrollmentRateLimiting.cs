@@ -34,6 +34,7 @@ public static class EnrollmentRateLimiting
                         .ToString(CultureInfo.InvariantCulture);
                 await response.WriteAsJsonAsync(new
                 {
+                    code = "limit.exceeded",
                     message = "Too many attempts. Please wait and try again."
                 }, ct);
             };

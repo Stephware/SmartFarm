@@ -243,3 +243,8 @@ Three native primary entries and a simpler existing Record sheet; My Farm groups
 - Disposition: Update
 - Raw: raw/project/2026-11-19-navigation-ux.md
 - Updated: Android actual-caller/fallback stacks, pinned headers, meaningful and restored draft guards, scoped form receipts, onboarding Back, MVC parent links and verification limits. Historical snapshots and business/security contracts preserved; Draft PR CI/merge status remains separate.
+
+## [2026-11-20] ingest | Backend B0–B5 verified implementation
+- Disposition: Update
+- Raw: raw/project/2026-11-20-backend-b0-b5.md
+- Updated: API contracts; Database; Tasks, weather, and automation; Dependencies and development

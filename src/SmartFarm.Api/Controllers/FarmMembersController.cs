@@ -22,7 +22,7 @@ public sealed class FarmMembersController(
 
     [AllowAnonymous, HttpPost("invitations")]
     public IActionResult Invite(Guid farmId) =>
-        StatusCode(StatusCodes.Status410Gone, new { message = "Invitation links are retired. Use a farm code and owner approval." });
+        StatusCode(StatusCodes.Status410Gone, new { code = "enrollment.invitation_retired", message = "Invitation links are retired. Use a farm code and owner approval." });
 
     [HttpPut("{memberId:guid}")]
     public Task<IActionResult> Role(Guid farmId, Guid memberId,
@@ -47,5 +47,5 @@ public sealed class FarmInvitationsController : ControllerBase
 {
     [AllowAnonymous, HttpPost("accept")]
     public IActionResult Accept() =>
-        StatusCode(StatusCodes.Status410Gone, new { message = "Invitation links are retired. Use a farm code and owner approval." });
+        StatusCode(StatusCodes.Status410Gone, new { code = "enrollment.invitation_retired", message = "Invitation links are retired. Use a farm code and owner approval." });
 }
