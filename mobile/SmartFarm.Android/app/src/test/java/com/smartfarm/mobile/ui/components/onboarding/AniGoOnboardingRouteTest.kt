@@ -12,6 +12,12 @@ class AniGoOnboardingRouteTest {
     }
 
     @Test
+    fun replayDestinationLabelsNeverImplyFirstRunCompletion() {
+        assertEquals("Back to My Account", anigoReplayExitLabel(authenticated = true))
+        assertEquals("Back to Welcome", anigoReplayExitLabel(authenticated = false))
+    }
+
+    @Test
     fun firstLaunchStartsInGuideAndCompletedInstallStartsAtWelcome() {
         assertEquals("onboarding", anigoInitialRoute(completed = false))
         assertEquals("welcome", anigoInitialRoute(completed = true))
