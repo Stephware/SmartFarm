@@ -201,7 +201,12 @@ fun SmartFarmNavHost(auth: AuthViewModel, farms: FarmViewModel, crops: CropViewM
                 } else navController.backOrParent()
             },
             onSaveFarm = { name, location, zone, latitude, longitude ->
-                farms.saveFarm(name, location, zone, latitude, longitude) {} },
+                val saved = acceptOnSuccess("farm-settings")
+                farms.saveFarm(name, location, zone, latitude, longitude) {
+                    saved()
+                    navController.navigate("farm/$farmId") { launchSingleTop = true }
+                }
+            },
             onArchiveFarm = { farms.archiveFarm { navController.openFarms() } },
             onAddPlot = { name, area -> farms.addPlot(name, area, acceptOnSuccess("new-plot")) },
             onSavePlot = { plot, name, area -> farms.savePlot(plot, name, area) },
