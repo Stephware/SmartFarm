@@ -68,4 +68,8 @@ Final screen composition still needs owner visual review on an actual phone befo
 
 - Confirm Android build, unit tests, UI instrumentation, and bitmap decoding across device sizes.
 - Inspect real screenshots in light/dark, compact, 1.6× text, landscape and tablet views.
-- Review PR #145 in draft and reconcile changes from `dev` before any merge.
+- PR #145 was merged on November 17, 2026; newer mascot-image and Steps 2–5 commits remain on the separate feature branch. Reconcile changes from `dev` and obtain owner visual approval before merging these later commits.
+
+### Step 5 — verification
+
+See [the Step 5 Android audit](ANIGO_STEP5_VERIFICATION.md) for exact successful CI code commit, **56/56 device tests**, **30/30 actual PNG screenshots**, the corrected 1.6×-text landscape intro, and remaining manual device/artwork acceptance gates.
