@@ -31,7 +31,7 @@
 <section class="panel card sf-ops-hero ani12e-hero ani-p2-hero" aria-labelledby="inventory-heading">
     <div class="sf-page-header page-hero">
         <div>
-            <p><a asp-controller="Farms" asp-action="Details" asp-route-id="@Model.Farm.Id">← @Model.Farm.Name</a></p>
+            <p class="mvp-farm-context"><a asp-controller="Farms" asp-action="Details" asp-route-id="@Model.Farm.Id">Farm: @Model.Farm.Name</a></p>
 
             <h1 id="inventory-heading">Supplies</h1>
             <p class="sf-muted">Find a supply, check its balance, and record what came in or was used.</p>
