@@ -2,7 +2,7 @@
 @{
     ViewData["Title"] = "Support case";
 }
-<a class="admin-back" asp-area="Admin" asp-controller="Support" asp-action="Index">← Back to support history</a>
+<a class="admin-back anigo-back-control" asp-area="Admin" asp-controller="Support" asp-action="Index" title="Back to support history"><partial name="~/Views/Shared/_Icon.cshtml" model='@("chevLeft")' /><span class="visually-hidden">Back to support history</span></a>
 <div class="page-heading admin-page-heading">
     <div><h1>@Model.Ticket.Title</h1>
         <p class="sf-muted">Submitted @Model.Ticket.CreatedAtUtc.ToString("MMM d, yyyy") UTC</p></div>
