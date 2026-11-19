@@ -22,7 +22,7 @@ Ownership: Web Razor/JS/CSS and Android Compose/ViewModel/UI tests. No API, SQL 
 
 - Farm creation and farm joining use Material3 dialogs, with a scrollable form for smaller phones.
 - Dismissing a dirty farm entry uses existing `ExitGuard` draft confirmation and never deletes queued offline records. Create remains online-only and the optional farm pin/time zone remains available.
-- Removed redundant “My account” shortcut from the farm selection screen. The destination remains in My Farm → Account & saved work.
+- Removed redundant “My account” shortcut from the farm selection list, while adding a persistent accessible account icon in the authenticated header, including when no farm is selected. My Farm → Account & saved work remains available.
 - Join Farm dialog clears and closes **only on confirmed successful request**; failed requests retain entered codes and inline errors.
 - New plot creation and plot editing close/reset after corresponding confirmed saves, retaining drafts when operations fail.
 - Supply creation and detail editing close/reset only after confirmed saves and refreshed records. Offline stock movement flows remain unchanged.
