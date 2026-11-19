@@ -73,11 +73,27 @@ fun SmartFarmNavHost(auth: AuthViewModel, farms: FarmViewModel, crops: CropViewM
     // Stable for this NavHost instance: completing the tour navigates explicitly
     // to Welcome. On subsequent app launches the persisted flag selects Welcome.
     val onboardingStore = remember(appContext) { AniGoOnboardingStore.create(appContext) }
+    // Credentials are in-memory; a currently signed-in user must never be
+    // sent through first-time onboarding when a NavHost is created.
     val initialRoute = remember(onboardingStore) {
-        anigoInitialRoute(onboardingStore.isCompleted())
+        anigoInitialRoute(
+            completed = onboardingStore.isCompleted(),
+            authenticated = auth.state.value.account != null
+        )
     }
     val resolver = appContext.contentResolver
     val state by auth.state.collectAsStateWithLifecycle()
+    LaunchedEffect(state.account?.id, currentRoute) {
+        // Session could become valid while onboarding is still mounted. Treat
+        // such users as returning users and avoid any automatic tutorial replay.
+        if (state.account != null && currentRoute == "onboarding") {
+            onboardingStore.markCompleted()
+            navController.navigate("farms") {
+                popUpTo("onboarding") { inclusive = true }
+                launchSingleTop = true
+            }
+        }
+    }
     val pending by sync.operations.collectAsStateWithLifecycle()
     val pendingPhotos by sync.photos.collectAsStateWithLifecycle()
     val progress by sync.progress.collectAsStateWithLifecycle()
