@@ -37,7 +37,9 @@ data class InventoryUiState(
     val activities: List<InventoryActivityOptionDto> = emptyList(),
     val offline: Boolean = false,
     val accessDenied: Boolean = false,
-    val cachedAtUtcMillis: Long? = null
+    val cachedAtUtcMillis: Long? = null,
+    val createSaveVersion: Int = 0,
+    val detailsSaveVersion: Int = 0
 )
 
 class InventoryViewModel(private val repo: InventoryRepository,
@@ -128,14 +130,22 @@ class InventoryViewModel(private val repo: InventoryRepository,
         }
     }
 
-    fun create(name: String, category: Int, unit: String, starting: String, reorder: String, onSaved: () -> Unit = {}) = work {
+    fun create(name: String, category: Int, unit: String, starting: String, reorder: String, onSaved: () -> Unit = {}) = work(
+        after = {
+            mutable.value = mutable.value.copy(
+                createSaveVersion = mutable.value.createSaveVersion + 1)
+            onSaved()
+        }) {
         repo.create(it.farmId, InventoryItemInputDto(name.trim(), category, unit.trim(),
             reorderLevel = reorder.takeIf { v -> v.isNotBlank() }?.let(::BigDecimal),
             initialQuantity = BigDecimal(starting)))
-        onSaved()
     }
 
-    fun update(name: String, category: Int, unit: String, description: String, reorder: String) = work {
+    fun update(name: String, category: Int, unit: String, description: String, reorder: String) = work(
+        after = {
+            mutable.value = mutable.value.copy(
+                detailsSaveVersion = mutable.value.detailsSaveVersion + 1)
+        }) {
         val current = requireNotNull(it.item)
         repo.update(it.farmId, it.itemId, InventoryItemInputDto(name.trim(), category, unit.trim(),
             description.trim().ifBlank { null },
