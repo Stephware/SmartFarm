@@ -2,7 +2,7 @@
 @{
     ViewData["Title"] = "Farm details";
 }
-<a class="admin-back" asp-area="Admin" asp-controller="Farms" asp-action="Index">← Back to farms</a>
+<a class="admin-back anigo-back-control" asp-area="Admin" asp-controller="Farms" asp-action="Index" title="Back to farms"><partial name="~/Views/Shared/_Icon.cshtml" model='@("chevLeft")' /><span class="visually-hidden">Back to farms</span></a>
 <div class="page-heading admin-page-heading">
     <div><p class="sf-kicker">REGISTERED FARM</p><h1>@Model.Farm.Name</h1>
         <p class="sf-muted">@Model.Farm.Location</p></div>
