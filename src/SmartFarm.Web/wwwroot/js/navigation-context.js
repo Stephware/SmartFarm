@@ -67,7 +67,9 @@
     }
 
     // Preserve a snapshot for an explicit Back link to this same path/query.
-    window.addEventListener("pagehide", () => store(current, "history"));
+    window.addEventListener("pagehide", () => {
+        if (parse(current)?.intent !== "submit") store(current, "history");
+    });
 
     window.addEventListener("pageshow", event => {
         if (event.persisted || window.location.hash) return;
