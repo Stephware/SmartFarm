@@ -35,7 +35,7 @@ public sealed class BackendSqlFixture : IAsyncLifetime
         {
             builder.UseEnvironment("Development");
             builder.ConfigureAppConfiguration((_, config) => config.AddInMemoryCollection(new Dictionary<string, string?>
-            { ["ConnectionStrings:SmartFarm"] = Connection }));
+            { ["ConnectionStrings:SmartFarm"] = Connection, ["Email:Mode"] = "Capture", ["AccountRecovery:ApplicationOrigin"] = "https://farmer.example.test" }));
             builder.ConfigureServices(services =>
             {
                 services.RemoveAll<SmartFarmDbContext>(); services.RemoveAll<DbContextOptions<SmartFarmDbContext>>();
@@ -137,6 +137,38 @@ public sealed class BackendSqlTests(BackendSqlFixture fixture) : IClassFixture<B
             Assert.DoesNotContain(legacy.EnumerateArray(), a => a.GetProperty("id").GetGuid() == DemoDataset.Id("reminder"));
         }
         finally { member.RemovedAtUtc = null; await db.SaveChangesAsync(); }
+    }
+
+    [Fact]
+    public async Task PasswordRecoveryIsNeutralSingleUseAndRevokesOldBearerAndRefresh()
+    {
+        if (fixture.Factory is null) return;
+        using var client = fixture.Factory.CreateClient();
+        var email = "recovery-" + Guid.NewGuid().ToString("N") + "@example.test";
+        (await client.PostAsJsonAsync("/api/auth/register", new { fullName = "Recovery Test", email, password = "BackendTest2026!" })).EnsureSuccessStatusCode();
+        var login = await client.PostAsJsonAsync("/api/auth/login", new { email, password = "BackendTest2026!" });
+        var tokens = await login.Content.ReadFromJsonAsync<JsonElement>();
+        using var known = await client.PostAsJsonAsync("/api/auth/forgot-password", new { email });
+        using var unknown = await client.PostAsJsonAsync("/api/auth/forgot-password", new { email = "unknown-" + email });
+        Assert.Equal(HttpStatusCode.OK, known.StatusCode); Assert.Equal(known.StatusCode, unknown.StatusCode);
+        Assert.Equal(await known.Content.ReadAsStringAsync(), await unknown.Content.ReadAsStringAsync());
+        var sender = fixture.Factory.Services.GetRequiredService<SmartFarm.Infrastructure.Email.CaptureEmailSender>();
+        var mail = Assert.Single(sender.Messages, m => m.To == email && m.Kind == "password.reset");
+        var link = mail.Body.Split('\n').Single(line => line.StartsWith("https://", StringComparison.Ordinal));
+        var uri = new Uri(link); Assert.Equal("farmer.example.test", uri.Host);
+        var query = Microsoft.AspNetCore.WebUtilities.QueryHelpers.ParseQuery(uri.Query);
+        var token = query["token"].ToString();
+        using var invalid = await client.PostAsJsonAsync("/api/auth/reset-password", new { email, token = "bad", password = "ChangedTest2026!" });
+        Assert.Equal(HttpStatusCode.BadRequest, invalid.StatusCode);
+        using var reset = await client.PostAsJsonAsync("/api/auth/reset-password", new { email, token, password = "ChangedTest2026!" });
+        Assert.Equal(HttpStatusCode.OK, reset.StatusCode);
+        Assert.Single(sender.Messages, m => m.To == email && m.Kind == "password.changed");
+        Assert.Equal(HttpStatusCode.BadRequest, (await client.PostAsJsonAsync("/api/auth/reset-password", new { email, token, password = "AnotherTest2026!" })).StatusCode);
+        using var stale = fixture.Factory.CreateClient();
+        stale.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", tokens.GetProperty("accessToken").GetString());
+        Assert.Equal(HttpStatusCode.Unauthorized, (await stale.GetAsync("/api/auth/me")).StatusCode);
+        Assert.Equal(HttpStatusCode.Unauthorized, (await client.PostAsJsonAsync("/api/auth/refresh", new { refreshToken = tokens.GetProperty("refreshToken").GetString() })).StatusCode);
+        Assert.Equal(HttpStatusCode.OK, (await client.PostAsJsonAsync("/api/auth/login", new { email, password = "ChangedTest2026!" })).StatusCode);
     }
 
 }

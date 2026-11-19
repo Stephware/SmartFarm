@@ -12,11 +12,15 @@ public static class EnrollmentRateLimiting
     public const string Registration = "registration";
     public const string Login = "login";
     public const string Enrollment = "enrollment";
+    public const string PasswordRecovery = "password-recovery";
+    public const string PasswordReset = "password-reset";
     public const string AdminActions = "admin-actions";
 
     public static IServiceCollection AddEnrollmentRateLimiting(this IServiceCollection services) =>
         services.AddRateLimiter(options =>
         {
+            AddPolicy(PasswordRecovery, 5, TimeSpan.FromMinutes(15));
+            AddPolicy(PasswordReset, 10, TimeSpan.FromMinutes(15));
             AddPolicy(Registration, 5, TimeSpan.FromMinutes(10));
             AddPolicy(Login, 20, TimeSpan.FromMinutes(1));
             AddPolicy(Enrollment, 10, TimeSpan.FromMinutes(1), byUser: true);

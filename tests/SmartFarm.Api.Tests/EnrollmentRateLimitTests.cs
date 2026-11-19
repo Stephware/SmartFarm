@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Hosting;
 using System.Net;
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
@@ -17,6 +18,8 @@ public sealed class EnrollmentRateLimitTests
     [Theory]
     [InlineData("/api/auth/register", 5)]
     [InlineData("/api/auth/login", 20)]
+    [InlineData("/api/auth/forgot-password", 5)]
+    [InlineData("/api/auth/reset-password", 10)]
     public async Task AuthenticationAttemptsAreLimitedByIpAndIgnoreForwardedHeaders(string path, int permits)
     {
         using var app = new WebApplicationFactory<Program>();
@@ -55,7 +58,8 @@ public sealed class EnrollmentRateLimitTests
     [Fact]
     public async Task EnrollmentWritesShareUserBudgetWhileOtherUsersAndAnonymousChallengesStayIndependent()
     {
-        using var app = new WebApplicationFactory<Program>();
+        using var app = new WebApplicationFactory<Program>().WithWebHostBuilder(builder => builder.ConfigureServices(services =>
+            services.AddScoped<SignInManager<SmartFarm.Infrastructure.Identity.SmartFarmUser>, RateLimitSignInManager>()));
         using var first = SignedIn(app, Guid.NewGuid());
         for (var attempt = 0; attempt < 10; attempt++)
         {
@@ -98,4 +102,19 @@ public sealed class EnrollmentRateLimitTests
             options.BearerTokenProtector.Protect(ticket));
         return client;
     }
+    // These tests isolate rate limiting. Real stamp validation is covered by SQL recovery tests.
+    private sealed class RateLimitSignInManager(
+        UserManager<SmartFarm.Infrastructure.Identity.SmartFarmUser> users,
+        Microsoft.AspNetCore.Http.IHttpContextAccessor accessor,
+        IUserClaimsPrincipalFactory<SmartFarm.Infrastructure.Identity.SmartFarmUser> claims,
+        IOptions<IdentityOptions> options,
+        Microsoft.Extensions.Logging.ILogger<SignInManager<SmartFarm.Infrastructure.Identity.SmartFarmUser>> logger,
+        IAuthenticationSchemeProvider schemes,
+        IUserConfirmation<SmartFarm.Infrastructure.Identity.SmartFarmUser> confirmation)
+        : SignInManager<SmartFarm.Infrastructure.Identity.SmartFarmUser>(users, accessor, claims, options, logger, schemes, confirmation)
+    {
+        public override Task<SmartFarm.Infrastructure.Identity.SmartFarmUser?> ValidateSecurityStampAsync(ClaimsPrincipal? principal) =>
+            Task.FromResult<SmartFarm.Infrastructure.Identity.SmartFarmUser?>(new() { Id = Guid.Parse(principal!.FindFirstValue(ClaimTypes.NameIdentifier)!) });
+    }
+
 }

@@ -72,3 +72,24 @@ Record `from/to` are inclusive farm-local dates; task dates are compared directl
 `PUT /api/notifications/{id}/acknowledge` is idempotent and sets existing read state; `acknowledgedAtUtc` equals `readAtUtc`. Reading/acknowledging suppresses further interruption for that notification; it stays in the center. A new deduplicated notification on severity change remains a meaningful update. No second notification database or acknowledgment column is introduced. Task/weather/stock alerts recheck current membership/owner access, including legacy reads/read actions; removed members cannot read former-farm notification content. Enrollment notifications are personal account updates and may lack farm association because the legacy record has no farm FK.
 
 Existing Hangfire schedules, missing-reading rules, severity thresholds and dedupe keys are retained. Rain >=20/50 mm, wind >=50/80 km/h and maximum temperature >=35/40 C produce warning/severe forecast advisories. These are application thresholds, not official emergency classifications. Missing measurements never clear a prior warning. Legacy notification list retains its existing newest-100 cap; paged reads are the complete history contract.
+
+## B3 account recovery and email
+
+API: `POST /api/auth/forgot-password {email}` always returns 200 `recovery.requested` for syntactically valid addresses regardless of account existence/disabled state/provider availability. `POST /api/auth/reset-password {email,token,password}` returns 200 `recovery.completed` or 400 `recovery.invalid`. Unknown/expired/reused tokens do not disclose accounts. Tokens are Base64URL-wrapped Identity tokens, expire after one hour, and rotate security stamps on successful reset. API access tokens now revalidate stamps/current account on protected requests; refresh already validates stamps. Web cookies revalidate stamps on every request. MFA remains configured independently and reset does not disable it. Anonymous endpoints ignore an attached expired session; protected endpoints reject it.
+
+Rate limits are 5 recovery requests and 10 completions per IP per 15 minutes, with Retry-After. An additional bounded in-process per-email hash throttle permits one email per 10 minutes, including unknown addresses. Distributed deployments need coordinated edge/provider limits; these memory limits/cache reset with a process restart.
+
+MVC backend: GET `/Account/ForgotPassword` and `/Account/ResetPassword?email&token` return uncached form metadata (including antiforgery token); POST the corresponding form route with `__RequestVerificationToken`. Responses are machine codes; the separate frontend owns Razor forms. Reset metadata uses `Referrer-Policy: no-referrer`. No Razor/view/asset changes are included.
+
+Configure via secrets/environment (colons become double underscores):
+
+| Setting | Meaning |
+| --- | --- |
+| `AccountRecovery:ApplicationOrigin` | Required trusted HTTPS application origin, no path/query/fragment/credentials; Development also permits loopback HTTP. Never read from Host/forwarded headers. Link path is `/Account/ResetPassword`. |
+| `Email:Mode` | `Disabled` default; `Capture` Development-only bounded in-memory fake; `Smtp` explicit real delivery |
+| `Email:Host`, `Email:Port`, `Email:From` | SMTP server, port default 587, plain sender address |
+| `Email:Username`, `Email:Password` | Optional paired credentials in secrets only; TLS is mandatory |
+| `Email:TimeoutSeconds` | 1–30, default 10 |
+| `DataProtection:KeyRingPath` | Shared protected persistent Web/API key ring, existing host contract; environment application names must match |
+
+Templates support English/Filipino from saved preference and display Philippine-local timestamps. Reset and successful password-change security emails are implemented. No routine weather/task emails or enrollment email spam is introduced. Sender failures log kind/failure type only, never message body/recipient/token/password. Local capture is available through DI/debugger only, never an HTTP inbox. **Real SMTP credentials/delivery are not configured or verified.**

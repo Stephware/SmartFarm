@@ -53,6 +53,7 @@ builder.Services.Configure<Microsoft.AspNetCore.Mvc.ApiBehaviorOptions>(options 
             .ToDictionary(entry => entry.Key, entry => entry.Value!.Errors.Select(error => error.ErrorMessage).ToArray())
     }));
 builder.Services.AddEnrollmentRateLimiting();
+builder.Services.AddAccountRecovery(builder.Configuration);
 builder.Services.AddSmartFarmPersistence(builder.Configuration.GetConnectionString("SmartFarm"));
 builder.Services.AddSmartFarmBusinessServices();
 builder.Services.AddSmartFarmWeather(builder.Configuration);
@@ -112,6 +113,23 @@ app.Use(async (context, next) =>
 
 app.UseRouting();
 app.UseAuthentication();
+// Opaque access tokens also validate current Identity stamps after a password reset.
+app.Use(async (context, next) =>
+{
+    if (context.User.Identity?.IsAuthenticated == true &&
+        context.GetEndpoint()?.Metadata.GetMetadata<Microsoft.AspNetCore.Authorization.IAllowAnonymous>() is null)
+    {
+        var signIn = context.RequestServices.GetRequiredService<Microsoft.AspNetCore.Identity.SignInManager<SmartFarmUser>>();
+        var user = await signIn.ValidateSecurityStampAsync(context.User);
+        if (user is null || user.DisabledAtUtc is not null)
+        {
+            context.Response.StatusCode = StatusCodes.Status401Unauthorized;
+            await context.Response.WriteAsJsonAsync(new { code = "session.invalid", message = "Please sign in again." });
+            return;
+        }
+    }
+    await next();
+});
 app.UseAuthorization();
 app.UseRateLimiter();
 
