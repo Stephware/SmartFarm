@@ -496,7 +496,18 @@ fun FarmDetailScreen(state: FarmUiState, onBack: () -> Unit,
                                 it.plotId == plot.id && it.status == 0
                             }?.cropTypeName
                             OutlinedCard(
-                                onClick = { openPlotId = if (expanded) null else plot.id },
+                                onClick = {
+                                    val changeSelection: () -> Unit = {
+                                        if (expanded) {
+                                            exitGuard?.clear("plot-${plot.id}")
+                                            sectionState.removeState("plot-edit-${plot.id}")
+                                        }
+                                        openPlotId = if (expanded) null else plot.id
+                                    }
+                                    if (expanded && canManage && exitGuard != null) {
+                                        exitGuard.requestForm("plot-${plot.id}", changeSelection)
+                                    } else changeSelection()
+                                },
                                 modifier = Modifier.fillMaxWidth()
                                     .defaultMinSize(minHeight = 64.dp)
                                     .testTag("plot-card-${plot.id}")
