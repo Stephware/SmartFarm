@@ -226,9 +226,11 @@ fun FarmAppBar(modifier: Modifier = Modifier, title: String? = null,
     Surface(modifier.fillMaxWidth(), color = MaterialTheme.colorScheme.surface) {
         Column(Modifier.statusBarsPadding()) {
             PageNavigationHeader(title, onBack, backLabel)
+            val compactHeader = LocalConfiguration.current.screenWidthDp < 380
             Row(Modifier.fillMaxWidth().defaultMinSize(minHeight = 60.dp)
-                .padding(horizontal = 16.dp), verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(9.dp)) {
+                .padding(horizontal = if (compactHeader) 10.dp else 16.dp),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(if (compactHeader) 4.dp else 9.dp)) {
                 // Persistent workspace app bars carry the official A mark only.
                 // The backing Material surface (not the overall app theme alone)
                 // selects the matching light/dark mark; page/farm titles stay primary.
@@ -245,9 +247,9 @@ fun FarmAppBar(modifier: Modifier = Modifier, title: String? = null,
                     androidx.compose.material3.OutlinedButton(onClick = navigation.onFarms,
                         modifier = Modifier.semantics {
                             contentDescription = "Switch farm: ${navigation.farmName ?: "My farms"}"
-                        }.widthIn(max = if (navigation.queuedCount > 0)
-                            if (LocalConfiguration.current.screenWidthDp < 380) 74.dp else 100.dp
-                            else 160.dp), shape = MaterialTheme.shapes.small,
+                        }.widthIn(max = if (compactHeader) 76.dp else
+                            if (navigation.queuedCount > 0) 100.dp else 160.dp),
+                        shape = MaterialTheme.shapes.small,
                         border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant),
                         contentPadding = androidx.compose.foundation.layout.PaddingValues(horizontal = 10.dp)) {
                         Text(navigation.farmName ?: "My farms", maxLines = 1, overflow = TextOverflow.Ellipsis,
