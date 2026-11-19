@@ -92,6 +92,38 @@ test("same-route POST keeps its context across pagehide and successful redirect"
     assert.equal(returned.calls[0].top, 930);
 });
 
+test("MVC POST redirect that normalizes query parameters restores the same resource", () => {
+    const storage = fakeStorage();
+    let submit;
+    const form = {
+        method: "post",
+        action: "https://app.example/Notifications/Read",
+        addEventListener: (_, cb) => { submit = cb; }
+    };
+    const source = mount("https://app.example/Notifications?page=1", storage, { y: 460, forms: [form] });
+    submit({ defaultPrevented: false });
+    source.windowEvents.pagehide();
+    const result = mount("https://app.example/Notifications?view=all&page=1", storage);
+    result.windowEvents.pageshow({ persisted: false });
+    assert.equal(result.calls[0].top, 460);
+});
+
+test("pending POST state cannot restore a different farm's view", () => {
+    const storage = fakeStorage();
+    let submit;
+    const form = {
+        method: "post",
+        action: "https://app.example/Farms/Update",
+        addEventListener: (_, cb) => { submit = cb; }
+    };
+    const source = mount("https://app.example/Farms/Details?farmId=one", storage, { y: 460, forms: [form] });
+    submit({ defaultPrevented: false });
+    source.windowEvents.pagehide();
+    const differentFarm = mount("https://app.example/Farms/Details?farmId=two", storage);
+    differentFarm.windowEvents.pageshow({ persisted: false });
+    assert.equal(differentFarm.calls.length, 0);
+});
+
 test("direct anchored navigation takes precedence over stored positions", () => {
     const storage = fakeStorage();
     const source = mount("https://app.example/Tasks?farmId=one", storage, { y: 500 });
@@ -127,6 +159,12 @@ test("Back links and the restoration script remain server-owned and accessible",
         "Views/Monitoring/Index.cshtml",
         "Views/Harvests/Index.cshtml",
         "Views/Weather/Index.cshtml",
+        "Views/Account/TwoFactor.cshtml",
+        "Views/Notifications/Index.cshtml",
+        "Views/Support/Details.cshtml",
+        "Areas/Admin/Views/Announcements/Details.cshtml",
+        "Areas/Admin/Views/Monitoring/Sync.cshtml",
+        "Areas/Admin/Views/Security/Setup.cshtml",
         "Areas/Admin/Views/Users/Details.cshtml",
         "Areas/Admin/Views/Farms/Details.cshtml",
         "Areas/Admin/Views/Audit/Details.cshtml",
