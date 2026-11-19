@@ -1753,7 +1753,14 @@ public sealed partial class FarmEnrollmentWebTests
         var reportHtml = await client.GetStringAsync($"/Reports/Harvests?farmId={FarmId}");
 
         Assert.Contains("ani12e-task-workspace", tasks);
-        Assert.Contains("ani12e-mobile-agenda", tasks);
+        Assert.Contains("calendar=open", tasks);
+        Assert.DoesNotContain("ani12e-mobile-agenda", tasks); // Calendar stays closed until requested.
+        var openCalendar = await client.GetStringAsync($"/Tasks?farmId={FarmId}&view=all&calendar=open&month=2026-11");
+        Assert.Contains("ani12e-mobile-agenda", openCalendar);
+        var selectedDay = await client.GetStringAsync($"/Tasks?farmId={FarmId}&view=all&date=2026-11-13");
+        Assert.Contains("Tasks for Fri, Nov 13, 2026", selectedDay);
+        Assert.Contains("Water North plot", selectedDay);
+        Assert.DoesNotContain("ani12e-mobile-agenda", selectedDay);
         Assert.Contains("Water North plot", tasks);
         Assert.Contains("ani12e-recording-grid", monitoring);
         Assert.Contains("ani12e-photo-panel", monitoring);
