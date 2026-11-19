@@ -46,6 +46,7 @@ import com.smartfarm.mobile.features.auth.AccountScreen
 import com.smartfarm.mobile.features.auth.AuthUiState
 import com.smartfarm.mobile.ui.components.onboarding.AniGoOnboardingScreen
 import com.smartfarm.mobile.ui.components.onboarding.AniGoFarmIntro
+import com.smartfarm.mobile.ui.components.onboarding.AniGoWelcomePage
 import com.smartfarm.mobile.ui.components.onboarding.anigoMotionAllowed
 import com.smartfarm.mobile.ui.theme.SmartFarmTheme
 import org.junit.Assert.assertEquals
@@ -119,6 +120,64 @@ class CarabaoOnboardingPreviewTest {
             compose.onNodeWithText("Welcome to AniGo!").assertIsDisplayed()
             saveScreenshot("00-welcome-dark")
         }
+    }
+
+    @Test
+    fun introductionUsesWalkingSpriteUntilArrival() {
+        compose.setContent {
+            SmartFarmTheme {
+                AniGoFarmIntro(onFinished = {}, motionAllowed = true,
+                    autoPlay = false, previewProgress = .25f)
+            }
+        }
+        compose.onNodeWithContentDescription("AniGo carabao walking").assertExists()
+        compose.onNodeWithContentDescription("AniGo carabao waving").assertDoesNotExist()
+    }
+
+    @Test
+    fun introductionSettlesOnWavingSpriteAfterWalking() {
+        compose.setContent {
+            SmartFarmTheme {
+                AniGoFarmIntro(onFinished = {}, motionAllowed = true,
+                    autoPlay = false, previewProgress = .91f)
+            }
+        }
+        compose.onNodeWithContentDescription("AniGo carabao waving").assertExists()
+        compose.onNodeWithContentDescription("AniGo carabao walking").assertDoesNotExist()
+    }
+
+    @Test
+    fun compactLargeTextIntroductionAlsoSettlesOnWavingSprite() {
+        compose.setContent {
+            DeviceConfigurationOverride(DeviceConfigurationOverride.ForcedSize(DpSize(720.dp, 400.dp))) {
+                DeviceConfigurationOverride(DeviceConfigurationOverride.FontScale(1.6f)) {
+                    SmartFarmTheme {
+                        AniGoFarmIntro(onFinished = {}, motionAllowed = true,
+                            autoPlay = false, previewProgress = .91f)
+                    }
+                }
+            }
+        }
+        compose.onNodeWithContentDescription("AniGo carabao waving").assertExists()
+        compose.onNodeWithContentDescription("AniGo carabao walking").assertDoesNotExist()
+    }
+
+    @Test
+    fun talkingWelcomeStopsAndReturnsToWavingPose() {
+        compose.mainClock.autoAdvance = false
+        compose.setContent {
+            SmartFarmTheme {
+                AniGoWelcomePage(active = true, activityResumed = true, motionAllowed = true)
+            }
+        }
+        compose.mainClock.advanceTimeBy(64)
+        compose.onNodeWithContentDescription("AniGo carabao speaking").assertExists()
+        compose.mainClock.advanceTimeBy(2_500)
+        compose.onNodeWithContentDescription("AniGo carabao waving").assertExists()
+        compose.onNodeWithContentDescription("AniGo carabao speaking").assertDoesNotExist()
+        // The greeting plays once, not continuously while this page remains selected.
+        compose.mainClock.advanceTimeBy(1_000)
+        compose.onNodeWithContentDescription("AniGo carabao waving").assertExists()
     }
 
     @Test
