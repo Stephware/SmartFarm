@@ -29,7 +29,11 @@ data class FarmUiState(
     val weather: WeatherOverviewDto? = null,
     val weatherOffline: Boolean = false,
     val weatherCachedAtUtcMillis: Long? = null,
-    val weatherMessage: String? = null
+    val weatherMessage: String? = null,
+    val joinSaveVersion: Int = 0,
+    val plotSaveVersion: Int = 0,
+    val plotEditSaveVersion: Int = 0,
+    val savedPlotId: String? = null
 )
 
 class FarmViewModel(
@@ -200,14 +204,16 @@ class FarmViewModel(
     fun addPlot(name: String, area: String, onSaved: () -> Unit = {}) = perform {
         val farmId = requireNotNull(mutable.value.selected).id
         repo.createPlot(farmId, PlotInputDto(name.trim(), BigDecimal(area)))
+        mutable.value = mutable.value.copy(plots = repo.plots(farmId),
+            plotSaveVersion = mutable.value.plotSaveVersion + 1)
         onSaved()
-        mutable.value = mutable.value.copy(plots = repo.plots(farmId))
     }
 
     fun savePlot(plot: PlotDto, name: String, area: String) = perform {
         val farmId = requireNotNull(mutable.value.selected).id
         repo.updatePlot(farmId, plot.id, PlotInputDto(name.trim(), BigDecimal(area), plot.rowVersion))
-        mutable.value = mutable.value.copy(plots = repo.plots(farmId))
+        mutable.value = mutable.value.copy(plots = repo.plots(farmId),
+            plotEditSaveVersion = mutable.value.plotEditSaveVersion + 1, savedPlotId = plot.id)
     }
 
     fun archivePlot(plot: PlotDto) = perform {
@@ -221,8 +227,10 @@ class FarmViewModel(
         repo.requestToJoin(code)
         onSaved()
         loadMyRequests()
-        if (mutable.value.enrollmentMessage == null) mutable.value = mutable.value.copy(
-            enrollmentMessage = "Request sent. Farm access awaits owner approval.")
+        mutable.value = mutable.value.copy(
+            enrollmentMessage = mutable.value.enrollmentMessage ?:
+                "Request sent. Farm access awaits owner approval.",
+            joinSaveVersion = mutable.value.joinSaveVersion + 1)
     }
 
     fun cancelJoinRequest(request: FarmJoinRequestDto) = perform {

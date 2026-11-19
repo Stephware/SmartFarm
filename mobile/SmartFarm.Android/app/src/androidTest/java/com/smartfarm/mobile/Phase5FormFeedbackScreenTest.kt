@@ -25,7 +25,7 @@ class Phase5FormFeedbackScreenTest {
             .performTextInput("Farm".repeat(31))
         compose.onNodeWithText("Farm name must be 120 characters or fewer.")
             .performScrollTo().assertExists()
-        compose.onNode(hasText("Create farm") and hasClickAction()).performScrollTo().assertIsNotEnabled()
+        compose.onNode(hasText("Create farm") and hasClickAction()).assertIsNotEnabled()
         compose.runOnIdle { org.junit.Assert.assertEquals(0, creations) }
     }
 

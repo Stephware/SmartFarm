@@ -1,6 +1,7 @@
 package com.smartfarm.mobile.features.farms
 
 import com.smartfarm.mobile.ui.components.UnsavedChanges
+import com.smartfarm.mobile.ui.components.LocalExitGuard
 import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.Intent
@@ -14,6 +15,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.defaultMinSize
@@ -39,6 +41,7 @@ import com.smartfarm.mobile.ui.components.farmRoleLabel
 import com.smartfarm.mobile.ui.components.FarmStatusTone
 import com.smartfarm.mobile.ui.components.FarmEmptyState
 import com.smartfarm.mobile.ui.components.RecordPage
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.CircularProgressIndicator
@@ -54,6 +57,7 @@ import androidx.compose.ui.semantics.error
 import androidx.compose.ui.semantics.liveRegion
 import androidx.compose.ui.semantics.LiveRegionMode
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -110,9 +114,32 @@ fun FarmListScreen(state: FarmUiState, onOpen: (String) -> Unit,
     var creating by rememberSaveable { mutableStateOf(false) }
     var joining by rememberSaveable { mutableStateOf(false) }
     var locationOptions by rememberSaveable { mutableStateOf(false) }
-    UnsavedChanges("farm-create", name.isNotEmpty() || location.isNotEmpty() || zone != "Asia/Manila" ||
-        latitude.isNotEmpty() || longitude.isNotEmpty(), name, location, zone, latitude, longitude)
-    UnsavedChanges("farm-join", farmCode.isNotEmpty(), farmCode)
+    val exitGuard = LocalExitGuard.current
+    UnsavedChanges("farm-create", creating && (name.isNotEmpty() || location.isNotEmpty() ||
+        zone != "Asia/Manila" || latitude.isNotEmpty() || longitude.isNotEmpty()),
+        name, location, zone, latitude, longitude)
+    UnsavedChanges("farm-join", joining && farmCode.isNotEmpty(), farmCode)
+    var handledJoinSave by rememberSaveable { mutableStateOf(state.joinSaveVersion) }
+    LaunchedEffect(state.joinSaveVersion) {
+        if (state.joinSaveVersion > handledJoinSave) {
+            handledJoinSave = state.joinSaveVersion
+            joining = false
+            farmCode = ""
+            exitGuard?.clear("farm-join")
+        }
+    }
+    fun closeCreate() {
+        val discard: () -> Unit = {
+            creating = false; name = ""; location = ""; zone = "Asia/Manila"
+            latitude = ""; longitude = ""; locationOptions = false
+            exitGuard?.clear("farm-create")
+        }
+        if (exitGuard != null) exitGuard.requestForm("farm-create", discard) else discard()
+    }
+    fun closeJoin() {
+        val discard: () -> Unit = { joining = false; farmCode = ""; exitGuard?.clear("farm-join") }
+        if (exitGuard != null) exitGuard.requestForm("farm-join", discard) else discard()
+    }
     val nameError = when {
         name.isNotBlank() && name.trim().length < 2 -> "Farm name must be at least 2 characters."
         name.trim().length > 120 -> "Farm name must be 120 characters or fewer."
@@ -133,74 +160,20 @@ fun FarmListScreen(state: FarmUiState, onOpen: (String) -> Unit,
                     FarmEmptyState("No farms yet", "Start your own farm or enter the code from an owner.")
                 FlowRow(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(10.dp),
                     verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                    Button(onClick = { creating = !creating; if (creating) joining = false },
+                    Button(onClick = { creating = true; joining = false },
+                        enabled = !state.loading && !state.offline,
                         modifier = Modifier.weight(1f).widthIn(min = 140.dp).defaultMinSize(minHeight = 52.dp)) {
-                        Text(if (creating) "Close farm form" else "Add a farm")
+                        Text("Add a farm")
                     }
-                    OutlinedButton(onClick = { joining = !joining; if (joining) creating = false },
+                    OutlinedButton(onClick = { joining = true; creating = false },
+                        enabled = !state.loading && !state.offline,
                         modifier = Modifier.weight(1f).widthIn(min = 140.dp).defaultMinSize(minHeight = 52.dp)) {
-                        Text(if (joining) "Close join form" else "Join a farm")
+                        Text("Join a farm")
                     }
                 }
                 if (state.farms.isNotEmpty()) {
                     Text("Your farms", style = MaterialTheme.typography.titleLarge,
                         modifier = Modifier.semantics { heading() })
-                }
-            }
-        }
-        if (creating) item(key = "create") {
-            FarmSectionCard("Create farm", subtitle = "Start with the farm name and its area.") {
-                OutlinedTextField(name, { name = it }, label = { Text("Farm name") },
-                    singleLine = true, enabled = !state.loading,
-                    isError = nameError != null,
-                    modifier = Modifier.fillMaxWidth().semantics { nameError?.let { error(it) } })
-                if (nameError != null)
-                    Text(nameError,
-                        color = MaterialTheme.colorScheme.error,
-                        style = MaterialTheme.typography.bodySmall)
-                OutlinedTextField(location, { location = it; latitude = ""; longitude = "" },
-                    label = { Text("City, town or farm address") }, enabled = !state.loading,
-                    isError = locationError != null,
-                    singleLine = true, modifier = Modifier.fillMaxWidth().semantics { locationError?.let { error(it) } })
-                if (locationError != null)
-                    Text(locationError,
-                        color = MaterialTheme.colorScheme.error,
-                        style = MaterialTheme.typography.bodySmall)
-                Text("You can add plots and crops after creating your farm.",
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant)
-                TextButton(onClick = { locationOptions = !locationOptions }) {
-                    Text(if (locationOptions) "Hide location options" else "Location pin & time zone (optional)")
-                }
-                if (locationOptions) {
-                    Text("A pin enables local weather forecasts. Your farm can be created without one.",
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant)
-                    FarmLocationPicker(location, latitude, longitude,
-                        enabled = !state.loading && !state.offline) { selectedName, selectedLat, selectedLon ->
-                        location = selectedName; latitude = selectedLat; longitude = selectedLon
-                    }
-                    TimeZoneInput(zone, { zone = it }, enabled = !state.loading && !state.offline)
-                }
-                Button(onClick = { onCreate(name.trim(), location.trim(), zone, latitude, longitude) },
-                    modifier = Modifier.fillMaxWidth().defaultMinSize(minHeight = 48.dp),
-                    enabled = !state.loading && !state.offline &&
-                        name.trim().length in 2..120 && location.trim().length in 2..250 &&
-                        zone.isNotBlank() &&
-                        (latitude.isBlank() == longitude.isBlank())) { Text("Create farm") }
-            }
-        }
-        if (joining) item(key = "join") {
-            FarmSectionCard("Join a farm", subtitle = "Enter the code shared by its owner.") {
-                OutlinedTextField(farmCode, { farmCode = it }, label = { Text("Farm code") },
-                    singleLine = true, modifier = Modifier.fillMaxWidth())
-                Text("The owner must approve your request before you can enter the farm.",
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant)
-                Button(onClick = { onRequest(farmCode.trim()) },
-                    modifier = Modifier.fillMaxWidth().defaultMinSize(minHeight = 48.dp),
-                    enabled = !state.loading && !state.offline && farmCode.isNotBlank()) {
-                    Text("Request access")
                 }
             }
         }
@@ -262,10 +235,86 @@ fun FarmListScreen(state: FarmUiState, onOpen: (String) -> Unit,
                 request.reviewedAtUtc?.let { Text("Updated $it (UTC)") }
             }
         }
-        item(key = "account-shortcut") {
-            TextButton(onClick = onBack) { Text("My account") }
-        }
     }
+    if (creating) AlertDialog(
+        onDismissRequest = ::closeCreate,
+        title = { Text("Create farm") },
+        text = {
+            Column(Modifier.fillMaxWidth().heightIn(max = 540.dp)
+                .verticalScroll(rememberScrollState()),
+                verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                Text("Add a farm name and nearby location. You can set up plots and crops afterward.",
+                    style = MaterialTheme.typography.bodyMedium)
+                state.error?.let {
+                    Text(it, color = MaterialTheme.colorScheme.error,
+                        modifier = Modifier.semantics { liveRegion = LiveRegionMode.Assertive })
+                }
+                OutlinedTextField(name, { name = it }, label = { Text("Farm name") },
+                    singleLine = true, enabled = !state.loading,
+                    isError = nameError != null,
+                    modifier = Modifier.fillMaxWidth().semantics { nameError?.let { error(it) } })
+                nameError?.let { Text(it, color = MaterialTheme.colorScheme.error,
+                    style = MaterialTheme.typography.bodySmall) }
+                OutlinedTextField(location, { location = it; latitude = ""; longitude = "" },
+                    label = { Text("City, town or farm address") },
+                    singleLine = true, enabled = !state.loading,
+                    isError = locationError != null,
+                    modifier = Modifier.fillMaxWidth().semantics { locationError?.let { error(it) } })
+                locationError?.let { Text(it, color = MaterialTheme.colorScheme.error,
+                    style = MaterialTheme.typography.bodySmall) }
+                TextButton(onClick = { locationOptions = !locationOptions }) {
+                    Text(if (locationOptions) "Hide location options" else "Location pin & time zone (optional)")
+                }
+                if (locationOptions) {
+                    Text("A map pin helps provide local forecasts. Add one now or in Farm settings.",
+                        style = MaterialTheme.typography.bodySmall)
+                    FarmLocationPicker(location, latitude, longitude,
+                        enabled = !state.loading && !state.offline) { selectedName, selectedLat, selectedLon ->
+                        location = selectedName; latitude = selectedLat; longitude = selectedLon
+                    }
+                    TimeZoneInput(zone, { zone = it }, enabled = !state.loading && !state.offline)
+                }
+                Text("Philippine time (Asia/Manila) is used by default.",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant)
+            }
+        },
+        confirmButton = {
+            Button(onClick = { onCreate(name.trim(), location.trim(), zone, latitude, longitude) },
+                enabled = !state.loading && !state.offline &&
+                    name.trim().length in 2..120 && location.trim().length in 2..250 &&
+                    zone.isNotBlank() && (latitude.isBlank() == longitude.isBlank())) {
+                Text("Create farm")
+            }
+        },
+        dismissButton = { TextButton(onClick = ::closeCreate) { Text("Cancel") } }
+    )
+    if (joining) AlertDialog(
+        onDismissRequest = ::closeJoin,
+        title = { Text("Join a farm") },
+        text = {
+            Column(Modifier.fillMaxWidth().heightIn(max = 390.dp)
+                .verticalScroll(rememberScrollState()),
+                verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                Text("Enter the 12-character code shared by the farm owner. They must approve access.")
+                state.error?.let {
+                    Text(it, color = MaterialTheme.colorScheme.error,
+                        modifier = Modifier.semantics { liveRegion = LiveRegionMode.Assertive })
+                }
+                OutlinedTextField(farmCode, { farmCode = it },
+                    label = { Text("Farm code") }, singleLine = true,
+                    enabled = !state.loading,
+                    modifier = Modifier.fillMaxWidth())
+            }
+        },
+        confirmButton = {
+            Button(onClick = { onRequest(farmCode.trim()) },
+                enabled = !state.loading && !state.offline && farmCode.isNotBlank()) {
+                Text("Request access")
+            }
+        },
+        dismissButton = { TextButton(onClick = ::closeJoin) { Text("Cancel") } }
+    )
 }
 
 @Composable
@@ -305,8 +354,8 @@ fun FarmDetailScreen(state: FarmUiState, onBack: () -> Unit,
     UnsavedChanges("farm-settings", visibleSection == "Settings" && farm != null &&
         (name != farm.name || location != farm.locationText || zone != farm.timeZoneId ||
             latitude != farm.latitude?.toPlainString().orEmpty() || longitude != farm.longitude?.toPlainString().orEmpty()))
-    UnsavedChanges("new-plot", plotName.isNotEmpty() || plotArea.isNotEmpty(), plotName, plotArea)
     val sectionState = rememberSaveableStateHolder()
+    val exitGuard = LocalExitGuard.current
 
     val hasFarmSwitcher = LocalFarmHeaderNavigation.current != null
     FarmPage(if (visibleSection == "Overview") "Today · ${farm?.name ?: "Farm"}" else
@@ -367,6 +416,28 @@ fun FarmDetailScreen(state: FarmUiState, onBack: () -> Unit,
                     var openPlotId by rememberSaveable(farm.id) { mutableStateOf<String?>(null) }
                     var addingPlot by rememberSaveable(farm.id) { mutableStateOf(false) }
                     var plotFilter by rememberSaveable(farm.id) { mutableStateOf("") }
+                    UnsavedChanges("new-plot", addingPlot && (plotName.isNotEmpty() || plotArea.isNotEmpty()),
+                        plotName, plotArea)
+                    var handledPlotSave by rememberSaveable(farm.id) { mutableStateOf(state.plotSaveVersion) }
+                    var handledPlotEdit by rememberSaveable(farm.id) { mutableStateOf(state.plotEditSaveVersion) }
+                    LaunchedEffect(state.plotSaveVersion) {
+                        if (state.plotSaveVersion > handledPlotSave) {
+                            handledPlotSave = state.plotSaveVersion
+                            addingPlot = false
+                            plotName = ""; plotArea = ""
+                            exitGuard?.clear("new-plot")
+                        }
+                    }
+                    LaunchedEffect(state.plotEditSaveVersion) {
+                        if (state.plotEditSaveVersion > handledPlotEdit) {
+                            handledPlotEdit = state.plotEditSaveVersion
+                            state.savedPlotId?.let { saved ->
+                                if (openPlotId == saved) openPlotId = null
+                                exitGuard?.clear("plot-$saved")
+                                sectionState.removeState("plot-edit-$saved")
+                            }
+                        }
+                    }
                     FarmSectionHeader("Growing plots",
                         "Choose a plot to view its crops. Edit one plot at a time.")
                     if (canManage) {
@@ -425,7 +496,18 @@ fun FarmDetailScreen(state: FarmUiState, onBack: () -> Unit,
                                 it.plotId == plot.id && it.status == 0
                             }?.cropTypeName
                             OutlinedCard(
-                                onClick = { openPlotId = if (expanded) null else plot.id },
+                                onClick = {
+                                    val changeSelection: () -> Unit = {
+                                        if (expanded) {
+                                            exitGuard?.clear("plot-${plot.id}")
+                                            sectionState.removeState("plot-edit-${plot.id}")
+                                        }
+                                        openPlotId = if (expanded) null else plot.id
+                                    }
+                                    if (expanded && canManage && exitGuard != null) {
+                                        exitGuard.requestForm("plot-${plot.id}", changeSelection)
+                                    } else changeSelection()
+                                },
                                 modifier = Modifier.fillMaxWidth()
                                     .defaultMinSize(minHeight = 64.dp)
                                     .testTag("plot-card-${plot.id}")

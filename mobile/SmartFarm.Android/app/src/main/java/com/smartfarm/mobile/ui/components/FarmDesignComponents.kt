@@ -213,7 +213,8 @@ fun FarmHero(title: String, subtitle: String, modifier: Modifier = Modifier) {
 data class FarmHeaderNavigation(
     val farmName: String?, val onFarms: () -> Unit, val onNotifications: () -> Unit,
     val queuedCount: Int = 0, val reviewCount: Int = 0,
-    val onSync: (() -> Unit)? = null
+    val onSync: (() -> Unit)? = null,
+    val onAccount: (() -> Unit)? = null
 )
 val LocalFarmHeaderNavigation = compositionLocalOf<FarmHeaderNavigation?> { null }
 
@@ -225,9 +226,11 @@ fun FarmAppBar(modifier: Modifier = Modifier, title: String? = null,
     Surface(modifier.fillMaxWidth(), color = MaterialTheme.colorScheme.surface) {
         Column(Modifier.statusBarsPadding()) {
             PageNavigationHeader(title, onBack, backLabel)
+            val compactHeader = LocalConfiguration.current.screenWidthDp < 380
             Row(Modifier.fillMaxWidth().defaultMinSize(minHeight = 60.dp)
-                .padding(horizontal = 16.dp), verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(9.dp)) {
+                .padding(horizontal = if (compactHeader) 10.dp else 16.dp),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(if (compactHeader) 4.dp else 9.dp)) {
                 // Persistent workspace app bars carry the official A mark only.
                 // The backing Material surface (not the overall app theme alone)
                 // selects the matching light/dark mark; page/farm titles stay primary.
@@ -244,9 +247,9 @@ fun FarmAppBar(modifier: Modifier = Modifier, title: String? = null,
                     androidx.compose.material3.OutlinedButton(onClick = navigation.onFarms,
                         modifier = Modifier.semantics {
                             contentDescription = "Switch farm: ${navigation.farmName ?: "My farms"}"
-                        }.widthIn(max = if (navigation.queuedCount > 0)
-                            if (LocalConfiguration.current.screenWidthDp < 380) 74.dp else 100.dp
-                            else 160.dp), shape = MaterialTheme.shapes.small,
+                        }.widthIn(max = if (compactHeader) 76.dp else
+                            if (navigation.queuedCount > 0) 100.dp else 160.dp),
+                        shape = MaterialTheme.shapes.small,
                         border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant),
                         contentPadding = androidx.compose.foundation.layout.PaddingValues(horizontal = 10.dp)) {
                         Text(navigation.farmName ?: "My farms", maxLines = 1, overflow = TextOverflow.Ellipsis,
@@ -286,6 +289,12 @@ fun FarmAppBar(modifier: Modifier = Modifier, title: String? = null,
                         modifier = Modifier.semantics { contentDescription = "Notifications" }) {
                         FarmLineIcon(FarmSymbol.Bell)
                     }
+                    navigation.onAccount?.let { openAccount ->
+                        androidx.compose.material3.IconButton(onClick = openAccount,
+                            modifier = Modifier.semantics { contentDescription = "My account" }) {
+                            FarmLineIcon(FarmSymbol.Account)
+                        }
+                    }
                 }
             }
             androidx.compose.material3.HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
@@ -293,7 +302,7 @@ fun FarmAppBar(modifier: Modifier = Modifier, title: String? = null,
     }
 }
 
-enum class FarmSymbol { Crop, Plots, Tasks, Clock, Stock, Weather, Reports, Offline, Bell, ChevronRight }
+enum class FarmSymbol { Crop, Plots, Tasks, Clock, Stock, Weather, Reports, Offline, Bell, ChevronRight, Account }
 
 /** One stroke system for metrics, shortcuts and offline indicators. */
 @Composable
@@ -339,6 +348,15 @@ fun FarmLineIcon(symbol: FarmSymbol, modifier: Modifier = Modifier, tint: Color 
                     cubicTo(17*u,2*u,7*u,2*u,7*u,9*u); lineTo(7*u,13*u); close()
                 }
                 drawPath(bell,tint,style=Stroke(stroke)); line(10f,21f,14f,21f)
+            }
+            FarmSymbol.Account -> {
+                drawCircle(tint, 10*u, Offset(12*u,12*u), style = Stroke(stroke))
+                drawCircle(tint, 3*u, Offset(12*u,9*u), style = Stroke(stroke))
+                val shoulders = Path().apply {
+                    moveTo(5*u,19*u)
+                    cubicTo(5*u,14*u,19*u,14*u,19*u,19*u)
+                }
+                drawPath(shoulders, tint, style = Stroke(stroke))
             }
             FarmSymbol.ChevronRight -> {
                 val start = if (layoutDirection == LayoutDirection.Rtl) 15f else 9f

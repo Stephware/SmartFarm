@@ -81,6 +81,9 @@ for (const button of document.querySelectorAll("[data-copy-target]")) {
         if (!triggers.length) continue;
         const dialog = document.createElement("dialog");
         dialog.className = "reference-screen reference-form-dialog";
+        if (section.id === "create-farm" || section.id === "join-farm") {
+            dialog.classList.add("ani-farm-entry-dialog");
+        }
         if (heading) {
             if (!heading.id) heading.id = section.id + "-heading";
             dialog.setAttribute("aria-labelledby", heading.id);
@@ -95,18 +98,39 @@ for (const button of document.querySelectorAll("[data-copy-target]")) {
         dialog.append(toolbar);
         section.before(dialog);
         dialog.append(section);
+        const form = section.querySelector("form");
+        const snapshot = () => JSON.stringify(Array.from(form.querySelectorAll("input,select,textarea"))
+            .filter(field => field.type !== "hidden" && field.type !== "submit" && field.type !== "button")
+            .map(field => [field.name || field.id, field.type === "checkbox" ? field.checked : field.value]));
+        let initial = snapshot();
+        const isDirty = () => snapshot() !== initial;
+        const askDiscard = () => !isDirty() || window.confirm("Discard the unfinished changes in this form?");
+        const dismiss = () => { if (askDiscard()) dialog.close(); };
         let opener;
         for (const trigger of triggers) {
             trigger.setAttribute("aria-haspopup", "dialog");
             trigger.addEventListener("click", event => {
                 event.preventDefault();
                 opener = trigger;
-                if (!dialog.open) dialog.showModal();
+                if (!dialog.open) {
+                    initial = snapshot();
+                    dialog.showModal();
+                    // Focus the form field rather than the Close icon.
+                    const first = form.querySelector("input:not([type=hidden]),select,textarea");
+                    if (first) first.focus({ preventScroll: true });
+                }
             });
         }
-        close.addEventListener("click", () => dialog.close());
+        close.addEventListener("click", dismiss);
+        dialog.addEventListener("cancel", event => { if (!askDiscard()) event.preventDefault(); });
+        dialog.addEventListener("click", event => {
+            if (event.target === dialog) dismiss();
+        });
         dialog.addEventListener("close", () => opener?.focus());
-        if (section.querySelector('[aria-invalid="true"],.input-validation-error,[data-form-error]')) dialog.showModal();
+        if (section.querySelector('[aria-invalid="true"],.input-validation-error,[data-form-error]')) {
+            dialog.showModal();
+            form.querySelector("[aria-invalid='true'],.input-validation-error,input:not([type=hidden])")?.focus({ preventScroll: true });
+        }
     }
     const revealHash = () => {
         if (!window.location?.hash) return;
@@ -128,6 +152,8 @@ for (const button of document.querySelectorAll("[data-copy-target]")) {
         forms.forEach(form => {
             delete form.dataset.aniP5Submitting;
             form.removeAttribute('aria-busy');
+            const progress = form.querySelector('[data-ani-form-progress]');
+            if (progress) progress.textContent = '';
         });
     };
     window.addEventListener('pageshow', recover);
@@ -164,6 +190,8 @@ for (const button of document.querySelectorAll("[data-copy-target]")) {
             }
             form.dataset.aniP5Submitting = 'true';
             form.setAttribute('aria-busy', 'true');
+            const progress = form.querySelector('[data-ani-form-progress]');
+            if (progress) progress.textContent = 'Saving your changes…';
             // Do not disable named submitters: their name/value may be required by ASP.NET MVC.
         });
     });

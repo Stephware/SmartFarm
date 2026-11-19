@@ -62,7 +62,7 @@ class EnrollmentScreenTest {
             inputView?.let { androidx.core.view.ViewCompat.getRootWindowInsets(it)
                 ?.isVisible(androidx.core.view.WindowInsetsCompat.Type.ime()) } == false
         }
-        compose.onNodeWithText("Request access").performScrollTo()
+        compose.onNodeWithText("Request access")
             .assertIsDisplayed().assertIsEnabled().performClick()
         compose.runOnIdle { assertEquals("ABCD12345678", sent); assertEquals(1, requests) }
         compose.onNodeWithText("Farm code").assertTextContains("ABCD12345678")

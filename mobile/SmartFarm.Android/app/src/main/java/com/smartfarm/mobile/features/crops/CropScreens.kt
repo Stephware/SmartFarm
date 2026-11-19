@@ -51,6 +51,7 @@ import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.liveRegion
 import androidx.compose.ui.semantics.LiveRegionMode
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -95,6 +96,34 @@ fun CropScreen(
     UnsavedChanges("crop-plan", selectedPlot.isNotEmpty() || selectedType.isNotEmpty() ||
         plannedDate.isNotEmpty() || harvestDate.isNotEmpty(), selectedPlot, selectedType, plannedDate, harvestDate)
     val formState = androidx.compose.runtime.saveable.rememberSaveableStateHolder()
+    val exitGuard = com.smartfarm.mobile.ui.components.LocalExitGuard.current
+    var handledTypeSave by rememberSaveable(state.farmId) { mutableStateOf(state.typeSaveVersion) }
+    var handledPlanSave by rememberSaveable(state.farmId) { mutableStateOf(state.planSaveVersion) }
+    var handledPlanEdit by rememberSaveable(state.farmId) { mutableStateOf(state.planEditSaveVersion) }
+    LaunchedEffect(state.typeSaveVersion) {
+        if (state.typeSaveVersion > handledTypeSave) {
+            handledTypeSave = state.typeSaveVersion
+            addingType = false
+            typeName = ""; unit = "kg"; growth = ""; watering = ""
+            exitGuard?.clear("crop-type")
+        }
+    }
+    LaunchedEffect(state.planSaveVersion) {
+        if (state.planSaveVersion > handledPlanSave) {
+            handledPlanSave = state.planSaveVersion
+            selectedPlot = ""; selectedType = ""; plannedDate = ""; harvestDate = ""
+            choosePlot = false; chooseCrop = false
+            selectedView = "planned"
+            exitGuard?.clear("crop-plan")
+        }
+    }
+    LaunchedEffect(state.planEditSaveVersion) {
+        if (state.planEditSaveVersion > handledPlanEdit) {
+            handledPlanEdit = state.planEditSaveVersion
+            selectedCycleId?.let { exitGuard?.clear("cycle-$it") }
+            selectedCycleId = null
+        }
+    }
     val active = state.cycles.filter { it.status == 1 }
         .sortedWith(compareBy<CropCycleDto>({ it.plotName }, { it.cropTypeName }))
     val planned = state.cycles.filter { it.status == 0 }
@@ -227,7 +256,14 @@ fun CropScreen(
                         }
                     }
                     if (selectedCycleId == cycle.id) {
-                        TextButton(onClick = { selectedCycleId = null }) { Text("Close crop details") }
+                        TextButton(onClick = {
+                            val dismiss: () -> Unit = {
+                                exitGuard?.clear("cycle-${cycle.id}")
+                                selectedCycleId = null
+                            }
+                            if (exitGuard != null) exitGuard.requestForm("cycle-${cycle.id}", dismiss)
+                            else dismiss()
+                        }) { Text("Close crop details") }
                         formState.SaveableStateProvider("cycle-${cycle.id}") {
                             CycleCard(cycle, canManage && !state.offline, state.busy,
                                 onUpdatePlan, onTransition, onMonitoring, onHarvests, onQuickMonitoring)

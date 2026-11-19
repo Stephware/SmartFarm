@@ -9,7 +9,10 @@
         <h1>My farms</h1>
         <p class="sf-muted">Open a farm below, create your own, or enter a code to join your team.</p>
     </div>
-    <a class="button" asp-controller="Farms" asp-action="Create">Create farm</a>
+    <div class="ani-entry-farm-heading-actions">
+        <a class="button" href="#create-farm"><partial name="_Icon" model='@("plus")' />Create farm</a>
+        <a class="sf-button-outline" href="#join-farm">Join farm</a>
+    </div>
 </header>
 
 @if (TempData["Message"] is string message) { <p class="form-notice" role="status">@message</p> }
@@ -26,7 +29,7 @@
                 <div>
                     <h3>Manage your own farm</h3>
                     <p>Start by giving your farm a name and location. You can add plots and crops next.</p>
-                    <a class="button" asp-controller="Farms" asp-action="Create">Create my first farm</a>
+                    <a class="button" href="#create-farm">Create my first farm</a>
                 </div>
                 <div>
                     <h3>Join an existing farm</h3>
@@ -61,8 +64,29 @@
     }
 </section>
 
+<section class="panel card ani-quick-create" id="create-farm" data-form-dialog aria-labelledby="create-farm-heading">
+    <header class="reference-panel-heading">
+        <h2 id="create-farm-heading">Create farm</h2>
+        <span class="ani-optional-label">Quick setup</span>
+    </header>
+    <p class="sf-muted">Start with the essentials. After creating the farm, you can add plots, plan crops, and invite your team.</p>
+    <form asp-controller="Farms" asp-action="Create" method="post" class="ani-quick-create-form ani-p5-form" data-ani-p5-form>
+        <label for="quick-farm-name">Farm name</label>
+        <input id="quick-farm-name" name="Name" required minlength="2" maxlength="120"
+               autocomplete="organization" placeholder="e.g. Riverside Farm" />
+        <label for="quick-farm-location">City, town or farm address</label>
+        <input id="quick-farm-location" name="LocationText" required minlength="2" maxlength="250"
+               placeholder="e.g. Barangay San Jose, Angeles City" />
+        <input type="hidden" name="TimeZoneId" value="Asia/Manila" />
+        <p class="hint">Uses Philippine time. Add a precise map pin later in Farm settings.</p>
+        <button class="button" type="submit">Create farm &amp; continue</button>
+        <span class="visually-hidden" role="status" aria-live="polite" data-ani-form-progress></span>
+    </form>
+    <p class="ani-modal-alternative"><a asp-controller="Farms" asp-action="Create">Use the detailed setup with map options</a></p>
+</section>
+
 <div class="farm-onboarding-grid ani-entry-join-layout @(Model.JoinRequests.Count == 0 && Model.RequestError is null ? "farm-onboarding-grid--single ani-entry-join-layout--single" : "")">
-    <section class="panel card join-farm-panel" id="join-farm" aria-labelledby="join-farm-heading">
+    <section class="panel card join-farm-panel" id="join-farm" data-form-dialog aria-labelledby="join-farm-heading">
 
         <header class="reference-panel-heading">
             <h2 id="join-farm-heading">Join farm</h2>
@@ -70,7 +94,11 @@
         </header>
         <p class="sf-muted">Have a farm code? Enter the code supplied by the owner. Access begins after the owner approves your request.</p>
         <p class="ani-inline-help">No code yet? Ask your farm owner to share their 12-character code.</p>
-        <form asp-action="RequestJoin" method="post" class="join-farm-form">
+        @if (!ViewData.ModelState.IsValid)
+        {
+            <p role="alert" class="error" data-form-error>Please review the farm code below.</p>
+        }
+        <form asp-action="RequestJoin" method="post" class="join-farm-form ani-p5-form" data-ani-p5-form>
             <label for="FarmCode">Farm code</label>
             <input id="FarmCode" name="FarmCode" value="@Model.Join.FarmCode" required maxlength="64"
                    autocomplete="off" autocapitalize="characters" spellcheck="false" inputmode="text"
@@ -78,6 +106,7 @@
             <p class="hint" id="join-code-help">Submitting a code sends a request; it does not give immediate access.</p>
             @Html.ValidationMessage("FarmCode", null, new { @class = "error" })
             <button type="submit">Request to join</button>
+            <span class="visually-hidden" role="status" aria-live="polite" data-ani-form-progress></span>
         </form>
     </section>
     @if (Model.RequestError is not null || Model.JoinRequests.Count > 0)
