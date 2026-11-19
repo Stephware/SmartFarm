@@ -253,3 +253,8 @@ Three native primary entries and a simpler existing Record sheet; My Farm groups
 - Disposition: Update
 - Raw: raw/project/2026-11-20-backend-b0-b5-integration.md
 - Updated: Dependencies and development
+
+## [2026-11-20] ingest | Backend delivery follow-up
+- Disposition: Update
+- Raw: raw/project/2026-11-20-backend-delivery-followup.md
+- Updated: Database; Dependencies and development

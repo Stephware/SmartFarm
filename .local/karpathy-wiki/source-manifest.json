@@ -2467,6 +2467,31 @@
       "snapshot": "raw/project/2026-11-20-backend-b0-b5-integration.md",
       "sha256": "205d47a1a138dac1c22c2ae842f614c5e46b156ae777842862dd19f3a8f86c61",
       "scope": "Integrated strict disposable SQL/Node/Android checks after independent frontend PR148; no frontend modifications in backend diff, provider/local schema limits retained."
+    },
+    {
+      "date": "2026-11-20",
+      "revision": "PR149 delivery follow-up after 03f9fdef; source hashes below",
+      "snapshot": "raw/project/2026-11-20-backend-delivery-followup.md",
+      "sha256": "ae0b0f17e95deba852cbd29648598ee60947da8418c3cdbb0925acd2520976ef",
+      "scope": "Verified seed join-code correction, both disposable SQL prefixes, and actual CI screenshot-backed provenance-only refresh after frontend PR148.",
+      "source_files": [
+        {
+          "path": "src/SmartFarm.Infrastructure/Development/DemoDataset.cs",
+          "sha256": "697fc5825753fcdabd822e37517f37a08830234ae5263f53923c7a092931b6fa"
+        },
+        {
+          "path": "tests/SmartFarm.Api.Tests/BackendSqlTests.cs",
+          "sha256": "1dd654b6d375330a18d577fb34ed72880ef65e42b4b3f277e877877959c28a8d"
+        },
+        {
+          "path": "tests/SmartFarm.Api.Tests/DemoDataTests.cs",
+          "sha256": "41fb551bc2962e1c8a517d36f92bd0e42a1333d72115bb85425f57516b97d3da"
+        },
+        {
+          "path": "tests/browser/baselines/review.json",
+          "sha256": "b0a77262a148247c27098eaafcbea182b9d85610cb4edaa7a3aa2673beb7f625"
+        }
+      ]
     }
   ]
 }

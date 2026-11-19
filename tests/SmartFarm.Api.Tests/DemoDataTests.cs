@@ -13,6 +13,7 @@ public sealed class DemoDataTests
         var farms = data.OfType<Farm>().ToList();
         Assert.Equal(3, farms.Count);
         Assert.All(farms, f => Assert.Equal("Asia/Manila", f.TimeZoneId));
+        Assert.All(farms, f => Assert.True(f.JoinCode.Length == 12 && f.JoinCode.All(char.IsAsciiHexDigit), "Demo farm codes must work with existing enrollment validation."));
         Assert.Contains(data.OfType<FarmMember>(), m => m.Role == 1);
         Assert.Contains(data.OfType<FarmMember>(), m => m.Role == 2);
         Assert.All(data.OfType<InventoryItem>(), i => Assert.Equal(i.QuantityOnHand,

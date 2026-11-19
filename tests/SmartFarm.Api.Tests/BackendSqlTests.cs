@@ -31,7 +31,9 @@ public sealed class BackendSqlFixture : IAsyncLifetime
             Assert.NotEqual("1", Environment.GetEnvironmentVariable("SMARTFARM_REQUIRE_SQL_TESTS"));
             return;
         }
-        Assert.StartsWith("SmartFarmEnrollmentBackend_", new SqlConnectionStringBuilder(Connection).InitialCatalog);
+        var catalog = new SqlConnectionStringBuilder(Connection).InitialCatalog;
+        Assert.True(catalog.StartsWith("SmartFarmEnrollmentBackend_", StringComparison.Ordinal) ||
+            catalog.StartsWith("SmartFarmEnrollmentTest_", StringComparison.Ordinal), "SQL tests require an approved disposable database.");
         Factory = new WebApplicationFactory<Program>().WithWebHostBuilder(builder =>
         {
             builder.UseEnvironment("Development");

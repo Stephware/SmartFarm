@@ -30,7 +30,7 @@ public static class DemoDataset
                 FullName = $"{Prefix} {role}", SecurityStamp = Guid.NewGuid().ToString(),
                 ConcurrencyStamp = Guid.NewGuid().ToString(), LockoutEnabled = true });
         for (var n = 0; n < 3; n++)
-            rows.Add(new Farm { Id = Id($"farm{n}"), OwnerUserId = Id("owner"), JoinCode = $"DEMO{n}A71B2C3",
+            rows.Add(new Farm { Id = Id($"farm{n}"), OwnerUserId = Id("owner"), JoinCode = Convert.ToHexString(Id($"join-code{n}").ToByteArray()[..6]),
                 Name = $"{Prefix}: {new[] { "Laguna vegetables", "Batangas orchard", "Empty farm" }[n]}",
                 LocationText = "Synthetic demonstration farm, Philippines", Latitude = 14.17m, Longitude = 121.24m,
                 CreatedAtUtc = now.AddDays(-80) });
