@@ -5,6 +5,13 @@ import org.junit.Test
 
 class AniGoOnboardingRouteTest {
     @Test
+    fun authenticatedSessionsAlwaysBypassFirstRunOnboarding() {
+        assertEquals("farms", anigoInitialRoute(completed = false, authenticated = true))
+        assertEquals("farms", anigoInitialRoute(completed = true, authenticated = true))
+        assertEquals("onboarding", anigoInitialRoute(completed = false, authenticated = false))
+    }
+
+    @Test
     fun firstLaunchStartsInGuideAndCompletedInstallStartsAtWelcome() {
         assertEquals("onboarding", anigoInitialRoute(completed = false))
         assertEquals("welcome", anigoInitialRoute(completed = true))
