@@ -57,6 +57,71 @@ class CarabaoOnboardingPreviewTest {
     @get:Rule val compose = createComposeRule()
 
     @Test
+    fun realJourneyContainsWelcomePlusAllFourFarmLessonsBeforeLogin() {
+        var exits = 0
+        compose.setContent {
+            SmartFarmTheme {
+                AniGoOnboardingScreen(onExit = { exits++ }, motionAllowed = false)
+            }
+        }
+        compose.onNodeWithText("Welcome to AniGo!").assertIsDisplayed()
+        compose.onNodeWithText("Hi! I'm Ani, your farm buddy.").assertExists()
+        compose.onNodeWithText("Back").assertIsNotEnabled()
+        val lessons = listOf(
+            "Your farm, organized",
+            "Grow with a plan",
+            "Record work as you go",
+            "From field to harvest"
+        )
+        lessons.forEach { heading ->
+            compose.onNodeWithText("Next →").performClick()
+            compose.waitForIdle()
+            compose.onNodeWithText(heading).assertIsDisplayed()
+        }
+        compose.onNodeWithText("Continue to AniGo").performClick()
+        compose.runOnIdle { assertEquals(1, exits) }
+    }
+
+    @Test
+    fun welcomeSlideRendersRasterMascotAndRespondsToBackNavigation() {
+        compose.setContent {
+            SmartFarmTheme {
+                AniGoOnboardingScreen(onExit = {}, motionAllowed = false)
+            }
+        }
+        compose.onNodeWithText("Welcome to AniGo!").assertIsDisplayed()
+        compose.onNodeWithContentDescription("AniGo carabao mascot").assertExists()
+        compose.onNodeWithText("Next →").performClick()
+        compose.waitForIdle()
+        compose.onNodeWithText("Your farm, organized").assertIsDisplayed()
+        compose.onNodeWithText("Back").performClick()
+        compose.waitForIdle()
+        compose.onNodeWithText("Welcome to AniGo!").assertIsDisplayed()
+    }
+
+    @Test
+    fun captureApprovedWelcomeLightForVisualReview() {
+        withAppearance(dark = false) {
+            compose.setContent {
+                SmartFarmTheme { AniGoOnboardingScreen(onExit = {}, motionAllowed = false) }
+            }
+            compose.onNodeWithText("Welcome to AniGo!").assertIsDisplayed()
+            saveScreenshot("00-welcome-light")
+        }
+    }
+
+    @Test
+    fun captureApprovedWelcomeDarkForVisualReview() {
+        withAppearance(dark = true) {
+            compose.setContent {
+                SmartFarmTheme { AniGoOnboardingScreen(onExit = {}, motionAllowed = false) }
+            }
+            compose.onNodeWithText("Welcome to AniGo!").assertIsDisplayed()
+            saveScreenshot("00-welcome-dark")
+        }
+    }
+
+    @Test
     fun firstRunFlagPersistsAcrossStoreInstancesWithoutAccountOrNetwork() {
         val context = InstrumentationRegistry.getInstrumentation().targetContext
         val testPrefs = "anigo_onboarding_instrumentation"
@@ -128,7 +193,7 @@ class CarabaoOnboardingPreviewTest {
     fun fourSlidesCanBeViewedAndBackNavigatedWithoutCreatingFarmData() {
         var exits = 0
         compose.setContent {
-            SmartFarmTheme { AniGoOnboardingScreen(onExit = { exits++ }, motionAllowed = false) }
+            SmartFarmTheme { AniGoOnboardingScreen(includeWelcome = false, onExit = { exits++ }, motionAllowed = false) }
         }
         compose.onNodeWithText("Your farm, organized").assertIsDisplayed()
         compose.onNodeWithText("Riverside Farm").assertExists()
@@ -157,7 +222,7 @@ class CarabaoOnboardingPreviewTest {
         compose.setContent {
             DeviceConfigurationOverride(DeviceConfigurationOverride.ForcedSize(DpSize(320.dp, 720.dp))) {
                 DeviceConfigurationOverride(DeviceConfigurationOverride.FontScale(1.6f)) {
-                    SmartFarmTheme { AniGoOnboardingScreen(onExit = { exits++ }, motionAllowed = false) }
+                    SmartFarmTheme { AniGoOnboardingScreen(includeWelcome = false, onExit = { exits++ }, motionAllowed = false) }
                 }
             }
         }
@@ -171,7 +236,7 @@ class CarabaoOnboardingPreviewTest {
         // default still auto-plays on real devices.
         var exits = 0
         compose.setContent {
-            SmartFarmTheme { AniGoOnboardingScreen(
+            SmartFarmTheme { AniGoOnboardingScreen(includeWelcome = false, 
                 onExit = { exits++ }, motionAllowed = true, introAutoPlay = false
             ) }
         }
@@ -185,7 +250,7 @@ class CarabaoOnboardingPreviewTest {
     fun reducedMotionBypassesIntroductionAndKeepsGuideAvailable() {
         var exits = 0
         compose.setContent {
-            SmartFarmTheme { AniGoOnboardingScreen(onExit = { exits++ }, motionAllowed = false) }
+            SmartFarmTheme { AniGoOnboardingScreen(includeWelcome = false, onExit = { exits++ }, motionAllowed = false) }
         }
         compose.onNodeWithText("Your farm, organized").assertIsDisplayed()
         compose.onNodeWithText("Skip").performClick()
@@ -196,7 +261,7 @@ class CarabaoOnboardingPreviewTest {
     fun reducedMotionNavigationDoesNotStartPagerAnimations() {
         compose.mainClock.autoAdvance = false
         compose.setContent {
-            SmartFarmTheme { AniGoOnboardingScreen(onExit = {}, motionAllowed = false) }
+            SmartFarmTheme { AniGoOnboardingScreen(includeWelcome = false, onExit = {}, motionAllowed = false) }
         }
         compose.onNodeWithText("Next →").performClick()
         compose.onNodeWithText("Grow with a plan").assertIsDisplayed()
@@ -237,7 +302,7 @@ class CarabaoOnboardingPreviewTest {
     fun swipeAndRecreationKeepTheSelectedLesson() {
         val restoration = StateRestorationTester(compose)
         restoration.setContent {
-            SmartFarmTheme { AniGoOnboardingScreen(onExit = {}, motionAllowed = false) }
+            SmartFarmTheme { AniGoOnboardingScreen(includeWelcome = false, onExit = {}, motionAllowed = false) }
         }
         compose.onRoot().performTouchInput { swipeLeft() }
         compose.onNodeWithText("Grow with a plan").assertIsDisplayed()
@@ -275,7 +340,7 @@ class CarabaoOnboardingPreviewTest {
         compose.setContent {
             CompositionLocalProvider(LocalLifecycleOwner provides owner) {
                 SmartFarmTheme {
-                    AniGoOnboardingScreen(onExit = {}, motionAllowed = true, introAutoPlay = false)
+                    AniGoOnboardingScreen(includeWelcome = false, onExit = {}, motionAllowed = true, introAutoPlay = false)
                 }
             }
         }
@@ -294,7 +359,7 @@ class CarabaoOnboardingPreviewTest {
     fun farmAndCropDemonstrationsShowCompleteExamplesWithReducedMotion() {
         compose.setContent {
             SmartFarmTheme {
-                AniGoOnboardingScreen(onExit = {}, motionAllowed = false)
+                AniGoOnboardingScreen(includeWelcome = false, onExit = {}, motionAllowed = false)
             }
         }
         compose.onNodeWithText("Riverside Farm").assertExists()
@@ -314,7 +379,7 @@ class CarabaoOnboardingPreviewTest {
         var exits = 0
         compose.setContent {
             SmartFarmTheme {
-                AniGoOnboardingScreen(
+                AniGoOnboardingScreen(includeWelcome = false, 
                     onExit = { exits++ },
                     motionAllowed = true,
                     introAutoPlay = false
@@ -346,7 +411,7 @@ class CarabaoOnboardingPreviewTest {
     @Test
     fun fieldworkAndHarvestExamplesShowAccurateFinalStatesWithoutMotion() {
         compose.setContent {
-            SmartFarmTheme { AniGoOnboardingScreen(onExit = {}, motionAllowed = false) }
+            SmartFarmTheme { AniGoOnboardingScreen(includeWelcome = false, onExit = {}, motionAllowed = false) }
         }
         repeat(2) {
             compose.onNodeWithText("Next →").performClick()
@@ -374,7 +439,7 @@ class CarabaoOnboardingPreviewTest {
         var exitCount = 0
         compose.setContent {
             SmartFarmTheme {
-                AniGoOnboardingScreen(
+                AniGoOnboardingScreen(includeWelcome = false, 
                     onExit = { exitCount++ },
                     motionAllowed = true,
                     introAutoPlay = false
@@ -411,7 +476,7 @@ class CarabaoOnboardingPreviewTest {
         var exits = 0
         compose.setContent {
             SmartFarmTheme {
-                AniGoOnboardingScreen(onExit = { exits++ }, motionAllowed = false)
+                AniGoOnboardingScreen(includeWelcome = false, onExit = { exits++ }, motionAllowed = false)
             }
         }
         compose.onNodeWithText("Next →").performClick()
@@ -435,7 +500,7 @@ class CarabaoOnboardingPreviewTest {
             ) {
                 DeviceConfigurationOverride(DeviceConfigurationOverride.FontScale(1.6f)) {
                     SmartFarmTheme {
-                        AniGoOnboardingScreen(onExit = {}, motionAllowed = false)
+                        AniGoOnboardingScreen(includeWelcome = false, onExit = {}, motionAllowed = false)
                     }
                 }
             }
@@ -456,7 +521,7 @@ class CarabaoOnboardingPreviewTest {
         withAppearance(dark = false) {
             compose.setContent {
                 SmartFarmTheme {
-                    AniGoOnboardingScreen(onExit = {}, motionAllowed = true, introAutoPlay = false)
+                    AniGoOnboardingScreen(includeWelcome = false, onExit = {}, motionAllowed = true, introAutoPlay = false)
                 }
             }
             compose.onNodeWithText("Skip intro").performClick()
@@ -469,7 +534,7 @@ class CarabaoOnboardingPreviewTest {
         withAppearance(dark = true) {
             compose.setContent {
                 SmartFarmTheme {
-                    AniGoOnboardingScreen(onExit = {}, motionAllowed = true, introAutoPlay = false)
+                    AniGoOnboardingScreen(includeWelcome = false, onExit = {}, motionAllowed = true, introAutoPlay = false)
                 }
             }
             compose.onNodeWithText("Skip intro").performClick()
@@ -505,7 +570,7 @@ class CarabaoOnboardingPreviewTest {
                 ) {
                     DeviceConfigurationOverride(DeviceConfigurationOverride.FontScale(1.6f)) {
                         SmartFarmTheme {
-                            AniGoOnboardingScreen(onExit = {}, motionAllowed = false)
+                            AniGoOnboardingScreen(includeWelcome = false, onExit = {}, motionAllowed = false)
                         }
                     }
                 }
@@ -521,7 +586,7 @@ class CarabaoOnboardingPreviewTest {
             compose.setContent {
                 DeviceConfigurationOverride(DeviceConfigurationOverride.ForcedSize(DpSize(320.dp, 720.dp))) {
                     DeviceConfigurationOverride(DeviceConfigurationOverride.FontScale(1.6f)) {
-                        SmartFarmTheme { AniGoOnboardingScreen(onExit = {}, motionAllowed = false) }
+                        SmartFarmTheme { AniGoOnboardingScreen(includeWelcome = false, onExit = {}, motionAllowed = false) }
                     }
                 }
             }
@@ -545,7 +610,7 @@ class CarabaoOnboardingPreviewTest {
         withAppearance(dark = false) {
             compose.setContent {
                 DeviceConfigurationOverride(DeviceConfigurationOverride.ForcedSize(DpSize(800.dp, 1280.dp))) {
-                    SmartFarmTheme { AniGoOnboardingScreen(onExit = {}, motionAllowed = false) }
+                    SmartFarmTheme { AniGoOnboardingScreen(includeWelcome = false, onExit = {}, motionAllowed = false) }
                 }
             }
             captureAllGuidePages("tablet-light")
@@ -557,7 +622,7 @@ class CarabaoOnboardingPreviewTest {
         withAppearance(dark = true) {
             compose.setContent {
                 DeviceConfigurationOverride(DeviceConfigurationOverride.ForcedSize(DpSize(720.dp, 400.dp))) {
-                    SmartFarmTheme { AniGoOnboardingScreen(onExit = {}, motionAllowed = false) }
+                    SmartFarmTheme { AniGoOnboardingScreen(includeWelcome = false, onExit = {}, motionAllowed = false) }
                 }
             }
             captureAllGuidePages("landscape-dark")
