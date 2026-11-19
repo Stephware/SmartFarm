@@ -1,8 +1,12 @@
 # Tasks, weather, and background automation
 
 > Sources: SmartFarm Worker, weather integration, and business services
-> Raw: [Automation sources](../../raw/project/2026-10-27-automation-source.md); [Feature sources](../../raw/project/2026-10-27-features-source.md); [PR48 fix and merge](../../raw/project/2026-10-28-pr48-fix-and-merge.md); [backend source review](../../raw/project/2026-11-11-backend-current.md); [android source review](../../raw/project/2026-11-11-android-current.md); [Current documentation audit](../../raw/project/2026-11-11-documentation-audit.md); [Publication source check](../../raw/project/2026-11-12-documentation-publication.md)
-> Updated: 2026-11-12
+> Raw: [Automation sources](../../raw/project/2026-10-27-automation-source.md); [Feature sources](../../raw/project/2026-10-27-features-source.md); [PR48 fix and merge](../../raw/project/2026-10-28-pr48-fix-and-merge.md); [backend source review](../../raw/project/2026-11-11-backend-current.md); [android source review](../../raw/project/2026-11-11-android-current.md); [Current documentation audit](../../raw/project/2026-11-11-documentation-audit.md); [Publication source check](../../raw/project/2026-11-12-documentation-publication.md); [Backend B0–B5 evidence](../../raw/project/2026-11-20-backend-b0-b5.md)
+> Updated: 2026-11-20
+
+## Backend weather, alert and guidance update
+
+Additive weather-category and Ani-alert reads preserve saved forecast source/date/freshness; they never classify Open-Meteo as official emergency warnings. Important interruption requires fresh active real-provider data and unread state; acknowledgment reuses read state. Membership/manager access is rechecked on notification reads, including legacy paths. Optional Gemini composes only verified bilingual catalog messages from minimal structured context, with deterministic fallback and no farm mutations. Existing Worker schedules/rules/dedupe remain, including strict invalid-zone rejection. Separate security-email recovery delivery uses a bounded transient handoff; routine task/weather emails are not added. Provider calls remain unverified; see [backend contracts](../../../../docs/backend-integration.md).
 
 **Source scope:** Earlier detailed audit/acceptance is dated below. For source
 changes through `dev` at `3c5a8b0`, see [current source status](current-source-status.md),
@@ -20,8 +24,7 @@ can fulfill tasks; crop transitions and generated-task changes dismiss reminders
 every six hours, all UTC cron. Farm business dates use each farm's timezone.
 Planting/watering/harvest schedules have deterministic deduplication keys.
 Low-stock checks create deduplicated in-app reminders. Eligible reminder recipients
-have current access, with owner fallback for an invalid assignee. No email/SMS/push
-transport is implemented.
+have current access, with owner fallback for an invalid assignee. Routine task/weather email, SMS and push transports remain absent; security email is separate.
 
 OpenMeteo is an implemented no-key provider. The typed client validates options,
 constrains HTTPS/provider origin, disables redirects and request logging, times out

@@ -23,16 +23,7 @@ public sealed class FarmWeatherService(IFarmAccessService access, SmartFarmDbCon
         if (farm is null)
             throw new FarmOperationException(FarmError.NotFound, "Resource not found.");
 
-        var today = DateOnly.FromDateTime(DateTime.UtcNow);
-        try
-        {
-            today = DateOnly.FromDateTime(TimeZoneInfo.ConvertTimeFromUtc(
-                DateTime.UtcNow, TimeZoneInfo.FindSystemTimeZoneById(farm.TimeZoneId)));
-        }
-        catch (Exception error) when (error is TimeZoneNotFoundException or InvalidTimeZoneException)
-        {
-            // Legacy rows with invalid zones can still view their weather data.
-        }
+        var today = SmartFarm.Core.Services.FarmTime.Today(DateTime.UtcNow, farm.TimeZoneId);
 
         var forecasts = await db.WeatherForecasts.AsNoTracking()
             .Where(f => f.FarmId == farmId && f.ForecastDate >= today &&

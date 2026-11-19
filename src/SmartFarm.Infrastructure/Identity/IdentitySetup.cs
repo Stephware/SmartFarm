@@ -17,7 +17,8 @@ public static class IdentitySetup
     {
         services.AddIdentity<SmartFarmUser, SmartFarmRole>(ConfigureIdentity)
             .AddEntityFrameworkStores<SmartFarmDbContext>()
-            .AddDefaultTokenProviders();
+            .AddDefaultTokenProviders()
+            .AddTokenProvider<PasswordResetTokenProvider>("AniGo.PasswordReset");
 
         services.AddAuthentication().AddBearerToken(IdentityConstants.BearerScheme, ConfigureBearer);
 
@@ -59,7 +60,8 @@ public static class IdentitySetup
             .AddRoles<SmartFarmRole>()
             .AddEntityFrameworkStores<SmartFarmDbContext>()
             .AddSignInManager()
-            .AddDefaultTokenProviders();
+            .AddDefaultTokenProviders()
+            .AddTokenProvider<PasswordResetTokenProvider>("AniGo.PasswordReset");
 
         services.AddHttpContextAccessor();
         services.AddAuthentication(IdentityConstants.BearerScheme)

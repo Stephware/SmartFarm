@@ -28,9 +28,9 @@ public sealed class AuthController(
     {
         var result = await registration.RegisterAsync(input.FullName, input.Email, input.Password);
         if (!result.Succeeded)
-            return BadRequest(new { errors = result.Errors.Select(error => error.Description) });
+            return BadRequest(new { code = "auth.registration_failed", errors = result.Errors.Select(error => error.Description), errorCodes = result.Errors.Select(error => error.Code) });
 
-        return StatusCode(StatusCodes.Status201Created, new { message = "Account created. Please sign in." });
+        return StatusCode(StatusCodes.Status201Created, new { code = "auth.registered", message = "Account created. Please sign in." });
     }
 
     [AllowAnonymous, HttpPost("login")]
@@ -39,11 +39,11 @@ public sealed class AuthController(
     {
         var user = await users.FindByEmailAsync(input.Email.Trim());
         if (user is null || user.DisabledAtUtc is not null)
-            return Unauthorized(new { message = "Invalid email or password." });
+            return Unauthorized(new { code = "auth.invalid_credentials", message = "Invalid email or password." });
 
         var result = await signIn.CheckPasswordSignInAsync(user, input.Password, lockoutOnFailure: true);
         if (!result.Succeeded)
-            return Unauthorized(new { message = "Invalid email or password, or account temporarily unavailable." });
+            return Unauthorized(new { code = "auth.invalid_credentials", message = "Invalid email or password, or account temporarily unavailable." });
 
         var principal = await signIn.CreateUserPrincipalAsync(user);
         await HttpContext.SignInAsync(IdentityConstants.BearerScheme, principal);

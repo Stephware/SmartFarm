@@ -1,0 +1,198 @@
+using System.Net;
+using System.Net.Http.Headers;
+using System.Net.Http.Json;
+using System.Text.Json;
+using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc.Testing;
+using Microsoft.Data.SqlClient;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
+using SmartFarm.Core.Contracts.Query;
+using SmartFarm.Core.Contracts.Tasks;
+using SmartFarm.Infrastructure.Development;
+using SmartFarm.Infrastructure.Identity;
+using SmartFarm.Infrastructure.Persistence;
+using Xunit;
+
+namespace SmartFarm.Api.Tests;
+
+public sealed class BackendSqlFixture : IAsyncLifetime
+{
+    private static readonly SemaphoreSlim SeedGate = new(1, 1);
+    public WebApplicationFactory<Program>? Factory { get; private set; }
+    public string? Connection => Environment.GetEnvironmentVariable("SMARTFARM_TEST_CONNECTION");
+    public async Task InitializeAsync()
+    {
+        if (string.IsNullOrWhiteSpace(Connection))
+        {
+            Assert.NotEqual("1", Environment.GetEnvironmentVariable("SMARTFARM_REQUIRE_SQL_TESTS"));
+            return;
+        }
+        var catalog = new SqlConnectionStringBuilder(Connection).InitialCatalog;
+        Assert.True(catalog.StartsWith("SmartFarmEnrollmentBackend_", StringComparison.Ordinal) ||
+            catalog.StartsWith("SmartFarmEnrollmentTest_", StringComparison.Ordinal), "SQL tests require an approved disposable database.");
+        Factory = new WebApplicationFactory<Program>().WithWebHostBuilder(builder =>
+        {
+            builder.UseEnvironment("Development");
+            builder.ConfigureAppConfiguration((_, config) => config.AddInMemoryCollection(new Dictionary<string, string?>
+            { ["ConnectionStrings:SmartFarm"] = Connection, ["Email:Mode"] = "Capture", ["AccountRecovery:ApplicationOrigin"] = "https://farmer.example.test" }));
+            builder.ConfigureServices(services =>
+            {
+                services.RemoveAll<SmartFarmDbContext>(); services.RemoveAll<DbContextOptions<SmartFarmDbContext>>();
+                services.AddDbContext<SmartFarmDbContext>(o => o.UseSqlServer(Connection));
+            });
+        });
+        await SeedGate.WaitAsync();
+        try
+        {
+        using var scope = Factory.Services.CreateScope();
+        var db = scope.ServiceProvider.GetRequiredService<SmartFarmDbContext>();
+        if (await db.Farms.AnyAsync(f => f.Id == DemoDataset.Id("farm0"))) return;
+        var rows = DemoDataset.Create(DateTime.UtcNow);
+        foreach (var user in rows.OfType<SmartFarmUser>())
+            user.PasswordHash = new PasswordHasher<SmartFarmUser>().HashPassword(user, "BackendTest2026!");
+        db.AddRange(rows); await db.SaveChangesAsync();
+        }
+        finally { SeedGate.Release(); }
+    }
+    public async Task<HttpClient> Client(string role)
+    {
+        var client = Factory!.CreateClient();
+        using var response = await client.PostAsJsonAsync("/api/auth/login", new { email = $"anigo-demo-{role}@example.test", password = "BackendTest2026!" });
+        response.EnsureSuccessStatusCode();
+        var json = await response.Content.ReadFromJsonAsync<JsonElement>();
+        client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", json.GetProperty("accessToken").GetString());
+        return client;
+    }
+    public Task DisposeAsync() { Factory?.Dispose(); return Task.CompletedTask; }
+}
+
+public sealed class BackendSqlTests(BackendSqlFixture fixture) : IClassFixture<BackendSqlFixture>
+{
+    [Fact]
+    public async Task PagesAreBoundedStableFilteredAndFarmAuthorized()
+    {
+        if (fixture.Factory is null) return;
+        using var client = await fixture.Client("owner");
+        var root = $"/api/farms/{DemoDataset.Id("farm0")}/records/";
+        var page = await client.GetFromJsonAsync<PageResult<FarmTaskDetails>>(root + "tasks?pageSize=1&sort=asc&status=0");
+        Assert.Equal(3, page!.TotalCount); Assert.True(page.HasMore); Assert.Single(page.Items);
+        var second = await client.GetFromJsonAsync<PageResult<FarmTaskDetails>>(root + "tasks?pageSize=1&page=2&sort=asc&status=0");
+        Assert.NotEqual(page.Items[0].Id, second!.Items[0].Id);
+        Assert.Equal(page.Items[0].Id, (await client.GetFromJsonAsync<PageResult<FarmTaskDetails>>(root + "tasks?pageSize=1&sort=asc&status=0"))!.Items[0].Id);
+        Assert.Empty((await client.GetFromJsonAsync<PageResult<FarmTaskDetails>>(root + "tasks?page=1000"))!.Items);
+        Assert.Equal(HttpStatusCode.BadRequest, (await client.GetAsync(root + "tasks?pageSize=101")).StatusCode);
+        foreach (var resource in new[] { "activities", "observations", "harvests", "inventory", "movements", "members", "enrollment" })
+        {
+            using var response = await client.GetAsync(root + resource + "?pageSize=1&search=demo");
+            Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+            var result = await response.Content.ReadFromJsonAsync<JsonElement>();
+            Assert.InRange(result.GetProperty("items").GetArrayLength(), 0, 1);
+        }
+        using var worker = await fixture.Client("worker");
+        Assert.Equal(HttpStatusCode.NotFound, (await worker.GetAsync(root + "members")).StatusCode);
+        Assert.Equal(HttpStatusCode.NotFound, (await worker.GetAsync(root + "enrollment")).StatusCode);
+        using var outsider = await fixture.Client("applicant");
+        Assert.Equal(HttpStatusCode.NotFound, (await outsider.GetAsync(root + "tasks")).StatusCode);
+        Assert.Equal(HttpStatusCode.NotFound, (await client.GetAsync($"/api/farms/{Guid.NewGuid()}/records/tasks")).StatusCode);
+        Assert.Equal(4, (await client.GetFromJsonAsync<List<FarmTaskDetails>>($"/api/farms/{DemoDataset.Id("farm0")}/tasks"))!.Count);
+    }
+
+    [Fact]
+    public async Task LanguagePreferencePersistsAndOldTimestampsHaveUtcSuffix()
+    {
+        if (fixture.Factory is null) return;
+        using var client = await fixture.Client("manager");
+        using var put = await client.PutAsJsonAsync("/api/auth/preferences", new { language = "fil" });
+        Assert.Equal(HttpStatusCode.OK, put.StatusCode);
+        var pref = await client.GetFromJsonAsync<JsonElement>("/api/auth/preferences");
+        Assert.Equal("fil", pref.GetProperty("language").GetString());
+        Assert.Equal(HttpStatusCode.BadRequest, (await client.PutAsJsonAsync("/api/auth/preferences", new { language = "sql" })).StatusCode);
+        var data = await client.GetFromJsonAsync<JsonElement>($"/api/farms/{DemoDataset.Id("farm0")}/records/activities");
+        Assert.EndsWith("Z", data.GetProperty("items")[0].GetProperty("record").GetProperty("occurredAtUtc").GetString());
+    }
+    [Fact]
+    public async Task WeatherCategoriesAndAniAcknowledgmentUseCurrentFarmAccess()
+    {
+        if (fixture.Factory is null) return;
+        using var client = await fixture.Client("owner");
+        var farm = DemoDataset.Id("farm0");
+        foreach (var category in new[] { "recent", "active", "upcoming", "resolved", "history" })
+            Assert.Equal(HttpStatusCode.OK, (await client.GetAsync($"/api/farms/{farm}/weather/records?category={category}&pageSize=1")).StatusCode);
+        var alerts = await client.GetFromJsonAsync<JsonElement>("/api/notifications/alerts?pageSize=100");
+        var alert = alerts.GetProperty("items").EnumerateArray().Single(a => a.GetProperty("id").GetGuid() == DemoDataset.Id("notification0"));
+        Assert.Equal(farm, alert.GetProperty("farmId").GetGuid());
+        Assert.False(alert.GetProperty("shouldInterrupt").GetBoolean()); // synthetic records are never real warnings
+        Assert.Equal(HttpStatusCode.NoContent, (await client.PutAsync($"/api/notifications/{DemoDataset.Id("notification0")}/acknowledge", null)).StatusCode);
+        Assert.Equal(HttpStatusCode.NoContent, (await client.PutAsync($"/api/notifications/{DemoDataset.Id("notification0")}/acknowledge", null)).StatusCode);
+        using var outsider = await fixture.Client("applicant");
+        Assert.Equal(HttpStatusCode.NotFound, (await outsider.GetAsync($"/api/farms/{farm}/weather/records")).StatusCode);
+        Assert.Equal(HttpStatusCode.NotFound, (await outsider.PutAsync($"/api/notifications/{DemoDataset.Id("notification0")}/acknowledge", null)).StatusCode);
+        using var worker = await fixture.Client("worker");
+        using var scope = fixture.Factory.Services.CreateScope();
+        var db = scope.ServiceProvider.GetRequiredService<SmartFarmDbContext>();
+        var member = await db.FarmMembers.SingleAsync(m => m.Id == DemoDataset.Id("member0worker"));
+        member.RemovedAtUtc = DateTime.UtcNow; await db.SaveChangesAsync();
+        try
+        {
+            var result = await worker.GetFromJsonAsync<JsonElement>("/api/notifications/alerts");
+            Assert.DoesNotContain(result.GetProperty("items").EnumerateArray(), a => a.GetProperty("id").GetGuid() == DemoDataset.Id("reminder"));
+            Assert.Equal(HttpStatusCode.NotFound, (await worker.PutAsync($"/api/notifications/{DemoDataset.Id("reminder")}/acknowledge", null)).StatusCode);
+            var legacy = await worker.GetFromJsonAsync<JsonElement>("/api/notifications");
+            Assert.DoesNotContain(legacy.EnumerateArray(), a => a.GetProperty("id").GetGuid() == DemoDataset.Id("reminder"));
+        }
+        finally { member.RemovedAtUtc = null; await db.SaveChangesAsync(); }
+    }
+
+    [Fact]
+    public async Task PasswordRecoveryIsNeutralSingleUseAndRevokesOldBearerAndRefresh()
+    {
+        if (fixture.Factory is null) return;
+        using var client = fixture.Factory.CreateClient();
+        var email = "recovery-" + Guid.NewGuid().ToString("N") + "@example.test";
+        (await client.PostAsJsonAsync("/api/auth/register", new { fullName = "Recovery Test", email, password = "BackendTest2026!" })).EnsureSuccessStatusCode();
+        var login = await client.PostAsJsonAsync("/api/auth/login", new { email, password = "BackendTest2026!" });
+        var tokens = await login.Content.ReadFromJsonAsync<JsonElement>();
+        using var known = await client.PostAsJsonAsync("/api/auth/forgot-password", new { email });
+        using var unknown = await client.PostAsJsonAsync("/api/auth/forgot-password", new { email = "unknown-" + email });
+        Assert.Equal(HttpStatusCode.OK, known.StatusCode); Assert.Equal(known.StatusCode, unknown.StatusCode);
+        Assert.Equal(await known.Content.ReadAsStringAsync(), await unknown.Content.ReadAsStringAsync());
+        var sender = fixture.Factory.Services.GetRequiredService<SmartFarm.Infrastructure.Email.CaptureEmailSender>();
+        var mail = await CapturedMail.WaitAsync(sender, email, "password.reset");
+        var link = mail.Body.Split('\n').Single(line => line.StartsWith("https://", StringComparison.Ordinal));
+        var uri = new Uri(link); Assert.Equal("farmer.example.test", uri.Host);
+        var query = Microsoft.AspNetCore.WebUtilities.QueryHelpers.ParseQuery(uri.Query);
+        var token = query["token"].ToString();
+        using var invalid = await client.PostAsJsonAsync("/api/auth/reset-password", new { email, token = "bad", password = "ChangedTest2026!" });
+        Assert.Equal(HttpStatusCode.BadRequest, invalid.StatusCode);
+        using var reset = await client.PostAsJsonAsync("/api/auth/reset-password", new { email, token, password = "ChangedTest2026!" });
+        Assert.Equal(HttpStatusCode.OK, reset.StatusCode);
+        await CapturedMail.WaitAsync(sender, email, "password.changed");
+        Assert.Equal(HttpStatusCode.BadRequest, (await client.PostAsJsonAsync("/api/auth/reset-password", new { email, token, password = "AnotherTest2026!" })).StatusCode);
+        using var stale = fixture.Factory.CreateClient();
+        stale.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", tokens.GetProperty("accessToken").GetString());
+        Assert.Equal(HttpStatusCode.Unauthorized, (await stale.GetAsync("/api/auth/me")).StatusCode);
+        Assert.Equal(HttpStatusCode.Unauthorized, (await client.PostAsJsonAsync("/api/auth/refresh", new { refreshToken = tokens.GetProperty("refreshToken").GetString() })).StatusCode);
+        Assert.Equal(HttpStatusCode.OK, (await client.PostAsJsonAsync("/api/auth/login", new { email, password = "ChangedTest2026!" })).StatusCode);
+    }
+
+    [Fact]
+    public async Task LoginAndIdentityValidationExposeStableErrorCodes()
+    {
+        if (fixture.Factory is null) return;
+        using var client = fixture.Factory.CreateClient();
+        var email = $"codes-{Guid.NewGuid():N}@example.test";
+        (await client.PostAsJsonAsync("/api/auth/register", new { fullName = "Codes Test", email, password = "CodesTest2026!" })).EnsureSuccessStatusCode();
+        using var login = await client.PostAsJsonAsync("/api/auth/login", new { email, password = "WrongPassword2026!" });
+        var loginError = await login.Content.ReadFromJsonAsync<JsonElement>();
+        Assert.Equal("auth.invalid_credentials", loginError.GetProperty("code").GetString());
+        using var weak = await client.PostAsJsonAsync("/api/auth/register", new { fullName = "Codes Test", email = "weak-" + email, password = "abcdefghij" });
+        var weakError = await weak.Content.ReadFromJsonAsync<JsonElement>();
+        Assert.Equal("auth.registration_failed", weakError.GetProperty("code").GetString());
+        Assert.Contains(weakError.GetProperty("errorCodes").EnumerateArray(), e => e.GetString() == "PasswordRequiresDigit");
+    }
+
+}

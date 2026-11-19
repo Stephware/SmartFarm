@@ -23,6 +23,8 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllersWithViews(options => options.Filters.AddService<SmartFarm.Web.Filters.ApiUnavailableFilter>());
 builder.Services.AddScoped<SmartFarm.Web.Filters.ApiUnavailableFilter>();
 builder.Services.AddEnrollmentRateLimiting();
+builder.Services.AddAccountRecovery(builder.Configuration);
+SmartFarm.Infrastructure.Integrations.Gemini.GeminiRegistration.AddWeatherGuidance(builder.Services, builder.Configuration);
 builder.Services.AddSmartFarmPersistence(
     builder.Configuration.GetConnectionString("SmartFarm"));
 builder.Services.AddSmartFarmWebIdentity(builder.Environment);

@@ -51,7 +51,7 @@ public sealed class MonitoringApiController(
         [FromForm] IFormFile? photo, CancellationToken ct) =>
         Result(async () =>
         {
-            if (photo is null) return BadRequest(new { message = "Select a photo." });
+            if (photo is null) return BadRequest(new { code = "photo.required", message = "Select a photo." });
             await using var input = photo.OpenReadStream();
             var saved = await monitoring.AddPhotoAsync(
                 farmId, cycleId, observationId, ActorId,
@@ -67,7 +67,7 @@ public sealed class MonitoringApiController(
         Guid photoId, [FromForm] IFormFile? photo, CancellationToken ct) =>
         Result(async () =>
         {
-            if (photo is null) return BadRequest(new { message = "Select a photo." });
+            if (photo is null) return BadRequest(new { code = "photo.required", message = "Select a photo." });
             await using var input = photo.OpenReadStream();
             var saved = await monitoring.AddPhotoWithIdAsync(
                 farmId, cycleId, observationId, photoId, ActorId,

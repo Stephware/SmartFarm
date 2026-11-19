@@ -57,9 +57,9 @@ public sealed class FarmTaskRepository(SmartFarmDbContext db) : IFarmTaskReposit
         db.Entry(task).Property(t => t.RowVersion).OriginalValue = version;
 
     public async Task<IReadOnlyList<Notification>> ListNotificationsAsync(Guid userId, CancellationToken ct = default) =>
-        await db.Notifications.AsNoTracking().Where(n => n.UserId == userId)
+        await SmartFarm.Infrastructure.Services.Queries.NotificationVisibility.ForActor(db, userId).AsNoTracking()
             .OrderByDescending(n => n.CreatedAtUtc).ThenBy(n => n.Id).Take(100).ToListAsync(ct);
 
     public Task<Notification?> FindNotificationAsync(Guid userId, Guid notificationId, CancellationToken ct = default) =>
-        db.Notifications.SingleOrDefaultAsync(n => n.UserId == userId && n.Id == notificationId, ct);
+        SmartFarm.Infrastructure.Services.Queries.NotificationVisibility.ForActor(db, userId).SingleOrDefaultAsync(n => n.Id == notificationId, ct);
 }

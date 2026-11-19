@@ -1,0 +1,117 @@
+# Backend integration contract (B0–B5)
+
+Implementation baseline: fetched `origin/dev` at `6fbd0a07`, 2026-11-19. Backend branch: `feature/anigo-backend-b0-b5`. This contract supplements existing Core DTOs; old numeric enum values, rowversions and sync envelopes remain authoritative.
+
+## B0 baseline and demo operations
+
+Existing support: shared farm/plot/crop/member/enrollment services, atomic stock operations, partial harvests, reports, monitoring/private photos, opaque Identity bearer/refresh, cookie MVC, idempotent sync ledger, saved Open-Meteo forecasts, deterministic advisories, in-app notifications and separate Hangfire jobs storage. No email/reset/Gemini integration exists in the baseline. Ordinary business lists are generally unpaged. Farm time zone already defaults to `Asia/Manila`.
+
+Invitation endpoints intentionally return 410; use farm code plus owner approval. The demo includes a pending enrollment request instead of resurrecting invitation links. Finance/support/announcement records and schema history stay intact; retired UI is not restored.
+
+Run from repo root with `DOTNET_ENVIRONMENT=Development` and `ConnectionStrings__SmartFarm` or existing Web user secrets:
+
+```sh
+dotnet run --project tools/SmartFarm.DemoSeeder
+# After successful preflight, explicitly apply (new private credentials path):
+dotnet run --project tools/SmartFarm.DemoSeeder -- --apply --credentials /private/tmp/anigo-demo-credentials.json
+# Optional real/local representative inspection photo, stored privately:
+# add --photo-source /absolute/photo.jpg --photo-root /absolute/shared/private-photo-root
+```
+
+The tool only accepts loopback `SmartFarmDB` or disposable `SmartFarmEnrollmentBackend_` catalogs in Development. It compares the complete EF CREATE contract to live catalog metadata using the existing read-only verifier; drift blocks application. It never creates/changes schema or migration history. Apply requires SQL `BACKUP DATABASE ... COPY_ONLY, CHECKSUM` and `RESTORE VERIFYONLY ... CHECKSUM` success, with server files under `/var/opt/mssql/backup`. This is backup validation, not a restore drill. Missing permissions/directory or schema mismatch leaves the dataset unapplied.
+
+Demo IDs are deterministic (`DemoDataset.Id`); names use `AniGo demo v1`, emails use `anigo-demo-*@example.test`, dedupe keys use `anigo-demo-v1:`, forecast provider is `SyntheticDemo`. Each account gets its own cryptographically random password in an exclusively created private file; no shared checked-in credential. A serializable transaction creates the dataset once; repeat apply never overwrites rows. There are three farms, owner/manager/worker/applicant users, crops in planned/active/completed states, due/overdue/upcoming/completed work, inspection/activity, balanced low stock, multiple partial harvests in kg and bunches, active/resolved synthetic advisories and read/unread notifications. Photos require an explicit local source and shared private storage; none is fabricated. Demo IDs and their foreign-key graph can be selected for a separately reviewed cleanup, never deleted automatically. Existing application/demo edits are retained on repeat runs.
+
+## Existing API inventory
+
+All business routes require opaque bearer authentication and current farm access. MVC calls shared services directly.
+
+| Area | Existing contract |
+| --- | --- |
+| Authentication | `/api/auth/register`, `/login`, `/refresh`, `/me` |
+| Setup and roles | `/api/farms`, farm plots/members/access, crop-types, crop-cycles and transitions |
+| Enrollment | `/api/farm-join-requests`, farm join-requests/decision, cancel and join-code/regenerate |
+| Records | cycle monitoring/activities/observations/follow-up/private photos, cycle harvests/void |
+| Supplies | farm inventory, item transactions/reverse, eligible activities |
+| Daily work | farm tasks/update/close, dashboard, weather, notifications/read |
+| Reports | farm reports/harvests; existing finance contracts retained |
+| Offline | `/api/sync/operations/{operationId}`, existing type-specific payloads unchanged; stable photo PUT |
+
+Schema/migration baseline: SQL-first scripts plus explicit EF baseline/enrollment/issue/admin/support/announcement migrations. Finance remains a separate SQL module. No startup migrations. Live alignment and seeding status are recorded in the execution plan after preflight.
+
+## B1 time, language, errors and pages
+
+Farm setup defaults to `Asia/Manila`; preserve each configured zone. SQL instant columns remain UTC `datetime2`, farm dates remain ISO `yyyy-MM-dd`. API DTO instant fields and newly persisted sync results serialize with `Z` even when SQL materializes an Unspecified DateTime; historical sync ledger JSON is replayed exactly as stored and may contain older zone-less UTC values; offset-bearing inputs normalize to UTC. Date-only values never acquire an offset. Invalid legacy weather zones fall back to Manila for reads; new farm validation still rejects invalid zones.
+
+`GET/PUT /api/auth/preferences` returns/accepts `{ "language": "en" | "fil" }`, persisted in existing Identity user claims (`anigo:language`). Default is English. `BackendMessages` defines stable message IDs and English/Filipino deterministic guidance. Existing stored messages remain historical text; clients can render supplied keys and structured facts. Numeric enum values do not change. Domain failures retain `message` and add `code`: `resource.not_found`, `record.conflict`, `record.invalidinput`. Invalid model binding returns `validation.invalid` plus keyed validation errors; clients should use codes/field names rather than parse English descriptions.
+
+`GET /api/farms/{farmId}/records/{resource}` accepts `tasks`, `activities`, `observations`, `harvests`, `inventory`, `movements`, `members`, `enrollment`. Members/enrollment require Owner, other records require current farm membership. `GET /api/notifications/page` pages the authenticated user's notifications.
+
+Common parameters: `page` (1–100000, default 1), `pageSize` (1–100, default 25), `search` (literal substring, max 120), `sort=asc|desc` (default desc). Response: `{ items, page, pageSize, totalCount, hasMore }`. Every order uses ID as final tie-breaker. Paging is offset based, represents current records at query time, and can shift when data changes; refresh from page one after writes. These are display endpoints, never synchronization cursors. Counts and rows use identical filters. Existing unpaged lists, report aggregates, photo contracts and sync/replay endpoints are unchanged.
+
+| Resource | Additional filters | Item shape/order |
+| --- | --- | --- |
+| tasks | status, type, cropCycleId, assignedToUserId, from/to | existing FarmTaskDetails; due date |
+| activities | type, cropCycleId, from/to | `{cropCycleId, record: ActivityDetails}`; occurred instant |
+| observations | type=health, status=follow-up, cropCycleId, from/to | `{cropCycleId, record: ObservationDetails}` with private photo metadata; observed instant |
+| harvests | cropCycleId, voided, from/to | existing HarvestEntry; harvest instant; report totals remain separate |
+| inventory | type=category, lowStock | existing InventoryItemDetails; item name |
+| movements | itemId, type, from/to | existing InventoryTransactionDetails; occurred instant |
+| members | type=role, status=0 active/1 removed | id/userId/role/joinedAtUtc/removedAtUtc/fullName/email; joined instant |
+| enrollment | enrollmentStatus=Pending/Approved/Rejected/Canceled, from/to | id/userId/status/requestedAtUtc/reviewedAtUtc/fullName/email; requested instant |
+| notifications | type, unread | existing NotificationDetails; created instant |
+
+Record `from/to` are inclusive farm-local dates; task dates are compared directly, instant histories use local-midnight UTC bounds. Invalid bounds/sort/size return 400. UTC day boundaries handle skipped/repeated local midnights; Worker scheduling continues to reject invalid zones rather than guess. Authentication adds `auth.invalid_credentials`, `auth.registration_failed` with Identity `errorCodes`, and `auth.registered`. Sync/photo/retired-invitation errors add stable codes, and rate limits add `limit.exceeded`. Existing human-readable messages remain for older clients. No new schema migration is required for B1.
+
+## B2 saved weather and Ani alerts
+
+`GET /api/farms/{farmId}/weather/records?category=recent|active|upcoming|resolved|history` uses common paging/date/type/search/sort filters. `recent` returns saved forecast snapshots; `upcoming` limits dates to farm-today or later; `history` limits dates to before farm-today. `active/resolved` return corresponding stored advisories, including unresolved historical warnings until explicitly resolved. Each snapshot keeps its own identity, date, provider, retrieval time and values; snapshots are not current conditions. Response contains farm zone/today/coordinates, `cautionKey=weather.caution` and a `records` page. Each record includes `isStale`, `isSynthetic`, `isOfficialWarning=false`, original severity/status and localization key/guidance where applicable. Freshness allows up to 12 hours age and 5 minutes clock skew. Missing retrieval time is stale.
+
+`GET /api/notifications/alerts` uses paging, type, unread and substring search. It extends existing notifications with farm association (where linked), category, routine/important/high priority, source, localization key/message, destination (`task`, `weather`, `supplies`, `enrollment`), task/advisory IDs, severity, freshness and `shouldInterrupt`. Routine alerts never interrupt. Only unread active severity >=2 advisories for today through four days ahead with fresh real-provider forecasts can interrupt. Synthetic demo records cannot interrupt. Stored warning severity remains rule controlled; no PAGASA feed is implemented or implied.
+
+`PUT /api/notifications/{id}/acknowledge` is idempotent and sets existing read state; `acknowledgedAtUtc` equals `readAtUtc`. Reading/acknowledging suppresses further interruption for that notification; it stays in the center. A new deduplicated notification on severity change remains a meaningful update. No second notification database or acknowledgment column is introduced. Task/weather/stock alerts recheck current membership/owner access, including legacy reads/read actions; removed members cannot read former-farm notification content. Enrollment notifications are personal account updates and may lack farm association because the legacy record has no farm FK.
+
+Existing Hangfire schedules, missing-reading rules, severity thresholds and dedupe keys are retained. Rain >=20/50 mm, wind >=50/80 km/h and maximum temperature >=35/40 C produce warning/severe forecast advisories. These are application thresholds, not official emergency classifications. Missing measurements never clear a prior warning. Legacy notification list retains its existing newest-100 cap; paged reads are the complete history contract.
+
+## B3 account recovery and email
+
+API: `POST /api/auth/forgot-password {email}` always returns 200 `recovery.requested` for syntactically valid addresses regardless of account existence/disabled state/provider availability. `POST /api/auth/reset-password {email,token,password}` returns 200 `recovery.completed` or 400 `recovery.invalid`. Unknown/expired/reused tokens do not disclose accounts. Tokens are Base64URL-wrapped Identity tokens, expire after one hour, and rotate security stamps on successful reset. API access tokens now revalidate stamps/current account on protected requests; refresh already validates stamps. Web cookies revalidate stamps on every request. MFA remains configured independently and reset does not disable it. Anonymous endpoints ignore an attached expired session; protected endpoints reject it.
+
+The request endpoint hands account lookup/token generation/delivery to a bounded 100-item background queue before returning, for both known and unknown addresses. It never waits for account-dependent SMTP latency. Queue items expire after two minutes; this transient queue is not durable across restarts. Successful resets also queue confirmation email.
+
+Rate limits are 5 recovery requests and 10 completions per IP per 15 minutes, with Retry-After. An additional bounded in-process per-email hash throttle permits one email per 10 minutes, including unknown addresses. Distributed deployments need coordinated edge/provider limits; these memory limits/cache reset with a process restart.
+
+MVC backend: GET `/Account/ForgotPassword` and `/Account/ResetPassword?email&token` return uncached form metadata (including antiforgery token); POST the corresponding form route with `__RequestVerificationToken`. Responses are machine codes; the separate frontend owns Razor forms. Reset metadata uses `Referrer-Policy: no-referrer`. No Razor/view/asset changes are included.
+
+Configure via secrets/environment (colons become double underscores):
+
+| Setting | Meaning |
+| --- | --- |
+| `AccountRecovery:ApplicationOrigin` | Required trusted HTTPS application origin, no path/query/fragment/credentials; Development also permits loopback HTTP. Never read from Host/forwarded headers. Link path is `/Account/ResetPassword`. |
+| `Email:Mode` | `Disabled` default; `Capture` Development-only bounded in-memory fake; `Smtp` explicit real delivery |
+| `Email:Host`, `Email:Port`, `Email:From` | SMTP server, port default 587, plain sender address |
+| `Email:Username`, `Email:Password` | Optional paired credentials in secrets only; TLS is mandatory |
+| `Email:TimeoutSeconds` | 1–30, default 10 |
+| `DataProtection:KeyRingPath` | Shared protected persistent Web/API key ring, existing host contract; environment application names must match |
+
+Templates support English/Filipino from saved preference and display Philippine-local timestamps. Reset and successful password-change security emails are implemented. No routine weather/task emails or enrollment email spam is introduced. Sender failures log kind/failure type only, never message body/recipient/token/password. Local capture is available through DI/debugger only, never an HTTP inbox. **Real SMTP credentials/delivery are not configured or verified.**
+
+## B4 optional Gemini explanations and crop-aware recommendations
+
+`GET /api/farms/{farmId}/weather/advisories/{advisoryId}/guidance?cropCycleId={optional}` rechecks current farm membership, advisory ownership and selected crop's farm before any provider work. Language comes from saved preference. Response contains advisory/crop/forecast IDs, original rule severity/date, source/retrieval timestamp, stale/synthetic flags, `generationSource=deterministic|gemini`, configured model only when used, explanatory and recommendation `{key,text}` arrays, limitations and `cautionKey`. It never writes crop/activity/task/stock/harvest records.
+
+The provider selects and composes **reviewed bilingual catalog messages**, constrained by the actual advisory and lifecycle. It does not return unrestricted agronomic prose. This deliberately keeps output fact-compatible and prevents invented readings, dosages or emergency classifications. Allowed recommendations include drainage checks, crop support checks, work review, crop stress inspection and soil-moisture checks. English/Filipino text is rendered from shared keys; free-text/unknown response fields, unknown/incompatible/duplicate codes, incomplete/blocked responses and malformed JSON fall back.
+
+Context sent to Gemini includes only forecast measurements/date/retrieval/type/severity/language, canonical crop type, lifecycle, plot area and selected historical observation codes/timestamp. Farm/user/crop IDs, coordinates, identities, raw crop names, plot names, notes, photos and arbitrary growth-stage text are excluded. Unknown crop labels (including injected instructions) become `other`, with an explicit limitation. No external tools or business-write capabilities are supplied. Stale, synthetic, unavailable, mismatched-date or resolved advisories bypass Gemini. Historic observations remain labeled as recorded history, not current field conditions.
+
+Configuration (secrets/environment only): `Gemini:Enabled=false` default; enabling requires `Gemini:ApiKey` and `Gemini:Model` (an available model supporting generateContent JSON schema). No speculative model default is pinned. `Gemini:TimeoutSeconds` defaults 8 (1–30), `DailyRequestLimit` defaults 20 (1–1000), `MaxOutputTokens` defaults 256 (64–512). Requests use the fixed HTTPS Google origin, `x-goog-api-key`, no redirects, no automatic retries, bounded response reads and no HTTP request/header/body logging. Valid selections cache for one hour (maximum 256 entries), keyed by model/full minimized context; current authorization/freshness is still checked on every API call. Concurrent identical calls share the cache gate. Daily UTC budgets include failed calls. Budget/cache are per process and reset on restart; configure provider billing quotas and aggregate limits before a multi-instance rollout.
+
+Provider reference checked 2026-11-20: [Google generateContent contract](https://aistudio.google.com/api-reference/generate-content), [structured output](https://aistudio.google.com/docs/structured-output). Implementation uses the existing .NET HttpClient stack, no new SDK or dependency. **No real Gemini key/model is configured or live call verified.** Automated provider responses are mocked; deterministic guidance remains available without configuration.
+
+## B5 verification and delivery
+
+Backend work began from `6fbd0a07`, then rebased cleanly onto frontend PR148/dev `add44d95`. Integrated Release .NET: **649 passed, 0 failed/skipped**, with both disposable SQL settings and strict SQL required. Node: **100 passed**; Python schema/backup scripts: **17 + 7 passed**. Android debug build, **78 executed JVM tests**, and instrumented-test compilation passed; unchanged Android tasks were up-to-date on the integrated recheck. Full solution build includes the seeder. No frontend-owned file changes appear in the backend diff.
+
+One independent review's provider-stream, skipped/repeated-midnight, mail timing and new sync UTC issues were fixed and verified. The seeder applied **40** synthetic records only to a separately created disposable database after full model/catalog matching and native checksum backup/VERIFYONLY; repeat apply preserved records. Live loopback API login confirmed owner/manager/worker/applicant farm isolation. This is not a full restore drill.
+
+The populated local `SmartFarmDB` has **11** schema differences and remains unchanged: **no backup, seed or migration/history writes there**. Reviewed alignment is required before applying the prepared demo tool to that database. No new migration/dependency was added. SMTP/Gemini providers, physical devices, production Worker/deployment and actual frontend presentation remain unverified. Mail handoff/throttle and AI cache/budget are bounded per process and transient. Draft PR and CI status are recorded in the execution plan after remote inspection; no merge is authorized.

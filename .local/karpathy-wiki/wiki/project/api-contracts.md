@@ -1,8 +1,12 @@
 # API contracts and compatibility
 
 > Sources: SmartFarm repository, source review
-> Raw: [Current documentation audit](../../raw/project/2026-11-11-documentation-audit.md); [Publication source check](../../raw/project/2026-11-12-documentation-publication.md)
-> Updated: 2026-11-12
+> Raw: [Current documentation audit](../../raw/project/2026-11-11-documentation-audit.md); [Publication source check](../../raw/project/2026-11-12-documentation-publication.md); [Backend B0–B5 evidence](../../raw/project/2026-11-20-backend-b0-b5.md)
+> Updated: 2026-11-20
+
+## Backend B0–B5 update
+
+The [backend integration contract](../../../../docs/backend-integration.md) is the current source for additive pages, preference/error codes, weather/Ani alerts, recovery and guidance. API DTO and new sync-result instants serialize with UTC Z; historical ledger replay preserves its original JSON. Existing list routes, numeric enums, rowversions and offline request hashes remain compatible. Recovery rotates security stamps and protected API access/refresh validate them. MVC uses shared services and antiforgery backend form actions; frontend presentation remains separate. Local verification and external limits are recorded in the [backend plan](../../../../docs/superpowers/plans/2026-11-19-backend-b0-b5.md).
 
 **Source scope:** Earlier detailed audit/acceptance is dated below. For source
 changes through `dev` at `3c5a8b0`, see [current source status](current-source-status.md),
@@ -35,7 +39,7 @@ operation-level shared service checks.
 | Area | Routes / contract |
 | --- | --- |
 | Liveness/reference | `GET /status`, `GET /reference-data`; Development `/health/database` is separate and not full readiness |
-| Account | `POST /auth/register` name/email/password, optional matching confirmation; login/refresh; `GET /auth/me`; no server logout/revocation |
+| Account | `POST /auth/register` name/email/password, optional matching confirmation; login/refresh; `GET /auth/me`; no explicit logout endpoint; reset revokes security stamps |
 | Farm/plot/member | `/farms`, `/{farmId}`, nested plots/members and `/access`; update/archive use version inputs |
 | Enrollment | `/farm-join-requests` mine/submit `{farmCode}`; farm `/join-requests` owner overview; request `/decision` `{approve}`, `/cancel`; farm `/join-code/regenerate` `{currentCode}` |
 | Crops | Farm `/crop-types`, `/crop-cycles`; plot `/crop-cycles` planning; cycle `/transitions` |

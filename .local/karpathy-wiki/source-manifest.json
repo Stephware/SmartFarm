@@ -1266,7 +1266,7 @@
       "pull_request_metadata": {
         "snapshot": "raw/project/2026-11-11-pr61-78-metadata.md",
         "sha256": "6efdc1d520b4f21fc23ce0c5d0c1c478b40aa0a90bf207d5315b877f6f16dfa3",
-        "scope": "PR61\u201378 title/body/merged flag/merge SHA; each merge checked as HEAD ancestor"
+        "scope": "PR61–78 title/body/merged flag/merge SHA; each merge checked as HEAD ancestor"
       },
       "verification": {
         "snapshot": "raw/project/2026-11-11-documentation-verification.md",
@@ -2401,6 +2401,95 @@
         {
           "path": "src/SmartFarm.Web/Views/Inventory/Edit.cshtml",
           "sha256": "1d3132db838236ac6eda515c22f62de665593b026010b3ee698d4af42c791fb0"
+        }
+      ]
+    },
+    {
+      "date": "2026-11-20",
+      "revision": "feature/anigo-backend-b0-b5 from dev 6fbd0a07; source hashes below",
+      "snapshot": "raw/project/2026-11-20-backend-b0-b5.md",
+      "sha256": "6581c07655ee2b89753c6d1843f49639c3f097aa53b0d3f8cf3be08dc59a142b",
+      "scope": "Backend B0–B5 implementation, local strict disposable SQL/compatibility verification, guarded local DB refusal and explicit provider/release limits.",
+      "source_files": [
+        {
+          "path": "SmartFarm.slnx",
+          "sha256": "380980d1de7400229b1b23afe27cffd8897f755d69056a304af2781405f26bad"
+        },
+        {
+          "path": "src/SmartFarm.Api/Program.cs",
+          "sha256": "9b9612e5ba3225f9a092a11a0a846fdd0badb2a38205805d62474ab79b266d1f"
+        },
+        {
+          "path": "src/SmartFarm.Api/Controllers/SyncOperationsController.cs",
+          "sha256": "fa4289077bb754306980ac5ffa097a3c88fb5e9f4ffb8bba2fd8006c8db2ea9f"
+        },
+        {
+          "path": "src/SmartFarm.Core/Services/FarmTime.cs",
+          "sha256": "3cceafee53955d678e1b6ea03b03e9d6f6f53181f6f731325dee885fcbb1d568"
+        },
+        {
+          "path": "src/SmartFarm.Infrastructure/Identity/AccountRecoveryService.cs",
+          "sha256": "efce0ba190dfe4459f84d29baf42ceafdf485a7d2a7457b1384d811e1e5be1c9"
+        },
+        {
+          "path": "src/SmartFarm.Infrastructure/Email/RecoveryEmailQueue.cs",
+          "sha256": "504c96e1c970306f51ec426874a96511f7d971b97f9fdeb254f2b4df7ec9a323"
+        },
+        {
+          "path": "src/SmartFarm.Infrastructure/Services/Queries/FarmRecordQueryService.cs",
+          "sha256": "78357d3d031a866723b36391e50e9b340f3e3976c958f31a016c5f5edaacacd6"
+        },
+        {
+          "path": "src/SmartFarm.Infrastructure/Services/Queries/NotificationVisibility.cs",
+          "sha256": "22016adbc4b2e7f0ae75192e426ac62fafd458bb9392f69779209de28c381c8d"
+        },
+        {
+          "path": "src/SmartFarm.Infrastructure/Integrations/Gemini/GeminiGuidanceClient.cs",
+          "sha256": "357edb36dc156a28275ab85289270cc553c5c4b4e7b3b2c235690eb0121659df"
+        },
+        {
+          "path": "src/SmartFarm.Infrastructure/Services/Weather/WeatherGuidanceService.cs",
+          "sha256": "908ee3e3f8c5a2a65c6dab58a968a0704a0b51adc48708c238198e889248303c"
+        },
+        {
+          "path": "tools/SmartFarm.DemoSeeder/Program.cs",
+          "sha256": "c7dc83a8507362ca4be8028de3a30d5f3cd240e5aa351582b98919ac0e674dac"
+        },
+        {
+          "path": "database/verification/verify_schema.py",
+          "sha256": "e766ce960decab0ed4525306d6be221874a911c4f66eb91c27854353207c78dd"
+        }
+      ]
+    },
+    {
+      "date": "2026-11-20",
+      "revision": "d3384b1a rebased on current dev add44d95",
+      "snapshot": "raw/project/2026-11-20-backend-b0-b5-integration.md",
+      "sha256": "205d47a1a138dac1c22c2ae842f614c5e46b156ae777842862dd19f3a8f86c61",
+      "scope": "Integrated strict disposable SQL/Node/Android checks after independent frontend PR148; no frontend modifications in backend diff, provider/local schema limits retained."
+    },
+    {
+      "date": "2026-11-20",
+      "revision": "PR149 delivery follow-up after 03f9fdef; source hashes below",
+      "snapshot": "raw/project/2026-11-20-backend-delivery-followup.md",
+      "sha256": "ae0b0f17e95deba852cbd29648598ee60947da8418c3cdbb0925acd2520976ef",
+      "scope": "Verified seed join-code correction, both disposable SQL prefixes, and actual CI screenshot-backed provenance-only refresh after frontend PR148.",
+      "source_files": [
+        {
+          "path": "src/SmartFarm.Infrastructure/Development/DemoDataset.cs",
+          "sha256": "697fc5825753fcdabd822e37517f37a08830234ae5263f53923c7a092931b6fa"
+        },
+        {
+          "path": "tests/SmartFarm.Api.Tests/BackendSqlTests.cs",
+          "sha256": "1dd654b6d375330a18d577fb34ed72880ef65e42b4b3f277e877877959c28a8d"
+        },
+        {
+          "path": "tests/SmartFarm.Api.Tests/DemoDataTests.cs",
+          "sha256": "41fb551bc2962e1c8a517d36f92bd0e42a1333d72115bb85425f57516b97d3da"
+        },
+        {
+          "path": "tests/browser/baselines/review.json",
+          "sha256": "b0a77262a148247c27098eaafcbea182b9d85610cb4edaa7a3aa2673beb7f625"
         }
       ]
     }

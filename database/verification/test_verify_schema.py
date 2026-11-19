@@ -76,6 +76,21 @@ class SchemaTests(unittest.TestCase):
         with self.assertRaises(verifier.UnsupportedSql):
             verifier.default_expression('CAST(1 AS bit)', 'int')
 
+    def test_integer_default_casts_require_matching_type_and_range(self):
+        for kind, value in [('tinyint', 0), ('smallint', -32768), ('int', 2147483647), ('bigint', 9223372036854775807)]:
+            self.assertEqual(verifier.default_expression(f'CAST({value} AS {kind})', kind), str(value))
+        for value in ['CAST(256 AS tinyint)', 'CAST(-1 AS tinyint)', 'CAST(1.2 AS int)', 'CAST(32768 AS smallint)']:
+            with self.assertRaises(verifier.UnsupportedSql):
+                verifier.default_expression(value, value.split(' AS ')[1][:-1])
+
+    def test_live_integer_convert_defaults_match_exact_casts(self):
+        self.assertEqual(verifier.default_expression('CONVERT([tinyint],(0))', 'tinyint'), '0')
+        self.assertEqual(verifier.default_expression('CONVERT([bit],(1))', 'bit'), '1')
+        for expr, kind in [('CONVERT([tinyint],(256))', 'tinyint'), ('CONVERT([int],(1))', 'smallint'),
+                           ('CONVERT([int],(1),0)', 'int')]:
+            with self.assertRaises(verifier.UnsupportedSql):
+                verifier.default_expression(expr, kind)
+
     def test_literal_comma_and_comment_markers_preserved(self):
         sql = SIMPLE.replace('Name NVARCHAR(20) NOT NULL', "Name NVARCHAR(20) NOT NULL CONSTRAINT DF_Sample_Name DEFAULT (N'a,--b/*c*/')")
         self.assertEqual(verifier.parse_schema(sql)['columns'][('Sample', 'Name')]['default'],
