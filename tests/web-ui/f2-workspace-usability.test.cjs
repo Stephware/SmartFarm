@@ -66,7 +66,7 @@ test("Android task calendar closes after date selection and large lists show mor
     assert.match(tasks, /selectedView = "day"/);
     assert.match(tasks, /if \(selectedView == "day"\)/);
     assert.match(tasks, /"Change date"/);
-    assert.match(tasks, /initialDisplayedMonthMillis = today/);
+    assert.match(tasks, /initialDisplayedMonthMillis = \(calendarDate \?: today\)/);
     assert.match(tasks, /Show 20 more completed tasks/);
     assert.match(tasks, /Show 20 more farm tasks/);
     assert.match(farm, /Show 20 more farms/);
