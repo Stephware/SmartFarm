@@ -275,12 +275,7 @@ fun SmartFarmNavHost(auth: AuthViewModel, farms: FarmViewModel, crops: CropViewM
             LoginScreen(state,
                 onSubmit = { email, password ->
                     auth.login(email, password) {
-                        navController.navigate("farms") {
-                            // Prevent Back from reopening login or registration
-                            // while the user is authenticated.
-                            popUpTo(navController.graph.id) { inclusive = false }
-                            launchSingleTop = true
-                        }
+                        navController.navigateToSignedInFarms()
                     }
                 },
                 onRegister = { navController.navigate("register") },
@@ -315,12 +310,9 @@ fun SmartFarmNavHost(auth: AuthViewModel, farms: FarmViewModel, crops: CropViewM
                 insights.clear()
                 sync.clear()
                 tasks.clear()
-                // Welcome may not exist in the stack when the session began at
-                // Farms. Clear every authenticated destination on sign-out.
-                navController.navigate("welcome") {
-                    popUpTo(navController.graph.id) { inclusive = false }
-                    launchSingleTop = true
-                }
+                // Clear authenticated destinations even when Welcome was never
+                // part of this session's back stack.
+                navController.navigateToSignedOutWelcome()
             }, onFarms = { navController.navigate("farms") },
                 onSync = { navController.navigate("sync") },
                 onNotifications = { navController.navigate("notifications") },
