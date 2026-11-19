@@ -13,8 +13,8 @@ mkdir -p app/build/ui-screenshots
 adb shell ls -l /sdcard/Pictures/AniGoOnboardingAudit || true
 missing=0
 for name in \
-  00-welcome-light 00-welcome-dark \
-  01-farm-light 02-crop-light 03-work-light 04-harvest-light \
+  00-welcome-light 00-welcome-dark 00-welcome-phone-light \
+  01-farm-light 01-farm-phone-light 02-crop-light 03-work-light 04-harvest-light 04-harvest-phone-dark \
   01-farm-dark 02-crop-dark 03-work-dark 04-harvest-dark \
   01-farm-tablet-light 02-crop-tablet-light 03-work-tablet-light 04-harvest-tablet-light \
   01-farm-landscape-dark 02-crop-landscape-dark 03-work-landscape-dark 04-harvest-landscape-dark \
@@ -43,4 +43,4 @@ if [ "$missing" -ne 0 ]; then
   echo "::error::At least one required visual-review capture is missing"
   exit 1
 fi
-echo "Android tests and all 26 PNG visual captures passed."
+echo "Android tests and all 29 PNG visual captures passed."
