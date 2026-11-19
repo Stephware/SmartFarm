@@ -51,6 +51,7 @@ function clickLink(page, href, back = false, flags = {}) {
         defaultPrevented: false,
         ...flags
     });
+    return link;
 }
 
 test("same-page filter navigation restores the working scroll position", () => {
@@ -74,6 +75,32 @@ test("an explicit Back icon returns to its previously visited parent section", (
     resumed.windowEvents.pageshow({ persisted: false });
     assert.equal(resumed.calls.length, 1);
     assert.equal(resumed.calls[0].top, 540);
+});
+
+test("Back from a detail restores the actual filtered parent URL", () => {
+    const store = fakeStorage();
+    const filtered = "https://app.example/Inventory?farmId=one&filter=low&page=2";
+    const detailUrl = "https://app.example/Inventory/Details?farmId=one&itemId=x";
+    const list = mount(filtered, store, { y: 800 });
+    clickLink(list, detailUrl);
+    list.windowEvents.pagehide();
+
+    const detail = mount(detailUrl, store);
+    const back = clickLink(detail, "https://app.example/Inventory?farmId=one", true);
+    assert.equal(back.href, filtered);
+    const returned = mount(filtered, store);
+    returned.windowEvents.pageshow({ persisted: false });
+    assert.equal(returned.calls[0].top, 800);
+});
+
+test("Back never reuses an unrelated farm's parent route", () => {
+    const store = fakeStorage();
+    const detailUrl = "https://app.example/Inventory/Details?farmId=one&itemId=x";
+    const list = mount("https://app.example/Inventory?farmId=two&filter=low", store);
+    clickLink(list, detailUrl);
+    const detail = mount(detailUrl, store);
+    const back = clickLink(detail, "https://app.example/Inventory?farmId=one", true);
+    assert.equal(back.href, "https://app.example/Inventory?farmId=one");
 });
 
 test("same-route POST keeps its context across pagehide and successful redirect", () => {
