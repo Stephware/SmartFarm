@@ -155,37 +155,11 @@ else
 {
     <header class="site-header guest-topbar @(isLanding ? "ani6-topbar" : "")">
         <a class="brand guest-logo anigo-guest-brand" asp-controller="Home" asp-action="Index" aria-label="AniGo home"><span class="anigo-logo-pair anigo-guest-logo" aria-hidden="true"><img class="anigo-logo-light" src="~/images/branding/anigo-logo.svg" asp-append-version="true" alt="" width="1120" height="297" /><img class="anigo-logo-dark" src="~/images/branding/anigo-logo-on-dark.svg" asp-append-version="true" alt="" width="1120" height="297" /></span></a>
-        @if (isLanding)
-        {
-            <nav class="ani6-top-links" aria-label="Landing page sections">
-                <a href="#home" aria-current="page">Home</a>
-                <a href="#how-it-works">How it works</a>
-                <a href="#features">Features</a>
-                <a href="#about">About</a>
-                <a href="#contact">Contact</a>
-            </nav>
-        }
         <nav class="ani6-account-links" aria-label="Account actions">
             <button class="icon-button" type="button" data-color-mode-toggle aria-label="Use dark appearance" aria-pressed="false"><partial name="_Icon" model='@("sun")' /></button>
             <a class="ani6-login" asp-controller="Account" asp-action="Login">Log in</a>
             <a class="button guest-nav-cta" asp-controller="Account" asp-action="Register">Create account</a>
         </nav>
-        @if (isLanding)
-        {
-            <details class="ani6-mobile-menu">
-                <summary>Menu <partial name="_Icon" model='@("down")' /></summary>
-                <nav aria-label="Landing page mobile sections">
-                    <a href="#home">Home</a><a href="#how-it-works">How it works</a>
-                    <a href="#features">Features</a><a href="#about">About</a>
-                    <a href="#contact">Contact</a>
-                    <a asp-controller="Account" asp-action="Login">Log in</a>
-                    <button type="button" class="ani6-menu-theme" data-color-mode-toggle
-                            aria-label="Use dark appearance" aria-pressed="false">
-                        <partial name="_Icon" model='@("sun")' /> Change appearance
-                    </button>
-                </nav>
-            </details>
-        }
     </header>
     <main class="page guest-page" id="main-content" tabindex="-1"><partial name="_ValidationSummary" />@RenderBody()</main>
 }
