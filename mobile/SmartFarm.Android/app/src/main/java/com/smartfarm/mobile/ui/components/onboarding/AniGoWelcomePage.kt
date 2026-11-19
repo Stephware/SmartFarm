@@ -49,17 +49,17 @@ internal fun AniGoWelcomePage(
     motionAllowed: Boolean,
     modifier: Modifier = Modifier
 ) {
-    var talkingFrame by remember { mutableIntStateOf(0) }
+    // -1 represents the resting wave; 0/1 are the closed/open talking frames.
+    // Returning to -1 after the short greeting prevents a frozen talking bust.
+    var talkingFrame by remember { mutableIntStateOf(-1) }
     LaunchedEffect(active, activityResumed, motionAllowed) {
-        if (!active || !activityResumed || !motionAllowed) {
-            talkingFrame = 0
-            return@LaunchedEffect
-        }
+        talkingFrame = -1
+        if (!active || !activityResumed || !motionAllowed) return@LaunchedEffect
         repeat(8) {
             talkingFrame = it % 2
             delay(245L)
         }
-        talkingFrame = 0
+        talkingFrame = -1
     }
 
     val dark = LocalFarmAppearance.current.dark
@@ -105,8 +105,8 @@ internal fun AniGoWelcomePage(
             ) {
                 AniGoCarabao(
                     pose = AniGoCarabaoPose.WAVE,
-                    frame = talkingFrame,
-                    talking = active && activityResumed && motionAllowed,
+                    frame = talkingFrame.coerceAtLeast(0),
+                    talking = active && activityResumed && motionAllowed && talkingFrame >= 0,
                     modifier = Modifier.align(Alignment.BottomStart).size(mascotSize)
                 )
                 Surface(
