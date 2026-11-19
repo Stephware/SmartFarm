@@ -252,7 +252,10 @@ fun TaskScreen(
             }
             if (selectedView == "calendar") {
                 item(key = "calendar") {
-                    val picker = rememberDatePickerState()
+                    val picker = rememberDatePickerState(
+                        initialDisplayedMonthMillis = today?.atStartOfDay(ZoneOffset.UTC)
+                            ?.toInstant()?.toEpochMilli()
+                    )
                     LaunchedEffect(picker.selectedDateMillis) {
                         picker.selectedDateMillis?.let { millis ->
                             selectedCalendarDay = Instant.ofEpochMilli(millis)
@@ -319,6 +322,12 @@ fun TaskScreen(
                         item(key = "edit-${task.id}") {
                             formState.SaveableStateProvider("edit-${task.id}") { EditTaskForm(task, state, onUpdate) }
                         }
+                    }
+                }
+                if (farmTasks.size > manageLimit) item(key = "manage-more") {
+                    OutlinedButton(onClick = { manageLimit += 20 },
+                        modifier = Modifier.fillMaxWidth().defaultMinSize(minHeight = 48.dp)) {
+                        Text("Show 20 more farm tasks (${farmTasks.size - manageLimit} remaining)")
                     }
                 }
             }
