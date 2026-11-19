@@ -35,7 +35,8 @@ test("Farm and account actions remain available", () => {
   const farm = read("Views/Farms/Details.cshtml");
   assert.match(farm, /href="#add-plot"/);
   assert.match(farm, /asp-action="CreatePlot"/);
-  assert.match(farm, /ani-p2-setup-more/);
+  assert.match(farm, /partial name="_AniGuide"/);
+  assert.match(read("Views/Shared/_AniGuide.cshtml"), /data-ani-replay/);
   assert.match(farm, /join-requests-heading/);
   const notes = read("Views/Notifications/Index.cshtml");
   assert.match(notes, /asp-action="Read"/);

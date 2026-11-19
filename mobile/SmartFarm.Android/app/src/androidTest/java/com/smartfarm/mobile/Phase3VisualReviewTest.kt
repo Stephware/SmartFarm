@@ -126,7 +126,7 @@ class Phase3VisualReviewTest {
             "login" -> LoginScreen(AuthUiState(), { _, _ -> }, {})
             "register" -> RegisterScreen(AuthUiState(), { _, _, _ -> }, {})
             "farms", "farms-create" -> FarmListScreen(FarmUiState(farms = listOf(farm)), {}, { _, _, _, _, _ -> }, {}, {})
-            "setup" -> RecordPage { item { FarmSetupGuide("farm", false, null, {}, {}) } }
+            "setup" -> RecordPage { item { FarmSetupGuide("farm", false, null, {}, {}, "test-owner", {}) } }
             "today" -> FarmDetailScreen(farmState, {}, { _, _, _, _, _ -> }, {}, { _, _ -> },
                 { _, _, _ -> }, {}, {}, {}, { _, _ -> }, { _, _ -> }, {},
                 homeTasks = TaskUiState(farmId = "farm", timeZoneId = "Asia/Manila"),

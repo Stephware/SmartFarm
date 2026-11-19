@@ -14,6 +14,8 @@ class TaskRepository(private val auth: AuthRepository, private val api: () -> Ta
     suspend fun update(task: TaskDto, input: TaskUpdateInput) = auth.authorized {
         api().update(it, task.farmId, task.id, input)
     }
+    suspend fun alerts() = auth.authorized { api().alerts(it).items }
+    suspend fun acknowledge(id: String) = auth.authorized { api().acknowledge(it, id) }
     suspend fun notifications() = auth.authorized { api().notifications(it) }
     suspend fun complete(task: TaskDto) = auth.authorized {
         api().close(it, task.farmId, task.id, TaskCloseInput(1, task.rowVersion))

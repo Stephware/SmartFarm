@@ -1266,7 +1266,7 @@
       "pull_request_metadata": {
         "snapshot": "raw/project/2026-11-11-pr61-78-metadata.md",
         "sha256": "6efdc1d520b4f21fc23ce0c5d0c1c478b40aa0a90bf207d5315b877f6f16dfa3",
-        "scope": "PR61–78 title/body/merged flag/merge SHA; each merge checked as HEAD ancestor"
+        "scope": "PR61\u201378 title/body/merged flag/merge SHA; each merge checked as HEAD ancestor"
       },
       "verification": {
         "snapshot": "raw/project/2026-11-11-documentation-verification.md",
@@ -2364,7 +2364,7 @@
       "revision": "feature/anigo-back-navigation-ux from dev bc44d831; source hashes below",
       "snapshot": "raw/project/2026-11-19-navigation-ux.md",
       "sha256": "c7c27f7dde757fc852d7563e01b1b663faed1ea81befdd346832385ab49387b8",
-      "scope": "Coordinated Phases A–D: native stacks, pinned headers, meaningful/restored drafts, MVC parents; local evidence and explicit remote/device/SQL limits. No merge authorized.",
+      "scope": "Coordinated Phases A\u2013D: native stacks, pinned headers, meaningful/restored drafts, MVC parents; local evidence and explicit remote/device/SQL limits. No merge authorized.",
       "source_files": [
         {
           "path": "mobile/SmartFarm.Android/app/src/main/java/com/smartfarm/mobile/navigation/SmartFarmNavHost.kt",
@@ -2409,7 +2409,7 @@
       "revision": "feature/anigo-backend-b0-b5 from dev 6fbd0a07; source hashes below",
       "snapshot": "raw/project/2026-11-20-backend-b0-b5.md",
       "sha256": "6581c07655ee2b89753c6d1843f49639c3f097aa53b0d3f8cf3be08dc59a142b",
-      "scope": "Backend B0–B5 implementation, local strict disposable SQL/compatibility verification, guarded local DB refusal and explicit provider/release limits.",
+      "scope": "Backend B0\u2013B5 implementation, local strict disposable SQL/compatibility verification, guarded local DB refusal and explicit provider/release limits.",
       "source_files": [
         {
           "path": "SmartFarm.slnx",
@@ -2492,6 +2492,13 @@
           "sha256": "b0a77262a148247c27098eaafcbea182b9d85610cb4edaa7a3aa2673beb7f625"
         }
       ]
+    },
+    {
+      "date": "2026-11-20",
+      "revision": "frontend F3 working tree based on 253fb81a; local only",
+      "snapshot": "raw/project/2026-11-20-frontend-f3.md",
+      "sha256": "26f959e98c51eeb8ef7551c5a56eb463209b18b8ec2e39de60a648199aef05b3",
+      "scope": "Ani guide and real important alert presentation; authenticated MVC fixture and disposable emulator verification, no backend rule changes."
     }
   ]
 }

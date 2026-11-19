@@ -188,8 +188,10 @@ fun SmartFarmNavHost(auth: AuthViewModel, farms: FarmViewModel, crops: CropViewM
     val farmDestination: @Composable (String, String) -> Unit = { farmId, section ->
         val farmState by farms.state.collectAsStateWithLifecycle()
         val homeTasks by tasks.state.collectAsStateWithLifecycle()
+        val aniAlerts by tasks.alerts.collectAsStateWithLifecycle()
         val homeCrops by crops.state.collectAsStateWithLifecycle()
         LaunchedEffect(farmId, confirmationVersion) {
+            tasks.loadAlerts(farmId)
             if (farms.state.value.selected?.id != farmId) farms.loadDetail(farmId)
             if (confirmationVersion > 0 || tasks.state.value.farmId != farmId) tasks.load(farmId)
             if (confirmationVersion > 0 || crops.state.value.farmId != farmId) crops.load(farmId)
@@ -222,6 +224,7 @@ fun SmartFarmNavHost(auth: AuthViewModel, farms: FarmViewModel, crops: CropViewM
             onRetry = { farms.loadDetail(farmId) },
             onRegenerateCode = farms::regenerateJoinCode,
             homeTasks = homeTasks, homeCrops = homeCrops, actorId = state.account?.id,
+            aniAlerts = aniAlerts, onAcknowledgeAlert = tasks::acknowledgeAlert,
             section = section,
             onWeather = { navController.navigate("farm/$farmId/weather") },
             onPlots = { navController.navigate("farm/$farmId/plots") },

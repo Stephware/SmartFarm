@@ -61,6 +61,22 @@
         }
     </div>
 </section>
+@if (SmartFarm.Web.Presentation.AniGuide.Step(Model.FarmRole, Model.Plots.Count > 0,
+    Model.Cycles.Any(c => c.Status == CropCycleStatus.Planned),
+    Model.Cycles.Any(c => c.Status == CropCycleStatus.Active)) is { } guideStep)
+{
+    <partial name="_AniGuide" model='new SmartFarm.Web.Presentation.AniGuideModel(Model.ActorId, farm.FarmId, guideStep)' />
+}
+<aside class="panel card ani-alert" data-ani-alert data-farm="@farm.FarmId" data-actor="@Model.ActorId" hidden aria-label="Important farm advisory" aria-live="polite">
+    <span class="ani-sprite" aria-hidden="true" style="display:block;background-position:100% 50%"></span>
+    <h2 data-alert-title></h2><p data-alert-message></p><p data-alert-source></p>
+    <a data-alert-open>View advisory</a>
+    <form method="post" asp-controller="Notifications" asp-action="AcknowledgeAni">
+        <input type="hidden" name="id" data-alert-id />
+        <button type="submit">Acknowledge</button><button type="button" data-alert-later>Not now</button>
+        <p role="status" data-alert-status></p>
+    </form>
+</aside>
 @if (Model.Weather?.Advisories.FirstOrDefault(a => a.Status == 0) is { } advisory)
 {
     <div class="notice reference-weather-notice" role="status"><span class="notice-icon"><partial name="_Icon" model='@("alert")' /></span><div><strong>@advisory.TypeName</strong><p>@advisory.Message</p></div><a asp-controller="Weather" asp-action="Index" asp-route-farmId="@farm.FarmId">See forecast <span aria-hidden="true">›</span></a></div>

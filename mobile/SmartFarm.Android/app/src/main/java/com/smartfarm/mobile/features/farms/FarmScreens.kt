@@ -351,6 +351,8 @@ fun FarmDetailScreen(state: FarmUiState, onBack: () -> Unit,
     onPlots: () -> Unit = {}, onSync: () -> Unit = {},
     onRecord: () -> Unit = {}, onRecordAction: (String) -> Unit = {},
     onTask: (com.smartfarm.mobile.data.remote.api.TaskDto) -> Unit = {},
+    aniAlerts: com.smartfarm.mobile.features.tasks.AniAlertState? = null,
+    onAcknowledgeAlert: (String) -> Unit = {},
     homeSync: HomeSyncSummary = HomeSyncSummary(0, 0)) {
     val farm = state.selected
     val canManage = !state.offline && farm?.role in listOf("Owner", "Manager")
@@ -390,7 +392,10 @@ fun FarmDetailScreen(state: FarmUiState, onBack: () -> Unit,
             }
             if (visibleSection == "Overview") {
                 if (canManage) {
-                    FarmSetupGuide(farm.id, state.plots.isNotEmpty(), homeCrops, onPlots, onCrops)
+                    FarmSetupGuide(farm.id, state.plots.isNotEmpty(), homeCrops, onPlots, onCrops, actorId, onRecord)
+                }
+                if (!state.offline && aniAlerts?.farmId == farm.id) {
+                    AniAlertPanel(aniAlerts, actorId, onWeather, onAcknowledgeAlert)
                 }
                 FarmHomeOverview(state, homeTasks, homeCrops, actorId, onTasks,
                     onWeather = onWeather, onTask = onTask,

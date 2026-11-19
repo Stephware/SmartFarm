@@ -47,7 +47,7 @@ class Phase3RefinementTest {
     @Test fun setupActionsStayInsideSmallScreenWithLargeText() {
         compose.setContent { Narrow {
             Box(Modifier.fillMaxWidth().padding(16.dp)) {
-                FarmSetupGuide("farm", false, null, {}, {})
+                FarmSetupGuide("farm", false, null, {}, {}, "test-owner", {})
             }
         } }
         val root = compose.onRoot().getUnclippedBoundsInRoot()

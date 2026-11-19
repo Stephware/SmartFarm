@@ -37,6 +37,12 @@ data class TaskUiState(
     val lastFormSave: TaskFormSave? = null
 )
 
+data class AniAlertState(val farmId: String? = null, val busy: Boolean = false,
+    val items: List<com.smartfarm.mobile.data.remote.api.AniAlertDto> = emptyList(), val error: String? = null)
+internal fun importantAniAlerts(items: List<com.smartfarm.mobile.data.remote.api.AniAlertDto>, farmId: String) =
+    items.filter { it.farmId == farmId && it.shouldInterrupt && !it.isStale && it.readAtUtc == null && it.acknowledgedAtUtc == null }
+        .sortedByDescending { it.severity ?: 0 }
+
 class TaskViewModel(
     private val repository: TaskRepository,
     private val farmRepository: FarmRepository,
@@ -45,6 +51,29 @@ class TaskViewModel(
     private val mutable = MutableStateFlow(TaskUiState())
     val state = mutable.asStateFlow()
     private var job: Job? = null
+    private var alertJob: Job? = null
+    private val alertMutable = MutableStateFlow(AniAlertState())
+    val alerts = alertMutable.asStateFlow()
+    fun loadAlerts(farmId: String) {
+        alertJob?.cancel()
+        alertMutable.value = AniAlertState(farmId, busy = true)
+        alertJob = viewModelScope.launch {
+            try { alertMutable.value = AniAlertState(farmId, items = importantAniAlerts(repository.alerts(), farmId)) }
+            catch (e: CancellationException) { throw e }
+            catch (_: Exception) { alertMutable.value = AniAlertState(farmId, error = "Alerts unavailable. Reconnect and refresh.") }
+        }
+    }
+    fun acknowledgeAlert(id: String) {
+        if (alertMutable.value.busy || alertMutable.value.items.none { it.id == id }) return
+        alertMutable.value = alertMutable.value.copy(busy = true, error = null)
+        alertJob = viewModelScope.launch {
+            try {
+                repository.acknowledge(id)
+                alertMutable.value = alertMutable.value.copy(busy = false, items = alertMutable.value.items.filterNot { it.id == id })
+            } catch (e: CancellationException) { throw e }
+            catch (_: Exception) { alertMutable.value = alertMutable.value.copy(busy = false, error = "Could not acknowledge. Reconnect and try again.") }
+        }
+    }
     private val formSaves = mutableMapOf<String, TaskFormSave>()
 
     fun load(farmId: String? = null) {
@@ -151,6 +180,8 @@ class TaskViewModel(
     fun read(id: String) = change(null, "Notification marked as read.") { repository.read(id) }
 
     fun clear() {
+        alertJob?.cancel()
+        alertMutable.value = AniAlertState()
         job?.cancel()
         formSaves.clear()
         mutable.value = TaskUiState()

@@ -32,23 +32,7 @@
     @if (TempData["Error"] is string error) { <p class="error form-error" role="alert">@error</p> }
     @if (canManage && Model.Plots.Count == 0)
     {
-        <section class="ani-farm-next-steps ani-p2-setup" aria-labelledby="next-steps-heading">
-            <div class="ani-p2-setup-intro">
-                <div>
-                    <p class="ani-overline">Your farm is created. Step 1 of 3</p>
-                    <h2 id="next-steps-heading">Start with your first plot</h2>
-                    <p class="sf-muted">Give the growing area a name and size. You can plan what to grow next.</p>
-                </div>
-                <a class="button" href="#add-plot">Add a plot</a>
-            </div>
-            <details class="ani-p2-setup-more">
-                <summary>What comes after adding a plot?</summary>
-                <ol class="ani-journey-steps" start="2">
-                    <li><span aria-hidden="true">2</span><div><strong>Plan a crop</strong><p>Choose what you'll grow and set planting dates.</p></div><a asp-controller="Crops" asp-action="Index" asp-route-farmId="@Model.Farm.Id">View crops</a></li>
-                    <li><span aria-hidden="true">3</span><div><strong>Bring your team</strong><p>Share your farm code when you're ready for people to join.</p></div><a href="#members-heading">Farm members</a></li>
-                </ol>
-            </details>
-        </section>
+        <partial name="_AniGuide" model='new SmartFarm.Web.Presentation.AniGuideModel(Guid.Parse(User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)!.Value), Model.Farm.Id, "plot")' />
     }
 </section>
 <nav class="ani12d-workspace-links" aria-label="Farm management sections">

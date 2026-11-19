@@ -23,7 +23,17 @@ data class TaskUpdateInput(
 data class NotificationDto(val id: String, val title: String, val message: String,
     val createdAtUtc: String, val readAtUtc: String?)
 
+data class AniAlertDto(val id: String, val farmId: String?, val title: String, val message: String,
+    val localizedMessage: String, val source: String, val severity: Int?, val shouldInterrupt: Boolean,
+    val isStale: Boolean, val readAtUtc: String?, val acknowledgedAtUtc: String?)
+data class AniAlertPage(val items: List<AniAlertDto>)
+
 interface TaskApi {
+    @GET("api/notifications/alerts?unread=true&pageSize=100")
+    suspend fun alerts(@Header("Authorization") bearer: String): AniAlertPage
+    @PUT("api/notifications/{id}/acknowledge")
+    suspend fun acknowledge(@Header("Authorization") bearer: String, @Path("id") id: String)
+
     @GET("api/farms/{farmId}/tasks")
     suspend fun tasks(@Header("Authorization") bearer: String, @Path("farmId") farmId: String): List<TaskDto>
     @POST("api/farms/{farmId}/tasks")
