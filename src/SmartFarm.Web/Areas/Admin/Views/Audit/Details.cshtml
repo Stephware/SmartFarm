@@ -2,7 +2,7 @@
 @{
     ViewData["Title"] = "Audit event";
 }
-<a class="admin-back" asp-area="Admin" asp-controller="Audit" asp-action="Index">← Back to audit history</a>
+<a class="admin-back anigo-back-control" asp-area="Admin" asp-controller="Audit" asp-action="Index" title="Back to audit history"><partial name="~/Views/Shared/_Icon.cshtml" model='@("chevLeft")' /><span class="visually-hidden">Back to audit history</span></a>
 <div class="page-heading admin-page-heading">
     <div><p class="sf-kicker">ADMIN ACTIVITY</p>
         <h1>@SmartFarm.Web.ViewModels.Admin.AdminAuditDisplay.ActionLabel(Model.Entry.Action)</h1>
