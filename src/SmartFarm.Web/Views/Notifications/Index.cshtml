@@ -39,9 +39,9 @@
         <p class="sf-muted">Showing the 100 most recent notices. Older messages are not listed here.</p>
     }
     <nav class="ani-inbox-tabs" aria-label="Notification filters">
-        <a asp-controller="Notifications" asp-action="Index" class="@(!unreadOnly ? "is-active" : "")"
+        <a asp-controller="Notifications" asp-action="Index" asp-fragment="notifications-list-heading" class="@(!unreadOnly ? "is-active" : "")"
            aria-current="@(!unreadOnly ? "page" : null)">All (@Model.Count)</a>
-        <a asp-controller="Notifications" asp-action="Index" asp-route-view="unread"
+        <a asp-controller="Notifications" asp-action="Index" asp-route-view="unread" asp-fragment="notifications-list-heading"
            class="@(unreadOnly ? "is-active" : "")"
            aria-current="@(unreadOnly ? "page" : null)">Unread (@unreadCount)</a>
     </nav>
