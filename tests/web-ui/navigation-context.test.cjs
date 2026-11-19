@@ -205,6 +205,6 @@ test("Back links and the restoration script remain server-owned and accessible",
     }
     for (const layout of ["Views/Shared/_Layout.cshtml", "Areas/Admin/Views/Shared/_Layout.cshtml"]) {
         const html = fs.readFileSync(path.join(root, layout), "utf8");
-        assert.match(html, /navigation-context\\.js/, layout);
+        assert.match(html, /navigation-context\.js/, layout);
     }
 });
