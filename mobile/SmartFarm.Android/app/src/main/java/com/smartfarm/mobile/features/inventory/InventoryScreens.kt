@@ -1,5 +1,6 @@
 package com.smartfarm.mobile.features.inventory
 
+import com.smartfarm.mobile.ui.components.UnsavedChanges
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -94,6 +95,8 @@ fun InventoryListScreen(
     var search by rememberSaveable(state.farmId) { mutableStateOf("") }
     var filter by rememberSaveable(state.farmId) { mutableStateOf("all") }
     var categoryMenu by rememberSaveable(state.farmId) { mutableStateOf(false) }
+    UnsavedChanges("new-supply", name.isNotEmpty() || category != 1 || unit != "kg" ||
+        opening != "0" || reorder.isNotEmpty(), name, category.toString(), unit, opening, reorder)
     val visibleItems = inventoryVisibleItems(state.workspace.items, filter, search)
     val openingValid = opening.trim().toBigDecimalOrNull()?.let {
         it >= BigDecimal.ZERO && it.stripTrailingZeros().scale() <= 3 &&
@@ -103,10 +106,10 @@ fun InventoryListScreen(
         it >= BigDecimal.ZERO && it.stripTrailingZeros().scale() <= 3 &&
             it <= BigDecimal("999999999999999.999")
     } == true
-    RecordPage {
+    RecordPage(title = "Supplies", onBack = onBack) {
         item(key = "header") {
             Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                OutlinedButton(onClick = onBack) { Text("Back") }
+
                 FarmHero("Supplies", "Farm-wide stock and supply history.")
                 Feedback(state, onRetry)
                 // Do not show a zero-stock dashboard for a new or still-loading farm.
@@ -303,14 +306,23 @@ fun InventoryItemScreen(
     var handled by rememberSaveable(state.farmId, state.itemId) { mutableStateOf(receipt) }
     LaunchedEffect(receipt) {
         if (receipt != null && receipt != handled) {
-            amount = ""; reason = ""; selectedActivity = null; handled = receipt
+            amount = ""; reason = ""; selectedActivity = null; movementType = 3; handled = receipt
         }
     }
+    UnsavedChanges("supply-details", item != null && (name != item.name || category != item.category ||
+        unit != item.unit || description != item.description.orEmpty() ||
+        reorder != item.reorderLevel?.toPlainString().orEmpty()))
+    UnsavedChanges("stock-movement", amount.isNotEmpty() || reason.isNotEmpty() || selectedActivity != null || movementType != 3,
+        amount, reason, selectedActivity.orEmpty(), movementType.toString())
     val reversedIds = state.transactions.mapNotNull { it.reversesTransactionId }.toSet()
-    RecordPage {
+    val exitGuard = com.smartfarm.mobile.ui.components.LocalExitGuard.current
+    LaunchedEffect(reversedIds) {
+        reversedIds.forEach { exitGuard?.clear("reversal-$it") }
+    }
+    RecordPage(title = "Supply details", onBack = onBack, backLabel = "Back to inventory") {
         item(key = "form") {
             Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                OutlinedButton(onClick = onBack) { Text("Back to inventory") }
+
                 FarmHero(item?.name ?: "Inventory item", "Review balances and record farm stock movement.")
         Feedback(state, onRetry)
         if (item != null) {
@@ -514,6 +526,7 @@ fun InventoryItemScreen(
             items(filtered, key = { "transaction-${it.id}" }) { transaction ->
                 var reversalReason by rememberSaveable(transaction.id) { mutableStateOf("") }
                 var reviewReversal by rememberSaveable(transaction.id) { mutableStateOf(false) }
+                UnsavedChanges("reversal-${transaction.id}", reversalReason.isNotEmpty() && transaction.id !in reversedIds)
                 val type = when (transaction.transactionType) {
                     1 -> "Opening stock"; 2 -> "Stock received"; 3 -> "Supplies used"
                     4 -> "Stock correction"; else -> "Reversal"

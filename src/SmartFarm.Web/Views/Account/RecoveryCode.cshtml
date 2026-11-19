@@ -3,6 +3,7 @@
     ViewData["Title"] = "Recovery code sign in";
 }
 <section class="panel narrow admin-login-panel" aria-labelledby="recovery-heading">
+    <a class="ui-back-link" asp-action="TwoFactor" asp-route-returnUrl="@Model.ReturnUrl">Use my authenticator instead</a>
     <p class="sf-kicker">ACCOUNT RECOVERY</p>
     <h1 id="recovery-heading">Use a recovery code</h1>
     <p>Use one of your saved recovery codes. Each code works only once.</p>
@@ -13,5 +14,4 @@
         <input asp-for="Code" autocomplete="off" maxlength="32" required />
         <button type="submit">Verify recovery code</button>
     </form>
-    <p><a asp-action="TwoFactor" asp-route-returnUrl="@Model.ReturnUrl">Use my authenticator instead</a></p>
 </section>

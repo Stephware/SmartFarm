@@ -2358,6 +2358,51 @@
           "sha256": "4491b8f6360f3f0c8971df3531a410b11a7659df0064d389cd53e6eaa2748e16"
         }
       ]
+    },
+    {
+      "date": "2026-11-19",
+      "revision": "feature/anigo-back-navigation-ux from dev bc44d831; source hashes below",
+      "snapshot": "raw/project/2026-11-19-navigation-ux.md",
+      "sha256": "c7c27f7dde757fc852d7563e01b1b663faed1ea81befdd346832385ab49387b8",
+      "scope": "Coordinated Phases A–D: native stacks, pinned headers, meaningful/restored drafts, MVC parents; local evidence and explicit remote/device/SQL limits. No merge authorized.",
+      "source_files": [
+        {
+          "path": "mobile/SmartFarm.Android/app/src/main/java/com/smartfarm/mobile/navigation/SmartFarmNavHost.kt",
+          "sha256": "515c2f6622fec0813a0626f4c2cc39e3d312e47265f4d8ee91cdfc30b3367f37"
+        },
+        {
+          "path": "mobile/SmartFarm.Android/app/src/main/java/com/smartfarm/mobile/navigation/BackNavigation.kt",
+          "sha256": "f677c9911abec34cb1561dfd2fabab71bebdfb084461cb39890267fdfabc6da6"
+        },
+        {
+          "path": "mobile/SmartFarm.Android/app/src/main/java/com/smartfarm/mobile/navigation/NavigationDrafts.kt",
+          "sha256": "ff953c2c60855d806b916f559693692fed5ddf4597cc04f88e7c159e1ffbf2f5"
+        },
+        {
+          "path": "mobile/SmartFarm.Android/app/src/main/java/com/smartfarm/mobile/ui/components/UnsavedChanges.kt",
+          "sha256": "57d8248a6e86a621289403f050dd6b9f792f52fb3be617e4f6b2d5782c5c5091"
+        },
+        {
+          "path": "mobile/SmartFarm.Android/app/src/main/java/com/smartfarm/mobile/ui/components/PageNavigation.kt",
+          "sha256": "4d9780e9f34524f5da129962601915091d130e817f5296e21360dab70262681c"
+        },
+        {
+          "path": "mobile/SmartFarm.Android/app/src/main/java/com/smartfarm/mobile/features/tasks/TaskViewModel.kt",
+          "sha256": "7454ae3124afdb203083a6b8da8bb82274bd99cbf3fb9b02bb6f8a25daa951c9"
+        },
+        {
+          "path": "src/SmartFarm.Web/Views/Farms/EditPlot.cshtml",
+          "sha256": "02df8fd3201a19a920b9f01d7c8850e2b3292200d3c3e7d2d40b6007cfbf66c4"
+        },
+        {
+          "path": "src/SmartFarm.Web/Views/Crops/EditPlan.cshtml",
+          "sha256": "667d018a723403ecf316d459ccd19d8a30651cdba7af2235a69eac067698075a"
+        },
+        {
+          "path": "src/SmartFarm.Web/Views/Inventory/Edit.cshtml",
+          "sha256": "1d3132db838236ac6eda515c22f62de665593b026010b3ee698d4af42c791fb0"
+        }
+      ]
     }
   ]
 }

@@ -1,6 +1,10 @@
 package com.smartfarm.mobile
 
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.ui.graphics.toPixelMap
+import androidx.compose.ui.test.onRoot
+import androidx.compose.ui.test.captureToImage
+import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsNotEnabled
 import androidx.compose.ui.test.junit4.createComposeRule
@@ -105,4 +109,18 @@ class PhotoAuthScreensTest {
         compose.onNodeWithText("Back to log in").performScrollTo().performClick()
         compose.runOnIdle { assertTrue(back == 1) }
     }
+    @Test fun photoBackHeaderKeepsADarkGroundUnderStatusIconsInLightMode() {
+        compose.setContent { SmartFarmTheme {
+            androidx.compose.material3.MaterialTheme(colorScheme = com.smartfarm.mobile.ui.theme.LightColors) {
+                androidx.compose.runtime.CompositionLocalProvider(
+                    com.smartfarm.mobile.ui.components.LocalPageNavigation provides
+                        com.smartfarm.mobile.ui.components.PageNavigation("Log in", "Back to Welcome", {})
+                ) { LoginScreen(AuthUiState(), { _, _ -> }, {}) }
+            }
+        } }
+        compose.onNodeWithTag("page-back").assertIsDisplayed()
+        val pixels = compose.onRoot().captureToImage().toPixelMap()
+        assertEquals(androidx.compose.ui.graphics.Color(0xFF122C20), pixels[0, 0])
+    }
+
 }

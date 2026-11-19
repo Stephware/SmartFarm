@@ -31,10 +31,10 @@ fun FarmInsightsScreen(
 ) {
     var range by rememberSaveable(state.farmId) { mutableStateOf("all") }
     val today = runCatching { LocalDate.now(ZoneId.of(requireNotNull(farmTimeZone))) }.getOrNull()
-    RecordPage {
+    RecordPage(title = "Harvest summary", onBack = onBack) {
         item(key = "intro") {
             Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                OutlinedButton(onClick = onBack) { Text("Back") }
+
                 FarmHero("Harvests", "Saved harvests, with each unit counted separately.")
                 Text("Server-confirmed data only. Unsynced mobile harvests are not included.",
                     style = MaterialTheme.typography.bodyMedium,
@@ -74,7 +74,7 @@ fun FarmInsightsScreen(
         }
         item(key = "harvest") {
             val report = state.harvest
-            FarmSectionCard("Harvest summary", subtitle = "Voided records are excluded. Units remain separate.") {
+            FarmSectionCard("Harvest totals", subtitle = "Voided records are excluded. Units remain separate.") {
                 when {
                     report == null && state.loading -> Text("Loading harvest report…")
                     report == null -> {

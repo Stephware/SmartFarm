@@ -128,10 +128,11 @@ class InventoryViewModel(private val repo: InventoryRepository,
         }
     }
 
-    fun create(name: String, category: Int, unit: String, starting: String, reorder: String) = work {
+    fun create(name: String, category: Int, unit: String, starting: String, reorder: String, onSaved: () -> Unit = {}) = work {
         repo.create(it.farmId, InventoryItemInputDto(name.trim(), category, unit.trim(),
             reorderLevel = reorder.takeIf { v -> v.isNotBlank() }?.let(::BigDecimal),
             initialQuantity = BigDecimal(starting)))
+        onSaved()
     }
 
     fun update(name: String, category: Int, unit: String, description: String, reorder: String) = work {

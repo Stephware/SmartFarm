@@ -20,13 +20,17 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.dp
 
 @Composable
-fun RecordPage(content: LazyListScope.() -> Unit) {
-    Scaffold(topBar = { FarmAppBar() }) { padding ->
+fun RecordPage(title: String? = null, onBack: (() -> Unit)? = null,
+    backLabel: String = "Back", content: LazyListScope.() -> Unit) {
+    androidx.compose.runtime.CompositionLocalProvider(LocalPageNavigation provides
+        (LocalPageNavigation.current ?: title?.let { PageNavigation(it, backLabel, onBack) })) {
+    Scaffold(topBar = { FarmAppBar(title = title, onBack = onBack, backLabel = backLabel) }) { padding ->
         BoxWithConstraints(Modifier.fillMaxSize().padding(padding).consumeWindowInsets(padding).imePadding(), contentAlignment = Alignment.TopCenter) {
             val gutter = if (maxWidth < 600.dp) 16.dp else 28.dp
             LazyColumn(Modifier.widthIn(max = 840.dp).fillMaxWidth().testTag("record-list"),
                 contentPadding = PaddingValues(horizontal = gutter, vertical = 16.dp),
                 verticalArrangement = Arrangement.spacedBy(12.dp), content = content)
         }
+    }
     }
 }

@@ -113,10 +113,18 @@ fun AniGoOnboardingScreen(
 ) {
     // The intro is a one-shot before the four learning pages, not a fifth page.
     // The OS reduced-motion setting can bypass it; completion survives rotation.
+    var exiting by rememberSaveable { mutableStateOf(false) }
+    val exitOnce = {
+        if (!exiting) {
+            exiting = true
+            onExit()
+        }
+    }
     var showIntro by rememberSaveable { mutableStateOf(motionAllowed) }
     if (showIntro) {
         AniGoFarmIntro(
             onFinished = { showIntro = false },
+            onBack = exitOnce,
             modifier = modifier,
             motionAllowed = motionAllowed,
             autoPlay = introAutoPlay
@@ -152,13 +160,6 @@ fun AniGoOnboardingScreen(
         }
     }
 
-    var exiting by rememberSaveable { mutableStateOf(false) }
-    val exitOnce = {
-        if (!exiting) {
-            exiting = true
-            onExit()
-        }
-    }
     BackHandler(enabled = !exiting) {
         if (!changingPage) {
             if (selectedPage > 0) goToPage(selectedPage - 1) else exitOnce()
