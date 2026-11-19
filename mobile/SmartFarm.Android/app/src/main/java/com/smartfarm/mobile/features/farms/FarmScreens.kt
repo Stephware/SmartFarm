@@ -293,7 +293,9 @@ fun FarmListScreen(state: FarmUiState, onOpen: (String) -> Unit,
         onDismissRequest = ::closeJoin,
         title = { Text("Join a farm") },
         text = {
-            Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+            Column(Modifier.fillMaxWidth().heightIn(max = 390.dp)
+                .verticalScroll(rememberScrollState()),
+                verticalArrangement = Arrangement.spacedBy(12.dp)) {
                 Text("Enter the 12-character code shared by the farm owner. They must approve access.")
                 state.error?.let {
                     Text(it, color = MaterialTheme.colorScheme.error,
