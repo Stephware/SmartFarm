@@ -63,8 +63,10 @@ class ResponsiveListsTest {
         assertTrue(compose.onAllNodesWithTag("record-card").fetchSemanticsNodes().size < 30)
         compose.onNodeWithText("Farm 200").assertDoesNotExist()
         repeat(9) {
-            compose.onNodeWithText("Show 20 more farms", substring = true)
-                .performScrollTo().performClick()
+            // LazyColumn only composes the pager when it is brought into view.
+            compose.onNodeWithTag("record-list").performScrollToNode(
+                hasText("Show 20 more farms", substring = true))
+            compose.onNodeWithText("Show 20 more farms", substring = true).performClick()
         }
         compose.onAllNodesWithTag("record-list")[0].performScrollToNode(hasText("Farm 200"))
         compose.onNodeWithText("Farm 200").assertIsDisplayed()
