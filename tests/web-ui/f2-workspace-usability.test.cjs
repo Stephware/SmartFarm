@@ -28,6 +28,9 @@ test("Web calendar selects an individual day and hides until reopened", () => {
     assert.match(tasks, /asp-route-date="@date\.ToString\("yyyy-MM-dd"\)"/);
     assert.match(tasks, /asp-fragment="task-list-heading"/);
     assert.match(tasks, /asp-route-calendar="open"/);
+    assert.match(tasks, /focusedTaskIndex/);
+    assert.match(tasks, /asp-route-taskId="@scheduled.Id"/);
+    assert.match(tasks, /ThenBy\(t => t.Id\)/);
     assert.match(tasks, /Tasks for @selectedDate/);
     assert.match(tasks, /Change date/);
     assert.match(tasks, /asp-route-month/);
