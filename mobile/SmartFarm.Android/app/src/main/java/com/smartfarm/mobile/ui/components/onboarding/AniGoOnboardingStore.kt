@@ -35,5 +35,9 @@ class AniGoOnboardingStore private constructor(
 }
 
 /** Pure decision to keep first-run route selection simple and testable. */
-internal fun anigoInitialRoute(completed: Boolean): String =
-    if (completed) "welcome" else "onboarding"
+internal fun anigoInitialRoute(completed: Boolean, authenticated: Boolean = false): String =
+    if (authenticated) "farms" else if (completed) "welcome" else "onboarding"
+
+/** An opt-in replay closes back to its origin, never re-completes first run. */
+internal fun anigoReplayExitLabel(authenticated: Boolean): String =
+    if (authenticated) "Back to My Account" else "Back to Welcome"

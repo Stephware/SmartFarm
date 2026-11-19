@@ -9,14 +9,14 @@ import androidx.compose.ui.graphics.asAndroidBitmap
 import androidx.compose.ui.test.captureToImage
 import androidx.compose.ui.test.onRoot
 import androidx.test.platform.app.InstrumentationRegistry
-import androidx.test.espresso.Espresso
+import androidx.test.uiautomator.UiDevice
 import java.io.File
 import java.io.FileOutputStream
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsNotEnabled
 import androidx.compose.ui.test.junit4.createComposeRule
-import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
+import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollTo
@@ -47,15 +47,210 @@ import com.smartfarm.mobile.features.auth.AccountScreen
 import com.smartfarm.mobile.features.auth.AuthUiState
 import com.smartfarm.mobile.ui.components.onboarding.AniGoOnboardingScreen
 import com.smartfarm.mobile.ui.components.onboarding.AniGoFarmIntro
+import com.smartfarm.mobile.ui.components.onboarding.AniGoWelcomePage
 import com.smartfarm.mobile.ui.components.onboarding.anigoMotionAllowed
 import com.smartfarm.mobile.ui.theme.SmartFarmTheme
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertTrue
 import org.junit.Rule
 import org.junit.Test
 
 @OptIn(ExperimentalTestApi::class)
 class CarabaoOnboardingPreviewTest {
     @get:Rule val compose = createComposeRule()
+
+    @Test
+    fun realJourneyContainsWelcomePlusAllFourFarmLessonsBeforeLogin() {
+        var exits = 0
+        compose.setContent {
+            SmartFarmTheme {
+                AniGoOnboardingScreen(onExit = { exits++ }, motionAllowed = false)
+            }
+        }
+        compose.onNodeWithText("Welcome to AniGo!").assertIsDisplayed()
+        compose.onNodeWithText("Hi! I'm Ani, your farm buddy.").assertExists()
+        compose.onNodeWithText("Back").assertIsNotEnabled()
+        val lessons = listOf(
+            "Your farm, organized",
+            "Grow with a plan",
+            "Record work as you go",
+            "From field to harvest"
+        )
+        lessons.forEach { heading ->
+            compose.onNodeWithText("Next →").performClick()
+            compose.waitForIdle()
+            compose.onNodeWithText(heading).assertIsDisplayed()
+        }
+        compose.onNodeWithText("Continue to AniGo").performClick()
+        compose.runOnIdle { assertEquals(1, exits) }
+    }
+
+    @Test
+    fun welcomeSlideRendersRasterMascotAndRespondsToBackNavigation() {
+        compose.setContent {
+            SmartFarmTheme {
+                AniGoOnboardingScreen(onExit = {}, motionAllowed = false)
+            }
+        }
+        compose.onNodeWithText("Welcome to AniGo!").assertIsDisplayed()
+        compose.onNodeWithContentDescription("AniGo carabao waving").assertExists()
+        compose.onNodeWithText("Next →").performClick()
+        compose.waitForIdle()
+        compose.onNodeWithText("Your farm, organized").assertIsDisplayed()
+        compose.onNodeWithText("Back").performClick()
+        compose.waitForIdle()
+        compose.onNodeWithText("Welcome to AniGo!").assertIsDisplayed()
+    }
+
+    @Test
+    fun captureApprovedWelcomeLightForVisualReview() {
+        withAppearance(dark = false) {
+            compose.setContent {
+                SmartFarmTheme { AniGoOnboardingScreen(onExit = {}, motionAllowed = false) }
+            }
+            compose.onNodeWithText("Welcome to AniGo!").assertIsDisplayed()
+            saveScreenshot("00-welcome-light")
+        }
+    }
+
+    @Test
+    fun captureApprovedWelcomeDarkForVisualReview() {
+        withAppearance(dark = true) {
+            compose.setContent {
+                SmartFarmTheme { AniGoOnboardingScreen(onExit = {}, motionAllowed = false) }
+            }
+            compose.onNodeWithText("Welcome to AniGo!").assertIsDisplayed()
+            saveScreenshot("00-welcome-dark")
+        }
+    }
+
+    @Test
+    fun introductionUsesWalkingSpriteUntilArrival() {
+        compose.setContent {
+            SmartFarmTheme {
+                AniGoFarmIntro(onFinished = {}, motionAllowed = true,
+                    autoPlay = false, previewProgress = .25f)
+            }
+        }
+        compose.onNodeWithContentDescription("AniGo carabao walking").assertExists()
+        compose.onNodeWithContentDescription("AniGo carabao waving").assertDoesNotExist()
+    }
+
+    @Test
+    fun introductionSettlesOnWavingSpriteAfterWalking() {
+        compose.setContent {
+            SmartFarmTheme {
+                AniGoFarmIntro(onFinished = {}, motionAllowed = true,
+                    autoPlay = false, previewProgress = .91f)
+            }
+        }
+        compose.onNodeWithContentDescription("AniGo carabao waving").assertExists()
+        compose.onNodeWithContentDescription("AniGo carabao walking").assertDoesNotExist()
+    }
+
+    @Test
+    fun compactLargeTextIntroductionAlsoSettlesOnWavingSprite() {
+        compose.setContent {
+            DeviceConfigurationOverride(DeviceConfigurationOverride.ForcedSize(DpSize(720.dp, 400.dp))) {
+                DeviceConfigurationOverride(DeviceConfigurationOverride.FontScale(1.6f)) {
+                    SmartFarmTheme {
+                        AniGoFarmIntro(onFinished = {}, motionAllowed = true,
+                            autoPlay = false, previewProgress = .91f)
+                    }
+                }
+            }
+        }
+        compose.onNodeWithContentDescription("AniGo carabao waving").assertExists()
+        compose.onNodeWithContentDescription("AniGo carabao walking").assertDoesNotExist()
+    }
+
+    @Test
+    fun talkingWelcomeStopsAndReturnsToWavingPose() {
+        compose.mainClock.autoAdvance = false
+        compose.setContent {
+            SmartFarmTheme {
+                AniGoWelcomePage(active = true, activityResumed = true, motionAllowed = true)
+            }
+        }
+        compose.mainClock.advanceTimeBy(64)
+        compose.onNodeWithContentDescription("AniGo carabao speaking").assertExists()
+        compose.mainClock.advanceTimeBy(2_500)
+        compose.onNodeWithContentDescription("AniGo carabao waving").assertExists()
+        compose.onNodeWithContentDescription("AniGo carabao speaking").assertDoesNotExist()
+        // The greeting plays once, not continuously while this page remains selected.
+        compose.mainClock.advanceTimeBy(1_000)
+        compose.onNodeWithContentDescription("AniGo carabao waving").assertExists()
+    }
+
+    @Test
+    fun phoneLessonsShowReadableAniGuidanceAndRetainAllExamples() {
+        compose.setContent {
+            DeviceConfigurationOverride(DeviceConfigurationOverride.ForcedSize(DpSize(360.dp, 780.dp))) {
+                SmartFarmTheme {
+                    AniGoOnboardingScreen(includeWelcome = false, onExit = {}, motionAllowed = false)
+                }
+            }
+        }
+        val tips = listOf(
+            "Start your own farm, or ask to join someone's team.",
+            "Choose what to grow, then follow each stage of your plan.",
+            "Some records stay on your phone until you can sync them.",
+            "Harvest a little today? Record each batch as you go."
+        )
+        tips.forEachIndexed { page, tip ->
+            compose.onNode(hasTestTag("anigo-lesson-stage-$page")).assertExists()
+            compose.onNodeWithText("ANI'S FARM TOUR  ·  ${page + 1} / 4").assertExists()
+            compose.onNodeWithText(tip).performScrollTo().assertIsDisplayed()
+            compose.onNodeWithText("Skip").assertIsDisplayed()
+            if (page < 3) {
+                compose.onNodeWithText("Next →").performClick()
+                compose.waitForIdle()
+            } else {
+                compose.onNodeWithText("Continue to AniGo").assertIsDisplayed()
+            }
+        }
+    }
+
+    @Test
+    fun capturePhoneWelcomeAndFirstGuideLessonForVisualReview() {
+        withAppearance(dark = false) {
+            compose.setContent {
+                DeviceConfigurationOverride(DeviceConfigurationOverride.ForcedSize(DpSize(360.dp, 780.dp))) {
+                    SmartFarmTheme {
+                        AniGoOnboardingScreen(onExit = {}, motionAllowed = false)
+                    }
+                }
+            }
+            compose.onNodeWithText("Welcome to AniGo!").assertIsDisplayed()
+            compose.onNodeWithText("Hi! I'm Ani, your farm buddy.").assertExists()
+            saveScreenshot("00-welcome-phone-light")
+            compose.onNodeWithText("Next →").performClick()
+            compose.waitForIdle()
+            compose.onNodeWithText("Your farm, organized").assertIsDisplayed()
+            saveScreenshot("01-farm-phone-light")
+        }
+    }
+
+    @Test
+    fun capturePhoneHarvestAndTipForVisualReview() {
+        withAppearance(dark = true) {
+            compose.setContent {
+                DeviceConfigurationOverride(DeviceConfigurationOverride.ForcedSize(DpSize(390.dp, 840.dp))) {
+                    SmartFarmTheme {
+                        AniGoOnboardingScreen(includeWelcome = false, onExit = {}, motionAllowed = false)
+                    }
+                }
+            }
+            repeat(3) {
+                compose.onNodeWithText("Next →").performClick()
+                compose.waitForIdle()
+            }
+            compose.onNodeWithText("From field to harvest").assertIsDisplayed()
+            compose.onNodeWithText("Harvest a little today? Record each batch as you go.")
+                .performScrollTo().assertIsDisplayed()
+            saveScreenshot("04-harvest-phone-dark")
+        }
+    }
 
     @Test
     fun firstRunFlagPersistsAcrossStoreInstancesWithoutAccountOrNetwork() {
@@ -129,7 +324,7 @@ class CarabaoOnboardingPreviewTest {
     fun fourSlidesCanBeViewedAndBackNavigatedWithoutCreatingFarmData() {
         var exits = 0
         compose.setContent {
-            SmartFarmTheme { AniGoOnboardingScreen(onExit = { exits++ }, motionAllowed = false) }
+            SmartFarmTheme { AniGoOnboardingScreen(includeWelcome = false, onExit = { exits++ }, motionAllowed = false) }
         }
         compose.onNodeWithText("Your farm, organized").assertIsDisplayed()
         compose.onNodeWithText("Riverside Farm").assertExists()
@@ -158,7 +353,7 @@ class CarabaoOnboardingPreviewTest {
         compose.setContent {
             DeviceConfigurationOverride(DeviceConfigurationOverride.ForcedSize(DpSize(320.dp, 720.dp))) {
                 DeviceConfigurationOverride(DeviceConfigurationOverride.FontScale(1.6f)) {
-                    SmartFarmTheme { AniGoOnboardingScreen(onExit = { exits++ }, motionAllowed = false) }
+                    SmartFarmTheme { AniGoOnboardingScreen(includeWelcome = false, onExit = { exits++ }, motionAllowed = false) }
                 }
             }
         }
@@ -172,7 +367,7 @@ class CarabaoOnboardingPreviewTest {
         // default still auto-plays on real devices.
         var exits = 0
         compose.setContent {
-            SmartFarmTheme { AniGoOnboardingScreen(
+            SmartFarmTheme { AniGoOnboardingScreen(includeWelcome = false, 
                 onExit = { exits++ }, motionAllowed = true, introAutoPlay = false
             ) }
         }
@@ -186,7 +381,7 @@ class CarabaoOnboardingPreviewTest {
     fun reducedMotionBypassesIntroductionAndKeepsGuideAvailable() {
         var exits = 0
         compose.setContent {
-            SmartFarmTheme { AniGoOnboardingScreen(onExit = { exits++ }, motionAllowed = false) }
+            SmartFarmTheme { AniGoOnboardingScreen(includeWelcome = false, onExit = { exits++ }, motionAllowed = false) }
         }
         compose.onNodeWithText("Your farm, organized").assertIsDisplayed()
         compose.onNodeWithText("Skip").performClick()
@@ -197,7 +392,7 @@ class CarabaoOnboardingPreviewTest {
     fun reducedMotionNavigationDoesNotStartPagerAnimations() {
         compose.mainClock.autoAdvance = false
         compose.setContent {
-            SmartFarmTheme { AniGoOnboardingScreen(onExit = {}, motionAllowed = false) }
+            SmartFarmTheme { AniGoOnboardingScreen(includeWelcome = false, onExit = {}, motionAllowed = false) }
         }
         compose.onNodeWithText("Next →").performClick()
         compose.onNodeWithText("Grow with a plan").assertIsDisplayed()
@@ -238,7 +433,7 @@ class CarabaoOnboardingPreviewTest {
     fun swipeAndRecreationKeepTheSelectedLesson() {
         val restoration = StateRestorationTester(compose)
         restoration.setContent {
-            SmartFarmTheme { AniGoOnboardingScreen(onExit = {}, motionAllowed = false) }
+            SmartFarmTheme { AniGoOnboardingScreen(includeWelcome = false, onExit = {}, motionAllowed = false) }
         }
         compose.onRoot().performTouchInput { swipeLeft() }
         compose.onNodeWithText("Grow with a plan").assertIsDisplayed()
@@ -276,7 +471,7 @@ class CarabaoOnboardingPreviewTest {
         compose.setContent {
             CompositionLocalProvider(LocalLifecycleOwner provides owner) {
                 SmartFarmTheme {
-                    AniGoOnboardingScreen(onExit = {}, motionAllowed = true, introAutoPlay = false)
+                    AniGoOnboardingScreen(includeWelcome = false, onExit = {}, motionAllowed = true, introAutoPlay = false)
                 }
             }
         }
@@ -295,7 +490,7 @@ class CarabaoOnboardingPreviewTest {
     fun farmAndCropDemonstrationsShowCompleteExamplesWithReducedMotion() {
         compose.setContent {
             SmartFarmTheme {
-                AniGoOnboardingScreen(onExit = {}, motionAllowed = false)
+                AniGoOnboardingScreen(includeWelcome = false, onExit = {}, motionAllowed = false)
             }
         }
         compose.onNodeWithText("Riverside Farm").assertExists()
@@ -315,7 +510,7 @@ class CarabaoOnboardingPreviewTest {
         var exits = 0
         compose.setContent {
             SmartFarmTheme {
-                AniGoOnboardingScreen(
+                AniGoOnboardingScreen(includeWelcome = false, 
                     onExit = { exits++ },
                     motionAllowed = true,
                     introAutoPlay = false
@@ -347,7 +542,7 @@ class CarabaoOnboardingPreviewTest {
     @Test
     fun fieldworkAndHarvestExamplesShowAccurateFinalStatesWithoutMotion() {
         compose.setContent {
-            SmartFarmTheme { AniGoOnboardingScreen(onExit = {}, motionAllowed = false) }
+            SmartFarmTheme { AniGoOnboardingScreen(includeWelcome = false, onExit = {}, motionAllowed = false) }
         }
         repeat(2) {
             compose.onNodeWithText("Next →").performClick()
@@ -375,7 +570,7 @@ class CarabaoOnboardingPreviewTest {
         var exitCount = 0
         compose.setContent {
             SmartFarmTheme {
-                AniGoOnboardingScreen(
+                AniGoOnboardingScreen(includeWelcome = false, 
                     onExit = { exitCount++ },
                     motionAllowed = true,
                     introAutoPlay = false
@@ -412,19 +607,19 @@ class CarabaoOnboardingPreviewTest {
         var exits = 0
         compose.setContent {
             SmartFarmTheme {
-                AniGoOnboardingScreen(onExit = { exits++ }, motionAllowed = false)
+                AniGoOnboardingScreen(includeWelcome = false, onExit = { exits++ }, motionAllowed = false)
             }
         }
         compose.onNodeWithText("Next →").performClick()
         compose.waitForIdle()
         compose.onNodeWithText("Grow with a plan").assertIsDisplayed()
 
-        Espresso.pressBack()
+        UiDevice.getInstance(InstrumentationRegistry.getInstrumentation()).pressBack()
         compose.waitForIdle()
         compose.onNodeWithText("Your farm, organized").assertIsDisplayed()
         compose.runOnIdle { assertEquals(0, exits) }
 
-        Espresso.pressBack()
+        UiDevice.getInstance(InstrumentationRegistry.getInstrumentation()).pressBack()
         compose.runOnIdle { assertEquals(1, exits) }
     }
 
@@ -436,7 +631,7 @@ class CarabaoOnboardingPreviewTest {
             ) {
                 DeviceConfigurationOverride(DeviceConfigurationOverride.FontScale(1.6f)) {
                     SmartFarmTheme {
-                        AniGoOnboardingScreen(onExit = {}, motionAllowed = false)
+                        AniGoOnboardingScreen(includeWelcome = false, onExit = {}, motionAllowed = false)
                     }
                 }
             }
@@ -457,7 +652,7 @@ class CarabaoOnboardingPreviewTest {
         withAppearance(dark = false) {
             compose.setContent {
                 SmartFarmTheme {
-                    AniGoOnboardingScreen(onExit = {}, motionAllowed = true, introAutoPlay = false)
+                    AniGoOnboardingScreen(includeWelcome = false, onExit = {}, motionAllowed = true, introAutoPlay = false)
                 }
             }
             compose.onNodeWithText("Skip intro").performClick()
@@ -470,7 +665,7 @@ class CarabaoOnboardingPreviewTest {
         withAppearance(dark = true) {
             compose.setContent {
                 SmartFarmTheme {
-                    AniGoOnboardingScreen(onExit = {}, motionAllowed = true, introAutoPlay = false)
+                    AniGoOnboardingScreen(includeWelcome = false, onExit = {}, motionAllowed = true, introAutoPlay = false)
                 }
             }
             compose.onNodeWithText("Skip intro").performClick()
@@ -506,7 +701,7 @@ class CarabaoOnboardingPreviewTest {
                 ) {
                     DeviceConfigurationOverride(DeviceConfigurationOverride.FontScale(1.6f)) {
                         SmartFarmTheme {
-                            AniGoOnboardingScreen(onExit = {}, motionAllowed = false)
+                            AniGoOnboardingScreen(includeWelcome = false, onExit = {}, motionAllowed = false)
                         }
                     }
                 }
@@ -522,7 +717,7 @@ class CarabaoOnboardingPreviewTest {
             compose.setContent {
                 DeviceConfigurationOverride(DeviceConfigurationOverride.ForcedSize(DpSize(320.dp, 720.dp))) {
                     DeviceConfigurationOverride(DeviceConfigurationOverride.FontScale(1.6f)) {
-                        SmartFarmTheme { AniGoOnboardingScreen(onExit = {}, motionAllowed = false) }
+                        SmartFarmTheme { AniGoOnboardingScreen(includeWelcome = false, onExit = {}, motionAllowed = false) }
                     }
                 }
             }
@@ -546,7 +741,7 @@ class CarabaoOnboardingPreviewTest {
         withAppearance(dark = false) {
             compose.setContent {
                 DeviceConfigurationOverride(DeviceConfigurationOverride.ForcedSize(DpSize(800.dp, 1280.dp))) {
-                    SmartFarmTheme { AniGoOnboardingScreen(onExit = {}, motionAllowed = false) }
+                    SmartFarmTheme { AniGoOnboardingScreen(includeWelcome = false, onExit = {}, motionAllowed = false) }
                 }
             }
             captureAllGuidePages("tablet-light")
@@ -558,7 +753,7 @@ class CarabaoOnboardingPreviewTest {
         withAppearance(dark = true) {
             compose.setContent {
                 DeviceConfigurationOverride(DeviceConfigurationOverride.ForcedSize(DpSize(720.dp, 400.dp))) {
-                    SmartFarmTheme { AniGoOnboardingScreen(onExit = {}, motionAllowed = false) }
+                    SmartFarmTheme { AniGoOnboardingScreen(includeWelcome = false, onExit = {}, motionAllowed = false) }
                 }
             }
             captureAllGuidePages("landscape-dark")
@@ -581,15 +776,46 @@ class CarabaoOnboardingPreviewTest {
                     }
                 }
             }
-            compose.onNodeWithText("A better way to care for your farm.")
-                .performScrollTo().assertIsDisplayed()
+            compose.onNodeWithText("A better way to care for your farm.").assertIsDisplayed()
+            compose.onNodeWithText("Your farm, your crops, your progress").assertIsDisplayed()
             compose.onNodeWithText("Skip intro").assertIsDisplayed()
+            assertLandscapeIntroMascotFullyVisible()
             saveScreenshot("intro-landscape-dark-large-text")
-            compose.onNodeWithText("Your farm, your crops, your progress")
-                .performScrollTo().assertIsDisplayed()
             compose.onNodeWithText("Skip intro").performClick()
             compose.runOnIdle { assertEquals(1, finishes) }
         }
+    }
+
+    @Test
+    fun compactLightLandscapeIntroShowsFullMascotAndReadableCopy() {
+        withAppearance(dark = false) {
+            compose.setContent {
+                DeviceConfigurationOverride(DeviceConfigurationOverride.ForcedSize(DpSize(720.dp, 400.dp))) {
+                    DeviceConfigurationOverride(DeviceConfigurationOverride.FontScale(1.6f)) {
+                        SmartFarmTheme {
+                            AniGoFarmIntro(onFinished = {}, motionAllowed = true,
+                                autoPlay = false, previewProgress = .91f)
+                        }
+                    }
+                }
+            }
+            compose.onNodeWithText("A better way to care for your farm.").assertIsDisplayed()
+            compose.onNodeWithText("Your farm, your crops, your progress").assertIsDisplayed()
+            compose.onNodeWithText("Skip intro").assertIsDisplayed()
+            assertLandscapeIntroMascotFullyVisible()
+            saveScreenshot("intro-landscape-light-large-text")
+        }
+    }
+
+    private fun assertLandscapeIntroMascotFullyVisible() {
+        val mascot = compose.onNodeWithTag("anigo-intro-landscape-mascot")
+            .assertIsDisplayed().fetchSemanticsNode().boundsInRoot
+        val screen = compose.onRoot().fetchSemanticsNode().boundsInRoot
+        assertTrue(
+            "AniGo mascot must fit entirely within short-landscape viewport",
+            mascot.left >= screen.left && mascot.right <= screen.right &&
+                mascot.top >= screen.top && mascot.bottom <= screen.bottom
+        )
     }
 
     @Test
@@ -684,7 +910,7 @@ class CarabaoOnboardingPreviewTest {
             AniGoOnboardingScreen(onExit = { exits++ }, motionAllowed = true, introAutoPlay = false)
         } }
         compose.onNodeWithText("Skip intro").assertExists()
-        Espresso.pressBack()
+        UiDevice.getInstance(InstrumentationRegistry.getInstrumentation()).pressBack()
         compose.runOnIdle { assertEquals(1, exits) }
         compose.onNodeWithTag("onboarding-page-0").assertDoesNotExist()
     }

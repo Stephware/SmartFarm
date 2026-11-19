@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
@@ -46,6 +47,7 @@ import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.testTag
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.compose.currentStateAsState
@@ -129,8 +131,12 @@ fun AniGoFarmIntro(
     val walkLinear = ((value - 0.04f) / 0.66f).coerceIn(0f, 1f)
     val arrival = FastOutSlowInEasing.transform(walkLinear)
     val walking = walkLinear < 1f
-    val pose = if (value > 0.74f) AniGoCarabaoPose.WAVE else AniGoCarabaoPose.GUIDE
-    val frame = ((value * AniGoGuideMotion.IntroMillis / 145f).toInt()).coerceAtLeast(0) % 4
+    // Keep the FULL-BODY carabao throughout its entrance. Switching from full
+    // walking art to a talking bust before the scene transition caused a jump.
+    // The open/closed-mouth bust animation belongs on the following Welcome slide.
+    val pose = AniGoCarabaoPose.WAVE
+    val walkFrame = ((value * AniGoGuideMotion.IntroMillis / 145f).toInt()).coerceAtLeast(0) % 4
+    val frame = if (walking) walkFrame else 3
     val logoOpacity = ((value - 0.34f) / 0.24f).coerceIn(0f, 1f)
     val titleOpacity = ((value - 0.62f) / 0.22f).coerceIn(0f, 1f)
     val mascotBounce = if (walking) sin(value * 2f * PI.toFloat() * 12f) * 5f else 0f
@@ -144,13 +150,82 @@ fun AniGoFarmIntro(
             .windowInsetsPadding(WindowInsets.safeDrawing)
     ) {
         val small = maxHeight < 620.dp || maxWidth < 340.dp
-        val stacked = maxHeight < 520.dp || density.fontScale >= 1.45f
+        val compactLandscape = maxWidth > maxHeight && maxHeight < 520.dp
+        val stacked = !compactLandscape && (maxHeight < 520.dp || density.fontScale >= 1.45f)
         val characterSize = if (small) 190.dp else 250.dp
         val stepDistance = with(density) { (maxWidth * 0.85f).toPx() }
         val yBouncePx = with(density) { mascotBounce.dp.toPx() }
 
         AniGoIntroLandscape(dark, Modifier.fillMaxSize())
 
+        if (compactLandscape) {
+            // Short landscape screens need an explicit two-column composition.
+            // The old vertical stack put the carabao below the visible viewport.
+            val landscapeMascotSize = if (maxWidth < 550.dp) 124.dp else 168.dp
+            Row(
+                Modifier.align(Alignment.Center)
+                    .widthIn(max = 680.dp).fillMaxWidth()
+                    .padding(start = 22.dp, end = 22.dp, top = 38.dp, bottom = 8.dp),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(16.dp)
+            ) {
+                Column(
+                    Modifier.weight(1f)
+                        .background(bg.copy(alpha = .96f), RoundedCornerShape(18.dp))
+                        .verticalScroll(rememberScrollState())
+                        .padding(horizontal = 14.dp, vertical = 12.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.Center
+                ) {
+                    Image(
+                        painter = painterResource(
+                            if (dark) R.drawable.ani_go_logo_on_dark else R.drawable.ani_go_logo
+                        ),
+                        contentDescription = "AniGo",
+                        contentScale = ContentScale.Fit,
+                        modifier = Modifier.size(width = 165.dp, height = 48.dp)
+                            .graphicsLayer { alpha = logoOpacity }
+                    )
+                    Spacer(Modifier.height(6.dp))
+                    Text(
+                        "A better way to care for your farm.",
+                        color = ink,
+                        textAlign = TextAlign.Center,
+                        fontWeight = FontWeight.ExtraBold,
+                        style = MaterialTheme.typography.headlineSmall,
+                        modifier = Modifier.graphicsLayer { alpha = titleOpacity }
+                    )
+                    Spacer(Modifier.height(5.dp))
+                    Text(
+                        "Come along. I'll show you around.",
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        textAlign = TextAlign.Center,
+                        style = MaterialTheme.typography.bodyMedium,
+                        modifier = Modifier.graphicsLayer { alpha = titleOpacity }
+                    )
+                    Spacer(Modifier.height(8.dp))
+                    Text(
+                        "Your farm, your crops, your progress",
+                        color = ink,
+                        textAlign = TextAlign.Center,
+                        style = MaterialTheme.typography.labelMedium,
+                        modifier = Modifier.graphicsLayer { alpha = titleOpacity }
+                    )
+                }
+                AniGoCarabao(
+                    pose = pose,
+                    frame = frame,
+                    walking = walking,
+                    modifier = Modifier.size(landscapeMascotSize)
+                        .testTag("anigo-intro-landscape-mascot")
+                        .graphicsLayer {
+                            translationX = -stepDistance * (1f - arrival)
+                            translationY = yBouncePx
+                            rotationZ = if (walking) mascotBounce * 0.45f else 0f
+                        }
+                )
+            }
+        } else {
         Column(
             Modifier.align(Alignment.TopCenter)
                 .widthIn(max = 560.dp).fillMaxWidth()
@@ -188,7 +263,7 @@ fun AniGoFarmIntro(
             )
             if (stacked) {
                 Spacer(Modifier.height(16.dp))
-                AniGoCarabao(pose, Modifier.size(180.dp), frame, walking)
+                AniGoCarabao(pose, Modifier.size(180.dp), frame, walking = walking)
                 Text("Your farm, your crops, your progress",
                     color = ink, style = MaterialTheme.typography.bodyMedium,
                     textAlign = TextAlign.Center)
@@ -222,6 +297,8 @@ fun AniGoFarmIntro(
                 .background(bg.copy(alpha = .94f), RoundedCornerShape(10.dp))
                 .padding(horizontal = 12.dp, vertical = 6.dp)
         )
+        }
+
         }
 
         TextButton(
