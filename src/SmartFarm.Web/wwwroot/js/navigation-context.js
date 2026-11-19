@@ -4,6 +4,7 @@
     "use strict";
     const prefix = "anigo:scroll:v1:";
     const lifetimeMs = 5 * 60 * 1000;
+    const pendingPostKey = prefix + "pending-post";
     let storage;
     try { storage = window.sessionStorage; } catch { return; }
     if (!storage || !window.location || !window.addEventListener) return;
@@ -62,7 +63,17 @@
             try { action = new URL(form.action || current.href, current); } catch { return; }
             // MVC often POSTS to a different action, then redirects to this same
             // view. Keep its previous position without guessing redirect targets.
-            if (action.origin === current.origin) store(current, "submit");
+            if (action.origin === current.origin) {
+                store(current, "submit");
+                // Redirects may normalize ?view or ?page; an exact query key
+                // alone is insufficient for returning to the same work list.
+                try {
+                    storage.setItem(pendingPostKey, JSON.stringify({
+                        url: current.href, y: Math.max(0, window.scrollY || 0),
+                        expires: Date.now() + 2 * 60 * 1000
+                    }));
+                } catch { /* Ordinary form submission still works. */ }
+            }
         });
     }
 
@@ -73,12 +84,26 @@
 
     window.addEventListener("pageshow", event => {
         if (event.persisted || window.location.hash) return;
-        const previous = parse(current);
-        if (!previous) return;
-        // Let native browser history restoration work without competing scrolls.
-        if (previous.intent === "history") return;
+        let previous = parse(current);
+        let pending;
+        try { pending = JSON.parse(storage.getItem(pendingPostKey) || "null"); }
+        catch { /* malformed storage can be ignored */ }
+        if (pending && pending.expires > Date.now()) {
+            const origin = new URL(pending.url);
+            const sameResource = ["farmId", "itemId", "cycleId", "id"].every(name =>
+                origin.searchParams.get(name) === current.searchParams.get(name));
+            if (origin.origin === current.origin && origin.pathname === current.pathname &&
+                sameResource && (!previous || previous.intent === "history")) {
+                previous = { y: pending.y, intent: "submit" };
+            }
+        }
+        try { storage.removeItem(pendingPostKey); } catch { /* harmless */ }
+        if (!previous || previous.intent === "history") return;
+        // A validation error takes priority over restoring previous scroll.
+        const summary = document.querySelector("[data-error-summary]");
+        if (document.querySelector("[aria-invalid='true'], .input-validation-error") ||
+            (summary && summary.textContent.trim())) return;
         try { storage.removeItem(key(current)); } catch { /* harmless */ }
-        if (document.querySelector("[aria-invalid='true'], .input-validation-error")) return;
         window.requestAnimationFrame(() => window.scrollTo({ top: previous.y, behavior: "instant" }));
     });
 })();
