@@ -70,6 +70,23 @@ public sealed class FormRecoveryTests
         Assert.Contains("tabindex=\"-1\"", html);
     }
 
+    [Theory]
+    [InlineData("/Farms/EditPlot", "Back to plots", "/Farms/Details", "#plots-heading")]
+    [InlineData("/Crops/EditPlan", "Back to crops", "/Crops", "#crop-cycle-")]
+    public async Task EditPagesHaveRealContextualParentLinks(string path, string label, string parent, string fragment)
+    {
+        using var app = CreateApp();
+        using var client = app.CreateClient();
+        var html = await client.GetStringAsync($"{path}?id={FarmId}&farmId={FarmId}&plotId={Cycle.PlotId}&cycleId={CycleId}");
+        var link = Regex.Match(html, "<a[^>]*class=\"ui-back-link\"[^>]*>" + label + "</a>").Value;
+        Assert.NotEmpty(link);
+        Assert.Contains(parent, link);
+        Assert.Contains(FarmId.ToString(), link);
+        Assert.Contains(fragment, link);
+        Assert.True(html.IndexOf(link, StringComparison.Ordinal) < html.IndexOf("<h1", StringComparison.Ordinal));
+        Assert.DoesNotContain("javascript:", link);
+    }
+
     [Fact]
     public async Task InvalidDateKeepsTheAttemptedValueAndLinksItsError()
     {
@@ -166,6 +183,7 @@ public sealed class FormRecoveryTests
             services.AddScoped(_ => Stub<IFarmManagementService>(method => method switch
             {
                 "GetAsync" => unavailable ? throw new OfflineDatabase() : Task.FromResult<FarmDetails?>(Farm),
+                "GetPlotAsync" => Task.FromResult<PlotDetails?>(new(Cycle.PlotId, FarmId, "North plot", 100, "version")),
                 "ListPlotsAsync" => Task.FromResult<IReadOnlyList<PlotDetails>>([new(Cycle.PlotId, FarmId, "North plot", 100, "version")]),
                 _ => throw new NotSupportedException(method)
             }));

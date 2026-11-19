@@ -1,5 +1,6 @@
 package com.smartfarm.mobile.features.monitoring
 
+import com.smartfarm.mobile.ui.components.UnsavedChanges
 import android.net.Uri
 import androidx.core.content.FileProvider
 import androidx.compose.ui.platform.LocalContext
@@ -131,6 +132,7 @@ fun MonitoringScreen(
     LaunchedEffect(activityReceipt) {
         if (activityReceipt != null && activityReceipt != handledActivity) {
             activityNotes = ""
+            activityType = when (quick) { "fertilizing" -> 2; "other" -> 5; else -> 1 }
             handledActivity = activityReceipt
         }
     }
@@ -139,16 +141,23 @@ fun MonitoringScreen(
             activityNotes = ""
             stockQuantity = ""
             useStock = false
+            activityType = when (quick) { "fertilizing" -> 2; "other" -> 5; else -> 1 }
             handledStockReceipt = stockReceipt
         }
     }
     LaunchedEffect(observationReceipt) {
         if (observationReceipt != null && observationReceipt != handledObservation) {
-            newPhoto = null; observationNotes = ""; stage = ""
+            newPhoto = null; observationNotes = ""; stage = ""; health = 0
             issueCategory = 0; issueSeverity = 0
             handledObservation = observationReceipt
         }
     }
+    UnsavedChanges("activity", activityNotes.isNotEmpty() || useStock || stockQuantity.isNotEmpty() ||
+        activityType != when (quick) { "fertilizing" -> 2; "other" -> 5; else -> 1 },
+        activityNotes, useStock.toString(), stockQuantity, activityType.toString(), supplyId.orEmpty())
+    UnsavedChanges("inspection", observationNotes.isNotEmpty() || stage.isNotEmpty() || newPhoto != null ||
+        health != 0 || issueCategory != 0 || issueSeverity != 0,
+        observationNotes, stage, newPhoto?.toString().orEmpty(), health.toString(), issueCategory.toString(), issueSeverity.toString())
     val context = LocalContext.current
     val picker = rememberLauncherForActivityResult(ActivityResultContracts.GetContent()) { uri ->
         if (uri != null) {
@@ -184,10 +193,10 @@ fun MonitoringScreen(
             it.first.observedAtUtc
         }.thenByDescending { it.second.uploadedAtUtc })
 
-    RecordPage {
+    RecordPage(title = "Crop monitoring", onBack = onBack) {
         item(key = "forms") {
             Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-            OutlinedButton(onClick = onBack) { Text("Back") }
+
             FarmHero(when (quick) {
                 "watering" -> "Record watering"; "fertilizing" -> "Apply fertilizer"
                 "inspection" -> "Inspect crop"; "other" -> "Other fieldwork"; else -> "Crop monitoring"

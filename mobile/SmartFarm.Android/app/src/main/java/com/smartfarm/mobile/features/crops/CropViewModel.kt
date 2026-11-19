@@ -81,19 +81,21 @@ class CropViewModel(
         }
     }
 
-    fun createType(name: String, unit: String, growth: String, watering: String) = work { farmId ->
+    fun createType(name: String, unit: String, growth: String, watering: String, onSaved: () -> Unit = {}) = work { farmId ->
         crops.createType(farmId, CropTypeInputDto(name.trim(),
             growth.takeIf { it.isNotBlank() }?.toIntOrNull(),
             watering.takeIf { it.isNotBlank() }?.toIntOrNull(),
             unit.trim()))
+        onSaved()
     }
 
-    fun plan(plotId: String, typeId: String, date: String, expected: String) = work { farmId ->
+    fun plan(plotId: String, typeId: String, date: String, expected: String, onSaved: () -> Unit = {}) = work { farmId ->
         val planting = LocalDate.parse(date)
         val harvest = expected.takeIf { it.isNotBlank() }?.let(LocalDate::parse)
         require(harvest == null || !harvest.isBefore(planting))
         crops.plan(farmId, plotId, CropCyclePlanDto(
             typeId, planting.toString(), harvest?.toString()))
+        onSaved()
     }
 
     fun updatePlan(cycle: CropCycleDto, date: String, expected: String) = work { farmId ->
@@ -105,10 +107,11 @@ class CropViewModel(
             cycle.harvestUnit, cycle.wateringIntervalDays, cycle.rowVersion))
     }
 
-    fun transition(cycle: CropCycleDto, status: Int, planted: String, reason: String) = work { farmId ->
+    fun transition(cycle: CropCycleDto, status: Int, planted: String, reason: String, onSaved: () -> Unit = {}) = work { farmId ->
         val date = if (status == 1) LocalDate.parse(planted).toString() else null
         crops.transition(farmId, cycle.id, CropTransitionDto(
             cycle.rowVersion, status, date, reason.trim().ifBlank { null }))
+        onSaved()
     }
 
     class Factory(private val crops: CropRepository, private val farms: FarmRepository) :

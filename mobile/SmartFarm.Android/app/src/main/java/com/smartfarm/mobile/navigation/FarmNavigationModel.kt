@@ -8,6 +8,44 @@ internal val farmSections = setOf("weather", "plots", "members", "settings")
 internal fun safeFarmSection(section: String?): String =
     if (section in farmSections) requireNotNull(section) else "overview"
 
+/** Used only when there is no actual caller (for example a restored/direct entry). */
+internal fun navigationParent(route: String?, farmId: String): String? = when {
+    route in setOf("welcome", "onboarding", "farms") -> null
+    route in setOf("login", "register", "onboarding-preview") -> "welcome"
+    route == "forgot-password" -> "login"
+    farmId.isBlank() -> "farms"
+    route?.startsWith("monitor/") == true || route?.startsWith("harvests/") == true -> "crops/$farmId"
+    route == "inventory/{farmId}/{itemId}" -> "inventory/$farmId"
+    route in setOf("farm/{farmId}", "myfarm/{farmId}") -> "farms"
+    else -> "farm/$farmId"
+}
+
+internal fun navigationTitle(route: String?, section: String? = null, quick: String? = null): String = when {
+    route == "login" -> "Log in"
+    route == "register" -> "Create account"
+    route == "forgot-password" -> "Password help"
+    route == "account" -> "My account"
+    route == "farms" -> "My farms"
+    route == "notifications" -> "Notifications"
+    route == "sync" -> "Offline sync"
+    route == "tasks/{farmId}" -> "Farm tasks"
+    route == "crops/{farmId}" -> "Crops"
+    route == "inventory/{farmId}" -> "Supplies"
+    route == "inventory/{farmId}/{itemId}" -> "Supply details"
+    route == "insights/{farmId}" -> "Harvest summary"
+    route?.startsWith("harvests/") == true -> "Harvests"
+    route?.startsWith("monitor/") == true -> when (quick) {
+        "watering" -> "Record watering"; "fertilizing" -> "Record fertilizing"
+        "inspection" -> "Record inspection"; "other" -> "Record activity"; else -> "Crop monitoring"
+    }
+    route == "farm/{farmId}/{section}" -> when (section) {
+        "plots" -> "Farm plots"; "members" -> "Team & access"; "settings" -> "Farm settings"; else -> "Farm weather"
+    }
+    route == "myfarm/{farmId}" -> "My Farm"
+    route == "farm/{farmId}" -> "Today"
+    else -> "Welcome"
+}
+
 /** Only an active cycle can receive a new activity, inspection, or harvest. */
 internal fun activeRecordCycles(cycles: List<CropCycleDto>): List<CropCycleDto> =
     cycles.filter { it.status == 1 }.sortedWith(compareBy({ it.plotName }, { it.cropTypeName }))
@@ -26,18 +64,3 @@ internal fun quickRecordRoute(farmId: String, action: String, cycleId: String?, 
         else -> null
     }
 }
-
-/** Warn before leaving screens that can contain an unfinished field entry. */
-internal fun requiresExitConfirmation(route: String?, section: String? = null): Boolean =
-    when (route) {
-        "farm/{farmId}", "myfarm/{farmId}", "more/{farmId}", "farms", "account", "notifications",
-        "sync", "insights/{farmId}" -> false
-        // Weather and members are informational; plot and settings forms can have drafts.
-        "farm/{farmId}/{section}" ->
-            section == null || section in setOf("plots", "settings")
-        "tasks/{farmId}", "crops/{farmId}", "inventory/{farmId}",
-        "inventory/{farmId}/{itemId}",
-        "monitor/{farmId}/{cycleId}?quick={quick}",
-        "harvests/{farmId}/{cycleId}" -> true
-        else -> true // Unknown future destinations must not discard drafts silently.
-    }

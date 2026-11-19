@@ -2,7 +2,7 @@
 
 > Sources: SmartFarm Android and API source review
 > Raw: [Android sources](../../raw/project/2026-10-27-android-source.md); [Feature sources](../../raw/project/2026-10-27-features-source.md); [Functional E2E evidence](../../raw/project/2026-10-27-functional-e2e.md); [PR48 fix and merge](../../raw/project/2026-10-28-pr48-fix-and-merge.md); [Current documentation audit](../../raw/project/2026-11-11-documentation-audit.md); [Current Android sources](../../raw/project/2026-11-11-android-current.md); [Reference frontend merge](../../raw/project/2026-11-11-reference-frontend-merge.md); [Publication source check](../../raw/project/2026-11-12-documentation-publication.md); [MVP Android navigation](../../raw/project/2026-11-13-mvp-stage-2.md); [MVP recording](../../raw/project/2026-11-13-mvp-stage-3.md); [MVP offline confirmation](../../raw/project/2026-11-14-mvp-stage-4.md); [MVP retirement](../../raw/project/2026-11-14-mvp-stage-5.md); [Carabao guide refinement](../../raw/project/2026-11-18-carabao-onboarding-refinement.md)
-> Updated: 2026-11-18
+> Updated: 2026-11-19
 
 **Source scope:** Earlier detailed audit/acceptance is dated below. For source
 changes through `dev` at `3c5a8b0`, see [current source status](current-source-status.md),
@@ -10,9 +10,17 @@ which supersedes conflicting baseline UI, admin, CI and schema statements.
 
 **Current MVP:** Today / Record / My Farm, short forms and automatic scoped confirmation are implemented. Stage 5 removes hidden finance fetches, advanced report charts and decorative crop art; the summary retains confirmed per-unit harvests. Same-account recreation preserves the farm header/time zone/switcher; account changes/logout clear context. Older five-tab/combined-insight descriptions below are historical. See [MVP status](mvp-simplification.md). Room/WorkManager and receipt/photo/conflict/session guards remain.
 
-## Carabao guide — PR #145 (feature branch, Draft)
+## Carabao guide — integrated into dev
 
-First launch shows a skippable intro and four illustrative lessons until a private device-wide completion preference is saved. Welcome and My Account offer replay without resetting completion or creating farm records. Native Back, buttons, swipes, recreation and lifecycle pauses retain their intended navigation; reduced motion skips the intro and pager transitions, and is refreshed after returning from system settings. The existing mascot geometry is shared across all six poses; subtle shading does not establish fidelity to the unavailable original reference. Dark sample cards use the existing charcoal theme and short-window layouts keep 48dp controls. See the [Phase 8 audit](../../../../docs/branding/ANIGO_CARABAO_PHASE8_AUDIT.md) and [PR #145](https://github.com/Stephware/SmartFarm/pull/145) for current verification/approval status. This feature is not assumed merged; auth, Room, API and business invariants are unchanged.
+First launch shows a skippable intro and four illustrative lessons until a private device-wide completion preference is saved. Welcome and My Account offer replay without resetting completion or creating farm records. Native Back, buttons, swipes, recreation and lifecycle pauses retain their intended navigation; reduced motion skips the intro and pager transitions, and is refreshed after returning from system settings. The existing mascot geometry is shared across all six poses; subtle shading does not establish fidelity to the unavailable original reference. Dark sample cards use the existing charcoal theme and short-window layouts keep 48dp controls. See the [Phase 8 audit](../../../../docs/branding/ANIGO_CARABAO_PHASE8_AUDIT.md) and [PR #145](https://github.com/Stephware/SmartFarm/pull/145) for current verification/approval status. PR #145 is present in the reviewed dev baseline bc44d831; auth, Room, API and business invariants are unchanged.
+
+## Back navigation — Phases A–D (feature branch)
+
+Secondary destinations use actual history before an explicit route parent; successful login clears auth history. Today/My Farm stacks do not accumulate tab copies; changing farms removes old farm detail routes. Shared pinned headers supply titles, 48dp Back targets and caller labels. Root Farms remains a root; its Account action and contextual global pages reuse existing entries.
+
+Meaningful edits register per destination, including stopped entries and recreation. Back/farm/root changes offer Keep editing/Discard only when input would be lost. Collapsed editors retain drafts. Confirmed form receipts clear the matching draft; task refresh/completion is not a form save. Queued Room operations/photos are never discarded by navigation. Onboarding system Back exits the intro; Skip intro still advances to lessons, and replay returns to its actual caller.
+
+See the [navigation plan](../../../../docs/superpowers/plans/2026-11-19-navigation-ux-overhaul.md) and [dated verification/limits](../../raw/project/2026-11-19-navigation-ux.md). This feature-branch evidence does not imply merge approval or remote CI success.
 
 ## Display name
 
@@ -32,7 +40,7 @@ Retrofit, repositories, Room and WorkManager. Room schema is version 4 with expl
 migrations; exported schemas 1 and 4 are tracked. Tables hold local metadata,
 user-scoped response snapshots, pending operations and pending photos.
 
-Navigation includes Farm, Tasks, Record, Crops and More workspace actions,
+Navigation uses Today / Record / My Farm primary actions and secondary tasks, crops,
 monitoring/harvest details, sync review, notifications and a farm insights screen.
 Farm detail has overview/weather/plots/members/settings. Tasks now include manager
 create/edit, farm-local Today/overdue/upcoming/completed groups, presets and

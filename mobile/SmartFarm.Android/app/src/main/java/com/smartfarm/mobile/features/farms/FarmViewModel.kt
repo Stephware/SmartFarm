@@ -197,9 +197,10 @@ class FarmViewModel(
         onSuccess()
     }
 
-    fun addPlot(name: String, area: String) = perform {
+    fun addPlot(name: String, area: String, onSaved: () -> Unit = {}) = perform {
         val farmId = requireNotNull(mutable.value.selected).id
         repo.createPlot(farmId, PlotInputDto(name.trim(), BigDecimal(area)))
+        onSaved()
         mutable.value = mutable.value.copy(plots = repo.plots(farmId))
     }
 
@@ -215,9 +216,10 @@ class FarmViewModel(
         mutable.value = mutable.value.copy(plots = repo.plots(farmId))
     }
 
-    fun requestToJoin(code: String) = perform {
+    fun requestToJoin(code: String, onSaved: () -> Unit = {}) = perform {
         require(code.isNotBlank() && !mutable.value.offline)
         repo.requestToJoin(code)
+        onSaved()
         loadMyRequests()
         if (mutable.value.enrollmentMessage == null) mutable.value = mutable.value.copy(
             enrollmentMessage = "Request sent. Farm access awaits owner approval.")

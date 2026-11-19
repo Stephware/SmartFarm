@@ -80,4 +80,24 @@ class TaskWorkspaceScreenTest {
         compose.onNodeWithText("Water mine").performScrollTo().assertExists()
     }
 
+    @Test fun refreshAfterASuccessfulSaveKeepsTheNextUnfinishedTask() {
+        val receipt = com.smartfarm.mobile.features.tasks.TaskFormSave("new-task", "confirmed-first-save")
+        val state = androidx.compose.runtime.mutableStateOf(TaskUiState(farmId = "farm", timeZoneId = "Asia/Manila",
+            choicesReady = true, savedCount = 1, lastFormSave = receipt))
+        val restoration = androidx.compose.ui.test.junit4.StateRestorationTester(compose)
+        restoration.setContent { SmartFarmTheme {
+            TaskScreen(state.value, canManage = true, actorId = "manager", onBack = {}, onRetry = {}, onComplete = {}, onRead = {})
+        } }
+        compose.onNodeWithText("Create and assign task").performScrollTo().performClick()
+        compose.onNodeWithTag("record-list").performScrollToNode(hasText("Instructions (optional)"))
+        compose.onNodeWithText("Instructions (optional)").performTextInput("Check the east field")
+        // Refresh and notification reads are not form save receipts.
+        compose.runOnIdle { state.value = state.value.copy(savedCount = 0) }
+        restoration.emulateSavedInstanceStateRestore()
+        compose.onNodeWithTag("record-list").performScrollToNode(hasText("Instructions (optional)"))
+        compose.onNodeWithText("Instructions (optional)").assertTextContains("Check the east field")
+        compose.runOnIdle { state.value = state.value.copy(savedCount = 1) }
+        compose.onNodeWithText("Instructions (optional)").assertTextContains("Check the east field")
+    }
+
 }

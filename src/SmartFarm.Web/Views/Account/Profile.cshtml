@@ -4,7 +4,7 @@
     var initial = string.IsNullOrWhiteSpace(Model.FullName)
         ? "A" : Model.FullName.Trim()[0].ToString().ToUpperInvariant();
 }
-<partial name="_UiPageHeader" model='@(new UiPageHeader("My account", "Review your identity and preferred appearance.", Id: "account-heading"))' />
+<partial name="_UiPageHeader" model='@(new UiPageHeader("My account", "Review your identity and preferred appearance.", Id: "account-heading", BackText: "Back to my farms", BackUrl: Url.Action("Index", "Farms")))' />
 <div class="ani-p2-page ani-p2-account">
 <section class="panel sf-account-hero ani-account-hero" aria-labelledby="account-heading">
     <div class="sf-account-identity">

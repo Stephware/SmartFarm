@@ -1,5 +1,6 @@
 package com.smartfarm.mobile.features.farms
 
+import com.smartfarm.mobile.ui.components.UnsavedChanges
 import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.Intent
@@ -74,16 +75,10 @@ import java.time.format.DateTimeFormatter
 @Composable
 private fun FarmPage(title: String, subtitle: String = "Manage your farm and team.",
     onBack: (() -> Unit)? = null, content: @Composable () -> Unit) {
-    Scaffold(topBar = { FarmAppBar() }) { padding ->
+    Scaffold(topBar = { FarmAppBar(title = title, onBack = onBack) }) { padding ->
         Box(Modifier.fillMaxSize().padding(padding).consumeWindowInsets(padding).imePadding(), contentAlignment = Alignment.TopCenter) {
             Column(Modifier.widthIn(max = 840.dp).fillMaxSize().verticalScroll(rememberScrollState()).padding(16.dp),
                 verticalArrangement = Arrangement.spacedBy(16.dp)) {
-            if (onBack != null) {
-                OutlinedButton(onClick = onBack,
-                    modifier = Modifier.defaultMinSize(minHeight = 48.dp)) {
-                    Text("Back")
-                }
-            }
             FarmHero(title, subtitle)
             content()
             }
@@ -115,6 +110,9 @@ fun FarmListScreen(state: FarmUiState, onOpen: (String) -> Unit,
     var creating by rememberSaveable { mutableStateOf(false) }
     var joining by rememberSaveable { mutableStateOf(false) }
     var locationOptions by rememberSaveable { mutableStateOf(false) }
+    UnsavedChanges("farm-create", name.isNotEmpty() || location.isNotEmpty() || zone != "Asia/Manila" ||
+        latitude.isNotEmpty() || longitude.isNotEmpty(), name, location, zone, latitude, longitude)
+    UnsavedChanges("farm-join", farmCode.isNotEmpty(), farmCode)
     val nameError = when {
         name.isNotBlank() && name.trim().length < 2 -> "Farm name must be at least 2 characters."
         name.trim().length > 120 -> "Farm name must be 120 characters or fewer."
@@ -304,6 +302,10 @@ fun FarmDetailScreen(state: FarmUiState, onBack: () -> Unit,
         "Settings" -> if (canManage) section else "Restricted"
         else -> "Overview"
     }
+    UnsavedChanges("farm-settings", visibleSection == "Settings" && farm != null &&
+        (name != farm.name || location != farm.locationText || zone != farm.timeZoneId ||
+            latitude != farm.latitude?.toPlainString().orEmpty() || longitude != farm.longitude?.toPlainString().orEmpty()))
+    UnsavedChanges("new-plot", plotName.isNotEmpty() || plotArea.isNotEmpty(), plotName, plotArea)
     val sectionState = rememberSaveableStateHolder()
 
     val hasFarmSwitcher = LocalFarmHeaderNavigation.current != null
@@ -451,12 +453,15 @@ fun FarmDetailScreen(state: FarmUiState, onBack: () -> Unit,
                                     Text("View crops")
                                 }
                                 if (canManage) {
+                                    sectionState.SaveableStateProvider("plot-edit-${plot.id}") {
                                     var editName by rememberSaveable(plot.id) {
                                         mutableStateOf(plot.name)
                                     }
                                     var editArea by rememberSaveable(plot.id) {
                                         mutableStateOf(plot.areaSqMeters.toPlainString())
                                     }
+                                    UnsavedChanges("plot-${plot.id}", editName != plot.name ||
+                                        editArea.toBigDecimalOrNull()?.compareTo(plot.areaSqMeters) != 0)
                                     FarmSectionCard("Edit ${plot.name}") {
                                         OutlinedTextField(editName, { editName = it },
                                             label = { Text("Plot name") },
@@ -479,6 +484,7 @@ fun FarmDetailScreen(state: FarmUiState, onBack: () -> Unit,
                                             "Archive ${plot.name}? Its crop history is retained.",
                                             enabled = !state.loading,
                                             onConfirm = { onArchivePlot(plot) })
+                                    }
                                     }
                                 }
                             }

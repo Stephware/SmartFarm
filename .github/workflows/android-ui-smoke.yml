@@ -54,6 +54,8 @@ jobs:
             result=$?;
             adb pull /sdcard/Android/data/com.smartfarm.mobile/files/
             app/build/ui-screenshots/ >/dev/null 2>&1 || true;
+            adb pull /sdcard/Pictures/AniGoNavigationAudit/
+            app/build/navigation-screenshots/ >/dev/null 2>&1 || true;
             exit "$result"'
       # Run every instrumentation class: Room, photos, draft recovery, UI flows, and app-level API journey.
       - name: Save Android test results
@@ -66,3 +68,4 @@ jobs:
             mobile/SmartFarm.Android/app/build/outputs/androidTest-results/connected/
             mobile/SmartFarm.Android/app/build/reports/androidTests/connected/
             mobile/SmartFarm.Android/app/build/ui-screenshots/
+            mobile/SmartFarm.Android/app/build/navigation-screenshots/

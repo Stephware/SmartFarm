@@ -2,8 +2,7 @@
 @{
     ViewData["Title"] = "Previous support requests";
 }
-<partial name="_UiPageHeader" model='@(new UiPageHeader("Previous support requests", "Read-only history. New requests and replies are retired; use Help for next steps."))' />
-<a asp-controller="Home" asp-action="Help">Help</a>
+<partial name="_UiPageHeader" model='@(new UiPageHeader("Previous support requests", "Read-only history. New requests and replies are retired; use Help for next steps.", BackText: "Back to Help", BackUrl: Url.Action("Help", "Home")))' />
 @if (TempData["Message"] is string message) { <p class="form-notice" role="status">@message</p> }
 <section class="panel admin-directory-panel" aria-label="My requests">
     @if (Model.Tickets.Count == 0)

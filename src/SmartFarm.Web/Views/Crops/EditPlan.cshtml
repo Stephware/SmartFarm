@@ -5,8 +5,7 @@
 <div class="reference-screen reference-screen-crops ani12d-edit-plan">
 <section class="panel card sf-edit-form-panel ani12d-edit-form">
 
-    <h1>Edit planting plan</h1>
-    <p class="sf-muted">Update @Model.Cycle.CropTypeName on @Model.Cycle.PlotName. Saved crop history is retained.</p>
+    <partial name="_UiPageHeader" model='@(new UiPageHeader("Edit planting plan", $"Update {Model.Cycle.CropTypeName} on {Model.Cycle.PlotName}. Saved crop history is retained.", BackText: "Back to crops", BackUrl: Url.Action("Index", "Crops", new { farmId = Model.Farm.Id }) + "#crop-cycle-" + Model.Cycle.Id))' />
     <div asp-validation-summary="ModelOnly" class="error" role="alert"></div>
     <form class="sf-crop-form ani12d-edit-fields ani-p5-form" data-ani-p5-form asp-action="EditPlan" asp-route-farmId="@Model.Farm.Id"
           asp-route-cycleId="@Model.Cycle.Id" method="post">

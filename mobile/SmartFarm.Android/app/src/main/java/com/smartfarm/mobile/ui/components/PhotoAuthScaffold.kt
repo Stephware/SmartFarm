@@ -21,6 +21,9 @@ import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.Scaffold
+import androidx.compose.foundation.layout.consumeWindowInsets
+import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.MaterialTheme
@@ -68,7 +71,13 @@ fun PhotoAuthScaffold(
 
     val ink = MaterialTheme.colorScheme.onSurface
     val panel = MaterialTheme.colorScheme.surface
-    Box(modifier.fillMaxSize().background(Color(0xFF122C20))) {
+    Scaffold(modifier = modifier, topBar = {
+        MaterialTheme(colorScheme = MaterialTheme.colorScheme.copy(
+            surface = Color(0xFF122C20), onSurface = Color.White)) {
+            PageNavigationHeader(modifier = Modifier.statusBarsPadding())
+        }
+    }) { pagePadding ->
+    Box(Modifier.fillMaxSize().padding(pagePadding).consumeWindowInsets(pagePadding).background(Color(0xFF122C20))) {
         Image(
             painter = painterResource(R.drawable.ani6_fields_hero),
             contentDescription = null, // Decorative brand photography, not an actual farm record.
@@ -152,6 +161,7 @@ fun PhotoAuthScaffold(
                 }
             }
         }
+    }
     }
 }
 

@@ -1,5 +1,6 @@
 package com.smartfarm.mobile.features.tasks
 
+import com.smartfarm.mobile.ui.components.UnsavedChanges
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -73,10 +74,21 @@ fun TaskScreen(
     var editingId by rememberSaveable(state.farmId) { mutableStateOf<String?>(null) }
     var selectedView by rememberSaveable(state.farmId) { mutableStateOf("today") }
     var showTaskHelp by rememberSaveable(state.farmId) { mutableStateOf(false) }
-    LaunchedEffect(state.savedCount) {
-        if (state.savedCount > 0) {
-            adding = false
-            editingId = null
+    val formState = androidx.compose.runtime.saveable.rememberSaveableStateHolder()
+    var handledSave by rememberSaveable(state.farmId) { mutableStateOf(state.lastFormSave?.receipt) }
+    val exitGuard = com.smartfarm.mobile.ui.components.LocalExitGuard.current
+    LaunchedEffect(state.lastFormSave) {
+        val saved = state.lastFormSave
+        if (saved != null && saved.receipt != handledSave) {
+            handledSave = saved.receipt
+            exitGuard?.clear(saved.form)
+            if (saved.form == "new-task") {
+                adding = false
+                formState.removeState("new-task")
+            } else if (saved.form == "task-$editingId") {
+                formState.removeState("edit-$editingId")
+                editingId = null
+            }
         }
     }
     val today = state.timeZoneId?.let { zone ->
@@ -92,11 +104,9 @@ fun TaskScreen(
     val isTasks = state.farmId != null
     val farmTasks = if (canManage) TaskDisplay.farmTasks(state.tasks) else emptyList()
     val hasTaskDraft = canManage && selectedView == "manage" && (adding || editingId != null)
-    RecordPage {
+    RecordPage(title = if (isTasks) "Farm tasks" else "Notifications", onBack = onBack) {
         item(key = "header") {
             Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                if (!isTasks) OutlinedButton(onClick = onBack,
-                    modifier = Modifier.fillMaxWidth()) { Text("Back") }
                 Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.Top,
                     horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                     FarmHero(if (isTasks) "My tasks" else "Notifications",
@@ -257,7 +267,7 @@ fun TaskScreen(
             }
             if (selectedView == "manage" && canManage) {
                 if (adding) item(key = "new-task") {
-                    NewTaskForm(state, today, onCreate)
+                    formState.SaveableStateProvider("new-task") { NewTaskForm(state, today, onCreate) }
                 }
                 item(key = "manage-heading") {
                     FarmSectionHeader("All farm tasks",
@@ -283,7 +293,7 @@ fun TaskScreen(
                     // be scrolled fully into view at larger font scales and 320dp.
                     if (task.status == 0 && state.choicesReady && editingId == task.id) {
                         item(key = "edit-${task.id}") {
-                            EditTaskForm(task, state, onUpdate)
+                            formState.SaveableStateProvider("edit-${task.id}") { EditTaskForm(task, state, onUpdate) }
                         }
                     }
                 }
@@ -404,6 +414,8 @@ private fun NewTaskForm(state: TaskUiState, today: LocalDate?, onCreate: (TaskCr
     var description by rememberSaveable(state.farmId) { mutableStateOf("") }
     var cycleId by rememberSaveable(state.farmId) { mutableStateOf<String?>(null) }
     var assignee by rememberSaveable(state.farmId) { mutableStateOf<String?>(null) }
+    UnsavedChanges("new-task", type != 4 || due != today?.toString().orEmpty() || description.isNotEmpty() ||
+        cycleId != null || assignee != null)
     val validDate = runCatching { LocalDate.parse(due.trim()) }.isSuccess
     val validCycle = cycleId == null || state.cycles.any { it.id == cycleId && it.status in 0..1 }
     val validAssignee = assignee == null || state.members.any { it.userId == assignee }
@@ -492,6 +504,7 @@ private fun EditTaskForm(
     var due by rememberSaveable(task.id) { mutableStateOf(task.dueDate) }
     var description by rememberSaveable(task.id) { mutableStateOf(task.description.orEmpty()) }
     var assignee by rememberSaveable(task.id) { mutableStateOf(task.assignedToUserId) }
+    UnsavedChanges("task-${task.id}", due != task.dueDate || description != task.description.orEmpty() || assignee != task.assignedToUserId)
     val validDate = runCatching { LocalDate.parse(due.trim()) }.isSuccess
     Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
         DateInput(due, "Due date", { due = it }, enabled = !state.busy)
