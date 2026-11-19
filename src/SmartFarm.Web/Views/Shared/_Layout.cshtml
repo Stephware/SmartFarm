@@ -161,6 +161,19 @@ else
             <a class="ani6-login" asp-controller="Account" asp-action="Login">Log in</a>
             <a class="button guest-nav-cta" asp-controller="Account" asp-action="Register">Create account</a>
         </nav>
+        @if (isLanding)
+        {
+            <details class="ani6-mobile-menu">
+                <summary aria-label="Open account menu">Menu <partial name="_Icon" model='@("down")' /></summary>
+                <nav aria-label="Account and appearance menu">
+                    <a asp-controller="Account" asp-action="Login">Log in</a>
+                    <button type="button" class="ani6-menu-theme" data-color-mode-toggle
+                            aria-label="Use dark appearance" aria-pressed="false">
+                        <partial name="_Icon" model='@("sun")' /> Change appearance
+                    </button>
+                </nav>
+            </details>
+        }
     </header>
     <main class="page guest-page" id="main-content" tabindex="-1"><partial name="_ValidationSummary" />@RenderBody()</main>
 }
