@@ -11,6 +11,7 @@
 
     const current = new URL(window.location.href);
     const key = url => prefix + url.pathname + url.search;
+    const parentKey = url => prefix + "parent:" + url.pathname + url.search;
     const parse = url => {
         try {
             const raw = storage.getItem(key(url));
@@ -39,12 +40,32 @@
             event.shiftKey || event.altKey) return;
         let destination;
         try { destination = new URL(link.href, current); } catch { return; }
-        if (destination.origin !== current.origin || destination.hash) return;
+        if (destination.origin !== current.origin) return;
         if (link.classList.contains("anigo-back-control")) {
-            const previous = parse(destination);
-            if (previous) storePrevious(destination, previous, "back");
-        } else if (destination.pathname === current.pathname &&
-                   destination.search !== current.search) {
+            // Return to the real filtered parent when this tab entered from it.
+            // The server-owned href remains a safe fallback without JavaScript.
+            try {
+                const saved = storage.getItem(parentKey(current));
+                const parent = saved ? new URL(saved) : null;
+                const farmA = current.searchParams.get("farmId");
+                const farmB = parent?.searchParams.get("farmId");
+                if (parent && parent.origin === current.origin &&
+                    parent.pathname === destination.pathname &&
+                    (!farmA || !farmB || farmA === farmB)) {
+                    parent.hash = destination.hash || parent.hash;
+                    link.href = parent.href;
+                    destination = parent;
+                }
+            } catch { /* Keep the server-rendered Back destination. */ }
+            if (!destination.hash) {
+                const previous = parse(destination);
+                if (previous) storePrevious(destination, previous, "back");
+            }
+        } else if (destination.pathname !== current.pathname) {
+            // Only remember a parent for a normal in-app detail navigation.
+            try { storage.setItem(parentKey(destination), current.href); }
+            catch { /* Optional enhancement. */ }
+        } else if (!destination.hash && destination.search !== current.search) {
             store(destination, "filter");
         }
     });
@@ -89,12 +110,15 @@
         try { pending = JSON.parse(storage.getItem(pendingPostKey) || "null"); }
         catch { /* malformed storage can be ignored */ }
         if (pending && pending.expires > Date.now()) {
-            const origin = new URL(pending.url);
-            const sameResource = ["farmId", "itemId", "cycleId", "id"].every(name =>
-                origin.searchParams.get(name) === current.searchParams.get(name));
-            if (origin.origin === current.origin && origin.pathname === current.pathname &&
-                sameResource && (!previous || previous.intent === "history")) {
-                previous = { y: pending.y, intent: "submit" };
+            let origin;
+            try { origin = new URL(pending.url); } catch { /* Ignore corrupt state. */ }
+            if (origin) {
+                const sameResource = ["farmId", "itemId", "cycleId", "id"].every(name =>
+                    origin.searchParams.get(name) === current.searchParams.get(name));
+                if (origin.origin === current.origin && origin.pathname === current.pathname &&
+                    sameResource && (!previous || previous.intent === "history")) {
+                    previous = { y: pending.y, intent: "submit" };
+                }
             }
         }
         try { storage.removeItem(pendingPostKey); } catch { /* harmless */ }
