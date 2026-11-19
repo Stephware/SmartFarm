@@ -183,7 +183,12 @@ public sealed class Phase12FAdminViewTests
         using var app = new WebApplicationFactory<Program>();
         var html = await RenderAsync(app.Services, "Security", "Setup",
             new AdminMfaSetupPage("TEST-ONLY-KEY-DO-NOT-USE", "test-admin@example.test"));
-        Assert.Matches("<a[^>]*href=\"/account/profile\"[^>]*>[^<]*Back to my account</a>", html);
+        var back = System.Text.RegularExpressions.Regex.Match(html,
+            "<a[^>]*href=\"/account/profile\"[^>]*>.*?</a>",
+            System.Text.RegularExpressions.RegexOptions.Singleline).Value;
+        Assert.NotEmpty(back);
+        Assert.Contains("anigo-back-control", back);
+        Assert.Contains("<span class=\"visually-hidden\">Back to my account</span>", back);
         Assert.Contains("Enable two-factor authentication", html);
         Assert.Contains("__RequestVerificationToken", html);
     }
