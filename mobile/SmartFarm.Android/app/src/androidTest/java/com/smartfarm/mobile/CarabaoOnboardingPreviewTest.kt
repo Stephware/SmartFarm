@@ -90,7 +90,7 @@ class CarabaoOnboardingPreviewTest {
             }
         }
         compose.onNodeWithText("Welcome to AniGo!").assertIsDisplayed()
-        compose.onNodeWithContentDescription("AniGo carabao mascot").assertExists()
+        compose.onNodeWithContentDescription("AniGo carabao waving").assertExists()
         compose.onNodeWithText("Next →").performClick()
         compose.waitForIdle()
         compose.onNodeWithText("Your farm, organized").assertIsDisplayed()
