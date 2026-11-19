@@ -204,9 +204,9 @@ class FarmViewModel(
     fun addPlot(name: String, area: String, onSaved: () -> Unit = {}) = perform {
         val farmId = requireNotNull(mutable.value.selected).id
         repo.createPlot(farmId, PlotInputDto(name.trim(), BigDecimal(area)))
-        onSaved()
         mutable.value = mutable.value.copy(plots = repo.plots(farmId),
             plotSaveVersion = mutable.value.plotSaveVersion + 1)
+        onSaved()
     }
 
     fun savePlot(plot: PlotDto, name: String, area: String) = perform {
