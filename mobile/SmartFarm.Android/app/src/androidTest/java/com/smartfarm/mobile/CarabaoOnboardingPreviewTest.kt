@@ -15,7 +15,6 @@ import java.io.FileOutputStream
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsNotEnabled
 import androidx.compose.ui.test.junit4.createComposeRule
-import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithContentDescription
@@ -911,7 +910,7 @@ class CarabaoOnboardingPreviewTest {
             AniGoOnboardingScreen(onExit = { exits++ }, motionAllowed = true, introAutoPlay = false)
         } }
         compose.onNodeWithText("Skip intro").assertExists()
-        Espresso.pressBack()
+        UiDevice.getInstance(InstrumentationRegistry.getInstrumentation()).pressBack()
         compose.runOnIdle { assertEquals(1, exits) }
         compose.onNodeWithTag("onboarding-page-0").assertDoesNotExist()
     }
