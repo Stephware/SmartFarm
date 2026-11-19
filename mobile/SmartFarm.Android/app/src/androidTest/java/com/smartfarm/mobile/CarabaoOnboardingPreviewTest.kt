@@ -9,7 +9,7 @@ import androidx.compose.ui.graphics.asAndroidBitmap
 import androidx.compose.ui.test.captureToImage
 import androidx.compose.ui.test.onRoot
 import androidx.test.platform.app.InstrumentationRegistry
-import androidx.test.espresso.Espresso
+import androidx.test.uiautomator.UiDevice
 import java.io.File
 import java.io.FileOutputStream
 import androidx.compose.ui.test.assertIsDisplayed
@@ -483,12 +483,12 @@ class CarabaoOnboardingPreviewTest {
         compose.waitForIdle()
         compose.onNodeWithText("Grow with a plan").assertIsDisplayed()
 
-        Espresso.pressBack()
+        UiDevice.getInstance(InstrumentationRegistry.getInstrumentation()).pressBack()
         compose.waitForIdle()
         compose.onNodeWithText("Your farm, organized").assertIsDisplayed()
         compose.runOnIdle { assertEquals(0, exits) }
 
-        Espresso.pressBack()
+        UiDevice.getInstance(InstrumentationRegistry.getInstrumentation()).pressBack()
         compose.runOnIdle { assertEquals(1, exits) }
     }
 
