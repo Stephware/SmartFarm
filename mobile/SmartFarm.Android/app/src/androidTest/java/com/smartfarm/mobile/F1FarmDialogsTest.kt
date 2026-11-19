@@ -1,6 +1,10 @@
 package com.smartfarm.mobile
 
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.CompositionLocalProvider
+import com.smartfarm.mobile.ui.components.FarmAppBar
+import com.smartfarm.mobile.ui.components.FarmHeaderNavigation
+import com.smartfarm.mobile.ui.components.LocalFarmHeaderNavigation
 import androidx.compose.ui.test.*
 import androidx.compose.ui.test.junit4.createComposeRule
 import com.smartfarm.mobile.features.farms.FarmListScreen
@@ -44,6 +48,19 @@ class F1FarmDialogsTest {
         compose.onNodeWithText("Request access").performClick()
         compose.onNodeWithText("Code not recognized").assertExists()
         compose.onNodeWithText("Farm code").assertTextContains("BADCODE12345")
+    }
+
+    @Test fun headerAccountOpensWithoutASelectedFarm() {
+        var opened = 0
+        compose.setContent { SmartFarmTheme {
+            CompositionLocalProvider(LocalFarmHeaderNavigation provides
+                FarmHeaderNavigation(null, onFarms = {}, onNotifications = {},
+                    onAccount = { opened++ })) {
+                FarmAppBar(title = "My farms")
+            }
+        } }
+        compose.onNodeWithContentDescription("My account").performClick()
+        compose.runOnIdle { assertEquals(1, opened) }
     }
 
     @Test fun farmChooserDoesNotUseAnAccountShortcutAsBackNavigation() {
