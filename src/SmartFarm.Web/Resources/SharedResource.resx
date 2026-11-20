@@ -4255,4 +4255,64 @@
   <data name="− Supplies used" xml:space="preserve">
     <value>− Supplies used</value>
   </data>
+  <data name="Get back to your farm work." xml:space="preserve">
+    <value>Get back to your farm work.</value>
+  </data>
+  <data name="We'll help you request a secure password reset." xml:space="preserve">
+    <value>We'll help you request a secure password reset.</value>
+  </data>
+  <data name="Forgot your password?" xml:space="preserve">
+    <value>Forgot your password?</value>
+  </data>
+  <data name="Enter your account email. If an account exists and email delivery is configured, we'll send reset instructions." xml:space="preserve">
+    <value>Enter your account email. If an account exists and email delivery is configured, we'll send reset instructions.</value>
+  </data>
+  <data name="Email address" xml:space="preserve">
+    <value>Email address</value>
+  </data>
+  <data name="Request reset instructions" xml:space="preserve">
+    <value>Request reset instructions</value>
+  </data>
+  <data name="Check your email" xml:space="preserve">
+    <value>Check your email</value>
+  </data>
+  <data name="If the email belongs to an active account and email delivery is configured, password reset instructions will be sent." xml:space="preserve">
+    <value>If the email belongs to an active account and email delivery is configured, password reset instructions will be sent.</value>
+  </data>
+  <data name="For security, we cannot confirm whether an account exists for that address." xml:space="preserve">
+    <value>For security, we cannot confirm whether an account exists for that address.</value>
+  </data>
+  <data name="Set a new password" xml:space="preserve">
+    <value>Set a new password</value>
+  </data>
+  <data name="Choose a new password for your AniGo account." xml:space="preserve">
+    <value>Choose a new password for your AniGo account.</value>
+  </data>
+  <data name="New password" xml:space="preserve">
+    <value>New password</value>
+  </data>
+  <data name="Confirm new password" xml:space="preserve">
+    <value>Confirm new password</value>
+  </data>
+  <data name="Reset password" xml:space="preserve">
+    <value>Reset password</value>
+  </data>
+  <data name="Request another reset link" xml:space="preserve">
+    <value>Request another reset link</value>
+  </data>
+  <data name="Invalid reset link" xml:space="preserve">
+    <value>Invalid reset link</value>
+  </data>
+  <data name="This link is incomplete, invalid or has expired. Request a new password reset link." xml:space="preserve">
+    <value>This link is incomplete, invalid or has expired. Request a new password reset link.</value>
+  </data>
+  <data name="Password updated" xml:space="preserve">
+    <value>Password updated</value>
+  </data>
+  <data name="Your password has been changed. Sign in using your new password." xml:space="preserve">
+    <value>Your password has been changed. Sign in using your new password.</value>
+  </data>
+  <data name="The reset link is invalid, expired or has already been used. Request a new link." xml:space="preserve">
+    <value>The reset link is invalid, expired or has already been used. Request a new link.</value>
+  </data>
 </root>
