@@ -183,6 +183,7 @@ fun ForgotPasswordScreen(
 ) {
     var email by rememberSaveable { mutableStateOf("") }
     val valid = looksLikeEmail(email)
+    val focusManager = androidx.compose.ui.platform.LocalFocusManager.current
     PhotoAuthScaffold(
         headline = uiText(R.string.ui_need_help_signing_in_d860242, "Need help signing in?"),
         description = uiText(R.string.ui_keep_your_farm_work_within_reach_947bdf3,
@@ -211,6 +212,8 @@ fun ForgotPasswordScreen(
                 label = { Text(uiText(R.string.recovery_email_label, "Email address")) },
                 keyboardOptions = KeyboardOptions(
                     keyboardType = KeyboardType.Email, imeAction = ImeAction.Done),
+                keyboardActions = androidx.compose.foundation.text.KeyboardActions(
+                    onDone = { focusManager.clearFocus() }),
                 enabled = !state.recoveryBusy,
                 isError = email.isNotBlank() && !valid,
                 singleLine = true,
@@ -225,7 +228,7 @@ fun ForgotPasswordScreen(
                     modifier = Modifier.semantics { liveRegion = LiveRegionMode.Assertive })
             }
             Button(
-                onClick = { onRequest(email.trim()) },
+                onClick = { focusManager.clearFocus(); onRequest(email.trim()) },
                 enabled = valid && !state.recoveryBusy,
                 modifier = Modifier.fillMaxWidth()
                     .defaultMinSize(minHeight = 48.dp)
