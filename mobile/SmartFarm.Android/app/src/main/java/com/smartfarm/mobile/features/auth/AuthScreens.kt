@@ -174,31 +174,77 @@ fun RegisterScreen(
     }
 }
 
-/**
- * Account recovery is deliberately informative until a verified email/token reset service exists.
- * Never collect an email or claim a reset link has been sent without a working backend.
- */
+/** The API returns neutral feedback for known and unknown accounts alike. */
 @Composable
-fun ForgotPasswordScreen(onLogin: () -> Unit) {
+fun ForgotPasswordScreen(
+    state: AuthUiState,
+    onRequest: (String) -> Unit,
+    onLogin: () -> Unit
+) {
+    var email by rememberSaveable { mutableStateOf("") }
+    val valid = looksLikeEmail(email)
     PhotoAuthScaffold(
         headline = uiText(R.string.ui_need_help_signing_in_d860242, "Need help signing in?"),
-        description = uiText(R.string.ui_keep_your_farm_work_within_reach_947bdf3, "Keep your farm work within reach."),
+        description = uiText(R.string.ui_keep_your_farm_work_within_reach_947bdf3,
+            "Keep your farm work within reach."),
         formTitle = uiText(R.string.ui_forgot_your_password_afd25fd, "Forgot your password?"),
-        formSubtitle = uiText(R.string.ui_account_recovery_information_93e20a3, "Account recovery information"),
+        formSubtitle = uiText(R.string.recovery_email_hint,
+            "Enter your email to request password reset instructions."),
         compactHero = true
     ) {
-        Text(
-            uiText(R.string.ui_email_password_reset_is_not_available_yet_6b700d6, "Email password reset is not available yet."),
-            color = MaterialTheme.colorScheme.onSurface,
-            style = MaterialTheme.typography.bodyLarge
-        )
-        Text(
-            uiText(R.string.ui_no_reset_link_can_be_sent_yet_contact_your_system_ad_2ab4cad, "No reset link can be sent yet. Contact your system administrator for account assistance."),
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
-            style = MaterialTheme.typography.bodyMedium
-        )
+        if (state.recoveryRequested) {
+            Text(uiText(R.string.recovery_sent_title, "Check your email"),
+                modifier = Modifier.semantics {
+                    heading()
+                    liveRegion = LiveRegionMode.Polite
+                }, style = MaterialTheme.typography.titleLarge)
+            Text(uiText(R.string.recovery_sent_note,
+                "If an active account exists and email delivery is configured, reset instructions will be sent. We cannot confirm whether an account exists for that address."),
+                style = MaterialTheme.typography.bodyMedium)
+            Text(uiText(R.string.recovery_follow_browser,
+                "Open the secure email link in your browser to finish resetting your password."),
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                style = MaterialTheme.typography.bodyMedium)
+        } else {
+            OutlinedTextField(
+                value = email, onValueChange = { email = it },
+                label = { Text(uiText(R.string.recovery_email_label, "Email address")) },
+                keyboardOptions = KeyboardOptions(
+                    keyboardType = KeyboardType.Email, imeAction = ImeAction.Done),
+                enabled = !state.recoveryBusy,
+                isError = email.isNotBlank() && !valid,
+                singleLine = true,
+                modifier = Modifier.fillMaxWidth().testTag("recovery-email")
+            )
+            if (email.isNotBlank() && !valid) {
+                Text(uiText(R.string.ui_enter_a_valid_email_address_8a966af,
+                    "Enter a valid email address."), color = MaterialTheme.colorScheme.error)
+            }
+            state.recoveryError?.let { message ->
+                Text(message, color = MaterialTheme.colorScheme.error,
+                    modifier = Modifier.semantics { liveRegion = LiveRegionMode.Assertive })
+            }
+            Button(
+                onClick = { onRequest(email.trim()) },
+                enabled = valid && !state.recoveryBusy,
+                modifier = Modifier.fillMaxWidth()
+                    .defaultMinSize(minHeight = 48.dp)
+                    .testTag("request-password-reset")
+            ) {
+                if (state.recoveryBusy) {
+                    CircularProgressIndicator(
+                        modifier = Modifier.padding(end = 12.dp),
+                        strokeWidth = 2.dp)
+                }
+                Text(if (state.recoveryBusy) uiText(R.string.recovery_requesting,
+                    "Requesting reset instructions…") else
+                    uiText(R.string.recovery_request, "Request reset instructions"))
+            }
+        }
         if (com.smartfarm.mobile.ui.components.LocalPageNavigation.current?.onBack == null) {
-            PhotoAuthPrimaryButton(uiText(R.string.ui_back_to_log_in_30a8b4c, "Back to log in"), onClick = onLogin)
+            TextButton(onClick = onLogin, enabled = !state.recoveryBusy) {
+                Text(uiText(R.string.ui_back_to_log_in_30a8b4c, "Back to log in"))
+            }
         }
     }
 }
