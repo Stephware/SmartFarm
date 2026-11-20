@@ -22,7 +22,7 @@ public sealed class AccountRecoveryController(AccountRecoveryService recovery) :
     [HttpGet("/Account/ResetPassword")]
     public IActionResult ResetPassword([FromQuery] string? email, [FromQuery] string? token)
     {
-        Response.Headers.ReferrerPolicy = "no-referrer";
+        Response.Headers["Referrer-Policy"] = "no-referrer";
         if (string.IsNullOrWhiteSpace(email) || string.IsNullOrWhiteSpace(token))
             return View("RecoveryInvalid");
         return View("ResetPassword", new ResetPasswordForm { Email = email, Token = token });
@@ -48,7 +48,7 @@ public sealed class AccountRecoveryController(AccountRecoveryService recovery) :
      EnableRateLimiting(EnrollmentRateLimiting.PasswordReset)]
     public async Task<IActionResult> Reset(ResetPasswordForm input, CancellationToken ct)
     {
-        Response.Headers.ReferrerPolicy = "no-referrer";
+        Response.Headers["Referrer-Policy"] = "no-referrer";
         if (!ModelState.IsValid) return View("ResetPassword", input);
         var valid = await recovery.ResetAsync(new ResetPasswordInput
         {
