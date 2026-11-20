@@ -31,7 +31,7 @@
 
             <p class="ani-overline">@T["Farm conditions"]</p>
             <h1 id="weather-heading">@T["Farm weather"]</h1>
-            <p class="sf-muted">@T["Plan fieldwork with the last saved forecast. Dates follow"] @Model.TimeZoneId; this is not a live weather feed.</p>
+            <p class="sf-muted">@T["Plan fieldwork with the last saved forecast. Dates follow"] @Model.TimeZoneId. @T["Saved forecast, not live conditions."]</p>
             <p class="ani12e-weather-safety" role="note"><strong>@T["Saved forecast, not live conditions."]</strong> @T["For urgent rain, heat, or storm decisions, check PAGASA or local official advisories."]</p>
             <p class="ani-weather-freshness ani12e-freshness">
                 <strong>@T["Last checked:"]</strong> @(lastChecked is { } checkedTime ? SmartFarm.Web.Presentation.FarmTimestamp.Display(checkedTime, Model.TimeZoneId) : T["Not yet available"].Value)
@@ -58,7 +58,7 @@
     {
         <div class="sf-empty-state">
             <h2>@T["No recent forecast is available"]</h2>
-            <p>No saved forecast is ready for this farm. Ask your farm manager to check the map pin and weather service; use official local forecasts for time-sensitive decisions.</p>
+            <p>@T["No saved forecast is ready for this farm. Ask your farm manager to check the map pin and weather service; use official local forecasts for time-sensitive decisions."]</p>
         </div>
     }
     else
@@ -73,7 +73,7 @@
         <div class="reference-weather-overview ani12e-weather-overview">
             <div class="reference-weather-now">
                 <span class="reference-weather-icon" aria-hidden="true"><svg viewBox="0 0 48 48" width="62" height="62" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M28 9v21a8 8 0 1 1-8 0V9a4 4 0 0 1 8 0Z"/><path d="M24 18v17m7-19h7m-7 8h5"/></svg></span>
-                <div><strong>@(next?.MaxTemperatureC?.ToString("0.#") ?? "—") °C</strong><span>@T["{0} · saved daily maximum", next?.Date.ToString("dddd, MMM d") ?? "No upcoming forecast"]</span></div>
+                <div><strong>@(next?.MaxTemperatureC?.ToString("0.#") ?? "—") °C</strong><span>@T["{0} · saved daily maximum", next?.Date.ToString("dddd, MMM d") ?? T["No upcoming forecast"].Value]</span></div>
             </div>
             <div class="weather-pills"><span class="sf-status-chip sf-status-chip--planned">@T["Rain chance {0}%", next?.MaxPrecipitationProbability?.ToString("0.#") ?? "—"]</span><span class="sf-status-chip sf-status-chip--neutral">@T["{0} active advisories", activeAdvisories.Count]</span></div>
         </div>
@@ -120,7 +120,7 @@
             <p class="sf-muted">@T["These are saved farm-system advisories, not real-time emergency alerts."]</p>
         </div>
         <span class="sf-status-chip @(activeAdvisories.Count > 0 ? "sf-status-chip--warning" : "sf-status-chip--neutral")">
-            @activeAdvisories.Count active
+            @T["{0} active advisories", activeAdvisories.Count]
         </span>
     </div>
     @if (activeAdvisories.Count == 0)
