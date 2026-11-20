@@ -305,6 +305,9 @@ fun AccountScreen(state: AuthUiState, onLogout: () -> Unit, onFarms: () -> Unit,
                         onValueChange = appearance.selectDark
                     )
                     .testTag("account-dark-theme")
+                    .semantics {
+                        contentDescription = uiText(R.string.ui_dark_theme_3f11a5c, "Dark theme")
+                    }
                     .padding(vertical = 8.dp),
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.SpaceBetween
