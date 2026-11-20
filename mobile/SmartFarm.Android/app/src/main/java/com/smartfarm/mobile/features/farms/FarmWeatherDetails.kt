@@ -7,7 +7,13 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Button
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -18,6 +24,8 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.smartfarm.mobile.ui.components.farmDateTime
+import com.smartfarm.mobile.features.crops.CropUiState
+import com.smartfarm.mobile.data.remote.dto.GuidanceMessageDto
 import com.smartfarm.mobile.ui.components.FarmEmptyState
 import com.smartfarm.mobile.ui.components.FarmSectionCard
 import com.smartfarm.mobile.ui.components.FarmSectionHeader
@@ -29,8 +37,13 @@ import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 
 @Composable
-internal fun FarmWeatherDetails(state: FarmUiState) {
+internal fun FarmWeatherDetails(state: FarmUiState,
+    cropState: CropUiState? = null, onGuidance: (String, String?) -> Unit = { _, _ -> }) {
     val weather = state.weather
+    var selectingAdvisory by rememberSaveable(state.selected?.id) { mutableStateOf<String?>(null) }
+    val availableCrops = cropState?.takeIf {
+        it.farmId == state.selected?.id && !it.offline && !it.busy && it.error == null
+    }?.cycles?.filter { it.status == 1 }.orEmpty()
     var showDailyForecast by rememberSaveable(state.selected?.id) { mutableStateOf(false) }
     FarmSectionHeader(uiText(R.string.ui_saved_farm_forecast_c4fd6d0, "Saved farm forecast"), uiText(R.string.ui_saved_predictions_not_live_measurements_6f71fa1, "Saved predictions, not live measurements."))
     if (state.weatherOffline) FarmStatusChip(
@@ -102,8 +115,90 @@ internal fun FarmWeatherDetails(state: FarmUiState) {
                 FarmSectionCard(uiText(R.string.ui_advisory_1_s_c1509d9, "Advisory · %1\$s", (a.date))) {
                     FarmStatusChip(uiText(R.string.ui_severity_1_s_31458b3, "Severity %1\$s", (a.severity)), FarmStatusTone.Warning)
                     Text(a.message)
+                    TextButton(onClick = { selectingAdvisory = a.id },
+                        enabled = !state.offline && !state.weatherOffline && !state.guidanceBusy) {
+                        Text(uiText(R.string.guidance_explain, "Explain this advisory"))
+                    }
+                    if (state.guidanceAdvisoryId == a.id) {
+                        if (state.guidanceBusy) CircularProgressIndicator()
+                        state.guidanceError?.let { error ->
+                            Text(error, color = MaterialTheme.colorScheme.error)
+                        }
+                        state.weatherGuidance?.let { guidance ->
+                            val source = if (guidance.generationSource == "gemini")
+                                uiText(R.string.guidance_source_ai, "AI-assisted guidance from approved recommendations.")
+                            else uiText(R.string.guidance_source_fallback,
+                                "Rule-based guidance (AI unavailable or not appropriate).")
+                            Text(source, style = MaterialTheme.typography.labelMedium)
+                            if (guidance.isStale) Text(uiText(R.string.guidance_stale,
+                                "The forecast is old. Check official current forecasts."))
+                            if (guidance.isSynthetic) Text(uiText(R.string.guidance_simulated,
+                                "Demonstration forecast, not a real weather warning."))
+                            Text(uiText(R.string.guidance_explanations, "What the forecast means"),
+                                style = MaterialTheme.typography.titleMedium)
+                            guidance.explanations.forEach { message ->
+                                Text("• " + weatherGuidanceText(message))
+                            }
+                            Text(uiText(R.string.guidance_recommendations, "Suggested next steps"),
+                                style = MaterialTheme.typography.titleMedium)
+                            guidance.recommendations.forEach { message ->
+                                Text("• " + weatherGuidanceText(message))
+                            }
+                            Text(uiText(R.string.guidance_informational,
+                                "Advice only. AniGo cannot change farm records automatically."),
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant)
+                        }
+                    }
                 }
             }
         }
     }
+    selectingAdvisory?.let { advisoryId ->
+        AlertDialog(onDismissRequest = { selectingAdvisory = null },
+            title = { Text(uiText(R.string.guidance_choose_crop, "Choose crop context (optional)")) },
+            text = {
+                Column(Modifier.fillMaxWidth().heightIn(max = 360.dp)
+                    .verticalScroll(rememberScrollState()),
+                    verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                    TextButton(onClick = {
+                        selectingAdvisory = null
+                        onGuidance(advisoryId, null)
+                    }) { Text(uiText(R.string.guidance_general, "General farm guidance")) }
+                    availableCrops.forEach { crop ->
+                        TextButton(onClick = {
+                            selectingAdvisory = null
+                            onGuidance(advisoryId, crop.id)
+                        }) { Text(crop.cropTypeName + " — " + crop.plotName) }
+                    }
+                }
+            },
+            confirmButton = { },
+            dismissButton = {
+                TextButton(onClick = { selectingAdvisory = null }) {
+                    Text(uiText(R.string.ui_close_7d9eb7a, "Close"))
+                }
+            })
+    }
+}
+
+@Composable
+private fun weatherGuidanceText(message: GuidanceMessageDto): String = when (message.key) {
+    "rain.roots" -> uiText(R.string.guidance_key_rain_roots,
+        "Forecast heavy rain may leave soil waterlogged and affect roots. Check actual field conditions before deciding what to do.")
+    "wind.damage" -> uiText(R.string.guidance_key_wind_damage,
+        "Forecast strong wind may damage crops and equipment. Assess exposure before working outdoors.")
+    "heat.stress" -> uiText(R.string.guidance_key_heat_stress,
+        "Forecast heat may increase crop stress. It does not establish that damage has occurred on this farm.")
+    "drainage.check" -> uiText(R.string.guidance_key_drainage_check,
+        "Check drainage and areas that may collect water when it is safe to do so.")
+    "supports.check" -> uiText(R.string.guidance_key_supports_check,
+        "Check crop supports and secure loose equipment before stronger winds arrive.")
+    "fieldwork.review" -> uiText(R.string.guidance_key_fieldwork_review,
+        "Review whether weather-sensitive work should be postponed. Any changes remain your decision.")
+    "stress.inspect" -> uiText(R.string.guidance_key_stress_inspect,
+        "Inspect actual crop conditions and record what you observe. Do not assume damage from the forecast alone.")
+    "water.check" -> uiText(R.string.guidance_key_water_check,
+        "Check soil moisture before deciding about watering. No precise water amount is prescribed here.")
+    else -> message.text
 }
