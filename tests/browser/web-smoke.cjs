@@ -97,7 +97,7 @@ async function checkAccessibility(page, screen, viewport) {
                     await checkAccessibility(page, "login", label);
                 assert.equal(await page.locator('input[name="Email"][type="email"]').count(), 1);
                 assert.equal(await page.locator('input[name="Password"][type="password"]').count(), 1);
-                assert.equal(await page.locator('input[name="__RequestVerificationToken"]').count(), 1);
+                assert.equal(await page.locator('form.auth-form input[name="__RequestVerificationToken"]').count(), 1);
                 const show = page.locator("[data-password-toggle]").first();
                 await show.click();
                 assert.equal(await page.locator('input[name="Password"]').getAttribute("type"), "text");
@@ -108,7 +108,7 @@ async function checkAccessibility(page, screen, viewport) {
                 if (label === "phone" || label === "desktop")
                     await checkAccessibility(page, "registration", label);
                 assert.equal(await page.locator('input[name="FullName"]').count(), 1);
-                assert.equal(await page.locator('input[name="__RequestVerificationToken"]').count(), 1);
+                assert.equal(await page.locator('form.auth-form input[name="__RequestVerificationToken"]').count(), 1);
                 await page.screenshot({ path: path.join(screenshots, `register-${label}.png`), fullPage: true });
                 assert.deepEqual(errors, [], `JavaScript errors at ${label}`);
                 results.push(`${label}: landing, login, registration, accessible controls, viewport and JS passed`);
