@@ -7,7 +7,14 @@ import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 
 object ApiClientFactory {
-    fun create(baseUrl: String, allowLocalHttpForDebug: Boolean = false): Retrofit {
+    /** Localized API messages follow the current app language, not the device's default. */
+    internal fun acceptLanguage(language: String): String = if (language == "fil") "fil" else "en"
+
+    fun create(
+        baseUrl: String,
+        allowLocalHttpForDebug: Boolean = false,
+        languageProvider: () -> String = { "en" }
+    ): Retrofit {
         val url = requireNotNull(baseUrl.toHttpUrlOrNull()) { "Set a valid API base URL." }
         val allowedDebugHosts = setOf("10.0.2.2", "127.0.0.1", "localhost")
         require((url.scheme == "https" ||
@@ -19,6 +26,11 @@ object ApiClientFactory {
             "The API base URL must end in / and contain no query or fragment."
         }
         val client = OkHttpClient.Builder()
+            .addInterceptor { chain ->
+                val language = acceptLanguage(languageProvider())
+                chain.proceed(chain.request().newBuilder()
+                    .header("Accept-Language", language).build())
+            }
             .connectTimeout(15, TimeUnit.SECONDS)
             .readTimeout(30, TimeUnit.SECONDS)
             .callTimeout(45, TimeUnit.SECONDS)
