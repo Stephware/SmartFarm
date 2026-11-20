@@ -37,7 +37,7 @@
             <details class="ani-farm-advanced" id="farm-advanced-settings">
                 <summary><strong>@T["Choose an exact location on the map"]</strong><span>@T["Optional"]</span></summary>
                 <p class="ani-inline-help">@T["A map pin helps with local weather. You can add one later by editing your farm."]</p>
-            <div class="farm-location-picker" data-farm-location-picker data-search-url="@Url.Action("Search", "FarmLocations")" data-picker-script-url="@Url.Content("~/js/farm-location-picker.js")">
+            <div class="farm-location-picker" data-farm-location-picker data-search-url="@Url.Action("Search", "FarmLocations")" data-reverse-url="@Url.Action("Reverse", "FarmLocations")" data-picker-script-url="@Url.Content("~/js/farm-location-picker.js")">
                 <h3 class="farm-map-heading">@T["Pin your farm's location"] <span class="sf-muted">@T["(optional)"]</span></h3>
                 <p class="hint">@T["Find your barangay or nearby place, then position the pin on your actual farm. No coordinates to type."]</p>
                 <div class="farm-location-search">
