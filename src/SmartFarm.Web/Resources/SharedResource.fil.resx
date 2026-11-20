@@ -4330,4 +4330,6 @@
   <data name="Suggested next steps" xml:space="preserve"><value>Mga mungkahing susunod na hakbang</value></data>
   <data name="For dangerous weather, follow PAGASA and local official advisories." xml:space="preserve"><value>Kung mapanganib ang panahon, sundin ang PAGASA at mga opisyal na abiso sa inyong lugar.</value></data>
   <data name="This is not a live weather feed." xml:space="preserve"><value>Hindi ito live na ulat ng panahon.</value></data>
+  <data name="Near coordinates:" xml:space="preserve"><value>Malapit sa mga coordinate:</value></data>
+  <data name="Location selected. Confirm or adjust the pin." xml:space="preserve"><value>Napili na ang lokasyon. Kumpirmahin o ayusin ang pin.</value></data>
 </root>
