@@ -17,7 +17,11 @@ namespace SmartFarm.Web.Controllers;
 public sealed class AccountRecoveryController(AccountRecoveryService recovery) : Controller
 {
     [HttpGet("/Account/ForgotPassword")]
-    public IActionResult ForgotPassword() => View("ForgotPassword", new ForgotPasswordInput());
+    public IActionResult ForgotPassword()
+    {
+        Response.Headers["Referrer-Policy"] = "no-referrer";
+        return View("ForgotPassword", new ForgotPasswordInput());
+    }
 
     [HttpGet("/Account/ResetPassword")]
     public IActionResult ResetPassword([FromQuery] string? email, [FromQuery] string? token)
