@@ -2,6 +2,7 @@ package com.smartfarm.mobile.ui.components
 
 import java.time.Instant
 import java.time.LocalDateTime
+import java.time.OffsetDateTime
 import java.time.ZoneId
 import java.time.ZoneOffset
 import java.time.format.DateTimeFormatter
@@ -13,7 +14,10 @@ fun farmDateTime(utc: String, zoneId: String?): String {
         .getOrDefault(ZoneId.of("Asia/Manila"))
     return runCatching {
         val instant = runCatching { Instant.parse(utc) }.getOrElse {
-            LocalDateTime.parse(utc).toInstant(ZoneOffset.UTC)
+            runCatching { OffsetDateTime.parse(utc).toInstant() }.getOrElse {
+                // Database DateTime fields with no offset represent UTC instants.
+                LocalDateTime.parse(utc).toInstant(ZoneOffset.UTC)
+            }
         }
         instant.atZone(zone).format(DateTimeFormatter.ofPattern("MMM d, yyyy · h:mm a", Locale.getDefault()))
     }.getOrElse { utc }
