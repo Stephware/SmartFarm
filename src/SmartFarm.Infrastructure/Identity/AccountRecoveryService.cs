@@ -73,10 +73,7 @@ public sealed class AccountRecoveryService(UserManager<SmartFarmUser> users, Use
         var language = await preferences.LanguageAsync(user.Id, ct);
         var token = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(await users.GeneratePasswordResetTokenAsync(user)));
         var link = options.Value.ApplicationOrigin!.TrimEnd('/') + "/Account/ResetPassword?email=" + Uri.EscapeDataString(user.Email!) + "&token=" + token;
-        var body = language == "fil"
-            ? $"Hiniling ang pagpapalit ng iyong password. Magagamit ang link sa loob ng isang oras. Kung hindi ikaw ang humiling nito, huwag pansinin ang email.\n{link}\nOras sa Pilipinas: {LocalTime()}"
-            : $"A password reset was requested. This link expires in one hour. If you did not request it, ignore this email.\n{link}\nPhilippine time: {LocalTime()}";
-        await DeliverAsync(new(user.Email!, "password.reset", language == "fil" ? "AniGo: Palitan ang password" : "AniGo: Reset your password", body), ct);
+        await DeliverAsync(SecurityEmailTemplates.PasswordReset(user.Email!, user.FullName, language, link, LocalTime(), environment.IsDevelopment()), ct);
     }
 
     public async Task<bool> ResetAsync(ResetPasswordInput input, CancellationToken ct = default)
@@ -90,9 +87,8 @@ public sealed class AccountRecoveryService(UserManager<SmartFarmUser> users, Use
         if (!result.Succeeded) return false;
         // ResetPasswordAsync rotates Identity's security stamp; cookies/access/refresh validate it.
         var language = await preferences.LanguageAsync(user.Id, ct);
-        if (!queue.TryConfirmation(new(user.Email!, "password.changed", language == "fil" ? "AniGo: Napalitan ang password" : "AniGo: Password changed",
-            language == "fil" ? $"Napalitan ang iyong password. Kung hindi ikaw ito, bawiin agad ang iyong account. Oras sa Pilipinas: {LocalTime()}"
-                : $"Your password was changed. If this was not you, recover your account immediately. Philippine time: {LocalTime()}")))
+        if (!queue.TryConfirmation(SecurityEmailTemplates.PasswordChanged(user.Email!, user.FullName, language,
+            options.Value.ValidOrigin(environment.IsDevelopment()) ? options.Value.ApplicationOrigin! : AniGoEmailLayout.Website, LocalTime(), environment.IsDevelopment())))
             logger.LogWarning("Security confirmation email queue is full.");
         return true;
     }

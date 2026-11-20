@@ -1,11 +1,13 @@
 using System.Collections.Concurrent;
 using System.Net;
 using System.Net.Mail;
+using System.Net.Mime;
+using System.Text;
 using Microsoft.Extensions.Options;
 
 namespace SmartFarm.Infrastructure.Email;
 
-public sealed record SecurityEmail(string To, string Kind, string Subject, string Body);
+public sealed record SecurityEmail(string To, string Kind, string Subject, string Body, string? HtmlBody = null, string? PreviewText = null);
 public interface ISecurityEmailSender { Task<bool> SendAsync(SecurityEmail message, CancellationToken ct = default); }
 public sealed class EmailOptions
 {
@@ -44,10 +46,30 @@ public sealed class SmtpSecurityEmailSender(IOptions<EmailOptions> options) : IS
         var o = options.Value;
         using var client = new SmtpClient(o.Host!, o.Port) { EnableSsl = true, UseDefaultCredentials = false };
         if (!string.IsNullOrEmpty(o.Username)) client.Credentials = new NetworkCredential(o.Username, o.Password);
-        using var mail = new MailMessage(o.From!, message.To, message.Subject, message.Body) { IsBodyHtml = false };
+        using var mail = SecurityEmailMime.Create(message, o.From!);
         using var timeout = CancellationTokenSource.CreateLinkedTokenSource(ct);
         timeout.CancelAfter(TimeSpan.FromSeconds(o.TimeoutSeconds));
         await client.SendMailAsync(mail, timeout.Token);
         return true;
+    }
+}
+
+/// <summary>Builds multipart/alternative without sending; safe to inspect in tests.</summary>
+public static class SecurityEmailMime
+{
+    public static MailMessage Create(SecurityEmail message, string from)
+    {
+        var mail = new MailMessage { From = new MailAddress(from, "AniGo", Encoding.UTF8),
+            Subject = message.Subject, SubjectEncoding = Encoding.UTF8, BodyEncoding = Encoding.UTF8 };
+        try
+        {
+            mail.To.Add(message.To);
+            var html = message.HtmlBody ?? AniGoEmailLayout.Render(new EmailContent(message.Subject,
+                message.PreviewText ?? message.Subject, null, [message.Body])).Html;
+            mail.AlternateViews.Add(AlternateView.CreateAlternateViewFromString(message.Body, Encoding.UTF8, MediaTypeNames.Text.Plain));
+            mail.AlternateViews.Add(AlternateView.CreateAlternateViewFromString(html, Encoding.UTF8, MediaTypeNames.Text.Html));
+            return mail;
+        }
+        catch { mail.Dispose(); throw; }
     }
 }

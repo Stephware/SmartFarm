@@ -7,6 +7,7 @@
     <Project Path="src/SmartFarm.Worker/SmartFarm.Worker.csproj" />
   </Folder>
   <Folder Name="/tools/">
+    <Project Path="tools/SmartFarm.EmailPreview/SmartFarm.EmailPreview.csproj" />
     <Project Path="tools/SmartFarm.DemoSeeder/SmartFarm.DemoSeeder.csproj" />
   </Folder>
   <Folder Name="/tests/">
