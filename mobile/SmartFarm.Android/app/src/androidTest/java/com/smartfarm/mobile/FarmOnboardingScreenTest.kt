@@ -10,12 +10,24 @@ import com.smartfarm.mobile.features.farms.FarmListScreen
 import com.smartfarm.mobile.features.farms.FarmUiState
 import com.smartfarm.mobile.ui.theme.SmartFarmTheme
 import java.math.BigDecimal
+import androidx.test.platform.app.InstrumentationRegistry
+import android.content.Context
+import org.junit.Before
 import org.junit.Assert.assertEquals
 import org.junit.Rule
 import org.junit.Test
 
 class FarmOnboardingScreenTest {
     @get:Rule val compose = createComposeRule()
+
+    @Before fun resetOnlyTestGuideState() {
+        val prefs = InstrumentationRegistry.getInstrumentation().targetContext
+            .getSharedPreferences("ani_guide_v1", Context.MODE_PRIVATE)
+        val edit = prefs.edit()
+        prefs.all.keys.filter { it.startsWith("farm-onboarding-test-owner:") }
+            .forEach { edit.remove(it) }
+        check(edit.commit())
+    }
 
     @Test fun farmPickerKeepsOnlyTwoPrimaryActionsAndHidesOptionalLocation() {
         compose.setContent { SmartFarmTheme {
@@ -38,8 +50,9 @@ class FarmOnboardingScreenTest {
         compose.setContent { SmartFarmTheme {
             ownerScreen(FarmUiState(selected = farm()), onPlots = { plotOpens++ })
         } }
-        compose.onNodeWithText("Get your farm ready").performScrollTo().assertExists()
-        compose.onNodeWithText("Add first plot").performScrollTo().performClick()
+        compose.onNodeWithTag("ani-farm-setup-action").performScrollTo()
+            .assert(hasText("Add your first plot"))
+            .performClick()
         compose.runOnIdle { assertEquals(1, plotOpens) }
     }
 
@@ -47,7 +60,8 @@ class FarmOnboardingScreenTest {
         compose.setContent { SmartFarmTheme {
             ownerScreen(FarmUiState(selected = farm()))
         } }
-        compose.onNodeWithText("Get your farm ready").performScrollTo().assertExists()
+        compose.onNodeWithTag("ani-farm-setup-action").performScrollTo()
+            .assert(hasText("Add your first plot"))
         compose.onNodeWithText("3. Record fieldwork from the Record button")
             .assertDoesNotExist()
         compose.onNodeWithText("See all setup steps").performScrollTo().performClick()
@@ -63,7 +77,9 @@ class FarmOnboardingScreenTest {
                 plots = listOf(PlotDto("plot", "farm", "North", BigDecimal("100"), "version"))),
                 crops = CropUiState(farmId = "farm"), onCrops = { cropsOpened++ })
         } }
-        compose.onNodeWithText("Plan a crop").performScrollTo().performClick()
+        compose.onNodeWithTag("ani-farm-setup-action").performScrollTo()
+            .assert(hasText("Plan a crop"))
+            .performClick()
         compose.runOnIdle { assertEquals(1, cropsOpened) }
     }
 
@@ -75,7 +91,7 @@ class FarmOnboardingScreenTest {
             onAddPlot = { _, _ -> }, onSavePlot = { _, _, _ -> }, onArchivePlot = {},
             onCrops = onCrops, onInventory = {}, onDecision = { _, _ -> },
             onChangeRole = { _, _ -> }, onRemoveMember = {},
-            homeCrops = crops, onPlots = onPlots)
+            homeCrops = crops, onPlots = onPlots, actorId = "farm-onboarding-test-owner")
     }
 
     private fun farm() = FarmDto("farm", "North Farm", "Angeles", "Asia/Manila", role = "Owner")
