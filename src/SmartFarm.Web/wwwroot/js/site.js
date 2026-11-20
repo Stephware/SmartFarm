@@ -104,10 +104,20 @@ for (const button of document.querySelectorAll("[data-copy-target]")) {
         const form = section.querySelector("form");
         const snapshot = () => JSON.stringify(Array.from(form.querySelectorAll("input,select,textarea"))
             .filter(field => field.type !== "hidden" && field.type !== "submit" && field.type !== "button")
-            .map(field => [field.name || field.id, field.type === "checkbox" ? field.checked : field.value]));
-        let initial = snapshot();
+            .map(field => [field.name || field.id, /^(checkbox|radio)$/.test(field.type) ? field.checked : field.value]));
+        const initial = snapshot();
         const isDirty = () => snapshot() !== initial;
-        const askDiscard = () => !isDirty() || window.confirm(text("Discard the unfinished changes in this form?"));
+        const askDiscard = () => {
+            if (form.getAttribute("aria-busy") === "true") return false;
+            if (!isDirty()) return true;
+            if (!window.confirm(text("Discard the unfinished changes in this form?"))) return false;
+            form.reset();
+            for (const field of form.querySelectorAll("input,select,textarea")) {
+                field.dispatchEvent(new Event("input", { bubbles: true }));
+                field.dispatchEvent(new Event("change", { bubbles: true }));
+            }
+            return true;
+        };
         const dismiss = () => { if (askDiscard()) dialog.close(); };
         let opener;
         for (const trigger of triggers) {
@@ -116,7 +126,6 @@ for (const button of document.querySelectorAll("[data-copy-target]")) {
                 event.preventDefault();
                 opener = trigger;
                 if (!dialog.open) {
-                    initial = snapshot();
                     dialog.showModal();
                     // Focus the form field rather than the Close icon.
                     const first = form.querySelector("input:not([type=hidden]),select,textarea");
@@ -126,8 +135,16 @@ for (const button of document.querySelectorAll("[data-copy-target]")) {
         }
         close.addEventListener("click", dismiss);
         dialog.addEventListener("cancel", event => { if (!askDiscard()) event.preventDefault(); });
+        const outside = event => {
+            const bounds = dialog.getBoundingClientRect();
+            return event.clientX < bounds.left || event.clientX > bounds.right ||
+                event.clientY < bounds.top || event.clientY > bounds.bottom;
+        };
+        let startedOutside = false;
+        dialog.addEventListener("pointerdown", event => { startedOutside = event.target === dialog && outside(event); });
         dialog.addEventListener("click", event => {
-            if (event.target === dialog) dismiss();
+            if (startedOutside && event.target === dialog && outside(event)) dismiss();
+            startedOutside = false;
         });
         dialog.addEventListener("close", () => opener?.focus());
         if (section.querySelector('[aria-invalid="true"],.input-validation-error,[data-form-error]')) {

@@ -65,6 +65,7 @@ fun HarvestScreen(
     var historyFilter by rememberSaveable(state.farmId, state.cycleId) { mutableStateOf("all") }
     var confirmVoidId by rememberSaveable(state.farmId, state.cycleId) { mutableStateOf<String?>(null) }
     var voidReason by rememberSaveable(state.farmId, state.cycleId) { mutableStateOf("") }
+    var voidSubmitting by rememberSaveable(state.farmId, state.cycleId) { mutableStateOf(false) }
 
     val receipt = state.saveReceipts["${state.farmId}/${state.cycleId}"]
     var handled by rememberSaveable(state.farmId, state.cycleId) { mutableStateOf(receipt) }
@@ -100,7 +101,7 @@ fun HarvestScreen(
                 FarmHero(if (canRecord) uiText(R.string.ui_record_harvest_f027857, "Record harvest") else uiText(R.string.ui_harvest_records_cfad96b, "Harvest records"),
                     uiText(R.string.ui_record_what_you_picked_then_review_confirmed_totals_b716f93, "Record what you picked, then review confirmed totals."))
                 if (state.busy) CircularProgressIndicator()
-                state.error?.let {
+                state.error?.takeIf { confirmVoidId == null }?.let {
                     Text(com.smartfarm.mobile.localization.systemMessage(it), color = MaterialTheme.colorScheme.error,
                         modifier = Modifier.semantics { liveRegion = LiveRegionMode.Assertive })
                     OutlinedButton(onClick = onRetry, enabled = !state.busy) { Text(uiText(R.string.ui_try_again_d8b8392, "Try again")) }
@@ -238,29 +239,51 @@ fun HarvestScreen(
         }
     }
 
+    // Keep the reason and dialog until the server confirms the action. An unsuccessful
+    // request stays recoverable, with one retry allowed after the busy state ends.
+    LaunchedEffect(confirmVoidId, voidSubmitting, state.busy, state.error, state.notice, overview) {
+        if (!voidSubmitting || confirmVoidId == null) return@LaunchedEffect
+        val confirmedEntry = overview?.entries?.firstOrNull { it.id == confirmVoidId }
+        if (confirmedEntry?.isVoided == true ||
+            (!state.busy && state.notice != null && state.error == null)) {
+            voidSubmitting = false
+            confirmVoidId = null
+            voidReason = ""
+        } else if (!state.busy && state.error != null) {
+            voidSubmitting = false
+        }
+    }
+
     confirmVoidId?.let { harvestId ->
         val exit = com.smartfarm.mobile.ui.components.rememberExitGuard()
         androidx.compose.runtime.SideEffect { exit.update("void", voidReason.isNotEmpty()) }
-        val dismiss = { exit.request { confirmVoidId = null; voidReason = "" } }
+        val dismiss = { if (!voidSubmitting && !state.busy) exit.request { confirmVoidId = null; voidReason = "" } }
         AlertDialog(
             onDismissRequest = dismiss,
             title = { Text(uiText(R.string.ui_void_harvest_record_6c7c1d9, "Void harvest record?")) },
             text = {
                 Column {
                     Text(uiText(R.string.ui_the_original_entry_stays_in_history_but_will_be_excl_4f9491d, "The original entry stays in history but will be excluded from totals. This requires an online confirmation."))
-                    OutlinedTextField(voidReason, { voidReason = it }, enabled = !state.busy,
+                    OutlinedTextField(voidReason, { voidReason = it }, enabled = !state.busy && !voidSubmitting,
                         label = { Text(uiText(R.string.ui_reason_required_d976f5d, "Reason (required)")) }, modifier = Modifier.fillMaxWidth())
+                    if (state.error != null && !state.busy) {
+                        Text(com.smartfarm.mobile.localization.systemMessage(state.error),
+                            color = MaterialTheme.colorScheme.error,
+                            modifier = Modifier.semantics { liveRegion = LiveRegionMode.Assertive })
+                    }
                 }
             },
             confirmButton = {
-                TextButton(enabled = !state.busy && voidReason.trim().length in 3..300,
+                TextButton(enabled = !state.busy && !voidSubmitting && voidReason.trim().length in 3..300,
                     onClick = {
-                        confirmVoidId = null
-                        onVoid(harvestId, voidReason)
+                        if (!voidSubmitting) {
+                            voidSubmitting = true
+                            onVoid(harvestId, voidReason.trim())
+                        }
                     }) { Text(uiText(R.string.ui_void_harvest_ce44130, "Void harvest")) }
             },
             dismissButton = {
-                TextButton(onClick = dismiss) { Text(uiText(R.string.ui_cancel_19766ed, "Cancel")) }
+                TextButton(onClick = dismiss, enabled = !state.busy && !voidSubmitting) { Text(uiText(R.string.ui_cancel_19766ed, "Cancel")) }
             }
         )
         com.smartfarm.mobile.ui.components.DiscardChangesDialog(exit)

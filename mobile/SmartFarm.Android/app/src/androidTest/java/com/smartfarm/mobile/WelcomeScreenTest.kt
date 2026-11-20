@@ -14,8 +14,8 @@ class WelcomeScreenTest {
     @Test fun welcomeScreenIsDisplayed() {
         compose.skipFirstRunGuideIfShown()
         compose.onNodeWithText("Your farm starts here.").assertIsDisplayed()
-        compose.onNodeWithText("Developer diagnostics").performScrollTo().performClick()
-        compose.onNodeWithText("Check backend").performScrollTo().assertIsDisplayed()
+        compose.onNodeWithText("Developer diagnostics").assertDoesNotExist()
+        compose.onNodeWithText("Check backend").assertDoesNotExist()
     }
 }
 

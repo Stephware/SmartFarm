@@ -32,8 +32,11 @@ test("farm selector offers quick Create and Join dialogs without removing full s
 function dialogFixture(invalid = false) {
     const listeners = {};
     const buttonListeners = {};
-    const field = { name: "FarmCode", type: "text", value: "", focus() { this.focused = true; } };
+    const field = { name: "FarmCode", type: "text", value: "", focus() { this.focused = true; }, dispatchEvent() {} };
     const form = {
+        attributes: {},
+        getAttribute(name) { return this.attributes[name] ?? null; },
+        reset() { field.value = ""; },
         querySelectorAll: selector => selector === "input,select,textarea" ? [field] : [],
         querySelector: selector => selector.includes("input") ? field : null
     };
@@ -83,7 +86,7 @@ function dialogFixture(invalid = false) {
     const snippet = script.slice(script.indexOf("// Native dialogs"),
         script.indexOf("/* Phase 5:"));
     assert.ok(snippet.length > 100);
-    vm.runInNewContext(snippet, { document, window, HTMLDialogElement: class {} });
+    vm.runInNewContext(snippet, { document, window, HTMLDialogElement: class {}, Event: class { constructor(type) { this.type = type; } } });
     return {
         field, trigger, section, listeners,
         close: () => buttonListeners.click(),

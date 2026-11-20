@@ -4335,4 +4335,6 @@
   <data name="Suggested next steps" xml:space="preserve"><value>Suggested next steps</value></data>
   <data name="For dangerous weather, follow PAGASA and local official advisories." xml:space="preserve"><value>For dangerous weather, follow PAGASA and local official advisories.</value></data>
   <data name="This is not a live weather feed." xml:space="preserve"><value>This is not a live weather feed.</value></data>
+  <data name="Near coordinates:" xml:space="preserve"><value>Near coordinates:</value></data>
+  <data name="Location selected. Confirm or adjust the pin." xml:space="preserve"><value>Location selected. Confirm or adjust the pin.</value></data>
 </root>

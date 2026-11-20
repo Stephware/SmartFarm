@@ -23,6 +23,11 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.imePadding
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.safeDrawing
+import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -46,6 +51,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.compose.ui.window.Dialog
+import androidx.compose.ui.window.DialogProperties
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -144,13 +150,36 @@ private fun FarmLocationDialog(
     var message by remember { mutableStateOf(uiText(R.string.ui_tap_the_map_to_place_a_pin_or_search_an_address_42ee28e, "Tap the map to place a pin, or search an address.")) }
     var webView by remember { mutableStateOf<WebView?>(null) }
 
-    fun select(latitude: Double, longitude: Double) {
+    fun select(latitude: Double, longitude: Double, selectedName: String? = null,
+        resolveAddress: Boolean = false) {
         lat = latitude
         lon = longitude
         val a = String.format(Locale.US, "%.6f", latitude)
         val b = String.format(Locale.US, "%.6f", longitude)
+        // Coordinates are usable even if the device geocoder has no address.
+        // Never require a second manual entry after choosing the current position.
+        name = selectedName?.takeIf { it.isNotBlank() }
+            ?: uiText(R.string.gps_near_coordinates, "Near coordinates: %1\$s, %2\$s", a, b)
         webView?.evaluateJavascript("window.selectFarmPin && window.selectFarmPin($a,$b)", null)
-        message = uiText(R.string.ui_pin_selected_confirm_the_farm_s_address_or_nearby_ar_99e5dca, "Pin selected. Confirm the farm's address or nearby area.")
+        message = uiText(R.string.ui_pin_selected_confirm_the_farm_s_address_or_nearby_ar_99e5dca,
+            "Pin selected. Confirm the farm's address or nearby area.")
+        if (resolveAddress && Geocoder.isPresent()) {
+            scope.launch {
+                try {
+                    val address = withContext(Dispatchers.IO) {
+                        Geocoder(context, Locale.getDefault())
+                            .getFromLocation(latitude, longitude, 1).orEmpty()
+                            .firstOrNull()?.getAddressLine(0)?.take(250)
+                    }
+                    if (lat == latitude && lon == longitude && !address.isNullOrBlank())
+                        name = address
+                } catch (cancelled: CancellationException) {
+                    throw cancelled
+                } catch (_: Exception) {
+                    // Keep the exact selected coordinates and honest fallback label.
+                }
+            }
+        }
     }
 
     @SuppressLint("MissingPermission")
@@ -179,13 +208,13 @@ private fun FarmLocationDialog(
             message = uiText(R.string.ui_getting_your_approximate_position_8c33aae, "Getting your approximate position...")
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
                 manager.getCurrentLocation(provider, null, context.mainExecutor) { found ->
-                    if (found != null) select(found.latitude, found.longitude)
+                    if (found != null) select(found.latitude, found.longitude, resolveAddress = true)
                     else message = uiText(R.string.ui_location_unavailable_search_or_tap_the_map_instead_05d7442, "Location unavailable. Search or tap the map instead.")
                 }
             } else {
                 val found = manager.getLastKnownLocation(provider)
                 if (found != null && System.currentTimeMillis() - found.time in 0..300000) {
-                    select(found.latitude, found.longitude)
+                    select(found.latitude, found.longitude, resolveAddress = true)
                 } else {
                     message = uiText(R.string.ui_no_recent_device_location_search_or_tap_the_map_inst_153b918, "No recent device location. Search or tap the map instead.")
                 }
@@ -212,10 +241,14 @@ private fun FarmLocationDialog(
         }
     }
 
-    Dialog(onDismissRequest = onDismiss) {
-        Surface(shape = MaterialTheme.shapes.large, modifier = Modifier.widthIn(max = 540.dp)) {
-            Column(Modifier.verticalScroll(rememberScrollState()).padding(14.dp),
-                verticalArrangement = Arrangement.spacedBy(9.dp)) {
+    Dialog(onDismissRequest = onDismiss,
+        properties = DialogProperties(usePlatformDefaultWidth = false)) {
+        Surface(modifier = Modifier.fillMaxSize()) {
+            Column(Modifier.fillMaxSize().windowInsetsPadding(WindowInsets.safeDrawing).imePadding()) {
+                Column(
+                    Modifier.weight(1f).verticalScroll(rememberScrollState()).padding(16.dp),
+                    verticalArrangement = Arrangement.spacedBy(12.dp)
+                ) {
                 Text(uiText(R.string.ui_choose_farm_location_d248443, "Choose farm location"), style = MaterialTheme.typography.titleLarge)
                 Text(uiText(R.string.ui_search_a_barangay_or_nearby_place_then_move_the_pin__26f2210, "Search a barangay or nearby place, then move the pin to the farm."),
                     style = MaterialTheme.typography.bodySmall)
@@ -272,8 +305,7 @@ private fun FarmLocationDialog(
                 }
                 results.take(3).forEach { result ->
                     OutlinedButton(onClick = {
-                        name = result.name
-                        select(result.latitude, result.longitude)
+                        select(result.latitude, result.longitude, selectedName = result.name)
                         results = emptyList()
                     }, modifier = Modifier.fillMaxWidth()) {
                         Text(result.name, maxLines = 2)
@@ -310,23 +342,31 @@ private fun FarmLocationDialog(
                             webView = this
                         }
                     },
-                    modifier = Modifier.fillMaxWidth().height(250.dp)
+                    modifier = Modifier.fillMaxWidth().height(320.dp)
                 )
                 Text(message, style = MaterialTheme.typography.bodySmall)
                 OutlinedTextField(name, { name = it }, label = { Text(uiText(R.string.ui_farm_address_or_area_a673ac8, "Farm address or area")) },
                     modifier = Modifier.fillMaxWidth(), singleLine = true)
-                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    OutlinedButton(onClick = onDismiss) { Text(uiText(R.string.ui_cancel_19766ed, "Cancel")) }
+                Text(uiText(R.string.ui_map_openstreetmap_contributors_device_address_search_43a985a, "Map: © OpenStreetMap contributors. Device address search availability varies."),
+                    style = MaterialTheme.typography.labelSmall)
+                }
+                // The commit/cancel actions remain reachable when the map and search results scroll.
+                Row(
+                    Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 12.dp),
+                    horizontalArrangement = Arrangement.spacedBy(12.dp)
+                ) {
+                    OutlinedButton(onClick = onDismiss, modifier = Modifier.weight(1f)) {
+                        Text(uiText(R.string.ui_cancel_19766ed, "Cancel"))
+                    }
                     Button(onClick = {
                         onConfirm(
                             name.trim(), String.format(Locale.US, "%.6f", requireNotNull(lat)),
                             String.format(Locale.US, "%.6f", requireNotNull(lon)))
-                    }, enabled = name.trim().length in 2..250 && lat != null && lon != null) {
+                    }, modifier = Modifier.weight(1f),
+                       enabled = name.trim().length in 2..250 && lat != null && lon != null) {
                         Text(uiText(R.string.ui_use_this_location_69d62e1, "Use this location"))
                     }
                 }
-                Text(uiText(R.string.ui_map_openstreetmap_contributors_device_address_search_43a985a, "Map: © OpenStreetMap contributors. Device address search availability varies."),
-                    style = MaterialTheme.typography.labelSmall)
             }
         }
     }

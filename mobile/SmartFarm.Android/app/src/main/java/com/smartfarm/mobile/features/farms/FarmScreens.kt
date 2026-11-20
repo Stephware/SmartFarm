@@ -26,6 +26,9 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.platform.LocalFocusManager
 import com.smartfarm.mobile.ui.components.TimeZoneInput
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.FlowRow
@@ -114,6 +117,7 @@ fun FarmListScreen(state: FarmUiState, onOpen: (String) -> Unit,
     var latitude by rememberSaveable { mutableStateOf("") }
     var longitude by rememberSaveable { mutableStateOf("") }
     var farmCode by rememberSaveable { mutableStateOf("") }
+    val focusManager = LocalFocusManager.current
     var creating by rememberSaveable { mutableStateOf(false) }
     var joining by rememberSaveable { mutableStateOf(false) }
     var locationOptions by rememberSaveable { mutableStateOf(false) }
@@ -322,6 +326,8 @@ fun FarmListScreen(state: FarmUiState, onOpen: (String) -> Unit,
                 }
                 OutlinedTextField(farmCode, { farmCode = it },
                     label = { Text(uiText(R.string.ui_farm_code_fedbe21, "Farm code")) }, singleLine = true,
+                    keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
+                    keyboardActions = KeyboardActions(onDone = { focusManager.clearFocus() }),
                     enabled = !state.loading,
                     modifier = Modifier.fillMaxWidth())
             }
