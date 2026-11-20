@@ -48,7 +48,11 @@ class AppContainer(context: Context) {
     val workManager: WorkManager by lazy { WorkManager.getInstance(appContext) }
 
     private val retrofit by lazy {
-        ApiClientFactory.create(BuildConfig.API_BASE_URL, allowLocalHttpForDebug = BuildConfig.DEBUG)
+        ApiClientFactory.create(
+            BuildConfig.API_BASE_URL,
+            allowLocalHttpForDebug = BuildConfig.DEBUG,
+            languageProvider = { com.smartfarm.mobile.localization.AppLanguage.current(appContext) }
+        )
     }
     val weatherRepository: WeatherRepository by lazy {
         WeatherRepository(authRepository, offlineCache) { retrofit.create(WeatherApi::class.java) }
