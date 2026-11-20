@@ -1080,4 +1080,13 @@
   <string name="ui_selected_date_4e342f5" formatted="false">"napiling petsa"</string>
   <string name="ui_back_to_record_options_0ab4774" formatted="false">"← Bumalik sa mga pagpipilian sa pagtatala"</string>
   <string name="ui_correct_stock_selected_2bce023" formatted="false">"✓ Iwasto ang stock (napili)"</string>
+
+  <string name="recovery_email_label">Email address</string>
+  <string name="recovery_email_hint">Ilagay ang iyong email upang humiling ng mga tagubilin sa pagpapalit ng password.</string>
+  <string name="recovery_request">Humiling ng tagubilin sa pagpapalit</string>
+  <string name="recovery_requesting">Ipinapadala ang kahilingan…</string>
+  <string name="recovery_sent_title">Tingnan ang iyong email</string>
+  <string name="recovery_sent_note">Kung may aktibong account at nakatakda ang serbisyo ng email, ipapadala ang mga tagubilin. Para sa seguridad, hindi namin makukumpirma kung may account ang email na ito.</string>
+  <string name="recovery_follow_browser">Buksan ang ligtas na link sa email sa iyong browser upang makumpleto ang pagpapalit ng password.</string>
+  <string name="recovery_retry_later">Subukan muli mamaya.</string>
 </resources>
