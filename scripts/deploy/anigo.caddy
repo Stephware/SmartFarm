@@ -1,0 +1,6 @@
+anigo.website {
+    reverse_proxy 127.0.0.1:5080
+}
+api.anigo.website {
+    reverse_proxy 127.0.0.1:5081
+}

@@ -82,3 +82,16 @@ node_modules/
 /tests/browser/authenticated-fixtures/
 /.impeccable/questions/
 /.impeccable/mocks/
+
+# Deployment execution notes are shareable; runtime secrets stay private.
+**/appsettings.Development.json
+**/appsettings.Local.json
+**/appsettings.Production.json
+!/docs/deployment/
+/.local/deployment/
+/scripts/deploy/runtime/
+/scripts/deploy/data/
+/scripts/deploy/artifacts/
+/scripts/deploy/backup/
+/scripts/deploy/control-backups/
+/scripts/deploy/*.tar.gz

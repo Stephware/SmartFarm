@@ -24,6 +24,17 @@ using SmartFarm.Infrastructure.Services.Tasks;
 
 var builder = WebApplication.CreateBuilder(args);
 
+// Production containers listen on loopback; only the local Caddy proxy is trusted.
+builder.Services.Configure<Microsoft.AspNetCore.Builder.ForwardedHeadersOptions>(options =>
+{
+    options.ForwardedHeaders = Microsoft.AspNetCore.HttpOverrides.ForwardedHeaders.XForwardedFor
+        | Microsoft.AspNetCore.HttpOverrides.ForwardedHeaders.XForwardedProto;
+    options.KnownIPNetworks.Clear();
+    options.KnownProxies.Clear();
+    options.KnownProxies.Add(System.Net.IPAddress.Loopback);
+    options.KnownProxies.Add(System.Net.IPAddress.IPv6Loopback);
+});
+
 // In local Development, Web and API share SmartFarmDB. If only Web's user
 // secrets were configured, reuse just its database connection (no other secrets).
 // An explicit API connection setting always wins. Production is unaffected.
@@ -75,6 +86,8 @@ if (builder.Configuration["DataProtection:KeyRingPath"] is { Length: > 0 } keyRi
 }
 
 var app = builder.Build();
+
+app.UseForwardedHeaders();
 
 if (!app.Environment.IsDevelopment())
 {

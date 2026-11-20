@@ -1,0 +1,53 @@
+name: anigo
+services:
+  sql:
+    image: mcr.microsoft.com/mssql/server:2022-latest@sha256:cf8f0ab2ebe61feec2eed2629061a07d247f791c2a8ddda74a4ac9f06a291718
+    container_name: anigo-sql
+    restart: unless-stopped
+    env_file: ./runtime/sql.env
+    ports: ["127.0.0.1:14331:1433"]
+    volumes:
+      - ./data/sql:/var/opt/mssql
+      - ./runtime/sql-tls:/var/opt/mssql/tls:ro
+      - ./runtime/mssql.conf:/var/opt/mssql/mssql.conf:ro
+      - ./backup:/backup:ro
+    mem_limit: 4g
+    cpus: 2
+    logging: &logging
+      driver: json-file
+      options: {max-size: "10m", max-file: "3"}
+  web:
+    build: {context: ./artifacts, dockerfile: ../Dockerfile, args: {SERVICE: Web}}
+    container_name: anigo-web
+    network_mode: host
+    restart: unless-stopped
+    environment: {ASPNETCORE_ENVIRONMENT: Production, ASPNETCORE_URLS: "http://127.0.0.1:5080"}
+    volumes:
+      - ./runtime/Web.json:/app/appsettings.Production.json:ro
+      - ./data/photos:/data/photos
+      - ./data/keys:/data/keys
+    mem_limit: 768m
+    logging: *logging
+  api:
+    build: {context: ./artifacts, dockerfile: ../Dockerfile, args: {SERVICE: Api}}
+    container_name: anigo-api
+    network_mode: host
+    restart: unless-stopped
+    environment: {ASPNETCORE_ENVIRONMENT: Production, ASPNETCORE_URLS: "http://127.0.0.1:5081"}
+    volumes:
+      - ./runtime/Api.json:/app/appsettings.Production.json:ro
+      - ./data/photos:/data/photos
+      - ./data/keys:/data/keys
+    mem_limit: 768m
+    logging: *logging
+  worker:
+    build: {context: ./artifacts, dockerfile: ../Dockerfile, args: {SERVICE: Worker}}
+    container_name: anigo-worker
+    profiles: [worker]
+    network_mode: host
+    restart: unless-stopped
+    environment: {DOTNET_ENVIRONMENT: Production}
+    volumes:
+      - ./runtime/Worker.json:/app/appsettings.Production.json:ro
+    mem_limit: 512m
+    logging: *logging
