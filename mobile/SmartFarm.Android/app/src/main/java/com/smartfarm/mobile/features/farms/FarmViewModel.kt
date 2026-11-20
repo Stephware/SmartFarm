@@ -130,7 +130,8 @@ class FarmViewModel(
         val state = mutable.value
         val farmId = state.selected?.id ?: return
         if (state.offline || state.weatherOffline) {
-            mutable.value = state.copy(guidanceError = uiText(R.string.guidance_online_required,
+            mutable.value = state.copy(guidanceAdvisoryId = advisoryId, weatherGuidance = null,
+                guidanceBusy = false, guidanceError = uiText(R.string.guidance_online_required,
                 "Connect to the internet to check updated weather guidance."))
             return
         }
@@ -166,7 +167,9 @@ class FarmViewModel(
         guidanceJob?.cancel()
         mutable.value = if (mutable.value.selected?.id == farmId)
             mutable.value.copy(loading = true, error = null, enrollment = null, myRequests = emptyList(),
-                enrollmentMessage = null) else FarmUiState(loading = true,
+                enrollmentMessage = null, weatherGuidance = null,
+                guidanceAdvisoryId = null, guidanceBusy = false, guidanceError = null)
+            else FarmUiState(loading = true,
                 farms = mutable.value.farms)
         loadJob = viewModelScope.launch {
             try {
