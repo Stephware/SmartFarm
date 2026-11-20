@@ -1,11 +1,11 @@
 {
   "reviewed": true,
   "version": "F4-F5-localized-public-entry-2026-11-20",
-  "reviewMethod": "Reviewed the real Chromium public landing/login/registration screenshots from GitHub Actions run 44649912665. Confirmed mobile widths 320/375, light/dark account navigation and reset link, and desktop photo-led layout. All 30 exact PNG byte fingerprints, dimensions and tracked source blobs are locked.",
+  "reviewMethod": "Reviewed the real Chromium public landing/login/registration screenshots from GitHub Actions run 44649912665. Confirmed mobile widths 320/375, light/dark account navigation and reset link, and desktop photo-led layout. All 30 exact PNG byte fingerprints, dimensions and tracked source blobs are locked. Maintenance verification: the shared Razor layout source now maps invariant culture to en and Filipino to fil for a valid document-language attribute; the visible page structure, screenshots, existing 30 screenshot SHA-256 values, sizes and comparison checks are intentionally unchanged. The CI exact-image comparison is still required.",
   "sourceRunId": 44649912665,
   "sourceBlobShas": {
     "wwwroot/css/anigo-tailwind.css": "1e540a7ec8ba12b2885b37847a1ceb70e1da78b6",
-    "Views/Shared/_Layout.cshtml": "72bb5c0f3a835d202cff3acd6ab2a9e34ab65105",
+    "Views/Shared/_Layout.cshtml": "548fcde2841907bbb1b31b9f3022cc3500ee1b86",
     "Views/Home/Index.cshtml": "9ec93387fa63151263d42cdba7cb5f1fe95cbefe",
     "Views/Account/Login.cshtml": "a626202b7dde517a73cb86b5497c0ccb50197507",
     "Views/Account/Register.cshtml": "71090cda20c450ad808cc39f79b38ab65b305088",
