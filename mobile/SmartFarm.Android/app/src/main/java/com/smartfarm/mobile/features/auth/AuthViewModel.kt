@@ -18,7 +18,10 @@ data class AuthUiState(
     val busy: Boolean = false,
     val error: String? = null,
     val notice: String? = null,
-    val account: AccountResponse? = null
+    val account: AccountResponse? = null,
+    val recoveryBusy: Boolean = false,
+    val recoveryRequested: Boolean = false,
+    val recoveryError: String? = null
 )
 
 class AuthViewModel(private val repository: AuthRepository) : ViewModel() {
@@ -55,6 +58,34 @@ class AuthViewModel(private val repository: AuthRepository) : ViewModel() {
                 mutableState.value = AuthUiState(error = NetworkErrorMessages.forRegistration(error))
             }
         }
+    }
+
+    fun requestPasswordReset(email: String) {
+        if (mutableState.value.recoveryBusy || mutableState.value.recoveryRequested) return
+        mutableState.value = mutableState.value.copy(
+            recoveryBusy = true, recoveryError = null, recoveryRequested = false
+        )
+        viewModelScope.launch {
+            try {
+                repository.requestPasswordReset(email)
+                mutableState.value = mutableState.value.copy(
+                    recoveryBusy = false, recoveryRequested = true, recoveryError = null
+                )
+            } catch (cancelled: CancellationException) {
+                throw cancelled
+            } catch (error: Exception) {
+                mutableState.value = mutableState.value.copy(
+                    recoveryBusy = false,
+                    recoveryError = NetworkErrorMessages.forRequest(
+                        error, uiText(R.string.ui_please_try_again_later_02e8cd8, "Please try again later."))
+                )
+            }
+        }
+    }
+
+    fun clearRecoveryFeedback() {
+        mutableState.value = mutableState.value.copy(
+            recoveryBusy = false, recoveryRequested = false, recoveryError = null)
     }
 
     fun logout() {
