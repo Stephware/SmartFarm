@@ -27,19 +27,23 @@ const hashes = Object.fromEntries(inputs.map(file => [file, crypto.createHash("s
 const f2ReviewPath = path.join(directory, "f2-reviewed-signatures.json");
 const f2Review = !update && fs.existsSync(f2ReviewPath)
     ? JSON.parse(fs.readFileSync(f2ReviewPath)) : null;
+const f4ReviewPath = path.join(directory, "f4-reviewed-signatures.json");
+const f4Review = !update && fs.existsSync(f4ReviewPath)
+    ? JSON.parse(fs.readFileSync(f4ReviewPath)) : null;
+const activeReview = f4Review ?? f2Review;
 const gitBlobSha = file => {
     const data = fs.readFileSync(path.join(root, "src/SmartFarm.Web", file));
     return crypto.createHash("sha1").update(Buffer.from("blob " + data.length + "\0"))
         .update(data).digest("hex");
 };
-if (f2Review) {
-    assert.equal(f2Review.reviewed, true, "F2 screenshot signatures require visual review.");
-    const files = Object.keys(f2Review.sourceBlobShas);
+if (activeReview) {
+    assert.equal(activeReview.reviewed, true, "Screenshot signatures require documented visual review.");
+    const files = Object.keys(activeReview.sourceBlobShas);
     const actual = Object.fromEntries(files.map(file => [file, gitBlobSha(file)]));
-    assert.deepEqual(actual, f2Review.sourceBlobShas,
-        "F2 visual source changed; inspect and reapprove screenshots before accepting them.");
-    assert.equal(Object.keys(f2Review.screenshots).length, 18,
-        "F2 approval must cover exactly the 18 intentionally changed screenshots.");
+    assert.deepEqual(actual, activeReview.sourceBlobShas,
+        "Reviewed visual source changed; inspect screenshots and reapprove before accepting changes.");
+    assert.equal(Object.keys(activeReview.screenshots).length, f4Review ? 30 : 18,
+        "Review manifest must cover every intentionally changed screenshot.");
 }
 fs.mkdirSync(output, { recursive: true });
 if (update) fs.mkdirSync(directory, { recursive: true });
@@ -109,16 +113,16 @@ else {
                         continue;
                     }
                     const actual = PNG.sync.read(data);
-                    const f2Signature = f2Review?.screenshots[key];
-                    if (f2Signature) {
+                    const signature = activeReview?.screenshots[key];
+                    if (signature) {
                         const digest = crypto.createHash("sha256").update(data).digest("hex");
-                        if (actual.width !== f2Signature.width ||
-                            actual.height !== f2Signature.height ||
-                            digest !== f2Signature.sha256) {
-                            findings.push(key + ": changed from F2 reviewed screenshot");
+                        if (actual.width !== signature.width ||
+                            actual.height !== signature.height ||
+                            digest !== signature.sha256) {
+                            findings.push(key + ": changed from reviewed screenshot");
                         }
-                        console.log("F2 SIGNATURE", key,
-                            digest === f2Signature.sha256 ? "approved" : "DIFFERENT");
+                        console.log("REVIEWED SIGNATURE", key,
+                            digest === signature.sha256 ? "approved" : "DIFFERENT");
                         continue;
                     }
                     const expected = PNG.sync.read(fs.readFileSync(path.join(directory, key + ".png")));
@@ -148,11 +152,13 @@ else {
         } else {
             assert.deepEqual(findings, [], "Reviewed visual baseline regressions: " + findings.join("; "));
             const reviewed = JSON.parse(fs.readFileSync(path.join(directory, "review.json")));
-            if (!f2Review) {
+            if (!activeReview) {
                 assert.deepEqual(reviewed.sourceHashes, hashes,
                     "Public source hash changed; compare screenshots and update reviewed provenance.");
             }
-            console.log(f2Review
+            console.log(f4Review
+                ? "PASS 30 exact F4/F5 reviewed public screenshot fingerprints"
+                : f2Review
                 ? "PASS 30 reviewed screenshots (18 exact F2 fingerprints; 12 original goldens)"
                 : "PASS 30 reviewed light/dark visual baselines");
         }
