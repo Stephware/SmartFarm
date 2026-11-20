@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import com.smartfarm.mobile.features.crops.CropUiState
@@ -64,7 +65,7 @@ internal fun FarmSetupGuide(farmId: String, hasPlots: Boolean, cropState: CropUi
         Button(onClick = {
             dismiss()
             when (next) { FarmSetupNext.AddPlot -> onPlots(); FarmSetupNext.Record -> onRecord(); else -> onCrops() }
-        }, modifier = Modifier.fillMaxWidth().defaultMinSize(minHeight = 48.dp)) { Text(title) }
+        }, modifier = Modifier.fillMaxWidth().defaultMinSize(minHeight = 48.dp).testTag("ani-farm-setup-action")) { Text(title) }
         TextButton(onClick = { showSteps = !showSteps }) { Text(if (showSteps) uiText(R.string.ui_hide_setup_steps_7d0378a, "Hide setup steps") else uiText(R.string.ui_see_all_setup_steps_274c620, "See all setup steps")) }
         if (showSteps) {
             Text(uiText(R.string.ui_1_add_a_growing_plot_b7f0dd1, "1. Add a growing plot"))
