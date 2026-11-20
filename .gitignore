@@ -82,3 +82,8 @@ node_modules/
 /tests/browser/authenticated-fixtures/
 /.impeccable/questions/
 /.impeccable/mocks/
+
+# Local .NET configuration containing credentials
+**/appsettings.Development.json
+**/appsettings.Local.json
+**/appsettings.Production.json
