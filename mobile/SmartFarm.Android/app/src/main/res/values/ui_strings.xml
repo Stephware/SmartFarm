@@ -1091,4 +1091,24 @@
   <string name="recovery_sent_note">If an active account exists and email delivery is configured, reset instructions will be sent. We cannot confirm whether an account exists for that address.</string>
   <string name="recovery_follow_browser">Open the secure email link in your browser to finish resetting your password.</string>
   <string name="recovery_retry_later">Please try again later.</string>
+  <string name="guidance_online_required" formatted="false">Connect to the internet to check updated weather guidance.</string>
+  <string name="guidance_request_error" formatted="false">Could not load guidance. Review the saved forecast or try again later.</string>
+  <string name="guidance_explain" formatted="false">Explain this advisory</string>
+  <string name="guidance_choose_crop" formatted="false">Choose crop context (optional)</string>
+  <string name="guidance_general" formatted="false">General farm guidance</string>
+  <string name="guidance_recommendations" formatted="false">Suggested next steps</string>
+  <string name="guidance_explanations" formatted="false">What the forecast means</string>
+  <string name="guidance_source_fallback" formatted="false">Rule-based guidance (AI unavailable or not appropriate).</string>
+  <string name="guidance_source_ai" formatted="false">AI-assisted guidance from approved recommendations.</string>
+  <string name="guidance_simulated" formatted="false">Demonstration forecast, not a real weather warning.</string>
+  <string name="guidance_stale" formatted="false">The forecast is old. Check official current forecasts.</string>
+  <string name="guidance_informational" formatted="false">Advice only. AniGo cannot change farm records automatically.</string>
+  <string name="guidance_key_rain_roots" formatted="false">Forecast heavy rain may leave soil waterlogged and affect roots. Check actual field conditions before deciding what to do.</string>
+  <string name="guidance_key_wind_damage" formatted="false">Forecast strong wind may damage crops and equipment. Assess exposure before working outdoors.</string>
+  <string name="guidance_key_heat_stress" formatted="false">Forecast heat may increase crop stress. It does not establish that damage has occurred on this farm.</string>
+  <string name="guidance_key_drainage_check" formatted="false">Check drainage and areas that may collect water when it is safe to do so.</string>
+  <string name="guidance_key_supports_check" formatted="false">Check crop supports and secure loose equipment before stronger winds arrive.</string>
+  <string name="guidance_key_fieldwork_review" formatted="false">Review whether weather-sensitive work should be postponed. Any changes remain your decision.</string>
+  <string name="guidance_key_stress_inspect" formatted="false">Inspect actual crop conditions and record what you observe. Do not assume damage from the forecast alone.</string>
+  <string name="guidance_key_water_check" formatted="false">Check soil moisture before deciding about watering. No precise water amount is prescribed here.</string>
 </resources>
