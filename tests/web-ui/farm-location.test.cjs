@@ -63,8 +63,9 @@ function setup({ reverseFails = false } = {}) {
         L,
         navigator: { geolocation: { getCurrentPosition: success => { listeners["gps:resolve"] = success; } } },
         fetch: async url => {
-            fetches.push(url);
-            if (url.includes("/reverse")) return reverseFails
+            const target = String(url);
+            fetches.push(target);
+            if (target.includes("/reverse")) return reverseFails
                 ? { ok: false }
                 : { ok: true, json: async () => ({ name: "Angeles, Pampanga" }) };
             return { ok: true, json: async () => [
