@@ -4250,4 +4250,64 @@
   <data name="− Supplies used" xml:space="preserve">
     <value>− Suplay na ginamit</value>
   </data>
+  <data name="Get back to your farm work." xml:space="preserve">
+    <value>Bumalik sa iyong mga gawain sa bukid.</value>
+  </data>
+  <data name="We'll help you request a secure password reset." xml:space="preserve">
+    <value>Tutulungan ka naming humiling ng ligtas na pagpapalit ng password.</value>
+  </data>
+  <data name="Forgot your password?" xml:space="preserve">
+    <value>Nakalimutan ang iyong password?</value>
+  </data>
+  <data name="Enter your account email. If an account exists and email delivery is configured, we'll send reset instructions." xml:space="preserve">
+    <value>Ilagay ang iyong email. Kung mayroon kang aktibong account at gumagana ang email service, ipapadala namin ang mga tagubilin sa pagpapalit ng password.</value>
+  </data>
+  <data name="Email address" xml:space="preserve">
+    <value>Email address</value>
+  </data>
+  <data name="Request reset instructions" xml:space="preserve">
+    <value>Humiling ng mga tagubilin sa pagpapalit</value>
+  </data>
+  <data name="Check your email" xml:space="preserve">
+    <value>Tingnan ang iyong email</value>
+  </data>
+  <data name="If the email belongs to an active account and email delivery is configured, password reset instructions will be sent." xml:space="preserve">
+    <value>Kung may aktibong account at gumagana ang email service, ipapadala ang mga tagubilin sa pagpapalit ng password.</value>
+  </data>
+  <data name="For security, we cannot confirm whether an account exists for that address." xml:space="preserve">
+    <value>Para sa seguridad, hindi namin makukumpirma kung may account ang email na iyon.</value>
+  </data>
+  <data name="Set a new password" xml:space="preserve">
+    <value>Magtakda ng bagong password</value>
+  </data>
+  <data name="Choose a new password for your AniGo account." xml:space="preserve">
+    <value>Pumili ng bagong password para sa iyong AniGo account.</value>
+  </data>
+  <data name="New password" xml:space="preserve">
+    <value>Bagong password</value>
+  </data>
+  <data name="Confirm new password" xml:space="preserve">
+    <value>Kumpirmahin ang bagong password</value>
+  </data>
+  <data name="Reset password" xml:space="preserve">
+    <value>Palitan ang password</value>
+  </data>
+  <data name="Request another reset link" xml:space="preserve">
+    <value>Humiling ng panibagong link sa pagpapalit</value>
+  </data>
+  <data name="Invalid reset link" xml:space="preserve">
+    <value>Hindi wastong reset link</value>
+  </data>
+  <data name="This link is incomplete, invalid or has expired. Request a new password reset link." xml:space="preserve">
+    <value>Hindi kumpleto, hindi wasto, o nag-expire ang link na ito. Humiling ng bagong link.</value>
+  </data>
+  <data name="Password updated" xml:space="preserve">
+    <value>Napalitan ang password</value>
+  </data>
+  <data name="Your password has been changed. Sign in using your new password." xml:space="preserve">
+    <value>Napalitan na ang iyong password. Mag-log in gamit ang bago mong password.</value>
+  </data>
+  <data name="The reset link is invalid, expired or has already been used. Request a new link." xml:space="preserve">
+    <value>Hindi wasto, nag-expire, o nagamit na ang link. Humiling ng bagong link.</value>
+  </data>
 </root>
