@@ -1,12 +1,22 @@
-@{ var language = System.Globalization.CultureInfo.CurrentUICulture.TwoLetterISOLanguageName; }
-<details class="anigo-language"><summary>@T["Language"] · @(language == "fil" ? "Filipino" : "English")</summary>
-<form method="post" asp-controller="Language" asp-action="Select" class="anigo-language-picker">
+@{
+    var language = System.Globalization.CultureInfo.CurrentUICulture.TwoLetterISOLanguageName == "fil"
+        ? "fil" : "en";
+}
+<form method="post" asp-controller="Language" asp-action="Select"
+      class="anigo-account-language-form" aria-labelledby="account-language-heading">
     <input type="hidden" name="returnUrl" value="@(Context.Request.Path + Context.Request.QueryString)" />
-    <label for="anigo-language">@T["Language"]</label>
-    <select id="anigo-language" name="language">
-        <option value="en" selected="@(language == "en")">English</option>
-        <option value="fil" selected="@(language == "fil")">Filipino</option>
-    </select>
-    <button type="submit">@T["Apply language"]</button>
+    <div class="ani-pref-language-options" role="group" aria-labelledby="account-language-heading">
+        <button type="submit" name="language" value="en"
+                class="ani-pref-language-choice @(language == "en" ? "is-selected" : "")"
+                aria-pressed="@(language == "en" ? "true" : "false")">
+            <span>English</span>
+            <span class="ani-pref-language-check" aria-hidden="true">✓</span>
+        </button>
+        <button type="submit" name="language" value="fil"
+                class="ani-pref-language-choice @(language == "fil" ? "is-selected" : "")"
+                aria-pressed="@(language == "fil" ? "true" : "false")">
+            <span>Filipino</span>
+            <span class="ani-pref-language-check" aria-hidden="true">✓</span>
+        </button>
+    </div>
 </form>
-</details>
