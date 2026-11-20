@@ -101,7 +101,7 @@ fun HarvestScreen(
                 FarmHero(if (canRecord) uiText(R.string.ui_record_harvest_f027857, "Record harvest") else uiText(R.string.ui_harvest_records_cfad96b, "Harvest records"),
                     uiText(R.string.ui_record_what_you_picked_then_review_confirmed_totals_b716f93, "Record what you picked, then review confirmed totals."))
                 if (state.busy) CircularProgressIndicator()
-                state.error?.let {
+                state.error?.takeIf { confirmVoidId == null }?.let {
                     Text(com.smartfarm.mobile.localization.systemMessage(it), color = MaterialTheme.colorScheme.error,
                         modifier = Modifier.semantics { liveRegion = LiveRegionMode.Assertive })
                     OutlinedButton(onClick = onRetry, enabled = !state.busy) { Text(uiText(R.string.ui_try_again_d8b8392, "Try again")) }
