@@ -33,7 +33,7 @@
 
             <p class="ani-overline">@T["Farm conditions"]</p>
             <h1 id="weather-heading">@T["Farm weather"]</h1>
-            <p class="sf-muted">@T["Plan fieldwork with the last saved forecast. Dates follow"] @Model.TimeZoneId. @T["Saved forecast, not live conditions."]</p>
+            <p class="sf-muted">@T["Plan fieldwork with the last saved forecast. Dates follow"] @Model.TimeZoneId. @T["This is not a live weather feed."]</p>
             <p class="ani12e-weather-safety" role="note"><strong>@T["Saved forecast, not live conditions."]</strong> @T["For urgent rain, heat, or storm decisions, check PAGASA or local official advisories."]</p>
             <p class="ani-weather-freshness ani12e-freshness">
                 <strong>@T["Last checked:"]</strong> @(lastChecked is { } checkedTime ? SmartFarm.Web.Presentation.FarmTimestamp.Display(checkedTime, Model.TimeZoneId) : T["Not yet available"].Value)
