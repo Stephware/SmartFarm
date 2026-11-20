@@ -4332,4 +4332,8 @@
   <data name="This is not a live weather feed." xml:space="preserve"><value>Hindi ito live na ulat ng panahon.</value></data>
   <data name="Near coordinates:" xml:space="preserve"><value>Malapit sa mga coordinate:</value></data>
   <data name="Location selected. Confirm or adjust the pin." xml:space="preserve"><value>Napili na ang lokasyon. Kumpirmahin o ayusin ang pin.</value></data>
+  <data name="Review your account information and app preferences." xml:space="preserve"><value>Tingnan ang impormasyon ng iyong account at mga kagustuhan sa app.</value></data>
+  <data name="App preferences" xml:space="preserve"><value>Mga kagustuhan sa app</value></data>
+  <data name="Choose your preferred appearance and language." xml:space="preserve"><value>Piliin ang gusto mong hitsura at wika.</value></data>
+  <data name="Choose the language used throughout AniGo." xml:space="preserve"><value>Piliin ang wikang gagamitin sa buong AniGo.</value></data>
 </root>
