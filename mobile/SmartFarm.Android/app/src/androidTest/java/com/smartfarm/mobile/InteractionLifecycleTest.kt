@@ -25,7 +25,7 @@ class InteractionLifecycleTest {
         compose.onNodeWithText("Remove member").performClick()
         compose.onNodeWithText("Confirm").performClick()
         compose.onNodeWithText("Remove member?").assertIsDisplayed()
-        compose.onNodeWithText("Confirm").assertIsNotEnabled().performClick()
+        compose.onNodeWithText("Confirm").assertIsNotEnabled()
         compose.runOnIdle { assertEquals(1, calls) }
     }
 
