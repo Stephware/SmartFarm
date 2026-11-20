@@ -1,18 +1,18 @@
 {
   "reviewed": true,
   "version": "F4-F5-localized-public-entry-2026-11-20",
-  "reviewMethod": "Reviewed the real Chromium public landing/login/registration screenshots from GitHub Actions run 44649912665. Confirmed mobile widths 320/375, light/dark account navigation and reset link, and desktop photo-led layout. All 30 exact PNG byte fingerprints, dimensions and tracked source blobs are locked. Maintenance verification: the shared Razor layout source now maps invariant culture to en and Filipino to fil for a valid document-language attribute; the visible page structure, screenshots, existing 30 screenshot SHA-256 values, sizes and comparison checks are intentionally unchanged. The CI exact-image comparison is still required.",
+  "reviewMethod": "Reviewed the real Chromium public landing/login/registration screenshots from GitHub Actions run 44649912665. Confirmed mobile widths 320/375, light/dark account navigation and reset link, and desktop photo-led layout. All 30 exact PNG byte fingerprints, dimensions and tracked source blobs are locked. Maintenance verification: the shared Razor layout source now maps invariant culture to en and Filipino to fil for a valid document-language attribute; the visible page structure, screenshots, existing 30 screenshot SHA-256 values, sizes and comparison checks are intentionally unchanged. The CI exact-image comparison is still required. PR #153 maintains existing page composition; a deferred interaction-safety script and two nonvisual GPS message translations changed source fingerprints. Preserve all 30 original reviewed screenshot hashes and validate them in exact-image CI; no pixel threshold or golden image was altered.",
   "sourceRunId": 44649912665,
   "sourceBlobShas": {
     "wwwroot/css/anigo-tailwind.css": "1e540a7ec8ba12b2885b37847a1ceb70e1da78b6",
-    "Views/Shared/_Layout.cshtml": "548fcde2841907bbb1b31b9f3022cc3500ee1b86",
+    "Views/Shared/_Layout.cshtml": "cf35559437d77a7610cc2aaf367d70f0b70a71d7",
     "Views/Home/Index.cshtml": "9ec93387fa63151263d42cdba7cb5f1fe95cbefe",
     "Views/Account/Login.cshtml": "a626202b7dde517a73cb86b5497c0ccb50197507",
     "Views/Account/Register.cshtml": "71090cda20c450ad808cc39f79b38ab65b305088",
     "Views/Shared/_AniGoF2Styles.cshtml": "44bf502515ab49109d969b76c3eeec148ff8b4cd",
     "Views/Shared/_LanguagePicker.cshtml": "e6380df0ac4b1c35f6eb91199f4ad47fdb2aab81",
-    "Resources/SharedResource.resx": "77ade94c423d6d2c1149a287b14bd2fcb34f9806",
-    "Resources/SharedResource.fil.resx": "8268eb33d5f627e2d49145483176b9a8a0f93443"
+    "Resources/SharedResource.resx": "45b2866b108867fa18da55afa8d0178ec79ab0b9",
+    "Resources/SharedResource.fil.resx": "c25783a0cff1a80b1971267956e2b4884094d811"
   },
   "screenshots": {
     "landing-dark-1024": {
