@@ -361,10 +361,15 @@ fun SmartFarmNavHost(auth: AuthViewModel, farms: FarmViewModel, crops: CropViewM
                     }
                 },
                 onRegister = { exitGuards[currentEntry?.id]?.request { navController.openAuth("register") } },
-                onForgotPassword = { navController.navigate("forgot-password") })
+                onForgotPassword = {
+                    auth.clearRecoveryFeedback()
+                    navController.navigate("forgot-password")
+                })
         }
         page("forgot-password") {
-            ForgotPasswordScreen(onLogin = {
+            ForgotPasswordScreen(state = state,
+                onRequest = auth::requestPasswordReset,
+                onLogin = {
                 if (!navController.popBackStack("login", inclusive = false)) {
                     navController.navigate("login") { launchSingleTop = true }
                 }
