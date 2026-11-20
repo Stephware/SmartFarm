@@ -1,6 +1,8 @@
 package com.smartfarm.mobile.di
 
 import android.content.Context
+import android.os.Build
+import java.util.Locale
 import androidx.room.Room
 import androidx.work.WorkManager
 import com.smartfarm.mobile.BuildConfig
@@ -47,9 +49,20 @@ class AppContainer(context: Context) {
 
     val workManager: WorkManager by lazy { WorkManager.getInstance(appContext) }
 
+    private fun runningInEmulator(): Boolean {
+        val fingerprint = Build.FINGERPRINT.lowercase(Locale.ROOT)
+        val hardware = Build.HARDWARE.lowercase(Locale.ROOT)
+        return fingerprint.startsWith("generic") || fingerprint.contains("emulator") ||
+            hardware.contains("ranchu") || hardware.contains("goldfish") ||
+            Build.MODEL.contains("Emulator", ignoreCase = true)
+    }
+
     private val retrofit by lazy {
+        val apiUrl = if (BuildConfig.DEBUG) {
+            ApiClientFactory.forDebugDevice(BuildConfig.API_BASE_URL, runningInEmulator())
+        } else BuildConfig.API_BASE_URL
         ApiClientFactory.create(
-            BuildConfig.API_BASE_URL,
+            apiUrl,
             allowLocalHttpForDebug = BuildConfig.DEBUG,
             languageProvider = { com.smartfarm.mobile.localization.AppLanguage.current(appContext) }
         )
