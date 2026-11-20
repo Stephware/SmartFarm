@@ -4317,4 +4317,21 @@
   </data>
   <data name="No saved forecast is ready for this farm. Ask your farm manager to check the map pin and weather service; use official local forecasts for time-sensitive decisions." xml:space="preserve"><value>No saved forecast is ready for this farm. Ask your farm manager to check the map pin and weather service; use official local forecasts for time-sensitive decisions.</value></data>
   <data name="No upcoming forecast" xml:space="preserve"><value>No upcoming forecast</value></data>
+  <data name="Crop context (optional)" xml:space="preserve"><value>Crop context (optional)</value></data>
+  <data name="General farm guidance" xml:space="preserve"><value>General farm guidance</value></data>
+  <data name="Explain this advisory" xml:space="preserve"><value>Explain this advisory</value></data>
+  <data name="Weather guidance" xml:space="preserve"><value>Weather guidance</value></data>
+  <data name="Back to weather" xml:space="preserve"><value>Back to weather</value></data>
+  <data name="Saved forecast advice" xml:space="preserve"><value>Saved forecast advice</value></data>
+  <data name="Advice based on a saved farm forecast, not a live warning or field measurement." xml:space="preserve"><value>Advice based on a saved farm forecast, not a live warning or field measurement.</value></data>
+  <data name="Forecast date" xml:space="preserve"><value>Forecast date</value></data>
+  <data name="AI-assisted explanation from approved recommendations." xml:space="preserve"><value>AI-assisted explanation from approved recommendations.</value></data>
+  <data name="Rule-based guidance is shown because AI advice is not available or appropriate." xml:space="preserve"><value>Rule-based guidance is shown because AI advice is not available or appropriate.</value></data>
+  <data name="This forecast is stale. Check an official current forecast before making weather-sensitive decisions." xml:space="preserve"><value>This forecast is stale. Check an official current forecast before making weather-sensitive decisions.</value></data>
+  <data name="These are simulated demonstration records, not real-world weather alerts." xml:space="preserve"><value>These are simulated demonstration records, not real-world weather alerts.</value></data>
+  <data name="Crop-specific advice uses existing saved farm records and may not reflect current field conditions." xml:space="preserve"><value>Crop-specific advice uses existing saved farm records and may not reflect current field conditions.</value></data>
+  <data name="This advice is informational only. AniGo does not automatically change crops, tasks, irrigation, or inventory." xml:space="preserve"><value>This advice is informational only. AniGo does not automatically change crops, tasks, irrigation, or inventory.</value></data>
+  <data name="What the forecast means" xml:space="preserve"><value>What the forecast means</value></data>
+  <data name="Suggested next steps" xml:space="preserve"><value>Suggested next steps</value></data>
+  <data name="For dangerous weather, follow PAGASA and local official advisories." xml:space="preserve"><value>For dangerous weather, follow PAGASA and local official advisories.</value></data>
 </root>
