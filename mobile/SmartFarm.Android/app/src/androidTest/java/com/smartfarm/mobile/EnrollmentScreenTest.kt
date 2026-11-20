@@ -43,12 +43,7 @@ class EnrollmentScreenTest {
         val state = mutableStateOf(FarmUiState(myRequests = listOf(request())))
         var sent = ""
         var requests = 0
-        var hideKeyboard: () -> Unit = {}
-        var inputView: android.view.View? = null
         compose.setContent {
-            val keyboard = androidx.compose.ui.platform.LocalSoftwareKeyboardController.current
-            val view = androidx.compose.ui.platform.LocalView.current
-            androidx.compose.runtime.SideEffect { hideKeyboard = { keyboard?.hide() }; inputView = view }
             SmartFarmTheme { FarmListScreen(state.value, {}, { _, _, _, _, _ -> },
                 { requests++; sent = it; state.value = state.value.copy(error = "Code not recognized") }, {}) }
         }
@@ -56,32 +51,41 @@ class EnrollmentScreenTest {
         compose.onNodeWithText("Join a farm").performClick()
         compose.onNodeWithText("Farm code").performScrollTo().performTextInput("ABCD12345678")
         compose.onNodeWithText("Farm code").assertTextContains("ABCD12345678")
-        // Wait for stable IME insets before physically hit-testing the request button.
-        compose.runOnIdle { hideKeyboard() }
-        compose.waitUntil(5_000) {
-            inputView?.let { androidx.core.view.ViewCompat.getRootWindowInsets(it)
-                ?.isVisible(androidx.core.view.WindowInsetsCompat.Type.ime()) } == false
-        }
+        // The real join-code field provides Done, which releases the keyboard.
+        // Compose clicks should not depend on emulator-specific IME inset timing.
+        compose.onNodeWithText("Farm code").performImeAction()
         compose.onNodeWithText("Request access")
-            .assertIsDisplayed().assertIsEnabled().performClick()
+            .assertIsEnabled().performClick()
         compose.runOnIdle { assertEquals("ABCD12345678", sent); assertEquals(1, requests) }
         compose.onNodeWithText("Farm code").assertTextContains("ABCD12345678")
         compose.onNodeWithText("Code not recognized").assertExists()
     }
 
     @Test fun ownerCanApproveOrRejectAndOtherRolesCannotSeeCodesOrApplicants() {
-        val state = mutableStateOf(FarmUiState(selected = farm("Owner"), enrollment =
-            FarmEnrollmentOverviewDto("ABCD12345678", listOf(request()))))
-        var decision: Pair<String, Boolean>? = null
-        compose.setContent { SmartFarmTheme { detail(state.value) { id, approve -> decision = id to approve } } }
+        val sam = request()
+        val lee = request().copy(id = "req2", fullName = "Lee", email = "lee@example.com")
+        val state = mutableStateOf(FarmUiState(selected = farm("Owner"),
+            enrollment = FarmEnrollmentOverviewDto("ABCD12345678", listOf(sam, lee))))
+        val decisions = mutableListOf<Pair<String, Boolean>>()
+        compose.setContent { SmartFarmTheme { detail(state.value) { id, approve ->
+            decisions.add(id to approve)
+            // Model a successful API refresh: the processed applicant is no longer pending.
+            state.value = state.value.copy(enrollment = FarmEnrollmentOverviewDto(
+                "ABCD12345678",
+                state.value.enrollment!!.requests.filterNot { it.id == id }))
+        } } }
         compose.onNodeWithText("ABCD12345678").performScrollTo().assertIsDisplayed()
         compose.onNodeWithText("sam@example.com").performScrollTo().assertIsDisplayed()
         compose.onNodeWithText("Approve Sam").performScrollTo().performClick()
         compose.onNodeWithText("Confirm").performClick()
-        compose.runOnIdle { assertEquals("req" to true, decision) }
-        compose.onNodeWithText("Reject Sam").performScrollTo().performClick()
+        compose.runOnIdle { assertEquals(listOf("req" to true), decisions) }
+        compose.onNodeWithText("Approve Sam").assertDoesNotExist()
+        compose.onNodeWithText("Reject Lee").performScrollTo().performClick()
         compose.onNodeWithText("Confirm").performClick()
-        compose.runOnIdle { assertEquals("req" to false, decision); state.value = state.value.copy(selected = farm("Manager")) }
+        compose.runOnIdle {
+            assertEquals(listOf("req" to true, "req2" to false), decisions)
+            state.value = state.value.copy(selected = farm("Manager"))
+        }
         compose.onNodeWithText("ABCD12345678").assertDoesNotExist()
         compose.onNodeWithText("sam@example.com").assertDoesNotExist()
         compose.onNodeWithText("Approve Sam").assertDoesNotExist()
