@@ -4315,4 +4315,6 @@
   <data name="The reset link is invalid, expired or has already been used. Request a new link." xml:space="preserve">
     <value>The reset link is invalid, expired or has already been used. Request a new link.</value>
   </data>
+  <data name="No saved forecast is ready for this farm. Ask your farm manager to check the map pin and weather service; use official local forecasts for time-sensitive decisions." xml:space="preserve"><value>No saved forecast is ready for this farm. Ask your farm manager to check the map pin and weather service; use official local forecasts for time-sensitive decisions.</value></data>
+  <data name="No upcoming forecast" xml:space="preserve"><value>No upcoming forecast</value></data>
 </root>
