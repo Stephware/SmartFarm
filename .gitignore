@@ -95,3 +95,6 @@ node_modules/
 /scripts/deploy/backup/
 /scripts/deploy/control-backups/
 /scripts/deploy/*.tar.gz
+
+# Sanitized email implementation and preview instructions.
+!/docs/email/
