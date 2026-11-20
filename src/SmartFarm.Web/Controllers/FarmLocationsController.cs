@@ -18,6 +18,8 @@ public sealed class FarmLocationsController : Controller
 {
     private sealed record Place(string Name, decimal Latitude, decimal Longitude);
     private sealed record CachedPlaces(DateTimeOffset Expires, List<Place> Results);
+    private sealed record CachedName(DateTimeOffset Expires, string Name);
+    private static readonly ConcurrentDictionary<string, CachedName> ReverseCache = new();
     private static readonly ConcurrentDictionary<string, CachedPlaces> Cache =
         new(StringComparer.OrdinalIgnoreCase);
     private static readonly SemaphoreSlim Gate = new(1, 1);
@@ -32,6 +34,59 @@ public sealed class FarmLocationsController : Controller
         client.DefaultRequestHeaders.Accept.Add(
             new MediaTypeWithQualityHeaderValue("application/json"));
         return client;
+    }
+
+    // Called only after the farmer explicitly selects device GPS, never for each
+    // keystroke or marker drag. The normal 1 req/s Nominatim gate is shared with Search.
+    [HttpGet("reverse")]
+    [ResponseCache(NoStore = true)]
+    public async Task<IActionResult> Reverse([FromQuery] decimal? latitude,
+        [FromQuery] decimal? longitude, CancellationToken ct)
+    {
+        if (latitude is null or < -90 or > 90 ||
+            longitude is null or < -180 or > 180)
+            return BadRequest(new { message = "Select valid latitude and longitude." });
+
+        var lat = decimal.Round(latitude.Value, 4);
+        var lon = decimal.Round(longitude.Value, 4);
+        var key = lat.ToString("0.0000", CultureInfo.InvariantCulture) + "," +
+            lon.ToString("0.0000", CultureInfo.InvariantCulture);
+        if (ReverseCache.TryGetValue(key, out var cached) && cached.Expires > DateTimeOffset.UtcNow)
+            return Ok(new { name = cached.Name });
+
+        await Gate.WaitAsync(ct);
+        try
+        {
+            if (ReverseCache.TryGetValue(key, out cached) && cached.Expires > DateTimeOffset.UtcNow)
+                return Ok(new { name = cached.Name });
+            var wait = _nextRequest - DateTimeOffset.UtcNow;
+            if (wait > TimeSpan.Zero) await Task.Delay(wait, ct);
+            _nextRequest = DateTimeOffset.UtcNow.AddSeconds(1);
+            var url = "https://nominatim.openstreetmap.org/reverse?format=jsonv2&zoom=14&addressdetails=0&lat=" +
+                lat.ToString(CultureInfo.InvariantCulture) + "&lon=" +
+                lon.ToString(CultureInfo.InvariantCulture);
+            using var response = await Client.GetAsync(url, HttpCompletionOption.ResponseHeadersRead, ct);
+            if (!response.IsSuccessStatusCode)
+                return StatusCode(503, new { message = "Nearby address temporarily unavailable." });
+            await using var stream = await response.Content.ReadAsStreamAsync(ct);
+            using var json = await JsonDocument.ParseAsync(stream, cancellationToken: ct);
+            if (json.RootElement.ValueKind != JsonValueKind.Object ||
+                !json.RootElement.TryGetProperty("display_name", out var display) ||
+                display.ValueKind != JsonValueKind.String ||
+                string.IsNullOrWhiteSpace(display.GetString()))
+                return NotFound(new { message = "No nearby address was found." });
+            var name = display.GetString()![..Math.Min(display.GetString()!.Length, 250)];
+            if (ReverseCache.Count > 500)
+                foreach (var oldKey in ReverseCache.Keys.Take(100))
+                    ReverseCache.TryRemove(oldKey, out _);
+            ReverseCache[key] = new CachedName(DateTimeOffset.UtcNow.AddDays(1), name);
+            return Ok(new { name });
+        }
+        catch (Exception ex) when (ex is HttpRequestException or TaskCanceledException or JsonException)
+        {
+            return StatusCode(503, new { message = "Nearby address temporarily unavailable." });
+        }
+        finally { Gate.Release(); }
     }
 
     [HttpGet("search")]
