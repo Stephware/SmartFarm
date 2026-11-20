@@ -97,15 +97,17 @@ class PhotoAuthScreensTest {
         compose.onNodeWithContentDescription("AniGo").assertIsDisplayed()
     }
 
-    @Test fun recoveryDoesNotPretendToSendAnUnsupportedEmail() {
+    @Test fun recoveryDisplaysRealEmailRequestButPreventsInvalidSubmission() {
         var back = 0
         compose.setContent {
-            SmartFarmTheme { ForgotPasswordScreen(onLogin = { back++ }) }
+            SmartFarmTheme {
+                ForgotPasswordScreen(state = AuthUiState(), onRequest = { throw AssertionError(
+                    "An empty or invalid address must not submit") }, onLogin = { back++ })
+            }
         }
         compose.onNodeWithText("Forgot your password?").assertExists()
-        compose.onNodeWithText("Email password reset is not available yet.")
-            .performScrollTo().assertIsDisplayed()
-        compose.onNodeWithText("Send reset link").assertDoesNotExist()
+        compose.onNodeWithText("Request reset instructions").assertExists()
+        compose.onNodeWithTag("request-password-reset").assertIsNotEnabled()
         compose.onNodeWithText("Back to log in").performScrollTo().performClick()
         compose.runOnIdle { assertTrue(back == 1) }
     }
