@@ -1,3 +1,4 @@
+@using SmartFarm.Core.Contracts.Crops
 @using SmartFarm.Core.Enums
 @model SmartFarm.Core.Contracts.Weather.WeatherOverview
 @{
@@ -10,6 +11,7 @@
     var stale = lastChecked is { } checkedAt &&
         (checkedAt < nowUtc.AddHours(-12) || checkedAt > nowUtc.AddMinutes(5));
     var activeAdvisories = Model.Advisories.Where(a => a.Status == 0).ToList();
+    var activeCrops = ViewData["ActiveCrops"] as IReadOnlyList<CropCycleDetails> ?? Array.Empty<CropCycleDetails>();
     DateOnly? farmToday = null;
     try
     {
@@ -140,6 +142,22 @@
                     <time datetime="@advisory.Date.ToString("yyyy-MM-dd")">@advisory.Date.ToString("MMM d, yyyy")</time>
                 </div>
                 <p>@advisory.Message</p>
+                <form method="get" asp-controller="Weather" asp-action="Guidance" class="ani-weather-advice-form">
+                    <input type="hidden" name="farmId" value="@Model.FarmId" />
+                    <input type="hidden" name="advisoryId" value="@advisory.Id" />
+                    @if (activeCrops.Count > 0)
+                    {
+                        <label for="guidance-crop-@advisory.Id">@T["Crop context (optional)"]</label>
+                        <select id="guidance-crop-@advisory.Id" name="cropCycleId">
+                            <option value="">@T["General farm guidance"]</option>
+                            @foreach (var crop in activeCrops)
+                            {
+                                <option value="@crop.Id">@crop.CropTypeName — @crop.PlotName</option>
+                            }
+                        </select>
+                    }
+                    <button class="sf-button-outline" type="submit">@T["Explain this advisory"]</button>
+                </form>
             </li>
         }
         </ul>
