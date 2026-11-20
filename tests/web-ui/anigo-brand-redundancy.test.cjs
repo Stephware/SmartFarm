@@ -64,7 +64,10 @@ test("Android uses one accessible official full wordmark per photo-auth screen",
   ]) {
     assert.ok(!auth.includes(repeated), "duplicate branding text remains: " + repeated);
   }
-  assert.match(auth, /Email password reset is not available yet\./,
-    "retain truthful account recovery notice");
+  assert.match(auth, /Request reset instructions/,
+    "Android recovery should offer a real backend-supported request");
+  assert.match(auth, /Check your email/,
+    "show a neutral result without confirming an account exists");
+  assert.doesNotMatch(auth, /Email password reset is not available yet\./);
   assert.match(auth, /Back to log in/, "preserve recovery navigation");
 });
