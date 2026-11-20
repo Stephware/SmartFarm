@@ -19,7 +19,7 @@
 | Area | Scope audited and implemented | Remaining verification |
 | --- | --- | --- |
 | Web localization | ASP.NET resource tables, EN/Fil cookie choice, stable keys, localization checks for Razor/JS and errors | Production translations should be reviewed by a fluent Filipino speaker |
-| Android localization | English/Filipino resources and app locale preference, fallback resources, errors, small-screen layouts | Emulator locale switching, large-text and OS-version checks |
+| Android localization | English/Filipino resources and app locale preference, fallback resources, errors, small-screen layouts; `ApiClientFactory` now forwards the selected `Accept-Language` on every request and is tested with `MockWebServer` after an in-process language change | Emulator locale switching, large-text and OS-version checks |
 | Timezone | UTC persistence unchanged. Web `FarmTimestamp` and Android `farmDateTime` convert actual instants to farm time, default Manila. Offset-bearing timestamp test added | Verify every historical timestamp on real SQL data and midnight boundaries |
 | Web password recovery | Real Get/Post forms, proper antiforgery, NoStore/no-referrer, email-existence-neutral confirmation, reset token/password validation and invalid/complete views | Requires configured SMTP and real test inbox |
 | Android forgot-password | Anonymous API request with email validation, busy/failure/neutral-success states; emailed token opens HTTPS web reset form | Requires configured API host, SMTP, and reachable public HTTPS `ApplicationOrigin` |
@@ -42,7 +42,7 @@
 
 - [ ] Node web-ui regression suite on current PR head
 - [ ] ASP.NET Core solution build and .NET Auth/API/Worker/Weather/schema tests on current PR head
-- [ ] Android assembleDebug, assembleAndroidTest, JVM suite on current PR head
+- [ ] Android assembleDebug, assembleAndroidTest, JVM suite on current PR head (includes new API request-language header regression)
 - [ ] Android emulator journey / screen tests on current PR head
 - [ ] Authenticated Chromium browser smoke tests on current PR head
 - [ ] Reviewed 30 responsive 320/375/768/1024/1440 light/dark public screenshot fingerprints on current PR head
