@@ -32,7 +32,10 @@ class PasswordRecoveryUiTest {
         }
         compose.onNodeWithTag("request-password-reset").assertIsNotEnabled()
         compose.onNodeWithTag("recovery-email").performTextInput("farmer@example.com")
-        compose.onNodeWithTag("request-password-reset").performClick()
+        compose.onNodeWithTag("recovery-email").assertTextContains("farmer@example.com")
+        compose.onNodeWithTag("request-password-reset").assertIsEnabled()
+        compose.onNodeWithTag("recovery-email").performImeAction()
+        compose.onNodeWithTag("request-password-reset").performScrollTo().performClick()
         compose.runOnIdle { assertEquals("farmer@example.com", requestedAddress) }
         compose.onNodeWithText("Check your email").assertExists()
         compose.onNodeWithTag("request-password-reset").assertDoesNotExist()
