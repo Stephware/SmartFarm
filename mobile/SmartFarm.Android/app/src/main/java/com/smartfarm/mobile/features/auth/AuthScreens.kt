@@ -53,6 +53,8 @@ import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.unit.dp
 import com.smartfarm.mobile.ui.theme.LocalFarmAppearance
 import androidx.compose.material3.Switch
+import androidx.compose.material3.HorizontalDivider
+import com.smartfarm.mobile.localization.LanguagePicker
 import com.smartfarm.mobile.ui.components.FarmAppBar
 import com.smartfarm.mobile.ui.components.FarmHero
 import com.smartfarm.mobile.ui.components.FarmSectionCard
@@ -259,7 +261,6 @@ fun AccountScreen(state: AuthUiState, onLogout: () -> Unit, onFarms: () -> Unit,
     var confirmingLogout by rememberSaveable { mutableStateOf(false) }
     val name = state.account?.fullName.orEmpty()
     AuthScaffold(uiText(R.string.ui_my_account_b53181a, "My account"), uiText(R.string.ui_your_details_and_personal_app_settings_2e54b7f, "Your details and personal app settings.")) {
-        com.smartfarm.mobile.localization.LanguagePicker()
         FarmSectionCard(uiText(R.string.ui_signed_in_as_abc50e3, "Signed in as")) {
             val initial = name.trim().firstOrNull()?.uppercaseChar()?.toString() ?: "A"
             Row(verticalAlignment = Alignment.CenterVertically,
@@ -286,18 +287,43 @@ fun AccountScreen(state: AuthUiState, onLogout: () -> Unit, onFarms: () -> Unit,
                 Text(uiText(R.string.ui_my_farms_0517a09, "My farms"))
             }
         }
-        FarmSectionCard(uiText(R.string.ui_appearance_3907fa7, "Appearance"), subtitle = uiText(R.string.ui_choose_a_comfortable_display_for_fieldwork_73b2bf0, "Choose a comfortable display for fieldwork.")) {
+        FarmSectionCard(
+            uiText(R.string.account_preferences_title, "App preferences"),
+            subtitle = uiText(R.string.account_preferences_description,
+                "Choose your preferred appearance and language.")
+        ) {
             val appearance = LocalFarmAppearance.current
-            Row(Modifier.fillMaxWidth()
-                .toggleable(value = appearance.dark, role = Role.Switch,
-                    onValueChange = appearance.selectDark)
-                .semantics { contentDescription = uiText(R.string.ui_dark_theme_3f11a5c, "Dark theme") }
-                .padding(vertical = 8.dp),
+            Text(
+                uiText(R.string.ui_appearance_3907fa7, "Appearance"),
+                style = MaterialTheme.typography.titleMedium
+            )
+            Row(
+                Modifier.fillMaxWidth()
+                    .toggleable(
+                        value = appearance.dark,
+                        role = Role.Switch,
+                        onValueChange = appearance.selectDark
+                    )
+                    .testTag("account-dark-theme")
+                    .padding(vertical = 8.dp),
                 verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.SpaceBetween) {
-                Text(uiText(R.string.ui_dark_theme_3f11a5c, "Dark theme"), style = MaterialTheme.typography.bodyLarge)
-                Switch(checked = appearance.dark, onCheckedChange = null)
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                Text(
+                    uiText(R.string.ui_dark_theme_3f11a5c, "Dark theme"),
+                    style = MaterialTheme.typography.bodyLarge,
+                    modifier = Modifier.weight(1f)
+                )
+                Switch(
+                    checked = appearance.dark,
+                    onCheckedChange = null
+                )
             }
+            HorizontalDivider(
+                modifier = Modifier.padding(vertical = 8.dp),
+                color = MaterialTheme.colorScheme.outlineVariant
+            )
+            LanguagePicker()
         }
         if (onReplayGuide != null) {
             FarmSectionCard(uiText(R.string.ui_help_onboarding_a9e1e52, "Help & onboarding"),
