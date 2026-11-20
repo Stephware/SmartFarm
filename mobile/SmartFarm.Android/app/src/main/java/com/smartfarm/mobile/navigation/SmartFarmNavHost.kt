@@ -230,6 +230,7 @@ fun SmartFarmNavHost(auth: AuthViewModel, farms: FarmViewModel, crops: CropViewM
             aniAlerts = aniAlerts, onAcknowledgeAlert = tasks::acknowledgeAlert,
             section = section,
             onWeather = { navController.navigate("farm/$farmId/weather") },
+            onWeatherGuidance = farms::requestWeatherGuidance,
             onPlots = { navController.navigate("farm/$farmId/plots") },
             onSync = { navController.openSecondary("sync") },
             onRecord = {
