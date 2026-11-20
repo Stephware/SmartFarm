@@ -49,4 +49,5 @@ class FrontendLanguageUiTest {
         compose.activityRule.scenario.recreate()
         compose.onNodeWithText("Today").assertExists()
         compose.onNodeWithText("Enter a valid email address.").assertExists()
-    }}
+    }
+}
