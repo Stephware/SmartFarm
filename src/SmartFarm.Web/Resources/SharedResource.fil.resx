@@ -4312,4 +4312,21 @@
   </data>
   <data name="No saved forecast is ready for this farm. Ask your farm manager to check the map pin and weather service; use official local forecasts for time-sensitive decisions." xml:space="preserve"><value>Wala pang naka-save na forecast para sa bukid na ito. Hilingin sa namamahala ng bukid na tingnan ang lokasyon sa mapa at serbisyo ng panahon; gumamit ng opisyal na lokal na forecast para sa mahahalagang desisyon.</value></data>
   <data name="No upcoming forecast" xml:space="preserve"><value>Walang paparating na forecast</value></data>
+  <data name="Crop context (optional)" xml:space="preserve"><value>Kaugnay na pananim (opsyonal)</value></data>
+  <data name="General farm guidance" xml:space="preserve"><value>Pangkalahatang payo para sa bukid</value></data>
+  <data name="Explain this advisory" xml:space="preserve"><value>Ipaliwanag ang abisong ito</value></data>
+  <data name="Weather guidance" xml:space="preserve"><value>Gabay sa panahon</value></data>
+  <data name="Back to weather" xml:space="preserve"><value>Bumalik sa impormasyon ng panahon</value></data>
+  <data name="Saved forecast advice" xml:space="preserve"><value>Payo batay sa naka-save na forecast</value></data>
+  <data name="Advice based on a saved farm forecast, not a live warning or field measurement." xml:space="preserve"><value>Payo mula sa naka-save na forecast ng bukid, hindi mula sa kasalukuyang babala o sukat sa bukid.</value></data>
+  <data name="Forecast date" xml:space="preserve"><value>Petsa ng forecast</value></data>
+  <data name="AI-assisted explanation from approved recommendations." xml:space="preserve"><value>Paliwanag na tinulungan ng AI mula sa mga nasuring rekomendasyon.</value></data>
+  <data name="Rule-based guidance is shown because AI advice is not available or appropriate." xml:space="preserve"><value>Ipinapakita ang payong batay sa mga panuntunan dahil hindi magagamit o hindi angkop ang AI.</value></data>
+  <data name="This forecast is stale. Check an official current forecast before making weather-sensitive decisions." xml:space="preserve"><value>Luma na ang forecast na ito. Tingnan ang pinakabagong opisyal na forecast bago gumawa ng desisyong nakasalalay sa panahon.</value></data>
+  <data name="These are simulated demonstration records, not real-world weather alerts." xml:space="preserve"><value>Mga ginayang rekord lamang ito para sa demonstrasyon, hindi totoong babala sa panahon.</value></data>
+  <data name="Crop-specific advice uses existing saved farm records and may not reflect current field conditions." xml:space="preserve"><value>Ang payo para sa pananim ay mula sa mga naka-save na rekord at maaaring hindi tumugma sa kasalukuyang kalagayan ng bukid.</value></data>
+  <data name="This advice is informational only. AniGo does not automatically change crops, tasks, irrigation, or inventory." xml:space="preserve"><value>Para sa impormasyon lamang ang payong ito. Hindi awtomatikong binabago ng AniGo ang mga pananim, gawain, patubig, o imbentaryo.</value></data>
+  <data name="What the forecast means" xml:space="preserve"><value>Ano ang ibig sabihin ng forecast</value></data>
+  <data name="Suggested next steps" xml:space="preserve"><value>Mga mungkahing susunod na hakbang</value></data>
+  <data name="For dangerous weather, follow PAGASA and local official advisories." xml:space="preserve"><value>Kung mapanganib ang panahon, sundin ang PAGASA at mga opisyal na abiso sa inyong lugar.</value></data>
 </root>
