@@ -351,6 +351,7 @@ fun FarmDetailScreen(state: FarmUiState, onBack: () -> Unit,
     homeCrops: com.smartfarm.mobile.features.crops.CropUiState? = null,
     actorId: String? = null,
     section: String = "Overview", onWeather: () -> Unit = {},
+    onWeatherGuidance: (String, String?) -> Unit = { _, _ -> },
     onPlots: () -> Unit = {}, onSync: () -> Unit = {},
     onRecord: () -> Unit = {}, onRecordAction: (String) -> Unit = {},
     onTask: (com.smartfarm.mobile.data.remote.api.TaskDto) -> Unit = {},
@@ -406,7 +407,9 @@ fun FarmDetailScreen(state: FarmUiState, onBack: () -> Unit,
                     onSync = onSync, syncSummary = homeSync)
             }
             if (visibleSection == "Weather") {
-                FarmWeatherDetails(state)
+                FarmWeatherDetails(state,
+                    homeCrops?.takeIf { it.farmId == farm.id },
+                    onWeatherGuidance)
             }
             if (visibleSection == "Restricted") {
                 FarmEmptyState(uiText(R.string.ui_farm_settings_unavailable_4f8394a, "Farm settings unavailable"),
