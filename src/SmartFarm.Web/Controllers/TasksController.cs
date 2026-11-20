@@ -50,7 +50,7 @@ public sealed class TasksController(
         try
         {
             await tasks.CreateAsync(farmId, Actor, input, ct);
-            TempData["Message"] = "Task created.";
+            TempData["Message"] = SmartFarm.Web.Presentation.UiMessages.Text("Task created.");
         }
         catch (FarmOperationException e)
         {
@@ -67,7 +67,7 @@ public sealed class TasksController(
         try
         {
             await tasks.UpdateAsync(farmId, taskId, Actor, input, ct);
-            TempData["Message"] = "Task updated.";
+            TempData["Message"] = SmartFarm.Web.Presentation.UiMessages.Text("Task updated.");
         }
         catch (FarmOperationException e)
         {

@@ -1,5 +1,8 @@
 package com.smartfarm.mobile.ui.components
 
+import com.smartfarm.mobile.R
+import com.smartfarm.mobile.localization.uiText
+
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -25,18 +28,18 @@ val LocalSyncProgress = staticCompositionLocalOf { SyncProgress() }
 fun pendingRecordDescription(operation: PendingOperation): String = try {
     val json = JsonParser.parseString(operation.payloadJson).asJsonObject
     when (operation.operationType) {
-        "harvest" -> "Harvest quantity: " + json.getAsJsonObject("harvest").get("quantity").asString
-        "inventory" -> "Stock quantity change: " + json.getAsJsonObject("movement").get("quantityChange").asString
-        "activity_stock" -> "Field activity + supply used: " +
+        "harvest" -> uiText(R.string.ui_harvest_quantity_4b53f38, "Harvest quantity: ") + json.getAsJsonObject("harvest").get("quantity").asString
+        "inventory" -> uiText(R.string.ui_stock_quantity_change_3036cc0, "Stock quantity change: ") + json.getAsJsonObject("movement").get("quantityChange").asString
+        "activity_stock" -> uiText(R.string.ui_field_activity_supply_used_919108d, "Field activity + supply used: ") +
             json.getAsJsonObject("activityStock").get("quantityUsed").asString +
-            " (both save together after sync)"
-        "activity" -> listOf("Watering", "Fertilizing", "Pesticide", "Weeding", "Other")
-            .getOrElse(json.getAsJsonObject("activity").get("activityType").asInt - 1) { "Activity" }
-        "observation" -> "Observation: " + listOf("Not assessed", "Healthy", "Needs attention", "Critical")
-            .getOrElse(json.getAsJsonObject("observation").get("healthStatus").asInt) { "Not assessed" }
-        else -> "Saved local record"
+            uiText(R.string.ui_both_save_together_after_sync_e32f89f, " (both save together after sync)")
+        "activity" -> listOf(uiText(R.string.ui_watering_2ee1114, "Watering"), uiText(R.string.ui_fertilizing_3cc00f9, "Fertilizing"), uiText(R.string.ui_pesticide_3e04b39, "Pesticide"), uiText(R.string.ui_weeding_4fbeba9, "Weeding"), uiText(R.string.ui_other_f97e9da, "Other"))
+            .getOrElse(json.getAsJsonObject("activity").get("activityType").asInt - 1) { uiText(R.string.ui_activity_38da150, "Activity") }
+        "observation" -> uiText(R.string.ui_observation_c24d198, "Observation: ") + listOf(uiText(R.string.ui_not_assessed_025761a, "Not assessed"), uiText(R.string.ui_healthy_7f1e323, "Healthy"), uiText(R.string.ui_needs_attention_c1ebc78, "Needs attention"), uiText(R.string.ui_critical_427dd29, "Critical"))
+            .getOrElse(json.getAsJsonObject("observation").get("healthStatus").asInt) { uiText(R.string.ui_not_assessed_025761a, "Not assessed") }
+        else -> uiText(R.string.ui_saved_local_record_721fe6a, "Saved local record")
     }
-} catch (_: Exception) { "Saved local record" }
+} catch (_: Exception) { uiText(R.string.ui_saved_local_record_721fe6a, "Saved local record") }
 
 @Composable
 fun PendingRecords(operations: List<PendingOperation>, farmId: String, targetId: String,
@@ -50,8 +53,8 @@ fun PendingRecords(operations: List<PendingOperation>, farmId: String, targetId:
     val progress = LocalSyncProgress.current
     val needsReview = pending.any { syncState(it.status, it.errorMessage) == SyncRecordState.NEEDS_REVIEW }
     FarmSectionCard(
-        "Saved on phone",
-        subtitle = "These records are not server-confirmed and are not included in the totals above."
+        uiText(R.string.ui_saved_on_phone_a8ae994, "Saved on phone"),
+        subtitle = uiText(R.string.ui_these_records_are_not_server_confirmed_and_are_not_i_d6631c1, "These records are not server-confirmed and are not included in the totals above.")
     ) {
         pending.forEach { operation ->
             Column(
@@ -61,7 +64,7 @@ fun PendingRecords(operations: List<PendingOperation>, farmId: String, targetId:
                 val transfer = syncState(operation.status, operation.errorMessage,
                     progress.userId == operation.userId && progress.sendingId == operation.operationId)
                 FarmStatusChip(
-                    when (transfer) { SyncRecordState.NEEDS_REVIEW -> "Needs review"; SyncRecordState.SENDING -> "Sending"; else -> "Saved on phone" },
+                    when (transfer) { SyncRecordState.NEEDS_REVIEW -> uiText(R.string.ui_needs_review_07297fa, "Needs review"); SyncRecordState.SENDING -> uiText(R.string.ui_sending_e595f17, "Sending"); else -> uiText(R.string.ui_saved_on_phone_a8ae994, "Saved on phone") },
                     if (transfer == SyncRecordState.NEEDS_REVIEW)
                         FarmStatusTone.Warning else FarmStatusTone.Planned,
                     modifier = Modifier.semantics { liveRegion = LiveRegionMode.Polite }
@@ -73,10 +76,10 @@ fun PendingRecords(operations: List<PendingOperation>, farmId: String, targetId:
             }
         }
         if (needsReview || progress.signInRequired) {
-            if (progress.signInRequired) Text("Sign in again to send your saved work.")
+            if (progress.signInRequired) Text(uiText(R.string.ui_sign_in_again_to_send_your_saved_work_cd65708, "Sign in again to send your saved work."))
             OutlinedButton(onClick = onSync, modifier = Modifier.fillMaxWidth()) {
-                Text(if (needsReview) "Review saved work" else "Open sync status")
+                Text(if (needsReview) uiText(R.string.ui_review_saved_work_2165dad, "Review saved work") else uiText(R.string.ui_open_sync_status_6ec1bcf, "Open sync status"))
             }
-        } else Text("Uploads automatically when a connection is available.")
+        } else Text(uiText(R.string.ui_uploads_automatically_when_a_connection_is_available_30fa19b, "Uploads automatically when a connection is available."))
     }
 }

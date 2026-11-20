@@ -26,7 +26,7 @@ test("farm selector offers quick Create and Join dialogs without removing full s
     assert.match(farms, /Use the detailed setup with map options/);
     assert.match(full, /data-farm-location-picker/);
     assert.doesNotMatch(farms, /My account<\/a>/);
-    assert.match(read("Views/Shared/_Layout.cshtml"), /Account &amp; settings/);
+    assert.match(read("Views/Shared/_Layout.cshtml"), /@T\["Account & settings"\]/);
 });
 
 function dialogFixture(invalid = false) {

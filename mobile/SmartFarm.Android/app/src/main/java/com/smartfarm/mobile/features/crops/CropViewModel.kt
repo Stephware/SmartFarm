@@ -1,5 +1,8 @@
 package com.smartfarm.mobile.features.crops
 
+import com.smartfarm.mobile.R
+import com.smartfarm.mobile.localization.uiText
+
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
@@ -58,7 +61,7 @@ class CropViewModel(
                 throw cancelled
             } catch (error: Exception) {
                 mutable.value = CropUiState(farmId, error = NetworkErrorMessages.forRequest(
-                    error, "Could not load crops. Check farm access and connection."))
+                    error, uiText(R.string.ui_could_not_load_crops_check_farm_access_and_connectio_2f289fd, "Could not load crops. Check farm access and connection.")))
             }
         }
     }
@@ -78,7 +81,7 @@ class CropViewModel(
             } catch (error: Exception) {
                 mutable.value = mutable.value.copy(
                     error = NetworkErrorMessages.forMutation(error,
-                        "Could not save. Check dates, permissions, crop status and connection; reload if the record changed."))
+                        uiText(R.string.ui_could_not_save_check_dates_permissions_crop_status_a_e5ac135, "Could not save. Check dates, permissions, crop status and connection; reload if the record changed.")))
             } finally {
                 mutable.value = mutable.value.copy(busy = false)
             }

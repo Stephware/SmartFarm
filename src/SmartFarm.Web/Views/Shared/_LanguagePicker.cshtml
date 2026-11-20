@@ -1,0 +1,12 @@
+@{ var language = System.Globalization.CultureInfo.CurrentUICulture.TwoLetterISOLanguageName; }
+<details class="anigo-language"><summary>@T["Language"] · @(language == "fil" ? "Filipino" : "English")</summary>
+<form method="post" asp-controller="Language" asp-action="Select" class="anigo-language-picker">
+    <input type="hidden" name="returnUrl" value="@(Context.Request.Path + Context.Request.QueryString)" />
+    <label for="anigo-language">@T["Language"]</label>
+    <select id="anigo-language" name="language">
+        <option value="en" selected="@(language == "en")">English</option>
+        <option value="fil" selected="@(language == "fil")">Filipino</option>
+    </select>
+    <button type="submit">@T["Apply language"]</button>
+</form>
+</details>

@@ -29,11 +29,11 @@ test("Super Admin routes remain visible on desktop and mobile with active state"
         assert.ok(layout.includes('section == "' + controller + '" ? "page" : null'),
             controller + " active section");
     }
-    assert.match(layout, /aria-label="Platform administration"/);
-    assert.match(layout, /aria-label="Mobile platform administration"/);
-    assert.match(layout, /aria-label="Admin navigation"/);
+    assert.match(layout, /aria-label="@T\["Platform administration"\]"/);
+    assert.match(layout, /aria-label="@T\["Mobile platform administration"\]"/);
+    assert.match(layout, /aria-label="@T\["Admin navigation"\]"/);
     assert.match(layout, /id="ani12f-admin-mobile-links"/);
-    assert.ok(layout.includes('asp-controller="Dashboard" asp-action="Index" aria-current="@(section == "Dashboard" ? "page" : null)">Admin overview</a>'));
+    assert.ok(layout.includes('asp-controller="Dashboard" asp-action="Index" aria-current="@(section == "Dashboard" ? "page" : null)">@T["Admin overview"]</a>'));
     assert.ok(!layout.includes('class="crumb"><a asp-area="Admin" asp-controller="Dashboard" asp-action="Index" aria-current='));
     assert.match(layout, /href="#main-content"/);
     assert.match(layout, /id="main-content"/);
@@ -71,7 +71,7 @@ test("Directory filters and pagination remain semantic and readable", () => {
         const html = read("Areas/Admin/Views/" + p);
         assert.match(html, /class="admin-filters/);
         assert.match(html, /class="admin-record-list"/);
-        assert.match(html, /aria-label="[^"]*pages?"/i);
+        assert.match(html, /aria-label="@T\["[^"]*pages?"\]"/i);
         assert.match(html, /asp-route-page=/);
         assert.match(html, /<label for=/);
     }

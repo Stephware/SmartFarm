@@ -2,7 +2,7 @@
 @using SmartFarm.Core.Enums
 @model SmartFarm.Web.ViewModels.Monitoring.MonitoringWorkspaceViewModel
 @{
-    ViewData["Title"] = "Crop monitoring";
+    ViewData["Title"] = T["Crop monitoring"];
     var cycle = Model.Cycle;
     var monitoring = Model.Monitoring;
     var showActivity = Model.Quick != "inspection" || Model.ErrorForm == "activity";
@@ -18,49 +18,49 @@
     <div class="sf-page-header page-hero">
         <div>
             <p><a asp-controller="Crops" asp-action="Index"
-                  asp-route-farmId="@cycle.FarmId" class="anigo-back-control" title="Back to crops"><partial name="_Icon" model='@("chevLeft")' /><span class="visually-hidden">Back to crops</span></a></p>
+                  asp-route-farmId="@cycle.FarmId" class="anigo-back-control" title="@T["Back to crops"]"><partial name="_Icon" model='@("chevLeft")' /><span class="visually-hidden">@T["Back to crops"]</span></a></p>
 
             <h1 id="monitoring-heading">@cycle.CropTypeName — @cycle.PlotName</h1>
-            <p class="sf-muted">Record completed fieldwork or inspect this crop. Attach photos after saving an inspection.</p>
+            <p class="sf-muted">@T["Record completed fieldwork or inspect this crop. Attach photos after saving an inspection."]</p>
         </div>
         <div class="ani-monitoring-art ani12e-crop-art">
             <partial name="_UiStatusChip" model='@(new UiStatusChip(
-                cycle.Status.ToString(),
+                T[cycle.Status.ToString()],
                 monitoring.CanRecord ? "sf-status-chip--active" : "sf-status-chip--neutral"))' />
         </div>
     </div>
-    <nav class="sf-page-jump-nav ani-fieldwork-jumps ani12e-jump-nav" aria-label="Monitoring sections">
+    <nav class="sf-page-jump-nav ani-fieldwork-jumps ani12e-jump-nav" aria-label="@T["Monitoring sections"]">
         @if (monitoring.CanRecord)
         {
-            @if (showActivity) { <a href="#record-activity">Record activity</a> }
-            @if (showInspection) { <a href="#record-inspection">Record inspection</a> }
+            @if (showActivity) { <a href="#record-activity">@T["Record activity"]</a> }
+            @if (showInspection) { <a href="#record-inspection">@T["Record inspection"]</a> }
         }
         <a asp-controller="Harvests" asp-action="Index"
            asp-route-farmId="@cycle.FarmId" asp-route-cycleId="@cycle.Id"
-           asp-fragment="record-harvest">Harvests</a>
-        <a href="#activity-history">Activity history</a>
-        <a href="#observation-history">Inspections &amp; photos</a>
+           asp-fragment="record-harvest">@T["Harvests"]</a>
+        <a href="#activity-history">@T["Activity history"]</a>
+        <a href="#observation-history">@T["Inspections & photos"]</a>
     </nav>
-    <div class="ani-monitoring-stats ani12e-metrics" aria-label="Crop record totals">
-        <div><strong>@monitoring.Activities.Count</strong><span>Field activities</span></div>
-        <div><strong>@monitoring.Observations.Count</strong><span>Inspections</span></div>
-        <div><strong>@photoCount</strong><span>Private photos</span></div>
+    <div class="ani-monitoring-stats ani12e-metrics" aria-label="@T["Crop record totals"]">
+        <div><strong>@monitoring.Activities.Count</strong><span>@T["Field activities"]</span></div>
+        <div><strong>@monitoring.Observations.Count</strong><span>@T["Inspections"]</span></div>
+        <div><strong>@photoCount</strong><span>@T["Private photos"]</span></div>
     </div>
     @if (monitoring.CanRecord)
     {
-        <nav class="ani-monitoring-status ani12e-actions" aria-label="Quick recording actions">
-            <a asp-action="Index" asp-route-farmId="@cycle.FarmId" asp-route-cycleId="@cycle.Id" asp-route-quick="watering" asp-fragment="record-activity">Water</a>
-            <a asp-action="Index" asp-route-farmId="@cycle.FarmId" asp-route-cycleId="@cycle.Id" asp-route-quick="inspection" asp-fragment="record-inspection">Inspect</a>
-            <a asp-action="Index" asp-route-farmId="@cycle.FarmId" asp-route-cycleId="@cycle.Id" asp-route-quick="fertilizing" asp-fragment="record-activity">Use supplies / fertilizer</a>
-            <a asp-action="Index" asp-route-farmId="@cycle.FarmId" asp-route-cycleId="@cycle.Id" asp-route-quick="other" asp-fragment="record-activity">Other</a>
+        <nav class="ani-monitoring-status ani12e-actions" aria-label="@T["Quick recording actions"]">
+            <a asp-action="Index" asp-route-farmId="@cycle.FarmId" asp-route-cycleId="@cycle.Id" asp-route-quick="watering" asp-fragment="record-activity">@T["Water"]</a>
+            <a asp-action="Index" asp-route-farmId="@cycle.FarmId" asp-route-cycleId="@cycle.Id" asp-route-quick="inspection" asp-fragment="record-inspection">@T["Inspect"]</a>
+            <a asp-action="Index" asp-route-farmId="@cycle.FarmId" asp-route-cycleId="@cycle.Id" asp-route-quick="fertilizing" asp-fragment="record-activity">@T["Use supplies / fertilizer"]</a>
+            <a asp-action="Index" asp-route-farmId="@cycle.FarmId" asp-route-cycleId="@cycle.Id" asp-route-quick="other" asp-fragment="record-activity">@T["Other"]</a>
             <a asp-controller="Harvests" asp-action="Index" asp-route-farmId="@cycle.FarmId"
-               asp-route-cycleId="@cycle.Id" asp-fragment="record-harvest">Record harvest</a>
-            <a href="#observation-history">Attach to saved inspection</a>
+               asp-route-cycleId="@cycle.Id" asp-fragment="record-harvest">@T["Record harvest"]</a>
+            <a href="#observation-history">@T["Attach to saved inspection"]</a>
         </nav>
     }
     @if (!monitoring.CanRecord)
     {
-        <p class="sf-ops-hint">Historical records remain available. New activity and observation entries require an active crop cycle.</p>
+        <p class="sf-ops-hint">@T["Historical records remain available. New activity and observation entries require an active crop cycle."]</p>
     }
     @if (TempData["Notice"] is string notice)
     {
@@ -68,14 +68,14 @@
             <strong>@notice</strong>
             @if (TempData["NextStep"] is string nextStep && nextStep == "photos")
             {
-                <a href="#observation-history">Find your inspection &amp; attach a photo →</a>
+                <a href="#observation-history">@T["Find your inspection & attach a photo →"]</a>
             }
         </div>
     }
     @if (!ViewData.ModelState.IsValid)
     {
-        <p class="error" role="alert">Record not saved. Your draft is kept below.</p>
-        <a href="@(!monitoring.CanRecord ? "#unsubmitted-draft" : Model.ErrorForm == "inspection" ? "#record-inspection" : "#record-activity")">Review your draft →</a>
+        <p class="error" role="alert">@T["Record not saved. Your draft is kept below."]</p>
+        <a href="@(!monitoring.CanRecord ? "#unsubmitted-draft" : Model.ErrorForm == "inspection" ? "#record-inspection" : "#record-activity")">@T["Review your draft →"]</a>
     }
     @if (TempData["Error"] is string error)
     { <p class="error form-error" role="alert">@error</p> }
@@ -83,30 +83,30 @@
 @if (!monitoring.CanRecord && Model.ErrorForm is not null)
 {
     <section class="panel card mvp-unsubmitted-draft" id="unsubmitted-draft" aria-labelledby="unsubmitted-draft-heading">
-        <h2 id="unsubmitted-draft-heading">Unsubmitted draft — not saved</h2>
+        <h2 id="unsubmitted-draft-heading">@T["Unsubmitted draft — not saved"]</h2>
         <div asp-validation-summary="All" class="error form-error" role="alert"></div>
         <p>Recording is unavailable for this crop. You can copy your entries below; no new record was saved.</p>
         <dl>
         @if (Model.ErrorForm == "inspection")
         {
-            <dt>Crop health</dt><dd>@(Model.Observation.HealthStatus == 0 ? "Not sure" : FarmCodeLabels.Health(Model.Observation.HealthStatus))</dd>
-            <dt>Observed issue</dt><dd>@(Model.Observation.IssueCategory switch { 1 => "Pest", 2 => "Disease (suspected)", 3 => "Nutrient deficiency (suspected)", 4 => "Environmental stress", 5 => "Other", _ => "None" })</dd>
-            <dt>Severity</dt><dd>@(Model.Observation.IssueSeverity switch { 1 => "Low", 2 => "Moderate", 3 => "High", _ => "None" })</dd>
-            <dt>Growth stage</dt><dd>@Model.Observation.GrowthStage</dd>
-            <dt>Notes</dt><dd>@Model.Observation.Notes</dd>
+            <dt>@T["Crop health"]</dt><dd>@(Model.Observation.HealthStatus == 0 ? T["Not sure"] : FarmCodeLabels.Health(Model.Observation.HealthStatus))</dd>
+            <dt>@T["Observed issue"]</dt><dd>@(Model.Observation.IssueCategory switch { 1 => T["Pest"], 2 => T["Disease (suspected)"], 3 => T["Nutrient deficiency (suspected)"], 4 => T["Environmental stress"], 5 => T["Other"], _ => T["None"] })</dd>
+            <dt>@T["Severity"]</dt><dd>@(Model.Observation.IssueSeverity switch { 1 => T["Low"], 2 => T["Moderate"], 3 => T["High"], _ => T["None"] })</dd>
+            <dt>@T["Growth stage"]</dt><dd>@Model.Observation.GrowthStage</dd>
+            <dt>@T["Notes"]</dt><dd>@Model.Observation.Notes</dd>
         }
         else
         {
-            <dt>Work completed</dt><dd>@FarmCodeLabels.Activity(Model.Activity.ActivityType)</dd>
-            <dt>Notes</dt><dd>@Model.Activity.Notes</dd>
+            <dt>@T["Work completed"]</dt><dd>@FarmCodeLabels.Activity(Model.Activity.ActivityType)</dd>
+            <dt>@T["Notes"]</dt><dd>@Model.Activity.Notes</dd>
             @if (Model.Activity.FarmTaskId is { } taskId)
-            { <dt>Task</dt><dd>@(Model.Tasks.FirstOrDefault(t => t.Id == taskId)?.Description ?? "Selected task")</dd> }
+            { <dt>@T["Task"]</dt><dd>@(Model.Tasks.FirstOrDefault(t => t.Id == taskId)?.Description ?? T["Selected task"])</dd> }
             @if (Model.Supply.UseStock || Model.Supply.QuantityUsed is not null || !string.IsNullOrEmpty(Model.Supply.Reason))
             {
                 var selectedSupply = Model.Supplies.FirstOrDefault(i => Model.Supply.Selection?.StartsWith(i.Id + ":", StringComparison.OrdinalIgnoreCase) == true);
-                <dt>Supply</dt><dd>@(selectedSupply?.Name ?? "Previously selected supply")</dd>
-                <dt>Quantity used</dt><dd>@Html.Value("Supply.QuantityUsed") @selectedSupply?.Unit</dd>
-                <dt>Supply note</dt><dd>@Model.Supply.Reason</dd>
+                <dt>@T["Supply"]</dt><dd>@(selectedSupply?.Name ?? T["Previously selected supply"])</dd>
+                <dt>@T["Quantity used"]</dt><dd>@Html.Value("Supply.QuantityUsed") @selectedSupply?.Unit</dd>
+                <dt>@T["Supply note"]</dt><dd>@Model.Supply.Reason</dd>
             }
         }
         </dl>
@@ -115,17 +115,17 @@
 @if (monitoring.CanRecord)
 {
     <div class="ani-fieldwork-recording-intro ani12e-steps">
-        <div><strong>1. Choose what to record</strong><span>Fieldwork or an inspection</span></div>
-        <div><strong>2. Save the record</strong><span>The server confirms the entry</span></div>
-        <div><strong>3. Attach photos</strong><span>Optional, after saving an inspection</span></div>
+        <div><strong>@T["1. Choose what to record"]</strong><span>@T["Fieldwork or an inspection"]</span></div>
+        <div><strong>@T["2. Save the record"]</strong><span>@T["The server confirms the entry"]</span></div>
+        <div><strong>@T["3. Attach photos"]</strong><span>@T["Optional, after saving an inspection"]</span></div>
     </div>
     <div class="responsive-two reference-recording-grid ani-phase6-recording-grid ani12e-recording-grid">
     @if (showActivity)
     {
     <section class="panel card sf-monitoring-form ani12e-form-panel" id="record-activity" data-form-dialog>
 
-        <header class="reference-panel-heading"><h2>@(fixedActivity ? "Record " + activityName : "Record fieldwork")</h2></header>
-        <p class="sf-muted">What work did you finish for @cycle.CropTypeName on @cycle.PlotName?</p>
+        <header class="reference-panel-heading"><h2>@(fixedActivity ? T["Record "] + activityName : T["Record fieldwork"])</h2></header>
+        <p class="sf-muted">@T["{0} {1} on {2}?", T["What work did you finish for"], cycle.CropTypeName, cycle.PlotName]</p>
         <form class="sf-ops-form" data-activity-form asp-action="Activity" asp-route-farmId="@cycle.FarmId"
               asp-route-cycleId="@cycle.Id" asp-route-quick="@Model.Quick" method="post">
             @if (Model.ErrorForm == "activity") { <div asp-validation-summary="All" class="error form-error" data-form-error role="alert"></div> }
@@ -133,7 +133,7 @@
             { <input asp-for="Activity.ActivityType" type="hidden" /> }
             else
             {
-            <label asp-for="Activity.ActivityType">Work completed</label>
+            <label asp-for="Activity.ActivityType">@T["Work completed"]</label>
             <select asp-for="Activity.ActivityType" required>
                 @foreach (var option in FarmCodeLabels.Activities)
                 {
@@ -143,16 +143,16 @@
             }
             <span asp-validation-for="Activity.ActivityType" class="error"></span>
             @if (Model.Activity.FarmTaskId is not null)
-            { <p class="form-notice">This entry completes the selected task only after the server accepts it.</p> }
+            { <p class="form-notice">@T["This entry completes the selected task only after the server accepts it."]</p> }
             <details class="ani-fieldwork-optional" open="@(!ViewData.ModelState.IsValid)">
-            <summary>Task selection (optional)</summary>
-            <label asp-for="Activity.FarmTaskId">Task to complete</label>
+            <summary>@T["Task selection (optional)"]</summary>
+            <label asp-for="Activity.FarmTaskId">@T["Task to complete"]</label>
             <select asp-for="Activity.FarmTaskId">
-                <option value="">Match my oldest due task automatically</option>
+                <option value="">@T["Match my oldest due task automatically"]</option>
                 @if (Model.Activity.FarmTaskId is { } selectedTask && !Model.Tasks.Any(t =>
                     t.Id == selectedTask && t.CropCycleId == cycle.Id && t.Status == 0 &&
                     t.TaskType is 2 or 3 && (Model.CanManageIssues || t.AssignedToUserId == Model.ActorId)))
-                { <option value="@selectedTask">Selected task changed — review before choosing another</option> }
+                { <option value="@selectedTask">@T["Selected task changed — review before choosing another"]</option> }
                 @foreach (var task in Model.Tasks.Where(t => t.CropCycleId == cycle.Id &&
                     t.Status == 0 && (t.TaskType == 2 || t.TaskType == 3) &&
                     (Model.CanManageIssues || t.AssignedToUserId == Model.ActorId)))
@@ -161,36 +161,36 @@
                     <option value="@task.Id">@taskName — @task.DueDate.ToString("yyyy-MM-dd") — @task.Description</option>
                 }
             </select>
-            <p class="hint">If there's a matching open watering or fertilizing task, it can be completed with this entry. Check the task list afterward.</p>
+            <p class="hint">@T["If there's a matching open watering or fertilizing task, it can be completed with this entry. Check the task list afterward."]</p>
             </details>
             @if (!fixedActivity || Model.Activity.ActivityType != 1 || Model.Supply.UseStock || Model.Supply.QuantityUsed is not null || !string.IsNullOrEmpty(Model.Supply.Reason))
             {
             <details class="ani-fieldwork-optional" open="@(Model.Supply.UseStock || Model.Quick == "fertilizing")" id="activity-supplies">
-                <summary>Use supplies with this activity (optional)</summary>
-                <p class="hint">For fertilizer or pesticide application. Activity, supply use and a matching task save together.</p>
+                <summary>@T["Use supplies with this activity (optional)"]</summary>
+                <p class="hint">@T["For fertilizer or pesticide application. Activity, supply use and a matching task save together."]</p>
                 @if (Model.SupplyError is not null) { <p class="error" role="alert">@Model.SupplyError</p> }
-                <label asp-for="Supply.Selection">Supply and available balance</label>
+                <label asp-for="Supply.Selection">@T["Supply and available balance"]</label>
                 <select asp-for="Supply.Selection">
-                    <option value="">None — record the activity only</option>
+                    <option value="">@T["None — record the activity only"]</option>
                     @if (!string.IsNullOrEmpty(Model.Supply.Selection) && !Model.Supplies.Any(i => i.Id + ":" + i.RowVersion == Model.Supply.Selection))
-                    { <option value="@Model.Supply.Selection">Review and reselect — this supply changed or is unavailable</option> }
+                    { <option value="@Model.Supply.Selection">@T["Review and reselect — this supply changed or is unavailable"]</option> }
                     @foreach (var item in Model.Supplies)
-                    { <option value="@(item.Id + ":" + item.RowVersion)">@item.Name · @item.CategoryName · @item.QuantityOnHand.ToString("N3") @item.Unit available</option> }
+                    { <option value="@(item.Id + ":" + item.RowVersion)">@T["{0} · {1} · {2} {3} available", item.Name, T[item.CategoryName], item.QuantityOnHand.ToString("N3"), item.Unit]</option> }
                 </select>
                 <span asp-validation-for="Supply.Selection" class="error"></span>
                 <div data-supply-fields>
-                <label asp-for="Supply.QuantityUsed">Quantity used (in the selected supply's unit)</label>
+                <label asp-for="Supply.QuantityUsed">@T["Quantity used (in the selected supply's unit)"]</label>
                 <input asp-for="Supply.QuantityUsed" type="number" min="0.001" max="999999999999999.999" step="0.001" />
                 <span asp-validation-for="Supply.QuantityUsed" class="error"></span>
-                <label asp-for="Supply.Reason">Supply note (optional)</label>
+                <label asp-for="Supply.Reason">@T["Supply note (optional)"]</label>
                 <input asp-for="Supply.Reason" maxlength="300" /><span asp-validation-for="Supply.Reason" class="error"></span>
                 </div>
             </details>
             }
-            <label asp-for="Activity.Notes">Notes (optional)</label>
+            <label asp-for="Activity.Notes">@T["Notes (optional)"]</label>
             <textarea asp-for="Activity.Notes" maxlength="1000" rows="3"></textarea><span asp-validation-for="Activity.Notes" class="error"></span>
-            <button type="submit">@(fixedActivity ? "Save " + activityName : "Save activity")</button>
-            <p class="hint">Saves to the server using UTC time. Successful activities appear in history below.</p>
+            <button type="submit">@(fixedActivity ? T["Save "] + activityName : T["Save activity"])</button>
+            <p class="hint">@T["Saved activities appear in history below after confirmation."]</p>
         </form>
     </section>
     }
@@ -198,54 +198,54 @@
     {
     <section class="panel card sf-monitoring-form" id="record-inspection" data-form-dialog>
 
-        <header class="reference-panel-heading"><h2>Record an inspection</h2></header>
-        <p class="ani-inspection-form-intro">Describe the crop's actual condition. This is an observation, not a medical or plant-disease diagnosis. Save first, then attach any photos below.</p>
+        <header class="reference-panel-heading"><h2>@T["Record an inspection"]</h2></header>
+        <p class="ani-inspection-form-intro">@T["Describe the crop's actual condition. This is an observation, not a medical or plant-disease diagnosis. Save first, then attach any photos below."]</p>
         <form class="sf-ops-form" data-inspection-form asp-action="Observation" asp-route-farmId="@cycle.FarmId"
               asp-route-cycleId="@cycle.Id" asp-route-quick="@Model.Quick" method="post">
             @if (Model.ErrorForm == "inspection") { <div asp-validation-summary="All" class="error form-error" data-form-error role="alert"></div> }
-            <label asp-for="Observation.HealthStatus">Crop health</label>
+            <label asp-for="Observation.HealthStatus">@T["Crop health"]</label>
             <select asp-for="Observation.HealthStatus" required>
                 @foreach (var option in FarmCodeLabels.HealthStatuses)
                 {
-                    <option value="@option.Code">@(option.Code == 0 ? "Not sure" : option.Name)</option>
+                    <option value="@option.Code">@(option.Code == 0 ? T["Not sure"] : option.Name)</option>
                 }
             </select>
             <span asp-validation-for="Observation.HealthStatus" class="error"></span>
             <details class="ani-fieldwork-optional" data-inspection-issues open="@(Model.Observation.HealthStatus >= 2 || Model.Observation.IssueCategory != 0 || Model.Observation.IssueSeverity != 0)">
-            <summary>Issue details (if needed)</summary>
-            <label asp-for="Observation.IssueCategory">Observed issue (optional)</label>
+            <summary>@T["Issue details (if needed)"]</summary>
+            <label asp-for="Observation.IssueCategory">@T["Observed issue (optional)"]</label>
             <select asp-for="Observation.IssueCategory">
-                <option value="0">None / no specific issue</option>
-                <option value="1">Pest</option>
-                <option value="2">Disease (suspected)</option>
-                <option value="3">Nutrient deficiency (suspected)</option>
-                <option value="4">Environmental stress</option>
-                <option value="5">Other</option>
+                <option value="0">@T["None / no specific issue"]</option>
+                <option value="1">@T["Pest"]</option>
+                <option value="2">@T["Disease (suspected)"]</option>
+                <option value="3">@T["Nutrient deficiency (suspected)"]</option>
+                <option value="4">@T["Environmental stress"]</option>
+                <option value="5">@T["Other"]</option>
             </select>
             <span asp-validation-for="Observation.IssueCategory" class="error"></span>
-            <label asp-for="Observation.IssueSeverity">Issue severity</label>
+            <label asp-for="Observation.IssueSeverity">@T["Issue severity"]</label>
             <select asp-for="Observation.IssueSeverity">
-                <option value="0">None</option>
-                <option value="1">Low</option>
-                <option value="2">Moderate</option>
-                <option value="3">High</option>
+                <option value="0">@T["None"]</option>
+                <option value="1">@T["Low"]</option>
+                <option value="2">@T["Moderate"]</option>
+                <option value="3">@T["High"]</option>
             </select>
             <span asp-validation-for="Observation.IssueSeverity" class="error"></span>
-            <p class="hint">For a specific issue, select Needs attention or Critical health and choose an issue category and severity.</p>
+            <p class="hint">@T["For a specific issue, select Needs attention or Critical health and choose an issue category and severity."]</p>
             </details>
             <details class="ani-fieldwork-optional" open="@(!ViewData.ModelState.IsValid)">
-                <summary>Optional growth stage &amp; notes</summary>
+                <summary>@T["Optional growth stage & notes"]</summary>
                 <div class="ani-fieldwork-extra-fields">
-                    <label asp-for="Observation.GrowthStage">Growth stage (optional)</label>
+                    <label asp-for="Observation.GrowthStage">@T["Growth stage (optional)"]</label>
                     <input asp-for="Observation.GrowthStage" maxlength="40" />
                     <span asp-validation-for="Observation.GrowthStage" class="error"></span>
-                    <label asp-for="Observation.Notes">Observation notes (optional)</label>
+                    <label asp-for="Observation.Notes">@T["Observation notes (optional)"]</label>
                     <textarea asp-for="Observation.Notes" rows="3" maxlength="1000"></textarea>
                     <span asp-validation-for="Observation.Notes" class="error"></span>
                 </div>
             </details>
-            <button type="submit">Save inspection</button>
-            <p class="hint">After saving, find the inspection under Observations &amp; photos to attach images.</p>
+            <button type="submit">@T["Save inspection"]</button>
+            <p class="hint">@T["After saving, find the inspection under Observations & photos to attach images."]</p>
         </form>
     </section>
     }
@@ -253,12 +253,12 @@
 }
 <section class="panel card sf-monitoring-history ani12e-history-panel" id="activity-history">
     <div class="sf-section-line card-head">
-        <h2>Activity history</h2>
-        <span>@monitoring.Activities.Count record(s)</span>
+        <h2>@T["Activity history"]</h2>
+        <span>@T["{0} record(s)", monitoring.Activities.Count]</span>
     </div>
     @if (monitoring.Activities.Count == 0)
-    { <div class="sf-empty-state"><strong>No fieldwork recorded yet.</strong><p>Use Record fieldwork above to start an activity history for this crop.</p>
-        @if (monitoring.CanRecord) { <a href="@(showActivity ? "#record-activity" : Url.Action("Index", "Monitoring", new { farmId = cycle.FarmId, cycleId = cycle.Id, quick = "watering" }) + "#record-activity")">Record fieldwork →</a> }</div> }
+    { <div class="sf-empty-state"><strong>@T["No fieldwork recorded yet."]</strong><p>@T["Use Record fieldwork above to start an activity history for this crop."]</p>
+        @if (monitoring.CanRecord) { <a href="@(showActivity ? "#record-activity" : Url.Action("Index", "Monitoring", new { farmId = cycle.FarmId, cycleId = cycle.Id, quick = "watering" }) + "#record-activity")">@T["Record fieldwork →"]</a> }</div> }
     <ul class="farm-list sf-activity-list">
         @foreach (var activity in monitoring.Activities)
         {
@@ -266,12 +266,12 @@
             <li>
                 <span class="sf-list-dot" aria-hidden="true"></span>
                 <div class="sf-entry-body">
-                    <strong>@label</strong>
-                    <time datetime="@activity.OccurredAtUtc.ToString("yyyy-MM-ddTHH:mm:ssZ")">@activity.OccurredAtUtc.ToString("MMM d, yyyy HH:mm") UTC</time>
+                    <strong>@T[label]</strong>
+                    <time datetime="@activity.OccurredAtUtc.ToString("yyyy-MM-ddTHH:mm:ssZ")">@SmartFarm.Web.Presentation.FarmTimestamp.Display(activity.OccurredAtUtc, Model.TimeZoneId)</time>
                 @if (activity.Notes is not null) { <p>@activity.Notes</p> }
                 @if (activity.FarmTaskId is not null)
                 {
-                    <p class="hint">Linked farm task completed</p>
+                    <p class="hint">@T["Linked farm task completed"]</p>
                 }
                 </div>
             </li>
@@ -292,11 +292,11 @@
         .ToList();
 }
 <section class="panel card sf-photo-gallery ani12e-photo-panel" aria-labelledby="photo-progress-heading">
-    <header class="reference-panel-heading"><h2 id="photo-progress-heading">Crop photo progress</h2></header>
-    <p class="hint">Compare inspection photos from earliest to latest. Only authorized farm members can open these private images.</p>
+    <header class="reference-panel-heading"><h2 id="photo-progress-heading">@T["Crop photo progress"]</h2></header>
+    <p class="hint">@T["Compare inspection photos from earliest to latest. Only authorized farm members can open these private images."]</p>
     @if (progressPhotos.Count == 0)
     {
-        <p>No inspection photos yet. Record an inspection and attach a photo to build a visual history.</p>
+        <p>@T["No inspection photos yet. Record an inspection and attach a photo to build a visual history."]</p>
     }
     else
     {
@@ -309,10 +309,10 @@
                    asp-route-photoId="@entry.Photo.Id" target="_blank" rel="noopener">
                     <img src="@Url.Action("Photo", "Monitoring", new {
                         farmId = cycle.FarmId, cycleId = cycle.Id, photoId = entry.Photo.Id })"
-                         alt="Crop inspection photo taken on @entry.ObservedAtUtc.ToString("MMM d, yyyy")" loading="lazy" />
+                         alt="@T["Crop inspection photo taken on {0}", SmartFarm.Web.Presentation.FarmTimestamp.Display(entry.ObservedAtUtc, Model.TimeZoneId)]" loading="lazy" />
                 </a>
                 <figcaption>
-                    <strong>@entry.ObservedAtUtc.ToString("MMM d, yyyy") UTC</strong>
+                    <strong>@SmartFarm.Web.Presentation.FarmTimestamp.Display(entry.ObservedAtUtc, Model.TimeZoneId)</strong>
                     <span>@entry.Health</span>
                     @if (!string.IsNullOrWhiteSpace(entry.GrowthStage)) { <span>@entry.GrowthStage</span> }
                 </figcaption>
@@ -323,14 +323,14 @@
 </section>
 <section class="panel card sf-monitoring-observations ani12e-observation-panel" id="observation-history">
     <div class="sf-section-line card-head">
-        <h2>Inspections &amp; photos</h2>
-        <span>@monitoring.Observations.Count inspection(s)</span>
+        <h2>@T["Inspections & photos"]</h2>
+        <span>@T["{0} inspection(s)", monitoring.Observations.Count]</span>
     </div>
     @if (monitoring.Observations.Count == 0)
     {
-        <div class="sf-empty-state"><strong>No inspections saved yet.</strong>
-            <p>Save an inspection first. Then you can take or upload a photo to that record.</p>
-            @if (monitoring.CanRecord) { <a href="@(showInspection ? "#record-inspection" : Url.Action("Index", "Monitoring", new { farmId = cycle.FarmId, cycleId = cycle.Id, quick = "inspection" }) + "#record-inspection")">Record inspection →</a> }
+        <div class="sf-empty-state"><strong>@T["No inspections saved yet."]</strong>
+            <p>@T["Save an inspection first. Then you can take or upload a photo to that record."]</p>
+            @if (monitoring.CanRecord) { <a href="@(showInspection ? "#record-inspection" : Url.Action("Index", "Monitoring", new { farmId = cycle.FarmId, cycleId = cycle.Id, quick = "inspection" }) + "#record-inspection")">@T["Record inspection →"]</a> }
         </div>
     }
     @foreach (var observation in monitoring.Observations)
@@ -339,49 +339,48 @@
         <div class="crop-cycle sf-inspection-record" id="observation-@observation.Id">
             <div class="sf-inspection-heading">
                 <span class="sf-status-chip sf-status-chip--neutral">@health</span>
-                <time datetime="@observation.ObservedAtUtc.ToString("yyyy-MM-ddTHH:mm:ssZ")">@observation.ObservedAtUtc.ToString("MMM d, yyyy HH:mm") UTC</time>
+                <time datetime="@observation.ObservedAtUtc.ToString("yyyy-MM-ddTHH:mm:ssZ")">@SmartFarm.Web.Presentation.FarmTimestamp.Display(observation.ObservedAtUtc, Model.TimeZoneId)</time>
             </div>
             @if (observation.IssueCategory != 0)
             {
-                <p><strong>Issue:</strong> @observation.IssueCategoryName
+                <p><strong>@T["Issue:"]</strong> @observation.IssueCategoryName
                     · @observation.IssueSeverityName severity
                     · @(observation.FollowUpStatus == 2 ? "Resolved" : "Needs follow-up")</p>
                 @if (observation.FollowUpTaskId is not null)
                 {
-                    <p class="hint">Linked follow-up task: @observation.FollowUpTaskId</p>
+                    <p class="hint">@T["Linked follow-up task:"] @observation.FollowUpTaskId</p>
                 }
                 @if (Model.CanManageIssues)
                 {
                     <details class="sf-edit-disclosure">
-                        <summary>Manage issue follow-up</summary>
+                        <summary>@T["Manage issue follow-up"]</summary>
                         <form class="sf-ops-form" asp-action="FollowUp"
                               asp-route-farmId="@cycle.FarmId" asp-route-cycleId="@cycle.Id"
                               asp-route-observationId="@observation.Id" method="post">
                             <input type="hidden" name="RowVersion" value="@observation.RowVersion" />
-                            <label for="follow-status-@observation.Id">Follow-up status</label>
+                            <label for="follow-status-@observation.Id">@T["Follow-up status"]</label>
                             <select id="follow-status-@observation.Id" name="FollowUpStatus" required>
-                                <option selected="@(observation.FollowUpStatus == 1)" value="1">Needs follow-up</option>
-                                <option selected="@(observation.FollowUpStatus == 2)" value="2">Resolved after checking</option>
+                                <option selected="@(observation.FollowUpStatus == 1)" value="1">@T["Needs follow-up"]</option>
+                                <option selected="@(observation.FollowUpStatus == 2)" value="2">@T["Resolved after checking"]</option>
                             </select>
-                            <label for="follow-task-@observation.Id">Inspection task (optional)</label>
+                            <label for="follow-task-@observation.Id">@T["Inspection task (optional)"]</label>
                             <select id="follow-task-@observation.Id" name="FollowUpTaskId">
-                                <option value="">No linked task</option>
+                                <option value="">@T["No linked task"]</option>
                                 @foreach (var task in Model.Tasks.Where(t =>
                                     t.CropCycleId == cycle.Id && (t.TaskType == 4 || t.TaskType == 6)))
                                 {
                                     <option value="@task.Id" selected="@(observation.FollowUpTaskId == task.Id)">
-                                        @task.TaskTypeName · @task.DueDate.ToString("yyyy-MM-dd") · @task.Description
+                                        @T[task.TaskTypeName] · @task.DueDate.ToString("yyyy-MM-dd") · @task.Description
                                     </option>
                                 }
                             </select>
-                            <p class="hint">Create and assign inspection tasks in Farm tasks.
-                                Completing a task does not automatically resolve a crop issue.</p>
-                            <button type="submit">Save follow-up</button>
+                            <p class="hint">@T["Create and assign inspection tasks in Farm tasks.\n                                Completing a task does not automatically resolve a crop issue."]</p>
+                            <button type="submit">@T["Save follow-up"]</button>
                         </form>
                     </details>
                 }
             }
-            @if (observation.GrowthStage is not null) { <p>Stage: @observation.GrowthStage</p> }
+            @if (observation.GrowthStage is not null) { <p>@T["Stage:"] @observation.GrowthStage</p> }
             @if (observation.Notes is not null) { <p>@observation.Notes</p> }
             @foreach (var photo in observation.Photos)
             {
@@ -391,7 +390,7 @@
                    asp-route-photoId="@photo.Id" target="_blank" rel="noopener">
                     <img class="observation-photo"
                          src="@Url.Action("Photo", "Monitoring", new { farmId = cycle.FarmId, cycleId = cycle.Id, photoId = photo.Id })"
-                         alt="Observation photo" loading="lazy" />
+                         alt="@T["Observation photo"]" loading="lazy" />
                 </a>
             }
             @if (monitoring.CanRecord)
@@ -400,14 +399,14 @@
                       asp-route-cycleId="@cycle.Id" asp-route-observationId="@observation.Id"
                       method="post" enctype="multipart/form-data">
                     <div class="ani-photo-attach">
-                        <label for="photo-@observation.Id">Take or select a photo</label>
-                        <p class="ani-upload-hint">JPEG, PNG or WebP · 5 MB maximum · this photo is private to authorized farm members.</p>
+                        <label for="photo-@observation.Id">@T["Take or select a photo"]</label>
+                        <p class="ani-upload-hint">@T["JPEG, PNG or WebP · 5 MB maximum · this photo is private to authorized farm members."]</p>
                         <input id="photo-@observation.Id" data-field-photo type="file" name="photo"
                                accept="image/jpeg,image/png,image/webp" required />
-                        <img class="ani-photo-preview" alt="Selected photo preview" hidden />
+                        <img class="ani-photo-preview" alt="@T["Selected photo preview"]" hidden />
                         <p class="ani-photo-error" role="alert" hidden></p>
                     </div>
-                    <button type="submit">Attach photo to inspection</button>
+                    <button type="submit">@T["Attach photo to inspection"]</button>
                 </form>
             }
         </div>

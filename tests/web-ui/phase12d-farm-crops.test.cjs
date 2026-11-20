@@ -23,7 +23,7 @@ test("12D uses scoped Pine/Gold design without rewriting farm access", () => {
     assert.match(style, /prefers-reduced-motion:reduce/);
 });
 test("Farm management puts plot and team workflows before destructive actions", () => {
-    assert.ok(farm.includes('aria-label="Farm management sections"'));
+    assert.ok(farm.includes('aria-label="@T["Farm management sections"]"'));
     assert.ok(farm.includes('class="ani12d-farm-summary"'));
     assert.ok(farm.includes('id="add-plot"'));
     assert.ok(farm.includes('asp-action="CreatePlot"'));
@@ -34,7 +34,7 @@ test("Farm management puts plot and team workflows before destructive actions", 
     assert.ok(farm.includes('asp-action="RemoveMember"'));
     assert.ok(farm.includes('@if (isOwner)'));
     assert.ok(farm.indexOf('class="ani12d-danger-options"') > farm.indexOf('id="members-heading"'));
-    assert.ok(farm.includes('data-confirm="Archive @Model.Farm.Name?'));
+    assert.ok(farm.includes('data-confirm="@T["Archive {0}? Its plots and records will no longer appear in active farms.", Model.Farm.Name]'));
 });
 test("Merged plot directory uses saved values and no crop illustrations", () => {
     assert.ok(crops.includes('id="farm-plots"'));
@@ -52,7 +52,7 @@ test("Crop planning never implicitly selects an arbitrary plot or type", () => {
         crops.includes("only one crop may be actively growing"));
     assert.ok(crops.includes("crop-cycle-@cycle.Id"));
     assert.ok(crops.includes("Transition.RowVersion"));
-    assert.ok(crops.includes('data-confirm="Cancel:'));
+    assert.ok(crops.includes('data-confirm="@T["Cancel: {0} on {1}?'));
 });
 test("Calendar is accessible without discovering an extra hidden schedule", () => {
     assert.ok(crops.includes('sf-crop-calendar ani12d-calendar"'));

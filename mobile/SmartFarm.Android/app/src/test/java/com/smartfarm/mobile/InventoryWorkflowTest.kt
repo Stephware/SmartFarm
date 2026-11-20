@@ -26,9 +26,9 @@ class InventoryWorkflowTest {
         assertNull(inventoryBalancePreview(BigDecimal("5"), 4, "5"))
     }
     @Test fun datesAreFarmLocalAndSafeIfMissing() {
-        assertEquals("Nov 12, 2026 · 8:30 AM (Asia/Manila)",
+        assertEquals("Nov 12, 2026 · 8:30 AM",
             farmDateTime("2026-11-12T00:30:00Z", "Asia/Manila"))
-        assertEquals("Nov 12, 2026 · 12:30 AM (UTC)",
+        assertEquals("Nov 12, 2026 · 8:30 AM",
             farmDateTime("2026-11-12T00:30:00Z", "Not/A/Timezone"))
         assertEquals("unknown", farmDateTime("unknown", "Asia/Manila"))
     }

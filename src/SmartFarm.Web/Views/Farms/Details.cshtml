@@ -10,21 +10,21 @@
 <section class="panel card sf-farm-hero ani12d-farm-hero ani-p2-hero" aria-labelledby="farm-heading">
     <div class="sf-page-header page-hero">
         <div>
-            <p><a class="ani12d-back anigo-back-control" asp-action="Index" title="Back to my farms"><partial name="_Icon" model='@("chevLeft")' /><span class="visually-hidden">Back to my farms</span></a></p>
-            <p class="ani-overline">Farm workspace</p>
+            <p><a class="ani12d-back anigo-back-control" asp-action="Index" title="@T["Back to my farms"]"><partial name="_Icon" model='@("chevLeft")' /><span class="visually-hidden">@T["Back to my farms"]</span></a></p>
+            <p class="ani-overline">@T["Farm workspace"]</p>
 
             <h1 id="farm-heading">@Model.Farm.Name</h1>
             <div class="sf-farm-identity ani12d-farm-identity">
                 <span>@Model.Farm.LocationText</span>
-                <span class="sf-status-chip sf-status-chip--planned">@Model.Farm.Role</span>
-                <span class="ani12d-location-timezone">Local dates: @Model.Farm.TimeZoneId</span>
+                <span class="sf-status-chip sf-status-chip--planned">@T[Model.Farm.Role]</span>
+                <span class="ani12d-location-timezone">@T["Local dates:"] @Model.Farm.TimeZoneId</span>
             </div>
         </div>
         <div class="sf-farm-actions">
-            <a class="button" asp-controller="Dashboard" asp-action="Index" asp-route-farmId="@Model.Farm.Id">Open dashboard</a>
+            <a class="button" asp-controller="Dashboard" asp-action="Index" asp-route-farmId="@Model.Farm.Id">@T["Open dashboard"]</a>
             @if (canManage)
             {
-                <a class="sf-button-outline" asp-action="Edit" asp-route-id="@Model.Farm.Id">Edit farm</a>
+                <a class="sf-button-outline" asp-action="Edit" asp-route-id="@Model.Farm.Id">@T["Edit farm"]</a>
             }
         </div>
     </div>
@@ -35,34 +35,34 @@
         <partial name="_AniGuide" model='new SmartFarm.Web.Presentation.AniGuideModel(Guid.Parse(User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)!.Value), Model.Farm.Id, "plot")' />
     }
 </section>
-<nav class="ani12d-workspace-links" aria-label="Farm management sections">
-    <a href="#plots-heading"><partial name="_Icon" model='@("grid")' />Plots <span>@Model.Plots.Count</span></a>
-    <a asp-controller="Crops" asp-action="Index" asp-route-farmId="@Model.Farm.Id" asp-fragment="@(canManage ? "planting-plans-heading" : "ani-current-heading")"><partial name="_Icon" model='@("sprout")' />@(canManage ? "Crop planning" : "Crop records")</a>
-    <a href="#members-heading"><partial name="_Icon" model='@("users")' />Farm team <span>@(Model.Members.Count + 1)</span></a>
-    @if (isOwner) { <a href="#join-requests-heading"><partial name="_Icon" model='@("checkSquare")' />Join requests</a> }
+<nav class="ani12d-workspace-links" aria-label="@T["Farm management sections"]">
+    <a href="#plots-heading"><partial name="_Icon" model='@("grid")' />@T["Plots"] <span>@Model.Plots.Count</span></a>
+    <a asp-controller="Crops" asp-action="Index" asp-route-farmId="@Model.Farm.Id" asp-fragment="@(canManage ? "planting-plans-heading" : "ani-current-heading")"><partial name="_Icon" model='@("sprout")' />@(canManage ? T["Crop planning"] : T["Crop records"])</a>
+    <a href="#members-heading"><partial name="_Icon" model='@("users")' />@T["Farm team"] <span>@(Model.Members.Count + 1)</span></a>
+    @if (isOwner) { <a href="#join-requests-heading"><partial name="_Icon" model='@("checkSquare")' />@T["Join requests"]</a> }
 </nav>
-<div class="ani12d-farm-summary" aria-label="Farm workspace overview">
-    <div><strong>@Model.Plots.Count</strong><span>Growing areas</span></div>
-    <div><strong>@Model.Members.Count</strong><span>Additional team members</span></div>
-    <div><strong>@Model.Farm.Role</strong><span>Your farm access</span></div>
+<div class="ani12d-farm-summary" aria-label="@T["Farm workspace overview"]">
+    <div><strong>@Model.Plots.Count</strong><span>@T["Growing areas"]</span></div>
+    <div><strong>@Model.Members.Count</strong><span>@T["Additional team members"]</span></div>
+    <div><strong>@T[Model.Farm.Role]</strong><span>@T["Your farm access"]</span></div>
 </div>
 <div class="sf-farm-management-grid ani12d-management-grid">
     <section class="panel card sf-farm-plots ani12d-plots-panel" aria-labelledby="plots-heading">
         <div class="sf-section-line card-head">
             <div>
-                <h2 id="plots-heading">Plots</h2>
-                <p class="sf-muted">Manage your farm's growing spaces.</p>
+                <h2 id="plots-heading">@T["Plots"]</h2>
+                <p class="sf-muted">@T["Manage your farm's growing spaces."]</p>
             </div>
-            <a asp-controller="Crops" asp-action="Index" asp-route-farmId="@Model.Farm.Id" asp-fragment="farm-plots">See plots →</a>
+            <a asp-controller="Crops" asp-action="Index" asp-route-farmId="@Model.Farm.Id" asp-fragment="farm-plots">@T["See plots →"]</a>
         </div>
         @if (Model.Plots.Count == 0)
         {
             <div class="sf-empty-state">
-                <strong>No active plots</strong>
-                <p>@(canManage ? "Add your first growing area below. Then you can create a planting plan." : "Your farm owner or manager can add plots when the farm is ready.")</p>
+                <strong>@T["No active plots"]</strong>
+                <p>@(canManage ? T["Add your first growing area below. Then you can create a planting plan."] : T["Your farm owner or manager can add plots when the farm is ready."])</p>
                 @if (canManage)
                 {
-                    <a class="sf-button-outline" href="#add-plot">Add a plot</a>
+                    <a class="sf-button-outline" href="#add-plot">@T["Add a plot"]</a>
                 }
             </div>
         }
@@ -77,16 +77,16 @@
                         <strong>@plot.Name</strong>
                         <span class="sf-muted">@plot.AreaSqMeters.ToString("N2") m²</span>
                         <a asp-controller="Crops" asp-action="Index" asp-route-farmId="@Model.Farm.Id"
-                           asp-route-plotId="@plot.Id" asp-fragment="@(canManage ? "planting-plans-heading" : "ani-current-heading")">View crops for this plot →</a>
+                           asp-route-plotId="@plot.Id" asp-fragment="@(canManage ? "planting-plans-heading" : "ani-current-heading")">@T["View crops for this plot →"]</a>
                     </div>
                     @if (canManage)
                     {
                         <div class="sf-row-actions ani12d-plot-actions">
-                            <a asp-action="EditPlot" asp-route-id="@Model.Farm.Id" asp-route-plotId="@plot.Id">Edit</a>
+                            <a asp-action="EditPlot" asp-route-id="@Model.Farm.Id" asp-route-plotId="@plot.Id">@T["Edit"]</a>
                             <form asp-action="ArchivePlot" asp-route-id="@Model.Farm.Id" asp-route-plotId="@plot.Id"
-                                  method="post" class="inline" data-confirm="Archive @plot.Name? Its history will be retained.">
+                                  method="post" class="inline" data-confirm="@T["Archive {0}? Its history will be retained.", plot.Name]">
                                 <input type="hidden" name="rowVersion" value="@plot.RowVersion" />
-                                <button class="button-danger" type="submit">Archive</button>
+                                <button class="button-danger" type="submit">@T["Archive"]</button>
                             </form>
                         </div>
                     }
@@ -97,20 +97,20 @@
         @if (canManage && Model.Plots.Count > 0)
         {
             <div class="ani-plot-next-action">
-                <div><strong>Ready to plant?</strong><p>Your plots are set up. Choose a crop and planting dates to continue.</p></div>
+                <div><strong>@T["Ready to plant?"]</strong><p>@T["Your plots are set up. Choose a crop and planting dates to continue."]</p></div>
                 <a class="sf-button-outline" asp-controller="Crops" asp-action="Index" asp-route-farmId="@Model.Farm.Id"
-                   asp-fragment="planting-plans-heading">Plan a crop</a>
+                   asp-fragment="planting-plans-heading">@T["Plan a crop"]</a>
             </div>
         }
         @if (canManage)
         {
             <div class="sf-add-plot ani12d-add-plot" id="add-plot">
-                <h3>Add a growing area</h3>
-                <p class="sf-muted">Give each field a clear name and enter its area. You can plan its crop next.</p>
+                <h3>@T["Add a growing area"]</h3>
+                <p class="sf-muted">@T["Give each field a clear name and enter its area. You can plan its crop next."]</p>
                 <form asp-action="CreatePlot" asp-route-id="@Model.Farm.Id" method="post" class="sf-inline-form">
-                    <div><label for="plotName">Plot name</label><input id="plotName" name="Name" required maxlength="100" minlength="2" placeholder="e.g. North field" /></div>
-                    <div><label for="plotArea">Area in square meters (m²)</label><input id="plotArea" name="AreaSqMeters" type="number" min="0.01" step="0.01" required /></div>
-                    <button type="submit">Add plot</button>
+                    <div><label for="plotName">@T["Plot name"]</label><input id="plotName" name="Name" required maxlength="100" minlength="2" placeholder="@T["e.g. North field"]" /></div>
+                    <div><label for="plotArea">@T["Area in square meters (m²)"]</label><input id="plotArea" name="AreaSqMeters" type="number" min="0.01" step="0.01" required /></div>
+                    <button type="submit">@T["Add plot"]</button>
                 </form>
             </div>
         }
@@ -118,42 +118,42 @@
     <section class="panel card sf-farm-members ani12d-members-panel" aria-labelledby="members-heading">
         <div class="sf-section-line card-head">
             <div>
-                <h2 id="members-heading">Farm team</h2>
-                <p class="sf-muted">Members with access to this farm and their roles.</p>
+                <h2 id="members-heading">@T["Farm team"]</h2>
+                <p class="sf-muted">@T["Members with access to this farm and their roles."]</p>
                 @if (isOwner && Model.Enrollment is not null)
-                { <a class="ani-team-review-link" href="#join-requests-heading">Share code &amp; review requests →</a> }
+                { <a class="ani-team-review-link" href="#join-requests-heading">@T["Share code & review requests →"]</a> }
             </div>
         </div>
         <ul class="sf-member-list">
-            <li><span class="sf-member-avatar" aria-hidden="true">O</span><div><strong>Farm owner</strong><span class="sf-muted">The account that created this farm</span></div><span class="sf-status-chip sf-status-chip--active">Owner</span></li>
+            <li><span class="sf-member-avatar" aria-hidden="true">O</span><div><strong>@T["Farm owner"]</strong><span class="sf-muted">@T["The account that created this farm"]</span></div><span class="sf-status-chip sf-status-chip--active">@T["Owner"]</span></li>
             @foreach (var member in Model.Members)
             {
                 <li>
                     <span class="sf-member-avatar" aria-hidden="true">M</span>
-                    <div class="sf-member-details"><strong>@member.FullName</strong><span class="sf-muted">@member.Role</span></div>
+                    <div class="sf-member-details"><strong>@member.FullName</strong><span class="sf-muted">@T[member.Role]</span></div>
                     @if (isOwner)
                     {
                         <div class="sf-member-controls">
                             <form asp-action="ChangeRole" asp-route-id="@Model.Farm.Id" asp-route-memberId="@member.Id" method="post"
-                                  data-confirm="Change the role for @member.FullName? Their available farm actions will change.">
-                                <label class="visually-hidden" for="role-@member.Id">Role for @member.FullName</label>
+                                  data-confirm="@T["Change the role for {0}? Their available farm actions will change.", member.FullName]">
+                                <label class="visually-hidden" for="role-@member.Id">@T["Role for"] @member.FullName</label>
                                 <select id="role-@member.Id" name="Role">
                                     @if (member.Role == "Manager")
                                     {
-                                        <option value="1" selected>Manager</option>
-                                        <option value="2">Field Worker</option>
+                                        <option value="1" selected>@T["Manager"]</option>
+                                        <option value="2">@T["Field Worker"]</option>
                                     }
                                     else
                                     {
-                                        <option value="1">Manager</option>
-                                        <option value="2" selected>Field Worker</option>
+                                        <option value="1">@T["Manager"]</option>
+                                        <option value="2" selected>@T["Field Worker"]</option>
                                     }
                                 </select>
-                                <button type="submit">Update role</button>
+                                <button type="submit">@T["Update role"]</button>
                             </form>
                             <form asp-action="RemoveMember" asp-route-id="@Model.Farm.Id" asp-route-memberId="@member.Id"
-                                  method="post" class="inline" data-confirm="Remove @member.FullName from @Model.Farm.Name? They will lose access.">
-                                <button class="button-danger" type="submit">Remove</button>
+                                  method="post" class="inline" data-confirm="@T["Remove {0} from {1}? They will lose access.", member.FullName, Model.Farm.Name]">
+                                <button class="button-danger" type="submit">@T["Remove"]</button>
                             </form>
                         </div>
                     }
@@ -169,11 +169,11 @@
 @if (isOwner)
 {
     <details class="ani12d-danger-options">
-        <summary>Archive this farm</summary>
-        <p>Archiving removes this farm from active lists and prevents further work here. Existing records are preserved.</p>
-        <form asp-action="Archive" asp-route-id="@Model.Farm.Id" method="post" class="inline" data-confirm="Archive @Model.Farm.Name? Its plots and records will no longer appear in active farms.">
+        <summary>@T["Archive this farm"]</summary>
+        <p>@T["Archiving removes this farm from active lists and prevents further work here. Existing records are preserved."]</p>
+        <form asp-action="Archive" asp-route-id="@Model.Farm.Id" method="post" class="inline" data-confirm="@T["Archive {0}? Its plots and records will no longer appear in active farms.", Model.Farm.Name]">
             <input type="hidden" name="rowVersion" value="@Model.Farm.RowVersion" />
-            <button class="button-danger" type="submit">Archive farm</button>
+            <button class="button-danger" type="submit">@T["Archive farm"]</button>
         </form>
     </details>
 }

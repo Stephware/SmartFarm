@@ -1,25 +1,25 @@
 @model Guid
 @{ var current = ViewContext.RouteData.Values["controller"]?.ToString(); }
 @* Server-rendered farm links remain usable without JavaScript. *@
-<nav class="farm-navigation mvp-farm-navigation" aria-label="Farm sections">
+<nav class="farm-navigation mvp-farm-navigation" aria-label="@T["Farm sections"]">
     <a asp-controller="Dashboard" asp-action="Index" asp-route-farmId="@Model"
        aria-current="@(current is "Dashboard" or "Tasks" or "Weather" ? "page" : null)" data-nav-section="dashboard">
-        <partial name="_Icon" model='@("home")' /><span>Today</span>
+        <partial name="_Icon" model='@("home")' /><span>@T["Today"]</span>
     </a>
     <a asp-controller="Crops" asp-action="Index" asp-route-farmId="@Model"
        aria-current="@(current is "Crops" or "PlotLayout" or "CropTimeline" or "Monitoring" ? "page" : null)" data-nav-section="crops">
-        <partial name="_Icon" model='@("sprout")' /><span>Crops &amp; Calendar</span>
+        <partial name="_Icon" model='@("sprout")' /><span>@T["Crops & Calendar"]</span>
     </a>
     <a asp-controller="Inventory" asp-action="Index" asp-route-farmId="@Model"
        aria-current="@(current == "Inventory" ? "page" : null)" data-nav-section="inventory">
-        <partial name="_Icon" model='@("box")' /><span>Supplies</span>
+        <partial name="_Icon" model='@("box")' /><span>@T["Supplies"]</span>
     </a>
     <a asp-controller="Reports" asp-action="Harvests" asp-route-farmId="@Model"
        aria-current="@(current is "Reports" or "Harvests" ? "page" : null)" data-nav-section="reports">
-        <partial name="_Icon" model='@("basket")' /><span>Harvests</span>
+        <partial name="_Icon" model='@("basket")' /><span>@T["Harvests"]</span>
     </a>
     <a asp-controller="Farms" asp-action="Details" asp-route-id="@Model"
        aria-current="@(current == "Farms" ? "page" : null)" data-nav-section="farm" class="farm-nav-secondary">
-        <partial name="_Icon" model='@("settings")' /><span>Farm &amp; team</span>
+        <partial name="_Icon" model='@("settings")' /><span>@T["Farm & team"]</span>
     </a>
 </nav>

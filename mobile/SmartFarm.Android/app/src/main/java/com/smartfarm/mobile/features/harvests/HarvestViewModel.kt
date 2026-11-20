@@ -1,5 +1,8 @@
 package com.smartfarm.mobile.features.harvests
 
+import com.smartfarm.mobile.R
+import com.smartfarm.mobile.localization.uiText
+
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
@@ -55,7 +58,7 @@ class HarvestViewModel(private val repository: HarvestRepository,
                 if (error is HttpException && error.code() in setOf(401, 403, 404))
                     mutable.value = mutable.value.copy(overview = null, offline = false, cachedAtUtcMillis = null)
                 mutable.value = mutable.value.copy(error = NetworkErrorMessages.forRequest(
-                    error, "Could not load harvest history."))
+                    error, uiText(R.string.ui_could_not_load_harvest_history_3108609, "Could not load harvest history.")))
             } finally {
                 if (loadJob === coroutineContext[Job]) mutable.value = mutable.value.copy(busy = false)
             }
@@ -75,7 +78,7 @@ class HarvestViewModel(private val repository: HarvestRepository,
                 // A lost response does not prove the server rejected the write.
                 // Never encourage blindly retrying a non-idempotent harvest POST.
                 mutable.value = mutable.value.copy(
-                    error = "Could not confirm the save. Refresh harvest history before trying again.",
+                    error = uiText(R.string.ui_could_not_confirm_the_save_refresh_harvest_history_b_c9869e7, "Could not confirm the save. Refresh harvest history before trying again."),
                     busy = false)
                 return@launch
             }
@@ -87,7 +90,7 @@ class HarvestViewModel(private val repository: HarvestRepository,
                 throw cancelled
             } catch (_: Exception) {
                 mutable.value = mutable.value.copy(
-                    notice = "The server confirmed the change, but history could not refresh. Reopen to check it.")
+                    notice = uiText(R.string.ui_the_server_confirmed_the_change_but_history_could_no_c2c994e, "The server confirmed the change, but history could not refresh. Reopen to check it."))
             } finally {
                 mutable.value = mutable.value.copy(busy = false)
             }
@@ -99,7 +102,7 @@ class HarvestViewModel(private val repository: HarvestRepository,
         if (value == null || value <= BigDecimal.ZERO ||
             value.stripTrailingZeros().scale() > 3 ||
             value > BigDecimal("999999999999999.999") || notes.length > 1000) {
-            mutable.value = mutable.value.copy(error = "Enter a positive quantity with up to 3 decimals.")
+            mutable.value = mutable.value.copy(error = uiText(R.string.ui_enter_a_positive_quantity_with_up_to_3_decimals_aa7ee46, "Enter a positive quantity with up to 3 decimals."))
             return
         }
         val snapshot = mutable.value
@@ -112,11 +115,11 @@ class HarvestViewModel(private val repository: HarvestRepository,
                 mutable.value = mutable.value.copy(saveReceipts = mutable.value.saveReceipts +
                     ("${snapshot.farmId}/${snapshot.cycleId}" to id))
                 mutable.value = mutable.value.copy(notice =
-                    "Harvest saved on this device. Sync status shows when the server confirms it.")
+                    uiText(R.string.ui_harvest_saved_on_this_device_sync_status_shows_when__abfe438, "Harvest saved on this device. Sync status shows when the server confirms it."))
             } catch (cancelled: CancellationException) {
                 throw cancelled
             } catch (_: Exception) {
-                mutable.value = mutable.value.copy(error = "Could not save harvest on this device.")
+                mutable.value = mutable.value.copy(error = uiText(R.string.ui_could_not_save_harvest_on_this_device_e6ac1c1, "Could not save harvest on this device."))
             } finally {
                 mutable.value = mutable.value.copy(busy = false)
             }
@@ -125,10 +128,10 @@ class HarvestViewModel(private val repository: HarvestRepository,
 
     fun void(harvestId: String, reason: String) {
         if (reason.trim().length !in 3..300) {
-            mutable.value = mutable.value.copy(error = "A reason of 3–300 characters is required.")
+            mutable.value = mutable.value.copy(error = uiText(R.string.ui_a_reason_of_3_300_characters_is_required_734b66d, "A reason of 3–300 characters is required."))
             return
         }
-        perform("Harvest voided; audit history preserved.") { farm, cycle ->
+        perform(uiText(R.string.ui_harvest_voided_audit_history_preserved_93067a3, "Harvest voided; audit history preserved.")) { farm, cycle ->
             repository.void(farm, cycle, harvestId, reason.trim())
         }
     }

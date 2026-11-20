@@ -1,5 +1,8 @@
 package com.smartfarm.mobile.ui.components
 
+import com.smartfarm.mobile.R
+import com.smartfarm.mobile.localization.uiText
+
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -24,7 +27,7 @@ fun OfflineDataNotice(offline: Boolean, savedAtUtcMillis: Long?) {
     val saved = savedAtUtcMillis?.let {
         DateTimeFormatter.ofPattern("MMM d, yyyy h:mm a")
             .withZone(ZoneId.systemDefault()).format(Instant.ofEpochMilli(it))
-    } ?: "a previous visit"
+    } ?: uiText(R.string.ui_a_previous_visit_74990fa, "a previous visit")
     Surface(
         modifier = Modifier.fillMaxWidth(),
         color = MaterialTheme.colorScheme.tertiaryContainer,
@@ -36,10 +39,10 @@ fun OfflineDataNotice(offline: Boolean, savedAtUtcMillis: Long?) {
             verticalAlignment = Alignment.Top) {
         FarmLineIcon(FarmSymbol.Offline, Modifier.size(24.dp), MaterialTheme.colorScheme.onTertiaryContainer)
         Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(5.dp)) {
-            Text("Viewing saved offline data", style = MaterialTheme.typography.titleSmall)
+            Text(uiText(R.string.ui_viewing_saved_offline_data_ce4ed9e, "Viewing saved offline data"), style = MaterialTheme.typography.titleSmall)
             Text(
-                "Offline copy from $saved. May be out of date. " +
-                    "Fieldwork waits to send; settings need internet.",
+                uiText(R.string.ui_offline_copy_from_1_s_may_be_out_of_date_81dcbd6, "Offline copy from %1\$s. May be out of date. ", (saved)) +
+                    uiText(R.string.ui_fieldwork_waits_to_send_settings_need_internet_99528b9, "Fieldwork waits to send; settings need internet."),
                 style = MaterialTheme.typography.bodyMedium
             )
         }

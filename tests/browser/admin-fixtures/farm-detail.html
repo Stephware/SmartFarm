@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="en" data-color-mode="light" data-theme="gold">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#153D2D" />
+    <link rel="icon" type="image/svg+xml" href="/images/branding/anigo-mark.svg?v=87HBajyiuysgOiFMNxAjAApheq_rSrF9P2rCuDdLIcE" />
+    <title>Farm details - AniGo Administration</title>
+    <script src="/js/color-mode.js?v=M1s22qfdKZCkdEaWVjKsAdqQsTObmkB58_bf-COAnMg"></script>
+    <link rel="preload" href="/fonts/manrope/Manrope-Variable.ttf" as="font" type="font/ttf" crossorigin />
+    <link rel="stylesheet" href="/css/anigo-tailwind.css?v=eTcltI960Z2O4YwyxsYkAGBvzK4uRXo5gqendHehEyY" />
+    <style>
+/* Approved AniGo identity: preserve the original green/gold artwork. */
+.anigo-logo-pair { display: inline-block; width: 160px; max-width: 100%; flex: 0 0 auto; line-height: 0; }
+.anigo-logo-pair img, .anigo-sidebar-logo, .anigo-footer-brand img { display: block; width: 100%; height: auto; object-fit: contain; }
+.anigo-logo-pair .anigo-logo-dark { display: none; }
+html[data-color-mode="dark"] .anigo-logo-pair .anigo-logo-light { display: none; }
+html[data-color-mode="dark"] .anigo-logo-pair .anigo-logo-dark { display: block; }
+.anigo-sidebar-brand, .app-sidebar .anigo-sidebar-brand {
+    display: flex; flex-direction: column; align-items: flex-start; justify-content: center;
+    gap: 2px; padding-block: 8px 13px; text-decoration: none;
+}
+.anigo-sidebar-logo { width: 164px; max-width: 100%; }
+.anigo-sidebar-caption, .anigo-sidebar-brand .anigo-sidebar-caption {
+    display: block; padding-left: 4px; color: #e4d6b7;
+    font-size: .70rem; font-weight: 600; line-height: 1.2; letter-spacing: .035em;
+}
+.anigo-guest-brand .anigo-logo-pair { width: 154px; }
+/* Signed-in mobile workspaces use the A mark only; full wordmarks stay on
+   public/desktop surfaces. The mark uses the actual surface's theme variant. */
+.anigo-mobile-brand .anigo-logo-pair { width: 42px; height: 42px; display: inline-flex; align-items: center; justify-content: center; }
+.anigo-mobile-brand .anigo-mobile-logo img { width: 100%; height: auto; max-height: 42px; object-fit: contain; }
+.anigo-footer-brand .anigo-logo-pair { width: 158px; }
+.anigo-footer-brand { line-height: 0; }
+@media (max-width: 400px) {
+    .anigo-guest-brand .anigo-logo-pair { width: 128px; }
+}
+</style>
+
+    <style>
+a.anigo-back-control {
+    box-sizing: border-box;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    vertical-align: middle;
+    width: 44px;
+    height: 44px;
+    min-width: 44px;
+    min-height: 44px;
+    padding: 0;
+    border: 1px solid var(--ui-border, var(--stroke));
+    border-radius: 12px;
+    color: var(--ui-primary, var(--pine));
+    background: var(--ui-surface, var(--card));
+    text-decoration: none;
+    transition: background-color 140ms ease, border-color 140ms ease;
+}
+a.anigo-back-control:hover {
+    background: var(--ui-surface-subtle, var(--soft));
+    border-color: var(--ui-primary, var(--pine));
+    text-decoration: none;
+}
+a.anigo-back-control:focus-visible {
+    outline: 3px solid var(--focus);
+    outline-offset: 3px;
+}
+a.anigo-back-control .ico { width: 21px; height: 21px; flex: none; }
+.app-main [id], .admin-main [id] { scroll-margin-top: 100px; }
+@media (prefers-reduced-motion: reduce) {
+    a.anigo-back-control { transition: none; }
+}
+</style>
+
+    <script>globalThis.anigoText = {" Record fieldwork first to link the stock usage.":" Record fieldwork first to link the stock usage.","Choose a JPEG, PNG or WebP image.":"Choose a JPEG, PNG or WebP image.","Choose a complete map location or clear the pin.":"Choose a complete map location or clear the pin.","Choose a result, then adjust the pin to your actual farm.":"Choose a result, then adjust the pin to your actual farm.","Close ":"Close ","Could not acknowledge. Reconnect and try again.":"Could not acknowledge. Reconnect and try again.","Could not get your location. Search or tap the map instead.":"Could not get your location. Search or tap the map instead.","Current location is unavailable on this device.":"Current location is unavailable on this device.","Dark appearance":"Dark appearance","Discard the unfinished changes in this form?":"Discard the unfinished changes in this form?","Enter a positive amount actually used. It is subtracted from stock and must match a recorded crop activity.":"Enter a positive amount actually used. It is subtracted from stock and must match a recorded crop activity.","Enter a positive or negative correction (not the final stock balance). Add a reason for the change.":"Enter a positive or negative correction (not the final stock balance). Add a reason for the change.","Enter the positive quantity received. It will be added to the current stock balance.":"Enter the positive quantity received. It will be added to the current stock balance.","Expected harvest must not be before planting.":"Expected harvest must not be before planting.","Farm code copied.":"Farm code copied.","Farm pin saved. Drag it or tap the map to adjust. An address or area name is also required.":"Farm pin saved. Drag it or tap the map to adjust. An address or area name is also required.","Finding your current location...":"Finding your current location...","Light appearance":"Light appearance","Loading the optional farm map...":"Loading the optional farm map...","Map could not load. Enter the farm location as text and try again later.":"Map could not load. Enter the farm location as text and try again later.","Map could not load. You can still save the farm name and nearby location.":"Map could not load. You can still save the farm name and nearby location.","Mapping library unavailable":"Mapping library unavailable","Missing picker script":"Missing picker script","No matching places. Try a nearby barangay or select the farm on the map.":"No matching places. Try a nearby barangay or select the farm on the map.","Photo is larger than 5 MB. Choose a smaller image.":"Photo is larger than 5 MB. Choose a smaller image.","Pin removed. Weather needs a map pin; the location name can still be saved.":"Pin removed. Weather needs a map pin; the location name can still be saved.","Saving your changes\u2026":"Saving your changes\u2026","Search is unavailable. You can enter the location name and tap the map instead.":"Search is unavailable. You can enter the location name and tap the map instead.","Search unavailable":"Search unavailable","Searching locations...":"Searching locations...","Select and copy the farm code.":"Select and copy the farm code.","Tap the map to select the exact farm location.":"Tap the map to select the exact farm location.","This photo is empty. Choose a different image.":"This photo is empty. Choose a different image.","Type at least 3 characters to search for a place.":"Type at least 3 characters to search for a place.","Use dark appearance":"Use dark appearance","Use light appearance":"Use light appearance"};</script>
+
+    <script src="/js/site.js?v=Jg7ehAGxBjclecSMElJrnc2bkx0JmO0s3Ch725nknlk" defer></script>
+    <script src="/js/navigation-context.js?v=_WYZ8-jWjjf_lLvlTsYe9mYY3wirSoOFmrYf95O_19w" defer></script>
+</head>
+<body class="is-authenticated">
+<a class="skip-link" href="#main-content">Skip to content</a>
+<div class="app-shell admin-shell ani12f-admin-shell">
+    <aside class="sidebar app-sidebar" aria-label="Platform administration">
+        <a class="logo brand sidebar-brand anigo-sidebar-brand" aria-label="AniGo administration" href="/admin">
+            <img class="anigo-sidebar-logo" src="/images/branding/anigo-logo-on-dark.svg?v=jJSdXzhEAED1cdkORNykzP_MdHaPlwWZADQlxCBITs4" alt="" width="1120" height="297" />
+            <small class="anigo-sidebar-caption">Platform administration</small>
+        </a>
+        <div class="sidebar-workspace">
+            <p class="side-group-label">Administration</p>
+            <nav class="side-group sidebar-links" aria-label="Admin sections">
+                <a class="nav-link" href="/admin">
+                    <svg class="ico sf-nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><use href="/images/ui-icons.svg#grid"></use></svg>
+<span>Overview</span>
+                </a>
+                <a class="nav-link" href="/admin/users">
+                    <svg class="ico sf-nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><use href="/images/ui-icons.svg#users"></use></svg>
+<span>Users</span>
+                </a>
+                <a class="nav-link" aria-current="page" href="/admin/farms">
+                    <svg class="ico sf-nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><use href="/images/ui-icons.svg#sprout"></use></svg>
+<span>Farms</span>
+                </a>
+                <a class="nav-link" href="/admin/support">
+                    <svg class="ico sf-nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><use href="/images/ui-icons.svg#bell"></use></svg>
+<span>Support history</span>
+                </a>
+                <a class="nav-link" href="/admin/monitoring">
+                    <svg class="ico sf-nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><use href="/images/ui-icons.svg#chart"></use></svg>
+<span>Monitoring</span>
+                </a>
+                <a class="nav-link" href="/admin/audit">
+                    <svg class="ico sf-nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><use href="/images/ui-icons.svg#list"></use></svg>
+<span>Audit history</span>
+                </a>
+                <a class="nav-link" href="/admin/announcements">
+                    <svg class="ico sf-nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><use href="/images/ui-icons.svg#bell"></use></svg>
+<span>Announcement history</span>
+                </a>
+                <a class="nav-link" href="/admin/security/setup">
+                    <svg class="ico sf-nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><use href="/images/ui-icons.svg#settings"></use></svg>
+<span>Security</span>
+                </a>
+            </nav>
+            <p class="admin-nav-hint">Service checks and sync history are read-only.</p>
+        </div>
+        <div class="side-footer sidebar-bottom">
+            <div class="person-row">
+                <span class="avatar" aria-hidden="true">T</span>
+                <span><strong>Test Super Admin</strong><small>Super Admin</small></span>
+            </div>
+            <div class="sidebar-footer-actions">
+                <a href="/farms">Farm workspace</a>
+                <form method="post" action="/account/logout">
+                    <button type="submit" class="sidebar-logout">Log out</button>
+                <input name="__RequestVerificationToken" type="hidden" value="CfDJ8HAU6Zjb3NVGtbbFLHA3jG5x5OIGuFDaUU0WfvdHAnpkF0R_Djyu9cjN7aycFkpj7flkXtLTE7CM28xqrEz1Nk9dS6rzho3_fIzGohBVN5qG-1j9B0m46y1Hl1uokjviWEQ6Eu2AwORJGlhTkLaStlvywHAugR4mVz1q1cMdflU8S1Sh14cyxytU9bI_Ij2c2Q" /></form>
+            </div>
+        </div>
+    </aside>
+    <div class="app-body content-shell">
+        <header class="site-header app-topbar topbar">
+            <div class="crumb"><a href="/admin">Admin overview</a><span aria-hidden="true">/</span><strong>Farm details</strong></div>
+            <a class="mobile-brand anigo-mobile-brand" aria-label="AniGo administration" href="/admin"><span class="anigo-logo-pair anigo-mobile-logo" aria-hidden="true"><img class="anigo-logo-light" src="/images/branding/anigo-mark.svg?v=87HBajyiuysgOiFMNxAjAApheq_rSrF9P2rCuDdLIcE" alt="" width="380" height="293" /><img class="anigo-logo-dark" src="/images/branding/anigo-mark-on-dark.svg?v=ixbIO3CspvUISBBa_6wycQ2zZ-YU7fRIlLQ8L67fWbA" alt="" width="380" height="293" /></span></a>
+            <nav class="top-actions app-topbar-actions" aria-label="Administration settings">
+                <button class="icon-button color-mode-toggle" type="button" data-color-mode-toggle
+                        aria-label="Use dark appearance" aria-pressed="false">
+                    <svg class="ico sf-nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><use href="/images/ui-icons.svg#sun"></use></svg>
+
+                </button>
+                <a class="farm-picker" href="/farms">Back to farms</a>
+                <details class="mobile-nav admin-mobile-nav">
+                    <summary aria-label="Admin navigation" aria-controls="ani12f-admin-mobile-links">
+                        <svg class="ico sf-nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><use href="/images/ui-icons.svg#more"></use></svg>
+<span>Menu</span>
+                    </summary>
+                    <nav id="ani12f-admin-mobile-links" aria-label="Mobile platform administration">
+                        <a href="/admin">Admin overview</a>
+                        <a href="/admin/users">Manage users</a>
+                        <a aria-current="page" href="/admin/farms">Manage farms</a>
+                        <a href="/admin/support">Support history</a>
+                        <a href="/admin/monitoring">System monitoring</a>
+                        <a href="/admin/audit">Audit history</a>
+                        <a href="/admin/announcements">Announcement history</a>
+                        <a href="/admin/security/setup">Authenticator security</a>
+                        <a href="/farms">Farm workspace</a>
+                        <button type="button" data-color-mode-toggle aria-label="Toggle appearance">Change appearance</button>
+                        <form method="post" action="/account/logout">
+                            <button type="submit" class="link-button">Log out</button>
+                        <input name="__RequestVerificationToken" type="hidden" value="CfDJ8HAU6Zjb3NVGtbbFLHA3jG5x5OIGuFDaUU0WfvdHAnpkF0R_Djyu9cjN7aycFkpj7flkXtLTE7CM28xqrEz1Nk9dS6rzho3_fIzGohBVN5qG-1j9B0m46y1Hl1uokjviWEQ6Eu2AwORJGlhTkLaStlvywHAugR4mVz1q1cMdflU8S1Sh14cyxytU9bI_Ij2c2Q" /></form>
+                    </nav>
+                </details>
+            </nav>
+        </header>
+        <main class="page app-page app-main" id="main-content" tabindex="-1">
+            <a class="admin-back anigo-back-control" title="Back to farms" href="/admin/farms"><svg class="ico sf-nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><use href="/images/ui-icons.svg#chevLeft"></use></svg>
+<span class="visually-hidden">Back to farms</span></a>
+<div class="page-heading admin-page-heading">
+    <div><p class="sf-kicker">REGISTERED FARM</p><h1>Green Farm</h1>
+        <p class="sf-muted">Pampanga, Philippines</p></div>
+    <span class="sf-status-chip sf-status-chip--active">Active</span>
+</div>
+<div class="admin-detail-grid">
+    <section class="panel admin-detail-panel" aria-labelledby="farm-summary-heading">
+        <h2 id="farm-summary-heading">Farm summary</h2>
+        <dl class="admin-detail-list">
+            <div><dt>Owner</dt><dd>Test Owner</dd></div>
+            <div><dt>Owner email</dt><dd>owner@example.test</dd></div>
+            <div><dt>Active plots</dt><dd>4</dd></div>
+            <div><dt>Active members</dt><dd>3</dd></div>
+            <div><dt>Active crop cycles</dt><dd>0</dd></div>
+            <div><dt>Stock items with remaining quantity</dt><dd>0</dd></div>
+            <div><dt>Registered</dt><dd>Nov 13, 2026 UTC</dd></div>
+        </dl>
+    </section>
+    <section class="panel admin-detail-panel" aria-labelledby="farm-actions-heading">
+        <h2 id="farm-actions-heading">Farm controls</h2>
+            <p class="sf-muted">Archive this farm only when its operations are complete. This does not delete historical records.</p>
+            <form method="post" class="admin-action-form" data-confirm="Confirm this farm status change?" action="/admin/farms/changestatus?id=00000000-0000-0000-0000-00000000f001">
+                <input type="hidden" name="archive" value="true" />
+                <input type="hidden" name="rowVersion" value="AAAAAAAABAA=" />
+                <label for="farm-action-reason">Reason (required)</label>
+                <textarea id="farm-action-reason" name="reason" minlength="8" maxlength="300" rows="3" required
+                          placeholder="Explain why this action is necessary"></textarea>
+                <label for="farm-admin-password">Your admin password (required to confirm)</label>
+                <input id="farm-admin-password" type="password" name="currentPassword"
+                       autocomplete="current-password" maxlength="1024" required
+                       aria-describedby="farm-action-safety" />
+                <p id="farm-action-safety" class="sf-muted admin-action-safety">Confirm with your current password. Never include passwords, tokens or farm access codes in the reason.</p>
+                <button type="submit" class="button-danger">
+                    Archive farm
+                </button>
+            <input name="__RequestVerificationToken" type="hidden" value="CfDJ8HAU6Zjb3NVGtbbFLHA3jG5x5OIGuFDaUU0WfvdHAnpkF0R_Djyu9cjN7aycFkpj7flkXtLTE7CM28xqrEz1Nk9dS6rzho3_fIzGohBVN5qG-1j9B0m46y1Hl1uokjviWEQ6Eu2AwORJGlhTkLaStlvywHAugR4mVz1q1cMdflU8S1Sh14cyxytU9bI_Ij2c2Q" /></form>
+        <p class="sf-muted admin-audit-notice">Every status change is recorded in the platform audit log.</p>
+    </section>
+</div>
+<div class="admin-audit-context-link"><a href="/admin/audit?targetType=farm&amp;targetId=00000000-0000-0000-0000-00000000f001">View audit history for this farm</a></div>
+
+        </main>
+    </div>
+</div>
+</body>
+</html>

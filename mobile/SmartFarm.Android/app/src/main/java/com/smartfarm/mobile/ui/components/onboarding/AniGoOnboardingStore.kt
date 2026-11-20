@@ -1,5 +1,8 @@
 package com.smartfarm.mobile.ui.components.onboarding
 
+import com.smartfarm.mobile.R
+import com.smartfarm.mobile.localization.uiText
+
 import android.content.Context
 import android.content.SharedPreferences
 
@@ -40,4 +43,4 @@ internal fun anigoInitialRoute(completed: Boolean, authenticated: Boolean = fals
 
 /** An opt-in replay closes back to its origin, never re-completes first run. */
 internal fun anigoReplayExitLabel(authenticated: Boolean): String =
-    if (authenticated) "Back to My Account" else "Back to Welcome"
+    if (authenticated) uiText(R.string.ui_back_to_my_account_713b34c, "Back to My Account") else uiText(R.string.ui_back_to_welcome_228136c, "Back to Welcome")

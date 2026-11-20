@@ -2,6 +2,7 @@
    No Leaflet, map tiles or location requests are needed for basic farm details. */
 (() => {
     "use strict";
+    const text = english => globalThis.anigoText?.[english] ?? english;
     const pickers = [...document.querySelectorAll("[data-farm-location-picker]")];
     if (!pickers.length) return;
 
@@ -34,10 +35,10 @@
                 await script(leafletJs,
                     "sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=");
             }
-            if (!window.L) throw new Error("Mapping library unavailable");
+            if (!window.L) throw new Error(text("Mapping library unavailable"));
             // The picker attaches its handlers only after Leaflet has loaded.
             const pickerUrl = pickers[0].dataset.pickerScriptUrl;
-            if (!pickerUrl) throw new Error("Missing picker script");
+            if (!pickerUrl) throw new Error(text("Missing picker script"));
             await script(pickerUrl);
         })().catch(error => {
             // A transient CDN failure should not block a later deliberate retry.
@@ -52,10 +53,10 @@
         const status = root.querySelector("[data-farm-location-status]");
         const openMap = () => {
             if (disclosure && !disclosure.open) return;
-            if (status) status.textContent = "Loading the optional farm map...";
+            if (status) status.textContent = text("Loading the optional farm map...");
             start().catch(() => {
                 if (status) status.textContent =
-                    "Map could not load. You can still save the farm name and nearby location.";
+                    text("Map could not load. You can still save the farm name and nearby location.");
             });
         };
         disclosure?.addEventListener("toggle", openMap);

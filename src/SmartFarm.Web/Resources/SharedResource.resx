@@ -1,0 +1,4258 @@
+<root>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms</value>
+  </resheader>
+  <data name=" Record fieldwork first to link the stock usage." xml:space="preserve">
+    <value> Record fieldwork first to link the stock usage.</value>
+  </data>
+  <data name="(optional)" xml:space="preserve">
+    <value>(optional)</value>
+  </data>
+  <data name="+ Supplies arrived" xml:space="preserve">
+    <value>+ Supplies arrived</value>
+  </data>
+  <data name=", you can open your farms, create one, or enter a farm code to request access." xml:space="preserve">
+    <value>, you can open your farms, create one, or enter a farm code to request access.</value>
+  </data>
+  <data name=". A farm owner must approve join requests." xml:space="preserve">
+    <value>. A farm owner must approve join requests.</value>
+  </data>
+  <data name=". Address search runs only when you press Search." xml:space="preserve">
+    <value>. Address search runs only when you press Search.</value>
+  </data>
+  <data name=". New plans are still allowed, but only one crop can be active at a time." xml:space="preserve">
+    <value>. New plans are still allowed, but only one crop can be active at a time.</value>
+  </data>
+  <data name=". Review existing plans before adding another." xml:space="preserve">
+    <value>. Review existing plans before adding another.</value>
+  </data>
+  <data name="0 matching" xml:space="preserve">
+    <value>0 matching</value>
+  </data>
+  <data name="1. Account" xml:space="preserve">
+    <value>1. Account</value>
+  </data>
+  <data name="1. Choose what to record" xml:space="preserve">
+    <value>1. Choose what to record</value>
+  </data>
+  <data name="12-character farm code" xml:space="preserve">
+    <value>12-character farm code</value>
+  </data>
+  <data name="2. Farm" xml:space="preserve">
+    <value>2. Farm</value>
+  </data>
+  <data name="2. Save the record" xml:space="preserve">
+    <value>2. Save the record</value>
+  </data>
+  <data name="3. Attach photos" xml:space="preserve">
+    <value>3. Attach photos</value>
+  </data>
+  <data name="3. Work" xml:space="preserve">
+    <value>3. Work</value>
+  </data>
+  <data name="A barangay, town or nearby place is enough for this label. The exact pin below is optional." xml:space="preserve">
+    <value>A barangay, town or nearby place is enough for this label. The exact pin below is optional.</value>
+  </data>
+  <data name="A map pin helps with local weather. You can add one later by editing your farm." xml:space="preserve">
+    <value>A map pin helps with local weather. You can add one later by editing your farm.</value>
+  </data>
+  <data name="A nearby area is enough to get started. You can add an exact map pin later for weather." xml:space="preserve">
+    <value>A nearby area is enough to get started. You can add an exact map pin later for weather.</value>
+  </data>
+  <data name="A precise map pin helps associate saved weather forecasts with your farm. The nearby address is a separate label." xml:space="preserve">
+    <value>A precise map pin helps associate saved weather forecasts with your farm. The nearby address is a separate label.</value>
+  </data>
+  <data name="A reason of 3–300 characters is required." xml:space="preserve">
+    <value>A reason of 3–300 characters is required.</value>
+  </data>
+  <data name="ACCESS RESTRICTED" xml:space="preserve">
+    <value>ACCESS RESTRICTED</value>
+  </data>
+  <data name="ACCOUNT RECOVERY" xml:space="preserve">
+    <value>ACCOUNT RECOVERY</value>
+  </data>
+  <data name="ADMIN ACTIVITY" xml:space="preserve">
+    <value>ADMIN ACTIVITY</value>
+  </data>
+  <data name="ANDROID DATA SYNC" xml:space="preserve">
+    <value>ANDROID DATA SYNC</value>
+  </data>
+  <data name="ANIGO · PLATFORM ADMINISTRATION" xml:space="preserve">
+    <value>ANIGO · PLATFORM ADMINISTRATION</value>
+  </data>
+  <data name="API process" xml:space="preserve">
+    <value>API process</value>
+  </data>
+  <data name="About AniGo" xml:space="preserve">
+    <value>About AniGo</value>
+  </data>
+  <data name="Access denied" xml:space="preserve">
+    <value>Access denied</value>
+  </data>
+  <data name="Account" xml:space="preserve">
+    <value>Account</value>
+  </data>
+  <data name="Account &amp; settings" xml:space="preserve">
+    <value>Account &amp; settings</value>
+  </data>
+  <data name="Account actions" xml:space="preserve">
+    <value>Account actions</value>
+  </data>
+  <data name="Account and appearance menu" xml:space="preserve">
+    <value>Account and appearance menu</value>
+  </data>
+  <data name="Account and farm selection" xml:space="preserve">
+    <value>Account and farm selection</value>
+  </data>
+  <data name="Account controls" xml:space="preserve">
+    <value>Account controls</value>
+  </data>
+  <data name="Account created. Sign in to continue." xml:space="preserve">
+    <value>Account created. Sign in to continue.</value>
+  </data>
+  <data name="Account status" xml:space="preserve">
+    <value>Account status</value>
+  </data>
+  <data name="Account summary" xml:space="preserve">
+    <value>Account summary</value>
+  </data>
+  <data name="Account temporarily locked. Try again later." xml:space="preserve">
+    <value>Account temporarily locked. Try again later.</value>
+  </data>
+  <data name="Account type" xml:space="preserve">
+    <value>Account type</value>
+  </data>
+  <data name="Acknowledge" xml:space="preserve">
+    <value>Acknowledge</value>
+  </data>
+  <data name="Action" xml:space="preserve">
+    <value>Action</value>
+  </data>
+  <data name="Actions" xml:space="preserve">
+    <value>Actions</value>
+  </data>
+  <data name="Actions in the past 7 days" xml:space="preserve">
+    <value>Actions in the past 7 days</value>
+  </data>
+  <data name="Active" xml:space="preserve">
+    <value>Active</value>
+  </data>
+  <data name="Active crop cycles" xml:space="preserve">
+    <value>Active crop cycles</value>
+  </data>
+  <data name="Active farms" xml:space="preserve">
+    <value>Active farms</value>
+  </data>
+  <data name="Active members" xml:space="preserve">
+    <value>Active members</value>
+  </data>
+  <data name="Active plots" xml:space="preserve">
+    <value>Active plots</value>
+  </data>
+  <data name="Active users" xml:space="preserve">
+    <value>Active users</value>
+  </data>
+  <data name="Activities, inspections and photos →" xml:space="preserve">
+    <value>Activities, inspections and photos →</value>
+  </data>
+  <data name="Activity" xml:space="preserve">
+    <value>Activity</value>
+  </data>
+  <data name="Activity and supply use saved together." xml:space="preserve">
+    <value>Activity and supply use saved together.</value>
+  </data>
+  <data name="Activity history" xml:space="preserve">
+    <value>Activity history</value>
+  </data>
+  <data name="Activity saved to this crop's history." xml:space="preserve">
+    <value>Activity saved to this crop's history.</value>
+  </data>
+  <data name="Actual planting" xml:space="preserve">
+    <value>Actual planting</value>
+  </data>
+  <data name="Actual planting date" xml:space="preserve">
+    <value>Actual planting date</value>
+  </data>
+  <data name="Add a crop type" xml:space="preserve">
+    <value>Add a crop type</value>
+  </data>
+  <data name="Add a growing area" xml:space="preserve">
+    <value>Add a growing area</value>
+  </data>
+  <data name="Add a plot" xml:space="preserve">
+    <value>Add a plot</value>
+  </data>
+  <data name="Add a plot before planning crops." xml:space="preserve">
+    <value>Add a plot before planning crops.</value>
+  </data>
+  <data name="Add a plot →" xml:space="preserve">
+    <value>Add a plot →</value>
+  </data>
+  <data name="Add a supply" xml:space="preserve">
+    <value>Add a supply</value>
+  </data>
+  <data name="Add a task" xml:space="preserve">
+    <value>Add a task</value>
+  </data>
+  <data name="Add a task to schedule work, or plan a crop for upcoming farm reminders." xml:space="preserve">
+    <value>Add a task to schedule work, or plan a crop for upcoming farm reminders.</value>
+  </data>
+  <data name="Add a task →" xml:space="preserve">
+    <value>Add a task →</value>
+  </data>
+  <data name="Add crop plan" xml:space="preserve">
+    <value>Add crop plan</value>
+  </data>
+  <data name="Add crop type" xml:space="preserve">
+    <value>Add crop type</value>
+  </data>
+  <data name="Add crop type →" xml:space="preserve">
+    <value>Add crop type →</value>
+  </data>
+  <data name="Add first plot" xml:space="preserve">
+    <value>Add first plot</value>
+  </data>
+  <data name="Add first plot →" xml:space="preserve">
+    <value>Add first plot →</value>
+  </data>
+  <data name="Add plot" xml:space="preserve">
+    <value>Add plot</value>
+  </data>
+  <data name="Add plots" xml:space="preserve">
+    <value>Add plots</value>
+  </data>
+  <data name="Add supply" xml:space="preserve">
+    <value>Add supply</value>
+  </data>
+  <data name="Add your first growing area below. Then you can create a planting plan." xml:space="preserve">
+    <value>Add your first growing area below. Then you can create a planting plan.</value>
+  </data>
+  <data name="Add your first plot" xml:space="preserve">
+    <value>Add your first plot</value>
+  </data>
+  <data name="Add your first plot." xml:space="preserve">
+    <value>Add your first plot.</value>
+  </data>
+  <data name="Add your first supply →" xml:space="preserve">
+    <value>Add your first supply →</value>
+  </data>
+  <data name="Additional team members" xml:space="preserve">
+    <value>Additional team members</value>
+  </data>
+  <data name="Adjust the filters or clear them to see other dates and crops." xml:space="preserve">
+    <value>Adjust the filters or clear them to see other dates and crops.</value>
+  </data>
+  <data name="Adjustment" xml:space="preserve">
+    <value>Adjustment</value>
+  </data>
+  <data name="Admin Web" xml:space="preserve">
+    <value>Admin Web</value>
+  </data>
+  <data name="Admin authenticator setup" xml:space="preserve">
+    <value>Admin authenticator setup</value>
+  </data>
+  <data name="Admin email" xml:space="preserve">
+    <value>Admin email</value>
+  </data>
+  <data name="Admin name, email, action or ID" xml:space="preserve">
+    <value>Admin name, email, action or ID</value>
+  </data>
+  <data name="Admin navigation" xml:space="preserve">
+    <value>Admin navigation</value>
+  </data>
+  <data name="Admin overview" xml:space="preserve">
+    <value>Admin overview</value>
+  </data>
+  <data name="Admin sections" xml:space="preserve">
+    <value>Admin sections</value>
+  </data>
+  <data name="Administration" xml:space="preserve">
+    <value>Administration</value>
+  </data>
+  <data name="Administration settings" xml:space="preserve">
+    <value>Administration settings</value>
+  </data>
+  <data name="Administrative activity" xml:space="preserve">
+    <value>Administrative activity</value>
+  </data>
+  <data name="Administrative audit history" xml:space="preserve">
+    <value>Administrative audit history</value>
+  </data>
+  <data name="Administrative review links" xml:space="preserve">
+    <value>Administrative review links</value>
+  </data>
+  <data name="Advanced tools and past growing records" xml:space="preserve">
+    <value>Advanced tools and past growing records</value>
+  </data>
+  <data name="Advisories (" xml:space="preserve">
+    <value>Advisories (</value>
+  </data>
+  <data name="After activation, save your recovery codes and sign in again." xml:space="preserve">
+    <value>After activation, save your recovery codes and sign in again.</value>
+  </data>
+  <data name="After creating your farm" xml:space="preserve">
+    <value>After creating your farm</value>
+  </data>
+  <data name="After registration, sign in and choose" xml:space="preserve">
+    <value>After registration, sign in and choose</value>
+  </data>
+  <data name="After saving, find the inspection under Observations &amp; photos to attach images." xml:space="preserve">
+    <value>After saving, find the inspection under Observations &amp; photos to attach images.</value>
+  </data>
+  <data name="After saving, open the crop record to mark it planted when planting actually happens." xml:space="preserve">
+    <value>After saving, open the crop record to mark it planted when planting actually happens.</value>
+  </data>
+  <data name="After saving, this amount appears in valid harvest history and the confirmed total." xml:space="preserve">
+    <value>After saving, this amount appears in valid harvest history and the confirmed total.</value>
+  </data>
+  <data name="After signing in" xml:space="preserve">
+    <value>After signing in</value>
+  </data>
+  <data name="Alert when stock is at or below (optional)" xml:space="preserve">
+    <value>Alert when stock is at or below (optional)</value>
+  </data>
+  <data name="All" xml:space="preserve">
+    <value>All</value>
+  </data>
+  <data name="All (" xml:space="preserve">
+    <value>All (</value>
+  </data>
+  <data name="All accounts" xml:space="preserve">
+    <value>All accounts</value>
+  </data>
+  <data name="All actions" xml:space="preserve">
+    <value>All actions</value>
+  </data>
+  <data name="All active farm plots" xml:space="preserve">
+    <value>All active farm plots</value>
+  </data>
+  <data name="All announcements" xml:space="preserve">
+    <value>All announcements</value>
+  </data>
+  <data name="All crops" xml:space="preserve">
+    <value>All crops</value>
+  </data>
+  <data name="All currently scheduled work is coming up on a later date." xml:space="preserve">
+    <value>All currently scheduled work is coming up on a later date.</value>
+  </data>
+  <data name="All farms" xml:space="preserve">
+    <value>All farms</value>
+  </data>
+  <data name="All items" xml:space="preserve">
+    <value>All items</value>
+  </data>
+  <data name="All open" xml:space="preserve">
+    <value>All open</value>
+  </data>
+  <data name="All outcomes" xml:space="preserve">
+    <value>All outcomes</value>
+  </data>
+  <data name="All plots" xml:space="preserve">
+    <value>All plots</value>
+  </data>
+  <data name="All priorities" xml:space="preserve">
+    <value>All priorities</value>
+  </data>
+  <data name="All statuses" xml:space="preserve">
+    <value>All statuses</value>
+  </data>
+  <data name="All supplies (" xml:space="preserve">
+    <value>All supplies (</value>
+  </data>
+  <data name="All targets" xml:space="preserve">
+    <value>All targets</value>
+  </data>
+  <data name="All tasks" xml:space="preserve">
+    <value>All tasks</value>
+  </data>
+  <data name="All types" xml:space="preserve">
+    <value>All types</value>
+  </data>
+  <data name="Already have an account?" xml:space="preserve">
+    <value>Already have an account?</value>
+  </data>
+  <data name="Android sync receipts" xml:space="preserve">
+    <value>Android sync receipts</value>
+  </data>
+  <data name="Ani farm help" xml:space="preserve">
+    <value>Ani farm help</value>
+  </data>
+  <data name="AniGo administration" xml:space="preserve">
+    <value>AniGo administration</value>
+  </data>
+  <data name="AniGo farm management" xml:space="preserve">
+    <value>AniGo farm management</value>
+  </data>
+  <data name="AniGo home" xml:space="preserve">
+    <value>AniGo home</value>
+  </data>
+  <data name="Announcement details" xml:space="preserve">
+    <value>Announcement details</value>
+  </data>
+  <data name="Announcement directory" xml:space="preserve">
+    <value>Announcement directory</value>
+  </data>
+  <data name="Announcement history" xml:space="preserve">
+    <value>Announcement history</value>
+  </data>
+  <data name="Announcement pages" xml:space="preserve">
+    <value>Announcement pages</value>
+  </data>
+  <data name="Announcement preview" xml:space="preserve">
+    <value>Announcement preview</value>
+  </data>
+  <data name="Announcement totals" xml:space="preserve">
+    <value>Announcement totals</value>
+  </data>
+  <data name="Announcements" xml:space="preserve">
+    <value>Announcements</value>
+  </data>
+  <data name="Application database" xml:space="preserve">
+    <value>Application database</value>
+  </data>
+  <data name="Apply" xml:space="preserve">
+    <value>Apply</value>
+  </data>
+  <data name="Apply filters" xml:space="preserve">
+    <value>Apply filters</value>
+  </data>
+  <data name="Apply language" xml:space="preserve">
+    <value>Apply language</value>
+  </data>
+  <data name="Apply status" xml:space="preserve">
+    <value>Apply status</value>
+  </data>
+  <data name="Approve" xml:space="preserve">
+    <value>Approve</value>
+  </data>
+  <data name="Approved" xml:space="preserve">
+    <value>Approved</value>
+  </data>
+  <data name="Archive" xml:space="preserve">
+    <value>Archive</value>
+  </data>
+  <data name="Archive farm" xml:space="preserve">
+    <value>Archive farm</value>
+  </data>
+  <data name="Archive item" xml:space="preserve">
+    <value>Archive item</value>
+  </data>
+  <data name="Archive this farm" xml:space="preserve">
+    <value>Archive this farm</value>
+  </data>
+  <data name="Archive unavailable: this farm has active crop cycles or stock on hand. Ask its owner to resolve these first." xml:space="preserve">
+    <value>Archive unavailable: this farm has active crop cycles or stock on hand. Ask its owner to resolve these first.</value>
+  </data>
+  <data name="Archive {0}? Its history will be retained." xml:space="preserve">
+    <value>Archive {0}? Its history will be retained.</value>
+  </data>
+  <data name="Archive {0}? Its plots and records will no longer appear in active farms." xml:space="preserve">
+    <value>Archive {0}? Its plots and records will no longer appear in active farms.</value>
+  </data>
+  <data name="Archive {0}? Its transaction history will be retained." xml:space="preserve">
+    <value>Archive {0}? Its transaction history will be retained.</value>
+  </data>
+  <data name="Archived" xml:space="preserve">
+    <value>Archived</value>
+  </data>
+  <data name="Archived farms" xml:space="preserve">
+    <value>Archived farms</value>
+  </data>
+  <data name="Archived item — transaction history remains available." xml:space="preserve">
+    <value>Archived item — transaction history remains available.</value>
+  </data>
+  <data name="Archiving removes this farm from active lists and prevents further work here. Existing records are preserved." xml:space="preserve">
+    <value>Archiving removes this farm from active lists and prevents further work here. Existing records are preserved.</value>
+  </data>
+  <data name="Area" xml:space="preserve">
+    <value>Area</value>
+  </data>
+  <data name="Area (m²)" xml:space="preserve">
+    <value>Area (m²)</value>
+  </data>
+  <data name="Area in square meters (m²)" xml:space="preserve">
+    <value>Area in square meters (m²)</value>
+  </data>
+  <data name="Ask the owner for a farm code, enter it below, and wait for their approval." xml:space="preserve">
+    <value>Ask the owner for a farm code, enter it below, and wait for their approval.</value>
+  </data>
+  <data name="Ask your farm owner" xml:space="preserve">
+    <value>Ask your farm owner</value>
+  </data>
+  <data name="Assign to (optional)" xml:space="preserve">
+    <value>Assign to (optional)</value>
+  </data>
+  <data name="Assigned member" xml:space="preserve">
+    <value>Assigned member</value>
+  </data>
+  <data name="Assigned to me" xml:space="preserve">
+    <value>Assigned to me</value>
+  </data>
+  <data name="Assigned to you" xml:space="preserve">
+    <value>Assigned to you</value>
+  </data>
+  <data name="Assigned:" xml:space="preserve">
+    <value>Assigned:</value>
+  </data>
+  <data name="Attach photo to inspection" xml:space="preserve">
+    <value>Attach photo to inspection</value>
+  </data>
+  <data name="Attach to saved inspection" xml:space="preserve">
+    <value>Attach to saved inspection</value>
+  </data>
+  <data name="Audit event" xml:space="preserve">
+    <value>Audit event</value>
+  </data>
+  <data name="Audit history" xml:space="preserve">
+    <value>Audit history</value>
+  </data>
+  <data name="Audit history pages" xml:space="preserve">
+    <value>Audit history pages</value>
+  </data>
+  <data name="Authenticator code" xml:space="preserve">
+    <value>Authenticator code</value>
+  </data>
+  <data name="Authenticator protection is enabled. Each recovery code can be used once&#10;       if you lose access to your authenticator. These codes will not be shown again." xml:space="preserve">
+    <value>Authenticator protection is enabled. Each recovery code can be used once
+       if you lose access to your authenticator. These codes will not be shown again.</value>
+  </data>
+  <data name="Authenticator security" xml:space="preserve">
+    <value>Authenticator security</value>
+  </data>
+  <data name="Authenticator verification" xml:space="preserve">
+    <value>Authenticator verification</value>
+  </data>
+  <data name="Available crop types" xml:space="preserve">
+    <value>Available crop types</value>
+  </data>
+  <data name="Available farm supplies" xml:space="preserve">
+    <value>Available farm supplies</value>
+  </data>
+  <data name="Available stock" xml:space="preserve">
+    <value>Available stock</value>
+  </data>
+  <data name="Available supplies and current stock balances" xml:space="preserve">
+    <value>Available supplies and current stock balances</value>
+  </data>
+  <data name="Back to AniGo" xml:space="preserve">
+    <value>Back to AniGo</value>
+  </data>
+  <data name="Back to Help" xml:space="preserve">
+    <value>Back to Help</value>
+  </data>
+  <data name="Back to announcements" xml:space="preserve">
+    <value>Back to announcements</value>
+  </data>
+  <data name="Back to audit history" xml:space="preserve">
+    <value>Back to audit history</value>
+  </data>
+  <data name="Back to crops" xml:space="preserve">
+    <value>Back to crops</value>
+  </data>
+  <data name="Back to farm" xml:space="preserve">
+    <value>Back to farm</value>
+  </data>
+  <data name="Back to farms" xml:space="preserve">
+    <value>Back to farms</value>
+  </data>
+  <data name="Back to home" xml:space="preserve">
+    <value>Back to home</value>
+  </data>
+  <data name="Back to log in" xml:space="preserve">
+    <value>Back to log in</value>
+  </data>
+  <data name="Back to monitoring" xml:space="preserve">
+    <value>Back to monitoring</value>
+  </data>
+  <data name="Back to my account" xml:space="preserve">
+    <value>Back to my account</value>
+  </data>
+  <data name="Back to my farms" xml:space="preserve">
+    <value>Back to my farms</value>
+  </data>
+  <data name="Back to plots" xml:space="preserve">
+    <value>Back to plots</value>
+  </data>
+  <data name="Back to previous requests" xml:space="preserve">
+    <value>Back to previous requests</value>
+  </data>
+  <data name="Back to supplies" xml:space="preserve">
+    <value>Back to supplies</value>
+  </data>
+  <data name="Back to supply" xml:space="preserve">
+    <value>Back to supply</value>
+  </data>
+  <data name="Back to support history" xml:space="preserve">
+    <value>Back to support history</value>
+  </data>
+  <data name="Back to users" xml:space="preserve">
+    <value>Back to users</value>
+  </data>
+  <data name="Background jobs" xml:space="preserve">
+    <value>Background jobs</value>
+  </data>
+  <data name="Balances are shared across the selected farm, not separate for each plot." xml:space="preserve">
+    <value>Balances are shared across the selected farm, not separate for each plot.</value>
+  </data>
+  <data name="Barangay, town, or address" xml:space="preserve">
+    <value>Barangay, town, or address</value>
+  </data>
+  <data name="Breadcrumb" xml:space="preserve">
+    <value>Breadcrumb</value>
+  </data>
+  <data name="Build your own farm workspace or request access to a team you're already working with." xml:space="preserve">
+    <value>Build your own farm workspace or request access to a team you're already working with.</value>
+  </data>
+  <data name="Calendar" xml:space="preserve">
+    <value>Calendar</value>
+  </data>
+  <data name="Calendar month" xml:space="preserve">
+    <value>Calendar month</value>
+  </data>
+  <data name="Cancel" xml:space="preserve">
+    <value>Cancel</value>
+  </data>
+  <data name="Cancel cycle" xml:space="preserve">
+    <value>Cancel cycle</value>
+  </data>
+  <data name="Cancel request" xml:space="preserve">
+    <value>Cancel request</value>
+  </data>
+  <data name="Cancel your request to join {0}?" xml:space="preserve">
+    <value>Cancel your request to join {0}?</value>
+  </data>
+  <data name="Cancel: {0} on {1}? Review the dates and reason before continuing." xml:space="preserve">
+    <value>Cancel: {0} on {1}? Review the dates and reason before continuing.</value>
+  </data>
+  <data name="Canceled" xml:space="preserve">
+    <value>Canceled</value>
+  </data>
+  <data name="Cancellation reason" xml:space="preserve">
+    <value>Cancellation reason</value>
+  </data>
+  <data name="Cancelled" xml:space="preserve">
+    <value>Cancelled</value>
+  </data>
+  <data name="Category" xml:space="preserve">
+    <value>Category</value>
+  </data>
+  <data name="Change appearance" xml:space="preserve">
+    <value>Change appearance</value>
+  </data>
+  <data name="Change date" xml:space="preserve">
+    <value>Change date</value>
+  </data>
+  <data name="Change farm" xml:space="preserve">
+    <value>Change farm</value>
+  </data>
+  <data name="Change the role for {0}? Their available farm actions will change." xml:space="preserve">
+    <value>Change the role for {0}? Their available farm actions will change.</value>
+  </data>
+  <data name="Change these only if the crop's unit or watering schedule needs adjusting." xml:space="preserve">
+    <value>Change these only if the crop's unit or watering schedule needs adjusting.</value>
+  </data>
+  <data name="Changes how task due dates, planting calendars, and reports are shown. Check it before saving." xml:space="preserve">
+    <value>Changes how task due dates, planting calendars, and reports are shown. Check it before saving.</value>
+  </data>
+  <data name="Changing it does not delete existing records or edit their saved timestamps." xml:space="preserve">
+    <value>Changing it does not delete existing records or edit their saved timestamps.</value>
+  </data>
+  <data name="Check API, database, worker and sync diagnostics →" xml:space="preserve">
+    <value>Check API, database, worker and sync diagnostics →</value>
+  </data>
+  <data name="Check local dates" xml:space="preserve">
+    <value>Check local dates</value>
+  </data>
+  <data name="Check stock movement →" xml:space="preserve">
+    <value>Check stock movement →</value>
+  </data>
+  <data name="Check the application database connection, then refresh." xml:space="preserve">
+    <value>Check the application database connection, then refresh.</value>
+  </data>
+  <data name="Check the concerns linked above." xml:space="preserve">
+    <value>Check the concerns linked above.</value>
+  </data>
+  <data name="Check the entered value." xml:space="preserve">
+    <value>Check the entered value.</value>
+  </data>
+  <data name="Check the following before saving:" xml:space="preserve">
+    <value>Check the following before saving:</value>
+  </data>
+  <data name="Check this value." xml:space="preserve">
+    <value>Check this value.</value>
+  </data>
+  <data name="Check work saved on your phone" xml:space="preserve">
+    <value>Check work saved on your phone</value>
+  </data>
+  <data name="Checked" xml:space="preserve">
+    <value>Checked</value>
+  </data>
+  <data name="Checked {0} UTC. Refresh to see the latest status." xml:space="preserve">
+    <value>Checked {0} UTC. Refresh to see the latest status.</value>
+  </data>
+  <data name="Choose a JPEG, PNG or WebP image." xml:space="preserve">
+    <value>Choose a JPEG, PNG or WebP image.</value>
+  </data>
+  <data name="Choose a complete map location or clear the pin." xml:space="preserve">
+    <value>Choose a complete map location or clear the pin.</value>
+  </data>
+  <data name="Choose a crop" xml:space="preserve">
+    <value>Choose a crop</value>
+  </data>
+  <data name="Choose a growing plot, a crop, and a planting date. You can update planned crops before planting." xml:space="preserve">
+    <value>Choose a growing plot, a crop, and a planting date. You can update planned crops before planting.</value>
+  </data>
+  <data name="Choose a name and harvest unit in the crop tools below." xml:space="preserve">
+    <value>Choose a name and harvest unit in the crop tools below.</value>
+  </data>
+  <data name="Choose a photo." xml:space="preserve">
+    <value>Choose a photo.</value>
+  </data>
+  <data name="Choose a plot" xml:space="preserve">
+    <value>Choose a plot</value>
+  </data>
+  <data name="Choose a plot and crop" xml:space="preserve">
+    <value>Choose a plot and crop</value>
+  </data>
+  <data name="Choose a result, then adjust the pin to your actual farm." xml:space="preserve">
+    <value>Choose a result, then adjust the pin to your actual farm.</value>
+  </data>
+  <data name="Choose a supply and review its available balance." xml:space="preserve">
+    <value>Choose a supply and review its available balance.</value>
+  </data>
+  <data name="Choose a valid follow-up status and task." xml:space="preserve">
+    <value>Choose a valid follow-up status and task.</value>
+  </data>
+  <data name="Choose an exact location on the map" xml:space="preserve">
+    <value>Choose an exact location on the map</value>
+  </data>
+  <data name="Choose crop to harvest" xml:space="preserve">
+    <value>Choose crop to harvest</value>
+  </data>
+  <data name="Choose crop to record" xml:space="preserve">
+    <value>Choose crop to record</value>
+  </data>
+  <data name="Choose farm. Current: {0}" xml:space="preserve">
+    <value>Choose farm. Current: {0}</value>
+  </data>
+  <data name="Choose the completed watering, fertilizing, or other recorded crop activity that used this supply." xml:space="preserve">
+    <value>Choose the completed watering, fertilizing, or other recorded crop activity that used this supply.</value>
+  </data>
+  <data name="Choose the crop and plot first" xml:space="preserve">
+    <value>Choose the crop and plot first</value>
+  </data>
+  <data name="Choose the kind of change. Each saved movement updates the farm balance and keeps a history entry." xml:space="preserve">
+    <value>Choose the kind of change. Each saved movement updates the farm balance and keeps a history entry.</value>
+  </data>
+  <data name="Choose the supply used, or clear the unused supply fields." xml:space="preserve">
+    <value>Choose the supply used, or clear the unused supply fields.</value>
+  </data>
+  <data name="Choose what needs doing and when. A crop or person can be assigned later." xml:space="preserve">
+    <value>Choose what needs doing and when. A crop or person can be assigned later.</value>
+  </data>
+  <data name="Choose what to grow and when to plant in your plot." xml:space="preserve">
+    <value>Choose what to grow and when to plant in your plot.</value>
+  </data>
+  <data name="Choose what to plant and when." xml:space="preserve">
+    <value>Choose what to plant and when.</value>
+  </data>
+  <data name="Choose what you'd like to do first. Your account can belong to more than one farm." xml:space="preserve">
+    <value>Choose what you'd like to do first. Your account can belong to more than one farm.</value>
+  </data>
+  <data name="Choose when this task should be done in your farm's time zone." xml:space="preserve">
+    <value>Choose when this task should be done in your farm's time zone.</value>
+  </data>
+  <data name="Choose your field and crop" xml:space="preserve">
+    <value>Choose your field and crop</value>
+  </data>
+  <data name="City, town or farm address" xml:space="preserve">
+    <value>City, town or farm address</value>
+  </data>
+  <data name="Clear" xml:space="preserve">
+    <value>Clear</value>
+  </data>
+  <data name="Clear filters" xml:space="preserve">
+    <value>Clear filters</value>
+  </data>
+  <data name="Clear harvest filters →" xml:space="preserve">
+    <value>Clear harvest filters →</value>
+  </data>
+  <data name="Clear or change the filters to see other farm records." xml:space="preserve">
+    <value>Clear or change the filters to see other farm records.</value>
+  </data>
+  <data name="Close " xml:space="preserve">
+    <value>Close </value>
+  </data>
+  <data name="Close this task without marking it completed?" xml:space="preserve">
+    <value>Close this task without marking it completed?</value>
+  </data>
+  <data name="Closed" xml:space="preserve">
+    <value>Closed</value>
+  </data>
+  <data name="Code from authenticator" xml:space="preserve">
+    <value>Code from authenticator</value>
+  </data>
+  <data name="Coming up" xml:space="preserve">
+    <value>Coming up</value>
+  </data>
+  <data name="Compare inspection photos from earliest to latest. Only authorized farm members can open these private images." xml:space="preserve">
+    <value>Compare inspection photos from earliest to latest. Only authorized farm members can open these private images.</value>
+  </data>
+  <data name="Complete crop cycle" xml:space="preserve">
+    <value>Complete crop cycle</value>
+  </data>
+  <data name="Complete: {0} on {1}? Review the dates and reason before continuing." xml:space="preserve">
+    <value>Complete: {0} on {1}? Review the dates and reason before continuing.</value>
+  </data>
+  <data name="Completed" xml:space="preserve">
+    <value>Completed</value>
+  </data>
+  <data name="Confirm current password" xml:space="preserve">
+    <value>Confirm current password</value>
+  </data>
+  <data name="Confirm password" xml:space="preserve">
+    <value>Confirm password</value>
+  </data>
+  <data name="Confirm with your current password. Never include passwords, tokens or farm access codes in the reason." xml:space="preserve">
+    <value>Confirm with your current password. Never include passwords, tokens or farm access codes in the reason.</value>
+  </data>
+  <data name="Confirmed harvest total" xml:space="preserve">
+    <value>Confirmed harvest total</value>
+  </data>
+  <data name="Consumption" xml:space="preserve">
+    <value>Consumption</value>
+  </data>
+  <data name="Contact" xml:space="preserve">
+    <value>Contact</value>
+  </data>
+  <data name="Conversation &amp; internal notes" xml:space="preserve">
+    <value>Conversation &amp; internal notes</value>
+  </data>
+  <data name="Coordinate today's work and supply needs." xml:space="preserve">
+    <value>Coordinate today's work and supply needs.</value>
+  </data>
+  <data name="Copy code" xml:space="preserve">
+    <value>Copy code</value>
+  </data>
+  <data name="Correct a stock count (+ or −)" xml:space="preserve">
+    <value>Correct a stock count (+ or −)</value>
+  </data>
+  <data name="Correct the harvest entry →" xml:space="preserve">
+    <value>Correct the harvest entry →</value>
+  </data>
+  <data name="Could not acknowledge. Reconnect and try again." xml:space="preserve">
+    <value>Could not acknowledge. Reconnect and try again.</value>
+  </data>
+  <data name="Could not get your location. Search or tap the map instead." xml:space="preserve">
+    <value>Could not get your location. Search or tap the map instead.</value>
+  </data>
+  <data name="Create a farm" xml:space="preserve">
+    <value>Create a farm</value>
+  </data>
+  <data name="Create a planting plan to get started." xml:space="preserve">
+    <value>Create a planting plan to get started.</value>
+  </data>
+  <data name="Create a planting plan →" xml:space="preserve">
+    <value>Create a planting plan →</value>
+  </data>
+  <data name="Create account" xml:space="preserve">
+    <value>Create account</value>
+  </data>
+  <data name="Create an account" xml:space="preserve">
+    <value>Create an account</value>
+  </data>
+  <data name="Create an account and start managing your farm today." xml:space="preserve">
+    <value>Create an account and start managing your farm today.</value>
+  </data>
+  <data name="Create and assign inspection tasks in Farm tasks.&#10;                                Completing a task does not automatically resolve a crop issue." xml:space="preserve">
+    <value>Create and assign inspection tasks in Farm tasks.
+                                Completing a task does not automatically resolve a crop issue.</value>
+  </data>
+  <data name="Create farm" xml:space="preserve">
+    <value>Create farm</value>
+  </data>
+  <data name="Create farm &amp; continue" xml:space="preserve">
+    <value>Create farm &amp; continue</value>
+  </data>
+  <data name="Create my first farm" xml:space="preserve">
+    <value>Create my first farm</value>
+  </data>
+  <data name="Create or oversee farms, teams, crops, and records." xml:space="preserve">
+    <value>Create or oversee farms, teams, crops, and records.</value>
+  </data>
+  <data name="Create or request access" xml:space="preserve">
+    <value>Create or request access</value>
+  </data>
+  <data name="Create task" xml:space="preserve">
+    <value>Create task</value>
+  </data>
+  <data name="Create your account" xml:space="preserve">
+    <value>Create your account</value>
+  </data>
+  <data name="Create your first growing area to continue." xml:space="preserve">
+    <value>Create your first growing area to continue.</value>
+  </data>
+  <data name="Created {0} UTC" xml:space="preserve">
+    <value>Created {0} UTC</value>
+  </data>
+  <data name="Critical" xml:space="preserve">
+    <value>Critical</value>
+  </data>
+  <data name="Crop" xml:space="preserve">
+    <value>Crop</value>
+  </data>
+  <data name="Crop / plot" xml:space="preserve">
+    <value>Crop / plot</value>
+  </data>
+  <data name="Crop and dates" xml:space="preserve">
+    <value>Crop and dates</value>
+  </data>
+  <data name="Crop calendar" xml:space="preserve">
+    <value>Crop calendar</value>
+  </data>
+  <data name="Crop concerns" xml:space="preserve">
+    <value>Crop concerns</value>
+  </data>
+  <data name="Crop consumption" xml:space="preserve">
+    <value>Crop consumption</value>
+  </data>
+  <data name="Crop cycle (optional)" xml:space="preserve">
+    <value>Crop cycle (optional)</value>
+  </data>
+  <data name="Crop cycle dates" xml:space="preserve">
+    <value>Crop cycle dates</value>
+  </data>
+  <data name="Crop fieldwork" xml:space="preserve">
+    <value>Crop fieldwork</value>
+  </data>
+  <data name="Crop harvest history" xml:space="preserve">
+    <value>Crop harvest history</value>
+  </data>
+  <data name="Crop harvests" xml:space="preserve">
+    <value>Crop harvests</value>
+  </data>
+  <data name="Crop health" xml:space="preserve">
+    <value>Crop health</value>
+  </data>
+  <data name="Crop history →" xml:space="preserve">
+    <value>Crop history →</value>
+  </data>
+  <data name="Crop inspection photo taken on {0}" xml:space="preserve">
+    <value>Crop inspection photo taken on {0}</value>
+  </data>
+  <data name="Crop monitoring" xml:space="preserve">
+    <value>Crop monitoring</value>
+  </data>
+  <data name="Crop name" xml:space="preserve">
+    <value>Crop name</value>
+  </data>
+  <data name="Crop page sections" xml:space="preserve">
+    <value>Crop page sections</value>
+  </data>
+  <data name="Crop photo progress" xml:space="preserve">
+    <value>Crop photo progress</value>
+  </data>
+  <data name="Crop planning" xml:space="preserve">
+    <value>Crop planning</value>
+  </data>
+  <data name="Crop record pages" xml:space="preserve">
+    <value>Crop record pages</value>
+  </data>
+  <data name="Crop record totals" xml:space="preserve">
+    <value>Crop record totals</value>
+  </data>
+  <data name="Crop records" xml:space="preserve">
+    <value>Crop records</value>
+  </data>
+  <data name="Crop records and status (" xml:space="preserve">
+    <value>Crop records and status (</value>
+  </data>
+  <data name="Crop type" xml:space="preserve">
+    <value>Crop type</value>
+  </data>
+  <data name="Crop types &amp; history" xml:space="preserve">
+    <value>Crop types &amp; history</value>
+  </data>
+  <data name="Crop types are shared across farms. Existing types cannot be renamed here." xml:space="preserve">
+    <value>Crop types are shared across farms. Existing types cannot be renamed here.</value>
+  </data>
+  <data name="Crops &amp; Calendar" xml:space="preserve">
+    <value>Crops &amp; Calendar</value>
+  </data>
+  <data name="Current crops" xml:space="preserve">
+    <value>Current crops</value>
+  </data>
+  <data name="Current farm" xml:space="preserve">
+    <value>Current farm</value>
+  </data>
+  <data name="Current farm sections" xml:space="preserve">
+    <value>Current farm sections</value>
+  </data>
+  <data name="Current location is unavailable on this device." xml:space="preserve">
+    <value>Current location is unavailable on this device.</value>
+  </data>
+  <data name="Currently growing " xml:space="preserve">
+    <value>Currently growing </value>
+  </data>
+  <data name="Currently growing &amp; planned" xml:space="preserve">
+    <value>Currently growing &amp; planned</value>
+  </data>
+  <data name="Cycle" xml:space="preserve">
+    <value>Cycle</value>
+  </data>
+  <data name="Daily fieldwork" xml:space="preserve">
+    <value>Daily fieldwork</value>
+  </data>
+  <data name="Dark appearance" xml:space="preserve">
+    <value>Dark appearance</value>
+  </data>
+  <data name="Dates and times follow your farm’s time zone." xml:space="preserve">
+    <value>Dates and times follow your farm’s time zone.</value>
+  </data>
+  <data name="Dates follow" xml:space="preserve">
+    <value>Dates follow</value>
+  </data>
+  <data name="Defaults to Asia/Manila. Used for local crop dates, scheduled tasks, and reports." xml:space="preserve">
+    <value>Defaults to Asia/Manila. Used for local crop dates, scheduled tasks, and reports.</value>
+  </data>
+  <data name="Describe the crop's actual condition. This is an observation, not a medical or plant-disease diagnosis. Save first, then attach any photos below." xml:space="preserve">
+    <value>Describe the crop's actual condition. This is an observation, not a medical or plant-disease diagnosis. Save first, then attach any photos below.</value>
+  </data>
+  <data name="Description" xml:space="preserve">
+    <value>Description</value>
+  </data>
+  <data name="Description (optional)" xml:space="preserve">
+    <value>Description (optional)</value>
+  </data>
+  <data name="Details →" xml:space="preserve">
+    <value>Details →</value>
+  </data>
+  <data name="Disabled" xml:space="preserve">
+    <value>Disabled</value>
+  </data>
+  <data name="Disabled accounts" xml:space="preserve">
+    <value>Disabled accounts</value>
+  </data>
+  <data name="Discard the unfinished changes in this form?" xml:space="preserve">
+    <value>Discard the unfinished changes in this form?</value>
+  </data>
+  <data name="Disease (suspected)" xml:space="preserve">
+    <value>Disease (suspected)</value>
+  </data>
+  <data name="Dismiss this tip" xml:space="preserve">
+    <value>Dismiss this tip</value>
+  </data>
+  <data name="Display appearance" xml:space="preserve">
+    <value>Display appearance</value>
+  </data>
+  <data name="Drafts" xml:space="preserve">
+    <value>Drafts</value>
+  </data>
+  <data name="Drought risk" xml:space="preserve">
+    <value>Drought risk</value>
+  </data>
+  <data name="Due / overdue" xml:space="preserve">
+    <value>Due / overdue</value>
+  </data>
+  <data name="Due date" xml:space="preserve">
+    <value>Due date</value>
+  </data>
+  <data name="Due today" xml:space="preserve">
+    <value>Due today</value>
+  </data>
+  <data name="Due:" xml:space="preserve">
+    <value>Due:</value>
+  </data>
+  <data name="Edit" xml:space="preserve">
+    <value>Edit</value>
+  </data>
+  <data name="Edit farm" xml:space="preserve">
+    <value>Edit farm</value>
+  </data>
+  <data name="Edit item" xml:space="preserve">
+    <value>Edit item</value>
+  </data>
+  <data name="Edit plan" xml:space="preserve">
+    <value>Edit plan</value>
+  </data>
+  <data name="Edit planting plan" xml:space="preserve">
+    <value>Edit planting plan</value>
+  </data>
+  <data name="Edit plot" xml:space="preserve">
+    <value>Edit plot</value>
+  </data>
+  <data name="Edit supply" xml:space="preserve">
+    <value>Edit supply</value>
+  </data>
+  <data name="Edit task and assignment" xml:space="preserve">
+    <value>Edit task and assignment</value>
+  </data>
+  <data name="Email" xml:space="preserve">
+    <value>Email</value>
+  </data>
+  <data name="Enable two-factor authentication" xml:space="preserve">
+    <value>Enable two-factor authentication</value>
+  </data>
+  <data name="Enqueued, scheduled or running" xml:space="preserve">
+    <value>Enqueued, scheduled or running</value>
+  </data>
+  <data name="Enter a positive amount actually used. It is subtracted from stock and must match a recorded crop activity." xml:space="preserve">
+    <value>Enter a positive amount actually used. It is subtracted from stock and must match a recorded crop activity.</value>
+  </data>
+  <data name="Enter a positive or negative correction (not the final stock balance). Add a reason for the change." xml:space="preserve">
+    <value>Enter a positive or negative correction (not the final stock balance). Add a reason for the change.</value>
+  </data>
+  <data name="Enter a positive quantity with no more than 3 decimal places." xml:space="preserve">
+    <value>Enter a positive quantity with no more than 3 decimal places.</value>
+  </data>
+  <data name="Enter a positive value with up to three decimal places. The unit is fixed for this crop cycle. The date is set when the server accepts the entry." xml:space="preserve">
+    <value>Enter a positive value with up to three decimal places. The unit is fixed for this crop cycle. The date is set when the server accepts the entry.</value>
+  </data>
+  <data name="Enter a valid inventory item, unit and opening stock." xml:space="preserve">
+    <value>Enter a valid inventory item, unit and opening stock.</value>
+  </data>
+  <data name="Enter a valid number." xml:space="preserve">
+    <value>Enter a valid number.</value>
+  </data>
+  <data name="Enter a valid quantity, type and row version." xml:space="preserve">
+    <value>Enter a valid quantity, type and row version.</value>
+  </data>
+  <data name="Enter the actual quantity collected for" xml:space="preserve">
+    <value>Enter the actual quantity collected for</value>
+  </data>
+  <data name="Enter the measured area in square meters (m²)." xml:space="preserve">
+    <value>Enter the measured area in square meters (m²).</value>
+  </data>
+  <data name="Enter the positive quantity received. It will be added to the current stock balance." xml:space="preserve">
+    <value>Enter the positive quantity received. It will be added to the current stock balance.</value>
+  </data>
+  <data name="Enter the six-digit code from your authenticator app to finish signing in." xml:space="preserve">
+    <value>Enter the six-digit code from your authenticator app to finish signing in.</value>
+  </data>
+  <data name="Enter the supply name, measurement unit, and quantity you currently have. Set a low-stock level if you want reminders." xml:space="preserve">
+    <value>Enter the supply name, measurement unit, and quantity you currently have. Set a low-stock level if you want reminders.</value>
+  </data>
+  <data name="Enter your account details to open your farms and today's work." xml:space="preserve">
+    <value>Enter your account details to open your farms and today's work.</value>
+  </data>
+  <data name="Environmental stress" xml:space="preserve">
+    <value>Environmental stress</value>
+  </data>
+  <data name="Error code: {0}" xml:space="preserve">
+    <value>Error code: {0}</value>
+  </data>
+  <data name="Event ID" xml:space="preserve">
+    <value>Event ID</value>
+  </data>
+  <data name="Event details" xml:space="preserve">
+    <value>Event details</value>
+  </data>
+  <data name="Every status change is recorded in the platform audit log." xml:space="preserve">
+    <value>Every status change is recorded in the platform audit log.</value>
+  </data>
+  <data name="Exact farm location on the map" xml:space="preserve">
+    <value>Exact farm location on the map</value>
+  </data>
+  <data name="Existing records" xml:space="preserve">
+    <value>Existing records</value>
+  </data>
+  <data name="Expected harvest" xml:space="preserve">
+    <value>Expected harvest</value>
+  </data>
+  <data name="Expected harvest (optional)" xml:space="preserve">
+    <value>Expected harvest (optional)</value>
+  </data>
+  <data name="Expected harvest must not be before planting." xml:space="preserve">
+    <value>Expected harvest must not be before planting.</value>
+  </data>
+  <data name="Expired and hidden from users" xml:space="preserve">
+    <value>Expired and hidden from users</value>
+  </data>
+  <data name="Expiry" xml:space="preserve">
+    <value>Expiry</value>
+  </data>
+  <data name="Explain why this action is necessary" xml:space="preserve">
+    <value>Explain why this action is necessary</value>
+  </data>
+  <data name="Export cycle totals CSV" xml:space="preserve">
+    <value>Export cycle totals CSV</value>
+  </data>
+  <data name="Export records CSV" xml:space="preserve">
+    <value>Export records CSV</value>
+  </data>
+  <data name="FARM SETTINGS" xml:space="preserve">
+    <value>FARM SETTINGS</value>
+  </data>
+  <data name="Failed" xml:space="preserve">
+    <value>Failed</value>
+  </data>
+  <data name="Failed in the last 7 days" xml:space="preserve">
+    <value>Failed in the last 7 days</value>
+  </data>
+  <data name="Failed jobs · 7 days" xml:space="preserve">
+    <value>Failed jobs · 7 days</value>
+  </data>
+  <data name="Failed {0} UTC" xml:space="preserve">
+    <value>Failed {0} UTC</value>
+  </data>
+  <data name="Failure reason" xml:space="preserve">
+    <value>Failure reason</value>
+  </data>
+  <data name="Farm" xml:space="preserve">
+    <value>Farm</value>
+  </data>
+  <data name="Farm &amp; team" xml:space="preserve">
+    <value>Farm &amp; team</value>
+  </data>
+  <data name="Farm access" xml:space="preserve">
+    <value>Farm access</value>
+  </data>
+  <data name="Farm address or area" xml:space="preserve">
+    <value>Farm address or area</value>
+  </data>
+  <data name="Farm code" xml:space="preserve">
+    <value>Farm code</value>
+  </data>
+  <data name="Farm code copied." xml:space="preserve">
+    <value>Farm code copied.</value>
+  </data>
+  <data name="Farm code regenerated. Share the new code with farmers requesting access." xml:space="preserve">
+    <value>Farm code regenerated. Share the new code with farmers requesting access.</value>
+  </data>
+  <data name="Farm conditions" xml:space="preserve">
+    <value>Farm conditions</value>
+  </data>
+  <data name="Farm controls" xml:space="preserve">
+    <value>Farm controls</value>
+  </data>
+  <data name="Farm data is temporarily unavailable" xml:space="preserve">
+    <value>Farm data is temporarily unavailable</value>
+  </data>
+  <data name="Farm data unavailable" xml:space="preserve">
+    <value>Farm data unavailable</value>
+  </data>
+  <data name="Farm date" xml:space="preserve">
+    <value>Farm date</value>
+  </data>
+  <data name="Farm date: {0} · {1}" xml:space="preserve">
+    <value>Farm date: {0} · {1}</value>
+  </data>
+  <data name="Farm details" xml:space="preserve">
+    <value>Farm details</value>
+  </data>
+  <data name="Farm directory" xml:space="preserve">
+    <value>Farm directory</value>
+  </data>
+  <data name="Farm enrollment" xml:space="preserve">
+    <value>Farm enrollment</value>
+  </data>
+  <data name="Farm location / nearby address" xml:space="preserve">
+    <value>Farm location / nearby address</value>
+  </data>
+  <data name="Farm management" xml:space="preserve">
+    <value>Farm management</value>
+  </data>
+  <data name="Farm management sections" xml:space="preserve">
+    <value>Farm management sections</value>
+  </data>
+  <data name="Farm member" xml:space="preserve">
+    <value>Farm member</value>
+  </data>
+  <data name="Farm name" xml:space="preserve">
+    <value>Farm name</value>
+  </data>
+  <data name="Farm owner" xml:space="preserve">
+    <value>Farm owner</value>
+  </data>
+  <data name="Farm pages" xml:space="preserve">
+    <value>Farm pages</value>
+  </data>
+  <data name="Farm pin saved. Drag it or tap the map to adjust. An address or area name is also required." xml:space="preserve">
+    <value>Farm pin saved. Drag it or tap the map to adjust. An address or area name is also required.</value>
+  </data>
+  <data name="Farm plots and crop plans" xml:space="preserve">
+    <value>Farm plots and crop plans</value>
+  </data>
+  <data name="Farm quick actions" xml:space="preserve">
+    <value>Farm quick actions</value>
+  </data>
+  <data name="Farm quick navigation" xml:space="preserve">
+    <value>Farm quick navigation</value>
+  </data>
+  <data name="Farm sections" xml:space="preserve">
+    <value>Farm sections</value>
+  </data>
+  <data name="Farm setup progress" xml:space="preserve">
+    <value>Farm setup progress</value>
+  </data>
+  <data name="Farm status" xml:space="preserve">
+    <value>Farm status</value>
+  </data>
+  <data name="Farm summary" xml:space="preserve">
+    <value>Farm summary</value>
+  </data>
+  <data name="Farm task priorities" xml:space="preserve">
+    <value>Farm task priorities</value>
+  </data>
+  <data name="Farm tasks" xml:space="preserve">
+    <value>Farm tasks</value>
+  </data>
+  <data name="Farm team" xml:space="preserve">
+    <value>Farm team</value>
+  </data>
+  <data name="Farm time zone" xml:space="preserve">
+    <value>Farm time zone</value>
+  </data>
+  <data name="Farm time zone unavailable." xml:space="preserve">
+    <value>Farm time zone unavailable.</value>
+  </data>
+  <data name="Farm updates, task reminders and saved weather notices appear here." xml:space="preserve">
+    <value>Farm updates, task reminders and saved weather notices appear here.</value>
+  </data>
+  <data name="Farm weather" xml:space="preserve">
+    <value>Farm weather</value>
+  </data>
+  <data name="Farm workspace" xml:space="preserve">
+    <value>Farm workspace</value>
+  </data>
+  <data name="Farm workspace overview" xml:space="preserve">
+    <value>Farm workspace overview</value>
+  </data>
+  <data name="Farm-wide inventory" xml:space="preserve">
+    <value>Farm-wide inventory</value>
+  </data>
+  <data name="Farm-wide report" xml:space="preserve">
+    <value>Farm-wide report</value>
+  </data>
+  <data name="Farm:" xml:space="preserve">
+    <value>Farm:</value>
+  </data>
+  <data name="Farms" xml:space="preserve">
+    <value>Farms</value>
+  </data>
+  <data name="Fertilizers" xml:space="preserve">
+    <value>Fertilizers</value>
+  </data>
+  <data name="Fertilizing" xml:space="preserve">
+    <value>Fertilizing</value>
+  </data>
+  <data name="Field Worker" xml:space="preserve">
+    <value>Field Worker</value>
+  </data>
+  <data name="Field activities" xml:space="preserve">
+    <value>Field activities</value>
+  </data>
+  <data name="FieldWorker" xml:space="preserve">
+    <value>FieldWorker</value>
+  </data>
+  <data name="Fieldwork or an inspection" xml:space="preserve">
+    <value>Fieldwork or an inspection</value>
+  </data>
+  <data name="Filter" xml:space="preserve">
+    <value>Filter</value>
+  </data>
+  <data name="Filter by plot or crop (optional)" xml:space="preserve">
+    <value>Filter by plot or crop (optional)</value>
+  </data>
+  <data name="Filter farm tasks" xml:space="preserve">
+    <value>Filter farm tasks</value>
+  </data>
+  <data name="Filters &amp; downloads" xml:space="preserve">
+    <value>Filters &amp; downloads</value>
+  </data>
+  <data name="Filters applied" xml:space="preserve">
+    <value>Filters applied</value>
+  </data>
+  <data name="Filters applied — totals, records and CSV downloads use the selected scope." xml:space="preserve">
+    <value>Filters applied — totals, records and CSV downloads use the selected scope.</value>
+  </data>
+  <data name="Find a farm" xml:space="preserve">
+    <value>Find a farm</value>
+  </data>
+  <data name="Find a request" xml:space="preserve">
+    <value>Find a request</value>
+  </data>
+  <data name="Find a supply" xml:space="preserve">
+    <value>Find a supply</value>
+  </data>
+  <data name="Find a supply, check its balance, and record what came in or was used." xml:space="preserve">
+    <value>Find a supply, check its balance, and record what came in or was used.</value>
+  </data>
+  <data name="Find a user" xml:space="preserve">
+    <value>Find a user</value>
+  </data>
+  <data name="Find registered accounts and review their status. Platform roles cannot be edited here." xml:space="preserve">
+    <value>Find registered accounts and review their status. Platform roles cannot be edited here.</value>
+  </data>
+  <data name="Find your barangay or nearby place, then position the pin on your actual farm. No coordinates to type." xml:space="preserve">
+    <value>Find your barangay or nearby place, then position the pin on your actual farm. No coordinates to type.</value>
+  </data>
+  <data name="Find your inspection &amp; attach a photo →" xml:space="preserve">
+    <value>Find your inspection &amp; attach a photo →</value>
+  </data>
+  <data name="Find your next job or choose a crop before recording." xml:space="preserve">
+    <value>Find your next job or choose a crop before recording.</value>
+  </data>
+  <data name="Finding your current location..." xml:space="preserve">
+    <value>Finding your current location...</value>
+  </data>
+  <data name="First add a plot, then return to plan what to plant." xml:space="preserve">
+    <value>First add a plot, then return to plan what to plant.</value>
+  </data>
+  <data name="First harvest" xml:space="preserve">
+    <value>First harvest</value>
+  </data>
+  <data name="Focus on your assigned jobs and record fieldwork." xml:space="preserve">
+    <value>Focus on your assigned jobs and record fieldwork.</value>
+  </data>
+  <data name="Follow-up status" xml:space="preserve">
+    <value>Follow-up status</value>
+  </data>
+  <data name="For a join code, access approval, an assigned task or a stock conflict, contact your farm owner or manager. Only the owner can approve membership." xml:space="preserve">
+    <value>For a join code, access approval, an assigned task or a stock conflict, contact your farm owner or manager. Only the owner can approve membership.</value>
+  </data>
+  <data name="For a specific issue, select Needs attention or Critical health and choose an issue category and severity." xml:space="preserve">
+    <value>For a specific issue, select Needs attention or Critical health and choose an issue category and severity.</value>
+  </data>
+  <data name="For exception details and safe retries, review the protected worker logs and Hangfire operator tools." xml:space="preserve">
+    <value>For exception details and safe retries, review the protected worker logs and Hangfire operator tools.</value>
+  </data>
+  <data name="For farm owners and managers" xml:space="preserve">
+    <value>For farm owners and managers</value>
+  </data>
+  <data name="For fertilizer or pesticide application. Activity, supply use and a matching task save together." xml:space="preserve">
+    <value>For fertilizer or pesticide application. Activity, supply use and a matching task save together.</value>
+  </data>
+  <data name="For field workers and team members" xml:space="preserve">
+    <value>For field workers and team members</value>
+  </data>
+  <data name="For inviting new workers" xml:space="preserve">
+    <value>For inviting new workers</value>
+  </data>
+  <data name="For sign-in or an app problem, contact the person or organization that provided your AniGo account or deployment. Never share your password or sign-in tokens." xml:space="preserve">
+    <value>For sign-in or an app problem, contact the person or organization that provided your AniGo account or deployment. Never share your password or sign-in tokens.</value>
+  </data>
+  <data name="For supplies used, enter a positive amount. The system subtracts it after a valid linked crop activity." xml:space="preserve">
+    <value>For supplies used, enter a positive amount. The system subtracts it after a valid linked crop activity.</value>
+  </data>
+  <data name="For team members" xml:space="preserve">
+    <value>For team members</value>
+  </data>
+  <data name="For urgent rain, heat, or storm decisions, check PAGASA or local official advisories." xml:space="preserve">
+    <value>For urgent rain, heat, or storm decisions, check PAGASA or local official advisories.</value>
+  </data>
+  <data name="Forecast daily temperature range" xml:space="preserve">
+    <value>Forecast daily temperature range</value>
+  </data>
+  <data name="Forecast for" xml:space="preserve">
+    <value>Forecast for</value>
+  </data>
+  <data name="Forecast is more than 12 hours old or has an invalid update time. Check current conditions." xml:space="preserve">
+    <value>Forecast is more than 12 hours old or has an invalid update time. Check current conditions.</value>
+  </data>
+  <data name="Forecasts depend on valid coordinates, available weather data and scheduled updates. No live weather is fetched by opening the map." xml:space="preserve">
+    <value>Forecasts depend on valid coordinates, available weather data and scheduled updates. No live weather is fetched by opening the map.</value>
+  </data>
+  <data name="From" xml:space="preserve">
+    <value>From</value>
+  </data>
+  <data name="From (UTC)" xml:space="preserve">
+    <value>From (UTC)</value>
+  </data>
+  <data name="Full name" xml:space="preserve">
+    <value>Full name</value>
+  </data>
+  <data name="GROW TOGETHER" xml:space="preserve">
+    <value>GROW TOGETHER</value>
+  </data>
+  <data name="Get help with farm access, accounts and saved work →" xml:space="preserve">
+    <value>Get help with farm access, accounts and saved work →</value>
+  </data>
+  <data name="Get started" xml:space="preserve">
+    <value>Get started</value>
+  </data>
+  <data name="Getting started" xml:space="preserve">
+    <value>Getting started</value>
+  </data>
+  <data name="Give each field a clear name and enter its area. You can plan its crop next." xml:space="preserve">
+    <value>Give each field a clear name and enter its area. You can plan its crop next.</value>
+  </data>
+  <data name="Give the 12-character code only to people you want to invite. They enter it in My Farms and request approval." xml:space="preserve">
+    <value>Give the 12-character code only to people you want to invite. They enter it in My Farms and request approval.</value>
+  </data>
+  <data name="Go to farm settings →" xml:space="preserve">
+    <value>Go to farm settings →</value>
+  </data>
+  <data name="Good farm management starts with a clear view." xml:space="preserve">
+    <value>Good farm management starts with a clear view.</value>
+  </data>
+  <data name="Grow smarter. Manage" xml:space="preserve">
+    <value>Grow smarter. Manage</value>
+  </data>
+  <data name="Grow smarter. Manage every farm in one place" xml:space="preserve">
+    <value>Grow smarter. Manage every farm in one place</value>
+  </data>
+  <data name="Growing areas" xml:space="preserve">
+    <value>Growing areas</value>
+  </data>
+  <data name="Growing now" xml:space="preserve">
+    <value>Growing now</value>
+  </data>
+  <data name="Growth stage" xml:space="preserve">
+    <value>Growth stage</value>
+  </data>
+  <data name="Growth stage (optional)" xml:space="preserve">
+    <value>Growth stage (optional)</value>
+  </data>
+  <data name="Hangfire worker" xml:space="preserve">
+    <value>Hangfire worker</value>
+  </data>
+  <data name="Harvest" xml:space="preserve">
+    <value>Harvest</value>
+  </data>
+  <data name="Harvest entry voided; its audit record is preserved." xml:space="preserve">
+    <value>Harvest entry voided; its audit record is preserved.</value>
+  </data>
+  <data name="Harvest not saved. Your draft is kept." xml:space="preserve">
+    <value>Harvest not saved. Your draft is kept.</value>
+  </data>
+  <data name="Harvest record history" xml:space="preserve">
+    <value>Harvest record history</value>
+  </data>
+  <data name="Harvest record pages" xml:space="preserve">
+    <value>Harvest record pages</value>
+  </data>
+  <data name="Harvest records →" xml:space="preserve">
+    <value>Harvest records →</value>
+  </data>
+  <data name="Harvest report results" xml:space="preserve">
+    <value>Harvest report results</value>
+  </data>
+  <data name="Harvest reports" xml:space="preserve">
+    <value>Harvest reports</value>
+  </data>
+  <data name="Harvest unit" xml:space="preserve">
+    <value>Harvest unit</value>
+  </data>
+  <data name="Harvest unit (leave empty to use crop default)" xml:space="preserve">
+    <value>Harvest unit (leave empty to use crop default)</value>
+  </data>
+  <data name="Harvest unit:" xml:space="preserve">
+    <value>Harvest unit:</value>
+  </data>
+  <data name="Harvested at" xml:space="preserve">
+    <value>Harvested at</value>
+  </data>
+  <data name="Harvests" xml:space="preserve">
+    <value>Harvests</value>
+  </data>
+  <data name="Harvests ·" xml:space="preserve">
+    <value>Harvests ·</value>
+  </data>
+  <data name="Has a planned crop: " xml:space="preserve">
+    <value>Has a planned crop: </value>
+  </data>
+  <data name="Have a farm code? Enter the code supplied by the owner. Access begins after the owner approves your request." xml:space="preserve">
+    <value>Have a farm code? Enter the code supplied by the owner. Access begins after the owner approves your request.</value>
+  </data>
+  <data name="Healthy" xml:space="preserve">
+    <value>Healthy</value>
+  </data>
+  <data name="Heat stress" xml:space="preserve">
+    <value>Heat stress</value>
+  </data>
+  <data name="Heavy rain" xml:space="preserve">
+    <value>Heavy rain</value>
+  </data>
+  <data name="Help" xml:space="preserve">
+    <value>Help</value>
+  </data>
+  <data name="Help &amp; account" xml:space="preserve">
+    <value>Help &amp; account</value>
+  </data>
+  <data name="Help and account" xml:space="preserve">
+    <value>Help and account</value>
+  </data>
+  <data name="Help from Ani" xml:space="preserve">
+    <value>Help from Ani</value>
+  </data>
+  <data name="High" xml:space="preserve">
+    <value>High</value>
+  </data>
+  <data name="High priority" xml:space="preserve">
+    <value>High priority</value>
+  </data>
+  <data name="High temperature" xml:space="preserve">
+    <value>High temperature</value>
+  </data>
+  <data name="Historical records remain available. New activity and observation entries require an active crop cycle." xml:space="preserve">
+    <value>Historical records remain available. New activity and observation entries require an active crop cycle.</value>
+  </data>
+  <data name="History and upcoming milestones" xml:space="preserve">
+    <value>History and upcoming milestones</value>
+  </data>
+  <data name="How notifications work" xml:space="preserve">
+    <value>How notifications work</value>
+  </data>
+  <data name="How would you like to get started?" xml:space="preserve">
+    <value>How would you like to get started?</value>
+  </data>
+  <data name="I have a farm code" xml:space="preserve">
+    <value>I have a farm code</value>
+  </data>
+  <data name="I manage a farm" xml:space="preserve">
+    <value>I manage a farm</value>
+  </data>
+  <data name="I work on a farm" xml:space="preserve">
+    <value>I work on a farm</value>
+  </data>
+  <data name="If a record" xml:space="preserve">
+    <value>If a record</value>
+  </data>
+  <data name="If there's a matching open watering or fertilizing task, it can be completed with this entry. Check the task list afterward." xml:space="preserve">
+    <value>If there's a matching open watering or fertilizing task, it can be completed with this entry. Check the task list afterward.</value>
+  </data>
+  <data name="If you need access to a farm, ask its owner to review your membership or join request." xml:space="preserve">
+    <value>If you need access to a farm, ask its owner to review your membership or join request.</value>
+  </data>
+  <data name="Important farm advisory" xml:space="preserve">
+    <value>Important farm advisory</value>
+  </data>
+  <data name="In progress" xml:space="preserve">
+    <value>In progress</value>
+  </data>
+  <data name="In stock" xml:space="preserve">
+    <value>In stock</value>
+  </data>
+  <data name="InProgress" xml:space="preserve">
+    <value>InProgress</value>
+  </data>
+  <data name="Individual planting cycles and harvest totals by unit" xml:space="preserve">
+    <value>Individual planting cycles and harvest totals by unit</value>
+  </data>
+  <data name="Inspect" xml:space="preserve">
+    <value>Inspect</value>
+  </data>
+  <data name="Inspection" xml:space="preserve">
+    <value>Inspection</value>
+  </data>
+  <data name="Inspection saved. You can now attach photos to the inspection below." xml:space="preserve">
+    <value>Inspection saved. You can now attach photos to the inspection below.</value>
+  </data>
+  <data name="Inspection task (optional)" xml:space="preserve">
+    <value>Inspection task (optional)</value>
+  </data>
+  <data name="Inspections" xml:space="preserve">
+    <value>Inspections</value>
+  </data>
+  <data name="Inspections &amp; photos" xml:space="preserve">
+    <value>Inspections &amp; photos</value>
+  </data>
+  <data name="Instructions (optional)" xml:space="preserve">
+    <value>Instructions (optional)</value>
+  </data>
+  <data name="Internal only" xml:space="preserve">
+    <value>Internal only</value>
+  </data>
+  <data name="Invalid authenticator code." xml:space="preserve">
+    <value>Invalid authenticator code.</value>
+  </data>
+  <data name="Invalid email or password, or account temporarily unavailable." xml:space="preserve">
+    <value>Invalid email or password, or account temporarily unavailable.</value>
+  </data>
+  <data name="Invalid email or password." xml:space="preserve">
+    <value>Invalid email or password.</value>
+  </data>
+  <data name="Invite &amp; approve team members" xml:space="preserve">
+    <value>Invite &amp; approve team members</value>
+  </data>
+  <data name="Invite your team." xml:space="preserve">
+    <value>Invite your team.</value>
+  </data>
+  <data name="Issue details (if needed)" xml:space="preserve">
+    <value>Issue details (if needed)</value>
+  </data>
+  <data name="Issue severity" xml:space="preserve">
+    <value>Issue severity</value>
+  </data>
+  <data name="Issue:" xml:space="preserve">
+    <value>Issue:</value>
+  </data>
+  <data name="Item name" xml:space="preserve">
+    <value>Item name</value>
+  </data>
+  <data name="JPEG, PNG or WebP · 5 MB maximum · this photo is private to authorized farm members." xml:space="preserve">
+    <value>JPEG, PNG or WebP · 5 MB maximum · this photo is private to authorized farm members.</value>
+  </data>
+  <data name="Job history unavailable" xml:space="preserve">
+    <value>Job history unavailable</value>
+  </data>
+  <data name="Jobs waiting" xml:space="preserve">
+    <value>Jobs waiting</value>
+  </data>
+  <data name="Join an existing farm" xml:space="preserve">
+    <value>Join an existing farm</value>
+  </data>
+  <data name="Join farm" xml:space="preserve">
+    <value>Join farm</value>
+  </data>
+  <data name="Join request canceled. You can apply again with a valid farm code." xml:space="preserve">
+    <value>Join request canceled. You can apply again with a valid farm code.</value>
+  </data>
+  <data name="Join request pages" xml:space="preserve">
+    <value>Join request pages</value>
+  </data>
+  <data name="Join requests" xml:space="preserve">
+    <value>Join requests</value>
+  </data>
+  <data name="Join with a farm code, wait for the owner to approve access, then record fieldwork." xml:space="preserve">
+    <value>Join with a farm code, wait for the owner to approve access, then record fieldwork.</value>
+  </data>
+  <data name="Keep inventory and usage in check." xml:space="preserve">
+    <value>Keep inventory and usage in check.</value>
+  </data>
+  <data name="Keep this key private. Do not share screenshots of this page.&#10;       No third-party QR code service is used." xml:space="preserve">
+    <value>Keep this key private. Do not share screenshots of this page.
+       No third-party QR code service is used.</value>
+  </data>
+  <data name="Key platform indicators" xml:space="preserve">
+    <value>Key platform indicators</value>
+  </data>
+  <data name="Language" xml:space="preserve">
+    <value>Language</value>
+  </data>
+  <data name="Last checked" xml:space="preserve">
+    <value>Last checked</value>
+  </data>
+  <data name="Last checked:" xml:space="preserve">
+    <value>Last checked:</value>
+  </data>
+  <data name="Last harvest" xml:space="preserve">
+    <value>Last harvest</value>
+  </data>
+  <data name="Last heartbeat: {0} UTC" xml:space="preserve">
+    <value>Last heartbeat: {0} UTC</value>
+  </data>
+  <data name="Last recorded receipt: {0}" xml:space="preserve">
+    <value>Last recorded receipt: {0}</value>
+  </data>
+  <data name="Last worker heartbeat:" xml:space="preserve">
+    <value>Last worker heartbeat:</value>
+  </data>
+  <data name="Light appearance" xml:space="preserve">
+    <value>Light appearance</value>
+  </data>
+  <data name="Light is the default. Your choice is saved on this browser only, not across every device." xml:space="preserve">
+    <value>Light is the default. Your choice is saved on this browser only, not across every device.</value>
+  </data>
+  <data name="Linked farm task completed" xml:space="preserve">
+    <value>Linked farm task completed</value>
+  </data>
+  <data name="Linked follow-up task:" xml:space="preserve">
+    <value>Linked follow-up task:</value>
+  </data>
+  <data name="Loading local time…" xml:space="preserve">
+    <value>Loading local time…</value>
+  </data>
+  <data name="Loading the optional farm map..." xml:space="preserve">
+    <value>Loading the optional farm map...</value>
+  </data>
+  <data name="Local dates:" xml:space="preserve">
+    <value>Local dates:</value>
+  </data>
+  <data name="Log in" xml:space="preserve">
+    <value>Log in</value>
+  </data>
+  <data name="Log in to my farms" xml:space="preserve">
+    <value>Log in to my farms</value>
+  </data>
+  <data name="Log inspections, irrigation, and treatments." xml:space="preserve">
+    <value>Log inspections, irrigation, and treatments.</value>
+  </data>
+  <data name="Log out" xml:space="preserve">
+    <value>Log out</value>
+  </data>
+  <data name="Log watering" xml:space="preserve">
+    <value>Log watering</value>
+  </data>
+  <data name="Low" xml:space="preserve">
+    <value>Low</value>
+  </data>
+  <data name="Low stock" xml:space="preserve">
+    <value>Low stock</value>
+  </data>
+  <data name="Low stock only" xml:space="preserve">
+    <value>Low stock only</value>
+  </data>
+  <data name="Low-stock alert at" xml:space="preserve">
+    <value>Low-stock alert at</value>
+  </data>
+  <data name="Low-stock supplies" xml:space="preserve">
+    <value>Low-stock supplies</value>
+  </data>
+  <data name="Low-stock threshold" xml:space="preserve">
+    <value>Low-stock threshold</value>
+  </data>
+  <data name="Low-stock threshold reached" xml:space="preserve">
+    <value>Low-stock threshold reached</value>
+  </data>
+  <data name="Low-stock threshold:" xml:space="preserve">
+    <value>Low-stock threshold:</value>
+  </data>
+  <data name="Manage Supplies" xml:space="preserve">
+    <value>Manage Supplies</value>
+  </data>
+  <data name="Manage crop cycle" xml:space="preserve">
+    <value>Manage crop cycle</value>
+  </data>
+  <data name="Manage farms" xml:space="preserve">
+    <value>Manage farms</value>
+  </data>
+  <data name="Manage issue follow-up" xml:space="preserve">
+    <value>Manage issue follow-up</value>
+  </data>
+  <data name="Manage users" xml:space="preserve">
+    <value>Manage users</value>
+  </data>
+  <data name="Manage your farm's growing spaces." xml:space="preserve">
+    <value>Manage your farm's growing spaces.</value>
+  </data>
+  <data name="Manage your own farm" xml:space="preserve">
+    <value>Manage your own farm</value>
+  </data>
+  <data name="Manager" xml:space="preserve">
+    <value>Manager</value>
+  </data>
+  <data name="Map could not load. Enter the farm location as text and try again later." xml:space="preserve">
+    <value>Map could not load. Enter the farm location as text and try again later.</value>
+  </data>
+  <data name="Map could not load. You can still save the farm name and nearby location." xml:space="preserve">
+    <value>Map could not load. You can still save the farm name and nearby location.</value>
+  </data>
+  <data name="Mapping library unavailable" xml:space="preserve">
+    <value>Mapping library unavailable</value>
+  </data>
+  <data name="Mark as planted" xml:space="preserve">
+    <value>Mark as planted</value>
+  </data>
+  <data name="Mark as planted: {0} on {1}? Review the dates and reason before continuing." xml:space="preserve">
+    <value>Mark as planted: {0} on {1}? Review the dates and reason before continuing.</value>
+  </data>
+  <data name="Mark as read" xml:space="preserve">
+    <value>Mark as read</value>
+  </data>
+  <data name="Mark completed" xml:space="preserve">
+    <value>Mark completed</value>
+  </data>
+  <data name="Mark failed" xml:space="preserve">
+    <value>Mark failed</value>
+  </data>
+  <data name="Mark failed: {0} on {1}? Review the dates and reason before continuing." xml:space="preserve">
+    <value>Mark failed: {0} on {1}? Review the dates and reason before continuing.</value>
+  </data>
+  <data name="Mark {0} task due {1} as completed" xml:space="preserve">
+    <value>Mark {0} task due {1} as completed</value>
+  </data>
+  <data name="Match my oldest due task automatically" xml:space="preserve">
+    <value>Match my oldest due task automatically</value>
+  </data>
+  <data name="Matching records" xml:space="preserve">
+    <value>Matching records</value>
+  </data>
+  <data name="Max wind" xml:space="preserve">
+    <value>Max wind</value>
+  </data>
+  <data name="Members with access to this farm and their roles." xml:space="preserve">
+    <value>Members with access to this farm and their roles.</value>
+  </data>
+  <data name="Menu" xml:space="preserve">
+    <value>Menu</value>
+  </data>
+  <data name="Missing picker script" xml:space="preserve">
+    <value>Missing picker script</value>
+  </data>
+  <data name="Mobile platform administration" xml:space="preserve">
+    <value>Mobile platform administration</value>
+  </data>
+  <data name="Mobile workspace navigation" xml:space="preserve">
+    <value>Mobile workspace navigation</value>
+  </data>
+  <data name="Moderate" xml:space="preserve">
+    <value>Moderate</value>
+  </data>
+  <data name="Monitoring" xml:space="preserve">
+    <value>Monitoring</value>
+  </data>
+  <data name="Monitoring sections" xml:space="preserve">
+    <value>Monitoring sections</value>
+  </data>
+  <data name="Month" xml:space="preserve">
+    <value>Month</value>
+  </data>
+  <data name="Monthly yield" xml:space="preserve">
+    <value>Monthly yield</value>
+  </data>
+  <data name="More" xml:space="preserve">
+    <value>More</value>
+  </data>
+  <data name="More farm sections" xml:space="preserve">
+    <value>More farm sections</value>
+  </data>
+  <data name="More workspace sections" xml:space="preserve">
+    <value>More workspace sections</value>
+  </data>
+  <data name="Most recent registrations, not an estimate of today's activity." xml:space="preserve">
+    <value>Most recent registrations, not an estimate of today's activity.</value>
+  </data>
+  <data name="Move to another month or add a planting plan to begin." xml:space="preserve">
+    <value>Move to another month or add a planting plan to begin.</value>
+  </data>
+  <data name="My account" xml:space="preserve">
+    <value>My account</value>
+  </data>
+  <data name="My farms" xml:space="preserve">
+    <value>My farms</value>
+  </data>
+  <data name="My requests" xml:space="preserve">
+    <value>My requests</value>
+  </data>
+  <data name="My task list" xml:space="preserve">
+    <value>My task list</value>
+  </data>
+  <data name="My tasks" xml:space="preserve">
+    <value>My tasks</value>
+  </data>
+  <data name="Name" xml:space="preserve">
+    <value>Name</value>
+  </data>
+  <data name="Name the field and enter its area." xml:space="preserve">
+    <value>Name the field and enter its area.</value>
+  </data>
+  <data name="Needs attention" xml:space="preserve">
+    <value>Needs attention</value>
+  </data>
+  <data name="Needs follow-up" xml:space="preserve">
+    <value>Needs follow-up</value>
+  </data>
+  <data name="Needs restocking (" xml:space="preserve">
+    <value>Needs restocking (</value>
+  </data>
+  <data name="Needs review" xml:space="preserve">
+    <value>Needs review</value>
+  </data>
+  <data name="Needs your review" xml:space="preserve">
+    <value>Needs your review</value>
+  </data>
+  <data name="New harvests appear after they are saved on an active crop." xml:space="preserve">
+    <value>New harvests appear after they are saved on an active crop.</value>
+  </data>
+  <data name="New harvests can only be recorded while the crop cycle is active." xml:space="preserve">
+    <value>New harvests can only be recorded while the crop cycle is active.</value>
+  </data>
+  <data name="New here?" xml:space="preserve">
+    <value>New here?</value>
+  </data>
+  <data name="New issues will appear when saved in farm records." xml:space="preserve">
+    <value>New issues will appear when saved in farm records.</value>
+  </data>
+  <data name="New join requests require your approval before the person can access the farm." xml:space="preserve">
+    <value>New join requests require your approval before the person can access the farm.</value>
+  </data>
+  <data name="Next" xml:space="preserve">
+    <value>Next</value>
+  </data>
+  <data name="Next available" xml:space="preserve">
+    <value>Next available</value>
+  </data>
+  <data name="Next month" xml:space="preserve">
+    <value>Next month</value>
+  </data>
+  <data name="Next planting" xml:space="preserve">
+    <value>Next planting</value>
+  </data>
+  <data name="Next task month" xml:space="preserve">
+    <value>Next task month</value>
+  </data>
+  <data name="Next →" xml:space="preserve">
+    <value>Next →</value>
+  </data>
+  <data name="No active crop to record yet" xml:space="preserve">
+    <value>No active crop to record yet</value>
+  </data>
+  <data name="No active plots" xml:space="preserve">
+    <value>No active plots</value>
+  </data>
+  <data name="No active saved advisories." xml:space="preserve">
+    <value>No active saved advisories.</value>
+  </data>
+  <data name="No additional saved concerns." xml:space="preserve">
+    <value>No additional saved concerns.</value>
+  </data>
+  <data name="No announcements" xml:space="preserve">
+    <value>No announcements</value>
+  </data>
+  <data name="No code yet? Ask your farm owner to share their 12-character code." xml:space="preserve">
+    <value>No code yet? Ask your farm owner to share their 12-character code.</value>
+  </data>
+  <data name="No crop" xml:space="preserve">
+    <value>No crop</value>
+  </data>
+  <data name="No crop cycles have been planned yet." xml:space="preserve">
+    <value>No crop cycles have been planned yet.</value>
+  </data>
+  <data name="No crop types available yet." xml:space="preserve">
+    <value>No crop types available yet.</value>
+  </data>
+  <data name="No crops growing or planned yet" xml:space="preserve">
+    <value>No crops growing or planned yet</value>
+  </data>
+  <data name="No events are available for this crop yet." xml:space="preserve">
+    <value>No events are available for this crop yet.</value>
+  </data>
+  <data name="No failed SmartFarm job entries found in the Hangfire database." xml:space="preserve">
+    <value>No failed SmartFarm job entries found in the Hangfire database.</value>
+  </data>
+  <data name="No farms registered yet." xml:space="preserve">
+    <value>No farms registered yet.</value>
+  </data>
+  <data name="No farms yet" xml:space="preserve">
+    <value>No farms yet</value>
+  </data>
+  <data name="No fieldwork recorded yet." xml:space="preserve">
+    <value>No fieldwork recorded yet.</value>
+  </data>
+  <data name="No harvest entries to show." xml:space="preserve">
+    <value>No harvest entries to show.</value>
+  </data>
+  <data name="No harvests recorded yet." xml:space="preserve">
+    <value>No harvests recorded yet.</value>
+  </data>
+  <data name="No inspection photos yet. Record an inspection and attach a photo to build a visual history." xml:space="preserve">
+    <value>No inspection photos yet. Record an inspection and attach a photo to build a visual history.</value>
+  </data>
+  <data name="No inspections saved yet." xml:space="preserve">
+    <value>No inspections saved yet.</value>
+  </data>
+  <data name="No issue" xml:space="preserve">
+    <value>No issue</value>
+  </data>
+  <data name="No linked task" xml:space="preserve">
+    <value>No linked task</value>
+  </data>
+  <data name="No matching activity" xml:space="preserve">
+    <value>No matching activity</value>
+  </data>
+  <data name="No matching farms" xml:space="preserve">
+    <value>No matching farms</value>
+  </data>
+  <data name="No matching places. Try a nearby barangay or select the farm on the map." xml:space="preserve">
+    <value>No matching places. Try a nearby barangay or select the farm on the map.</value>
+  </data>
+  <data name="No matching receipts" xml:space="preserve">
+    <value>No matching receipts</value>
+  </data>
+  <data name="No matching requests" xml:space="preserve">
+    <value>No matching requests</value>
+  </data>
+  <data name="No matching supplies." xml:space="preserve">
+    <value>No matching supplies.</value>
+  </data>
+  <data name="No matching users" xml:space="preserve">
+    <value>No matching users</value>
+  </data>
+  <data name="No monthly harvest data." xml:space="preserve">
+    <value>No monthly harvest data.</value>
+  </data>
+  <data name="No notifications yet." xml:space="preserve">
+    <value>No notifications yet.</value>
+  </data>
+  <data name="No one is waiting for approval." xml:space="preserve">
+    <value>No one is waiting for approval.</value>
+  </data>
+  <data name="No open tasks are assigned to you right now." xml:space="preserve">
+    <value>No open tasks are assigned to you right now.</value>
+  </data>
+  <data name="No open tasks are assigned to you. Check due work or ask your farm manager about assignments." xml:space="preserve">
+    <value>No open tasks are assigned to you. Check due work or ask your farm manager about assignments.</value>
+  </data>
+  <data name="No planting history recorded yet." xml:space="preserve">
+    <value>No planting history recorded yet.</value>
+  </data>
+  <data name="No plots yet. {0}" xml:space="preserve">
+    <value>No plots yet. {0}</value>
+  </data>
+  <data name="No previous requests." xml:space="preserve">
+    <value>No previous requests.</value>
+  </data>
+  <data name="No recent forecast is available" xml:space="preserve">
+    <value>No recent forecast is available</value>
+  </data>
+  <data name="No recorded crop activity is available. To log supply use, first record the corresponding fieldwork." xml:space="preserve">
+    <value>No recorded crop activity is available. To log supply use, first record the corresponding fieldwork.</value>
+  </data>
+  <data name="No recorded harvests for this view." xml:space="preserve">
+    <value>No recorded harvests for this view.</value>
+  </data>
+  <data name="No retained announcements match these filters." xml:space="preserve">
+    <value>No retained announcements match these filters.</value>
+  </data>
+  <data name="No reviewed join requests yet." xml:space="preserve">
+    <value>No reviewed join requests yet.</value>
+  </data>
+  <data name="No saved forecast" xml:space="preserve">
+    <value>No saved forecast</value>
+  </data>
+  <data name="No saved forecast for today or later. Check the weather page for updates." xml:space="preserve">
+    <value>No saved forecast for today or later. Check the weather page for updates.</value>
+  </data>
+  <data name="No saved replies." xml:space="preserve">
+    <value>No saved replies.</value>
+  </data>
+  <data name="No scheduled crop activities this month." xml:space="preserve">
+    <value>No scheduled crop activities this month.</value>
+  </data>
+  <data name="No stock changes recorded yet." xml:space="preserve">
+    <value>No stock changes recorded yet.</value>
+  </data>
+  <data name="No supplies recorded yet." xml:space="preserve">
+    <value>No supplies recorded yet.</value>
+  </data>
+  <data name="No tasks for this date." xml:space="preserve">
+    <value>No tasks for this date.</value>
+  </data>
+  <data name="No tasks have been closed yet." xml:space="preserve">
+    <value>No tasks have been closed yet.</value>
+  </data>
+  <data name="No tasks in this view." xml:space="preserve">
+    <value>No tasks in this view.</value>
+  </data>
+  <data name="No tasks scheduled this month. Select another month to check upcoming work." xml:space="preserve">
+    <value>No tasks scheduled this month. Select another month to check upcoming work.</value>
+  </data>
+  <data name="No tasks yet." xml:space="preserve">
+    <value>No tasks yet.</value>
+  </data>
+  <data name="No unread recent notices." xml:space="preserve">
+    <value>No unread recent notices.</value>
+  </data>
+  <data name="No upcoming work is scheduled." xml:space="preserve">
+    <value>No upcoming work is scheduled.</value>
+  </data>
+  <data name="No updates yet." xml:space="preserve">
+    <value>No updates yet.</value>
+  </data>
+  <data name="No valid harvests are available for cycle comparisons." xml:space="preserve">
+    <value>No valid harvests are available for cycle comparisons.</value>
+  </data>
+  <data name="No weather data saved" xml:space="preserve">
+    <value>No weather data saved</value>
+  </data>
+  <data name="No work is currently scheduled. Check tasks to plan the next job." xml:space="preserve">
+    <value>No work is currently scheduled. Check tasks to plan the next job.</value>
+  </data>
+  <data name="None" xml:space="preserve">
+    <value>None</value>
+  </data>
+  <data name="None / no specific issue" xml:space="preserve">
+    <value>None / no specific issue</value>
+  </data>
+  <data name="None planned" xml:space="preserve">
+    <value>None planned</value>
+  </data>
+  <data name="None — record the activity only" xml:space="preserve">
+    <value>None — record the activity only</value>
+  </data>
+  <data name="Not assessed" xml:space="preserve">
+    <value>Not assessed</value>
+  </data>
+  <data name="Not now" xml:space="preserve">
+    <value>Not now</value>
+  </data>
+  <data name="Not sure" xml:space="preserve">
+    <value>Not sure</value>
+  </data>
+  <data name="Not yet available" xml:space="preserve">
+    <value>Not yet available</value>
+  </data>
+  <data name="Notes" xml:space="preserve">
+    <value>Notes</value>
+  </data>
+  <data name="Notes (optional)" xml:space="preserve">
+    <value>Notes (optional)</value>
+  </data>
+  <data name="Nothing active" xml:space="preserve">
+    <value>Nothing active</value>
+  </data>
+  <data name="Nothing is overdue or due today." xml:space="preserve">
+    <value>Nothing is overdue or due today.</value>
+  </data>
+  <data name="Nothing overdue or due today." xml:space="preserve">
+    <value>Nothing overdue or due today.</value>
+  </data>
+  <data name="Notification filters" xml:space="preserve">
+    <value>Notification filters</value>
+  </data>
+  <data name="Notification marked as read." xml:space="preserve">
+    <value>Notification marked as read.</value>
+  </data>
+  <data name="Notification pages" xml:space="preserve">
+    <value>Notification pages</value>
+  </data>
+  <data name="Notifications" xml:space="preserve">
+    <value>Notifications</value>
+  </data>
+  <data name="Nutrient deficiency (suspected)" xml:space="preserve">
+    <value>Nutrient deficiency (suspected)</value>
+  </data>
+  <data name="ONE-TIME DISPLAY" xml:space="preserve">
+    <value>ONE-TIME DISPLAY</value>
+  </data>
+  <data name="Observation notes (optional)" xml:space="preserve">
+    <value>Observation notes (optional)</value>
+  </data>
+  <data name="Observation photo" xml:space="preserve">
+    <value>Observation photo</value>
+  </data>
+  <data name="Observed issue" xml:space="preserve">
+    <value>Observed issue</value>
+  </data>
+  <data name="Observed issue (optional)" xml:space="preserve">
+    <value>Observed issue (optional)</value>
+  </data>
+  <data name="Offline changes, photo queues, and review-needed conflicts are stored on the farmer's phone until it can communicate with the server. Successful upload receipts are recorded here, but this view cannot detect every client-side failure. For an affected device, use the Android app's Sync Status screen." xml:space="preserve">
+    <value>Offline changes, photo queues, and review-needed conflicts are stored on the farmer's phone until it can communicate with the server. Successful upload receipts are recorded here, but this view cannot detect every client-side failure. For an affected device, use the Android app's Sync Status screen.</value>
+  </data>
+  <data name="One good place to start. Everything you need to keep growing." xml:space="preserve">
+    <value>One good place to start. Everything you need to keep growing.</value>
+  </data>
+  <data name="One-time authenticator enrollment key" xml:space="preserve">
+    <value>One-time authenticator enrollment key</value>
+  </data>
+  <data name="Only adjust this when needed. The map may ask for location permission if you select Use my current location." xml:space="preserve">
+    <value>Only adjust this when needed. The map may ask for location permission if you select Use my current location.</value>
+  </data>
+  <data name="Only confirmed server harvests count in the total. Android offline entries appear as pending until synchronized." xml:space="preserve">
+    <value>Only confirmed server harvests count in the total. Android offline entries appear as pending until synchronized.</value>
+  </data>
+  <data name="Only replace this code if it should no longer accept new join requests. Existing members keep their access." xml:space="preserve">
+    <value>Only replace this code if it should no longer accept new join requests. Existing members keep their access.</value>
+  </data>
+  <data name="Only the farm owner can review join requests. Sharing a code doesn't give access until the request is approved." xml:space="preserve">
+    <value>Only the farm owner can review join requests. Sharing a code doesn't give access until the request is approved.</value>
+  </data>
+  <data name="Only you can manage farm membership as the owner." xml:space="preserve">
+    <value>Only you can manage farm membership as the owner.</value>
+  </data>
+  <data name="Only your assigned open tasks are shown below; farm concerns remain visible." xml:space="preserve">
+    <value>Only your assigned open tasks are shown below; farm concerns remain visible.</value>
+  </data>
+  <data name="Open" xml:space="preserve">
+    <value>Open</value>
+  </data>
+  <data name="Open All tasks until the farm time zone is corrected." xml:space="preserve">
+    <value>Open All tasks until the farm time zone is corrected.</value>
+  </data>
+  <data name="Open Help" xml:space="preserve">
+    <value>Open Help</value>
+  </data>
+  <data name="Open a crop for monitoring or harvests. Owners and managers can update its planting status." xml:space="preserve">
+    <value>Open a crop for monitoring or harvests. Owners and managers can update its planting status.</value>
+  </data>
+  <data name="Open a farm below, create your own, or enter a code to join your team." xml:space="preserve">
+    <value>Open a farm below, create your own, or enter a code to join your team.</value>
+  </data>
+  <data name="Open a specific task or the right farm record." xml:space="preserve">
+    <value>Open a specific task or the right farm record.</value>
+  </data>
+  <data name="Open account menu" xml:space="preserve">
+    <value>Open account menu</value>
+  </data>
+  <data name="Open crop management →" xml:space="preserve">
+    <value>Open crop management →</value>
+  </data>
+  <data name="Open crop records" xml:space="preserve">
+    <value>Open crop records</value>
+  </data>
+  <data name="Open dashboard" xml:space="preserve">
+    <value>Open dashboard</value>
+  </data>
+  <data name="Open monitoring →" xml:space="preserve">
+    <value>Open monitoring →</value>
+  </data>
+  <data name="Open my farms" xml:space="preserve">
+    <value>Open my farms</value>
+  </data>
+  <data name="Open or in progress" xml:space="preserve">
+    <value>Open or in progress</value>
+  </data>
+  <data name="Open system monitoring" xml:space="preserve">
+    <value>Open system monitoring</value>
+  </data>
+  <data name="Open task list" xml:space="preserve">
+    <value>Open task list</value>
+  </data>
+  <data name="Open tasks →" xml:space="preserve">
+    <value>Open tasks →</value>
+  </data>
+  <data name="Open the appropriate workspace to investigate. No actions happen from this summary." xml:space="preserve">
+    <value>Open the appropriate workspace to investigate. No actions happen from this summary.</value>
+  </data>
+  <data name="Open the complete records and filters when more detail is needed." xml:space="preserve">
+    <value>Open the complete records and filters when more detail is needed.</value>
+  </data>
+  <data name="Open the secure platform workspace →" xml:space="preserve">
+    <value>Open the secure platform workspace →</value>
+  </data>
+  <data name="Open your farms" xml:space="preserve">
+    <value>Open your farms</value>
+  </data>
+  <data name="Open your farms or request access →" xml:space="preserve">
+    <value>Open your farms or request access →</value>
+  </data>
+  <data name="OpenStreetMap contributors" xml:space="preserve">
+    <value>OpenStreetMap contributors</value>
+  </data>
+  <data name="Opening" xml:space="preserve">
+    <value>Opening</value>
+  </data>
+  <data name="Opening quantity" xml:space="preserve">
+    <value>Opening quantity</value>
+  </data>
+  <data name="Operation" xml:space="preserve">
+    <value>Operation</value>
+  </data>
+  <data name="Optional" xml:space="preserve">
+    <value>Optional</value>
+  </data>
+  <data name="Optional growth stage &amp; notes" xml:space="preserve">
+    <value>Optional growth stage &amp; notes</value>
+  </data>
+  <data name="Optional harvest &amp; watering settings" xml:space="preserve">
+    <value>Optional harvest &amp; watering settings</value>
+  </data>
+  <data name="Optional harvest and watering settings" xml:space="preserve">
+    <value>Optional harvest and watering settings</value>
+  </data>
+  <data name="Optional notes and low-stock alert" xml:space="preserve">
+    <value>Optional notes and low-stock alert</value>
+  </data>
+  <data name="Optional · for local saved forecasts" xml:space="preserve">
+    <value>Optional · for local saved forecasts</value>
+  </data>
+  <data name="Optional, after saving an inspection" xml:space="preserve">
+    <value>Optional, after saving an inspection</value>
+  </data>
+  <data name="Original description" xml:space="preserve">
+    <value>Original description</value>
+  </data>
+  <data name="Original request" xml:space="preserve">
+    <value>Original request</value>
+  </data>
+  <data name="Other" xml:space="preserve">
+    <value>Other</value>
+  </data>
+  <data name="Other farm memberships" xml:space="preserve">
+    <value>Other farm memberships</value>
+  </data>
+  <data name="Other notification" xml:space="preserve">
+    <value>Other notification</value>
+  </data>
+  <data name="Other service health is checked on the monitoring page. A count is not treated as zero when diagnostics are unavailable." xml:space="preserve">
+    <value>Other service health is checked on the monitoring page. A count is not treated as zero when diagnostics are unavailable.</value>
+  </data>
+  <data name="Other status" xml:space="preserve">
+    <value>Other status</value>
+  </data>
+  <data name="Outcome" xml:space="preserve">
+    <value>Outcome</value>
+  </data>
+  <data name="Overdue" xml:space="preserve">
+    <value>Overdue</value>
+  </data>
+  <data name="Overdue and due-today jobs first." xml:space="preserve">
+    <value>Overdue and due-today jobs first.</value>
+  </data>
+  <data name="Overdue tasks" xml:space="preserve">
+    <value>Overdue tasks</value>
+  </data>
+  <data name="Overview" xml:space="preserve">
+    <value>Overview</value>
+  </data>
+  <data name="Owned farms" xml:space="preserve">
+    <value>Owned farms</value>
+  </data>
+  <data name="Owner" xml:space="preserve">
+    <value>Owner</value>
+  </data>
+  <data name="Owner email" xml:space="preserve">
+    <value>Owner email</value>
+  </data>
+  <data name="PLATFORM ACCOUNTABILITY" xml:space="preserve">
+    <value>PLATFORM ACCOUNTABILITY</value>
+  </data>
+  <data name="PLATFORM DIRECTORY" xml:space="preserve">
+    <value>PLATFORM DIRECTORY</value>
+  </data>
+  <data name="PROTECTED SIGN IN" xml:space="preserve">
+    <value>PROTECTED SIGN IN</value>
+  </data>
+  <data name="Page" xml:space="preserve">
+    <value>Page</value>
+  </data>
+  <data name="Page {0} of {1}" xml:space="preserve">
+    <value>Page {0} of {1}</value>
+  </data>
+  <data name="Partial harvest entries appear here after they're saved. Each record keeps its own quantity and date." xml:space="preserve">
+    <value>Partial harvest entries appear here after they're saved. Each record keeps its own quantity and date.</value>
+  </data>
+  <data name="Partial harvest recorded." xml:space="preserve">
+    <value>Partial harvest recorded.</value>
+  </data>
+  <data name="Partial harvests" xml:space="preserve">
+    <value>Partial harvests</value>
+  </data>
+  <data name="Partial harvests, including voided records" xml:space="preserve">
+    <value>Partial harvests, including voided records</value>
+  </data>
+  <data name="Password" xml:space="preserve">
+    <value>Password</value>
+  </data>
+  <data name="Pending" xml:space="preserve">
+    <value>Pending</value>
+  </data>
+  <data name="Pending requests" xml:space="preserve">
+    <value>Pending requests</value>
+  </data>
+  <data name="Performed by" xml:space="preserve">
+    <value>Performed by</value>
+  </data>
+  <data name="Pest" xml:space="preserve">
+    <value>Pest</value>
+  </data>
+  <data name="Pest risk" xml:space="preserve">
+    <value>Pest risk</value>
+  </data>
+  <data name="Pesticide" xml:space="preserve">
+    <value>Pesticide</value>
+  </data>
+  <data name="Pesticides" xml:space="preserve">
+    <value>Pesticides</value>
+  </data>
+  <data name="Photo attached to this inspection." xml:space="preserve">
+    <value>Photo attached to this inspection.</value>
+  </data>
+  <data name="Photo is larger than 5 MB. Choose a smaller image." xml:space="preserve">
+    <value>Photo is larger than 5 MB. Choose a smaller image.</value>
+  </data>
+  <data name="Pick up where you left off. Your farms, today's work, and saved crop records are ready when you are." xml:space="preserve">
+    <value>Pick up where you left off. Your farms, today's work, and saved crop records are ready when you are.</value>
+  </data>
+  <data name="Pin removed. Weather needs a map pin; the location name can still be saved." xml:space="preserve">
+    <value>Pin removed. Weather needs a map pin; the location name can still be saved.</value>
+  </data>
+  <data name="Pin your farm's location" xml:space="preserve">
+    <value>Pin your farm's location</value>
+  </data>
+  <data name="Plan a crop" xml:space="preserve">
+    <value>Plan a crop</value>
+  </data>
+  <data name="Plan a crop." xml:space="preserve">
+    <value>Plan a crop.</value>
+  </data>
+  <data name="Plan crops" xml:space="preserve">
+    <value>Plan crops</value>
+  </data>
+  <data name="Plan crops, coordinate fieldwork, track harvests, and keep your farm records organized." xml:space="preserve">
+    <value>Plan crops, coordinate fieldwork, track harvests, and keep your farm records organized.</value>
+  </data>
+  <data name="Plan fieldwork with the last saved forecast. Dates follow" xml:space="preserve">
+    <value>Plan fieldwork with the last saved forecast. Dates follow</value>
+  </data>
+  <data name="Plan for this plot" xml:space="preserve">
+    <value>Plan for this plot</value>
+  </data>
+  <data name="Planned" xml:space="preserve">
+    <value>Planned</value>
+  </data>
+  <data name="Planned planting" xml:space="preserve">
+    <value>Planned planting</value>
+  </data>
+  <data name="Planned planting date" xml:space="preserve">
+    <value>Planned planting date</value>
+  </data>
+  <data name="Plans can be prepared in advance, but only one crop may be actively growing on each plot." xml:space="preserve">
+    <value>Plans can be prepared in advance, but only one crop may be actively growing on each plot.</value>
+  </data>
+  <data name="Planted" xml:space="preserve">
+    <value>Planted</value>
+  </data>
+  <data name="Planting" xml:space="preserve">
+    <value>Planting</value>
+  </data>
+  <data name="Planting and expected harvest dates come from saved plans. Watering is projected, not completed work. Check" xml:space="preserve">
+    <value>Planting and expected harvest dates come from saved plans. Watering is projected, not completed work. Check</value>
+  </data>
+  <data name="Planting planned" xml:space="preserve">
+    <value>Planting planned</value>
+  </data>
+  <data name="Platform administration" xml:space="preserve">
+    <value>Platform administration</value>
+  </data>
+  <data name="Platform overview" xml:space="preserve">
+    <value>Platform overview</value>
+  </data>
+  <data name="Platform tools" xml:space="preserve">
+    <value>Platform tools</value>
+  </data>
+  <data name="Platform totals include {0} active plots. No private farm activity or location coordinates are shown here." xml:space="preserve">
+    <value>Platform totals include {0} active plots. No private farm activity or location coordinates are shown here.</value>
+  </data>
+  <data name="Please review the farm code below." xml:space="preserve">
+    <value>Please review the farm code below.</value>
+  </data>
+  <data name="Plot" xml:space="preserve">
+    <value>Plot</value>
+  </data>
+  <data name="Plot crop rotation history" xml:space="preserve">
+    <value>Plot crop rotation history</value>
+  </data>
+  <data name="Plot name" xml:space="preserve">
+    <value>Plot name</value>
+  </data>
+  <data name="Plots" xml:space="preserve">
+    <value>Plots</value>
+  </data>
+  <data name="Plots (" xml:space="preserve">
+    <value>Plots (</value>
+  </data>
+  <data name="Practical farm management" xml:space="preserve">
+    <value>Practical farm management</value>
+  </data>
+  <data name="Practical steps for accounts, farm access and field records." xml:space="preserve">
+    <value>Practical steps for accounts, farm access and field records.</value>
+  </data>
+  <data name="Previous" xml:space="preserve">
+    <value>Previous</value>
+  </data>
+  <data name="Previous month" xml:space="preserve">
+    <value>Previous month</value>
+  </data>
+  <data name="Previous support requests" xml:space="preserve">
+    <value>Previous support requests</value>
+  </data>
+  <data name="Previous task month" xml:space="preserve">
+    <value>Previous task month</value>
+  </data>
+  <data name="Previously selected supply" xml:space="preserve">
+    <value>Previously selected supply</value>
+  </data>
+  <data name="Priority" xml:space="preserve">
+    <value>Priority</value>
+  </data>
+  <data name="Private photos" xml:space="preserve">
+    <value>Private photos</value>
+  </data>
+  <data name="Provide a reversal reason and current item version." xml:space="preserve">
+    <value>Provide a reversal reason and current item version.</value>
+  </data>
+  <data name="Publish time" xml:space="preserve">
+    <value>Publish time</value>
+  </data>
+  <data name="Published records" xml:space="preserve">
+    <value>Published records</value>
+  </data>
+  <data name="Quantities in different units stay separate. Voided entries are excluded from every total." xml:space="preserve">
+    <value>Quantities in different units stay separate. Voided entries are excluded from every total.</value>
+  </data>
+  <data name="Quantity" xml:space="preserve">
+    <value>Quantity</value>
+  </data>
+  <data name="Quantity (" xml:space="preserve">
+    <value>Quantity (</value>
+  </data>
+  <data name="Quantity collected" xml:space="preserve">
+    <value>Quantity collected</value>
+  </data>
+  <data name="Quantity used" xml:space="preserve">
+    <value>Quantity used</value>
+  </data>
+  <data name="Quantity used (in the selected supply's unit)" xml:space="preserve">
+    <value>Quantity used (in the selected supply's unit)</value>
+  </data>
+  <data name="Quick account links" xml:space="preserve">
+    <value>Quick account links</value>
+  </data>
+  <data name="Quick field logging for {0} on {1}" xml:space="preserve">
+    <value>Quick field logging for {0} on {1}</value>
+  </data>
+  <data name="Quick recording actions" xml:space="preserve">
+    <value>Quick recording actions</value>
+  </data>
+  <data name="Quick setup" xml:space="preserve">
+    <value>Quick setup</value>
+  </data>
+  <data name="Quick supply filters" xml:space="preserve">
+    <value>Quick supply filters</value>
+  </data>
+  <data name="READ-ONLY STATUS" xml:space="preserve">
+    <value>READ-ONLY STATUS</value>
+  </data>
+  <data name="REGISTERED FARM" xml:space="preserve">
+    <value>REGISTERED FARM</value>
+  </data>
+  <data name="REQUIRED ADMIN SECURITY" xml:space="preserve">
+    <value>REQUIRED ADMIN SECURITY</value>
+  </data>
+  <data name="Rain chance" xml:space="preserve">
+    <value>Rain chance</value>
+  </data>
+  <data name="Rain chance {0}%" xml:space="preserve">
+    <value>Rain chance {0}%</value>
+  </data>
+  <data name="Rainfall" xml:space="preserve">
+    <value>Rainfall</value>
+  </data>
+  <data name="Read farm reminders and advisories →" xml:space="preserve">
+    <value>Read farm reminders and advisories →</value>
+  </data>
+  <data name="Read retained notices and their audit history." xml:space="preserve">
+    <value>Read retained notices and their audit history.</value>
+  </data>
+  <data name="Read your previous support requests" xml:space="preserve">
+    <value>Read your previous support requests</value>
+  </data>
+  <data name="Read-only" xml:space="preserve">
+    <value>Read-only</value>
+  </data>
+  <data name="Read-only checks of your platform services, worker, and received mobile changes." xml:space="preserve">
+    <value>Read-only checks of your platform services, worker, and received mobile changes.</value>
+  </data>
+  <data name="Read-only history" xml:space="preserve">
+    <value>Read-only history</value>
+  </data>
+  <data name="Read-only history. New requests and replies are retired; use Help for next steps." xml:space="preserve">
+    <value>Read-only history. New requests and replies are retired; use Help for next steps.</value>
+  </data>
+  <data name="Read-only view of SmartFarm Hangfire jobs. Failed jobs are not retried here." xml:space="preserve">
+    <value>Read-only view of SmartFarm Hangfire jobs. Failed jobs are not retried here.</value>
+  </data>
+  <data name="Ready for a planting plan." xml:space="preserve">
+    <value>Ready for a planting plan.</value>
+  </data>
+  <data name="Ready to organize your farm?" xml:space="preserve">
+    <value>Ready to organize your farm?</value>
+  </data>
+  <data name="Ready to plant?" xml:space="preserve">
+    <value>Ready to plant?</value>
+  </data>
+  <data name="Reason" xml:space="preserve">
+    <value>Reason</value>
+  </data>
+  <data name="Reason (required for adjustments)" xml:space="preserve">
+    <value>Reason (required for adjustments)</value>
+  </data>
+  <data name="Reason (required)" xml:space="preserve">
+    <value>Reason (required)</value>
+  </data>
+  <data name="Reason for voiding (required)" xml:space="preserve">
+    <value>Reason for voiding (required)</value>
+  </data>
+  <data name="Reason or context" xml:space="preserve">
+    <value>Reason or context</value>
+  </data>
+  <data name="Reason:" xml:space="preserve">
+    <value>Reason:</value>
+  </data>
+  <data name="Receipt" xml:space="preserve">
+    <value>Receipt</value>
+  </data>
+  <data name="Receipts, crop usage, adjustments and reversals appear here after saving." xml:space="preserve">
+    <value>Receipts, crop usage, adjustments and reversals appear here after saving.</value>
+  </data>
+  <data name="Recent failed jobs" xml:space="preserve">
+    <value>Recent failed jobs</value>
+  </data>
+  <data name="Recent harvests" xml:space="preserve">
+    <value>Recent harvests</value>
+  </data>
+  <data name="Recent notifications" xml:space="preserve">
+    <value>Recent notifications</value>
+  </data>
+  <data name="Recent unread" xml:space="preserve">
+    <value>Recent unread</value>
+  </data>
+  <data name="Recent updates and saved reminders for your farms." xml:space="preserve">
+    <value>Recent updates and saved reminders for your farms.</value>
+  </data>
+  <data name="Recently registered farms" xml:space="preserve">
+    <value>Recently registered farms</value>
+  </data>
+  <data name="Recently saved forecast" xml:space="preserve">
+    <value>Recently saved forecast</value>
+  </data>
+  <data name="Record" xml:space="preserve">
+    <value>Record</value>
+  </data>
+  <data name="Record " xml:space="preserve">
+    <value>Record </value>
+  </data>
+  <data name="Record a partial harvest" xml:space="preserve">
+    <value>Record a partial harvest</value>
+  </data>
+  <data name="Record a partial harvest on an active crop to begin." xml:space="preserve">
+    <value>Record a partial harvest on an active crop to begin.</value>
+  </data>
+  <data name="Record activity" xml:space="preserve">
+    <value>Record activity</value>
+  </data>
+  <data name="Record an inspection" xml:space="preserve">
+    <value>Record an inspection</value>
+  </data>
+  <data name="Record completed fieldwork or inspect this crop. Attach photos after saving an inspection." xml:space="preserve">
+    <value>Record completed fieldwork or inspect this crop. Attach photos after saving an inspection.</value>
+  </data>
+  <data name="Record fieldwork" xml:space="preserve">
+    <value>Record fieldwork</value>
+  </data>
+  <data name="Record fieldwork →" xml:space="preserve">
+    <value>Record fieldwork →</value>
+  </data>
+  <data name="Record harvest" xml:space="preserve">
+    <value>Record harvest</value>
+  </data>
+  <data name="Record harvests and monitor yields." xml:space="preserve">
+    <value>Record harvests and monitor yields.</value>
+  </data>
+  <data name="Record inspection" xml:space="preserve">
+    <value>Record inspection</value>
+  </data>
+  <data name="Record inspection →" xml:space="preserve">
+    <value>Record inspection →</value>
+  </data>
+  <data name="Record movement →" xml:space="preserve">
+    <value>Record movement →</value>
+  </data>
+  <data name="Record not saved. Your draft is kept below." xml:space="preserve">
+    <value>Record not saved. Your draft is kept below.</value>
+  </data>
+  <data name="Record stock movement" xml:space="preserve">
+    <value>Record stock movement</value>
+  </data>
+  <data name="Record the first harvest →" xml:space="preserve">
+    <value>Record the first harvest →</value>
+  </data>
+  <data name="Record work" xml:space="preserve">
+    <value>Record work</value>
+  </data>
+  <data name="Record your fieldwork" xml:space="preserve">
+    <value>Record your fieldwork</value>
+  </data>
+  <data name="Recorded crop activity (required when supplies were used)" xml:space="preserve">
+    <value>Recorded crop activity (required when supplies were used)</value>
+  </data>
+  <data name="Recorded failures" xml:space="preserve">
+    <value>Recorded failures</value>
+  </data>
+  <data name="Recorded failures · 7 days" xml:space="preserve">
+    <value>Recorded failures · 7 days</value>
+  </data>
+  <data name="Recorded harvest totals" xml:space="preserve">
+    <value>Recorded harvest totals</value>
+  </data>
+  <data name="Recorded quantity" xml:space="preserve">
+    <value>Recorded quantity</value>
+  </data>
+  <data name="Recorded sync operations" xml:space="preserve">
+    <value>Recorded sync operations</value>
+  </data>
+  <data name="Recorded yield by unit" xml:space="preserve">
+    <value>Recorded yield by unit</value>
+  </data>
+  <data name="Recovery code" xml:space="preserve">
+    <value>Recovery code</value>
+  </data>
+  <data name="Recovery code sign in" xml:space="preserve">
+    <value>Recovery code sign in</value>
+  </data>
+  <data name="Refresh checks" xml:space="preserve">
+    <value>Refresh checks</value>
+  </data>
+  <data name="Regenerate code" xml:space="preserve">
+    <value>Regenerate code</value>
+  </data>
+  <data name="Register" xml:space="preserve">
+    <value>Register</value>
+  </data>
+  <data name="Registered" xml:space="preserve">
+    <value>Registered</value>
+  </data>
+  <data name="Reject" xml:space="preserve">
+    <value>Reject</value>
+  </data>
+  <data name="Reject the join request from {0}?" xml:space="preserve">
+    <value>Reject the join request from {0}?</value>
+  </data>
+  <data name="Rejected" xml:space="preserve">
+    <value>Rejected</value>
+  </data>
+  <data name="Related farm" xml:space="preserve">
+    <value>Related farm</value>
+  </data>
+  <data name="Remember me" xml:space="preserve">
+    <value>Remember me</value>
+  </data>
+  <data name="Remove" xml:space="preserve">
+    <value>Remove</value>
+  </data>
+  <data name="Remove pin" xml:space="preserve">
+    <value>Remove pin</value>
+  </data>
+  <data name="Remove {0} from {1}? They will lose access." xml:space="preserve">
+    <value>Remove {0} from {1}? They will lose access.</value>
+  </data>
+  <data name="Replace an existing farm code" xml:space="preserve">
+    <value>Replace an existing farm code</value>
+  </data>
+  <data name="Request details" xml:space="preserve">
+    <value>Request details</value>
+  </data>
+  <data name="Request history ({0})" xml:space="preserve">
+    <value>Request history ({0})</value>
+  </data>
+  <data name="Request submitted. Farm access begins after the owner approves." xml:space="preserve">
+    <value>Request submitted. Farm access begins after the owner approves.</value>
+  </data>
+  <data name="Request to join" xml:space="preserve">
+    <value>Request to join</value>
+  </data>
+  <data name="Requested" xml:space="preserve">
+    <value>Requested</value>
+  </data>
+  <data name="Requested by" xml:space="preserve">
+    <value>Requested by</value>
+  </data>
+  <data name="Requested {0}" xml:space="preserve">
+    <value>Requested {0}</value>
+  </data>
+  <data name="Resolved" xml:space="preserve">
+    <value>Resolved</value>
+  </data>
+  <data name="Resolved after checking" xml:space="preserve">
+    <value>Resolved after checking</value>
+  </data>
+  <data name="Retained drafts" xml:space="preserve">
+    <value>Retained drafts</value>
+  </data>
+  <data name="Retained history" xml:space="preserve">
+    <value>Retained history</value>
+  </data>
+  <data name="Retained history only. Publishing and editing are retired." xml:space="preserve">
+    <value>Retained history only. Publishing and editing are retired.</value>
+  </data>
+  <data name="Retained in-progress status" xml:space="preserve">
+    <value>Retained in-progress status</value>
+  </data>
+  <data name="Retained notices for authorized review. Publishing and editing are retired." xml:space="preserve">
+    <value>Retained notices for authorized review. Publishing and editing are retired.</value>
+  </data>
+  <data name="Retained open status" xml:space="preserve">
+    <value>Retained open status</value>
+  </data>
+  <data name="Retained resolved status" xml:space="preserve">
+    <value>Retained resolved status</value>
+  </data>
+  <data name="Return to my farms" xml:space="preserve">
+    <value>Return to my farms</value>
+  </data>
+  <data name="Reversal" xml:space="preserve">
+    <value>Reversal</value>
+  </data>
+  <data name="Reversal of" xml:space="preserve">
+    <value>Reversal of</value>
+  </data>
+  <data name="Reversal reason" xml:space="preserve">
+    <value>Reversal reason</value>
+  </data>
+  <data name="Reverse transaction" xml:space="preserve">
+    <value>Reverse transaction</value>
+  </data>
+  <data name="Reverse {0} {1} for {2}? This will change the stock balance." xml:space="preserve">
+    <value>Reverse {0} {1} for {2}? This will change the stock balance.</value>
+  </data>
+  <data name="Review" xml:space="preserve">
+    <value>Review</value>
+  </data>
+  <data name="Review and reselect — this supply changed or is unavailable" xml:space="preserve">
+    <value>Review and reselect — this supply changed or is unavailable</value>
+  </data>
+  <data name="Review audit history" xml:space="preserve">
+    <value>Review audit history</value>
+  </data>
+  <data name="Review crop →" xml:space="preserve">
+    <value>Review crop →</value>
+  </data>
+  <data name="Review due work, crop concerns and supplies." xml:space="preserve">
+    <value>Review due work, crop concerns and supplies.</value>
+  </data>
+  <data name="Review farms across the platform without entering their private workspace." xml:space="preserve">
+    <value>Review farms across the platform without entering their private workspace.</value>
+  </data>
+  <data name="Review item →" xml:space="preserve">
+    <value>Review item →</value>
+  </data>
+  <data name="Review items that need replenishment →" xml:space="preserve">
+    <value>Review items that need replenishment →</value>
+  </data>
+  <data name="Review my farms" xml:space="preserve">
+    <value>Review my farms</value>
+  </data>
+  <data name="Review retained support requests and their recorded history." xml:space="preserve">
+    <value>Review retained support requests and their recorded history.</value>
+  </data>
+  <data name="Review saved farm concerns" xml:space="preserve">
+    <value>Review saved farm concerns</value>
+  </data>
+  <data name="Review sensitive administrative changes and who performed them. This history is read-only." xml:space="preserve">
+    <value>Review sensitive administrative changes and who performed them. This history is read-only.</value>
+  </data>
+  <data name="Review task" xml:space="preserve">
+    <value>Review task</value>
+  </data>
+  <data name="Review task →" xml:space="preserve">
+    <value>Review task →</value>
+  </data>
+  <data name="Review team requests" xml:space="preserve">
+    <value>Review team requests</value>
+  </data>
+  <data name="Review the farm management tools →" xml:space="preserve">
+    <value>Review the farm management tools →</value>
+  </data>
+  <data name="Review the harvest draft →" xml:space="preserve">
+    <value>Review the harvest draft →</value>
+  </data>
+  <data name="Review your draft →" xml:space="preserve">
+    <value>Review your draft →</value>
+  </data>
+  <data name="Review your identity and preferred appearance." xml:space="preserve">
+    <value>Review your identity and preferred appearance.</value>
+  </data>
+  <data name="Role for" xml:space="preserve">
+    <value>Role for</value>
+  </data>
+  <data name="START A FARM" xml:space="preserve">
+    <value>START A FARM</value>
+  </data>
+  <data name="START HERE" xml:space="preserve">
+    <value>START HERE</value>
+  </data>
+  <data name="SYSTEM HEALTH" xml:space="preserve">
+    <value>SYSTEM HEALTH</value>
+  </data>
+  <data name="Save " xml:space="preserve">
+    <value>Save </value>
+  </data>
+  <data name="Save activity" xml:space="preserve">
+    <value>Save activity</value>
+  </data>
+  <data name="Save an inspection first. Then you can take or upload a photo to that record." xml:space="preserve">
+    <value>Save an inspection first. Then you can take or upload a photo to that record.</value>
+  </data>
+  <data name="Save changes" xml:space="preserve">
+    <value>Save changes</value>
+  </data>
+  <data name="Save details" xml:space="preserve">
+    <value>Save details</value>
+  </data>
+  <data name="Save farm settings" xml:space="preserve">
+    <value>Save farm settings</value>
+  </data>
+  <data name="Save follow-up" xml:space="preserve">
+    <value>Save follow-up</value>
+  </data>
+  <data name="Save inspection" xml:space="preserve">
+    <value>Save inspection</value>
+  </data>
+  <data name="Save partial harvest" xml:space="preserve">
+    <value>Save partial harvest</value>
+  </data>
+  <data name="Save planting plan" xml:space="preserve">
+    <value>Save planting plan</value>
+  </data>
+  <data name="Save recovery codes" xml:space="preserve">
+    <value>Save recovery codes</value>
+  </data>
+  <data name="Save stock movement" xml:space="preserve">
+    <value>Save stock movement</value>
+  </data>
+  <data name="Save supply" xml:space="preserve">
+    <value>Save supply</value>
+  </data>
+  <data name="Save task changes" xml:space="preserve">
+    <value>Save task changes</value>
+  </data>
+  <data name="Save your recovery codes" xml:space="preserve">
+    <value>Save your recovery codes</value>
+  </data>
+  <data name="Saved activities appear in history below after confirmation." xml:space="preserve">
+    <value>Saved activities appear in history below after confirmation.</value>
+  </data>
+  <data name="Saved daily forecast" xml:space="preserve">
+    <value>Saved daily forecast</value>
+  </data>
+  <data name="Saved dates and projected growing activities for" xml:space="preserve">
+    <value>Saved dates and projected growing activities for</value>
+  </data>
+  <data name="Saved farm concerns and next steps, not live field measurements." xml:space="preserve">
+    <value>Saved farm concerns and next steps, not live field measurements.</value>
+  </data>
+  <data name="Saved forecast" xml:space="preserve">
+    <value>Saved forecast</value>
+  </data>
+  <data name="Saved forecast may be outdated" xml:space="preserve">
+    <value>Saved forecast may be outdated</value>
+  </data>
+  <data name="Saved forecast ·" xml:space="preserve">
+    <value>Saved forecast ·</value>
+  </data>
+  <data name="Saved forecast, not live conditions." xml:space="preserve">
+    <value>Saved forecast, not live conditions.</value>
+  </data>
+  <data name="Saved harvest records" xml:space="preserve">
+    <value>Saved harvest records</value>
+  </data>
+  <data name="Saved on phone" xml:space="preserve">
+    <value>Saved on phone</value>
+  </data>
+  <data name="Saved weather advisories" xml:space="preserve">
+    <value>Saved weather advisories</value>
+  </data>
+  <data name="Saved weather is temporarily unavailable. Open the weather page to check again." xml:space="preserve">
+    <value>Saved weather is temporarily unavailable. Open the weather page to check again.</value>
+  </data>
+  <data name="Saving your changes…" xml:space="preserve">
+    <value>Saving your changes…</value>
+  </data>
+  <data name="Scheduled dates ·" xml:space="preserve">
+    <value>Scheduled dates ·</value>
+  </data>
+  <data name="Scheduled dates · {0} entries across {1} days" xml:space="preserve">
+    <value>Scheduled dates · {0} entries across {1} days</value>
+  </data>
+  <data name="Scheduled planting, watering, and harvest tasks are added automatically when the worker is enabled." xml:space="preserve">
+    <value>Scheduled planting, watering, and harvest tasks are added automatically when the worker is enabled.</value>
+  </data>
+  <data name="Scrollable monthly yield records" xml:space="preserve">
+    <value>Scrollable monthly yield records</value>
+  </data>
+  <data name="Search" xml:space="preserve">
+    <value>Search</value>
+  </data>
+  <data name="Search a place" xml:space="preserve">
+    <value>Search a place</value>
+  </data>
+  <data name="Search accounts and review access." xml:space="preserve">
+    <value>Search accounts and review access.</value>
+  </data>
+  <data name="Search by item name" xml:space="preserve">
+    <value>Search by item name</value>
+  </data>
+  <data name="Search farm or location" xml:space="preserve">
+    <value>Search farm or location</value>
+  </data>
+  <data name="Search farms" xml:space="preserve">
+    <value>Search farms</value>
+  </data>
+  <data name="Search history" xml:space="preserve">
+    <value>Search history</value>
+  </data>
+  <data name="Search is unavailable. You can enter the location name and tap the map instead." xml:space="preserve">
+    <value>Search is unavailable. You can enter the location name and tap the map instead.</value>
+  </data>
+  <data name="Search name or email" xml:space="preserve">
+    <value>Search name or email</value>
+  </data>
+  <data name="Search server-recorded operations without exposing crop data or upload payloads." xml:space="preserve">
+    <value>Search server-recorded operations without exposing crop data or upload payloads.</value>
+  </data>
+  <data name="Search unavailable" xml:space="preserve">
+    <value>Search unavailable</value>
+  </data>
+  <data name="Searching locations..." xml:space="preserve">
+    <value>Searching locations...</value>
+  </data>
+  <data name="Security" xml:space="preserve">
+    <value>Security</value>
+  </data>
+  <data name="See all activity for this target" xml:space="preserve">
+    <value>See all activity for this target</value>
+  </data>
+  <data name="See all harvests" xml:space="preserve">
+    <value>See all harvests</value>
+  </data>
+  <data name="See all plots →" xml:space="preserve">
+    <value>See all plots →</value>
+  </data>
+  <data name="See forecast" xml:space="preserve">
+    <value>See forecast</value>
+  </data>
+  <data name="See plots →" xml:space="preserve">
+    <value>See plots →</value>
+  </data>
+  <data name="See previous and current crop cycles per plot, including completed, failed, and cancelled plantings. This is a record of your farm history, not a rotation recommendation." xml:space="preserve">
+    <value>See previous and current crop cycles per plot, including completed, failed, and cancelled plantings. This is a record of your farm history, not a rotation recommendation.</value>
+  </data>
+  <data name="See the next job, complete assigned work, or record field activity for a crop." xml:space="preserve">
+    <value>See the next job, complete assigned work, or record field activity for a crop.</value>
+  </data>
+  <data name="See what is growing and open saved crop records, inspections, and harvests." xml:space="preserve">
+    <value>See what is growing and open saved crop records, inspections, and harvests.</value>
+  </data>
+  <data name="See what is growing, plan the next planting, and review saved crop records." xml:space="preserve">
+    <value>See what is growing, plan the next planting, and review saved crop records.</value>
+  </data>
+  <data name="Seeds" xml:space="preserve">
+    <value>Seeds</value>
+  </data>
+  <data name="Select a different day from Calendar." xml:space="preserve">
+    <value>Select a different day from Calendar.</value>
+  </data>
+  <data name="Select a saved activity" xml:space="preserve">
+    <value>Select a saved activity</value>
+  </data>
+  <data name="Select and copy the farm code." xml:space="preserve">
+    <value>Select and copy the farm code.</value>
+  </data>
+  <data name="Select farm on OpenStreetMap" xml:space="preserve">
+    <value>Select farm on OpenStreetMap</value>
+  </data>
+  <data name="Selected farm" xml:space="preserve">
+    <value>Selected farm</value>
+  </data>
+  <data name="Selected photo preview" xml:space="preserve">
+    <value>Selected photo preview</value>
+  </data>
+  <data name="Selected plot:" xml:space="preserve">
+    <value>Selected plot:</value>
+  </data>
+  <data name="Selected task" xml:space="preserve">
+    <value>Selected task</value>
+  </data>
+  <data name="Selected task changed — review before choosing another" xml:space="preserve">
+    <value>Selected task changed — review before choosing another</value>
+  </data>
+  <data name="Sending" xml:space="preserve">
+    <value>Sending</value>
+  </data>
+  <data name="Sent" xml:space="preserve">
+    <value>Sent</value>
+  </data>
+  <data name="Service &amp; background work" xml:space="preserve">
+    <value>Service &amp; background work</value>
+  </data>
+  <data name="Service checks" xml:space="preserve">
+    <value>Service checks</value>
+  </data>
+  <data name="Service checks and sync history are read-only." xml:space="preserve">
+    <value>Service checks and sync history are read-only.</value>
+  </data>
+  <data name="Serving" xml:space="preserve">
+    <value>Serving</value>
+  </data>
+  <data name="Serving this request" xml:space="preserve">
+    <value>Serving this request</value>
+  </data>
+  <data name="Set planting schedules and crop cycles." xml:space="preserve">
+    <value>Set planting schedules and crop cycles.</value>
+  </data>
+  <data name="Set the dates" xml:space="preserve">
+    <value>Set the dates</value>
+  </data>
+  <data name="Set the farm's map pin in Edit farm to enable forecast updates." xml:space="preserve">
+    <value>Set the farm's map pin in Edit farm to enable forecast updates.</value>
+  </data>
+  <data name="Set up a crop type first." xml:space="preserve">
+    <value>Set up a crop type first.</value>
+  </data>
+  <data name="Set up your account first, then choose to create a farm or request to join one." xml:space="preserve">
+    <value>Set up your account first, then choose to create a farm or request to join one.</value>
+  </data>
+  <data name="Set up your authenticator" xml:space="preserve">
+    <value>Set up your authenticator</value>
+  </data>
+  <data name="Settings guidance" xml:space="preserve">
+    <value>Settings guidance</value>
+  </data>
+  <data name="Setup key" xml:space="preserve">
+    <value>Setup key</value>
+  </data>
+  <data name="Severe" xml:space="preserve">
+    <value>Severe</value>
+  </data>
+  <data name="Severity" xml:space="preserve">
+    <value>Severity</value>
+  </data>
+  <data name="Share code &amp; review requests →" xml:space="preserve">
+    <value>Share code &amp; review requests →</value>
+  </data>
+  <data name="Share farm joining code" xml:space="preserve">
+    <value>Share farm joining code</value>
+  </data>
+  <data name="Share your farm code and approve requests when you're ready." xml:space="preserve">
+    <value>Share your farm code and approve requests when you're ready.</value>
+  </data>
+  <data name="Show" xml:space="preserve">
+    <value>Show</value>
+  </data>
+  <data name="Show all supplies →" xml:space="preserve">
+    <value>Show all supplies →</value>
+  </data>
+  <data name="Show supplies" xml:space="preserve">
+    <value>Show supplies</value>
+  </data>
+  <data name="Showing" xml:space="preserve">
+    <value>Showing</value>
+  </data>
+  <data name="Showing activity for target ID" xml:space="preserve">
+    <value>Showing activity for target ID</value>
+  </data>
+  <data name="Showing all recorded harvest dates, plots and crops." xml:space="preserve">
+    <value>Showing all recorded harvest dates, plots and crops.</value>
+  </data>
+  <data name="Showing the 100 most recent notices. Older messages are not listed here." xml:space="preserve">
+    <value>Showing the 100 most recent notices. Older messages are not listed here.</value>
+  </data>
+  <data name="Showing the most recent" xml:space="preserve">
+    <value>Showing the most recent</value>
+  </data>
+  <data name="Sign in with two-factor authentication" xml:space="preserve">
+    <value>Sign in with two-factor authentication</value>
+  </data>
+  <data name="Sign-in and account problems" xml:space="preserve">
+    <value>Sign-in and account problems</value>
+  </data>
+  <data name="Skip to content" xml:space="preserve">
+    <value>Skip to content</value>
+  </data>
+  <data name="Skipped" xml:space="preserve">
+    <value>Skipped</value>
+  </data>
+  <data name="Source" xml:space="preserve">
+    <value>Source</value>
+  </data>
+  <data name="Stage:" xml:space="preserve">
+    <value>Stage:</value>
+  </data>
+  <data name="Start by adding seeds, fertilizer, or another supply with its current quantity." xml:space="preserve">
+    <value>Start by adding seeds, fertilizer, or another supply with its current quantity.</value>
+  </data>
+  <data name="Start by giving your farm a name and location. You can add plots and crops next." xml:space="preserve">
+    <value>Start by giving your farm a name and location. You can add plots and crops next.</value>
+  </data>
+  <data name="Start where you are" xml:space="preserve">
+    <value>Start where you are</value>
+  </data>
+  <data name="Start with just a farm name and nearby location. You can add plots, crops, and your team afterward." xml:space="preserve">
+    <value>Start with just a farm name and nearby location. You can add plots, crops, and your team afterward.</value>
+  </data>
+  <data name="Start with the essentials. After creating the farm, you can add plots, plan crops, and invite your team." xml:space="preserve">
+    <value>Start with the essentials. After creating the farm, you can add plots, plan crops, and invite your team.</value>
+  </data>
+  <data name="Start with users, farms, support cases, and background-job issues. This is a platform view, not access to individual farm records." xml:space="preserve">
+    <value>Start with users, farms, support cases, and background-job issues. This is a platform view, not access to individual farm records.</value>
+  </data>
+  <data name="Start your own farm or join an existing team. You can do both with the same account." xml:space="preserve">
+    <value>Start your own farm or join an existing team. You can do both with the same account.</value>
+  </data>
+  <data name="Start your planned crop" xml:space="preserve">
+    <value>Start your planned crop</value>
+  </data>
+  <data name="Status" xml:space="preserve">
+    <value>Status</value>
+  </data>
+  <data name="Status / actions" xml:space="preserve">
+    <value>Status / actions</value>
+  </data>
+  <data name="Status, priority and messages are retained as recorded. New conversations and case updates are retired." xml:space="preserve">
+    <value>Status, priority and messages are retained as recorded. New conversations and case updates are retired.</value>
+  </data>
+  <data name="Stock items with remaining quantity" xml:space="preserve">
+    <value>Stock items with remaining quantity</value>
+  </data>
+  <data name="Stock movement saved. The balance is updated." xml:space="preserve">
+    <value>Stock movement saved. The balance is updated.</value>
+  </data>
+  <data name="Stock received" xml:space="preserve">
+    <value>Stock received</value>
+  </data>
+  <data name="Stock transaction reversed. The original entry remains in history." xml:space="preserve">
+    <value>Stock transaction reversed. The original entry remains in history.</value>
+  </data>
+  <data name="Store them securely outside this browser. Your previous session has been signed out." xml:space="preserve">
+    <value>Store them securely outside this browser. Your previous session has been signed out.</value>
+  </data>
+  <data name="Strong wind" xml:space="preserve">
+    <value>Strong wind</value>
+  </data>
+  <data name="Submitted {0} UTC" xml:space="preserve">
+    <value>Submitted {0} UTC</value>
+  </data>
+  <data name="Succeeded" xml:space="preserve">
+    <value>Succeeded</value>
+  </data>
+  <data name="Successful receipts · 7 days" xml:space="preserve">
+    <value>Successful receipts · 7 days</value>
+  </data>
+  <data name="Super Admin" xml:space="preserve">
+    <value>Super Admin</value>
+  </data>
+  <data name="Super Admin access requires an authenticator app. Enter this account in&#10;       your authenticator using the setup key below, then confirm its six-digit code." xml:space="preserve">
+    <value>Super Admin access requires an authenticator app. Enter this account in
+       your authenticator using the setup key below, then confirm its six-digit code.</value>
+  </data>
+  <data name="Super Admin accounts are protected. Access changes require a separate operator process." xml:space="preserve">
+    <value>Super Admin accounts are protected. Access changes require a separate operator process.</value>
+  </data>
+  <data name="Super Admin portal" xml:space="preserve">
+    <value>Super Admin portal</value>
+  </data>
+  <data name="Supplies" xml:space="preserve">
+    <value>Supplies</value>
+  </data>
+  <data name="Supplies arrived (add stock)" xml:space="preserve">
+    <value>Supplies arrived (add stock)</value>
+  </data>
+  <data name="Supplies used for recorded crop work (subtract)" xml:space="preserve">
+    <value>Supplies used for recorded crop work (subtract)</value>
+  </data>
+  <data name="Supply" xml:space="preserve">
+    <value>Supply</value>
+  </data>
+  <data name="Supply added to the farm inventory." xml:space="preserve">
+    <value>Supply added to the farm inventory.</value>
+  </data>
+  <data name="Supply and available balance" xml:space="preserve">
+    <value>Supply and available balance</value>
+  </data>
+  <data name="Supply details updated." xml:space="preserve">
+    <value>Supply details updated.</value>
+  </data>
+  <data name="Supply name" xml:space="preserve">
+    <value>Supply name</value>
+  </data>
+  <data name="Supply note" xml:space="preserve">
+    <value>Supply note</value>
+  </data>
+  <data name="Supply note (optional)" xml:space="preserve">
+    <value>Supply note (optional)</value>
+  </data>
+  <data name="Supply pages" xml:space="preserve">
+    <value>Supply pages</value>
+  </data>
+  <data name="Support case" xml:space="preserve">
+    <value>Support case</value>
+  </data>
+  <data name="Support history" xml:space="preserve">
+    <value>Support history</value>
+  </data>
+  <data name="Support pages" xml:space="preserve">
+    <value>Support pages</value>
+  </data>
+  <data name="Support queue" xml:space="preserve">
+    <value>Support queue</value>
+  </data>
+  <data name="Support request" xml:space="preserve">
+    <value>Support request</value>
+  </data>
+  <data name="Support totals" xml:space="preserve">
+    <value>Support totals</value>
+  </data>
+  <data name="Switch" xml:space="preserve">
+    <value>Switch</value>
+  </data>
+  <data name="Switch farm" xml:space="preserve">
+    <value>Switch farm</value>
+  </data>
+  <data name="Sync history" xml:space="preserve">
+    <value>Sync history</value>
+  </data>
+  <data name="Sync history pages" xml:space="preserve">
+    <value>Sync history pages</value>
+  </data>
+  <data name="Sync history unavailable" xml:space="preserve">
+    <value>Sync history unavailable</value>
+  </data>
+  <data name="System monitoring" xml:space="preserve">
+    <value>System monitoring</value>
+  </data>
+  <data name="Take care of due work and saved concerns before reviewing totals." xml:space="preserve">
+    <value>Take care of due work and saved concerns before reviewing totals.</value>
+  </data>
+  <data name="Take or select a photo" xml:space="preserve">
+    <value>Take or select a photo</value>
+  </data>
+  <data name="Tap the map or search to choose a farm position. Location services require your permission." xml:space="preserve">
+    <value>Tap the map or search to choose a farm position. Location services require your permission.</value>
+  </data>
+  <data name="Tap the map to select the exact farm location." xml:space="preserve">
+    <value>Tap the map to select the exact farm location.</value>
+  </data>
+  <data name="Target" xml:space="preserve">
+    <value>Target</value>
+  </data>
+  <data name="Target ID" xml:space="preserve">
+    <value>Target ID</value>
+  </data>
+  <data name="Task" xml:space="preserve">
+    <value>Task</value>
+  </data>
+  <data name="Task alerts for other workers are not shown in your queue." xml:space="preserve">
+    <value>Task alerts for other workers are not shown in your queue.</value>
+  </data>
+  <data name="Task calendar" xml:space="preserve">
+    <value>Task calendar</value>
+  </data>
+  <data name="Task calendar month" xml:space="preserve">
+    <value>Task calendar month</value>
+  </data>
+  <data name="Task created." xml:space="preserve">
+    <value>Task created.</value>
+  </data>
+  <data name="Task dates in {0}" xml:space="preserve">
+    <value>Task dates in {0}</value>
+  </data>
+  <data name="Task reminder" xml:space="preserve">
+    <value>Task reminder</value>
+  </data>
+  <data name="Task reminder · Open your farm's Tasks page to review or complete it." xml:space="preserve">
+    <value>Task reminder · Open your farm's Tasks page to review or complete it.</value>
+  </data>
+  <data name="Task result pages" xml:space="preserve">
+    <value>Task result pages</value>
+  </data>
+  <data name="Task schedule for {0}" xml:space="preserve">
+    <value>Task schedule for {0}</value>
+  </data>
+  <data name="Task selection (optional)" xml:space="preserve">
+    <value>Task selection (optional)</value>
+  </data>
+  <data name="Task to complete" xml:space="preserve">
+    <value>Task to complete</value>
+  </data>
+  <data name="Task type" xml:space="preserve">
+    <value>Task type</value>
+  </data>
+  <data name="Task updated." xml:space="preserve">
+    <value>Task updated.</value>
+  </data>
+  <data name="Tasks" xml:space="preserve">
+    <value>Tasks</value>
+  </data>
+  <data name="Tasks for" xml:space="preserve">
+    <value>Tasks for</value>
+  </data>
+  <data name="The account that created this farm" xml:space="preserve">
+    <value>The account that created this farm</value>
+  </data>
+  <data name="The farm needs a map pin before local forecasts can be saved. Ask the owner or manager to add an exact location under Edit farm." xml:space="preserve">
+    <value>The farm needs a map pin before local forecasts can be saved. Ask the owner or manager to add an exact location under Edit farm.</value>
+  </data>
+  <data name="The field {0} must be a string with a maximum length of {1}." xml:space="preserve">
+    <value>The field {0} must be a string with a maximum length of {1}.</value>
+  </data>
+  <data name="The field {0} must be a string with a minimum length of {2} and a maximum length of {1}." xml:space="preserve">
+    <value>The field {0} must be a string with a minimum length of {2} and a maximum length of {1}.</value>
+  </data>
+  <data name="The field {0} must be between {1} and {2}." xml:space="preserve">
+    <value>The field {0} must be between {1} and {2}.</value>
+  </data>
+  <data name="The last saved weather check is over 12 hours old, or its update time is invalid. Conditions and advisories may have changed. Check an official current forecast before deciding on outdoor work." xml:space="preserve">
+    <value>The last saved weather check is over 12 hours old, or its update time is invalid. Conditions and advisories may have changed. Check an official current forecast before deciding on outdoor work.</value>
+  </data>
+  <data name="The passwords do not match." xml:space="preserve">
+    <value>The passwords do not match.</value>
+  </data>
+  <data name="The server confirms the entry" xml:space="preserve">
+    <value>The server confirms the entry</value>
+  </data>
+  <data name="The {0} and {1} fields do not match." xml:space="preserve">
+    <value>The {0} and {1} fields do not match.</value>
+  </data>
+  <data name="The {0} field is not a valid e-mail address." xml:space="preserve">
+    <value>The {0} field is not a valid e-mail address.</value>
+  </data>
+  <data name="The {0} field is required." xml:space="preserve">
+    <value>The {0} field is required.</value>
+  </data>
+  <data name="There are" xml:space="preserve">
+    <value>There are</value>
+  </data>
+  <data name="There are no unread notices in the recent list. You can review recent messages." xml:space="preserve">
+    <value>There are no unread notices in the recent list. You can review recent messages.</value>
+  </data>
+  <data name="These are saved farm-system advisories, not real-time emergency alerts." xml:space="preserve">
+    <value>These are saved farm-system advisories, not real-time emergency alerts.</value>
+  </data>
+  <data name="These are saved notices, not live push alerts. Marking one as read does not complete a task or resolve an advisory." xml:space="preserve">
+    <value>These are saved notices, not live push alerts. Marking one as read does not complete a task or resolve an advisory.</value>
+  </data>
+  <data name="These settings help identify the supply and flag when it may need replenishment." xml:space="preserve">
+    <value>These settings help identify the supply and flag when it may need replenishment.</value>
+  </data>
+  <data name="These statuses come from saved crop records, not plant-health or maturity predictions." xml:space="preserve">
+    <value>These statuses come from saved crop records, not plant-health or maturity predictions.</value>
+  </data>
+  <data name="This authenticated admin request was served successfully. Other Web endpoints are not individually checked." xml:space="preserve">
+    <value>This authenticated admin request was served successfully. Other Web endpoints are not individually checked.</value>
+  </data>
+  <data name="This entry completes the selected task only after the server accepts it." xml:space="preserve">
+    <value>This entry completes the selected task only after the server accepts it.</value>
+  </data>
+  <data name="This field is required." xml:space="preserve">
+    <value>This field is required.</value>
+  </data>
+  <data name="This history is read-only." xml:space="preserve">
+    <value>This history is read-only.</value>
+  </data>
+  <data name="This is not an all-clear for outdoor work. Check official local weather warnings before working during heavy rain, wind, or severe conditions." xml:space="preserve">
+    <value>This is not an all-clear for outdoor work. Check official local weather warnings before working during heavy rain, wind, or severe conditions.</value>
+  </data>
+  <data name="This photo is empty. Choose a different image." xml:space="preserve">
+    <value>This photo is empty. Choose a different image.</value>
+  </data>
+  <data name="This screen does not change your password or sign-in details. Farm roles and membership are managed separately inside each farm." xml:space="preserve">
+    <value>This screen does not change your password or sign-in details. Farm roles and membership are managed separately inside each farm.</value>
+  </data>
+  <data name="This user does not own a farm yet." xml:space="preserve">
+    <value>This user does not own a farm yet.</value>
+  </data>
+  <data name="Time unavailable" xml:space="preserve">
+    <value>Time unavailable</value>
+  </data>
+  <data name="Time zone" xml:space="preserve">
+    <value>Time zone</value>
+  </data>
+  <data name="Title or user email" xml:space="preserve">
+    <value>Title or user email</value>
+  </data>
+  <data name="To" xml:space="preserve">
+    <value>To</value>
+  </data>
+  <data name="To (UTC)" xml:space="preserve">
+    <value>To (UTC)</value>
+  </data>
+  <data name="Today" xml:space="preserve">
+    <value>Today</value>
+  </data>
+  <data name="Today's priorities" xml:space="preserve">
+    <value>Today's priorities</value>
+  </data>
+  <data name="Today's work" xml:space="preserve">
+    <value>Today's work</value>
+  </data>
+  <data name="Today's work — scroll to review tasks" xml:space="preserve">
+    <value>Today's work — scroll to review tasks</value>
+  </data>
+  <data name="Toggle appearance" xml:space="preserve">
+    <value>Toggle appearance</value>
+  </data>
+  <data name="Totals by planting cycle and month" xml:space="preserve">
+    <value>Totals by planting cycle and month</value>
+  </data>
+  <data name="Track Harvests" xml:space="preserve">
+    <value>Track Harvests</value>
+  </data>
+  <data name="Transaction history" xml:space="preserve">
+    <value>Transaction history</value>
+  </data>
+  <data name="Try a different farm name or filter." xml:space="preserve">
+    <value>Try a different farm name or filter.</value>
+  </data>
+  <data name="Try a different name, email or status." xml:space="preserve">
+    <value>Try a different name, email or status.</value>
+  </data>
+  <data name="Try a different name, location or status." xml:space="preserve">
+    <value>Try a different name, location or status.</value>
+  </data>
+  <data name="Try a different search or remove the selected filter." xml:space="preserve">
+    <value>Try a different search or remove the selected filter.</value>
+  </data>
+  <data name="Try again" xml:space="preserve">
+    <value>Try again</value>
+  </data>
+  <data name="Try changing the filters." xml:space="preserve">
+    <value>Try changing the filters.</value>
+  </data>
+  <data name="Try changing your filters. Events appear here after a recorded admin action." xml:space="preserve">
+    <value>Try changing your filters. Events appear here after a recorded admin action.</value>
+  </data>
+  <data name="Two-factor sign in" xml:space="preserve">
+    <value>Two-factor sign in</value>
+  </data>
+  <data name="Type at least 3 characters to search for a place." xml:space="preserve">
+    <value>Type at least 3 characters to search for a place.</value>
+  </data>
+  <data name="Typical growth days (optional)" xml:space="preserve">
+    <value>Typical growth days (optional)</value>
+  </data>
+  <data name="Typical growth:" xml:space="preserve">
+    <value>Typical growth:</value>
+  </data>
+  <data name="USER ACCOUNT" xml:space="preserve">
+    <value>USER ACCOUNT</value>
+  </data>
+  <data name="Unassigned (farm owner gets the reminder)" xml:space="preserve">
+    <value>Unassigned (farm owner gets the reminder)</value>
+  </data>
+  <data name="Unassigned (reminder goes to farm owner)" xml:space="preserve">
+    <value>Unassigned (reminder goes to farm owner)</value>
+  </data>
+  <data name="Unassigned · Farm owner receives reminder" xml:space="preserve">
+    <value>Unassigned · Farm owner receives reminder</value>
+  </data>
+  <data name="Unit" xml:space="preserve">
+    <value>Unit</value>
+  </data>
+  <data name="Unknown" xml:space="preserve">
+    <value>Unknown</value>
+  </data>
+  <data name="Unread" xml:space="preserve">
+    <value>Unread</value>
+  </data>
+  <data name="Unread (" xml:space="preserve">
+    <value>Unread (</value>
+  </data>
+  <data name="Unresolved support" xml:space="preserve">
+    <value>Unresolved support</value>
+  </data>
+  <data name="Unsubmitted draft — not saved" xml:space="preserve">
+    <value>Unsubmitted draft — not saved</value>
+  </data>
+  <data name="Unsubmitted draft:" xml:space="preserve">
+    <value>Unsubmitted draft:</value>
+  </data>
+  <data name="Up to 20 recent farms" xml:space="preserve">
+    <value>Up to 20 recent farms</value>
+  </data>
+  <data name="Upcoming" xml:space="preserve">
+    <value>Upcoming</value>
+  </data>
+  <data name="Upcoming assigned" xml:space="preserve">
+    <value>Upcoming assigned</value>
+  </data>
+  <data name="Update overdue" xml:space="preserve">
+    <value>Update overdue</value>
+  </data>
+  <data name="Update role" xml:space="preserve">
+    <value>Update role</value>
+  </data>
+  <data name="Update the plot name or its measured area. Existing crop records remain connected." xml:space="preserve">
+    <value>Update the plot name or its measured area. Existing crop records remain connected.</value>
+  </data>
+  <data name="Update the supply details without changing its transaction history." xml:space="preserve">
+    <value>Update the supply details without changing its transaction history.</value>
+  </data>
+  <data name="Update your farm's details and optional map location. Existing plots, crop records and members stay connected to this farm." xml:space="preserve">
+    <value>Update your farm's details and optional map location. Existing plots, crop records and members stay connected to this farm.</value>
+  </data>
+  <data name="Update {0} on {1}. Saved crop history is retained." xml:space="preserve">
+    <value>Update {0} on {1}. Saved crop history is retained.</value>
+  </data>
+  <data name="Updated" xml:space="preserve">
+    <value>Updated</value>
+  </data>
+  <data name="Updated {0}" xml:space="preserve">
+    <value>Updated {0}</value>
+  </data>
+  <data name="Updates" xml:space="preserve">
+    <value>Updates</value>
+  </data>
+  <data name="Updates &amp; replies" xml:space="preserve">
+    <value>Updates &amp; replies</value>
+  </data>
+  <data name="Use Record fieldwork above to start an activity history for this crop." xml:space="preserve">
+    <value>Use Record fieldwork above to start an activity history for this crop.</value>
+  </data>
+  <data name="Use a recovery code" xml:space="preserve">
+    <value>Use a recovery code</value>
+  </data>
+  <data name="Use a valid plot name and positive area." xml:space="preserve">
+    <value>Use a valid plot name and positive area.</value>
+  </data>
+  <data name="Use at least 10 characters, including uppercase, lowercase, and a number." xml:space="preserve">
+    <value>Use at least 10 characters, including uppercase, lowercase, and a number.</value>
+  </data>
+  <data name="Use dark appearance" xml:space="preserve">
+    <value>Use dark appearance</value>
+  </data>
+  <data name="Use light appearance" xml:space="preserve">
+    <value>Use light appearance</value>
+  </data>
+  <data name="Use my authenticator instead" xml:space="preserve">
+    <value>Use my authenticator instead</value>
+  </data>
+  <data name="Use my current location" xml:space="preserve">
+    <value>Use my current location</value>
+  </data>
+  <data name="Use one of your saved recovery codes. Each code works only once." xml:space="preserve">
+    <value>Use one of your saved recovery codes. Each code works only once.</value>
+  </data>
+  <data name="Use supplies / fertilizer" xml:space="preserve">
+    <value>Use supplies / fertilizer</value>
+  </data>
+  <data name="Use supplies with this activity (optional)" xml:space="preserve">
+    <value>Use supplies with this activity (optional)</value>
+  </data>
+  <data name="Use the detailed setup with map options" xml:space="preserve">
+    <value>Use the detailed setup with map options</value>
+  </data>
+  <data name="Use your active crop to record watering, inspections, photos and partial harvests." xml:space="preserve">
+    <value>Use your active crop to record watering, inspections, photos and partial harvests.</value>
+  </data>
+  <data name="User details" xml:space="preserve">
+    <value>User details</value>
+  </data>
+  <data name="User directory" xml:space="preserve">
+    <value>User directory</value>
+  </data>
+  <data name="User pages" xml:space="preserve">
+    <value>User pages</value>
+  </data>
+  <data name="Users" xml:space="preserve">
+    <value>Users</value>
+  </data>
+  <data name="Uses Philippine time. Add a precise map pin later in Farm settings." xml:space="preserve">
+    <value>Uses Philippine time. Add a precise map pin later in Farm settings.</value>
+  </data>
+  <data name="Uses the same unit as the supply. Leave blank to skip low-stock alerts." xml:space="preserve">
+    <value>Uses the same unit as the supply. Leave blank to skip low-stock alerts.</value>
+  </data>
+  <data name="Valid" xml:space="preserve">
+    <value>Valid</value>
+  </data>
+  <data name="Valid harvests" xml:space="preserve">
+    <value>Valid harvests</value>
+  </data>
+  <data name="Verify and sign in" xml:space="preserve">
+    <value>Verify and sign in</value>
+  </data>
+  <data name="Verify recovery code" xml:space="preserve">
+    <value>Verify recovery code</value>
+  </data>
+  <data name="View advisory" xml:space="preserve">
+    <value>View advisory</value>
+  </data>
+  <data name="View all" xml:space="preserve">
+    <value>View all</value>
+  </data>
+  <data name="View all farms" xml:space="preserve">
+    <value>View all farms</value>
+  </data>
+  <data name="View all tasks →" xml:space="preserve">
+    <value>View all tasks →</value>
+  </data>
+  <data name="View all {0} due or overdue tasks →" xml:space="preserve">
+    <value>View all {0} due or overdue tasks →</value>
+  </data>
+  <data name="View announcement" xml:space="preserve">
+    <value>View announcement</value>
+  </data>
+  <data name="View assigned tasks and reminders →" xml:space="preserve">
+    <value>View assigned tasks and reminders →</value>
+  </data>
+  <data name="View audit history for this farm" xml:space="preserve">
+    <value>View audit history for this farm</value>
+  </data>
+  <data name="View audit history for this user" xml:space="preserve">
+    <value>View audit history for this user</value>
+  </data>
+  <data name="View crop details" xml:space="preserve">
+    <value>View crop details</value>
+  </data>
+  <data name="View crop history" xml:space="preserve">
+    <value>View crop history</value>
+  </data>
+  <data name="View crops" xml:space="preserve">
+    <value>View crops</value>
+  </data>
+  <data name="View crops for this plot →" xml:space="preserve">
+    <value>View crops for this plot →</value>
+  </data>
+  <data name="View farm" xml:space="preserve">
+    <value>View farm</value>
+  </data>
+  <data name="View planting plans" xml:space="preserve">
+    <value>View planting plans</value>
+  </data>
+  <data name="View private photo" xml:space="preserve">
+    <value>View private photo</value>
+  </data>
+  <data name="View recent notifications →" xml:space="preserve">
+    <value>View recent notifications →</value>
+  </data>
+  <data name="View support case" xml:space="preserve">
+    <value>View support case</value>
+  </data>
+  <data name="View sync history" xml:space="preserve">
+    <value>View sync history</value>
+  </data>
+  <data name="View task" xml:space="preserve">
+    <value>View task</value>
+  </data>
+  <data name="View this announcement's audit history" xml:space="preserve">
+    <value>View this announcement's audit history</value>
+  </data>
+  <data name="View this case's audit history" xml:space="preserve">
+    <value>View this case's audit history</value>
+  </data>
+  <data name="View user" xml:space="preserve">
+    <value>View user</value>
+  </data>
+  <data name="Void entry" xml:space="preserve">
+    <value>Void entry</value>
+  </data>
+  <data name="Void reason:" xml:space="preserve">
+    <value>Void reason:</value>
+  </data>
+  <data name="Void {0} {1} for {2}? The record stays in history and is excluded from totals." xml:space="preserve">
+    <value>Void {0} {1} for {2}? The record stays in history and is excluded from totals.</value>
+  </data>
+  <data name="Voided" xml:space="preserve">
+    <value>Voided</value>
+  </data>
+  <data name="Voiding keeps the record in history but excludes it from valid totals." xml:space="preserve">
+    <value>Voiding keeps the record in history but excludes it from valid totals.</value>
+  </data>
+  <data name="WELCOME BACK" xml:space="preserve">
+    <value>WELCOME BACK</value>
+  </data>
+  <data name="Waiting for the farm owner's approval." xml:space="preserve">
+    <value>Waiting for the farm owner's approval.</value>
+  </data>
+  <data name="Warning" xml:space="preserve">
+    <value>Warning</value>
+  </data>
+  <data name="Water" xml:space="preserve">
+    <value>Water</value>
+  </data>
+  <data name="Watering" xml:space="preserve">
+    <value>Watering</value>
+  </data>
+  <data name="Watering interval (optional)" xml:space="preserve">
+    <value>Watering interval (optional)</value>
+  </data>
+  <data name="Watering interval days" xml:space="preserve">
+    <value>Watering interval days</value>
+  </data>
+  <data name="Watering interval days (leave empty for default)" xml:space="preserve">
+    <value>Watering interval days (leave empty for default)</value>
+  </data>
+  <data name="We could not confirm whether your change was saved. Review your farm records before submitting it again." xml:space="preserve">
+    <value>We could not confirm whether your change was saved. Review your farm records before submitting it again.</value>
+  </data>
+  <data name="We could not load this page. Try again, or return to your farms and check your connection." xml:space="preserve">
+    <value>We could not load this page. Try again, or return to your farms and check your connection.</value>
+  </data>
+  <data name="Weather advisory" xml:space="preserve">
+    <value>Weather advisory</value>
+  </data>
+  <data name="Weather data may be out of date." xml:space="preserve">
+    <value>Weather data may be out of date.</value>
+  </data>
+  <data name="Weather is not enabled for this farm" xml:space="preserve">
+    <value>Weather is not enabled for this farm</value>
+  </data>
+  <data name="Weather location" xml:space="preserve">
+    <value>Weather location</value>
+  </data>
+  <data name="Weather page sections" xml:space="preserve">
+    <value>Weather page sections</value>
+  </data>
+  <data name="Web application" xml:space="preserve">
+    <value>Web application</value>
+  </data>
+  <data name="Weeding" xml:space="preserve">
+    <value>Weeding</value>
+  </data>
+  <data name="Welcome to your workspace" xml:space="preserve">
+    <value>Welcome to your workspace</value>
+  </data>
+  <data name="What happened?" xml:space="preserve">
+    <value>What happened?</value>
+  </data>
+  <data name="What if a record needs review?" xml:space="preserve">
+    <value>What if a record needs review?</value>
+  </data>
+  <data name="What is not included?" xml:space="preserve">
+    <value>What is not included?</value>
+  </data>
+  <data name="What work did you finish for" xml:space="preserve">
+    <value>What work did you finish for</value>
+  </data>
+  <data name="What you can do with AniGo" xml:space="preserve">
+    <value>What you can do with AniGo</value>
+  </data>
+  <data name="When a farmer enters your farm code, their request will appear here." xml:space="preserve">
+    <value>When a farmer enters your farm code, their request will appear here.</value>
+  </data>
+  <data name="When you plant, open the plan and start its growing cycle." xml:space="preserve">
+    <value>When you plant, open the plan and start its growing cycle.</value>
+  </data>
+  <data name="Where to go next" xml:space="preserve">
+    <value>Where to go next</value>
+  </data>
+  <data name="Work completed" xml:space="preserve">
+    <value>Work completed</value>
+  </data>
+  <data name="Work to do" xml:space="preserve">
+    <value>Work to do</value>
+  </data>
+  <data name="Worker heartbeat" xml:space="preserve">
+    <value>Worker heartbeat</value>
+  </data>
+  <data name="Workspace" xml:space="preserve">
+    <value>Workspace</value>
+  </data>
+  <data name="Workspace navigation" xml:space="preserve">
+    <value>Workspace navigation</value>
+  </data>
+  <data name="YOUR FARM WORKSPACE" xml:space="preserve">
+    <value>YOUR FARM WORKSPACE</value>
+  </data>
+  <data name="YOUR FIRST STEP" xml:space="preserve">
+    <value>YOUR FIRST STEP</value>
+  </data>
+  <data name="YOUR WORKSPACE" xml:space="preserve">
+    <value>YOUR WORKSPACE</value>
+  </data>
+  <data name="Yield by planting cycle" xml:space="preserve">
+    <value>Yield by planting cycle</value>
+  </data>
+  <data name="Yield comparison by cycle" xml:space="preserve">
+    <value>Yield comparison by cycle</value>
+  </data>
+  <data name="You" xml:space="preserve">
+    <value>You</value>
+  </data>
+  <data name="You can apply again with a valid farm code." xml:space="preserve">
+    <value>You can apply again with a valid farm code.</value>
+  </data>
+  <data name="You do not have permission to view this page." xml:space="preserve">
+    <value>You do not have permission to view this page.</value>
+  </data>
+  <data name="You haven't requested access to any farms yet." xml:space="preserve">
+    <value>You haven't requested access to any farms yet.</value>
+  </data>
+  <data name="You're here" xml:space="preserve">
+    <value>You're here</value>
+  </data>
+  <data name="Your account information (read-only)" xml:space="preserve">
+    <value>Your account information (read-only)</value>
+  </data>
+  <data name="Your admin password (required to confirm)" xml:space="preserve">
+    <value>Your admin password (required to confirm)</value>
+  </data>
+  <data name="Your assigned work" xml:space="preserve">
+    <value>Your assigned work</value>
+  </data>
+  <data name="Your available farms" xml:space="preserve">
+    <value>Your available farms</value>
+  </data>
+  <data name="Your farm access" xml:space="preserve">
+    <value>Your farm access</value>
+  </data>
+  <data name="Your farm is created. Give your growing area a name and size before planning a crop." xml:space="preserve">
+    <value>Your farm is created. Give your growing area a name and size before planning a crop.</value>
+  </data>
+  <data name="Your farm name and nearby location are the essentials. A precise map pin can be changed separately." xml:space="preserve">
+    <value>Your farm name and nearby location are the essentials. A precise map pin can be changed separately.</value>
+  </data>
+  <data name="Your farm owner or manager can add plots when the farm is ready." xml:space="preserve">
+    <value>Your farm owner or manager can add plots when the farm is ready.</value>
+  </data>
+  <data name="Your farm owner or manager can add supplies. Once available, you can record usage linked to field activity." xml:space="preserve">
+    <value>Your farm owner or manager can add supplies. Once available, you can record usage linked to field activity.</value>
+  </data>
+  <data name="Your farm owner or manager can assign tasks here. You can also open crops to record field observations." xml:space="preserve">
+    <value>Your farm owner or manager can assign tasks here. You can also open crops to record field observations.</value>
+  </data>
+  <data name="Your farm owner or manager can create a planting plan for these plots." xml:space="preserve">
+    <value>Your farm owner or manager can create a planting plan for these plots.</value>
+  </data>
+  <data name="Your farms" xml:space="preserve">
+    <value>Your farms</value>
+  </data>
+  <data name="Your full name" xml:space="preserve">
+    <value>Your full name</value>
+  </data>
+  <data name="Your join requests" xml:space="preserve">
+    <value>Your join requests</value>
+  </data>
+  <data name="Your named growing areas and their saved crop plans." xml:space="preserve">
+    <value>Your named growing areas and their saved crop plans.</value>
+  </data>
+  <data name="Your overdue and due-today tasks first." xml:space="preserve">
+    <value>Your overdue and due-today tasks first.</value>
+  </data>
+  <data name="Your password" xml:space="preserve">
+    <value>Your password</value>
+  </data>
+  <data name="Your plots are set up. Choose a crop and planting dates to continue." xml:space="preserve">
+    <value>Your plots are set up. Choose a crop and planting dates to continue.</value>
+  </data>
+  <data name="Your selected next step will be ready after sign-in. Joining a farm still requires the owner's approval." xml:space="preserve">
+    <value>Your selected next step will be ready after sign-in. Joining a farm still requires the owner's approval.</value>
+  </data>
+  <data name="Your supplies" xml:space="preserve">
+    <value>Your supplies</value>
+  </data>
+  <data name="Your time zone affects task deadlines, planned planting dates, and harvest and finance reporting periods." xml:space="preserve">
+    <value>Your time zone affects task deadlines, planned planting dates, and harvest and finance reporting periods.</value>
+  </data>
+  <data name="confirms acceptance. Confirmed records appear in crop history, supplies or harvests." xml:space="preserve">
+    <value>confirms acceptance. Confirmed records appear in crop history, supplies or harvests.</value>
+  </data>
+  <data name="crop&#10;            · Each harvest is recorded separately, without ending the crop cycle." xml:space="preserve">
+    <value>crop
+            · Each harvest is recorded separately, without ending the crop cycle.</value>
+  </data>
+  <data name="e.g. Barangay San Jose, Angeles City" xml:space="preserve">
+    <value>e.g. Barangay San Jose, Angeles City</value>
+  </data>
+  <data name="e.g. North field" xml:space="preserve">
+    <value>e.g. North field</value>
+  </data>
+  <data name="e.g. Riverside Farm" xml:space="preserve">
+    <value>e.g. Riverside Farm</value>
+  </data>
+  <data name="every farm in" xml:space="preserve">
+    <value>every farm in</value>
+  </data>
+  <data name="for current crop, supply and harvest records." xml:space="preserve">
+    <value>for current crop, supply and harvest records.</value>
+  </data>
+  <data name="for next steps." xml:space="preserve">
+    <value>for next steps.</value>
+  </data>
+  <data name="kg, L, pcs" xml:space="preserve">
+    <value>kg, L, pcs</value>
+  </data>
+  <data name="means your Android record is waiting for upload. Keep it on the phone and reconnect." xml:space="preserve">
+    <value>means your Android record is waiting for upload. Keep it on the phone and reconnect.</value>
+  </data>
+  <data name="one place." xml:space="preserve">
+    <value>one place.</value>
+  </data>
+  <data name="or" xml:space="preserve">
+    <value>or</value>
+  </data>
+  <data name="people waiting for approval" xml:space="preserve">
+    <value>people waiting for approval</value>
+  </data>
+  <data name="person waiting for approval" xml:space="preserve">
+    <value>person waiting for approval</value>
+  </data>
+  <data name="photos" xml:space="preserve">
+    <value>photos</value>
+  </data>
+  <data name="to see assigned jobs." xml:space="preserve">
+    <value>to see assigned jobs.</value>
+  </data>
+  <data name="{0} SUPPORT" xml:space="preserve">
+    <value>{0} SUPPORT</value>
+  </data>
+  <data name="{0} UTC" xml:space="preserve">
+    <value>{0} UTC</value>
+  </data>
+  <data name="{0} accounts" xml:space="preserve">
+    <value>{0} accounts</value>
+  </data>
+  <data name="{0} active advisories" xml:space="preserve">
+    <value>{0} active advisories</value>
+  </data>
+  <data name="{0} active saved weather {1} — review" xml:space="preserve">
+    <value>{0} active saved weather {1} — review</value>
+  </data>
+  <data name="{0} crop calendar" xml:space="preserve">
+    <value>{0} crop calendar</value>
+  </data>
+  <data name="{0} cycle / unit groups" xml:space="preserve">
+    <value>{0} cycle / unit groups</value>
+  </data>
+  <data name="{0} entry/entries" xml:space="preserve">
+    <value>{0} entry/entries</value>
+  </data>
+  <data name="{0} farms" xml:space="preserve">
+    <value>{0} farms</value>
+  </data>
+  <data name="{0} inspection(s)" xml:space="preserve">
+    <value>{0} inspection(s)</value>
+  </data>
+  <data name="{0} km/h" xml:space="preserve">
+    <value>{0} km/h</value>
+  </data>
+  <data name="{0} low-stock supply {1}" xml:space="preserve">
+    <value>{0} low-stock supply {1}</value>
+  </data>
+  <data name="{0} mm" xml:space="preserve">
+    <value>{0} mm</value>
+  </data>
+  <data name="{0} on this page · {1} matching of {2}" xml:space="preserve">
+    <value>{0} on this page · {1} matching of {2}</value>
+  </data>
+  <data name="{0} on this page · {1} matching · {2} recent" xml:space="preserve">
+    <value>{0} on this page · {1} matching · {2} recent</value>
+  </data>
+  <data name="{0} on this page · {1} total · {2} finished/ended" xml:space="preserve">
+    <value>{0} on this page · {1} total · {2} finished/ended</value>
+  </data>
+  <data name="{0} owned farms · {1} memberships" xml:space="preserve">
+    <value>{0} owned farms · {1} memberships</value>
+  </data>
+  <data name="{0} plots · {1} members" xml:space="preserve">
+    <value>{0} plots · {1} members</value>
+  </data>
+  <data name="{0} previously unresolved" xml:space="preserve">
+    <value>{0} previously unresolved</value>
+  </data>
+  <data name="{0} record(s)" xml:space="preserve">
+    <value>{0} record(s)</value>
+  </data>
+  <data name="{0} registered in total" xml:space="preserve">
+    <value>{0} registered in total</value>
+  </data>
+  <data name="{0} task" xml:space="preserve">
+    <value>{0} task</value>
+  </data>
+  <data name="{0} valid harvest records · {1} voided records" xml:space="preserve">
+    <value>{0} valid harvest records · {1} voided records</value>
+  </data>
+  <data name="{0} valid harvests" xml:space="preserve">
+    <value>{0} valid harvests</value>
+  </data>
+  <data name="{0} {1}" xml:space="preserve">
+    <value>{0} {1}</value>
+  </data>
+  <data name="{0} {1} active crop cycles. No record is attached to one until you select it below." xml:space="preserve">
+    <value>{0} {1} active crop cycles. No record is attached to one until you select it below.</value>
+  </data>
+  <data name="{0} {1} advisory" xml:space="preserve">
+    <value>{0} {1} advisory</value>
+  </data>
+  <data name="{0} {1} crop concerns →" xml:space="preserve">
+    <value>{0} {1} crop concerns →</value>
+  </data>
+  <data name="{0} {1} current crop records →" xml:space="preserve">
+    <value>{0} {1} current crop records →</value>
+  </data>
+  <data name="{0} {1} days" xml:space="preserve">
+    <value>{0} {1} days</value>
+  </data>
+  <data name="{0} {1} found" xml:space="preserve">
+    <value>{0} {1} found</value>
+  </data>
+  <data name="{0} {1} low-stock supplies →" xml:space="preserve">
+    <value>{0} {1} low-stock supplies →</value>
+  </data>
+  <data name="{0} {1} of {2}" xml:space="preserve">
+    <value>{0} {1} of {2}</value>
+  </data>
+  <data name="{0} {1} of {2} due tasks. Open all tasks to review the rest." xml:space="preserve">
+    <value>{0} {1} of {2} due tasks. Open all tasks to review the rest.</value>
+  </data>
+  <data name="{0} {1} of {2} timeline entries. See the monitoring, task, and harvest pages for complete histories." xml:space="preserve">
+    <value>{0} {1} of {2} timeline entries. See the monitoring, task, and harvest pages for complete histories.</value>
+  </data>
+  <data name="{0} {1} of {2} · {3} farms" xml:space="preserve">
+    <value>{0} {1} of {2} · {3} farms</value>
+  </data>
+  <data name="{0} {1} of {2} · {3} requests" xml:space="preserve">
+    <value>{0} {1} of {2} · {3} requests</value>
+  </data>
+  <data name="{0} {1} on this page from the latest {2} matching records (maximum 100, including voided entries). For the complete history, use Export records CSV." xml:space="preserve">
+    <value>{0} {1} on this page from the latest {2} matching records (maximum 100, including voided entries). For the complete history, use Export records CSV.</value>
+  </data>
+  <data name="{0} {1} on {2}?" xml:space="preserve">
+    <value>{0} {1} on {2}?</value>
+  </data>
+  <data name="{0} {1} waiting for farm access." xml:space="preserve">
+    <value>{0} {1} waiting for farm access.</value>
+  </data>
+  <data name="{0} {1} {2}" xml:space="preserve">
+    <value>{0} {1} {2}</value>
+  </data>
+  <data name="{0} {1} · Updated {2} UTC" xml:space="preserve">
+    <value>{0} {1} · Updated {2} UTC</value>
+  </data>
+  <data name="{0} {1} · {2} · not live weather" xml:space="preserve">
+    <value>{0} {1} · {2} · not live weather</value>
+  </data>
+  <data name="{0} {1}. You may save more than one harvest for the same crop." xml:space="preserve">
+    <value>{0} {1}. You may save more than one harvest for the same crop.</value>
+  </data>
+  <data name="{0} · Active crop" xml:space="preserve">
+    <value>{0} · Active crop</value>
+  </data>
+  <data name="{0} · Created {1} UTC" xml:space="preserve">
+    <value>{0} · Created {1} UTC</value>
+  </data>
+  <data name="{0} · Dates follow {1}." xml:space="preserve">
+    <value>{0} · Dates follow {1}.</value>
+  </data>
+  <data name="{0} · Owned by {1}" xml:space="preserve">
+    <value>{0} · Owned by {1}</value>
+  </data>
+  <data name="{0} · measured in {1}" xml:space="preserve">
+    <value>{0} · measured in {1}</value>
+  </data>
+  <data name="{0} · saved daily maximum" xml:space="preserve">
+    <value>{0} · saved daily maximum</value>
+  </data>
+  <data name="{0} · {1} UTC" xml:space="preserve">
+    <value>{0} · {1} UTC</value>
+  </data>
+  <data name="{0} · {1} crop cycle(s)" xml:space="preserve">
+    <value>{0} · {1} crop cycle(s)</value>
+  </data>
+  <data name="{0} · {1} total" xml:space="preserve">
+    <value>{0} · {1} total</value>
+  </data>
+  <data name="{0} · {1} · {2} {3} available" xml:space="preserve">
+    <value>{0} · {1} · {2} {3} available</value>
+  </data>
+  <data name="{0}, {1} scheduled entries" xml:space="preserve">
+    <value>{0}, {1} scheduled entries</value>
+  </data>
+  <data name="{0}, {1} tasks" xml:space="preserve">
+    <value>{0}, {1} tasks</value>
+  </data>
+  <data name="{0}–{1} of {2} matching" xml:space="preserve">
+    <value>{0}–{1} of {2} matching</value>
+  </data>
+  <data name="© {0} AniGo. All rights reserved." xml:space="preserve">
+    <value>© {0} AniGo. All rights reserved.</value>
+  </data>
+  <data name="± Count correction" xml:space="preserve">
+    <value>± Count correction</value>
+  </data>
+  <data name="· Assigned to you" xml:space="preserve">
+    <value>· Assigned to you</value>
+  </data>
+  <data name="· Expected harvest" xml:space="preserve">
+    <value>· Expected harvest</value>
+  </data>
+  <data name="← Previous" xml:space="preserve">
+    <value>← Previous</value>
+  </data>
+  <data name="− Supplies used" xml:space="preserve">
+    <value>− Supplies used</value>
+  </data>
+</root>

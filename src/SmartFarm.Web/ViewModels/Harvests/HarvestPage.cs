@@ -5,6 +5,7 @@ namespace SmartFarm.Web.ViewModels.Harvests;
 
 public sealed record HarvestPage(CropCycleDetails CropCycle, HarvestOverview Overview)
 {
+    public string TimeZoneId { get; init; } = "Asia/Manila";
     public RecordHarvestInput? Entry { get; init; }
 }
 

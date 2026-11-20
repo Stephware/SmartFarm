@@ -1,5 +1,8 @@
 package com.smartfarm.mobile.ui.components.onboarding
 
+import com.smartfarm.mobile.R
+import com.smartfarm.mobile.localization.uiText
+
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -119,20 +122,20 @@ fun AniGoFarmManagementDemo(progress: Float, modifier: Modifier = Modifier) {
         else -> 1
     }
     Box(modifier.semantics {
-        contentDescription = "Sample farm setup, step $phase of 4; demonstration only"
+        contentDescription = uiText(R.string.ui_sample_farm_setup_step_1_s_of_4_demonstration_only_b075867, "Sample farm setup, step %1\$s of 4; demonstration only", (phase))
     }) {
-        ExampleCard("Riverside Farm", "Sample farm workspace") {
+        ExampleCard(uiText(R.string.ui_riverside_farm_3379a8e, "Riverside Farm"), uiText(R.string.ui_sample_farm_workspace_6dd9a14, "Sample farm workspace")) {
             if (progress >= .18f) {
-                IntroRow("North Plot", "Crop area",
+                IntroRow(uiText(R.string.ui_north_plot_196c923, "North Plot"), uiText(R.string.ui_crop_area_6ce5c1c, "Crop area"),
                     opacity = reveal(progress, .18f))
             }
             if (progress >= .46f) {
-                IntroRow("South Plot", "Crop area",
+                IntroRow(uiText(R.string.ui_south_plot_0d12521, "South Plot"), uiText(R.string.ui_crop_area_6ce5c1c, "Crop area"),
                     opacity = reveal(progress, .46f))
             }
             if (progress >= .73f) {
                 Spacer(Modifier.height(2.dp))
-                Text("Owner & team members", color = Pine,
+                Text(uiText(R.string.ui_owner_team_members_ea9cf2b, "Owner & team members"), color = Pine,
                     style = MaterialTheme.typography.labelSmall,
                     fontWeight = FontWeight.SemiBold,
                     modifier = Modifier.graphicsLayer {
@@ -155,9 +158,9 @@ fun AniGoCropPlanningDemo(progress: Float, modifier: Modifier = Modifier) {
         else -> 1
     }
     Box(modifier.semantics {
-        contentDescription = "Sample crop plan, step $phase of 4; demonstration only"
+        contentDescription = uiText(R.string.ui_sample_crop_plan_step_1_s_of_4_demonstration_only_dbe7713, "Sample crop plan, step %1\$s of 4; demonstration only", (phase))
     }) {
-        ExampleCard("Rice planting", "Sample crop calendar") {
+        ExampleCard(uiText(R.string.ui_rice_planting_29a39f4, "Rice planting"), uiText(R.string.ui_sample_crop_calendar_40575e6, "Sample crop calendar")) {
             Row(
                 Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.Center,
@@ -170,20 +173,20 @@ fun AniGoCropPlanningDemo(progress: Float, modifier: Modifier = Modifier) {
                 Spacer(Modifier.width(4.dp))
                 Column(Modifier.weight(1f)) {
                     Text(
-                        if (progress >= .74f) "Growing" else if (progress >= .39f) "Planted"
-                            else "Planned",
+                        if (progress >= .74f) uiText(R.string.ui_growing_52c8c11, "Growing") else if (progress >= .39f) uiText(R.string.ui_planted_92b5c62, "Planted")
+                            else uiText(R.string.ui_planned_fb6f7c9, "Planned"),
                         color = Pine,
                         fontWeight = FontWeight.Bold,
                         style = MaterialTheme.typography.labelSmall
                     )
-                    Text("Rice", color = Muted, style = MaterialTheme.typography.labelSmall)
+                    Text(uiText(R.string.ui_rice_1b9bc7b, "Rice"), color = Muted, style = MaterialTheme.typography.labelSmall)
                 }
             }
             Row(
                 Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(3.dp)
             ) {
-                listOf("Plan", "Plant", "Grow").forEachIndexed { index, title ->
+                listOf(uiText(R.string.ui_plan_fa8ed0b, "Plan"), uiText(R.string.ui_plant_0bd287f, "Plant"), uiText(R.string.ui_grow_b97dc52, "Grow")).forEachIndexed { index, title ->
                     val active = progress >= when (index) {
                         0 -> .02f
                         1 -> .39f
@@ -200,7 +203,7 @@ fun AniGoCropPlanningDemo(progress: Float, modifier: Modifier = Modifier) {
                 }
             }
             if (progress >= .76f) {
-                Text("Upcoming: crop activities", color = Pine,
+                Text(uiText(R.string.ui_upcoming_crop_activities_8b6e583, "Upcoming: crop activities"), color = Pine,
                     style = MaterialTheme.typography.labelSmall,
                     fontWeight = FontWeight.SemiBold,
                     modifier = Modifier.graphicsLayer {

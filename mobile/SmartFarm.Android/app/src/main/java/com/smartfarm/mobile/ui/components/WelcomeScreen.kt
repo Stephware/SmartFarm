@@ -1,5 +1,8 @@
 package com.smartfarm.mobile.ui.components
 
+import com.smartfarm.mobile.R
+import com.smartfarm.mobile.localization.uiText
+
 import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -29,33 +32,33 @@ fun WelcomeScreen(
 ) {
     var showDiagnostics by rememberSaveable { mutableStateOf(false) }
     PhotoAuthScaffold(
-        headline = "Your farm starts here.",
-        description = "Plan crops, record fieldwork and track harvests in one place.",
-        formTitle = "Get started",
-        formSubtitle = "Manage your own farm or join an existing team with one account."
+        headline = uiText(R.string.ui_your_farm_starts_here_affbd4f, "Your farm starts here."),
+        description = uiText(R.string.ui_plan_crops_record_fieldwork_and_track_harvests_in_on_725071b, "Plan crops, record fieldwork and track harvests in one place."),
+        formTitle = uiText(R.string.ui_get_started_61e8d44, "Get started"),
+        formSubtitle = uiText(R.string.ui_manage_your_own_farm_or_join_an_existing_team_with_o_e43acdd, "Manage your own farm or join an existing team with one account.")
     ) {
-        PhotoAuthPrimaryButton(label = "Log in", onClick = onLogin)
+        PhotoAuthPrimaryButton(label = uiText(R.string.ui_log_in_c189840, "Log in"), onClick = onLogin)
         OutlinedButton(
             onClick = onRegister,
             modifier = Modifier.fillMaxWidth().defaultMinSize(minHeight = 48.dp),
             shape = RoundedCornerShape(14.dp)
-        ) { Text("Create account") }
+        ) { Text(uiText(R.string.ui_create_account_798ca2c, "Create account")) }
 
         if (onPreviewGuide != null) {
             TextButton(onClick = onPreviewGuide, modifier = Modifier.fillMaxWidth()) {
-                Text("Explore AniGo with our farm guide")
+                Text(uiText(R.string.ui_explore_anigo_with_our_farm_guide_23f29d5, "Explore AniGo with our farm guide"))
             }
         }
 
         // Diagnostics are never the prominent call-to-action and are stripped in release builds.
         if (BuildConfig.DEBUG) {
             TextButton(onClick = { showDiagnostics = !showDiagnostics }) {
-                Text(if (showDiagnostics) "Hide developer diagnostics" else "Developer diagnostics")
+                Text(if (showDiagnostics) uiText(R.string.ui_hide_developer_diagnostics_fa87423, "Hide developer diagnostics") else uiText(R.string.ui_developer_diagnostics_aab0a0a, "Developer diagnostics"))
             }
             if (showDiagnostics) {
                 Text(status.message, style = MaterialTheme.typography.bodySmall)
                 OutlinedButton(onClick = onCheckBackend, enabled = !status.checking) {
-                    Text(if (status.checking) "Checking..." else "Check backend")
+                    Text(if (status.checking) "Checking..." else uiText(R.string.ui_check_backend_82e9305, "Check backend"))
                 }
             }
         }

@@ -43,7 +43,7 @@ public sealed class AccountController : Controller
         var user = await _users.FindByEmailAsync(input.Email.Trim());
         if (user is null || user.DisabledAtUtc is not null)
         {
-            ModelState.AddModelError(string.Empty, "Invalid email or password.");
+            ModelState.AddModelError(string.Empty, SmartFarm.Web.Presentation.UiMessages.Text("Invalid email or password."));
             return View(input);
         }
         var result = await _signIn.PasswordSignInAsync(user, input.Password, input.RememberMe, lockoutOnFailure: true);
@@ -51,7 +51,7 @@ public sealed class AccountController : Controller
             return RedirectToAction(nameof(TwoFactor), new { returnUrl });
         if (!result.Succeeded)
         {
-            ModelState.AddModelError(string.Empty, "Invalid email or password, or account temporarily unavailable.");
+            ModelState.AddModelError(string.Empty, SmartFarm.Web.Presentation.UiMessages.Text("Invalid email or password, or account temporarily unavailable."));
             return View(input);
         }
 
@@ -79,12 +79,12 @@ public sealed class AccountController : Controller
             rememberClient: false);
         if (result.IsLockedOut)
         {
-            ModelState.AddModelError("", "Account temporarily locked. Try again later.");
+            ModelState.AddModelError("", SmartFarm.Web.Presentation.UiMessages.Text("Account temporarily locked. Try again later."));
             return View(input);
         }
         if (!result.Succeeded)
         {
-            ModelState.AddModelError("", "Invalid authenticator code.");
+            ModelState.AddModelError("", SmartFarm.Web.Presentation.UiMessages.Text("Invalid authenticator code."));
             return View(input);
         }
         return await AfterSignIn(user, input.ReturnUrl);
@@ -151,7 +151,7 @@ public sealed class AccountController : Controller
             return View(input);
         }
 
-        TempData["Message"] = "Account created. Sign in to continue.";
+        TempData["Message"] = SmartFarm.Web.Presentation.UiMessages.Text("Account created. Sign in to continue.");
         return RedirectToAction(nameof(Login), new { returnUrl = safeReturnUrl });
     }
 

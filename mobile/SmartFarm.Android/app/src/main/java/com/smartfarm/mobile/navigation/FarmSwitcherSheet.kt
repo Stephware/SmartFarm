@@ -1,5 +1,8 @@
 package com.smartfarm.mobile.navigation
 
+import com.smartfarm.mobile.R
+import com.smartfarm.mobile.localization.uiText
+
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -31,8 +34,8 @@ internal fun FarmSwitcherSheet(
         Column(Modifier.fillMaxWidth().heightIn(max = 580.dp)
             .verticalScroll(rememberScrollState()).padding(horizontal = 20.dp, vertical = 14.dp),
             verticalArrangement = Arrangement.spacedBy(12.dp)) {
-            Text("Switch farm", style = MaterialTheme.typography.headlineSmall)
-            Text("Choose where you want to work.",
+            Text(uiText(R.string.ui_switch_farm_3edb967, "Switch farm"), style = MaterialTheme.typography.headlineSmall)
+            Text(uiText(R.string.ui_choose_where_you_want_to_work_dcc8cf0, "Choose where you want to work."),
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant)
             farms.forEach { farm ->
@@ -45,14 +48,14 @@ internal fun FarmSwitcherSheet(
                                 color = MaterialTheme.colorScheme.onSurfaceVariant)
                         }
                         if (farm.id == currentFarmId) {
-                            FarmStatusChip("Current", FarmStatusTone.Active)
+                            FarmStatusChip(uiText(R.string.ui_current_e0d1b68, "Current"), FarmStatusTone.Active)
                         }
                     }
                 }
             }
-            if (farms.isEmpty()) Text("Open My farms to view or join a farm.")
+            if (farms.isEmpty()) Text(uiText(R.string.ui_open_my_farms_to_view_or_join_a_farm_61f2d32, "Open My farms to view or join a farm."))
             OutlinedButton(onClick = onAllFarms, modifier = Modifier.fillMaxWidth()) {
-                Text("All farms · Create or join")
+                Text(uiText(R.string.ui_all_farms_create_or_join_b68fad3, "All farms · Create or join"))
             }
         }
     }

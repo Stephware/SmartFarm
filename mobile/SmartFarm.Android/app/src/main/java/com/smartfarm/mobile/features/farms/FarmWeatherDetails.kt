@@ -1,5 +1,8 @@
 package com.smartfarm.mobile.features.farms
 
+import com.smartfarm.mobile.R
+import com.smartfarm.mobile.localization.uiText
+
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -29,75 +32,75 @@ import java.time.format.DateTimeFormatter
 internal fun FarmWeatherDetails(state: FarmUiState) {
     val weather = state.weather
     var showDailyForecast by rememberSaveable(state.selected?.id) { mutableStateOf(false) }
-    FarmSectionHeader("Saved farm forecast", "Saved predictions, not live measurements.")
+    FarmSectionHeader(uiText(R.string.ui_saved_farm_forecast_c4fd6d0, "Saved farm forecast"), uiText(R.string.ui_saved_predictions_not_live_measurements_6f71fa1, "Saved predictions, not live measurements."))
     if (state.weatherOffline) FarmStatusChip(
-        "Offline copy — reconnect to check new warnings", FarmStatusTone.Warning)
+        uiText(R.string.ui_offline_copy_reconnect_to_check_new_warnings_b6ffeeb, "Offline copy — reconnect to check new warnings"), FarmStatusTone.Warning)
     when {
-        weather == null -> FarmEmptyState("Forecast unavailable",
-            state.weatherMessage ?: "Reconnect and reopen your farm for saved weather.")
-        !weather.hasCoordinates -> FarmEmptyState("No farm location pin",
-            "An owner or manager can add the farm coordinates in Settings.")
+        weather == null -> FarmEmptyState(uiText(R.string.ui_forecast_unavailable_31f441c, "Forecast unavailable"),
+            state.weatherMessage ?: uiText(R.string.ui_reconnect_and_reopen_your_farm_for_saved_weather_a3c4f51, "Reconnect and reopen your farm for saved weather."))
+        !weather.hasCoordinates -> FarmEmptyState(uiText(R.string.ui_no_farm_location_pin_d6cab1e, "No farm location pin"),
+            uiText(R.string.ui_an_owner_or_manager_can_add_the_farm_coordinates_in__bd531e6, "An owner or manager can add the farm coordinates in Settings."))
         else -> {
             val stale = WeatherFreshness.isStale(weather.days)
-            if (stale) FarmStatusChip("Saved weather older than 12 hours or invalid",
+            if (stale) FarmStatusChip(uiText(R.string.ui_saved_weather_older_than_12_hours_or_invalid_2ddbe71, "Saved weather older than 12 hours or invalid"),
                 FarmStatusTone.Warning)
             val date = runCatching { LocalDate.now(ZoneId.of(weather.timeZoneId)) }.getOrNull()
-            if (date == null) Text("Farm time zone invalid — check Settings. Forecast dates are shown as saved.",
+            if (date == null) Text(uiText(R.string.ui_farm_time_zone_invalid_check_settings_forecast_dates_8d25f03, "Farm time zone invalid — check Settings. Forecast dates are shown as saved."),
                 color = MaterialTheme.colorScheme.error)
             val days = weather.days.sortedBy { it.date }
             val upcoming = days.firstOrNull { day ->
                 val parsed = runCatching { LocalDate.parse(day.date) }.getOrNull()
                 parsed != null && date != null && !parsed.isBefore(date)
             }
-            FarmSectionCard("Forecast summary") {
+            FarmSectionCard(uiText(R.string.ui_forecast_summary_ee11094, "Forecast summary")) {
                 if (upcoming != null) {
                     Text(upcoming.date, style = MaterialTheme.typography.titleMedium)
-                    Text("Source: ${upcoming.provider}", style = MaterialTheme.typography.bodySmall,
+                    Text(uiText(R.string.ui_source_1_s_800bc31, "Source: %1\$s", (upcoming.provider)), style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant)
-                    Text("Last checked: ${farmDateTime(upcoming.retrievedAtUtc, weather.timeZoneId)}", style = MaterialTheme.typography.bodySmall,
+                    Text(uiText(R.string.ui_last_checked_1_s_7273969, "Last checked: %1\$s", (farmDateTime(upcoming.retrievedAtUtc, weather.timeZoneId))), style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant)
                     Text("${upcoming.minTemperatureC?.toPlainString() ?: "—"}–${upcoming.maxTemperatureC?.toPlainString() ?: "—"} °C",
                         style = MaterialTheme.typography.headlineSmall)
-                    Text("Rain chance: ${upcoming.maxPrecipitationProbability?.toPlainString() ?: "—"}% · " +
-                        "Expected rainfall: ${upcoming.rainfallMm?.toPlainString() ?: "—"} mm")
+                    Text(uiText(R.string.ui_rain_chance_1_s_dd62a68, "Rain chance: %1\$s%% · ", (upcoming.maxPrecipitationProbability?.toPlainString() ?: "—")) +
+                        uiText(R.string.ui_expected_rainfall_1_s_mm_545cc86, "Expected rainfall: %1\$s mm", (upcoming.rainfallMm?.toPlainString() ?: "—")))
                 } else {
-                    Text("No forecast from today onward. Existing saved dates are listed below.")
+                    Text(uiText(R.string.ui_no_forecast_from_today_onward_existing_saved_dates_a_f7e2df4, "No forecast from today onward. Existing saved dates are listed below."))
                 }
-                Text("${weather.advisories.count { it.status == 0 }} active saved advisories",
+                Text(uiText(R.string.ui_1_s_active_saved_advisories_12f6f3e, "%1\$s active saved advisories", (weather.advisories.count { it.status == 0 })),
                     style = MaterialTheme.typography.bodyMedium)
-                Text("Check official current forecasts before weather-sensitive fieldwork.",
+                Text(uiText(R.string.ui_check_official_current_forecasts_before_weather_sens_e7bf9ac, "Check official current forecasts before weather-sensitive fieldwork."),
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant)
             }
             TextButton(onClick = { showDailyForecast = !showDailyForecast }) {
-                Text(if (showDailyForecast) "Hide daily forecast" else "Show daily forecast")
+                Text(if (showDailyForecast) uiText(R.string.ui_hide_daily_forecast_1b2d895, "Hide daily forecast") else uiText(R.string.ui_show_daily_forecast_d2b5d2c, "Show daily forecast"))
             }
             if (showDailyForecast) {
-                if (days.isEmpty()) FarmEmptyState("No forecast days",
-                    "Reconnect and reopen the farm after the weather worker refreshes.")
+                if (days.isEmpty()) FarmEmptyState(uiText(R.string.ui_no_forecast_days_ac08085, "No forecast days"),
+                    uiText(R.string.ui_reconnect_and_reopen_the_farm_after_the_weather_work_18796c8, "Reconnect and reopen the farm after the weather worker refreshes."))
                 days.forEach { day ->
-                    FarmSectionCard(day.date, subtitle = "Source: ${day.provider}") {
+                    FarmSectionCard(day.date, subtitle = uiText(R.string.ui_source_1_s_800bc31, "Source: %1\$s", (day.provider))) {
                         if (upcoming?.date == day.date) {
-                            FarmStatusChip("Next available forecast", FarmStatusTone.Planned)
+                            FarmStatusChip(uiText(R.string.ui_next_available_forecast_d87d75c, "Next available forecast"), FarmStatusTone.Planned)
                         }
                         Text("${day.minTemperatureC?.toPlainString() ?: "—"}–${day.maxTemperatureC?.toPlainString() ?: "—"} °C",
                             style = MaterialTheme.typography.titleLarge)
-                        Text("Rain: ${day.rainfallMm?.toPlainString() ?: "—"} mm · " +
-                            "Chance: ${day.maxPrecipitationProbability?.toPlainString() ?: "—"}%")
-                        Text("Max wind: ${day.maxWindKph?.toPlainString() ?: "—"} km/h")
-                        Text("Last checked: ${farmDateTime(day.retrievedAtUtc, weather.timeZoneId)}",
+                        Text(uiText(R.string.ui_rain_1_s_mm_0710e31, "Rain: %1\$s mm · ", (day.rainfallMm?.toPlainString() ?: "—")) +
+                            uiText(R.string.ui_chance_1_s_945edfe, "Chance: %1\$s%%", (day.maxPrecipitationProbability?.toPlainString() ?: "—")))
+                        Text(uiText(R.string.ui_max_wind_1_s_km_h_6324500, "Max wind: %1\$s km/h", (day.maxWindKph?.toPlainString() ?: "—")))
+                        Text(uiText(R.string.ui_last_checked_1_s_7273969, "Last checked: %1\$s", (farmDateTime(day.retrievedAtUtc, weather.timeZoneId))),
                             style = MaterialTheme.typography.bodySmall,
                             color = MaterialTheme.colorScheme.onSurfaceVariant)
                     }
                 }
             }
-            FarmSectionHeader("Saved advisories", "Check official warnings for current conditions.")
+            FarmSectionHeader(uiText(R.string.ui_saved_advisories_acaab51, "Saved advisories"), uiText(R.string.ui_check_official_warnings_for_current_conditions_f4af3f4, "Check official warnings for current conditions."))
             val advisories = weather.advisories.filter { it.status == 0 }
-            if (advisories.isEmpty()) FarmEmptyState("No active saved advisories",
-                "This does not rule out current hazards.")
+            if (advisories.isEmpty()) FarmEmptyState(uiText(R.string.ui_no_active_saved_advisories_0b5b738, "No active saved advisories"),
+                uiText(R.string.ui_this_does_not_rule_out_current_hazards_a4e8667, "This does not rule out current hazards."))
             advisories.forEach { a ->
-                FarmSectionCard("Advisory · ${a.date}") {
-                    FarmStatusChip("Severity ${a.severity}", FarmStatusTone.Warning)
+                FarmSectionCard(uiText(R.string.ui_advisory_1_s_c1509d9, "Advisory · %1\$s", (a.date))) {
+                    FarmStatusChip(uiText(R.string.ui_severity_1_s_31458b3, "Severity %1\$s", (a.severity)), FarmStatusTone.Warning)
                     Text(a.message)
                 }
             }

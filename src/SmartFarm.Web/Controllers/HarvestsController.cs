@@ -42,7 +42,9 @@ public sealed class HarvestsController : Controller
             var crop = await _crops.GetCycleAsync(farmId, cycleId, Actor, ct);
             if (crop is null) return NotFound();
             var overview = await _harvests.GetAsync(farmId, cycleId, Actor, ct);
-            return View("Index", new HarvestPage(crop, overview) { Entry = draft });
+            var farm = await HttpContext.RequestServices.GetRequiredService<SmartFarm.Core.Interfaces.Farms.IFarmManagementService>().GetAsync(farmId, Actor, ct);
+            if (farm is null) return NotFound();
+            return View("Index", new HarvestPage(crop, overview) { Entry = draft, TimeZoneId = farm.TimeZoneId });
         }
         catch (FarmOperationException e) when (e.Error == FarmError.NotFound)
         {
@@ -56,13 +58,13 @@ public sealed class HarvestsController : Controller
     {
         if (!ModelState.IsValid)
         {
-            ModelState.AddModelError("", "Enter a positive quantity with no more than 3 decimal places.");
+            ModelState.AddModelError("", SmartFarm.Web.Presentation.UiMessages.Text("Enter a positive quantity with no more than 3 decimal places."));
             return await Workspace(farmId, cycleId, ct, input);
         }
         try
         {
             await _harvests.RecordAsync(farmId, cycleId, Actor, input, ct);
-            TempData["HarvestNotice"] = "Partial harvest recorded.";
+            TempData["HarvestNotice"] = SmartFarm.Web.Presentation.UiMessages.Text("Partial harvest recorded.");
         }
         catch (FarmOperationException e)
         {
@@ -79,13 +81,13 @@ public sealed class HarvestsController : Controller
     {
         if (!ModelState.IsValid)
         {
-            TempData["HarvestError"] = "A reason of 3–300 characters is required.";
+            TempData["HarvestError"] = SmartFarm.Web.Presentation.UiMessages.Text("A reason of 3\u2013300 characters is required.");
             return RedirectToAction(nameof(Index), new { farmId, cycleId });
         }
         try
         {
             await _harvests.VoidAsync(farmId, cycleId, harvestId, Actor, input, ct);
-            TempData["HarvestNotice"] = "Harvest entry voided; its audit record is preserved.";
+            TempData["HarvestNotice"] = SmartFarm.Web.Presentation.UiMessages.Text("Harvest entry voided; its audit record is preserved.");
         }
         catch (FarmOperationException e)
         {

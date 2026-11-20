@@ -1,5 +1,8 @@
 package com.smartfarm.mobile.ui.components
 
+import com.smartfarm.mobile.R
+import com.smartfarm.mobile.localization.uiText
+
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.MaterialTheme
@@ -29,9 +32,9 @@ fun ConfirmActionButton(label: String, message: String, enabled: Boolean = true,
                     colors = ButtonDefaults.textButtonColors(contentColor = MaterialTheme.colorScheme.error), onClick = {
                     confirming = false
                     onConfirm()
-                }) { Text("Confirm") }
+                }) { Text(uiText(R.string.ui_confirm_eebdd24, "Confirm")) }
             },
-            dismissButton = { TextButton(onClick = { confirming = false }) { Text("Cancel") } }
+            dismissButton = { TextButton(onClick = { confirming = false }) { Text(uiText(R.string.ui_cancel_19766ed, "Cancel")) } }
         )
     }
 }

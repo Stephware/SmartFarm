@@ -1,48 +1,48 @@
 @model SmartFarm.Web.ViewModels.Admin.AdminAuditDetailPage
 @{
-    ViewData["Title"] = "Audit event";
+    ViewData["Title"] = T["Audit event"];
 }
-<a class="admin-back anigo-back-control" asp-area="Admin" asp-controller="Audit" asp-action="Index" title="Back to audit history"><partial name="~/Views/Shared/_Icon.cshtml" model='@("chevLeft")' /><span class="visually-hidden">Back to audit history</span></a>
+<a class="admin-back anigo-back-control" asp-area="Admin" asp-controller="Audit" asp-action="Index" title="@T["Back to audit history"]"><partial name="~/Views/Shared/_Icon.cshtml" model='@("chevLeft")' /><span class="visually-hidden">@T["Back to audit history"]</span></a>
 <div class="page-heading admin-page-heading">
-    <div><p class="sf-kicker">ADMIN ACTIVITY</p>
+    <div><p class="sf-kicker">@T["ADMIN ACTIVITY"]</p>
         <h1>@SmartFarm.Web.ViewModels.Admin.AdminAuditDisplay.ActionLabel(Model.Entry.Action)</h1>
-        <p class="sf-muted">@Model.Entry.OccurredAtUtc.ToString("MMMM d, yyyy HH:mm:ss") UTC</p>
+        <p class="sf-muted">@T["{0} UTC", Model.Entry.OccurredAtUtc.ToString("MMMM d, yyyy HH:mm:ss")]</p>
     </div>
-    <span class="sf-status-chip sf-status-chip--neutral">Read-only</span>
+    <span class="sf-status-chip sf-status-chip--neutral">@T["Read-only"]</span>
 </div>
 <section class="panel admin-detail-panel admin-audit-detail">
-    <h2>Event details</h2>
+    <h2>@T["Event details"]</h2>
     <dl class="admin-detail-list">
-        <div><dt>Performed by</dt><dd>@Model.Entry.ActorName</dd></div>
+        <div><dt>@T["Performed by"]</dt><dd>@Model.Entry.ActorName</dd></div>
         @if (!string.IsNullOrWhiteSpace(Model.Entry.ActorEmail)) {
-            <div><dt>Admin email</dt><dd>@Model.Entry.ActorEmail</dd></div>
+            <div><dt>@T["Admin email"]</dt><dd>@Model.Entry.ActorEmail</dd></div>
         }
-        <div><dt>Source</dt><dd>@(Model.Entry.ActorSource == "bootstrap-cli" ? "Trusted server command" : "Admin web portal")</dd></div>
-        <div><dt>Action</dt><dd><code>@Model.Entry.Action</code></dd></div>
-        <div><dt>Target</dt><dd>@SmartFarm.Web.ViewModels.Admin.AdminAuditDisplay.TargetLabel(Model.Entry.TargetType)</dd></div>
+        <div><dt>@T["Source"]</dt><dd>@(Model.Entry.ActorSource == "bootstrap-cli" ? "Trusted server command" : "Admin web portal")</dd></div>
+        <div><dt>@T["Action"]</dt><dd><code>@Model.Entry.Action</code></dd></div>
+        <div><dt>@T["Target"]</dt><dd>@SmartFarm.Web.ViewModels.Admin.AdminAuditDisplay.TargetLabel(Model.Entry.TargetType)</dd></div>
         @if (Model.Entry.TargetId.HasValue) {
-            <div><dt>Target ID</dt><dd><code>@Model.Entry.TargetId</code></dd></div>
+            <div><dt>@T["Target ID"]</dt><dd><code>@Model.Entry.TargetId</code></dd></div>
         }
-        <div><dt>Event ID</dt><dd><code>@Model.Entry.Id</code></dd></div>
-        <div><dt>Reason or context</dt>
+        <div><dt>@T["Event ID"]</dt><dd><code>@Model.Entry.Id</code></dd></div>
+        <div><dt>@T["Reason or context"]</dt>
             <dd class="admin-audit-reason">@(string.IsNullOrWhiteSpace(Model.Reason) ? "No reason was recorded." : Model.Reason)</dd>
         </div>
     </dl>
     @if (Model.Entry.TargetId is Guid targetId) {
         <div class="admin-audit-detail-links">
             @if (Model.Entry.TargetType == "user") {
-                <a class="button admin-button-secondary" asp-area="Admin" asp-controller="Users" asp-action="Details" asp-route-id="@targetId">View user</a>
+                <a class="button admin-button-secondary" asp-area="Admin" asp-controller="Users" asp-action="Details" asp-route-id="@targetId">@T["View user"]</a>
             }
             else if (Model.Entry.TargetType == "farm") {
-                <a class="button admin-button-secondary" asp-area="Admin" asp-controller="Farms" asp-action="Details" asp-route-id="@targetId">View farm</a>
+                <a class="button admin-button-secondary" asp-area="Admin" asp-controller="Farms" asp-action="Details" asp-route-id="@targetId">@T["View farm"]</a>
             }
             else if (Model.Entry.TargetType == "support-ticket") {
-                <a class="button admin-button-secondary" asp-area="Admin" asp-controller="Support" asp-action="Details" asp-route-id="@targetId">View support case</a>
+                <a class="button admin-button-secondary" asp-area="Admin" asp-controller="Support" asp-action="Details" asp-route-id="@targetId">@T["View support case"]</a>
             }
             @if (Model.Entry.TargetType == "announcement") {
-                <a class="button admin-button-secondary" asp-area="Admin" asp-controller="Announcements" asp-action="Details" asp-route-id="@targetId">View announcement</a>
+                <a class="button admin-button-secondary" asp-area="Admin" asp-controller="Announcements" asp-action="Details" asp-route-id="@targetId">@T["View announcement"]</a>
             }
-            <a asp-area="Admin" asp-controller="Audit" asp-action="Index" asp-route-targetType="@Model.Entry.TargetType" asp-route-targetId="@targetId">See all activity for this target</a>
+            <a asp-area="Admin" asp-controller="Audit" asp-action="Index" asp-route-targetType="@Model.Entry.TargetType" asp-route-targetId="@targetId">@T["See all activity for this target"]</a>
         </div>
     }
 </section>

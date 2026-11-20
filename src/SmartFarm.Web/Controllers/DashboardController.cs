@@ -30,11 +30,11 @@ public sealed class DashboardController(
             FarmEnrollmentPanel? panel = null;
             if (farm.Role == "Owner")
             {
-                try { panel = new(farmId, await enrollment.OwnerOverviewAsync(farmId, actor, ct), true); }
+                try { panel = new(farmId, await enrollment.OwnerOverviewAsync(farmId, actor, ct), true) { TimeZoneId = farm.TimeZoneId }; }
                 catch (Exception error) when (error is System.Data.Common.DbException or HttpRequestException or FarmOperationException)
                 {
                     logger.LogError(error, "Could not load owner join requests");
-                    panel = new(farmId, null, true, "Join requests are unavailable. Refresh this page to try again.");
+                    panel = new(farmId, null, true, "Join requests are unavailable. Refresh this page to try again.") { TimeZoneId = farm.TimeZoneId };
                 }
             }
             // All supporting records remain scoped to this authorized farm.
@@ -55,6 +55,7 @@ public sealed class DashboardController(
                 Cycles = cycles,
                 Tasks = scheduled,
                 Weather = savedForecast,
+                TimeZoneId = farm.TimeZoneId,
                 FarmRole = farm.Role,
                 ActorId = actor
             });

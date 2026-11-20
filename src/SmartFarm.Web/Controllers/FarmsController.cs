@@ -54,7 +54,7 @@ public sealed class FarmsController : Controller
             try
             {
                 await _enrollment.RequestAsync(Actor, input.FarmCode, ct);
-                TempData["Message"] = "Request submitted. Farm access begins after the owner approves.";
+                TempData["Message"] = SmartFarm.Web.Presentation.UiMessages.Text("Request submitted. Farm access begins after the owner approves.");
                 return RedirectToAction(nameof(Index));
             }
             catch (FarmOperationException error) { ModelState.AddModelError(nameof(input.FarmCode), error.Message); }
@@ -68,7 +68,7 @@ public sealed class FarmsController : Controller
         try
         {
             await _enrollment.CancelAsync(farmId, requestId, Actor, ct);
-            TempData["Message"] = "Join request canceled. You can apply again with a valid farm code.";
+            TempData["Message"] = SmartFarm.Web.Presentation.UiMessages.Text("Join request canceled. You can apply again with a valid farm code.");
         }
         catch (FarmOperationException error)
         {
@@ -86,7 +86,7 @@ public sealed class FarmsController : Controller
         try
         {
             await _enrollment.RegenerateCodeAsync(id, Actor, input.CurrentCode, ct);
-            TempData["Message"] = "Farm code regenerated. Share the new code with farmers requesting access.";
+            TempData["Message"] = SmartFarm.Web.Presentation.UiMessages.Text("Farm code regenerated. Share the new code with farmers requesting access.");
         }
         catch (FarmOperationException error)
         {
@@ -150,11 +150,11 @@ public sealed class FarmsController : Controller
         FarmEnrollmentPanel? enrollment = null;
         if (farm.Role == "Owner")
         {
-            try { enrollment = new(id, await _enrollment.OwnerOverviewAsync(id, Actor, ct)); }
+            try { enrollment = new(id, await _enrollment.OwnerOverviewAsync(id, Actor, ct)) { TimeZoneId = farm.TimeZoneId }; }
             catch (Exception error) when (error is System.Data.Common.DbException or HttpRequestException or FarmOperationException)
             {
                 HttpContext.RequestServices.GetRequiredService<ILogger<FarmsController>>().LogError(error, "Could not load owner join requests");
-                enrollment = new(id, null, Error: "Join requests are unavailable. Refresh this page to try again.");
+                enrollment = new(id, null, Error: "Join requests are unavailable. Refresh this page to try again.") { TimeZoneId = farm.TimeZoneId };
             }
         }
         return View(new FarmWorkspaceViewModel(farm,
@@ -218,7 +218,7 @@ public sealed class FarmsController : Controller
     {
         if (!ModelState.IsValid)
         {
-            TempData["Error"] = "Use a valid plot name and positive area.";
+            TempData["Error"] = SmartFarm.Web.Presentation.UiMessages.Text("Use a valid plot name and positive area.");
             return RedirectToAction(nameof(Details), new { id });
         }
         try { await _farms.CreatePlotAsync(id, Actor, input, ct); }

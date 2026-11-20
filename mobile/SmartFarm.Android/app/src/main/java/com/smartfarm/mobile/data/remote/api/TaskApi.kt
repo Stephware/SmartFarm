@@ -26,9 +26,13 @@ data class NotificationDto(val id: String, val title: String, val message: Strin
 data class AniAlertDto(val id: String, val farmId: String?, val title: String, val message: String,
     val localizedMessage: String, val source: String, val severity: Int?, val shouldInterrupt: Boolean,
     val isStale: Boolean, val readAtUtc: String?, val acknowledgedAtUtc: String?)
-data class AniAlertPage(val items: List<AniAlertDto>)
+data class AniAlertPage(val items: List<AniAlertDto>, val hasMore: Boolean = false)
 
 interface TaskApi {
+    @GET("api/notifications/alerts")
+    suspend fun alertPage(@Header("Authorization") bearer: String,
+        @retrofit2.http.Query("page") page: Int, @retrofit2.http.Query("pageSize") pageSize: Int = 100): AniAlertPage
+
     @GET("api/notifications/alerts?unread=true&pageSize=100")
     suspend fun alerts(@Header("Authorization") bearer: String): AniAlertPage
     @PUT("api/notifications/{id}/acknowledge")

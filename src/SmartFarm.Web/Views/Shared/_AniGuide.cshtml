@@ -10,13 +10,13 @@
         ? "#add-plot" : Url.Action(destination, controller, controller == "Farms" ? new { id = (Guid?)Model.FarmId, farmId = (Guid?)null } : new { id = (Guid?)null, farmId = (Guid?)Model.FarmId }) + "#" + fragment;
 }
 <div class="ani-guide-wrap" data-ani-guide data-ani-key="@($"{Model.ActorId:N}:{Model.FarmId:N}:{Model.Step}")">
-    <section class="panel card ani-guide" aria-label="Ani farm help" data-ani-content>
+    <section class="panel card ani-guide" aria-label="@T["Ani farm help"]" data-ani-content>
         <span class="ani-sprite" aria-hidden="true" style="background-position:@((frame % 4) * 100 / 3.0)% @((frame / 4) * 50)%"></span>
-        <div class="ani-guide-copy"><h2>@title</h2><p>@message</p>
-            <a class="button" href="@href" data-ani-action>@action</a>
-            <button type="button" data-ani-hide>Not now</button>
-            <button type="button" data-ani-dismiss>Dismiss this tip</button>
+        <div class="ani-guide-copy"><h2>@T[title]</h2><p>@T[message]</p>
+            <a class="button" href="@href" data-ani-action>@T[action]</a>
+            <button type="button" data-ani-hide>@T["Not now"]</button>
+            <button type="button" data-ani-dismiss>@T["Dismiss this tip"]</button>
         </div>
     </section>
-    <button type="button" data-ani-replay hidden>Help from Ani</button>
+    <button type="button" data-ani-replay hidden>@T["Help from Ani"]</button>
 </div>

@@ -1,13 +1,16 @@
 package com.smartfarm.mobile.features.inventory
 
+import com.smartfarm.mobile.R
+import com.smartfarm.mobile.localization.uiText
+
 import com.smartfarm.mobile.data.remote.dto.InventoryItemDto
 import java.util.Locale
 
 internal fun inventoryCategoryName(category: Int): String = when (category) {
-    1 -> "Seeds"
-    2 -> "Fertilizers"
-    3 -> "Pesticides"
-    else -> "Other"
+    1 -> uiText(R.string.ui_seeds_45a1954, "Seeds")
+    2 -> uiText(R.string.ui_fertilizers_1841450, "Fertilizers")
+    3 -> uiText(R.string.ui_pesticides_3172816, "Pesticides")
+    else -> uiText(R.string.ui_other_f97e9da, "Other")
 }
 
 /** Filter the existing farm-scoped snapshot without modifying cached balances. */

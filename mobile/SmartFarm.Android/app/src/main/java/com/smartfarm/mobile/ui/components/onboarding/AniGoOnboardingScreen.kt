@@ -1,5 +1,8 @@
 package com.smartfarm.mobile.ui.components.onboarding
 
+import com.smartfarm.mobile.R
+import com.smartfarm.mobile.localization.uiText
+
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.Animatable
@@ -68,7 +71,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.smartfarm.mobile.R
 import com.smartfarm.mobile.ui.theme.LocalFarmAppearance
 import com.smartfarm.mobile.ui.theme.SmartFarmTheme
 import com.smartfarm.mobile.ui.theme.AniGoPalette
@@ -90,27 +92,27 @@ private data class PageCopy(
     val aniTip: String
 )
 
-private val copy = listOf(
-    PageCopy("Your farm, organized",
-        "Manage a farm or join a team. Keep plots and records in one workspace.",
-        "Create your farm, or join another farm with its owner's approval.",
+private val copy get() = listOf(
+    PageCopy(uiText(R.string.ui_your_farm_organized_3075c50, "Your farm, organized"),
+        uiText(R.string.ui_manage_a_farm_or_join_a_team_keep_plots_and_records__75b9321, "Manage a farm or join a team. Keep plots and records in one workspace."),
+        uiText(R.string.ui_create_your_farm_or_join_another_farm_with_its_owner_ab77866, "Create your farm, or join another farm with its owner's approval."),
         AniGoCarabaoPose.GUIDE,
-        "Start your own farm, or ask to join someone's team."),
-    PageCopy("Grow with a plan",
-        "Plan crops, set planting dates, and see what comes next.",
-        "Keep your crop calendar and growing activities organized.",
+        uiText(R.string.ui_start_your_own_farm_or_ask_to_join_someone_s_team_cc615ed, "Start your own farm, or ask to join someone's team.")),
+    PageCopy(uiText(R.string.ui_grow_with_a_plan_84e8d61, "Grow with a plan"),
+        uiText(R.string.ui_plan_crops_set_planting_dates_and_see_what_comes_nex_69a1eba, "Plan crops, set planting dates, and see what comes next."),
+        uiText(R.string.ui_keep_your_crop_calendar_and_growing_activities_organ_8beb5f7, "Keep your crop calendar and growing activities organized."),
         AniGoCarabaoPose.PLANT,
-        "Choose what to grow, then follow each stage of your plan."),
-    PageCopy("Record work as you go",
-        "Log watering, inspections, photos, and supported field activities.",
-        "Some Android records can be saved offline and synchronized later. Local save is not server confirmation.",
+        uiText(R.string.ui_choose_what_to_grow_then_follow_each_stage_of_your_p_bc611b3, "Choose what to grow, then follow each stage of your plan.")),
+    PageCopy(uiText(R.string.ui_record_work_as_you_go_12971b6, "Record work as you go"),
+        uiText(R.string.ui_log_watering_inspections_photos_and_supported_field__e1714a2, "Log watering, inspections, photos, and supported field activities."),
+        uiText(R.string.ui_some_android_records_can_be_saved_offline_and_synchr_4fdf5bb, "Some Android records can be saved offline and synchronized later. Local save is not server confirmation."),
         AniGoCarabaoPose.RECORD,
-        "Some records stay on your phone until you can sync them."),
-    PageCopy("From field to harvest",
-        "Record harvests, review supplies, and follow your farm's progress.",
-        "Multiple partial harvests can be recorded for a crop, with units kept separate.",
+        uiText(R.string.ui_some_records_stay_on_your_phone_until_you_can_sync_t_2554ba0, "Some records stay on your phone until you can sync them.")),
+    PageCopy(uiText(R.string.ui_from_field_to_harvest_9622ba0, "From field to harvest"),
+        uiText(R.string.ui_record_harvests_review_supplies_and_follow_your_farm_b795ce3, "Record harvests, review supplies, and follow your farm's progress."),
+        uiText(R.string.ui_multiple_partial_harvests_can_be_recorded_for_a_crop_0515c20, "Multiple partial harvests can be recorded for a crop, with units kept separate."),
         AniGoCarabaoPose.HARVEST,
-        "Harvest a little today? Record each batch as you go.")
+        uiText(R.string.ui_harvest_a_little_today_record_each_batch_as_you_go_ada03e0, "Harvest a little today? Record each batch as you go."))
 )
 
 @Composable
@@ -120,8 +122,8 @@ fun AniGoOnboardingScreen(
     motionAllowed: Boolean = anigoMotionAllowed(),
     introAutoPlay: Boolean = true,
     includeWelcome: Boolean = true,
-    completionLabel: String = "Continue to AniGo",
-    skipLabel: String = "Skip"
+    completionLabel: String = uiText(R.string.ui_continue_to_anigo_b9bec7a, "Continue to AniGo"),
+    skipLabel: String = uiText(R.string.ui_skip_28d0359, "Skip")
 ) {
     // The intro is a one-shot before the four learning pages, not a fifth page.
     // The OS reduced-motion setting can bypass it; completion survives rotation.
@@ -204,7 +206,7 @@ fun AniGoOnboardingScreen(
                     painter = painterResource(
                         if (dark) R.drawable.ani_go_logo_on_dark else R.drawable.ani_go_logo
                     ),
-                    contentDescription = "AniGo",
+                    contentDescription = uiText(R.string.ui_anigo_80e6f53, "AniGo"),
                     contentScale = ContentScale.Fit,
                     modifier = Modifier.width(130.dp).height(if (shortWindow) 28.dp else 38.dp)
                 )
@@ -218,8 +220,8 @@ fun AniGoOnboardingScreen(
             }
             if (!shortWindow) {
                 Text(
-                    if (includeWelcome && selectedPage == 0) "MEET YOUR FARM GUIDE"
-                    else "LESSON ${selectedPage + if (includeWelcome) 0 else 1} OF $LessonCount",
+                    if (includeWelcome && selectedPage == 0) uiText(R.string.ui_meet_your_farm_guide_ffcb5ab, "MEET YOUR FARM GUIDE")
+                    else uiText(R.string.ui_lesson_1_s_of_2_s_b92bea6, "LESSON %1\$s OF %2\$s", (selectedPage + if (includeWelcome) 0 else 1), (LessonCount)),
                     color = secondary,
                     style = MaterialTheme.typography.labelSmall,
                     fontWeight = FontWeight.SemiBold,
@@ -230,7 +232,7 @@ fun AniGoOnboardingScreen(
                 Modifier.widthIn(max = 560.dp).fillMaxWidth()
                     .padding(horizontal = 24.dp, vertical = if (shortWindow) 2.dp else 7.dp)
                     .semantics {
-                        contentDescription = "Step " + (selectedPage + 1) + " of " + pageCount
+                        contentDescription = uiText(R.string.ui_step_474a987, "Step ") + (selectedPage + 1) + uiText(R.string.ui_of_a4282e4, " of ") + pageCount
                     },
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
@@ -241,7 +243,7 @@ fun AniGoOnboardingScreen(
                             durationMillis = if (motionAllowed)
                                 AniGoGuideMotion.GuideEnterMillis else 0
                         ),
-                        label = "AniGo onboarding step"
+                        label = uiText(R.string.ui_anigo_onboarding_step_85f239e, "AniGo onboarding step")
                     )
                     Box(Modifier.weight(1f).height(5.dp).clip(CircleShape).background(marker))
                 }
@@ -281,7 +283,7 @@ fun AniGoOnboardingScreen(
                     },
                     enabled = selectedPage > 0 && !changingPage && !exiting,
                     modifier = Modifier.width(92.dp).heightIn(min = if (shortWindow) 48.dp else 52.dp)
-                ) { Text("Back", color = if (selectedPage == 0) secondary else foreground) }
+                ) { Text(uiText(R.string.ui_back_76900f1, "Back"), color = if (selectedPage == 0) secondary else foreground) }
                 Button(
                     onClick = {
                         if (!changingPage) {
@@ -296,7 +298,7 @@ fun AniGoOnboardingScreen(
                         containerColor = if (dark) AniGoPalette.darkAction else Pine,
                         contentColor = Color.White)
                 ) {
-                    Text(if (selectedPage == pageCount - 1) completionLabel else "Next →",
+                    Text(if (selectedPage == pageCount - 1) completionLabel else uiText(R.string.ui_next_bcf0489, "Next →"),
                         fontWeight = FontWeight.Bold)
                 }
             }
@@ -367,7 +369,7 @@ private fun GuidePageContent(
             verticalArrangement = Arrangement.Center
         ) {
             Text(
-                "ANI'S FARM TOUR  ·  ${page + 1} / $LessonCount",
+                uiText(R.string.ui_ani_s_farm_tour_1_s_2_s_92ecf27, "ANI'S FARM TOUR  ·  %1\$s / %2\$s", (page + 1), (LessonCount)),
                 color = MaterialTheme.colorScheme.primary,
                 style = MaterialTheme.typography.labelMedium,
                 fontWeight = FontWeight.Bold,
@@ -449,7 +451,7 @@ private fun GuidePageContent(
             Column(Modifier.fillMaxWidth().padding(horizontal = 4.dp)) {
                 Text(details.detail, color = ink, style = MaterialTheme.typography.bodyMedium)
                 Spacer(Modifier.height(9.dp))
-                Text("Illustrative example · no farm records are created",
+                Text(uiText(R.string.ui_illustrative_example_no_farm_records_are_created_c3dfaaa, "Illustrative example · no farm records are created"),
                     style = MaterialTheme.typography.labelSmall, color = secondary)
                 if (pageActive && motionAllowed) {
                     TextButton(
@@ -458,14 +460,14 @@ private fun GuidePageContent(
                             .heightIn(min = 48.dp)
                             .semantics {
                                 contentDescription = when (page) {
-                                    0 -> "Replay farm management example"
-                                    1 -> "Replay crop planning example"
-                                    2 -> "Replay fieldwork example"
-                                    else -> "Replay harvest example"
+                                    0 -> uiText(R.string.ui_replay_farm_management_example_769f6ea, "Replay farm management example")
+                                    1 -> uiText(R.string.ui_replay_crop_planning_example_a725ce6, "Replay crop planning example")
+                                    2 -> uiText(R.string.ui_replay_fieldwork_example_67a2867, "Replay fieldwork example")
+                                    else -> uiText(R.string.ui_replay_harvest_example_77e3038, "Replay harvest example")
                                 }
                             }
                     ) {
-                        Text("Replay example", color = ink,
+                        Text(uiText(R.string.ui_replay_example_39bbcd6, "Replay example"), color = ink,
                             style = MaterialTheme.typography.labelMedium,
                             fontWeight = FontWeight.SemiBold)
                     }
@@ -490,7 +492,7 @@ private fun AniGoLessonTip(tip: String, dark: Boolean, page: Int) {
     ) {
         Column(Modifier.padding(horizontal = 15.dp, vertical = 12.dp)) {
             Text(
-                "ANI SAYS",
+                uiText(R.string.ui_ani_says_7a70206, "ANI SAYS"),
                 color = if (dark) Color(0xFFF5CB7B) else Pine,
                 style = MaterialTheme.typography.labelSmall,
                 fontWeight = FontWeight.ExtraBold

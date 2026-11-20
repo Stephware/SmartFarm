@@ -1,5 +1,8 @@
 package com.smartfarm.mobile.features.auth
 
+import com.smartfarm.mobile.R
+import com.smartfarm.mobile.localization.uiText
+
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
@@ -44,7 +47,7 @@ class AuthViewModel(private val repository: AuthRepository) : ViewModel() {
         viewModelScope.launch {
             try {
                 repository.register(fullName, email, password)
-                mutableState.value = AuthUiState(notice = "Account created. You can now sign in.")
+                mutableState.value = AuthUiState(notice = uiText(R.string.ui_account_created_you_can_now_sign_in_3631ebf, "Account created. You can now sign in."))
                 onSuccess()
             } catch (cancelled: CancellationException) {
                 throw cancelled

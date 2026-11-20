@@ -1,0 +1,4253 @@
+<root>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms</value>
+  </resheader>
+  <data name=" Record fieldwork first to link the stock usage." xml:space="preserve">
+    <value> Itala muna ang gawain sa bukid upang maiugnay ang paggamit ng stock.</value>
+  </data>
+  <data name="(optional)" xml:space="preserve">
+    <value>(opsyonal)</value>
+  </data>
+  <data name="+ Supplies arrived" xml:space="preserve">
+    <value>+ Dumating na suplay</value>
+  </data>
+  <data name=", you can open your farms, create one, or enter a farm code to request access." xml:space="preserve">
+    <value>, maaari mong buksan ang iyong mga bukid, gumawa ng bago, o maglagay ng farm code upang humiling ng access.</value>
+  </data>
+  <data name=". A farm owner must approve join requests." xml:space="preserve">
+    <value>. Kailangang aprubahan ng may-ari ang mga kahilingang sumali.</value>
+  </data>
+  <data name=". Address search runs only when you press Search." xml:space="preserve">
+    <value>. Hahanapin lamang ang address kapag pinindot mo ang Hanapin.</value>
+  </data>
+  <data name=". New plans are still allowed, but only one crop can be active at a time." xml:space="preserve">
+    <value>. Maaari pa ring gumawa ng bagong plano, ngunit iisang pananim lamang ang maaaring aktibo sa isang pagkakataon.</value>
+  </data>
+  <data name=". Review existing plans before adding another." xml:space="preserve">
+    <value>. Suriin ang mga dati nang plano bago magdagdag ng bago.</value>
+  </data>
+  <data name="0 matching" xml:space="preserve">
+    <value>0 katugma</value>
+  </data>
+  <data name="1. Account" xml:space="preserve">
+    <value>1. Account</value>
+  </data>
+  <data name="1. Choose what to record" xml:space="preserve">
+    <value>1. Piliin ang itatala</value>
+  </data>
+  <data name="12-character farm code" xml:space="preserve">
+    <value>Farm code na may 12 character</value>
+  </data>
+  <data name="2. Farm" xml:space="preserve">
+    <value>2. Bukid</value>
+  </data>
+  <data name="2. Save the record" xml:space="preserve">
+    <value>2. I-save ang tala</value>
+  </data>
+  <data name="3. Attach photos" xml:space="preserve">
+    <value>3. Maglakip ng mga larawan</value>
+  </data>
+  <data name="3. Work" xml:space="preserve">
+    <value>3. Gawain</value>
+  </data>
+  <data name="A barangay, town or nearby place is enough for this label. The exact pin below is optional." xml:space="preserve">
+    <value>Sapat na ang barangay, bayan, o kalapit na lugar bilang pangalan ng lokasyon. Opsyonal ang eksaktong pin sa ibaba.</value>
+  </data>
+  <data name="A map pin helps with local weather. You can add one later by editing your farm." xml:space="preserve">
+    <value>Nakatutulong ang pin sa mapa para sa lokal na panahon. Maaari mo itong idagdag sa pag-edit ng bukid.</value>
+  </data>
+  <data name="A nearby area is enough to get started. You can add an exact map pin later for weather." xml:space="preserve">
+    <value>Sapat na ang kalapit na lugar upang magsimula. Maaari kang magdagdag ng eksaktong pin para sa panahon mamaya.</value>
+  </data>
+  <data name="A precise map pin helps associate saved weather forecasts with your farm. The nearby address is a separate label." xml:space="preserve">
+    <value>Iniuugnay ng eksaktong pin ang naka-save na taya ng panahon sa iyong bukid. Hiwalay na pangalan ang kalapit na address.</value>
+  </data>
+  <data name="A reason of 3–300 characters is required." xml:space="preserve">
+    <value>Maglagay ng dahilan na may 3–300 character.</value>
+  </data>
+  <data name="ACCESS RESTRICTED" xml:space="preserve">
+    <value>LIMITADONG ACCESS</value>
+  </data>
+  <data name="ACCOUNT RECOVERY" xml:space="preserve">
+    <value>PAGBAWI NG ACCOUNT</value>
+  </data>
+  <data name="ADMIN ACTIVITY" xml:space="preserve">
+    <value>AKTIBIDAD NG ADMIN</value>
+  </data>
+  <data name="ANDROID DATA SYNC" xml:space="preserve">
+    <value>PAG-SYNC NG DATOS SA ANDROID</value>
+  </data>
+  <data name="ANIGO · PLATFORM ADMINISTRATION" xml:space="preserve">
+    <value>ANIGO · PANGANGASIWA NG PLATFORM</value>
+  </data>
+  <data name="API process" xml:space="preserve">
+    <value>Proseso ng API</value>
+  </data>
+  <data name="About AniGo" xml:space="preserve">
+    <value>Tungkol sa AniGo</value>
+  </data>
+  <data name="Access denied" xml:space="preserve">
+    <value>Hindi pinahihintulutang buksan</value>
+  </data>
+  <data name="Account" xml:space="preserve">
+    <value>Account</value>
+  </data>
+  <data name="Account &amp; settings" xml:space="preserve">
+    <value>Account at mga setting</value>
+  </data>
+  <data name="Account actions" xml:space="preserve">
+    <value>Mga aksyon sa account</value>
+  </data>
+  <data name="Account and appearance menu" xml:space="preserve">
+    <value>Menu ng account at hitsura</value>
+  </data>
+  <data name="Account and farm selection" xml:space="preserve">
+    <value>Pagpili ng account at bukid</value>
+  </data>
+  <data name="Account controls" xml:space="preserve">
+    <value>Mga aksyon sa account</value>
+  </data>
+  <data name="Account created. Sign in to continue." xml:space="preserve">
+    <value>Nagawa na ang account. Mag-log in upang magpatuloy.</value>
+  </data>
+  <data name="Account status" xml:space="preserve">
+    <value>Katayuan ng account</value>
+  </data>
+  <data name="Account summary" xml:space="preserve">
+    <value>Buod ng account</value>
+  </data>
+  <data name="Account temporarily locked. Try again later." xml:space="preserve">
+    <value>Pansamantalang naka-lock ang account. Subukang muli mamaya.</value>
+  </data>
+  <data name="Account type" xml:space="preserve">
+    <value>Uri ng account</value>
+  </data>
+  <data name="Acknowledge" xml:space="preserve">
+    <value>Nabasa ko na</value>
+  </data>
+  <data name="Action" xml:space="preserve">
+    <value>Aksyon</value>
+  </data>
+  <data name="Actions" xml:space="preserve">
+    <value>Mga aksyon</value>
+  </data>
+  <data name="Actions in the past 7 days" xml:space="preserve">
+    <value>Mga aksyon sa nakaraang 7 araw</value>
+  </data>
+  <data name="Active" xml:space="preserve">
+    <value>Aktibo</value>
+  </data>
+  <data name="Active crop cycles" xml:space="preserve">
+    <value>Mga aktibong siklo ng pananim</value>
+  </data>
+  <data name="Active farms" xml:space="preserve">
+    <value>Mga aktibong bukid</value>
+  </data>
+  <data name="Active members" xml:space="preserve">
+    <value>Mga aktibong kasapi</value>
+  </data>
+  <data name="Active plots" xml:space="preserve">
+    <value>Mga aktibong taniman</value>
+  </data>
+  <data name="Active users" xml:space="preserve">
+    <value>Mga aktibong user</value>
+  </data>
+  <data name="Activities, inspections and photos →" xml:space="preserve">
+    <value>Mga gawain, inspeksyon, at larawan →</value>
+  </data>
+  <data name="Activity" xml:space="preserve">
+    <value>Gawain</value>
+  </data>
+  <data name="Activity and supply use saved together." xml:space="preserve">
+    <value>Sabay na na-save ang gawain at paggamit ng suplay.</value>
+  </data>
+  <data name="Activity history" xml:space="preserve">
+    <value>Kasaysayan ng gawain</value>
+  </data>
+  <data name="Activity saved to this crop's history." xml:space="preserve">
+    <value>Na-save ang gawain sa kasaysayan ng pananim na ito.</value>
+  </data>
+  <data name="Actual planting" xml:space="preserve">
+    <value>Aktuwal na pagtatanim</value>
+  </data>
+  <data name="Actual planting date" xml:space="preserve">
+    <value>Aktuwal na petsa ng pagtatanim</value>
+  </data>
+  <data name="Add a crop type" xml:space="preserve">
+    <value>Magdagdag ng uri ng pananim</value>
+  </data>
+  <data name="Add a growing area" xml:space="preserve">
+    <value>Magdagdag ng taniman</value>
+  </data>
+  <data name="Add a plot" xml:space="preserve">
+    <value>Magdagdag ng taniman</value>
+  </data>
+  <data name="Add a plot before planning crops." xml:space="preserve">
+    <value>Magdagdag muna ng taniman bago magplano ng pananim.</value>
+  </data>
+  <data name="Add a plot →" xml:space="preserve">
+    <value>Magdagdag ng taniman →</value>
+  </data>
+  <data name="Add a supply" xml:space="preserve">
+    <value>Magdagdag ng suplay</value>
+  </data>
+  <data name="Add a task" xml:space="preserve">
+    <value>Magdagdag ng gawain</value>
+  </data>
+  <data name="Add a task to schedule work, or plan a crop for upcoming farm reminders." xml:space="preserve">
+    <value>Magdagdag ng gawain upang magtakda ng iskedyul, o magplano ng pananim para sa mga susunod na paalala.</value>
+  </data>
+  <data name="Add a task →" xml:space="preserve">
+    <value>Magdagdag ng gawain →</value>
+  </data>
+  <data name="Add crop plan" xml:space="preserve">
+    <value>Magdagdag ng plano sa pananim</value>
+  </data>
+  <data name="Add crop type" xml:space="preserve">
+    <value>Magdagdag ng uri ng pananim</value>
+  </data>
+  <data name="Add crop type →" xml:space="preserve">
+    <value>Magdagdag ng uri ng pananim →</value>
+  </data>
+  <data name="Add first plot" xml:space="preserve">
+    <value>Idagdag ang unang taniman</value>
+  </data>
+  <data name="Add first plot →" xml:space="preserve">
+    <value>Idagdag ang unang taniman →</value>
+  </data>
+  <data name="Add plot" xml:space="preserve">
+    <value>Magdagdag ng taniman</value>
+  </data>
+  <data name="Add plots" xml:space="preserve">
+    <value>Magdagdag ng mga taniman</value>
+  </data>
+  <data name="Add supply" xml:space="preserve">
+    <value>Magdagdag ng suplay</value>
+  </data>
+  <data name="Add your first growing area below. Then you can create a planting plan." xml:space="preserve">
+    <value>Idagdag ang unang taniman sa ibaba. Pagkatapos, maaari kang gumawa ng plano sa pagtatanim.</value>
+  </data>
+  <data name="Add your first plot" xml:space="preserve">
+    <value>Idagdag ang unang taniman</value>
+  </data>
+  <data name="Add your first plot." xml:space="preserve">
+    <value>Idagdag ang unang taniman.</value>
+  </data>
+  <data name="Add your first supply →" xml:space="preserve">
+    <value>Idagdag ang unang suplay →</value>
+  </data>
+  <data name="Additional team members" xml:space="preserve">
+    <value>Iba pang kasapi</value>
+  </data>
+  <data name="Adjust the filters or clear them to see other dates and crops." xml:space="preserve">
+    <value>Baguhin o alisin ang mga salaan upang makita ang ibang petsa at pananim.</value>
+  </data>
+  <data name="Adjustment" xml:space="preserve">
+    <value>Pagwawasto</value>
+  </data>
+  <data name="Admin Web" xml:space="preserve">
+    <value>Web ng Admin</value>
+  </data>
+  <data name="Admin authenticator setup" xml:space="preserve">
+    <value>Paghahanda ng authenticator ng Admin</value>
+  </data>
+  <data name="Admin email" xml:space="preserve">
+    <value>Email ng Admin</value>
+  </data>
+  <data name="Admin name, email, action or ID" xml:space="preserve">
+    <value>Pangalan, email, aksyon, o ID ng Admin</value>
+  </data>
+  <data name="Admin navigation" xml:space="preserve">
+    <value>Paglipat sa mga pahina ng Admin</value>
+  </data>
+  <data name="Admin overview" xml:space="preserve">
+    <value>Pangkalahatang tanaw ng Admin</value>
+  </data>
+  <data name="Admin sections" xml:space="preserve">
+    <value>Mga seksyon ng Admin</value>
+  </data>
+  <data name="Administration" xml:space="preserve">
+    <value>Pangangasiwa</value>
+  </data>
+  <data name="Administration settings" xml:space="preserve">
+    <value>Mga setting ng pangangasiwa</value>
+  </data>
+  <data name="Administrative activity" xml:space="preserve">
+    <value>Mga aksyon sa pangangasiwa</value>
+  </data>
+  <data name="Administrative audit history" xml:space="preserve">
+    <value>Kasaysayan ng pagsusuri sa pangangasiwa</value>
+  </data>
+  <data name="Administrative review links" xml:space="preserve">
+    <value>Mga link para sa pagsusuri ng Admin</value>
+  </data>
+  <data name="Advanced tools and past growing records" xml:space="preserve">
+    <value>Iba pang kagamitan at nakaraang tala ng pagtatanim</value>
+  </data>
+  <data name="Advisories (" xml:space="preserve">
+    <value>Mga payo (</value>
+  </data>
+  <data name="After activation, save your recovery codes and sign in again." xml:space="preserve">
+    <value>Pagkatapos paganahin, i-save ang mga code sa pagbawi at mag-log in muli.</value>
+  </data>
+  <data name="After creating your farm" xml:space="preserve">
+    <value>Pagkatapos gumawa ng bukid</value>
+  </data>
+  <data name="After registration, sign in and choose" xml:space="preserve">
+    <value>Pagkatapos magparehistro, mag-log in at piliin ang</value>
+  </data>
+  <data name="After saving, find the inspection under Observations &amp; photos to attach images." xml:space="preserve">
+    <value>Pagkatapos i-save, hanapin ang inspeksyon sa Mga obserbasyon at larawan upang maglakip ng larawan.</value>
+  </data>
+  <data name="After saving, open the crop record to mark it planted when planting actually happens." xml:space="preserve">
+    <value>Pagkatapos i-save, buksan ang tala at markahang naitanim kapag aktuwal nang nagtanim.</value>
+  </data>
+  <data name="After saving, this amount appears in valid harvest history and the confirmed total." xml:space="preserve">
+    <value>Pagkatapos i-save, lilitaw ang dami sa may-bisang kasaysayan ng ani at nakumpirmang kabuuan.</value>
+  </data>
+  <data name="After signing in" xml:space="preserve">
+    <value>Pagkatapos mag-log in</value>
+  </data>
+  <data name="Alert when stock is at or below (optional)" xml:space="preserve">
+    <value>Magpaalala kapag ang stock ay katumbas o mas mababa sa (opsyonal)</value>
+  </data>
+  <data name="All" xml:space="preserve">
+    <value>Lahat</value>
+  </data>
+  <data name="All (" xml:space="preserve">
+    <value>Lahat (</value>
+  </data>
+  <data name="All accounts" xml:space="preserve">
+    <value>Lahat ng account</value>
+  </data>
+  <data name="All actions" xml:space="preserve">
+    <value>Lahat ng aksyon</value>
+  </data>
+  <data name="All active farm plots" xml:space="preserve">
+    <value>Lahat ng aktibong taniman</value>
+  </data>
+  <data name="All announcements" xml:space="preserve">
+    <value>Lahat ng anunsyo</value>
+  </data>
+  <data name="All crops" xml:space="preserve">
+    <value>Lahat ng pananim</value>
+  </data>
+  <data name="All currently scheduled work is coming up on a later date." xml:space="preserve">
+    <value>Nakatakda sa mga susunod na araw ang lahat ng kasalukuyang gawain.</value>
+  </data>
+  <data name="All farms" xml:space="preserve">
+    <value>Lahat ng bukid</value>
+  </data>
+  <data name="All items" xml:space="preserve">
+    <value>Lahat ng gamit</value>
+  </data>
+  <data name="All open" xml:space="preserve">
+    <value>Lahat ng hindi pa tapos</value>
+  </data>
+  <data name="All outcomes" xml:space="preserve">
+    <value>Lahat ng resulta</value>
+  </data>
+  <data name="All plots" xml:space="preserve">
+    <value>Lahat ng taniman</value>
+  </data>
+  <data name="All priorities" xml:space="preserve">
+    <value>Lahat ng antas ng pag-una</value>
+  </data>
+  <data name="All statuses" xml:space="preserve">
+    <value>Lahat ng katayuan</value>
+  </data>
+  <data name="All supplies (" xml:space="preserve">
+    <value>Lahat ng suplay (</value>
+  </data>
+  <data name="All targets" xml:space="preserve">
+    <value>Lahat ng target</value>
+  </data>
+  <data name="All tasks" xml:space="preserve">
+    <value>Lahat ng gawain</value>
+  </data>
+  <data name="All types" xml:space="preserve">
+    <value>Lahat ng uri</value>
+  </data>
+  <data name="Already have an account?" xml:space="preserve">
+    <value>May account ka na ba?</value>
+  </data>
+  <data name="Android sync receipts" xml:space="preserve">
+    <value>Mga kumpirmasyon ng pag-sync sa Android</value>
+  </data>
+  <data name="Ani farm help" xml:space="preserve">
+    <value>Tulong ni Ani sa bukid</value>
+  </data>
+  <data name="AniGo administration" xml:space="preserve">
+    <value>Pangangasiwa ng AniGo</value>
+  </data>
+  <data name="AniGo farm management" xml:space="preserve">
+    <value>Pamamahala ng bukid sa AniGo</value>
+  </data>
+  <data name="AniGo home" xml:space="preserve">
+    <value>Pangunahing pahina ng AniGo</value>
+  </data>
+  <data name="Announcement details" xml:space="preserve">
+    <value>Detalye ng anunsyo</value>
+  </data>
+  <data name="Announcement directory" xml:space="preserve">
+    <value>Talaan ng anunsyo</value>
+  </data>
+  <data name="Announcement history" xml:space="preserve">
+    <value>Kasaysayan ng anunsyo</value>
+  </data>
+  <data name="Announcement pages" xml:space="preserve">
+    <value>Mga pahina ng anunsyo</value>
+  </data>
+  <data name="Announcement preview" xml:space="preserve">
+    <value>Paunang tanaw ng anunsyo</value>
+  </data>
+  <data name="Announcement totals" xml:space="preserve">
+    <value>Kabuuan ng anunsyo</value>
+  </data>
+  <data name="Announcements" xml:space="preserve">
+    <value>Mga anunsyo</value>
+  </data>
+  <data name="Application database" xml:space="preserve">
+    <value>Database ng application</value>
+  </data>
+  <data name="Apply" xml:space="preserve">
+    <value>Ilapat</value>
+  </data>
+  <data name="Apply filters" xml:space="preserve">
+    <value>Ilapat ang mga salaan</value>
+  </data>
+  <data name="Apply language" xml:space="preserve">
+    <value>Gamitin ang wika</value>
+  </data>
+  <data name="Apply status" xml:space="preserve">
+    <value>Ilapat ang katayuan</value>
+  </data>
+  <data name="Approve" xml:space="preserve">
+    <value>Aprubahan</value>
+  </data>
+  <data name="Approved" xml:space="preserve">
+    <value>Inaprubahan</value>
+  </data>
+  <data name="Archive" xml:space="preserve">
+    <value>I-archive</value>
+  </data>
+  <data name="Archive farm" xml:space="preserve">
+    <value>I-archive ang bukid</value>
+  </data>
+  <data name="Archive item" xml:space="preserve">
+    <value>I-archive ang gamit</value>
+  </data>
+  <data name="Archive this farm" xml:space="preserve">
+    <value>I-archive ang bukid na ito</value>
+  </data>
+  <data name="Archive unavailable: this farm has active crop cycles or stock on hand. Ask its owner to resolve these first." xml:space="preserve">
+    <value>Hindi maaaring i-archive: may aktibong pananim o natitirang stock ang bukid. Hilingin sa may-ari na asikasuhin muna ang mga ito.</value>
+  </data>
+  <data name="Archive {0}? Its history will be retained." xml:space="preserve">
+    <value>I-archive ang {0}? Mananatili ang kasaysayan nito.</value>
+  </data>
+  <data name="Archive {0}? Its plots and records will no longer appear in active farms." xml:space="preserve">
+    <value>I-archive ang {0}? Hindi na lilitaw sa mga aktibong bukid ang mga taniman at tala nito.</value>
+  </data>
+  <data name="Archive {0}? Its transaction history will be retained." xml:space="preserve">
+    <value>I-archive ang {0}? Mananatili ang kasaysayan ng mga transaksyon nito.</value>
+  </data>
+  <data name="Archived" xml:space="preserve">
+    <value>Naka-archive</value>
+  </data>
+  <data name="Archived farms" xml:space="preserve">
+    <value>Mga naka-archive na bukid</value>
+  </data>
+  <data name="Archived item — transaction history remains available." xml:space="preserve">
+    <value>Naka-archive na gamit — makikita pa rin ang kasaysayan ng transaksyon.</value>
+  </data>
+  <data name="Archiving removes this farm from active lists and prevents further work here. Existing records are preserved." xml:space="preserve">
+    <value>Inaalis ng pag-archive ang bukid sa mga aktibong listahan at pinipigilan ang bagong gawain dito. Nananatili ang mga dati nang tala.</value>
+  </data>
+  <data name="Area" xml:space="preserve">
+    <value>Lawak</value>
+  </data>
+  <data name="Area (m²)" xml:space="preserve">
+    <value>Lawak (m²)</value>
+  </data>
+  <data name="Area in square meters (m²)" xml:space="preserve">
+    <value>Lawak sa metro kuwadrado (m²)</value>
+  </data>
+  <data name="Ask the owner for a farm code, enter it below, and wait for their approval." xml:space="preserve">
+    <value>Hingin ang farm code sa may-ari, ilagay sa ibaba, at hintayin ang pag-apruba.</value>
+  </data>
+  <data name="Ask your farm owner" xml:space="preserve">
+    <value>Magtanong sa may-ari ng bukid</value>
+  </data>
+  <data name="Assign to (optional)" xml:space="preserve">
+    <value>Italaga kay (opsyonal)</value>
+  </data>
+  <data name="Assigned member" xml:space="preserve">
+    <value>Naitalagang kasapi</value>
+  </data>
+  <data name="Assigned to me" xml:space="preserve">
+    <value>Naitalaga sa akin</value>
+  </data>
+  <data name="Assigned to you" xml:space="preserve">
+    <value>Naitalaga sa iyo</value>
+  </data>
+  <data name="Assigned:" xml:space="preserve">
+    <value>Naitalaga kay:</value>
+  </data>
+  <data name="Attach photo to inspection" xml:space="preserve">
+    <value>Maglakip ng larawan sa inspeksyon</value>
+  </data>
+  <data name="Attach to saved inspection" xml:space="preserve">
+    <value>Ilakip sa naka-save na inspeksyon</value>
+  </data>
+  <data name="Audit event" xml:space="preserve">
+    <value>Kaganapan sa pagsusuri</value>
+  </data>
+  <data name="Audit history" xml:space="preserve">
+    <value>Kasaysayan ng pagsusuri</value>
+  </data>
+  <data name="Audit history pages" xml:space="preserve">
+    <value>Mga pahina ng kasaysayan ng pagsusuri</value>
+  </data>
+  <data name="Authenticator code" xml:space="preserve">
+    <value>Code mula sa authenticator</value>
+  </data>
+  <data name="Authenticator protection is enabled. Each recovery code can be used once&#10;       if you lose access to your authenticator. These codes will not be shown again." xml:space="preserve">
+    <value>Naka-enable ang proteksyon ng authenticator. Maaaring gamitin nang isang beses ang bawat code sa pagbawi kung hindi mo na magamit ang authenticator. Hindi na muling ipapakita ang mga code.</value>
+  </data>
+  <data name="Authenticator security" xml:space="preserve">
+    <value>Seguridad ng authenticator</value>
+  </data>
+  <data name="Authenticator verification" xml:space="preserve">
+    <value>Pagpapatunay gamit ang authenticator</value>
+  </data>
+  <data name="Available crop types" xml:space="preserve">
+    <value>Mga magagamit na uri ng pananim</value>
+  </data>
+  <data name="Available farm supplies" xml:space="preserve">
+    <value>Mga magagamit na suplay ng bukid</value>
+  </data>
+  <data name="Available stock" xml:space="preserve">
+    <value>Magagamit na stock</value>
+  </data>
+  <data name="Available supplies and current stock balances" xml:space="preserve">
+    <value>Magagamit na suplay at kasalukuyang natitirang stock</value>
+  </data>
+  <data name="Back to AniGo" xml:space="preserve">
+    <value>Bumalik sa AniGo</value>
+  </data>
+  <data name="Back to Help" xml:space="preserve">
+    <value>Bumalik sa Tulong</value>
+  </data>
+  <data name="Back to announcements" xml:space="preserve">
+    <value>Bumalik sa mga anunsyo</value>
+  </data>
+  <data name="Back to audit history" xml:space="preserve">
+    <value>Bumalik sa kasaysayan ng pagsusuri</value>
+  </data>
+  <data name="Back to crops" xml:space="preserve">
+    <value>Bumalik sa mga pananim</value>
+  </data>
+  <data name="Back to farm" xml:space="preserve">
+    <value>Bumalik sa bukid</value>
+  </data>
+  <data name="Back to farms" xml:space="preserve">
+    <value>Bumalik sa mga bukid</value>
+  </data>
+  <data name="Back to home" xml:space="preserve">
+    <value>Bumalik sa simula</value>
+  </data>
+  <data name="Back to log in" xml:space="preserve">
+    <value>Bumalik sa pag-log in</value>
+  </data>
+  <data name="Back to monitoring" xml:space="preserve">
+    <value>Bumalik sa pagsubaybay</value>
+  </data>
+  <data name="Back to my account" xml:space="preserve">
+    <value>Bumalik sa aking account</value>
+  </data>
+  <data name="Back to my farms" xml:space="preserve">
+    <value>Bumalik sa aking mga bukid</value>
+  </data>
+  <data name="Back to plots" xml:space="preserve">
+    <value>Bumalik sa mga taniman</value>
+  </data>
+  <data name="Back to previous requests" xml:space="preserve">
+    <value>Bumalik sa mga naunang kahilingan</value>
+  </data>
+  <data name="Back to supplies" xml:space="preserve">
+    <value>Bumalik sa mga suplay</value>
+  </data>
+  <data name="Back to supply" xml:space="preserve">
+    <value>Bumalik sa suplay</value>
+  </data>
+  <data name="Back to support history" xml:space="preserve">
+    <value>Bumalik sa kasaysayan ng tulong</value>
+  </data>
+  <data name="Back to users" xml:space="preserve">
+    <value>Bumalik sa mga user</value>
+  </data>
+  <data name="Background jobs" xml:space="preserve">
+    <value>Mga gawaing tumatakbo sa likuran</value>
+  </data>
+  <data name="Balances are shared across the selected farm, not separate for each plot." xml:space="preserve">
+    <value>Iisang balanse ang ginagamit ng napiling bukid, hindi hiwalay sa bawat taniman.</value>
+  </data>
+  <data name="Barangay, town, or address" xml:space="preserve">
+    <value>Barangay, bayan, o address</value>
+  </data>
+  <data name="Breadcrumb" xml:space="preserve">
+    <value>Daan pabalik sa pahina</value>
+  </data>
+  <data name="Build your own farm workspace or request access to a team you're already working with." xml:space="preserve">
+    <value>Gumawa ng sariling workspace ng bukid o humiling na sumali sa pangkat na katrabaho mo na.</value>
+  </data>
+  <data name="Calendar" xml:space="preserve">
+    <value>Kalendaryo</value>
+  </data>
+  <data name="Calendar month" xml:space="preserve">
+    <value>Buwan sa kalendaryo</value>
+  </data>
+  <data name="Cancel" xml:space="preserve">
+    <value>Kanselahin</value>
+  </data>
+  <data name="Cancel cycle" xml:space="preserve">
+    <value>Kanselahin ang siklo</value>
+  </data>
+  <data name="Cancel request" xml:space="preserve">
+    <value>Kanselahin ang kahilingan</value>
+  </data>
+  <data name="Cancel your request to join {0}?" xml:space="preserve">
+    <value>Kanselahin ang kahilingan mong sumali sa {0}?</value>
+  </data>
+  <data name="Cancel: {0} on {1}? Review the dates and reason before continuing." xml:space="preserve">
+    <value>Kanselahin: {0} sa {1}? Suriin ang mga petsa at dahilan bago magpatuloy.</value>
+  </data>
+  <data name="Canceled" xml:space="preserve">
+    <value>Kinansela</value>
+  </data>
+  <data name="Cancellation reason" xml:space="preserve">
+    <value>Dahilan ng pagkansela</value>
+  </data>
+  <data name="Cancelled" xml:space="preserve">
+    <value>Kinansela</value>
+  </data>
+  <data name="Category" xml:space="preserve">
+    <value>Kategorya</value>
+  </data>
+  <data name="Change appearance" xml:space="preserve">
+    <value>Palitan ang hitsura</value>
+  </data>
+  <data name="Change date" xml:space="preserve">
+    <value>Palitan ang petsa</value>
+  </data>
+  <data name="Change farm" xml:space="preserve">
+    <value>Palitan ang bukid</value>
+  </data>
+  <data name="Change the role for {0}? Their available farm actions will change." xml:space="preserve">
+    <value>Palitan ang tungkulin ni {0}? Magbabago ang mga maaari niyang gawin sa bukid.</value>
+  </data>
+  <data name="Change these only if the crop's unit or watering schedule needs adjusting." xml:space="preserve">
+    <value>Baguhin lamang ito kung kailangang ayusin ang yunit o iskedyul ng pagdidilig ng pananim.</value>
+  </data>
+  <data name="Changes how task due dates, planting calendars, and reports are shown. Check it before saving." xml:space="preserve">
+    <value>Nakaaapekto ito sa pagpapakita ng takdang araw, kalendaryo ng pagtatanim, at ulat. Suriin bago i-save.</value>
+  </data>
+  <data name="Changing it does not delete existing records or edit their saved timestamps." xml:space="preserve">
+    <value>Hindi nito binubura ang mga tala o binabago ang naka-save na oras ng mga ito.</value>
+  </data>
+  <data name="Check API, database, worker and sync diagnostics →" xml:space="preserve">
+    <value>Suriin ang API, database, worker, at pag-sync →</value>
+  </data>
+  <data name="Check local dates" xml:space="preserve">
+    <value>Suriin ang lokal na mga petsa</value>
+  </data>
+  <data name="Check stock movement →" xml:space="preserve">
+    <value>Suriin ang galaw ng stock →</value>
+  </data>
+  <data name="Check the application database connection, then refresh." xml:space="preserve">
+    <value>Suriin ang koneksyon sa database ng application, saka i-refresh.</value>
+  </data>
+  <data name="Check the concerns linked above." xml:space="preserve">
+    <value>Suriin ang mga problemang nakaugnay sa itaas.</value>
+  </data>
+  <data name="Check the entered value." xml:space="preserve">
+    <value>Suriin ang inilagay na halaga.</value>
+  </data>
+  <data name="Check the following before saving:" xml:space="preserve">
+    <value>Suriin ang mga sumusunod bago i-save:</value>
+  </data>
+  <data name="Check this value." xml:space="preserve">
+    <value>Suriin ang halagang ito.</value>
+  </data>
+  <data name="Check work saved on your phone" xml:space="preserve">
+    <value>Suriin ang gawaing naka-save sa telepono</value>
+  </data>
+  <data name="Checked" xml:space="preserve">
+    <value>Sinuri</value>
+  </data>
+  <data name="Checked {0} UTC. Refresh to see the latest status." xml:space="preserve">
+    <value>Sinuri noong {0} UTC. I-refresh upang makita ang pinakabagong katayuan.</value>
+  </data>
+  <data name="Choose a JPEG, PNG or WebP image." xml:space="preserve">
+    <value>Pumili ng larawang JPEG, PNG, o WebP.</value>
+  </data>
+  <data name="Choose a complete map location or clear the pin." xml:space="preserve">
+    <value>Pumili ng kumpletong lokasyon sa mapa o alisin ang pin.</value>
+  </data>
+  <data name="Choose a crop" xml:space="preserve">
+    <value>Pumili ng pananim</value>
+  </data>
+  <data name="Choose a growing plot, a crop, and a planting date. You can update planned crops before planting." xml:space="preserve">
+    <value>Pumili ng taniman, pananim, at petsa ng pagtatanim. Maaari mong baguhin ang plano bago magtanim.</value>
+  </data>
+  <data name="Choose a name and harvest unit in the crop tools below." xml:space="preserve">
+    <value>Pumili ng pangalan at yunit ng ani sa mga kagamitan sa pananim sa ibaba.</value>
+  </data>
+  <data name="Choose a photo." xml:space="preserve">
+    <value>Pumili ng larawan.</value>
+  </data>
+  <data name="Choose a plot" xml:space="preserve">
+    <value>Pumili ng taniman</value>
+  </data>
+  <data name="Choose a plot and crop" xml:space="preserve">
+    <value>Pumili ng taniman at pananim</value>
+  </data>
+  <data name="Choose a result, then adjust the pin to your actual farm." xml:space="preserve">
+    <value>Pumili ng resulta, saka ayusin ang pin sa aktuwal na bukid mo.</value>
+  </data>
+  <data name="Choose a supply and review its available balance." xml:space="preserve">
+    <value>Pumili ng suplay at suriin ang magagamit na balanse nito.</value>
+  </data>
+  <data name="Choose a valid follow-up status and task." xml:space="preserve">
+    <value>Pumili ng wastong katayuan ng follow-up at gawain.</value>
+  </data>
+  <data name="Choose an exact location on the map" xml:space="preserve">
+    <value>Piliin ang eksaktong lokasyon sa mapa</value>
+  </data>
+  <data name="Choose crop to harvest" xml:space="preserve">
+    <value>Piliin ang aanihing pananim</value>
+  </data>
+  <data name="Choose crop to record" xml:space="preserve">
+    <value>Piliin ang pananim na itatala</value>
+  </data>
+  <data name="Choose farm. Current: {0}" xml:space="preserve">
+    <value>Pumili ng bukid. Kasalukuyan: {0}</value>
+  </data>
+  <data name="Choose the completed watering, fertilizing, or other recorded crop activity that used this supply." xml:space="preserve">
+    <value>Piliin ang natapos na pagdidilig, pagpapataba, o iba pang naitalang gawain na gumamit ng suplay na ito.</value>
+  </data>
+  <data name="Choose the crop and plot first" xml:space="preserve">
+    <value>Piliin muna ang pananim at taniman</value>
+  </data>
+  <data name="Choose the kind of change. Each saved movement updates the farm balance and keeps a history entry." xml:space="preserve">
+    <value>Piliin ang uri ng pagbabago. Inaayos ng bawat naka-save na galaw ang balanse ng bukid at nag-iingat ng tala.</value>
+  </data>
+  <data name="Choose the supply used, or clear the unused supply fields." xml:space="preserve">
+    <value>Piliin ang ginamit na suplay, o alisin ang laman ng mga bahaging hindi ginamit.</value>
+  </data>
+  <data name="Choose what needs doing and when. A crop or person can be assigned later." xml:space="preserve">
+    <value>Piliin ang kailangang gawin at kung kailan. Maaaring magtalaga ng pananim o tao pagkatapos.</value>
+  </data>
+  <data name="Choose what to grow and when to plant in your plot." xml:space="preserve">
+    <value>Piliin ang pananim at kung kailan itatanim sa iyong taniman.</value>
+  </data>
+  <data name="Choose what to plant and when." xml:space="preserve">
+    <value>Piliin ang itatanim at kung kailan.</value>
+  </data>
+  <data name="Choose what you'd like to do first. Your account can belong to more than one farm." xml:space="preserve">
+    <value>Piliin ang unang gagawin. Maaaring sumali ang account mo sa higit sa isang bukid.</value>
+  </data>
+  <data name="Choose when this task should be done in your farm's time zone." xml:space="preserve">
+    <value>Piliin kung kailan dapat matapos ang gawain ayon sa oras ng bukid.</value>
+  </data>
+  <data name="Choose your field and crop" xml:space="preserve">
+    <value>Piliin ang taniman at pananim</value>
+  </data>
+  <data name="City, town or farm address" xml:space="preserve">
+    <value>Lungsod, bayan, o address ng bukid</value>
+  </data>
+  <data name="Clear" xml:space="preserve">
+    <value>Alisin</value>
+  </data>
+  <data name="Clear filters" xml:space="preserve">
+    <value>Alisin ang mga salaan</value>
+  </data>
+  <data name="Clear harvest filters →" xml:space="preserve">
+    <value>Alisin ang salaan ng ani →</value>
+  </data>
+  <data name="Clear or change the filters to see other farm records." xml:space="preserve">
+    <value>Alisin o baguhin ang mga salaan upang makita ang ibang tala ng bukid.</value>
+  </data>
+  <data name="Close " xml:space="preserve">
+    <value>Isara</value>
+  </data>
+  <data name="Close this task without marking it completed?" xml:space="preserve">
+    <value>Isara ang gawaing ito nang hindi minamarkahang tapos?</value>
+  </data>
+  <data name="Closed" xml:space="preserve">
+    <value>Sarado</value>
+  </data>
+  <data name="Code from authenticator" xml:space="preserve">
+    <value>Code mula sa authenticator</value>
+  </data>
+  <data name="Coming up" xml:space="preserve">
+    <value>Mga susunod</value>
+  </data>
+  <data name="Compare inspection photos from earliest to latest. Only authorized farm members can open these private images." xml:space="preserve">
+    <value>Ihambing ang mga larawan mula sa pinakaluma hanggang pinakabago. Tanging mga awtorisadong kasapi ng bukid ang makakabukas ng mga pribadong larawang ito.</value>
+  </data>
+  <data name="Complete crop cycle" xml:space="preserve">
+    <value>Tapusin ang siklo ng pananim</value>
+  </data>
+  <data name="Complete: {0} on {1}? Review the dates and reason before continuing." xml:space="preserve">
+    <value>Tapusin: {0} sa {1}? Suriin ang mga petsa at dahilan bago magpatuloy.</value>
+  </data>
+  <data name="Completed" xml:space="preserve">
+    <value>Natapos</value>
+  </data>
+  <data name="Confirm current password" xml:space="preserve">
+    <value>Kumpirmahin ang kasalukuyang password</value>
+  </data>
+  <data name="Confirm password" xml:space="preserve">
+    <value>Kumpirmahin ang password</value>
+  </data>
+  <data name="Confirm with your current password. Never include passwords, tokens or farm access codes in the reason." xml:space="preserve">
+    <value>Kumpirmahin gamit ang kasalukuyang password. Huwag isama sa dahilan ang password, token, o farm access code.</value>
+  </data>
+  <data name="Confirmed harvest total" xml:space="preserve">
+    <value>Nakumpirmang kabuuang ani</value>
+  </data>
+  <data name="Consumption" xml:space="preserve">
+    <value>Paggamit</value>
+  </data>
+  <data name="Contact" xml:space="preserve">
+    <value>Kontakin</value>
+  </data>
+  <data name="Conversation &amp; internal notes" xml:space="preserve">
+    <value>Usapan at panloob na mga tala</value>
+  </data>
+  <data name="Coordinate today's work and supply needs." xml:space="preserve">
+    <value>Ayusin ang mga gawain ngayon at kailangang suplay.</value>
+  </data>
+  <data name="Copy code" xml:space="preserve">
+    <value>Kopyahin ang code</value>
+  </data>
+  <data name="Correct a stock count (+ or −)" xml:space="preserve">
+    <value>Iwasto ang bilang ng stock (+ o −)</value>
+  </data>
+  <data name="Correct the harvest entry →" xml:space="preserve">
+    <value>Iwasto ang tala ng ani →</value>
+  </data>
+  <data name="Could not acknowledge. Reconnect and try again." xml:space="preserve">
+    <value>Hindi nakumpirma ang pagbasa. Kumonekta at subukan muli.</value>
+  </data>
+  <data name="Could not get your location. Search or tap the map instead." xml:space="preserve">
+    <value>Hindi makuha ang lokasyon mo. Maghanap o pindutin ang mapa.</value>
+  </data>
+  <data name="Create a farm" xml:space="preserve">
+    <value>Gumawa ng bukid</value>
+  </data>
+  <data name="Create a planting plan to get started." xml:space="preserve">
+    <value>Gumawa ng plano sa pagtatanim upang magsimula.</value>
+  </data>
+  <data name="Create a planting plan →" xml:space="preserve">
+    <value>Gumawa ng plano sa pagtatanim →</value>
+  </data>
+  <data name="Create account" xml:space="preserve">
+    <value>Gumawa ng account</value>
+  </data>
+  <data name="Create an account" xml:space="preserve">
+    <value>Gumawa ng account</value>
+  </data>
+  <data name="Create an account and start managing your farm today." xml:space="preserve">
+    <value>Gumawa ng account at simulan ang pamamahala ng iyong bukid ngayon.</value>
+  </data>
+  <data name="Create and assign inspection tasks in Farm tasks.&#10;                                Completing a task does not automatically resolve a crop issue." xml:space="preserve">
+    <value>Gumawa at magtalaga ng inspeksyon sa Mga gawain sa bukid. Hindi awtomatikong nalulutas ang problema sa pananim kapag tinapos ang gawain.</value>
+  </data>
+  <data name="Create farm" xml:space="preserve">
+    <value>Gumawa ng bukid</value>
+  </data>
+  <data name="Create farm &amp; continue" xml:space="preserve">
+    <value>Gumawa ng bukid at magpatuloy</value>
+  </data>
+  <data name="Create my first farm" xml:space="preserve">
+    <value>Gumawa ng unang bukid ko</value>
+  </data>
+  <data name="Create or oversee farms, teams, crops, and records." xml:space="preserve">
+    <value>Gumawa o mamahala ng mga bukid, pangkat, pananim, at tala.</value>
+  </data>
+  <data name="Create or request access" xml:space="preserve">
+    <value>Gumawa o humiling ng access</value>
+  </data>
+  <data name="Create task" xml:space="preserve">
+    <value>Gumawa ng gawain</value>
+  </data>
+  <data name="Create your account" xml:space="preserve">
+    <value>Gumawa ng iyong account</value>
+  </data>
+  <data name="Create your first growing area to continue." xml:space="preserve">
+    <value>Gumawa ng unang taniman upang magpatuloy.</value>
+  </data>
+  <data name="Created {0} UTC" xml:space="preserve">
+    <value>Nagawa noong {0} UTC</value>
+  </data>
+  <data name="Critical" xml:space="preserve">
+    <value>Malubha</value>
+  </data>
+  <data name="Crop" xml:space="preserve">
+    <value>Pananim</value>
+  </data>
+  <data name="Crop / plot" xml:space="preserve">
+    <value>Pananim / taniman</value>
+  </data>
+  <data name="Crop and dates" xml:space="preserve">
+    <value>Pananim at mga petsa</value>
+  </data>
+  <data name="Crop calendar" xml:space="preserve">
+    <value>Kalendaryo ng pananim</value>
+  </data>
+  <data name="Crop concerns" xml:space="preserve">
+    <value>Mga problema sa pananim</value>
+  </data>
+  <data name="Crop consumption" xml:space="preserve">
+    <value>Paggamit sa pananim</value>
+  </data>
+  <data name="Crop cycle (optional)" xml:space="preserve">
+    <value>Siklo ng pananim (opsyonal)</value>
+  </data>
+  <data name="Crop cycle dates" xml:space="preserve">
+    <value>Mga petsa ng siklo ng pananim</value>
+  </data>
+  <data name="Crop fieldwork" xml:space="preserve">
+    <value>Gawain sa pananim</value>
+  </data>
+  <data name="Crop harvest history" xml:space="preserve">
+    <value>Kasaysayan ng ani ng pananim</value>
+  </data>
+  <data name="Crop harvests" xml:space="preserve">
+    <value>Ani ng pananim</value>
+  </data>
+  <data name="Crop health" xml:space="preserve">
+    <value>Kondisyon ng pananim</value>
+  </data>
+  <data name="Crop history →" xml:space="preserve">
+    <value>Kasaysayan ng pananim →</value>
+  </data>
+  <data name="Crop inspection photo taken on {0}" xml:space="preserve">
+    <value>Larawan ng inspeksyon ng pananim noong {0}</value>
+  </data>
+  <data name="Crop monitoring" xml:space="preserve">
+    <value>Pagsubaybay sa pananim</value>
+  </data>
+  <data name="Crop name" xml:space="preserve">
+    <value>Pangalan ng pananim</value>
+  </data>
+  <data name="Crop page sections" xml:space="preserve">
+    <value>Mga seksyon ng pahina ng pananim</value>
+  </data>
+  <data name="Crop photo progress" xml:space="preserve">
+    <value>Paglaki ng pananim sa mga larawan</value>
+  </data>
+  <data name="Crop planning" xml:space="preserve">
+    <value>Pagpaplano ng pananim</value>
+  </data>
+  <data name="Crop record pages" xml:space="preserve">
+    <value>Mga pahina ng tala ng pananim</value>
+  </data>
+  <data name="Crop record totals" xml:space="preserve">
+    <value>Kabuuan ng mga tala ng pananim</value>
+  </data>
+  <data name="Crop records" xml:space="preserve">
+    <value>Mga tala ng pananim</value>
+  </data>
+  <data name="Crop records and status (" xml:space="preserve">
+    <value>Mga tala at katayuan ng pananim (</value>
+  </data>
+  <data name="Crop type" xml:space="preserve">
+    <value>Uri ng pananim</value>
+  </data>
+  <data name="Crop types &amp; history" xml:space="preserve">
+    <value>Mga uri ng pananim at kasaysayan</value>
+  </data>
+  <data name="Crop types are shared across farms. Existing types cannot be renamed here." xml:space="preserve">
+    <value>Magkakapareho ang mga uri ng pananim sa mga bukid. Hindi maaaring palitan dito ang pangalan ng dati nang uri.</value>
+  </data>
+  <data name="Crops &amp; Calendar" xml:space="preserve">
+    <value>Pananim at Kalendaryo</value>
+  </data>
+  <data name="Current crops" xml:space="preserve">
+    <value>Kasalukuyang pananim</value>
+  </data>
+  <data name="Current farm" xml:space="preserve">
+    <value>Kasalukuyang bukid</value>
+  </data>
+  <data name="Current farm sections" xml:space="preserve">
+    <value>Mga seksyon ng kasalukuyang bukid</value>
+  </data>
+  <data name="Current location is unavailable on this device." xml:space="preserve">
+    <value>Hindi makuha ang kasalukuyang lokasyon sa device na ito.</value>
+  </data>
+  <data name="Currently growing " xml:space="preserve">
+    <value>Kasalukuyang lumalago </value>
+  </data>
+  <data name="Currently growing &amp; planned" xml:space="preserve">
+    <value>Kasalukuyang lumalago at nakaplano</value>
+  </data>
+  <data name="Cycle" xml:space="preserve">
+    <value>Siklo</value>
+  </data>
+  <data name="Daily fieldwork" xml:space="preserve">
+    <value>Araw-araw na gawain sa bukid</value>
+  </data>
+  <data name="Dark appearance" xml:space="preserve">
+    <value>Madilim na hitsura</value>
+  </data>
+  <data name="Dates and times follow your farm’s time zone." xml:space="preserve">
+    <value>Ayon sa sona ng oras ng iyong bukid ang mga petsa at oras.</value>
+  </data>
+  <data name="Dates follow" xml:space="preserve">
+    <value>Ayon ang mga petsa sa</value>
+  </data>
+  <data name="Defaults to Asia/Manila. Used for local crop dates, scheduled tasks, and reports." xml:space="preserve">
+    <value>Asia/Manila ang karaniwang gamit. Para ito sa lokal na petsa ng pananim, takdang gawain, at ulat.</value>
+  </data>
+  <data name="Describe the crop's actual condition. This is an observation, not a medical or plant-disease diagnosis. Save first, then attach any photos below." xml:space="preserve">
+    <value>Ilarawan ang aktuwal na kondisyon ng pananim. Obserbasyon ito, hindi pagsusuri ng sakit. I-save muna, saka maglakip ng mga larawan sa ibaba.</value>
+  </data>
+  <data name="Description" xml:space="preserve">
+    <value>Paglalarawan</value>
+  </data>
+  <data name="Description (optional)" xml:space="preserve">
+    <value>Paglalarawan (opsyonal)</value>
+  </data>
+  <data name="Details →" xml:space="preserve">
+    <value>Mga detalye →</value>
+  </data>
+  <data name="Disabled" xml:space="preserve">
+    <value>Hindi pinagana</value>
+  </data>
+  <data name="Disabled accounts" xml:space="preserve">
+    <value>Mga hindi pinaganang account</value>
+  </data>
+  <data name="Discard the unfinished changes in this form?" xml:space="preserve">
+    <value>Alisin ang hindi pa tapos na pagbabago sa form na ito?</value>
+  </data>
+  <data name="Disease (suspected)" xml:space="preserve">
+    <value>Sakit (pinaghihinalaan)</value>
+  </data>
+  <data name="Dismiss this tip" xml:space="preserve">
+    <value>Huwag nang ipakita ang tip</value>
+  </data>
+  <data name="Display appearance" xml:space="preserve">
+    <value>Hitsura ng display</value>
+  </data>
+  <data name="Drafts" xml:space="preserve">
+    <value>Mga draft</value>
+  </data>
+  <data name="Drought risk" xml:space="preserve">
+    <value>Panganib ng tagtuyot</value>
+  </data>
+  <data name="Due / overdue" xml:space="preserve">
+    <value>Takda / nahuli</value>
+  </data>
+  <data name="Due date" xml:space="preserve">
+    <value>Takdang petsa</value>
+  </data>
+  <data name="Due today" xml:space="preserve">
+    <value>Nakatakda ngayong araw</value>
+  </data>
+  <data name="Due:" xml:space="preserve">
+    <value>Takda:</value>
+  </data>
+  <data name="Edit" xml:space="preserve">
+    <value>I-edit</value>
+  </data>
+  <data name="Edit farm" xml:space="preserve">
+    <value>I-edit ang bukid</value>
+  </data>
+  <data name="Edit item" xml:space="preserve">
+    <value>I-edit ang gamit</value>
+  </data>
+  <data name="Edit plan" xml:space="preserve">
+    <value>I-edit ang plano</value>
+  </data>
+  <data name="Edit planting plan" xml:space="preserve">
+    <value>I-edit ang plano sa pagtatanim</value>
+  </data>
+  <data name="Edit plot" xml:space="preserve">
+    <value>I-edit ang taniman</value>
+  </data>
+  <data name="Edit supply" xml:space="preserve">
+    <value>I-edit ang suplay</value>
+  </data>
+  <data name="Edit task and assignment" xml:space="preserve">
+    <value>I-edit ang gawain at pagtatalaga</value>
+  </data>
+  <data name="Email" xml:space="preserve">
+    <value>Email</value>
+  </data>
+  <data name="Enable two-factor authentication" xml:space="preserve">
+    <value>Paganahin ang dalawang pagpapatunay</value>
+  </data>
+  <data name="Enqueued, scheduled or running" xml:space="preserve">
+    <value>Nakapila, nakatakda, o tumatakbo</value>
+  </data>
+  <data name="Enter a positive amount actually used. It is subtracted from stock and must match a recorded crop activity." xml:space="preserve">
+    <value>Ilagay ang aktuwal na daming ginamit na higit sa zero. Ibabawas ito sa stock at kailangang tumugma sa naitalang gawain sa pananim.</value>
+  </data>
+  <data name="Enter a positive or negative correction (not the final stock balance). Add a reason for the change." xml:space="preserve">
+    <value>Ilagay ang positibo o negatibong pagwawasto (hindi ang panghuling balanse ng stock). Maglagay ng dahilan.</value>
+  </data>
+  <data name="Enter a positive quantity with no more than 3 decimal places." xml:space="preserve">
+    <value>Maglagay ng daming higit sa zero na may hanggang 3 decimal.</value>
+  </data>
+  <data name="Enter a positive value with up to three decimal places. The unit is fixed for this crop cycle. The date is set when the server accepts the entry." xml:space="preserve">
+    <value>Maglagay ng halagang higit sa zero at may hanggang 3 decimal. Nakatakda na ang yunit para sa siklong ito. Itatakda ang petsa kapag tinanggap ang tala.</value>
+  </data>
+  <data name="Enter a valid inventory item, unit and opening stock." xml:space="preserve">
+    <value>Maglagay ng wastong gamit, yunit, at panimulang stock.</value>
+  </data>
+  <data name="Enter a valid number." xml:space="preserve">
+    <value>Maglagay ng wastong numero.</value>
+  </data>
+  <data name="Enter a valid quantity, type and row version." xml:space="preserve">
+    <value>Maglagay ng wastong dami, uri, at bersyon ng tala.</value>
+  </data>
+  <data name="Enter the actual quantity collected for" xml:space="preserve">
+    <value>Ilagay ang aktuwal na daming naani para sa</value>
+  </data>
+  <data name="Enter the measured area in square meters (m²)." xml:space="preserve">
+    <value>Ilagay ang sinukat na lawak sa metro kuwadrado (m²).</value>
+  </data>
+  <data name="Enter the positive quantity received. It will be added to the current stock balance." xml:space="preserve">
+    <value>Ilagay ang natanggap na daming higit sa zero. Idaragdag ito sa kasalukuyang balanse ng stock.</value>
+  </data>
+  <data name="Enter the six-digit code from your authenticator app to finish signing in." xml:space="preserve">
+    <value>Ilagay ang anim na digit na code mula sa authenticator app upang matapos ang pag-log in.</value>
+  </data>
+  <data name="Enter the supply name, measurement unit, and quantity you currently have. Set a low-stock level if you want reminders." xml:space="preserve">
+    <value>Ilagay ang pangalan ng suplay, yunit ng sukat, at kasalukuyang dami. Magtakda ng mababang antas ng stock kung nais ng paalala.</value>
+  </data>
+  <data name="Enter your account details to open your farms and today's work." xml:space="preserve">
+    <value>Ilagay ang detalye ng account upang buksan ang iyong mga bukid at gawain ngayon.</value>
+  </data>
+  <data name="Environmental stress" xml:space="preserve">
+    <value>Pinsala dahil sa kapaligiran</value>
+  </data>
+  <data name="Error code: {0}" xml:space="preserve">
+    <value>Code ng error: {0}</value>
+  </data>
+  <data name="Event ID" xml:space="preserve">
+    <value>ID ng kaganapan</value>
+  </data>
+  <data name="Event details" xml:space="preserve">
+    <value>Mga detalye ng kaganapan</value>
+  </data>
+  <data name="Every status change is recorded in the platform audit log." xml:space="preserve">
+    <value>Naitatala sa kasaysayan ng pagsusuri ang bawat pagbabago ng katayuan.</value>
+  </data>
+  <data name="Exact farm location on the map" xml:space="preserve">
+    <value>Eksaktong lokasyon ng bukid sa mapa</value>
+  </data>
+  <data name="Existing records" xml:space="preserve">
+    <value>Mga dati nang tala</value>
+  </data>
+  <data name="Expected harvest" xml:space="preserve">
+    <value>Inaasahang ani</value>
+  </data>
+  <data name="Expected harvest (optional)" xml:space="preserve">
+    <value>Inaasahang ani (opsyonal)</value>
+  </data>
+  <data name="Expected harvest must not be before planting." xml:space="preserve">
+    <value>Hindi maaaring mauna ang inaasahang ani sa pagtatanim.</value>
+  </data>
+  <data name="Expired and hidden from users" xml:space="preserve">
+    <value>Nag-expire at nakatago sa mga user</value>
+  </data>
+  <data name="Expiry" xml:space="preserve">
+    <value>Pag-expire</value>
+  </data>
+  <data name="Explain why this action is necessary" xml:space="preserve">
+    <value>Ipaliwanag kung bakit kailangan ang aksyong ito</value>
+  </data>
+  <data name="Export cycle totals CSV" xml:space="preserve">
+    <value>I-export ang kabuuan ng siklo sa CSV</value>
+  </data>
+  <data name="Export records CSV" xml:space="preserve">
+    <value>I-export ang mga tala sa CSV</value>
+  </data>
+  <data name="FARM SETTINGS" xml:space="preserve">
+    <value>MGA SETTING NG BUKID</value>
+  </data>
+  <data name="Failed" xml:space="preserve">
+    <value>Nabigo</value>
+  </data>
+  <data name="Failed in the last 7 days" xml:space="preserve">
+    <value>Mga nabigo sa nakaraang 7 araw</value>
+  </data>
+  <data name="Failed jobs · 7 days" xml:space="preserve">
+    <value>Mga nabigong gawain · 7 araw</value>
+  </data>
+  <data name="Failed {0} UTC" xml:space="preserve">
+    <value>Nabigo noong {0} UTC</value>
+  </data>
+  <data name="Failure reason" xml:space="preserve">
+    <value>Dahilan ng pagkabigo</value>
+  </data>
+  <data name="Farm" xml:space="preserve">
+    <value>Bukid</value>
+  </data>
+  <data name="Farm &amp; team" xml:space="preserve">
+    <value>Bukid at pangkat</value>
+  </data>
+  <data name="Farm access" xml:space="preserve">
+    <value>Access sa bukid</value>
+  </data>
+  <data name="Farm address or area" xml:space="preserve">
+    <value>Address o lugar ng bukid</value>
+  </data>
+  <data name="Farm code" xml:space="preserve">
+    <value>Farm code</value>
+  </data>
+  <data name="Farm code copied." xml:space="preserve">
+    <value>Nakopya na ang farm code.</value>
+  </data>
+  <data name="Farm code regenerated. Share the new code with farmers requesting access." xml:space="preserve">
+    <value>Nagawa na ang bagong farm code. Ibahagi ito sa mga magsasakang humihiling ng access.</value>
+  </data>
+  <data name="Farm conditions" xml:space="preserve">
+    <value>Kalagayan ng bukid</value>
+  </data>
+  <data name="Farm controls" xml:space="preserve">
+    <value>Mga aksyon sa bukid</value>
+  </data>
+  <data name="Farm data is temporarily unavailable" xml:space="preserve">
+    <value>Pansamantalang hindi makuha ang datos ng bukid</value>
+  </data>
+  <data name="Farm data unavailable" xml:space="preserve">
+    <value>Hindi makuha ang datos ng bukid</value>
+  </data>
+  <data name="Farm date" xml:space="preserve">
+    <value>Petsa sa bukid</value>
+  </data>
+  <data name="Farm date: {0} · {1}" xml:space="preserve">
+    <value>Petsa sa bukid: {0} · {1}</value>
+  </data>
+  <data name="Farm details" xml:space="preserve">
+    <value>Mga detalye ng bukid</value>
+  </data>
+  <data name="Farm directory" xml:space="preserve">
+    <value>Talaan ng mga bukid</value>
+  </data>
+  <data name="Farm enrollment" xml:space="preserve">
+    <value>Pagsali sa bukid</value>
+  </data>
+  <data name="Farm location / nearby address" xml:space="preserve">
+    <value>Lokasyon ng bukid / kalapit na address</value>
+  </data>
+  <data name="Farm management" xml:space="preserve">
+    <value>Pamamahala ng bukid</value>
+  </data>
+  <data name="Farm management sections" xml:space="preserve">
+    <value>Mga seksyon ng pamamahala ng bukid</value>
+  </data>
+  <data name="Farm member" xml:space="preserve">
+    <value>Kasapi ng bukid</value>
+  </data>
+  <data name="Farm name" xml:space="preserve">
+    <value>Pangalan ng bukid</value>
+  </data>
+  <data name="Farm owner" xml:space="preserve">
+    <value>May-ari ng bukid</value>
+  </data>
+  <data name="Farm pages" xml:space="preserve">
+    <value>Mga pahina ng bukid</value>
+  </data>
+  <data name="Farm pin saved. Drag it or tap the map to adjust. An address or area name is also required." xml:space="preserve">
+    <value>Na-save ang pin ng bukid. I-drag o pindutin ang mapa upang ayusin. Kailangan din ng address o pangalan ng lugar.</value>
+  </data>
+  <data name="Farm plots and crop plans" xml:space="preserve">
+    <value>Mga taniman at plano sa pananim</value>
+  </data>
+  <data name="Farm quick actions" xml:space="preserve">
+    <value>Mabilis na aksyon sa bukid</value>
+  </data>
+  <data name="Farm quick navigation" xml:space="preserve">
+    <value>Mabilis na paglipat sa bukid</value>
+  </data>
+  <data name="Farm sections" xml:space="preserve">
+    <value>Mga seksyon ng bukid</value>
+  </data>
+  <data name="Farm setup progress" xml:space="preserve">
+    <value>Paghahanda ng bukid</value>
+  </data>
+  <data name="Farm status" xml:space="preserve">
+    <value>Katayuan ng bukid</value>
+  </data>
+  <data name="Farm summary" xml:space="preserve">
+    <value>Buod ng bukid</value>
+  </data>
+  <data name="Farm task priorities" xml:space="preserve">
+    <value>Mga pangunahing gawain sa bukid</value>
+  </data>
+  <data name="Farm tasks" xml:space="preserve">
+    <value>Mga gawain sa bukid</value>
+  </data>
+  <data name="Farm team" xml:space="preserve">
+    <value>Pangkat ng bukid</value>
+  </data>
+  <data name="Farm time zone" xml:space="preserve">
+    <value>Sona ng oras ng bukid</value>
+  </data>
+  <data name="Farm time zone unavailable." xml:space="preserve">
+    <value>Hindi makuha ang sona ng oras ng bukid.</value>
+  </data>
+  <data name="Farm updates, task reminders and saved weather notices appear here." xml:space="preserve">
+    <value>Lilitaw dito ang mga pagbabago sa bukid, paalala sa gawain, at naka-save na abiso sa panahon.</value>
+  </data>
+  <data name="Farm weather" xml:space="preserve">
+    <value>Panahon sa bukid</value>
+  </data>
+  <data name="Farm workspace" xml:space="preserve">
+    <value>Workspace ng bukid</value>
+  </data>
+  <data name="Farm workspace overview" xml:space="preserve">
+    <value>Pangkalahatang tanaw sa bukid</value>
+  </data>
+  <data name="Farm-wide inventory" xml:space="preserve">
+    <value>Imbentaryo ng buong bukid</value>
+  </data>
+  <data name="Farm-wide report" xml:space="preserve">
+    <value>Ulat ng buong bukid</value>
+  </data>
+  <data name="Farm:" xml:space="preserve">
+    <value>Bukid:</value>
+  </data>
+  <data name="Farms" xml:space="preserve">
+    <value>Mga bukid</value>
+  </data>
+  <data name="Fertilizers" xml:space="preserve">
+    <value>Mga pataba</value>
+  </data>
+  <data name="Fertilizing" xml:space="preserve">
+    <value>Pagpapataba</value>
+  </data>
+  <data name="Field Worker" xml:space="preserve">
+    <value>Manggagawa sa bukid</value>
+  </data>
+  <data name="Field activities" xml:space="preserve">
+    <value>Mga gawain sa bukid</value>
+  </data>
+  <data name="FieldWorker" xml:space="preserve">
+    <value>Manggagawa sa bukid</value>
+  </data>
+  <data name="Fieldwork or an inspection" xml:space="preserve">
+    <value>Gawain sa bukid o inspeksyon</value>
+  </data>
+  <data name="Filter" xml:space="preserve">
+    <value>Salain</value>
+  </data>
+  <data name="Filter by plot or crop (optional)" xml:space="preserve">
+    <value>Salain ayon sa taniman o pananim (opsyonal)</value>
+  </data>
+  <data name="Filter farm tasks" xml:space="preserve">
+    <value>Salain ang mga gawain sa bukid</value>
+  </data>
+  <data name="Filters &amp; downloads" xml:space="preserve">
+    <value>Mga salaan at download</value>
+  </data>
+  <data name="Filters applied" xml:space="preserve">
+    <value>Nailapat ang mga salaan</value>
+  </data>
+  <data name="Filters applied — totals, records and CSV downloads use the selected scope." xml:space="preserve">
+    <value>Nailapat ang mga salaan — ayon sa napiling saklaw ang kabuuan, tala, at CSV download.</value>
+  </data>
+  <data name="Find a farm" xml:space="preserve">
+    <value>Maghanap ng bukid</value>
+  </data>
+  <data name="Find a request" xml:space="preserve">
+    <value>Maghanap ng kahilingan</value>
+  </data>
+  <data name="Find a supply" xml:space="preserve">
+    <value>Maghanap ng suplay</value>
+  </data>
+  <data name="Find a supply, check its balance, and record what came in or was used." xml:space="preserve">
+    <value>Maghanap ng suplay, suriin ang natitira, at itala ang dumating o ginamit.</value>
+  </data>
+  <data name="Find a user" xml:space="preserve">
+    <value>Maghanap ng user</value>
+  </data>
+  <data name="Find registered accounts and review their status. Platform roles cannot be edited here." xml:space="preserve">
+    <value>Hanapin ang mga nakarehistrong account at suriin ang katayuan. Hindi maaaring i-edit dito ang mga tungkulin sa platform.</value>
+  </data>
+  <data name="Find your barangay or nearby place, then position the pin on your actual farm. No coordinates to type." xml:space="preserve">
+    <value>Hanapin ang barangay o kalapit na lugar, saka ilagay ang pin sa aktuwal na bukid. Hindi kailangang mag-type ng mga coordinate.</value>
+  </data>
+  <data name="Find your inspection &amp; attach a photo →" xml:space="preserve">
+    <value>Hanapin ang inspeksyon at maglakip ng larawan →</value>
+  </data>
+  <data name="Find your next job or choose a crop before recording." xml:space="preserve">
+    <value>Hanapin ang susunod na gawain o pumili muna ng pananim bago magtala.</value>
+  </data>
+  <data name="Finding your current location..." xml:space="preserve">
+    <value>Hinahanap ang kasalukuyang lokasyon mo...</value>
+  </data>
+  <data name="First add a plot, then return to plan what to plant." xml:space="preserve">
+    <value>Magdagdag muna ng taniman, saka bumalik upang planuhin ang itatanim.</value>
+  </data>
+  <data name="First harvest" xml:space="preserve">
+    <value>Unang ani</value>
+  </data>
+  <data name="Focus on your assigned jobs and record fieldwork." xml:space="preserve">
+    <value>Unahin ang nakatalagang gawain at itala ang gawain sa bukid.</value>
+  </data>
+  <data name="Follow-up status" xml:space="preserve">
+    <value>Katayuan ng follow-up</value>
+  </data>
+  <data name="For a join code, access approval, an assigned task or a stock conflict, contact your farm owner or manager. Only the owner can approve membership." xml:space="preserve">
+    <value>Para sa code sa pagsali, pag-apruba, gawain, o salungatan sa stock, kontakin ang may-ari o tagapamahala. Tanging may-ari ang maaaring mag-apruba ng kasapi.</value>
+  </data>
+  <data name="For a specific issue, select Needs attention or Critical health and choose an issue category and severity." xml:space="preserve">
+    <value>Para sa tiyak na problema, piliin ang Kailangang asikasuhin o Malubhang kondisyon, saka ang kategorya at tindi ng problema.</value>
+  </data>
+  <data name="For exception details and safe retries, review the protected worker logs and Hangfire operator tools." xml:space="preserve">
+    <value>Para sa detalye ng error at ligtas na muling pagsubok, suriin ang protektadong log ng worker at kagamitan ng Hangfire operator.</value>
+  </data>
+  <data name="For farm owners and managers" xml:space="preserve">
+    <value>Para sa mga may-ari at tagapamahala ng bukid</value>
+  </data>
+  <data name="For fertilizer or pesticide application. Activity, supply use and a matching task save together." xml:space="preserve">
+    <value>Para sa paglalagay ng pataba o pestisidyo. Sabay na mase-save ang gawain, paggamit ng suplay, at katugmang gawain.</value>
+  </data>
+  <data name="For field workers and team members" xml:space="preserve">
+    <value>Para sa mga manggagawa at kasapi ng pangkat</value>
+  </data>
+  <data name="For inviting new workers" xml:space="preserve">
+    <value>Para sa pag-anyaya ng bagong manggagawa</value>
+  </data>
+  <data name="For sign-in or an app problem, contact the person or organization that provided your AniGo account or deployment. Never share your password or sign-in tokens." xml:space="preserve">
+    <value>Para sa problema sa pag-log in o app, kontakin ang tao o organisasyong nagbigay ng iyong AniGo. Huwag ibahagi ang password o mga token sa pag-log in.</value>
+  </data>
+  <data name="For supplies used, enter a positive amount. The system subtracts it after a valid linked crop activity." xml:space="preserve">
+    <value>Para sa ginamit na suplay, maglagay ng daming higit sa zero. Ibabawas ito matapos ang wastong kaugnay na gawain sa pananim.</value>
+  </data>
+  <data name="For team members" xml:space="preserve">
+    <value>Para sa mga kasapi ng pangkat</value>
+  </data>
+  <data name="For urgent rain, heat, or storm decisions, check PAGASA or local official advisories." xml:space="preserve">
+    <value>Para sa agarang pasya tungkol sa ulan, init, o bagyo, sumangguni sa PAGASA o mga lokal na opisyal na payo.</value>
+  </data>
+  <data name="Forecast daily temperature range" xml:space="preserve">
+    <value>Saklaw ng temperatura sa araw ayon sa taya</value>
+  </data>
+  <data name="Forecast for" xml:space="preserve">
+    <value>Taya para sa</value>
+  </data>
+  <data name="Forecast is more than 12 hours old or has an invalid update time. Check current conditions." xml:space="preserve">
+    <value>Mahigit 12 oras na ang taya o hindi wasto ang oras ng pag-update. Suriin ang kasalukuyang lagay.</value>
+  </data>
+  <data name="Forecasts depend on valid coordinates, available weather data and scheduled updates. No live weather is fetched by opening the map." xml:space="preserve">
+    <value>Nakasalalay ang taya sa wastong lokasyon, datos ng panahon, at mga takdang pag-update. Hindi kumukuha ng aktuwal na panahon ang pagbukas ng mapa.</value>
+  </data>
+  <data name="From" xml:space="preserve">
+    <value>Mula</value>
+  </data>
+  <data name="From (UTC)" xml:space="preserve">
+    <value>Mula (UTC)</value>
+  </data>
+  <data name="Full name" xml:space="preserve">
+    <value>Buong pangalan</value>
+  </data>
+  <data name="GROW TOGETHER" xml:space="preserve">
+    <value>SABAY NA UMUNLAD</value>
+  </data>
+  <data name="Get help with farm access, accounts and saved work →" xml:space="preserve">
+    <value>Humingi ng tulong sa access, account, at naka-save na gawain →</value>
+  </data>
+  <data name="Get started" xml:space="preserve">
+    <value>Magsimula</value>
+  </data>
+  <data name="Getting started" xml:space="preserve">
+    <value>Pagsisimula</value>
+  </data>
+  <data name="Give each field a clear name and enter its area. You can plan its crop next." xml:space="preserve">
+    <value>Bigyan ng malinaw na pangalan ang bawat taniman at ilagay ang lawak nito. Maaari mong planuhin ang pananim pagkatapos.</value>
+  </data>
+  <data name="Give the 12-character code only to people you want to invite. They enter it in My Farms and request approval." xml:space="preserve">
+    <value>Ibigay lamang ang 12-character na code sa nais mong anyayahan. Ilalagay nila ito sa Aking mga bukid upang humiling ng pag-apruba.</value>
+  </data>
+  <data name="Go to farm settings →" xml:space="preserve">
+    <value>Pumunta sa mga setting ng bukid →</value>
+  </data>
+  <data name="Good farm management starts with a clear view." xml:space="preserve">
+    <value>Nagsisimula ang maayos na pamamahala sa malinaw na pagtanaw sa bukid.</value>
+  </data>
+  <data name="Grow smarter. Manage" xml:space="preserve">
+    <value>Magtanim nang mas maayos. Pamahalaan</value>
+  </data>
+  <data name="Grow smarter. Manage every farm in one place" xml:space="preserve">
+    <value>Magtanim nang mas maayos. Pamahalaan ang bawat bukid sa iisang lugar</value>
+  </data>
+  <data name="Growing areas" xml:space="preserve">
+    <value>Mga taniman</value>
+  </data>
+  <data name="Growing now" xml:space="preserve">
+    <value>Kasalukuyang lumalago</value>
+  </data>
+  <data name="Growth stage" xml:space="preserve">
+    <value>Yugto ng paglaki</value>
+  </data>
+  <data name="Growth stage (optional)" xml:space="preserve">
+    <value>Yugto ng paglaki (opsyonal)</value>
+  </data>
+  <data name="Hangfire worker" xml:space="preserve">
+    <value>Worker ng Hangfire</value>
+  </data>
+  <data name="Harvest" xml:space="preserve">
+    <value>Ani</value>
+  </data>
+  <data name="Harvest entry voided; its audit record is preserved." xml:space="preserve">
+    <value>Pinawalang-bisa ang tala ng ani; nananatili ang kasaysayan nito.</value>
+  </data>
+  <data name="Harvest not saved. Your draft is kept." xml:space="preserve">
+    <value>Hindi na-save ang ani. Nananatili ang iyong draft.</value>
+  </data>
+  <data name="Harvest record history" xml:space="preserve">
+    <value>Kasaysayan ng mga tala ng ani</value>
+  </data>
+  <data name="Harvest record pages" xml:space="preserve">
+    <value>Mga pahina ng tala ng ani</value>
+  </data>
+  <data name="Harvest records →" xml:space="preserve">
+    <value>Mga tala ng ani →</value>
+  </data>
+  <data name="Harvest report results" xml:space="preserve">
+    <value>Mga resulta ng ulat ng ani</value>
+  </data>
+  <data name="Harvest reports" xml:space="preserve">
+    <value>Mga ulat ng ani</value>
+  </data>
+  <data name="Harvest unit" xml:space="preserve">
+    <value>Yunit ng ani</value>
+  </data>
+  <data name="Harvest unit (leave empty to use crop default)" xml:space="preserve">
+    <value>Yunit ng ani (iwang walang laman para gamitin ang karaniwang yunit ng pananim)</value>
+  </data>
+  <data name="Harvest unit:" xml:space="preserve">
+    <value>Yunit ng ani:</value>
+  </data>
+  <data name="Harvested at" xml:space="preserve">
+    <value>Oras ng pag-ani</value>
+  </data>
+  <data name="Harvests" xml:space="preserve">
+    <value>Mga ani</value>
+  </data>
+  <data name="Harvests ·" xml:space="preserve">
+    <value>Mga ani ·</value>
+  </data>
+  <data name="Has a planned crop: " xml:space="preserve">
+    <value>May nakaplanong pananim: </value>
+  </data>
+  <data name="Have a farm code? Enter the code supplied by the owner. Access begins after the owner approves your request." xml:space="preserve">
+    <value>May farm code ka ba? Ilagay ang code mula sa may-ari. Magsisimula ang access kapag inaprubahan ang kahilingan mo.</value>
+  </data>
+  <data name="Healthy" xml:space="preserve">
+    <value>Malusog</value>
+  </data>
+  <data name="Heat stress" xml:space="preserve">
+    <value>Pinsala sa matinding init</value>
+  </data>
+  <data name="Heavy rain" xml:space="preserve">
+    <value>Malakas na ulan</value>
+  </data>
+  <data name="Help" xml:space="preserve">
+    <value>Tulong</value>
+  </data>
+  <data name="Help &amp; account" xml:space="preserve">
+    <value>Tulong at account</value>
+  </data>
+  <data name="Help and account" xml:space="preserve">
+    <value>Tulong at account</value>
+  </data>
+  <data name="Help from Ani" xml:space="preserve">
+    <value>Tulong mula kay Ani</value>
+  </data>
+  <data name="High" xml:space="preserve">
+    <value>Mataas</value>
+  </data>
+  <data name="High priority" xml:space="preserve">
+    <value>Mataas na priyoridad</value>
+  </data>
+  <data name="High temperature" xml:space="preserve">
+    <value>Mataas na temperatura</value>
+  </data>
+  <data name="Historical records remain available. New activity and observation entries require an active crop cycle." xml:space="preserve">
+    <value>Makikita pa rin ang kasaysayan ng mga tala. Kailangan ng aktibong siklo ng pananim para sa bagong gawain at obserbasyon.</value>
+  </data>
+  <data name="History and upcoming milestones" xml:space="preserve">
+    <value>Kasaysayan at mga susunod na yugto</value>
+  </data>
+  <data name="How notifications work" xml:space="preserve">
+    <value>Paano gumagana ang mga abiso</value>
+  </data>
+  <data name="How would you like to get started?" xml:space="preserve">
+    <value>Paano mo gustong magsimula?</value>
+  </data>
+  <data name="I have a farm code" xml:space="preserve">
+    <value>May farm code ako</value>
+  </data>
+  <data name="I manage a farm" xml:space="preserve">
+    <value>Namamahala ako ng bukid</value>
+  </data>
+  <data name="I work on a farm" xml:space="preserve">
+    <value>Nagtatrabaho ako sa bukid</value>
+  </data>
+  <data name="If a record" xml:space="preserve">
+    <value>Kung ang tala ay</value>
+  </data>
+  <data name="If there's a matching open watering or fertilizing task, it can be completed with this entry. Check the task list afterward." xml:space="preserve">
+    <value>Kung may katugmang hindi pa tapos na gawain sa pagdidilig o pagpapataba, maaari itong tapusin kasabay ng tala. Suriin ang listahan pagkatapos.</value>
+  </data>
+  <data name="If you need access to a farm, ask its owner to review your membership or join request." xml:space="preserve">
+    <value>Kung kailangan mo ng access sa bukid, ipasuri sa may-ari ang iyong pagiging kasapi o kahilingang sumali.</value>
+  </data>
+  <data name="Important farm advisory" xml:space="preserve">
+    <value>Mahalagang payo sa bukid</value>
+  </data>
+  <data name="In progress" xml:space="preserve">
+    <value>Isinasagawa</value>
+  </data>
+  <data name="In stock" xml:space="preserve">
+    <value>May stock</value>
+  </data>
+  <data name="InProgress" xml:space="preserve">
+    <value>Isinasagawa</value>
+  </data>
+  <data name="Individual planting cycles and harvest totals by unit" xml:space="preserve">
+    <value>Bawat siklo ng pagtatanim at kabuuang ani ayon sa yunit</value>
+  </data>
+  <data name="Inspect" xml:space="preserve">
+    <value>Suriin</value>
+  </data>
+  <data name="Inspection" xml:space="preserve">
+    <value>Inspeksyon</value>
+  </data>
+  <data name="Inspection saved. You can now attach photos to the inspection below." xml:space="preserve">
+    <value>Na-save ang inspeksyon. Maaari ka nang maglakip ng larawan sa inspeksyon sa ibaba.</value>
+  </data>
+  <data name="Inspection task (optional)" xml:space="preserve">
+    <value>Gawaing inspeksyon (opsyonal)</value>
+  </data>
+  <data name="Inspections" xml:space="preserve">
+    <value>Mga inspeksyon</value>
+  </data>
+  <data name="Inspections &amp; photos" xml:space="preserve">
+    <value>Mga inspeksyon at larawan</value>
+  </data>
+  <data name="Instructions (optional)" xml:space="preserve">
+    <value>Mga tagubilin (opsyonal)</value>
+  </data>
+  <data name="Internal only" xml:space="preserve">
+    <value>Para sa loob lamang</value>
+  </data>
+  <data name="Invalid authenticator code." xml:space="preserve">
+    <value>Hindi wasto ang authenticator code.</value>
+  </data>
+  <data name="Invalid email or password, or account temporarily unavailable." xml:space="preserve">
+    <value>Mali ang email o password, o pansamantalang hindi magamit ang account.</value>
+  </data>
+  <data name="Invalid email or password." xml:space="preserve">
+    <value>Mali ang email o password.</value>
+  </data>
+  <data name="Invite &amp; approve team members" xml:space="preserve">
+    <value>Mag-anyaya at mag-apruba ng mga kasapi</value>
+  </data>
+  <data name="Invite your team." xml:space="preserve">
+    <value>Anyayahan ang iyong pangkat.</value>
+  </data>
+  <data name="Issue details (if needed)" xml:space="preserve">
+    <value>Detalye ng problema (kung kailangan)</value>
+  </data>
+  <data name="Issue severity" xml:space="preserve">
+    <value>Tindi ng problema</value>
+  </data>
+  <data name="Issue:" xml:space="preserve">
+    <value>Problema:</value>
+  </data>
+  <data name="Item name" xml:space="preserve">
+    <value>Pangalan ng gamit</value>
+  </data>
+  <data name="JPEG, PNG or WebP · 5 MB maximum · this photo is private to authorized farm members." xml:space="preserve">
+    <value>JPEG, PNG o WebP · hanggang 5 MB · para lamang ang larawang ito sa mga awtorisadong kasapi ng bukid.</value>
+  </data>
+  <data name="Job history unavailable" xml:space="preserve">
+    <value>Hindi makuha ang kasaysayan ng gawain</value>
+  </data>
+  <data name="Jobs waiting" xml:space="preserve">
+    <value>Mga naghihintay na gawain</value>
+  </data>
+  <data name="Join an existing farm" xml:space="preserve">
+    <value>Sumali sa dati nang bukid</value>
+  </data>
+  <data name="Join farm" xml:space="preserve">
+    <value>Sumali sa bukid</value>
+  </data>
+  <data name="Join request canceled. You can apply again with a valid farm code." xml:space="preserve">
+    <value>Kinansela ang kahilingang sumali. Maaari kang humiling muli gamit ang wastong farm code.</value>
+  </data>
+  <data name="Join request pages" xml:space="preserve">
+    <value>Mga pahina ng kahilingang sumali</value>
+  </data>
+  <data name="Join requests" xml:space="preserve">
+    <value>Mga kahilingang sumali</value>
+  </data>
+  <data name="Join with a farm code, wait for the owner to approve access, then record fieldwork." xml:space="preserve">
+    <value>Sumali gamit ang farm code, hintaying aprubahan ng may-ari ang access, saka magtala ng gawain sa bukid.</value>
+  </data>
+  <data name="Keep inventory and usage in check." xml:space="preserve">
+    <value>Subaybayan ang imbentaryo at paggamit.</value>
+  </data>
+  <data name="Keep this key private. Do not share screenshots of this page.&#10;       No third-party QR code service is used." xml:space="preserve">
+    <value>Panatilihing pribado ang key. Huwag ibahagi ang screenshot ng pahinang ito. Walang ginagamit na panlabas na serbisyo ng QR code.</value>
+  </data>
+  <data name="Key platform indicators" xml:space="preserve">
+    <value>Mahahalagang sukatan ng platform</value>
+  </data>
+  <data name="Language" xml:space="preserve">
+    <value>Wika</value>
+  </data>
+  <data name="Last checked" xml:space="preserve">
+    <value>Huling sinuri</value>
+  </data>
+  <data name="Last checked:" xml:space="preserve">
+    <value>Huling sinuri:</value>
+  </data>
+  <data name="Last harvest" xml:space="preserve">
+    <value>Huling ani</value>
+  </data>
+  <data name="Last heartbeat: {0} UTC" xml:space="preserve">
+    <value>Huling heartbeat: {0} UTC</value>
+  </data>
+  <data name="Last recorded receipt: {0}" xml:space="preserve">
+    <value>Huling naitalang kumpirmasyon: {0}</value>
+  </data>
+  <data name="Last worker heartbeat:" xml:space="preserve">
+    <value>Huling heartbeat ng worker:</value>
+  </data>
+  <data name="Light appearance" xml:space="preserve">
+    <value>Maliwanag na hitsura</value>
+  </data>
+  <data name="Light is the default. Your choice is saved on this browser only, not across every device." xml:space="preserve">
+    <value>Maliwanag ang karaniwang hitsura. Sa browser na ito lamang naka-save ang pagpili mo, hindi sa lahat ng device.</value>
+  </data>
+  <data name="Linked farm task completed" xml:space="preserve">
+    <value>Natapos na ang kaugnay na gawain sa bukid</value>
+  </data>
+  <data name="Linked follow-up task:" xml:space="preserve">
+    <value>Kaugnay na gawaing follow-up:</value>
+  </data>
+  <data name="Loading local time…" xml:space="preserve">
+    <value>Kinukuha ang lokal na oras…</value>
+  </data>
+  <data name="Loading the optional farm map..." xml:space="preserve">
+    <value>Kinukuha ang opsyonal na mapa ng bukid...</value>
+  </data>
+  <data name="Local dates:" xml:space="preserve">
+    <value>Mga lokal na petsa:</value>
+  </data>
+  <data name="Log in" xml:space="preserve">
+    <value>Mag-log in</value>
+  </data>
+  <data name="Log in to my farms" xml:space="preserve">
+    <value>Mag-log in sa aking mga bukid</value>
+  </data>
+  <data name="Log inspections, irrigation, and treatments." xml:space="preserve">
+    <value>Itala ang inspeksyon, patubig, at pag-aalaga.</value>
+  </data>
+  <data name="Log out" xml:space="preserve">
+    <value>Mag-log out</value>
+  </data>
+  <data name="Log watering" xml:space="preserve">
+    <value>Itala ang pagdidilig</value>
+  </data>
+  <data name="Low" xml:space="preserve">
+    <value>Mababa</value>
+  </data>
+  <data name="Low stock" xml:space="preserve">
+    <value>Mababang stock</value>
+  </data>
+  <data name="Low stock only" xml:space="preserve">
+    <value>Mababang stock lamang</value>
+  </data>
+  <data name="Low-stock alert at" xml:space="preserve">
+    <value>Abiso sa mababang stock kapag umabot sa</value>
+  </data>
+  <data name="Low-stock supplies" xml:space="preserve">
+    <value>Mga suplay na mababa ang stock</value>
+  </data>
+  <data name="Low-stock threshold" xml:space="preserve">
+    <value>Hangganan ng mababang stock</value>
+  </data>
+  <data name="Low-stock threshold reached" xml:space="preserve">
+    <value>Naabot na ang hangganan ng mababang stock</value>
+  </data>
+  <data name="Low-stock threshold:" xml:space="preserve">
+    <value>Hangganan ng mababang stock:</value>
+  </data>
+  <data name="Manage Supplies" xml:space="preserve">
+    <value>Pamahalaan ang mga suplay</value>
+  </data>
+  <data name="Manage crop cycle" xml:space="preserve">
+    <value>Pamahalaan ang siklo ng pananim</value>
+  </data>
+  <data name="Manage farms" xml:space="preserve">
+    <value>Pamahalaan ang mga bukid</value>
+  </data>
+  <data name="Manage issue follow-up" xml:space="preserve">
+    <value>Pamahalaan ang follow-up sa problema</value>
+  </data>
+  <data name="Manage users" xml:space="preserve">
+    <value>Pamahalaan ang mga user</value>
+  </data>
+  <data name="Manage your farm's growing spaces." xml:space="preserve">
+    <value>Pamahalaan ang mga taniman ng iyong bukid.</value>
+  </data>
+  <data name="Manage your own farm" xml:space="preserve">
+    <value>Pamahalaan ang sarili mong bukid</value>
+  </data>
+  <data name="Manager" xml:space="preserve">
+    <value>Tagapamahala</value>
+  </data>
+  <data name="Map could not load. Enter the farm location as text and try again later." xml:space="preserve">
+    <value>Hindi makuha ang mapa. Ilagay ang lokasyon ng bukid bilang teksto at subukang muli mamaya.</value>
+  </data>
+  <data name="Map could not load. You can still save the farm name and nearby location." xml:space="preserve">
+    <value>Hindi makuha ang mapa. Maaari mo pa ring i-save ang pangalan ng bukid at kalapit na lokasyon.</value>
+  </data>
+  <data name="Mapping library unavailable" xml:space="preserve">
+    <value>Hindi magamit ang bahagi para sa mapa</value>
+  </data>
+  <data name="Mark as planted" xml:space="preserve">
+    <value>Markahang naitanim</value>
+  </data>
+  <data name="Mark as planted: {0} on {1}? Review the dates and reason before continuing." xml:space="preserve">
+    <value>Markahang naitanim: {0} sa {1}? Suriin ang mga petsa at dahilan bago magpatuloy.</value>
+  </data>
+  <data name="Mark as read" xml:space="preserve">
+    <value>Markahang nabasa</value>
+  </data>
+  <data name="Mark completed" xml:space="preserve">
+    <value>Markahang tapos na</value>
+  </data>
+  <data name="Mark failed" xml:space="preserve">
+    <value>Markahang nabigo</value>
+  </data>
+  <data name="Mark failed: {0} on {1}? Review the dates and reason before continuing." xml:space="preserve">
+    <value>Markahang nabigo: {0} sa {1}? Suriin ang mga petsa at dahilan bago magpatuloy.</value>
+  </data>
+  <data name="Mark {0} task due {1} as completed" xml:space="preserve">
+    <value>Markahang tapos ang gawaing {0} na nakatakda sa {1}</value>
+  </data>
+  <data name="Match my oldest due task automatically" xml:space="preserve">
+    <value>Awtomatikong itugma sa pinakaluma kong takdang gawain</value>
+  </data>
+  <data name="Matching records" xml:space="preserve">
+    <value>Mga katugmang tala</value>
+  </data>
+  <data name="Max wind" xml:space="preserve">
+    <value>Pinakamalakas na hangin</value>
+  </data>
+  <data name="Members with access to this farm and their roles." xml:space="preserve">
+    <value>Mga kasaping may access sa bukid at ang kanilang tungkulin.</value>
+  </data>
+  <data name="Menu" xml:space="preserve">
+    <value>Menu</value>
+  </data>
+  <data name="Missing picker script" xml:space="preserve">
+    <value>Hindi makuha ang bahagi sa pagpili</value>
+  </data>
+  <data name="Mobile platform administration" xml:space="preserve">
+    <value>Pangangasiwa ng platform sa telepono</value>
+  </data>
+  <data name="Mobile workspace navigation" xml:space="preserve">
+    <value>Paglipat sa workspace sa telepono</value>
+  </data>
+  <data name="Moderate" xml:space="preserve">
+    <value>Katamtaman</value>
+  </data>
+  <data name="Monitoring" xml:space="preserve">
+    <value>Pagsubaybay</value>
+  </data>
+  <data name="Monitoring sections" xml:space="preserve">
+    <value>Mga seksyon ng pagsubaybay</value>
+  </data>
+  <data name="Month" xml:space="preserve">
+    <value>Buwan</value>
+  </data>
+  <data name="Monthly yield" xml:space="preserve">
+    <value>Ani bawat buwan</value>
+  </data>
+  <data name="More" xml:space="preserve">
+    <value>Iba pa</value>
+  </data>
+  <data name="More farm sections" xml:space="preserve">
+    <value>Iba pang seksyon ng bukid</value>
+  </data>
+  <data name="More workspace sections" xml:space="preserve">
+    <value>Iba pang seksyon ng workspace</value>
+  </data>
+  <data name="Most recent registrations, not an estimate of today's activity." xml:space="preserve">
+    <value>Mga pinakabagong pagpaparehistro, hindi pagtataya ng aktibidad ngayon.</value>
+  </data>
+  <data name="Move to another month or add a planting plan to begin." xml:space="preserve">
+    <value>Lumipat sa ibang buwan o magdagdag ng plano sa pagtatanim upang magsimula.</value>
+  </data>
+  <data name="My account" xml:space="preserve">
+    <value>Aking account</value>
+  </data>
+  <data name="My farms" xml:space="preserve">
+    <value>Aking mga bukid</value>
+  </data>
+  <data name="My requests" xml:space="preserve">
+    <value>Aking mga kahilingan</value>
+  </data>
+  <data name="My task list" xml:space="preserve">
+    <value>Listahan ng aking gawain</value>
+  </data>
+  <data name="My tasks" xml:space="preserve">
+    <value>Aking mga gawain</value>
+  </data>
+  <data name="Name" xml:space="preserve">
+    <value>Pangalan</value>
+  </data>
+  <data name="Name the field and enter its area." xml:space="preserve">
+    <value>Pangalanan ang taniman at ilagay ang lawak nito.</value>
+  </data>
+  <data name="Needs attention" xml:space="preserve">
+    <value>Kailangang asikasuhin</value>
+  </data>
+  <data name="Needs follow-up" xml:space="preserve">
+    <value>Kailangan ng follow-up</value>
+  </data>
+  <data name="Needs restocking (" xml:space="preserve">
+    <value>Kailangang dagdagan ang stock (</value>
+  </data>
+  <data name="Needs review" xml:space="preserve">
+    <value>Kailangang suriin</value>
+  </data>
+  <data name="Needs your review" xml:space="preserve">
+    <value>Kailangang suriin mo</value>
+  </data>
+  <data name="New harvests appear after they are saved on an active crop." xml:space="preserve">
+    <value>Lilitaw ang bagong ani matapos i-save sa aktibong pananim.</value>
+  </data>
+  <data name="New harvests can only be recorded while the crop cycle is active." xml:space="preserve">
+    <value>Maaari lamang magtala ng bagong ani habang aktibo ang siklo ng pananim.</value>
+  </data>
+  <data name="New here?" xml:space="preserve">
+    <value>Bago ka rito?</value>
+  </data>
+  <data name="New issues will appear when saved in farm records." xml:space="preserve">
+    <value>Lilitaw ang mga bagong problema kapag na-save sa mga tala ng bukid.</value>
+  </data>
+  <data name="New join requests require your approval before the person can access the farm." xml:space="preserve">
+    <value>Kailangan ang iyong pag-apruba sa bagong kahilingang sumali bago makapasok ang tao sa bukid.</value>
+  </data>
+  <data name="Next" xml:space="preserve">
+    <value>Susunod</value>
+  </data>
+  <data name="Next available" xml:space="preserve">
+    <value>Susunod na mayroon</value>
+  </data>
+  <data name="Next month" xml:space="preserve">
+    <value>Susunod na buwan</value>
+  </data>
+  <data name="Next planting" xml:space="preserve">
+    <value>Susunod na pagtatanim</value>
+  </data>
+  <data name="Next task month" xml:space="preserve">
+    <value>Susunod na buwan ng gawain</value>
+  </data>
+  <data name="Next →" xml:space="preserve">
+    <value>Susunod →</value>
+  </data>
+  <data name="No active crop to record yet" xml:space="preserve">
+    <value>Wala pang aktibong pananim na maitatala</value>
+  </data>
+  <data name="No active plots" xml:space="preserve">
+    <value>Walang aktibong taniman</value>
+  </data>
+  <data name="No active saved advisories." xml:space="preserve">
+    <value>Walang aktibong naka-save na payo.</value>
+  </data>
+  <data name="No additional saved concerns." xml:space="preserve">
+    <value>Walang iba pang naka-save na problema.</value>
+  </data>
+  <data name="No announcements" xml:space="preserve">
+    <value>Walang anunsyo</value>
+  </data>
+  <data name="No code yet? Ask your farm owner to share their 12-character code." xml:space="preserve">
+    <value>Wala pang code? Hingin sa may-ari ng bukid ang 12-character na code.</value>
+  </data>
+  <data name="No crop" xml:space="preserve">
+    <value>Walang pananim</value>
+  </data>
+  <data name="No crop cycles have been planned yet." xml:space="preserve">
+    <value>Wala pang nakaplanong siklo ng pananim.</value>
+  </data>
+  <data name="No crop types available yet." xml:space="preserve">
+    <value>Wala pang magagamit na uri ng pananim.</value>
+  </data>
+  <data name="No crops growing or planned yet" xml:space="preserve">
+    <value>Wala pang lumalago o nakaplanong pananim</value>
+  </data>
+  <data name="No events are available for this crop yet." xml:space="preserve">
+    <value>Wala pang mga kaganapan para sa pananim na ito.</value>
+  </data>
+  <data name="No failed SmartFarm job entries found in the Hangfire database." xml:space="preserve">
+    <value>Walang nakitang nabigong gawain ng SmartFarm sa database ng Hangfire.</value>
+  </data>
+  <data name="No farms registered yet." xml:space="preserve">
+    <value>Wala pang nakarehistrong bukid.</value>
+  </data>
+  <data name="No farms yet" xml:space="preserve">
+    <value>Wala pang bukid</value>
+  </data>
+  <data name="No fieldwork recorded yet." xml:space="preserve">
+    <value>Wala pang naitalang gawain sa bukid.</value>
+  </data>
+  <data name="No harvest entries to show." xml:space="preserve">
+    <value>Walang maipakitang tala ng ani.</value>
+  </data>
+  <data name="No harvests recorded yet." xml:space="preserve">
+    <value>Wala pang naitalang ani.</value>
+  </data>
+  <data name="No inspection photos yet. Record an inspection and attach a photo to build a visual history." xml:space="preserve">
+    <value>Wala pang larawan ng inspeksyon. Magtala ng inspeksyon at maglakip ng larawan upang makabuo ng kasaysayan sa larawan.</value>
+  </data>
+  <data name="No inspections saved yet." xml:space="preserve">
+    <value>Wala pang naka-save na inspeksyon.</value>
+  </data>
+  <data name="No issue" xml:space="preserve">
+    <value>Walang problema</value>
+  </data>
+  <data name="No linked task" xml:space="preserve">
+    <value>Walang kaugnay na gawain</value>
+  </data>
+  <data name="No matching activity" xml:space="preserve">
+    <value>Walang katugmang aktibidad</value>
+  </data>
+  <data name="No matching farms" xml:space="preserve">
+    <value>Walang katugmang bukid</value>
+  </data>
+  <data name="No matching places. Try a nearby barangay or select the farm on the map." xml:space="preserve">
+    <value>Walang katugmang lugar. Subukan ang kalapit na barangay o piliin ang bukid sa mapa.</value>
+  </data>
+  <data name="No matching receipts" xml:space="preserve">
+    <value>Walang katugmang kumpirmasyon</value>
+  </data>
+  <data name="No matching requests" xml:space="preserve">
+    <value>Walang katugmang kahilingan</value>
+  </data>
+  <data name="No matching supplies." xml:space="preserve">
+    <value>Walang katugmang suplay.</value>
+  </data>
+  <data name="No matching users" xml:space="preserve">
+    <value>Walang katugmang user</value>
+  </data>
+  <data name="No monthly harvest data." xml:space="preserve">
+    <value>Walang datos ng ani bawat buwan.</value>
+  </data>
+  <data name="No notifications yet." xml:space="preserve">
+    <value>Wala pang abiso.</value>
+  </data>
+  <data name="No one is waiting for approval." xml:space="preserve">
+    <value>Walang naghihintay ng pag-apruba.</value>
+  </data>
+  <data name="No open tasks are assigned to you right now." xml:space="preserve">
+    <value>Walang hindi pa tapos na gawaing nakatalaga sa iyo ngayon.</value>
+  </data>
+  <data name="No open tasks are assigned to you. Check due work or ask your farm manager about assignments." xml:space="preserve">
+    <value>Walang hindi pa tapos na gawaing nakatalaga sa iyo. Tingnan ang takdang gawain o magtanong sa tagapamahala.</value>
+  </data>
+  <data name="No planting history recorded yet." xml:space="preserve">
+    <value>Wala pang naitalang kasaysayan ng pagtatanim.</value>
+  </data>
+  <data name="No plots yet. {0}" xml:space="preserve">
+    <value>Wala pang taniman. {0}</value>
+  </data>
+  <data name="No previous requests." xml:space="preserve">
+    <value>Walang naunang kahilingan.</value>
+  </data>
+  <data name="No recent forecast is available" xml:space="preserve">
+    <value>Walang bagong magagamit na taya</value>
+  </data>
+  <data name="No recorded crop activity is available. To log supply use, first record the corresponding fieldwork." xml:space="preserve">
+    <value>Walang naitalang gawain sa pananim. Upang itala ang paggamit ng suplay, itala muna ang kaugnay na gawain sa bukid.</value>
+  </data>
+  <data name="No recorded harvests for this view." xml:space="preserve">
+    <value>Walang naitalang ani para sa tanaw na ito.</value>
+  </data>
+  <data name="No retained announcements match these filters." xml:space="preserve">
+    <value>Walang nakaingatang anunsyong tumutugma sa mga salaan.</value>
+  </data>
+  <data name="No reviewed join requests yet." xml:space="preserve">
+    <value>Wala pang nasuring kahilingang sumali.</value>
+  </data>
+  <data name="No saved forecast" xml:space="preserve">
+    <value>Walang naka-save na taya</value>
+  </data>
+  <data name="No saved forecast for today or later. Check the weather page for updates." xml:space="preserve">
+    <value>Walang naka-save na taya para ngayon o sa susunod na araw. Tingnan ang pahina ng panahon para sa pagbabago.</value>
+  </data>
+  <data name="No saved replies." xml:space="preserve">
+    <value>Walang naka-save na tugon.</value>
+  </data>
+  <data name="No scheduled crop activities this month." xml:space="preserve">
+    <value>Walang takdang gawain sa pananim ngayong buwan.</value>
+  </data>
+  <data name="No stock changes recorded yet." xml:space="preserve">
+    <value>Wala pang naitalang pagbabago sa stock.</value>
+  </data>
+  <data name="No supplies recorded yet." xml:space="preserve">
+    <value>Wala pang naitalang suplay.</value>
+  </data>
+  <data name="No tasks for this date." xml:space="preserve">
+    <value>Walang gawain para sa petsang ito.</value>
+  </data>
+  <data name="No tasks have been closed yet." xml:space="preserve">
+    <value>Wala pang isinara na gawain.</value>
+  </data>
+  <data name="No tasks in this view." xml:space="preserve">
+    <value>Walang gawain sa tanaw na ito.</value>
+  </data>
+  <data name="No tasks scheduled this month. Select another month to check upcoming work." xml:space="preserve">
+    <value>Walang takdang gawain ngayong buwan. Pumili ng ibang buwan upang makita ang mga susunod na gawain.</value>
+  </data>
+  <data name="No tasks yet." xml:space="preserve">
+    <value>Wala pang gawain.</value>
+  </data>
+  <data name="No unread recent notices." xml:space="preserve">
+    <value>Walang kamakailang abisong hindi pa nabasa.</value>
+  </data>
+  <data name="No upcoming work is scheduled." xml:space="preserve">
+    <value>Walang susunod na nakatakdang gawain.</value>
+  </data>
+  <data name="No updates yet." xml:space="preserve">
+    <value>Wala pang pagbabago.</value>
+  </data>
+  <data name="No valid harvests are available for cycle comparisons." xml:space="preserve">
+    <value>Walang may-bisang ani para sa paghahambing ng mga siklo.</value>
+  </data>
+  <data name="No weather data saved" xml:space="preserve">
+    <value>Walang naka-save na datos ng panahon</value>
+  </data>
+  <data name="No work is currently scheduled. Check tasks to plan the next job." xml:space="preserve">
+    <value>Walang kasalukuyang takdang gawain. Tingnan ang Mga gawain upang planuhin ang susunod.</value>
+  </data>
+  <data name="None" xml:space="preserve">
+    <value>Wala</value>
+  </data>
+  <data name="None / no specific issue" xml:space="preserve">
+    <value>Wala / walang tiyak na problema</value>
+  </data>
+  <data name="None planned" xml:space="preserve">
+    <value>Walang nakaplano</value>
+  </data>
+  <data name="None — record the activity only" xml:space="preserve">
+    <value>Wala — itala lamang ang gawain</value>
+  </data>
+  <data name="Not assessed" xml:space="preserve">
+    <value>Hindi pa nasusuri</value>
+  </data>
+  <data name="Not now" xml:space="preserve">
+    <value>Mamaya na</value>
+  </data>
+  <data name="Not sure" xml:space="preserve">
+    <value>Hindi tiyak</value>
+  </data>
+  <data name="Not yet available" xml:space="preserve">
+    <value>Wala pa</value>
+  </data>
+  <data name="Notes" xml:space="preserve">
+    <value>Mga tala</value>
+  </data>
+  <data name="Notes (optional)" xml:space="preserve">
+    <value>Mga tala (opsyonal)</value>
+  </data>
+  <data name="Nothing active" xml:space="preserve">
+    <value>Walang aktibo</value>
+  </data>
+  <data name="Nothing is overdue or due today." xml:space="preserve">
+    <value>Walang nahuli o nakatakda ngayong araw.</value>
+  </data>
+  <data name="Nothing overdue or due today." xml:space="preserve">
+    <value>Walang nahuli o nakatakdang gawain ngayon.</value>
+  </data>
+  <data name="Notification filters" xml:space="preserve">
+    <value>Mga salaan ng abiso</value>
+  </data>
+  <data name="Notification marked as read." xml:space="preserve">
+    <value>Minarkahang nabasa ang abiso.</value>
+  </data>
+  <data name="Notification pages" xml:space="preserve">
+    <value>Mga pahina ng abiso</value>
+  </data>
+  <data name="Notifications" xml:space="preserve">
+    <value>Mga abiso</value>
+  </data>
+  <data name="Nutrient deficiency (suspected)" xml:space="preserve">
+    <value>Kakulangan sa sustansya (pinaghihinalaan)</value>
+  </data>
+  <data name="ONE-TIME DISPLAY" xml:space="preserve">
+    <value>ISANG BESES LAMANG IPAPAKITA</value>
+  </data>
+  <data name="Observation notes (optional)" xml:space="preserve">
+    <value>Mga tala sa obserbasyon (opsyonal)</value>
+  </data>
+  <data name="Observation photo" xml:space="preserve">
+    <value>Larawan ng obserbasyon</value>
+  </data>
+  <data name="Observed issue" xml:space="preserve">
+    <value>Napansing problema</value>
+  </data>
+  <data name="Observed issue (optional)" xml:space="preserve">
+    <value>Napansing problema (opsyonal)</value>
+  </data>
+  <data name="Offline changes, photo queues, and review-needed conflicts are stored on the farmer's phone until it can communicate with the server. Successful upload receipts are recorded here, but this view cannot detect every client-side failure. For an affected device, use the Android app's Sync Status screen." xml:space="preserve">
+    <value>Nananatili sa telepono ng magsasaka ang offline na pagbabago, pila ng larawan, at salungatang kailangang suriin hanggang makakonekta. Naitatala rito ang matagumpay na pagpapadala, ngunit hindi nakikita ng pahinang ito ang lahat ng pagkabigo sa device. Gamitin ang Katayuan ng pag-sync sa Android para sa apektadong device.</value>
+  </data>
+  <data name="One good place to start. Everything you need to keep growing." xml:space="preserve">
+    <value>Isang maayos na simula. Lahat ng kailangan upang patuloy na magtanim.</value>
+  </data>
+  <data name="One-time authenticator enrollment key" xml:space="preserve">
+    <value>Key sa pagpaparehistro ng authenticator na isang beses lamang ipapakita</value>
+  </data>
+  <data name="Only adjust this when needed. The map may ask for location permission if you select Use my current location." xml:space="preserve">
+    <value>Baguhin lamang kapag kailangan. Maaaring humingi ng pahintulot ang mapa kapag pinili ang Gamitin ang kasalukuyang lokasyon.</value>
+  </data>
+  <data name="Only confirmed server harvests count in the total. Android offline entries appear as pending until synchronized." xml:space="preserve">
+    <value>Mga nakumpirmang ani lamang ang kasama sa kabuuan. Nakabinbin ang offline na tala sa Android hanggang ma-sync.</value>
+  </data>
+  <data name="Only replace this code if it should no longer accept new join requests. Existing members keep their access." xml:space="preserve">
+    <value>Palitan lamang ang code kung hindi na ito dapat tumanggap ng bagong kahilingang sumali. Mananatili ang access ng mga kasapi.</value>
+  </data>
+  <data name="Only the farm owner can review join requests. Sharing a code doesn't give access until the request is approved." xml:space="preserve">
+    <value>Tanging may-ari ng bukid ang maaaring magsuri ng kahilingang sumali. Hindi nagbibigay ng access ang code hangga't hindi aprubado ang kahilingan.</value>
+  </data>
+  <data name="Only you can manage farm membership as the owner." xml:space="preserve">
+    <value>Bilang may-ari, ikaw lamang ang maaaring mamahala ng pagiging kasapi sa bukid.</value>
+  </data>
+  <data name="Only your assigned open tasks are shown below; farm concerns remain visible." xml:space="preserve">
+    <value>Mga nakatalaga mong hindi pa tapos na gawain lamang ang nasa ibaba; makikita pa rin ang mga problema ng bukid.</value>
+  </data>
+  <data name="Open" xml:space="preserve">
+    <value>Buksan</value>
+  </data>
+  <data name="Open All tasks until the farm time zone is corrected." xml:space="preserve">
+    <value>Buksan ang Lahat ng gawain habang hindi pa naiwawasto ang sona ng oras ng bukid.</value>
+  </data>
+  <data name="Open Help" xml:space="preserve">
+    <value>Buksan ang Tulong</value>
+  </data>
+  <data name="Open a crop for monitoring or harvests. Owners and managers can update its planting status." xml:space="preserve">
+    <value>Buksan ang pananim upang subaybayan o magtala ng ani. Maaaring baguhin ng may-ari at tagapamahala ang katayuan ng pagtatanim.</value>
+  </data>
+  <data name="Open a farm below, create your own, or enter a code to join your team." xml:space="preserve">
+    <value>Buksan ang bukid sa ibaba, gumawa ng sarili mo, o maglagay ng code upang sumali sa pangkat.</value>
+  </data>
+  <data name="Open a specific task or the right farm record." xml:space="preserve">
+    <value>Buksan ang tiyak na gawain o ang tamang tala ng bukid.</value>
+  </data>
+  <data name="Open account menu" xml:space="preserve">
+    <value>Buksan ang menu ng account</value>
+  </data>
+  <data name="Open crop management →" xml:space="preserve">
+    <value>Buksan ang pamamahala ng pananim →</value>
+  </data>
+  <data name="Open crop records" xml:space="preserve">
+    <value>Buksan ang mga tala ng pananim</value>
+  </data>
+  <data name="Open dashboard" xml:space="preserve">
+    <value>Buksan ang pangunahing tanaw</value>
+  </data>
+  <data name="Open monitoring →" xml:space="preserve">
+    <value>Buksan ang pagsubaybay →</value>
+  </data>
+  <data name="Open my farms" xml:space="preserve">
+    <value>Buksan ang aking mga bukid</value>
+  </data>
+  <data name="Open or in progress" xml:space="preserve">
+    <value>Bukas o isinasagawa</value>
+  </data>
+  <data name="Open system monitoring" xml:space="preserve">
+    <value>Buksan ang pagsubaybay sa sistema</value>
+  </data>
+  <data name="Open task list" xml:space="preserve">
+    <value>Buksan ang listahan ng gawain</value>
+  </data>
+  <data name="Open tasks →" xml:space="preserve">
+    <value>Buksan ang mga gawain →</value>
+  </data>
+  <data name="Open the appropriate workspace to investigate. No actions happen from this summary." xml:space="preserve">
+    <value>Buksan ang angkop na workspace upang magsuri. Walang aksyong isinasagawa mula sa buod na ito.</value>
+  </data>
+  <data name="Open the complete records and filters when more detail is needed." xml:space="preserve">
+    <value>Buksan ang buong tala at mga salaan kung kailangan ng mas maraming detalye.</value>
+  </data>
+  <data name="Open the secure platform workspace →" xml:space="preserve">
+    <value>Buksan ang ligtas na workspace ng platform →</value>
+  </data>
+  <data name="Open your farms" xml:space="preserve">
+    <value>Buksan ang iyong mga bukid</value>
+  </data>
+  <data name="Open your farms or request access →" xml:space="preserve">
+    <value>Buksan ang iyong mga bukid o humiling ng access →</value>
+  </data>
+  <data name="OpenStreetMap contributors" xml:space="preserve">
+    <value>Mga tagapag-ambag ng OpenStreetMap</value>
+  </data>
+  <data name="Opening" xml:space="preserve">
+    <value>Panimula</value>
+  </data>
+  <data name="Opening quantity" xml:space="preserve">
+    <value>Panimulang dami</value>
+  </data>
+  <data name="Operation" xml:space="preserve">
+    <value>Operasyon</value>
+  </data>
+  <data name="Optional" xml:space="preserve">
+    <value>Opsyonal</value>
+  </data>
+  <data name="Optional growth stage &amp; notes" xml:space="preserve">
+    <value>Opsyonal na yugto ng paglaki at mga tala</value>
+  </data>
+  <data name="Optional harvest &amp; watering settings" xml:space="preserve">
+    <value>Opsyonal na setting ng ani at pagdidilig</value>
+  </data>
+  <data name="Optional harvest and watering settings" xml:space="preserve">
+    <value>Opsyonal na setting ng ani at pagdidilig</value>
+  </data>
+  <data name="Optional notes and low-stock alert" xml:space="preserve">
+    <value>Opsyonal na tala at abiso sa mababang stock</value>
+  </data>
+  <data name="Optional · for local saved forecasts" xml:space="preserve">
+    <value>Opsyonal · para sa lokal na naka-save na taya</value>
+  </data>
+  <data name="Optional, after saving an inspection" xml:space="preserve">
+    <value>Opsyonal, matapos i-save ang inspeksyon</value>
+  </data>
+  <data name="Original description" xml:space="preserve">
+    <value>Orihinal na paglalarawan</value>
+  </data>
+  <data name="Original request" xml:space="preserve">
+    <value>Orihinal na kahilingan</value>
+  </data>
+  <data name="Other" xml:space="preserve">
+    <value>Iba pa</value>
+  </data>
+  <data name="Other farm memberships" xml:space="preserve">
+    <value>Iba pang pagiging kasapi sa bukid</value>
+  </data>
+  <data name="Other notification" xml:space="preserve">
+    <value>Ibang abiso</value>
+  </data>
+  <data name="Other service health is checked on the monitoring page. A count is not treated as zero when diagnostics are unavailable." xml:space="preserve">
+    <value>Sinusuri ang ibang serbisyo sa pahina ng pagsubaybay. Hindi ipinapalagay na zero ang bilang kapag hindi makuha ang pagsusuri.</value>
+  </data>
+  <data name="Other status" xml:space="preserve">
+    <value>Ibang katayuan</value>
+  </data>
+  <data name="Outcome" xml:space="preserve">
+    <value>Resulta</value>
+  </data>
+  <data name="Overdue" xml:space="preserve">
+    <value>Lampas na sa takdang araw</value>
+  </data>
+  <data name="Overdue and due-today jobs first." xml:space="preserve">
+    <value>Unahin ang nahuli at nakatakdang gawain ngayong araw.</value>
+  </data>
+  <data name="Overdue tasks" xml:space="preserve">
+    <value>Mga nahuling gawain</value>
+  </data>
+  <data name="Overview" xml:space="preserve">
+    <value>Pangkalahatang tanaw</value>
+  </data>
+  <data name="Owned farms" xml:space="preserve">
+    <value>Mga pag-aaring bukid</value>
+  </data>
+  <data name="Owner" xml:space="preserve">
+    <value>May-ari</value>
+  </data>
+  <data name="Owner email" xml:space="preserve">
+    <value>Email ng may-ari</value>
+  </data>
+  <data name="PLATFORM ACCOUNTABILITY" xml:space="preserve">
+    <value>PANANAGUTAN SA PLATFORM</value>
+  </data>
+  <data name="PLATFORM DIRECTORY" xml:space="preserve">
+    <value>TALAAN NG PLATFORM</value>
+  </data>
+  <data name="PROTECTED SIGN IN" xml:space="preserve">
+    <value>PROTEKTADONG PAG-LOG IN</value>
+  </data>
+  <data name="Page" xml:space="preserve">
+    <value>Pahina</value>
+  </data>
+  <data name="Page {0} of {1}" xml:space="preserve">
+    <value>Pahina {0} sa {1}</value>
+  </data>
+  <data name="Partial harvest entries appear here after they're saved. Each record keeps its own quantity and date." xml:space="preserve">
+    <value>Lilitaw dito ang bahagyang ani matapos i-save. Nananatili ang sariling dami at petsa ng bawat tala.</value>
+  </data>
+  <data name="Partial harvest recorded." xml:space="preserve">
+    <value>Naitala ang bahagyang ani.</value>
+  </data>
+  <data name="Partial harvests" xml:space="preserve">
+    <value>Mga bahagyang ani</value>
+  </data>
+  <data name="Partial harvests, including voided records" xml:space="preserve">
+    <value>Mga bahagyang ani, kasama ang pinawalang-bisang tala</value>
+  </data>
+  <data name="Password" xml:space="preserve">
+    <value>Password</value>
+  </data>
+  <data name="Pending" xml:space="preserve">
+    <value>Nakabinbin</value>
+  </data>
+  <data name="Pending requests" xml:space="preserve">
+    <value>Mga nakabinbing kahilingan</value>
+  </data>
+  <data name="Performed by" xml:space="preserve">
+    <value>Isinagawa ni</value>
+  </data>
+  <data name="Pest" xml:space="preserve">
+    <value>Peste</value>
+  </data>
+  <data name="Pest risk" xml:space="preserve">
+    <value>Panganib ng peste</value>
+  </data>
+  <data name="Pesticide" xml:space="preserve">
+    <value>Pestisidyo</value>
+  </data>
+  <data name="Pesticides" xml:space="preserve">
+    <value>Mga pestisidyo</value>
+  </data>
+  <data name="Photo attached to this inspection." xml:space="preserve">
+    <value>Nailakip ang larawan sa inspeksyong ito.</value>
+  </data>
+  <data name="Photo is larger than 5 MB. Choose a smaller image." xml:space="preserve">
+    <value>Mas malaki sa 5 MB ang larawan. Pumili ng mas maliit.</value>
+  </data>
+  <data name="Pick up where you left off. Your farms, today's work, and saved crop records are ready when you are." xml:space="preserve">
+    <value>Magpatuloy sa huling ginawa mo. Handa na ang iyong mga bukid, gawain ngayon, at naka-save na tala ng pananim.</value>
+  </data>
+  <data name="Pin removed. Weather needs a map pin; the location name can still be saved." xml:space="preserve">
+    <value>Naalis ang pin. Kailangan ng pin para sa panahon; maaari pa ring i-save ang pangalan ng lokasyon.</value>
+  </data>
+  <data name="Pin your farm's location" xml:space="preserve">
+    <value>Ilagay ang pin sa lokasyon ng bukid</value>
+  </data>
+  <data name="Plan a crop" xml:space="preserve">
+    <value>Planuhin ang pananim</value>
+  </data>
+  <data name="Plan a crop." xml:space="preserve">
+    <value>Planuhin ang pananim.</value>
+  </data>
+  <data name="Plan crops" xml:space="preserve">
+    <value>Planuhin ang mga pananim</value>
+  </data>
+  <data name="Plan crops, coordinate fieldwork, track harvests, and keep your farm records organized." xml:space="preserve">
+    <value>Planuhin ang pananim, ayusin ang gawain sa bukid, subaybayan ang ani, at isaayos ang mga tala.</value>
+  </data>
+  <data name="Plan fieldwork with the last saved forecast. Dates follow" xml:space="preserve">
+    <value>Planuhin ang gawain gamit ang huling naka-save na taya. Ayon ang mga petsa sa</value>
+  </data>
+  <data name="Plan for this plot" xml:space="preserve">
+    <value>Magplano para sa tanimang ito</value>
+  </data>
+  <data name="Planned" xml:space="preserve">
+    <value>Nakaplano</value>
+  </data>
+  <data name="Planned planting" xml:space="preserve">
+    <value>Nakaplanong pagtatanim</value>
+  </data>
+  <data name="Planned planting date" xml:space="preserve">
+    <value>Nakaplanong petsa ng pagtatanim</value>
+  </data>
+  <data name="Plans can be prepared in advance, but only one crop may be actively growing on each plot." xml:space="preserve">
+    <value>Maaaring maghanda ng mga plano nang maaga, ngunit iisang pananim lamang ang maaaring aktibong lumago sa bawat taniman.</value>
+  </data>
+  <data name="Planted" xml:space="preserve">
+    <value>Naitanim</value>
+  </data>
+  <data name="Planting" xml:space="preserve">
+    <value>Pagtatanim</value>
+  </data>
+  <data name="Planting and expected harvest dates come from saved plans. Watering is projected, not completed work. Check" xml:space="preserve">
+    <value>Mula sa naka-save na plano ang petsa ng pagtatanim at inaasahang ani. Tinatayang gawain ang pagdidilig, hindi pa tapos na gawain. Suriin ang</value>
+  </data>
+  <data name="Planting planned" xml:space="preserve">
+    <value>Nakaplano na ang pagtatanim</value>
+  </data>
+  <data name="Platform administration" xml:space="preserve">
+    <value>Pangangasiwa ng platform</value>
+  </data>
+  <data name="Platform overview" xml:space="preserve">
+    <value>Pangkalahatang tanaw ng platform</value>
+  </data>
+  <data name="Platform tools" xml:space="preserve">
+    <value>Mga kagamitan ng platform</value>
+  </data>
+  <data name="Platform totals include {0} active plots. No private farm activity or location coordinates are shown here." xml:space="preserve">
+    <value>Kasama sa kabuuan ng platform ang {0} aktibong taniman. Walang pribadong gawain o lokasyon ng bukid na ipinapakita rito.</value>
+  </data>
+  <data name="Please review the farm code below." xml:space="preserve">
+    <value>Pakisuri ang farm code sa ibaba.</value>
+  </data>
+  <data name="Plot" xml:space="preserve">
+    <value>Taniman</value>
+  </data>
+  <data name="Plot crop rotation history" xml:space="preserve">
+    <value>Kasaysayan ng pagpapalit ng pananim sa taniman</value>
+  </data>
+  <data name="Plot name" xml:space="preserve">
+    <value>Pangalan ng taniman</value>
+  </data>
+  <data name="Plots" xml:space="preserve">
+    <value>Mga taniman</value>
+  </data>
+  <data name="Plots (" xml:space="preserve">
+    <value>Mga taniman (</value>
+  </data>
+  <data name="Practical farm management" xml:space="preserve">
+    <value>Praktikal na pamamahala ng bukid</value>
+  </data>
+  <data name="Practical steps for accounts, farm access and field records." xml:space="preserve">
+    <value>Mga praktikal na hakbang para sa account, access sa bukid, at tala sa bukid.</value>
+  </data>
+  <data name="Previous" xml:space="preserve">
+    <value>Nakaraan</value>
+  </data>
+  <data name="Previous month" xml:space="preserve">
+    <value>Nakaraang buwan</value>
+  </data>
+  <data name="Previous support requests" xml:space="preserve">
+    <value>Mga naunang kahilingan ng tulong</value>
+  </data>
+  <data name="Previous task month" xml:space="preserve">
+    <value>Nakaraang buwan ng gawain</value>
+  </data>
+  <data name="Previously selected supply" xml:space="preserve">
+    <value>Dating napiling suplay</value>
+  </data>
+  <data name="Priority" xml:space="preserve">
+    <value>Priyoridad</value>
+  </data>
+  <data name="Private photos" xml:space="preserve">
+    <value>Mga pribadong larawan</value>
+  </data>
+  <data name="Provide a reversal reason and current item version." xml:space="preserve">
+    <value>Maglagay ng dahilan ng pagbawi at kasalukuyang bersyon ng gamit.</value>
+  </data>
+  <data name="Publish time" xml:space="preserve">
+    <value>Oras ng paglalathala</value>
+  </data>
+  <data name="Published records" xml:space="preserve">
+    <value>Mga nailathalang tala</value>
+  </data>
+  <data name="Quantities in different units stay separate. Voided entries are excluded from every total." xml:space="preserve">
+    <value>Hiwalay ang mga dami ayon sa yunit. Hindi kasama ang pinawalang-bisang tala sa alinmang kabuuan.</value>
+  </data>
+  <data name="Quantity" xml:space="preserve">
+    <value>Dami</value>
+  </data>
+  <data name="Quantity (" xml:space="preserve">
+    <value>Dami (</value>
+  </data>
+  <data name="Quantity collected" xml:space="preserve">
+    <value>Daming nakolekta</value>
+  </data>
+  <data name="Quantity used" xml:space="preserve">
+    <value>Daming ginamit</value>
+  </data>
+  <data name="Quantity used (in the selected supply's unit)" xml:space="preserve">
+    <value>Daming ginamit (sa yunit ng napiling suplay)</value>
+  </data>
+  <data name="Quick account links" xml:space="preserve">
+    <value>Mabilis na daan sa account</value>
+  </data>
+  <data name="Quick field logging for {0} on {1}" xml:space="preserve">
+    <value>Mabilis na pagtatala para sa {0} sa {1}</value>
+  </data>
+  <data name="Quick recording actions" xml:space="preserve">
+    <value>Mabilis na pagtatala</value>
+  </data>
+  <data name="Quick setup" xml:space="preserve">
+    <value>Mabilis na paghahanda</value>
+  </data>
+  <data name="Quick supply filters" xml:space="preserve">
+    <value>Mabilis na salaan ng suplay</value>
+  </data>
+  <data name="READ-ONLY STATUS" xml:space="preserve">
+    <value>KATAYUANG MABABASA LAMANG</value>
+  </data>
+  <data name="REGISTERED FARM" xml:space="preserve">
+    <value>NAKAREHISTRONG BUKID</value>
+  </data>
+  <data name="REQUIRED ADMIN SECURITY" xml:space="preserve">
+    <value>KINAKAILANGANG SEGURIDAD NG ADMIN</value>
+  </data>
+  <data name="Rain chance" xml:space="preserve">
+    <value>Posibilidad ng ulan</value>
+  </data>
+  <data name="Rain chance {0}%" xml:space="preserve">
+    <value>Posibilidad ng ulan {0}%</value>
+  </data>
+  <data name="Rainfall" xml:space="preserve">
+    <value>Dami ng ulan</value>
+  </data>
+  <data name="Read farm reminders and advisories →" xml:space="preserve">
+    <value>Basahin ang mga paalala at payo sa bukid →</value>
+  </data>
+  <data name="Read retained notices and their audit history." xml:space="preserve">
+    <value>Basahin ang nakaingatang abiso at kasaysayan ng pagsusuri nito.</value>
+  </data>
+  <data name="Read your previous support requests" xml:space="preserve">
+    <value>Basahin ang mga dati mong kahilingan ng tulong</value>
+  </data>
+  <data name="Read-only" xml:space="preserve">
+    <value>Mababasa lamang</value>
+  </data>
+  <data name="Read-only checks of your platform services, worker, and received mobile changes." xml:space="preserve">
+    <value>Pagsusuri lamang sa mga serbisyo ng platform, worker, at natanggap na pagbabago mula sa telepono.</value>
+  </data>
+  <data name="Read-only history" xml:space="preserve">
+    <value>Kasaysayang mababasa lamang</value>
+  </data>
+  <data name="Read-only history. New requests and replies are retired; use Help for next steps." xml:space="preserve">
+    <value>Mababasa lamang ang kasaysayan. Wala nang bagong kahilingan o tugon; gamitin ang Tulong para sa susunod na hakbang.</value>
+  </data>
+  <data name="Read-only view of SmartFarm Hangfire jobs. Failed jobs are not retried here." xml:space="preserve">
+    <value>Tanaw lamang ng mga gawain ng SmartFarm sa Hangfire. Hindi muling pinapatakbo rito ang nabigong gawain.</value>
+  </data>
+  <data name="Ready for a planting plan." xml:space="preserve">
+    <value>Handa na para sa plano sa pagtatanim.</value>
+  </data>
+  <data name="Ready to organize your farm?" xml:space="preserve">
+    <value>Handa ka nang ayusin ang iyong bukid?</value>
+  </data>
+  <data name="Ready to plant?" xml:space="preserve">
+    <value>Handa nang magtanim?</value>
+  </data>
+  <data name="Reason" xml:space="preserve">
+    <value>Dahilan</value>
+  </data>
+  <data name="Reason (required for adjustments)" xml:space="preserve">
+    <value>Dahilan (kailangan sa pagwawasto)</value>
+  </data>
+  <data name="Reason (required)" xml:space="preserve">
+    <value>Dahilan (kailangan)</value>
+  </data>
+  <data name="Reason for voiding (required)" xml:space="preserve">
+    <value>Dahilan ng pagpapawalang-bisa (kailangan)</value>
+  </data>
+  <data name="Reason or context" xml:space="preserve">
+    <value>Dahilan o konteksto</value>
+  </data>
+  <data name="Reason:" xml:space="preserve">
+    <value>Dahilan:</value>
+  </data>
+  <data name="Receipt" xml:space="preserve">
+    <value>Natanggap</value>
+  </data>
+  <data name="Receipts, crop usage, adjustments and reversals appear here after saving." xml:space="preserve">
+    <value>Lilitaw dito ang natanggap, ginamit sa pananim, pagwawasto, at pagbawi matapos i-save.</value>
+  </data>
+  <data name="Recent failed jobs" xml:space="preserve">
+    <value>Mga kamakailang nabigong gawain</value>
+  </data>
+  <data name="Recent harvests" xml:space="preserve">
+    <value>Mga kamakailang ani</value>
+  </data>
+  <data name="Recent notifications" xml:space="preserve">
+    <value>Mga kamakailang abiso</value>
+  </data>
+  <data name="Recent unread" xml:space="preserve">
+    <value>Mga kamakailang hindi pa nabasa</value>
+  </data>
+  <data name="Recent updates and saved reminders for your farms." xml:space="preserve">
+    <value>Mga kamakailang pagbabago at naka-save na paalala para sa iyong mga bukid.</value>
+  </data>
+  <data name="Recently registered farms" xml:space="preserve">
+    <value>Mga kamakailang nakarehistrong bukid</value>
+  </data>
+  <data name="Recently saved forecast" xml:space="preserve">
+    <value>Kamakailang naka-save na taya</value>
+  </data>
+  <data name="Record" xml:space="preserve">
+    <value>Itala</value>
+  </data>
+  <data name="Record " xml:space="preserve">
+    <value>Itala</value>
+  </data>
+  <data name="Record a partial harvest" xml:space="preserve">
+    <value>Itala ang bahagyang ani</value>
+  </data>
+  <data name="Record a partial harvest on an active crop to begin." xml:space="preserve">
+    <value>Itala ang bahagyang ani sa aktibong pananim upang magsimula.</value>
+  </data>
+  <data name="Record activity" xml:space="preserve">
+    <value>Itala ang gawain</value>
+  </data>
+  <data name="Record an inspection" xml:space="preserve">
+    <value>Itala ang inspeksyon</value>
+  </data>
+  <data name="Record completed fieldwork or inspect this crop. Attach photos after saving an inspection." xml:space="preserve">
+    <value>Itala ang natapos na gawain o suriin ang pananim. Maglakip ng larawan matapos i-save ang inspeksyon.</value>
+  </data>
+  <data name="Record fieldwork" xml:space="preserve">
+    <value>Itala ang gawain sa bukid</value>
+  </data>
+  <data name="Record fieldwork →" xml:space="preserve">
+    <value>Itala ang gawain sa bukid →</value>
+  </data>
+  <data name="Record harvest" xml:space="preserve">
+    <value>Itala ang ani</value>
+  </data>
+  <data name="Record harvests and monitor yields." xml:space="preserve">
+    <value>Itala at subaybayan ang ani.</value>
+  </data>
+  <data name="Record inspection" xml:space="preserve">
+    <value>Itala ang inspeksyon</value>
+  </data>
+  <data name="Record inspection →" xml:space="preserve">
+    <value>Itala ang inspeksyon →</value>
+  </data>
+  <data name="Record movement →" xml:space="preserve">
+    <value>Itala ang galaw →</value>
+  </data>
+  <data name="Record not saved. Your draft is kept below." xml:space="preserve">
+    <value>Hindi na-save ang tala. Nananatili ang iyong draft sa ibaba.</value>
+  </data>
+  <data name="Record stock movement" xml:space="preserve">
+    <value>Itala ang galaw ng stock</value>
+  </data>
+  <data name="Record the first harvest →" xml:space="preserve">
+    <value>Itala ang unang ani →</value>
+  </data>
+  <data name="Record work" xml:space="preserve">
+    <value>Itala ang gawain</value>
+  </data>
+  <data name="Record your fieldwork" xml:space="preserve">
+    <value>Itala ang gawain mo sa bukid</value>
+  </data>
+  <data name="Recorded crop activity (required when supplies were used)" xml:space="preserve">
+    <value>Naitalang gawain sa pananim (kailangan kung gumamit ng suplay)</value>
+  </data>
+  <data name="Recorded failures" xml:space="preserve">
+    <value>Mga naitalang pagkabigo</value>
+  </data>
+  <data name="Recorded failures · 7 days" xml:space="preserve">
+    <value>Mga naitalang pagkabigo · 7 araw</value>
+  </data>
+  <data name="Recorded harvest totals" xml:space="preserve">
+    <value>Kabuuan ng naitalang ani</value>
+  </data>
+  <data name="Recorded quantity" xml:space="preserve">
+    <value>Naitalang dami</value>
+  </data>
+  <data name="Recorded sync operations" xml:space="preserve">
+    <value>Mga naitalang pag-sync</value>
+  </data>
+  <data name="Recorded yield by unit" xml:space="preserve">
+    <value>Naitalang ani ayon sa yunit</value>
+  </data>
+  <data name="Recovery code" xml:space="preserve">
+    <value>Code sa pagbawi</value>
+  </data>
+  <data name="Recovery code sign in" xml:space="preserve">
+    <value>Pag-log in gamit ang code sa pagbawi</value>
+  </data>
+  <data name="Refresh checks" xml:space="preserve">
+    <value>I-refresh ang mga pagsusuri</value>
+  </data>
+  <data name="Regenerate code" xml:space="preserve">
+    <value>Gumawa ng bagong code</value>
+  </data>
+  <data name="Register" xml:space="preserve">
+    <value>Magparehistro</value>
+  </data>
+  <data name="Registered" xml:space="preserve">
+    <value>Nakarehistro</value>
+  </data>
+  <data name="Reject" xml:space="preserve">
+    <value>Tanggihan</value>
+  </data>
+  <data name="Reject the join request from {0}?" xml:space="preserve">
+    <value>Tanggihan ang kahilingang sumali ni {0}?</value>
+  </data>
+  <data name="Rejected" xml:space="preserve">
+    <value>Tinanggihan</value>
+  </data>
+  <data name="Related farm" xml:space="preserve">
+    <value>Kaugnay na bukid</value>
+  </data>
+  <data name="Remember me" xml:space="preserve">
+    <value>Tandaan ako</value>
+  </data>
+  <data name="Remove" xml:space="preserve">
+    <value>Alisin</value>
+  </data>
+  <data name="Remove pin" xml:space="preserve">
+    <value>Alisin ang pin</value>
+  </data>
+  <data name="Remove {0} from {1}? They will lose access." xml:space="preserve">
+    <value>Alisin si {0} sa {1}? Mawawala ang access niya.</value>
+  </data>
+  <data name="Replace an existing farm code" xml:space="preserve">
+    <value>Palitan ang dati nang farm code</value>
+  </data>
+  <data name="Request details" xml:space="preserve">
+    <value>Mga detalye ng kahilingan</value>
+  </data>
+  <data name="Request history ({0})" xml:space="preserve">
+    <value>Kasaysayan ng kahilingan ({0})</value>
+  </data>
+  <data name="Request submitted. Farm access begins after the owner approves." xml:space="preserve">
+    <value>Naipadala ang kahilingan. Magsisimula ang access kapag inaprubahan ng may-ari.</value>
+  </data>
+  <data name="Request to join" xml:space="preserve">
+    <value>Humiling na sumali</value>
+  </data>
+  <data name="Requested" xml:space="preserve">
+    <value>Hiniling</value>
+  </data>
+  <data name="Requested by" xml:space="preserve">
+    <value>Hiniling ni</value>
+  </data>
+  <data name="Requested {0}" xml:space="preserve">
+    <value>Hiniling: {0}</value>
+  </data>
+  <data name="Resolved" xml:space="preserve">
+    <value>Nalutas</value>
+  </data>
+  <data name="Resolved after checking" xml:space="preserve">
+    <value>Nalutas matapos suriin</value>
+  </data>
+  <data name="Retained drafts" xml:space="preserve">
+    <value>Mga nakaingatang draft</value>
+  </data>
+  <data name="Retained history" xml:space="preserve">
+    <value>Nakaingatang kasaysayan</value>
+  </data>
+  <data name="Retained history only. Publishing and editing are retired." xml:space="preserve">
+    <value>Nakaingatang kasaysayan lamang. Hindi na ginagamit ang paglalathala at pag-edit.</value>
+  </data>
+  <data name="Retained in-progress status" xml:space="preserve">
+    <value>Nakaingatang katayuang isinasagawa</value>
+  </data>
+  <data name="Retained notices for authorized review. Publishing and editing are retired." xml:space="preserve">
+    <value>Nakaingatang abiso para sa awtorisadong pagsusuri. Hindi na ginagamit ang paglalathala at pag-edit.</value>
+  </data>
+  <data name="Retained open status" xml:space="preserve">
+    <value>Nakaingatang bukas na katayuan</value>
+  </data>
+  <data name="Retained resolved status" xml:space="preserve">
+    <value>Nakaingatang nalutas na katayuan</value>
+  </data>
+  <data name="Return to my farms" xml:space="preserve">
+    <value>Bumalik sa aking mga bukid</value>
+  </data>
+  <data name="Reversal" xml:space="preserve">
+    <value>Pagbawi</value>
+  </data>
+  <data name="Reversal of" xml:space="preserve">
+    <value>Pagbawi ng</value>
+  </data>
+  <data name="Reversal reason" xml:space="preserve">
+    <value>Dahilan ng pagbawi</value>
+  </data>
+  <data name="Reverse transaction" xml:space="preserve">
+    <value>Bawiin ang transaksyon</value>
+  </data>
+  <data name="Reverse {0} {1} for {2}? This will change the stock balance." xml:space="preserve">
+    <value>Bawiin ang {0} {1} para sa {2}? Magbabago ang balanse ng stock.</value>
+  </data>
+  <data name="Review" xml:space="preserve">
+    <value>Suriin</value>
+  </data>
+  <data name="Review and reselect — this supply changed or is unavailable" xml:space="preserve">
+    <value>Suriin at piliing muli — nagbago o hindi na magagamit ang suplay na ito</value>
+  </data>
+  <data name="Review audit history" xml:space="preserve">
+    <value>Suriin ang kasaysayan ng pagsusuri</value>
+  </data>
+  <data name="Review crop →" xml:space="preserve">
+    <value>Suriin ang pananim →</value>
+  </data>
+  <data name="Review due work, crop concerns and supplies." xml:space="preserve">
+    <value>Suriin ang takdang gawain, problema sa pananim, at suplay.</value>
+  </data>
+  <data name="Review farms across the platform without entering their private workspace." xml:space="preserve">
+    <value>Suriin ang mga bukid sa platform nang hindi pumapasok sa pribadong workspace ng mga ito.</value>
+  </data>
+  <data name="Review item →" xml:space="preserve">
+    <value>Suriin ang gamit →</value>
+  </data>
+  <data name="Review items that need replenishment →" xml:space="preserve">
+    <value>Suriin ang mga gamit na kailangang dagdagan →</value>
+  </data>
+  <data name="Review my farms" xml:space="preserve">
+    <value>Suriin ang aking mga bukid</value>
+  </data>
+  <data name="Review retained support requests and their recorded history." xml:space="preserve">
+    <value>Suriin ang nakaingatang kahilingan ng tulong at naitalang kasaysayan nito.</value>
+  </data>
+  <data name="Review saved farm concerns" xml:space="preserve">
+    <value>Suriin ang naka-save na problema sa bukid</value>
+  </data>
+  <data name="Review sensitive administrative changes and who performed them. This history is read-only." xml:space="preserve">
+    <value>Suriin ang sensitibong pagbabago ng Admin at kung sino ang nagsagawa. Mababasa lamang ang kasaysayang ito.</value>
+  </data>
+  <data name="Review task" xml:space="preserve">
+    <value>Suriin ang gawain</value>
+  </data>
+  <data name="Review task →" xml:space="preserve">
+    <value>Suriin ang gawain →</value>
+  </data>
+  <data name="Review team requests" xml:space="preserve">
+    <value>Suriin ang mga kahilingan ng pangkat</value>
+  </data>
+  <data name="Review the farm management tools →" xml:space="preserve">
+    <value>Suriin ang mga kagamitan sa pamamahala ng bukid →</value>
+  </data>
+  <data name="Review the harvest draft →" xml:space="preserve">
+    <value>Suriin ang draft ng ani →</value>
+  </data>
+  <data name="Review your draft →" xml:space="preserve">
+    <value>Suriin ang iyong draft →</value>
+  </data>
+  <data name="Review your identity and preferred appearance." xml:space="preserve">
+    <value>Suriin ang iyong pagkakakilanlan at nais na hitsura.</value>
+  </data>
+  <data name="Role for" xml:space="preserve">
+    <value>Tungkulin ni</value>
+  </data>
+  <data name="START A FARM" xml:space="preserve">
+    <value>GUMAWA NG BUKID</value>
+  </data>
+  <data name="START HERE" xml:space="preserve">
+    <value>MAGSIMULA RITO</value>
+  </data>
+  <data name="SYSTEM HEALTH" xml:space="preserve">
+    <value>KALAGAYAN NG SISTEMA</value>
+  </data>
+  <data name="Save " xml:space="preserve">
+    <value>I-save ang </value>
+  </data>
+  <data name="Save activity" xml:space="preserve">
+    <value>I-save ang gawain</value>
+  </data>
+  <data name="Save an inspection first. Then you can take or upload a photo to that record." xml:space="preserve">
+    <value>I-save muna ang inspeksyon. Pagkatapos, maaari kang kumuha o maglakip ng larawan sa tala.</value>
+  </data>
+  <data name="Save changes" xml:space="preserve">
+    <value>I-save ang mga pagbabago</value>
+  </data>
+  <data name="Save details" xml:space="preserve">
+    <value>I-save ang mga detalye</value>
+  </data>
+  <data name="Save farm settings" xml:space="preserve">
+    <value>I-save ang mga setting ng bukid</value>
+  </data>
+  <data name="Save follow-up" xml:space="preserve">
+    <value>I-save ang follow-up</value>
+  </data>
+  <data name="Save inspection" xml:space="preserve">
+    <value>I-save ang inspeksyon</value>
+  </data>
+  <data name="Save partial harvest" xml:space="preserve">
+    <value>I-save ang bahagyang ani</value>
+  </data>
+  <data name="Save planting plan" xml:space="preserve">
+    <value>I-save ang plano sa pagtatanim</value>
+  </data>
+  <data name="Save recovery codes" xml:space="preserve">
+    <value>I-save ang mga code sa pagbawi</value>
+  </data>
+  <data name="Save stock movement" xml:space="preserve">
+    <value>I-save ang galaw ng stock</value>
+  </data>
+  <data name="Save supply" xml:space="preserve">
+    <value>I-save ang suplay</value>
+  </data>
+  <data name="Save task changes" xml:space="preserve">
+    <value>I-save ang mga pagbabago sa gawain</value>
+  </data>
+  <data name="Save your recovery codes" xml:space="preserve">
+    <value>I-save ang iyong mga code sa pagbawi</value>
+  </data>
+  <data name="Saved activities appear in history below after confirmation." xml:space="preserve">
+    <value>Lilitaw sa kasaysayan sa ibaba ang na-save na gawain matapos makumpirma.</value>
+  </data>
+  <data name="Saved daily forecast" xml:space="preserve">
+    <value>Naka-save na araw-araw na taya</value>
+  </data>
+  <data name="Saved dates and projected growing activities for" xml:space="preserve">
+    <value>Mga naka-save na petsa at tinatayang gawain sa pagpapalaki para sa</value>
+  </data>
+  <data name="Saved farm concerns and next steps, not live field measurements." xml:space="preserve">
+    <value>Naka-save na mga problema at susunod na hakbang sa bukid, hindi aktuwal na sukat ngayon.</value>
+  </data>
+  <data name="Saved forecast" xml:space="preserve">
+    <value>Naka-save na taya</value>
+  </data>
+  <data name="Saved forecast may be outdated" xml:space="preserve">
+    <value>Maaaring luma na ang naka-save na taya</value>
+  </data>
+  <data name="Saved forecast ·" xml:space="preserve">
+    <value>Naka-save na taya ·</value>
+  </data>
+  <data name="Saved forecast, not live conditions." xml:space="preserve">
+    <value>Naka-save na taya, hindi aktuwal na lagay ngayon.</value>
+  </data>
+  <data name="Saved harvest records" xml:space="preserve">
+    <value>Naka-save na mga tala ng ani</value>
+  </data>
+  <data name="Saved on phone" xml:space="preserve">
+    <value>Naka-save sa telepono</value>
+  </data>
+  <data name="Saved weather advisories" xml:space="preserve">
+    <value>Naka-save na mga payo sa panahon</value>
+  </data>
+  <data name="Saved weather is temporarily unavailable. Open the weather page to check again." xml:space="preserve">
+    <value>Pansamantalang hindi makuha ang naka-save na panahon. Buksan ang pahina ng panahon upang suriin muli.</value>
+  </data>
+  <data name="Saving your changes…" xml:space="preserve">
+    <value>Sine-save ang mga pagbabago mo…</value>
+  </data>
+  <data name="Scheduled dates ·" xml:space="preserve">
+    <value>Mga takdang petsa ·</value>
+  </data>
+  <data name="Scheduled dates · {0} entries across {1} days" xml:space="preserve">
+    <value>Mga takdang petsa · {0} tala sa {1} araw</value>
+  </data>
+  <data name="Scheduled planting, watering, and harvest tasks are added automatically when the worker is enabled." xml:space="preserve">
+    <value>Awtomatikong idinaragdag ang takdang pagtatanim, pagdidilig, at pag-ani kapag pinagana ang mga paalala.</value>
+  </data>
+  <data name="Scrollable monthly yield records" xml:space="preserve">
+    <value>Nais-scroll na tala ng buwanang ani</value>
+  </data>
+  <data name="Search" xml:space="preserve">
+    <value>Hanapin</value>
+  </data>
+  <data name="Search a place" xml:space="preserve">
+    <value>Maghanap ng lugar</value>
+  </data>
+  <data name="Search accounts and review access." xml:space="preserve">
+    <value>Maghanap ng account at suriin ang access.</value>
+  </data>
+  <data name="Search by item name" xml:space="preserve">
+    <value>Hanapin ayon sa pangalan ng gamit</value>
+  </data>
+  <data name="Search farm or location" xml:space="preserve">
+    <value>Maghanap ng bukid o lokasyon</value>
+  </data>
+  <data name="Search farms" xml:space="preserve">
+    <value>Maghanap ng mga bukid</value>
+  </data>
+  <data name="Search history" xml:space="preserve">
+    <value>Hanapin sa kasaysayan</value>
+  </data>
+  <data name="Search is unavailable. You can enter the location name and tap the map instead." xml:space="preserve">
+    <value>Hindi magamit ang paghahanap. Maaari mong ilagay ang pangalan ng lugar at pindutin ang mapa.</value>
+  </data>
+  <data name="Search name or email" xml:space="preserve">
+    <value>Hanapin ang pangalan o email</value>
+  </data>
+  <data name="Search server-recorded operations without exposing crop data or upload payloads." xml:space="preserve">
+    <value>Hanapin ang mga naitalang operasyon nang hindi inilalantad ang datos ng pananim o nilalaman ng upload.</value>
+  </data>
+  <data name="Search unavailable" xml:space="preserve">
+    <value>Hindi magamit ang paghahanap</value>
+  </data>
+  <data name="Searching locations..." xml:space="preserve">
+    <value>Naghahanap ng mga lokasyon...</value>
+  </data>
+  <data name="Security" xml:space="preserve">
+    <value>Seguridad</value>
+  </data>
+  <data name="See all activity for this target" xml:space="preserve">
+    <value>Tingnan ang lahat ng aksyon para sa target na ito</value>
+  </data>
+  <data name="See all harvests" xml:space="preserve">
+    <value>Tingnan ang lahat ng ani</value>
+  </data>
+  <data name="See all plots →" xml:space="preserve">
+    <value>Tingnan ang lahat ng taniman →</value>
+  </data>
+  <data name="See forecast" xml:space="preserve">
+    <value>Tingnan ang taya</value>
+  </data>
+  <data name="See plots →" xml:space="preserve">
+    <value>Tingnan ang mga taniman →</value>
+  </data>
+  <data name="See previous and current crop cycles per plot, including completed, failed, and cancelled plantings. This is a record of your farm history, not a rotation recommendation." xml:space="preserve">
+    <value>Tingnan ang nakaraan at kasalukuyang siklo sa bawat taniman, kasama ang natapos, nabigo, at kinanselang pagtatanim. Kasaysayan ito ng bukid, hindi payo sa pagpapalit ng pananim.</value>
+  </data>
+  <data name="See the next job, complete assigned work, or record field activity for a crop." xml:space="preserve">
+    <value>Tingnan ang susunod na gawain, tapusin ang nakatalaga, o itala ang gawain para sa pananim.</value>
+  </data>
+  <data name="See what is growing and open saved crop records, inspections, and harvests." xml:space="preserve">
+    <value>Tingnan ang lumalago at buksan ang naka-save na tala ng pananim, inspeksyon, at ani.</value>
+  </data>
+  <data name="See what is growing, plan the next planting, and review saved crop records." xml:space="preserve">
+    <value>Tingnan ang lumalago, planuhin ang susunod na pagtatanim, at suriin ang naka-save na tala ng pananim.</value>
+  </data>
+  <data name="Seeds" xml:space="preserve">
+    <value>Mga binhi</value>
+  </data>
+  <data name="Select a different day from Calendar." xml:space="preserve">
+    <value>Pumili ng ibang araw sa Kalendaryo.</value>
+  </data>
+  <data name="Select a saved activity" xml:space="preserve">
+    <value>Pumili ng naka-save na gawain</value>
+  </data>
+  <data name="Select and copy the farm code." xml:space="preserve">
+    <value>Piliin at kopyahin ang farm code.</value>
+  </data>
+  <data name="Select farm on OpenStreetMap" xml:space="preserve">
+    <value>Piliin ang bukid sa OpenStreetMap</value>
+  </data>
+  <data name="Selected farm" xml:space="preserve">
+    <value>Napiling bukid</value>
+  </data>
+  <data name="Selected photo preview" xml:space="preserve">
+    <value>Paunang tanaw ng napiling larawan</value>
+  </data>
+  <data name="Selected plot:" xml:space="preserve">
+    <value>Napiling taniman:</value>
+  </data>
+  <data name="Selected task" xml:space="preserve">
+    <value>Napiling gawain</value>
+  </data>
+  <data name="Selected task changed — review before choosing another" xml:space="preserve">
+    <value>Nagbago ang napiling gawain — suriin bago pumili ng iba</value>
+  </data>
+  <data name="Sending" xml:space="preserve">
+    <value>Ipinapadala</value>
+  </data>
+  <data name="Sent" xml:space="preserve">
+    <value>Naipadala</value>
+  </data>
+  <data name="Service &amp; background work" xml:space="preserve">
+    <value>Mga serbisyo at gawain sa likuran</value>
+  </data>
+  <data name="Service checks" xml:space="preserve">
+    <value>Pagsusuri ng mga serbisyo</value>
+  </data>
+  <data name="Service checks and sync history are read-only." xml:space="preserve">
+    <value>Mababasa lamang ang pagsusuri ng serbisyo at kasaysayan ng pag-sync.</value>
+  </data>
+  <data name="Serving" xml:space="preserve">
+    <value>Nagseserbisyo</value>
+  </data>
+  <data name="Serving this request" xml:space="preserve">
+    <value>Pinagseserbisyuhan ang kahilingang ito</value>
+  </data>
+  <data name="Set planting schedules and crop cycles." xml:space="preserve">
+    <value>Itakda ang iskedyul ng pagtatanim at mga siklo ng pananim.</value>
+  </data>
+  <data name="Set the dates" xml:space="preserve">
+    <value>Itakda ang mga petsa</value>
+  </data>
+  <data name="Set the farm's map pin in Edit farm to enable forecast updates." xml:space="preserve">
+    <value>Ilagay ang pin ng bukid sa I-edit ang bukid upang makakuha ng mga bagong taya.</value>
+  </data>
+  <data name="Set up a crop type first." xml:space="preserve">
+    <value>Maghanda muna ng uri ng pananim.</value>
+  </data>
+  <data name="Set up your account first, then choose to create a farm or request to join one." xml:space="preserve">
+    <value>Ihanda muna ang account, saka piliing gumawa ng bukid o humiling na sumali.</value>
+  </data>
+  <data name="Set up your authenticator" xml:space="preserve">
+    <value>Ihanda ang iyong authenticator</value>
+  </data>
+  <data name="Settings guidance" xml:space="preserve">
+    <value>Gabay sa mga setting</value>
+  </data>
+  <data name="Setup key" xml:space="preserve">
+    <value>Key sa paghahanda</value>
+  </data>
+  <data name="Severe" xml:space="preserve">
+    <value>Malubha</value>
+  </data>
+  <data name="Severity" xml:space="preserve">
+    <value>Tindi</value>
+  </data>
+  <data name="Share code &amp; review requests →" xml:space="preserve">
+    <value>Ibahagi ang code at suriin ang mga kahilingan →</value>
+  </data>
+  <data name="Share farm joining code" xml:space="preserve">
+    <value>Ibahagi ang code sa pagsali sa bukid</value>
+  </data>
+  <data name="Share your farm code and approve requests when you're ready." xml:space="preserve">
+    <value>Ibahagi ang farm code at aprubahan ang mga kahilingan kapag handa ka na.</value>
+  </data>
+  <data name="Show" xml:space="preserve">
+    <value>Ipakita</value>
+  </data>
+  <data name="Show all supplies →" xml:space="preserve">
+    <value>Ipakita ang lahat ng suplay →</value>
+  </data>
+  <data name="Show supplies" xml:space="preserve">
+    <value>Ipakita ang mga suplay</value>
+  </data>
+  <data name="Showing" xml:space="preserve">
+    <value>Ipinapakita</value>
+  </data>
+  <data name="Showing activity for target ID" xml:space="preserve">
+    <value>Ipinapakita ang aksyon para sa target ID</value>
+  </data>
+  <data name="Showing all recorded harvest dates, plots and crops." xml:space="preserve">
+    <value>Ipinapakita ang lahat ng naitalang petsa ng ani, taniman, at pananim.</value>
+  </data>
+  <data name="Showing the 100 most recent notices. Older messages are not listed here." xml:space="preserve">
+    <value>Ipinapakita ang 100 pinakabagong abiso. Hindi nakalista rito ang mas lumang mensahe.</value>
+  </data>
+  <data name="Showing the most recent" xml:space="preserve">
+    <value>Ipinapakita ang pinakabago</value>
+  </data>
+  <data name="Sign in with two-factor authentication" xml:space="preserve">
+    <value>Mag-log in gamit ang dalawang pagpapatunay</value>
+  </data>
+  <data name="Sign-in and account problems" xml:space="preserve">
+    <value>Mga problema sa pag-log in at account</value>
+  </data>
+  <data name="Skip to content" xml:space="preserve">
+    <value>Lumaktaw sa nilalaman</value>
+  </data>
+  <data name="Skipped" xml:space="preserve">
+    <value>Nilaktawan</value>
+  </data>
+  <data name="Source" xml:space="preserve">
+    <value>Pinagmulan</value>
+  </data>
+  <data name="Stage:" xml:space="preserve">
+    <value>Yugto:</value>
+  </data>
+  <data name="Start by adding seeds, fertilizer, or another supply with its current quantity." xml:space="preserve">
+    <value>Magsimula sa pagdagdag ng binhi, pataba, o ibang suplay kasama ang kasalukuyang dami nito.</value>
+  </data>
+  <data name="Start by giving your farm a name and location. You can add plots and crops next." xml:space="preserve">
+    <value>Magsimula sa pangalan at lokasyon ng bukid. Maaari mong idagdag ang mga taniman at pananim pagkatapos.</value>
+  </data>
+  <data name="Start where you are" xml:space="preserve">
+    <value>Magsimula kung nasaan ka</value>
+  </data>
+  <data name="Start with just a farm name and nearby location. You can add plots, crops, and your team afterward." xml:space="preserve">
+    <value>Magsimula sa pangalan ng bukid at kalapit na lokasyon. Idagdag ang taniman, pananim, at pangkat pagkatapos.</value>
+  </data>
+  <data name="Start with the essentials. After creating the farm, you can add plots, plan crops, and invite your team." xml:space="preserve">
+    <value>Magsimula sa mga kailangan. Pagkatapos gumawa ng bukid, magdagdag ng taniman, magplano ng pananim, at anyayahan ang pangkat.</value>
+  </data>
+  <data name="Start with users, farms, support cases, and background-job issues. This is a platform view, not access to individual farm records." xml:space="preserve">
+    <value>Magsimula sa mga user, bukid, kasaysayan ng tulong, at problema sa gawain sa likuran. Tanaw ito ng platform, hindi access sa pribadong tala ng bawat bukid.</value>
+  </data>
+  <data name="Start your own farm or join an existing team. You can do both with the same account." xml:space="preserve">
+    <value>Gumawa ng sariling bukid o sumali sa pangkat. Maaari mong gawin ang pareho gamit ang iisang account.</value>
+  </data>
+  <data name="Start your planned crop" xml:space="preserve">
+    <value>Simulan ang nakaplanong pananim</value>
+  </data>
+  <data name="Status" xml:space="preserve">
+    <value>Katayuan</value>
+  </data>
+  <data name="Status / actions" xml:space="preserve">
+    <value>Katayuan / mga aksyon</value>
+  </data>
+  <data name="Status, priority and messages are retained as recorded. New conversations and case updates are retired." xml:space="preserve">
+    <value>Nananatili ang katayuan, priyoridad, at mensahe ayon sa naitala. Hindi na ginagamit ang bagong usapan at pagbabago ng kaso.</value>
+  </data>
+  <data name="Stock items with remaining quantity" xml:space="preserve">
+    <value>Mga gamit na may natitirang stock</value>
+  </data>
+  <data name="Stock movement saved. The balance is updated." xml:space="preserve">
+    <value>Na-save ang galaw ng stock. Na-update ang balanse.</value>
+  </data>
+  <data name="Stock received" xml:space="preserve">
+    <value>Natanggap na stock</value>
+  </data>
+  <data name="Stock transaction reversed. The original entry remains in history." xml:space="preserve">
+    <value>Nabawi ang transaksyon sa stock. Mananatili ang orihinal na tala sa kasaysayan.</value>
+  </data>
+  <data name="Store them securely outside this browser. Your previous session has been signed out." xml:space="preserve">
+    <value>Itago ang mga ito nang ligtas sa labas ng browser. Na-log out na ang nakaraang sesyon mo.</value>
+  </data>
+  <data name="Strong wind" xml:space="preserve">
+    <value>Malakas na hangin</value>
+  </data>
+  <data name="Submitted {0} UTC" xml:space="preserve">
+    <value>Naipadala noong {0} UTC</value>
+  </data>
+  <data name="Succeeded" xml:space="preserve">
+    <value>Nagtagumpay</value>
+  </data>
+  <data name="Successful receipts · 7 days" xml:space="preserve">
+    <value>Mga matagumpay na kumpirmasyon · 7 araw</value>
+  </data>
+  <data name="Super Admin" xml:space="preserve">
+    <value>Super Admin</value>
+  </data>
+  <data name="Super Admin access requires an authenticator app. Enter this account in&#10;       your authenticator using the setup key below, then confirm its six-digit code." xml:space="preserve">
+    <value>Kailangan ng authenticator app para sa access ng Super Admin. Ilagay ang account sa authenticator gamit ang key sa ibaba, saka kumpirmahin ang anim na digit na code.</value>
+  </data>
+  <data name="Super Admin accounts are protected. Access changes require a separate operator process." xml:space="preserve">
+    <value>Protektado ang mga Super Admin account. Kailangan ng hiwalay na proseso ng operator sa pagbabago ng access.</value>
+  </data>
+  <data name="Super Admin portal" xml:space="preserve">
+    <value>Portal ng Super Admin</value>
+  </data>
+  <data name="Supplies" xml:space="preserve">
+    <value>Mga suplay</value>
+  </data>
+  <data name="Supplies arrived (add stock)" xml:space="preserve">
+    <value>Dumating na suplay (dagdagan ang stock)</value>
+  </data>
+  <data name="Supplies used for recorded crop work (subtract)" xml:space="preserve">
+    <value>Suplay na ginamit sa naitalang gawain sa pananim (ibawas)</value>
+  </data>
+  <data name="Supply" xml:space="preserve">
+    <value>Suplay</value>
+  </data>
+  <data name="Supply added to the farm inventory." xml:space="preserve">
+    <value>Naidagdag ang suplay sa imbentaryo ng bukid.</value>
+  </data>
+  <data name="Supply and available balance" xml:space="preserve">
+    <value>Suplay at magagamit na balanse</value>
+  </data>
+  <data name="Supply details updated." xml:space="preserve">
+    <value>Na-update ang detalye ng suplay.</value>
+  </data>
+  <data name="Supply name" xml:space="preserve">
+    <value>Pangalan ng suplay</value>
+  </data>
+  <data name="Supply note" xml:space="preserve">
+    <value>Tala sa suplay</value>
+  </data>
+  <data name="Supply note (optional)" xml:space="preserve">
+    <value>Tala sa suplay (opsyonal)</value>
+  </data>
+  <data name="Supply pages" xml:space="preserve">
+    <value>Mga pahina ng suplay</value>
+  </data>
+  <data name="Support case" xml:space="preserve">
+    <value>Kaso ng tulong</value>
+  </data>
+  <data name="Support history" xml:space="preserve">
+    <value>Kasaysayan ng tulong</value>
+  </data>
+  <data name="Support pages" xml:space="preserve">
+    <value>Mga pahina ng tulong</value>
+  </data>
+  <data name="Support queue" xml:space="preserve">
+    <value>Pila ng tulong</value>
+  </data>
+  <data name="Support request" xml:space="preserve">
+    <value>Kahilingan ng tulong</value>
+  </data>
+  <data name="Support totals" xml:space="preserve">
+    <value>Kabuuan ng tulong</value>
+  </data>
+  <data name="Switch" xml:space="preserve">
+    <value>Palitan</value>
+  </data>
+  <data name="Switch farm" xml:space="preserve">
+    <value>Palitan ang bukid</value>
+  </data>
+  <data name="Sync history" xml:space="preserve">
+    <value>Kasaysayan ng pag-sync</value>
+  </data>
+  <data name="Sync history pages" xml:space="preserve">
+    <value>Mga pahina ng kasaysayan ng pag-sync</value>
+  </data>
+  <data name="Sync history unavailable" xml:space="preserve">
+    <value>Hindi makuha ang kasaysayan ng pag-sync</value>
+  </data>
+  <data name="System monitoring" xml:space="preserve">
+    <value>Pagsubaybay sa sistema</value>
+  </data>
+  <data name="Take care of due work and saved concerns before reviewing totals." xml:space="preserve">
+    <value>Asikasuhin muna ang takdang gawain at naka-save na problema bago suriin ang kabuuan.</value>
+  </data>
+  <data name="Take or select a photo" xml:space="preserve">
+    <value>Kumuha o pumili ng larawan</value>
+  </data>
+  <data name="Tap the map or search to choose a farm position. Location services require your permission." xml:space="preserve">
+    <value>Pindutin ang mapa o maghanap upang piliin ang lokasyon ng bukid. Kailangan ng pahintulot para sa serbisyo ng lokasyon.</value>
+  </data>
+  <data name="Tap the map to select the exact farm location." xml:space="preserve">
+    <value>Pindutin ang mapa upang piliin ang eksaktong lokasyon ng bukid.</value>
+  </data>
+  <data name="Target" xml:space="preserve">
+    <value>Target</value>
+  </data>
+  <data name="Target ID" xml:space="preserve">
+    <value>ID ng target</value>
+  </data>
+  <data name="Task" xml:space="preserve">
+    <value>Gawain</value>
+  </data>
+  <data name="Task alerts for other workers are not shown in your queue." xml:space="preserve">
+    <value>Hindi kasama sa pila mo ang abiso para sa ibang manggagawa.</value>
+  </data>
+  <data name="Task calendar" xml:space="preserve">
+    <value>Kalendaryo ng gawain</value>
+  </data>
+  <data name="Task calendar month" xml:space="preserve">
+    <value>Buwan sa kalendaryo ng gawain</value>
+  </data>
+  <data name="Task created." xml:space="preserve">
+    <value>Nagawa na ang gawain.</value>
+  </data>
+  <data name="Task dates in {0}" xml:space="preserve">
+    <value>Mga petsa ng gawain sa {0}</value>
+  </data>
+  <data name="Task reminder" xml:space="preserve">
+    <value>Paalala sa gawain</value>
+  </data>
+  <data name="Task reminder · Open your farm's Tasks page to review or complete it." xml:space="preserve">
+    <value>Paalala sa gawain · Buksan ang Mga gawain ng bukid upang suriin o tapusin ito.</value>
+  </data>
+  <data name="Task result pages" xml:space="preserve">
+    <value>Mga pahina ng resulta ng gawain</value>
+  </data>
+  <data name="Task schedule for {0}" xml:space="preserve">
+    <value>Iskedyul ng gawain para sa {0}</value>
+  </data>
+  <data name="Task selection (optional)" xml:space="preserve">
+    <value>Pagpili ng gawain (opsyonal)</value>
+  </data>
+  <data name="Task to complete" xml:space="preserve">
+    <value>Gawaing tatapusin</value>
+  </data>
+  <data name="Task type" xml:space="preserve">
+    <value>Uri ng gawain</value>
+  </data>
+  <data name="Task updated." xml:space="preserve">
+    <value>Na-update ang gawain.</value>
+  </data>
+  <data name="Tasks" xml:space="preserve">
+    <value>Mga gawain</value>
+  </data>
+  <data name="Tasks for" xml:space="preserve">
+    <value>Mga gawain para sa</value>
+  </data>
+  <data name="The account that created this farm" xml:space="preserve">
+    <value>Ang account na gumawa ng bukid na ito</value>
+  </data>
+  <data name="The farm needs a map pin before local forecasts can be saved. Ask the owner or manager to add an exact location under Edit farm." xml:space="preserve">
+    <value>Kailangan ng pin ng bukid bago ma-save ang lokal na taya. Hilingin sa may-ari o tagapamahala na maglagay ng eksaktong lokasyon sa I-edit ang bukid.</value>
+  </data>
+  <data name="The field {0} must be a string with a maximum length of {1}." xml:space="preserve">
+    <value>Hanggang {1} character lamang ang {0}.</value>
+  </data>
+  <data name="The field {0} must be a string with a minimum length of {2} and a maximum length of {1}." xml:space="preserve">
+    <value>Kailangang may {2}–{1} character ang {0}.</value>
+  </data>
+  <data name="The field {0} must be between {1} and {2}." xml:space="preserve">
+    <value>Kailangang nasa pagitan ng {1} at {2} ang {0}.</value>
+  </data>
+  <data name="The last saved weather check is over 12 hours old, or its update time is invalid. Conditions and advisories may have changed. Check an official current forecast before deciding on outdoor work." xml:space="preserve">
+    <value>Mahigit 12 oras na ang huling naka-save na pagsusuri ng panahon o hindi wasto ang oras nito. Maaaring nagbago ang lagay at payo. Suriin ang kasalukuyang opisyal na taya bago gumawa sa labas.</value>
+  </data>
+  <data name="The passwords do not match." xml:space="preserve">
+    <value>Hindi magkatugma ang mga password.</value>
+  </data>
+  <data name="The server confirms the entry" xml:space="preserve">
+    <value>Nakukumpirma ang tala</value>
+  </data>
+  <data name="The {0} and {1} fields do not match." xml:space="preserve">
+    <value>Hindi magkatugma ang {0} at {1}.</value>
+  </data>
+  <data name="The {0} field is not a valid e-mail address." xml:space="preserve">
+    <value>Hindi wastong email address ang {0}.</value>
+  </data>
+  <data name="The {0} field is required." xml:space="preserve">
+    <value>Kailangan ang {0}.</value>
+  </data>
+  <data name="There are" xml:space="preserve">
+    <value>May</value>
+  </data>
+  <data name="There are no unread notices in the recent list. You can review recent messages." xml:space="preserve">
+    <value>Walang hindi pa nababasang abiso sa kamakailang listahan. Maaari mong balikan ang mga mensahe.</value>
+  </data>
+  <data name="These are saved farm-system advisories, not real-time emergency alerts." xml:space="preserve">
+    <value>Mga naka-save na payo ng sistema ng bukid ang mga ito, hindi agarang abiso ng emerhensiya.</value>
+  </data>
+  <data name="These are saved notices, not live push alerts. Marking one as read does not complete a task or resolve an advisory." xml:space="preserve">
+    <value>Mga naka-save na abiso ang mga ito, hindi agarang push alert. Hindi tinatapos ng pagmarkang nabasa ang gawain o nilulutas ang payo.</value>
+  </data>
+  <data name="These settings help identify the supply and flag when it may need replenishment." xml:space="preserve">
+    <value>Tumutulong ang mga setting na kilalanin ang suplay at ipaalam kung kailangang dagdagan.</value>
+  </data>
+  <data name="These statuses come from saved crop records, not plant-health or maturity predictions." xml:space="preserve">
+    <value>Mula sa naka-save na tala ng pananim ang katayuang ito, hindi hula sa kalusugan o pagkahinog.</value>
+  </data>
+  <data name="This authenticated admin request was served successfully. Other Web endpoints are not individually checked." xml:space="preserve">
+    <value>Matagumpay na naihatid ang awtorisadong kahilingang ito ng Admin. Hindi isa-isang sinuri ang ibang Web endpoint.</value>
+  </data>
+  <data name="This entry completes the selected task only after the server accepts it." xml:space="preserve">
+    <value>Matatapos lamang ng talang ito ang napiling gawain kapag tinanggap na ito.</value>
+  </data>
+  <data name="This field is required." xml:space="preserve">
+    <value>Kailangan ang bahaging ito.</value>
+  </data>
+  <data name="This history is read-only." xml:space="preserve">
+    <value>Mababasa lamang ang kasaysayang ito.</value>
+  </data>
+  <data name="This is not an all-clear for outdoor work. Check official local weather warnings before working during heavy rain, wind, or severe conditions." xml:space="preserve">
+    <value>Hindi nito tinitiyak na ligtas gumawa sa labas. Suriin ang mga opisyal na lokal na babala bago gumawa sa malakas na ulan, hangin, o masamang panahon.</value>
+  </data>
+  <data name="This photo is empty. Choose a different image." xml:space="preserve">
+    <value>Walang laman ang larawang ito. Pumili ng iba.</value>
+  </data>
+  <data name="This screen does not change your password or sign-in details. Farm roles and membership are managed separately inside each farm." xml:space="preserve">
+    <value>Hindi binabago ng pahinang ito ang password o detalye ng pag-log in. Hiwalay na pinamamahalaan sa bawat bukid ang tungkulin at pagiging kasapi.</value>
+  </data>
+  <data name="This user does not own a farm yet." xml:space="preserve">
+    <value>Wala pang pag-aaring bukid ang user na ito.</value>
+  </data>
+  <data name="Time unavailable" xml:space="preserve">
+    <value>Hindi makuha ang oras</value>
+  </data>
+  <data name="Time zone" xml:space="preserve">
+    <value>Sona ng oras</value>
+  </data>
+  <data name="Title or user email" xml:space="preserve">
+    <value>Pamagat o email ng user</value>
+  </data>
+  <data name="To" xml:space="preserve">
+    <value>Hanggang</value>
+  </data>
+  <data name="To (UTC)" xml:space="preserve">
+    <value>Hanggang (UTC)</value>
+  </data>
+  <data name="Today" xml:space="preserve">
+    <value>Ngayon</value>
+  </data>
+  <data name="Today's priorities" xml:space="preserve">
+    <value>Mga dapat unahin ngayon</value>
+  </data>
+  <data name="Today's work" xml:space="preserve">
+    <value>Mga gawain ngayon</value>
+  </data>
+  <data name="Today's work — scroll to review tasks" xml:space="preserve">
+    <value>Mga gawain ngayon — mag-scroll upang suriin</value>
+  </data>
+  <data name="Toggle appearance" xml:space="preserve">
+    <value>Palitan ang hitsura</value>
+  </data>
+  <data name="Totals by planting cycle and month" xml:space="preserve">
+    <value>Kabuuan ayon sa siklo ng pagtatanim at buwan</value>
+  </data>
+  <data name="Track Harvests" xml:space="preserve">
+    <value>Subaybayan ang Ani</value>
+  </data>
+  <data name="Transaction history" xml:space="preserve">
+    <value>Kasaysayan ng transaksyon</value>
+  </data>
+  <data name="Try a different farm name or filter." xml:space="preserve">
+    <value>Subukan ang ibang pangalan ng bukid o salaan.</value>
+  </data>
+  <data name="Try a different name, email or status." xml:space="preserve">
+    <value>Subukan ang ibang pangalan, email, o katayuan.</value>
+  </data>
+  <data name="Try a different name, location or status." xml:space="preserve">
+    <value>Subukan ang ibang pangalan, lokasyon, o katayuan.</value>
+  </data>
+  <data name="Try a different search or remove the selected filter." xml:space="preserve">
+    <value>Subukan ang ibang hinahanap o alisin ang napiling salaan.</value>
+  </data>
+  <data name="Try again" xml:space="preserve">
+    <value>Subukang muli</value>
+  </data>
+  <data name="Try changing the filters." xml:space="preserve">
+    <value>Subukang baguhin ang mga salaan.</value>
+  </data>
+  <data name="Try changing your filters. Events appear here after a recorded admin action." xml:space="preserve">
+    <value>Subukang baguhin ang mga salaan. Lilitaw dito ang mga kaganapan matapos ang naitalang aksyon ng Admin.</value>
+  </data>
+  <data name="Two-factor sign in" xml:space="preserve">
+    <value>Pag-log in na may dalawang pagpapatunay</value>
+  </data>
+  <data name="Type at least 3 characters to search for a place." xml:space="preserve">
+    <value>Mag-type ng hindi bababa sa 3 character upang maghanap ng lugar.</value>
+  </data>
+  <data name="Typical growth days (optional)" xml:space="preserve">
+    <value>Karaniwang araw ng paglaki (opsyonal)</value>
+  </data>
+  <data name="Typical growth:" xml:space="preserve">
+    <value>Karaniwang paglaki:</value>
+  </data>
+  <data name="USER ACCOUNT" xml:space="preserve">
+    <value>ACCOUNT NG USER</value>
+  </data>
+  <data name="Unassigned (farm owner gets the reminder)" xml:space="preserve">
+    <value>Walang nakatalaga (may-ari ang tatanggap ng paalala)</value>
+  </data>
+  <data name="Unassigned (reminder goes to farm owner)" xml:space="preserve">
+    <value>Walang nakatalaga (sa may-ari ang paalala)</value>
+  </data>
+  <data name="Unassigned · Farm owner receives reminder" xml:space="preserve">
+    <value>Walang nakatalaga · May-ari ang tatanggap ng paalala</value>
+  </data>
+  <data name="Unit" xml:space="preserve">
+    <value>Yunit</value>
+  </data>
+  <data name="Unknown" xml:space="preserve">
+    <value>Hindi alam</value>
+  </data>
+  <data name="Unread" xml:space="preserve">
+    <value>Hindi pa nabasa</value>
+  </data>
+  <data name="Unread (" xml:space="preserve">
+    <value>Hindi pa nabasa (</value>
+  </data>
+  <data name="Unresolved support" xml:space="preserve">
+    <value>Hindi pa nalutas na tulong</value>
+  </data>
+  <data name="Unsubmitted draft — not saved" xml:space="preserve">
+    <value>Hindi pa naipadalang draft — hindi naka-save</value>
+  </data>
+  <data name="Unsubmitted draft:" xml:space="preserve">
+    <value>Hindi pa naipadalang draft:</value>
+  </data>
+  <data name="Up to 20 recent farms" xml:space="preserve">
+    <value>Hanggang 20 kamakailang bukid</value>
+  </data>
+  <data name="Upcoming" xml:space="preserve">
+    <value>Mga susunod</value>
+  </data>
+  <data name="Upcoming assigned" xml:space="preserve">
+    <value>Susunod na nakatalagang gawain</value>
+  </data>
+  <data name="Update overdue" xml:space="preserve">
+    <value>Nahuli ang pag-update</value>
+  </data>
+  <data name="Update role" xml:space="preserve">
+    <value>Baguhin ang tungkulin</value>
+  </data>
+  <data name="Update the plot name or its measured area. Existing crop records remain connected." xml:space="preserve">
+    <value>Baguhin ang pangalan o sinukat na lawak ng taniman. Mananatiling kaugnay ang mga dati nang tala ng pananim.</value>
+  </data>
+  <data name="Update the supply details without changing its transaction history." xml:space="preserve">
+    <value>Baguhin ang detalye ng suplay nang hindi binabago ang kasaysayan ng transaksyon.</value>
+  </data>
+  <data name="Update your farm's details and optional map location. Existing plots, crop records and members stay connected to this farm." xml:space="preserve">
+    <value>Baguhin ang detalye at opsyonal na lokasyon ng bukid. Mananatiling kaugnay ang mga taniman, tala ng pananim, at kasapi.</value>
+  </data>
+  <data name="Update {0} on {1}. Saved crop history is retained." xml:space="preserve">
+    <value>Baguhin ang {0} sa {1}. Mananatili ang naka-save na kasaysayan ng pananim.</value>
+  </data>
+  <data name="Updated" xml:space="preserve">
+    <value>Na-update</value>
+  </data>
+  <data name="Updated {0}" xml:space="preserve">
+    <value>Na-update: {0}</value>
+  </data>
+  <data name="Updates" xml:space="preserve">
+    <value>Mga pagbabago</value>
+  </data>
+  <data name="Updates &amp; replies" xml:space="preserve">
+    <value>Mga pagbabago at tugon</value>
+  </data>
+  <data name="Use Record fieldwork above to start an activity history for this crop." xml:space="preserve">
+    <value>Gamitin ang Itala ang gawain sa bukid sa itaas upang simulan ang kasaysayan ng gawain ng pananim.</value>
+  </data>
+  <data name="Use a recovery code" xml:space="preserve">
+    <value>Gumamit ng code sa pagbawi</value>
+  </data>
+  <data name="Use a valid plot name and positive area." xml:space="preserve">
+    <value>Gumamit ng wastong pangalan ng taniman at lawak na higit sa zero.</value>
+  </data>
+  <data name="Use at least 10 characters, including uppercase, lowercase, and a number." xml:space="preserve">
+    <value>Gumamit ng hindi bababa sa 10 character, na may malaking titik, maliit na titik, at numero.</value>
+  </data>
+  <data name="Use dark appearance" xml:space="preserve">
+    <value>Gamitin ang madilim na hitsura</value>
+  </data>
+  <data name="Use light appearance" xml:space="preserve">
+    <value>Gamitin ang maliwanag na hitsura</value>
+  </data>
+  <data name="Use my authenticator instead" xml:space="preserve">
+    <value>Gamitin na lang ang authenticator ko</value>
+  </data>
+  <data name="Use my current location" xml:space="preserve">
+    <value>Gamitin ang kasalukuyan kong lokasyon</value>
+  </data>
+  <data name="Use one of your saved recovery codes. Each code works only once." xml:space="preserve">
+    <value>Gumamit ng isa sa naka-save mong code sa pagbawi. Isang beses lamang magagamit ang bawat code.</value>
+  </data>
+  <data name="Use supplies / fertilizer" xml:space="preserve">
+    <value>Gumamit ng suplay / pataba</value>
+  </data>
+  <data name="Use supplies with this activity (optional)" xml:space="preserve">
+    <value>Gumamit ng suplay sa gawaing ito (opsyonal)</value>
+  </data>
+  <data name="Use the detailed setup with map options" xml:space="preserve">
+    <value>Gamitin ang detalyadong paghahanda na may mapa</value>
+  </data>
+  <data name="Use your active crop to record watering, inspections, photos and partial harvests." xml:space="preserve">
+    <value>Gamitin ang aktibong pananim upang itala ang pagdidilig, inspeksyon, larawan, at bahagyang ani.</value>
+  </data>
+  <data name="User details" xml:space="preserve">
+    <value>Mga detalye ng user</value>
+  </data>
+  <data name="User directory" xml:space="preserve">
+    <value>Talaan ng mga user</value>
+  </data>
+  <data name="User pages" xml:space="preserve">
+    <value>Mga pahina ng user</value>
+  </data>
+  <data name="Users" xml:space="preserve">
+    <value>Mga user</value>
+  </data>
+  <data name="Uses Philippine time. Add a precise map pin later in Farm settings." xml:space="preserve">
+    <value>Gumagamit ng oras ng Pilipinas. Magdagdag ng eksaktong pin sa Mga setting ng bukid mamaya.</value>
+  </data>
+  <data name="Uses the same unit as the supply. Leave blank to skip low-stock alerts." xml:space="preserve">
+    <value>Pareho ang yunit sa suplay. Iwang walang laman kung ayaw ng abiso sa mababang stock.</value>
+  </data>
+  <data name="Valid" xml:space="preserve">
+    <value>May bisa</value>
+  </data>
+  <data name="Valid harvests" xml:space="preserve">
+    <value>Mga may-bisang ani</value>
+  </data>
+  <data name="Verify and sign in" xml:space="preserve">
+    <value>Patunayan at mag-log in</value>
+  </data>
+  <data name="Verify recovery code" xml:space="preserve">
+    <value>Patunayan ang code sa pagbawi</value>
+  </data>
+  <data name="View advisory" xml:space="preserve">
+    <value>Tingnan ang payo</value>
+  </data>
+  <data name="View all" xml:space="preserve">
+    <value>Tingnan lahat</value>
+  </data>
+  <data name="View all farms" xml:space="preserve">
+    <value>Tingnan ang lahat ng bukid</value>
+  </data>
+  <data name="View all tasks →" xml:space="preserve">
+    <value>Tingnan ang lahat ng gawain →</value>
+  </data>
+  <data name="View all {0} due or overdue tasks →" xml:space="preserve">
+    <value>Tingnan ang lahat ng {0} takda o nahuling gawain →</value>
+  </data>
+  <data name="View announcement" xml:space="preserve">
+    <value>Tingnan ang anunsyo</value>
+  </data>
+  <data name="View assigned tasks and reminders →" xml:space="preserve">
+    <value>Tingnan ang nakatalagang gawain at paalala →</value>
+  </data>
+  <data name="View audit history for this farm" xml:space="preserve">
+    <value>Tingnan ang kasaysayan ng pagsusuri para sa bukid na ito</value>
+  </data>
+  <data name="View audit history for this user" xml:space="preserve">
+    <value>Tingnan ang kasaysayan ng pagsusuri para sa user na ito</value>
+  </data>
+  <data name="View crop details" xml:space="preserve">
+    <value>Tingnan ang detalye ng pananim</value>
+  </data>
+  <data name="View crop history" xml:space="preserve">
+    <value>Tingnan ang kasaysayan ng pananim</value>
+  </data>
+  <data name="View crops" xml:space="preserve">
+    <value>Tingnan ang mga pananim</value>
+  </data>
+  <data name="View crops for this plot →" xml:space="preserve">
+    <value>Tingnan ang pananim sa tanimang ito →</value>
+  </data>
+  <data name="View farm" xml:space="preserve">
+    <value>Tingnan ang bukid</value>
+  </data>
+  <data name="View planting plans" xml:space="preserve">
+    <value>Tingnan ang mga plano sa pagtatanim</value>
+  </data>
+  <data name="View private photo" xml:space="preserve">
+    <value>Tingnan ang pribadong larawan</value>
+  </data>
+  <data name="View recent notifications →" xml:space="preserve">
+    <value>Tingnan ang kamakailang mga abiso →</value>
+  </data>
+  <data name="View support case" xml:space="preserve">
+    <value>Tingnan ang kaso ng tulong</value>
+  </data>
+  <data name="View sync history" xml:space="preserve">
+    <value>Tingnan ang kasaysayan ng pag-sync</value>
+  </data>
+  <data name="View task" xml:space="preserve">
+    <value>Tingnan ang gawain</value>
+  </data>
+  <data name="View this announcement's audit history" xml:space="preserve">
+    <value>Tingnan ang kasaysayan ng pagsusuri ng anunsyong ito</value>
+  </data>
+  <data name="View this case's audit history" xml:space="preserve">
+    <value>Tingnan ang kasaysayan ng pagsusuri ng kasong ito</value>
+  </data>
+  <data name="View user" xml:space="preserve">
+    <value>Tingnan ang user</value>
+  </data>
+  <data name="Void entry" xml:space="preserve">
+    <value>Pawalang-bisa ang tala</value>
+  </data>
+  <data name="Void reason:" xml:space="preserve">
+    <value>Dahilan ng pagpapawalang-bisa:</value>
+  </data>
+  <data name="Void {0} {1} for {2}? The record stays in history and is excluded from totals." xml:space="preserve">
+    <value>Pawalang-bisa ang {0} {1} para sa {2}? Mananatili ang tala sa kasaysayan ngunit hindi kasama sa kabuuan.</value>
+  </data>
+  <data name="Voided" xml:space="preserve">
+    <value>Pinawalang-bisa</value>
+  </data>
+  <data name="Voiding keeps the record in history but excludes it from valid totals." xml:space="preserve">
+    <value>Nananatili sa kasaysayan ang pinawalang-bisang tala ngunit hindi kasama sa may-bisang kabuuan.</value>
+  </data>
+  <data name="WELCOME BACK" xml:space="preserve">
+    <value>MALIGAYANG PAGBABALIK</value>
+  </data>
+  <data name="Waiting for the farm owner's approval." xml:space="preserve">
+    <value>Hinihintay ang pag-apruba ng may-ari ng bukid.</value>
+  </data>
+  <data name="Warning" xml:space="preserve">
+    <value>Babala</value>
+  </data>
+  <data name="Water" xml:space="preserve">
+    <value>Diligan</value>
+  </data>
+  <data name="Watering" xml:space="preserve">
+    <value>Pagdidilig</value>
+  </data>
+  <data name="Watering interval (optional)" xml:space="preserve">
+    <value>Pagitan ng pagdidilig (opsyonal)</value>
+  </data>
+  <data name="Watering interval days" xml:space="preserve">
+    <value>Araw ng pagitan ng pagdidilig</value>
+  </data>
+  <data name="Watering interval days (leave empty for default)" xml:space="preserve">
+    <value>Araw ng pagitan ng pagdidilig (iwang walang laman para sa karaniwang pagitan)</value>
+  </data>
+  <data name="We could not confirm whether your change was saved. Review your farm records before submitting it again." xml:space="preserve">
+    <value>Hindi makumpirma kung na-save ang pagbabago. Suriin ang mga tala ng bukid bago muling ipadala.</value>
+  </data>
+  <data name="We could not load this page. Try again, or return to your farms and check your connection." xml:space="preserve">
+    <value>Hindi mabuksan ang pahinang ito. Subukang muli, o bumalik sa mga bukid at suriin ang koneksyon.</value>
+  </data>
+  <data name="Weather advisory" xml:space="preserve">
+    <value>Payo sa panahon</value>
+  </data>
+  <data name="Weather data may be out of date." xml:space="preserve">
+    <value>Maaaring luma na ang datos ng panahon.</value>
+  </data>
+  <data name="Weather is not enabled for this farm" xml:space="preserve">
+    <value>Hindi pinagana ang panahon para sa bukid na ito</value>
+  </data>
+  <data name="Weather location" xml:space="preserve">
+    <value>Lokasyon para sa panahon</value>
+  </data>
+  <data name="Weather page sections" xml:space="preserve">
+    <value>Mga seksyon ng pahina ng panahon</value>
+  </data>
+  <data name="Web application" xml:space="preserve">
+    <value>Web application</value>
+  </data>
+  <data name="Weeding" xml:space="preserve">
+    <value>Pag-aalis ng damo</value>
+  </data>
+  <data name="Welcome to your workspace" xml:space="preserve">
+    <value>Maligayang pagdating sa iyong workspace</value>
+  </data>
+  <data name="What happened?" xml:space="preserve">
+    <value>Ano ang nangyari?</value>
+  </data>
+  <data name="What if a record needs review?" xml:space="preserve">
+    <value>Paano kung kailangang suriin ang tala?</value>
+  </data>
+  <data name="What is not included?" xml:space="preserve">
+    <value>Ano ang hindi kasama?</value>
+  </data>
+  <data name="What work did you finish for" xml:space="preserve">
+    <value>Anong gawain ang natapos mo para sa</value>
+  </data>
+  <data name="What you can do with AniGo" xml:space="preserve">
+    <value>Mga magagawa mo sa AniGo</value>
+  </data>
+  <data name="When a farmer enters your farm code, their request will appear here." xml:space="preserve">
+    <value>Lilitaw dito ang kahilingan ng magsasaka kapag inilagay niya ang iyong farm code.</value>
+  </data>
+  <data name="When you plant, open the plan and start its growing cycle." xml:space="preserve">
+    <value>Kapag nagtanim ka, buksan ang plano at simulan ang siklo ng paglaki nito.</value>
+  </data>
+  <data name="Where to go next" xml:space="preserve">
+    <value>Mga susunod na pupuntahan</value>
+  </data>
+  <data name="Work completed" xml:space="preserve">
+    <value>Natapos na gawain</value>
+  </data>
+  <data name="Work to do" xml:space="preserve">
+    <value>Mga gagawin</value>
+  </data>
+  <data name="Worker heartbeat" xml:space="preserve">
+    <value>Heartbeat ng worker</value>
+  </data>
+  <data name="Workspace" xml:space="preserve">
+    <value>Workspace</value>
+  </data>
+  <data name="Workspace navigation" xml:space="preserve">
+    <value>Paglipat sa workspace</value>
+  </data>
+  <data name="YOUR FARM WORKSPACE" xml:space="preserve">
+    <value>WORKSPACE NG IYONG BUKID</value>
+  </data>
+  <data name="YOUR FIRST STEP" xml:space="preserve">
+    <value>ANG UNANG HAKBANG MO</value>
+  </data>
+  <data name="YOUR WORKSPACE" xml:space="preserve">
+    <value>IYONG WORKSPACE</value>
+  </data>
+  <data name="Yield by planting cycle" xml:space="preserve">
+    <value>Ani ayon sa siklo ng pagtatanim</value>
+  </data>
+  <data name="Yield comparison by cycle" xml:space="preserve">
+    <value>Paghahambing ng ani ayon sa siklo</value>
+  </data>
+  <data name="You" xml:space="preserve">
+    <value>Ikaw</value>
+  </data>
+  <data name="You can apply again with a valid farm code." xml:space="preserve">
+    <value>Maaari kang humiling muli gamit ang wastong farm code.</value>
+  </data>
+  <data name="You do not have permission to view this page." xml:space="preserve">
+    <value>Wala kang pahintulot na buksan ang pahinang ito.</value>
+  </data>
+  <data name="You haven't requested access to any farms yet." xml:space="preserve">
+    <value>Hindi ka pa humihiling ng access sa alinmang bukid.</value>
+  </data>
+  <data name="You're here" xml:space="preserve">
+    <value>Narito ka</value>
+  </data>
+  <data name="Your account information (read-only)" xml:space="preserve">
+    <value>Impormasyon ng iyong account (mababasa lamang)</value>
+  </data>
+  <data name="Your admin password (required to confirm)" xml:space="preserve">
+    <value>Password ng Admin mo (kailangan sa pagkumpirma)</value>
+  </data>
+  <data name="Your assigned work" xml:space="preserve">
+    <value>Mga gawain mong nakatalaga</value>
+  </data>
+  <data name="Your available farms" xml:space="preserve">
+    <value>Mga bukid na maaari mong buksan</value>
+  </data>
+  <data name="Your farm access" xml:space="preserve">
+    <value>Access mo sa bukid</value>
+  </data>
+  <data name="Your farm is created. Give your growing area a name and size before planning a crop." xml:space="preserve">
+    <value>Nagawa na ang bukid mo. Bigyan ng pangalan at lawak ang taniman bago magplano ng pananim.</value>
+  </data>
+  <data name="Your farm name and nearby location are the essentials. A precise map pin can be changed separately." xml:space="preserve">
+    <value>Pangalan ng bukid at kalapit na lokasyon ang kailangan. Maaaring hiwalay na baguhin ang eksaktong pin sa mapa.</value>
+  </data>
+  <data name="Your farm owner or manager can add plots when the farm is ready." xml:space="preserve">
+    <value>Maaaring magdagdag ng taniman ang may-ari o tagapamahala kapag handa na ang bukid.</value>
+  </data>
+  <data name="Your farm owner or manager can add supplies. Once available, you can record usage linked to field activity." xml:space="preserve">
+    <value>Maaaring magdagdag ng suplay ang may-ari o tagapamahala. Kapag mayroon na, maaari mong itala ang paggamit na kaugnay ng gawain sa bukid.</value>
+  </data>
+  <data name="Your farm owner or manager can assign tasks here. You can also open crops to record field observations." xml:space="preserve">
+    <value>Maaaring magtalaga ng gawain dito ang may-ari o tagapamahala. Maaari mo ring buksan ang pananim upang magtala ng obserbasyon.</value>
+  </data>
+  <data name="Your farm owner or manager can create a planting plan for these plots." xml:space="preserve">
+    <value>Maaaring gumawa ng plano sa pagtatanim para sa mga tanimang ito ang may-ari o tagapamahala.</value>
+  </data>
+  <data name="Your farms" xml:space="preserve">
+    <value>Iyong mga bukid</value>
+  </data>
+  <data name="Your full name" xml:space="preserve">
+    <value>Buong pangalan mo</value>
+  </data>
+  <data name="Your join requests" xml:space="preserve">
+    <value>Mga kahilingan mong sumali</value>
+  </data>
+  <data name="Your named growing areas and their saved crop plans." xml:space="preserve">
+    <value>Mga pinangalanan mong taniman at naka-save na plano ng pananim.</value>
+  </data>
+  <data name="Your overdue and due-today tasks first." xml:space="preserve">
+    <value>Unahin ang nahuli at nakatakdang gawain mo ngayon.</value>
+  </data>
+  <data name="Your password" xml:space="preserve">
+    <value>Password mo</value>
+  </data>
+  <data name="Your plots are set up. Choose a crop and planting dates to continue." xml:space="preserve">
+    <value>Handa na ang mga taniman mo. Pumili ng pananim at petsa ng pagtatanim upang magpatuloy.</value>
+  </data>
+  <data name="Your selected next step will be ready after sign-in. Joining a farm still requires the owner's approval." xml:space="preserve">
+    <value>Magiging handa ang napili mong susunod na hakbang matapos mag-log in. Kailangan pa rin ang pag-apruba ng may-ari sa pagsali sa bukid.</value>
+  </data>
+  <data name="Your supplies" xml:space="preserve">
+    <value>Iyong mga suplay</value>
+  </data>
+  <data name="Your time zone affects task deadlines, planned planting dates, and harvest and finance reporting periods." xml:space="preserve">
+    <value>Nakaaapekto ang sona ng oras sa takdang gawain, planong pagtatanim, at saklaw ng ulat ng ani.</value>
+  </data>
+  <data name="confirms acceptance. Confirmed records appear in crop history, supplies or harvests." xml:space="preserve">
+    <value>makumpirma ang pagtanggap. Lilitaw ang nakumpirmang tala sa kasaysayan ng pananim, suplay, o ani.</value>
+  </data>
+  <data name="crop&#10;            · Each harvest is recorded separately, without ending the crop cycle." xml:space="preserve">
+    <value>pananim · Hiwalay na itinatala ang bawat ani nang hindi tinatapos ang siklo ng pananim.</value>
+  </data>
+  <data name="e.g. Barangay San Jose, Angeles City" xml:space="preserve">
+    <value>hal. Barangay San Jose, Angeles City</value>
+  </data>
+  <data name="e.g. North field" xml:space="preserve">
+    <value>hal. Hilagang taniman</value>
+  </data>
+  <data name="e.g. Riverside Farm" xml:space="preserve">
+    <value>hal. Bukid sa Tabing-ilog</value>
+  </data>
+  <data name="every farm in" xml:space="preserve">
+    <value>ang bawat bukid sa</value>
+  </data>
+  <data name="for current crop, supply and harvest records." xml:space="preserve">
+    <value>para sa kasalukuyang tala ng pananim, suplay, at ani.</value>
+  </data>
+  <data name="for next steps." xml:space="preserve">
+    <value>para sa susunod na hakbang.</value>
+  </data>
+  <data name="kg, L, pcs" xml:space="preserve">
+    <value>kg, L, pcs</value>
+  </data>
+  <data name="means your Android record is waiting for upload. Keep it on the phone and reconnect." xml:space="preserve">
+    <value>ay nangangahulugang naghihintay maipadala ang tala sa Android. Itago ito sa telepono at kumonekta muli.</value>
+  </data>
+  <data name="one place." xml:space="preserve">
+    <value>iisang lugar.</value>
+  </data>
+  <data name="or" xml:space="preserve">
+    <value>o</value>
+  </data>
+  <data name="people waiting for approval" xml:space="preserve">
+    <value>taong naghihintay ng pag-apruba</value>
+  </data>
+  <data name="person waiting for approval" xml:space="preserve">
+    <value>taong naghihintay ng pag-apruba</value>
+  </data>
+  <data name="photos" xml:space="preserve">
+    <value>larawan</value>
+  </data>
+  <data name="to see assigned jobs." xml:space="preserve">
+    <value>upang makita ang mga nakatalagang gawain.</value>
+  </data>
+  <data name="{0} SUPPORT" xml:space="preserve">
+    <value>TULONG SA {0}</value>
+  </data>
+  <data name="{0} UTC" xml:space="preserve">
+    <value>{0} UTC</value>
+  </data>
+  <data name="{0} accounts" xml:space="preserve">
+    <value>{0} account</value>
+  </data>
+  <data name="{0} active advisories" xml:space="preserve">
+    <value>{0} aktibong payo</value>
+  </data>
+  <data name="{0} active saved weather {1} — review" xml:space="preserve">
+    <value>{0} aktibong naka-save na {1} sa panahon — suriin</value>
+  </data>
+  <data name="{0} crop calendar" xml:space="preserve">
+    <value>Kalendaryo ng pananim sa {0}</value>
+  </data>
+  <data name="{0} cycle / unit groups" xml:space="preserve">
+    <value>{0} pangkat ng siklo / yunit</value>
+  </data>
+  <data name="{0} entry/entries" xml:space="preserve">
+    <value>{0} tala</value>
+  </data>
+  <data name="{0} farms" xml:space="preserve">
+    <value>{0} bukid</value>
+  </data>
+  <data name="{0} inspection(s)" xml:space="preserve">
+    <value>{0} inspeksyon</value>
+  </data>
+  <data name="{0} km/h" xml:space="preserve">
+    <value>{0} km/h</value>
+  </data>
+  <data name="{0} low-stock supply {1}" xml:space="preserve">
+    <value>{0} suplay na mababa ang stock {1}</value>
+  </data>
+  <data name="{0} mm" xml:space="preserve">
+    <value>{0} mm</value>
+  </data>
+  <data name="{0} on this page · {1} matching of {2}" xml:space="preserve">
+    <value>{0} sa pahinang ito · {1} katugma sa {2}</value>
+  </data>
+  <data name="{0} on this page · {1} matching · {2} recent" xml:space="preserve">
+    <value>{0} sa pahinang ito · {1} katugma · {2} kamakailan</value>
+  </data>
+  <data name="{0} on this page · {1} total · {2} finished/ended" xml:space="preserve">
+    <value>{0} sa pahinang ito · {1} sa kabuuan · {2} natapos</value>
+  </data>
+  <data name="{0} owned farms · {1} memberships" xml:space="preserve">
+    <value>{0} pag-aaring bukid · {1} pagiging kasapi</value>
+  </data>
+  <data name="{0} plots · {1} members" xml:space="preserve">
+    <value>{0} taniman · {1} kasapi</value>
+  </data>
+  <data name="{0} previously unresolved" xml:space="preserve">
+    <value>{0} dating hindi nalutas</value>
+  </data>
+  <data name="{0} record(s)" xml:space="preserve">
+    <value>{0} tala</value>
+  </data>
+  <data name="{0} registered in total" xml:space="preserve">
+    <value>{0} nakarehistro sa kabuuan</value>
+  </data>
+  <data name="{0} task" xml:space="preserve">
+    <value>{0} gawain</value>
+  </data>
+  <data name="{0} valid harvest records · {1} voided records" xml:space="preserve">
+    <value>{0} may-bisang tala ng ani · {1} pinawalang-bisang tala</value>
+  </data>
+  <data name="{0} valid harvests" xml:space="preserve">
+    <value>{0} may-bisang ani</value>
+  </data>
+  <data name="{0} {1}" xml:space="preserve">
+    <value>{0} {1}</value>
+  </data>
+  <data name="{0} {1} active crop cycles. No record is attached to one until you select it below." xml:space="preserve">
+    <value>{0} {1} aktibong siklo ng pananim. Walang iuugnay na tala hangga't hindi mo pinipili sa ibaba.</value>
+  </data>
+  <data name="{0} {1} advisory" xml:space="preserve">
+    <value>{0} {1} na payo</value>
+  </data>
+  <data name="{0} {1} crop concerns →" xml:space="preserve">
+    <value>{0} {1} problema sa pananim →</value>
+  </data>
+  <data name="{0} {1} current crop records →" xml:space="preserve">
+    <value>{0} {1} kasalukuyang tala ng pananim →</value>
+  </data>
+  <data name="{0} {1} days" xml:space="preserve">
+    <value>{0} {1} araw</value>
+  </data>
+  <data name="{0} {1} found" xml:space="preserve">
+    <value>{0} {1} nakita</value>
+  </data>
+  <data name="{0} {1} low-stock supplies →" xml:space="preserve">
+    <value>{0} {1} suplay na mababa ang stock →</value>
+  </data>
+  <data name="{0} {1} of {2}" xml:space="preserve">
+    <value>{0} {1} sa {2}</value>
+  </data>
+  <data name="{0} {1} of {2} due tasks. Open all tasks to review the rest." xml:space="preserve">
+    <value>{0} {1} sa {2} takdang gawain. Buksan ang lahat ng gawain upang suriin ang natitira.</value>
+  </data>
+  <data name="{0} {1} of {2} timeline entries. See the monitoring, task, and harvest pages for complete histories." xml:space="preserve">
+    <value>{0} {1} sa {2} tala ng mga kaganapan. Tingnan ang pahina ng pagsubaybay, gawain, at ani para sa buong kasaysayan.</value>
+  </data>
+  <data name="{0} {1} of {2} · {3} farms" xml:space="preserve">
+    <value>{0} {1} sa {2} · {3} bukid</value>
+  </data>
+  <data name="{0} {1} of {2} · {3} requests" xml:space="preserve">
+    <value>{0} {1} sa {2} · {3} kahilingan</value>
+  </data>
+  <data name="{0} {1} on this page from the latest {2} matching records (maximum 100, including voided entries). For the complete history, use Export records CSV." xml:space="preserve">
+    <value>{0} {1} sa pahinang ito mula sa pinakabagong {2} katugmang tala (hanggang 100, kasama ang pinawalang-bisa). Para sa buong kasaysayan, gamitin ang I-export ang mga tala sa CSV.</value>
+  </data>
+  <data name="{0} {1} on {2}?" xml:space="preserve">
+    <value>{0} {1} sa {2}?</value>
+  </data>
+  <data name="{0} {1} waiting for farm access." xml:space="preserve">
+    <value>{0} {1} naghihintay ng access sa bukid.</value>
+  </data>
+  <data name="{0} {1} {2}" xml:space="preserve">
+    <value>{0} {1} {2}</value>
+  </data>
+  <data name="{0} {1} · Updated {2} UTC" xml:space="preserve">
+    <value>{0} {1} · Na-update noong {2} UTC</value>
+  </data>
+  <data name="{0} {1} · {2} · not live weather" xml:space="preserve">
+    <value>{0} {1} · {2} · hindi aktuwal na panahon ngayon</value>
+  </data>
+  <data name="{0} {1}. You may save more than one harvest for the same crop." xml:space="preserve">
+    <value>{0} {1}. Maaari kang mag-save ng higit sa isang ani para sa parehong pananim.</value>
+  </data>
+  <data name="{0} · Active crop" xml:space="preserve">
+    <value>{0} · Aktibong pananim</value>
+  </data>
+  <data name="{0} · Created {1} UTC" xml:space="preserve">
+    <value>{0} · Nagawa noong {1} UTC</value>
+  </data>
+  <data name="{0} · Dates follow {1}." xml:space="preserve">
+    <value>{0} · Ayon sa {1} ang mga petsa.</value>
+  </data>
+  <data name="{0} · Owned by {1}" xml:space="preserve">
+    <value>{0} · Pag-aari ni {1}</value>
+  </data>
+  <data name="{0} · measured in {1}" xml:space="preserve">
+    <value>{0} · sinusukat sa {1}</value>
+  </data>
+  <data name="{0} · saved daily maximum" xml:space="preserve">
+    <value>{0} · naka-save na pinakamataas sa araw</value>
+  </data>
+  <data name="{0} · {1} UTC" xml:space="preserve">
+    <value>{0} · {1} UTC</value>
+  </data>
+  <data name="{0} · {1} crop cycle(s)" xml:space="preserve">
+    <value>{0} · {1} siklo ng pananim</value>
+  </data>
+  <data name="{0} · {1} total" xml:space="preserve">
+    <value>{0} · {1} sa kabuuan</value>
+  </data>
+  <data name="{0} · {1} · {2} {3} available" xml:space="preserve">
+    <value>{0} · {1} · {2} {3} magagamit</value>
+  </data>
+  <data name="{0}, {1} scheduled entries" xml:space="preserve">
+    <value>{0}, {1} takdang tala</value>
+  </data>
+  <data name="{0}, {1} tasks" xml:space="preserve">
+    <value>{0}, {1} gawain</value>
+  </data>
+  <data name="{0}–{1} of {2} matching" xml:space="preserve">
+    <value>{0}–{1} sa {2} katugma</value>
+  </data>
+  <data name="© {0} AniGo. All rights reserved." xml:space="preserve">
+    <value>© {0} AniGo. Nakalaan ang lahat ng karapatan.</value>
+  </data>
+  <data name="± Count correction" xml:space="preserve">
+    <value>± Pagwawasto ng bilang</value>
+  </data>
+  <data name="· Assigned to you" xml:space="preserve">
+    <value>· Naitalaga sa iyo</value>
+  </data>
+  <data name="· Expected harvest" xml:space="preserve">
+    <value>· Inaasahang ani</value>
+  </data>
+  <data name="← Previous" xml:space="preserve">
+    <value>← Nakaraan</value>
+  </data>
+  <data name="− Supplies used" xml:space="preserve">
+    <value>− Suplay na ginamit</value>
+  </data>
+</root>

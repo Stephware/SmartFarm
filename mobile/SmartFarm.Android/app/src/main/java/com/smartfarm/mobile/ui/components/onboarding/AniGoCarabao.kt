@@ -1,5 +1,8 @@
 package com.smartfarm.mobile.ui.components.onboarding
 
+import com.smartfarm.mobile.R
+import com.smartfarm.mobile.localization.uiText
+
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import androidx.compose.foundation.Image
@@ -13,7 +16,6 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.smartfarm.mobile.R
 import com.smartfarm.mobile.ui.theme.SmartFarmTheme
 
 /**
@@ -84,15 +86,15 @@ fun AniGoCarabao(
     Image(
         bitmap = images[index],
         contentDescription = when {
-            walking -> "AniGo carabao walking"
-            talking -> "AniGo carabao speaking"
-            pose == AniGoCarabaoPose.PLANT -> "AniGo carabao planting a seedling"
-            pose == AniGoCarabaoPose.RECORD -> "AniGo carabao recording fieldwork"
-            pose == AniGoCarabaoPose.HARVEST -> "AniGo carabao holding a harvest basket"
-            pose == AniGoCarabaoPose.CELEBRATE -> "AniGo carabao celebrating"
-            pose == AniGoCarabaoPose.GUIDE -> "AniGo carabao pointing to farm records"
-            pose == AniGoCarabaoPose.WAVE -> "AniGo carabao waving"
-            else -> "AniGo carabao mascot"
+            walking -> uiText(R.string.ui_anigo_carabao_walking_e756ad0, "AniGo carabao walking")
+            talking -> uiText(R.string.ui_anigo_carabao_speaking_cb5e6e5, "AniGo carabao speaking")
+            pose == AniGoCarabaoPose.PLANT -> uiText(R.string.ui_anigo_carabao_planting_a_seedling_9f7906a, "AniGo carabao planting a seedling")
+            pose == AniGoCarabaoPose.RECORD -> uiText(R.string.ui_anigo_carabao_recording_fieldwork_a72e81a, "AniGo carabao recording fieldwork")
+            pose == AniGoCarabaoPose.HARVEST -> uiText(R.string.ui_anigo_carabao_holding_a_harvest_basket_7f2677c, "AniGo carabao holding a harvest basket")
+            pose == AniGoCarabaoPose.CELEBRATE -> uiText(R.string.ui_anigo_carabao_celebrating_b6fac00, "AniGo carabao celebrating")
+            pose == AniGoCarabaoPose.GUIDE -> uiText(R.string.ui_anigo_carabao_pointing_to_farm_records_99ccd0a, "AniGo carabao pointing to farm records")
+            pose == AniGoCarabaoPose.WAVE -> uiText(R.string.ui_anigo_carabao_waving_b8f8c1d, "AniGo carabao waving")
+            else -> uiText(R.string.ui_anigo_carabao_mascot_97890bb, "AniGo carabao mascot")
         },
         contentScale = ContentScale.Fit,
         modifier = modifier

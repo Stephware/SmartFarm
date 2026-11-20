@@ -1,5 +1,8 @@
 package com.smartfarm.mobile.ui.components
 
+import com.smartfarm.mobile.R
+import com.smartfarm.mobile.localization.uiText
+
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -42,7 +45,6 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.smartfarm.mobile.R
 import com.smartfarm.mobile.ui.theme.AniGoPalette
 import com.smartfarm.mobile.ui.theme.LocalFarmAppearance
 import com.smartfarm.mobile.ui.theme.LocalPhotoAuthBars
@@ -108,14 +110,14 @@ fun PhotoAuthScaffold(
                     // full wordmark, never a hand-drawn substitute or typed duplicate.
                     Image(
                         painter = painterResource(R.drawable.ani_go_logo_on_dark),
-                        contentDescription = "AniGo",
+                        contentDescription = uiText(R.string.ui_anigo_80e6f53, "AniGo"),
                         contentScale = ContentScale.Fit,
                         alignment = Alignment.CenterStart,
                         modifier = Modifier.widthIn(max = 164.dp).height(48.dp)
                     )
                     Spacer(Modifier.height(if (compactHero) 32.dp else 82.dp))
                     Text(
-                        "YOUR FARM, ORGANIZED",
+                        uiText(R.string.ui_your_farm_organized_284d2d1, "YOUR FARM, ORGANIZED"),
                         color = Color(0xFFF3CD80),
                         fontWeight = FontWeight.Bold,
                         style = MaterialTheme.typography.labelMedium
@@ -156,7 +158,8 @@ fun PhotoAuthScaffold(
                             style = MaterialTheme.typography.bodyMedium
                         )
                         Spacer(Modifier.height(2.dp))
-                        content()
+                        com.smartfarm.mobile.localization.LanguagePicker()
+                content()
                     }
                 }
             }

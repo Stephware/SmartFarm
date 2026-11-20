@@ -1,11 +1,12 @@
 @model SmartFarm.Infrastructure.Identity.SmartFarmUser
 @{
-    ViewData["Title"] = "My account";
+    ViewData["Title"] = T["My account"];
     var initial = string.IsNullOrWhiteSpace(Model.FullName)
         ? "A" : Model.FullName.Trim()[0].ToString().ToUpperInvariant();
 }
-<partial name="_UiPageHeader" model='@(new UiPageHeader("My account", "Review your identity and preferred appearance.", Id: "account-heading", BackText: "Back to my farms", BackUrl: Url.Action("Index", "Farms")))' />
+<partial name="_UiPageHeader" model='@(new UiPageHeader(T["My account"], T["Review your identity and preferred appearance."], Id: "account-heading", BackText: T["Back to my farms"], BackUrl: Url.Action("Index", "Farms")))' />
 <div class="ani-p2-page ani-p2-account">
+<partial name="_LanguagePicker" />
 <section class="panel sf-account-hero ani-account-hero" aria-labelledby="account-heading">
     <div class="sf-account-identity">
         <span class="sf-account-avatar ani-account-avatar" aria-hidden="true">@initial</span>
@@ -15,32 +16,32 @@
         </div>
     </div>
 </section>
-<details class="panel sf-account-details ani-p2-account-details"><summary id="account-details-heading">Your account information (read-only)</summary>
+<details class="panel sf-account-details ani-p2-account-details"><summary id="account-details-heading">@T["Your account information (read-only)"]</summary>
     <dl>
-        <div><dt>Name</dt><dd>@Model.FullName</dd></div>
-        <div><dt>Email</dt><dd>@Model.Email</dd></div>
+        <div><dt>@T["Name"]</dt><dd>@Model.FullName</dd></div>
+        <div><dt>@T["Email"]</dt><dd>@Model.Email</dd></div>
     </dl>
-    <p class="hint">This screen does not change your password or sign-in details. Farm roles and membership are managed separately inside each farm.</p>
+    <p class="hint">@T["This screen does not change your password or sign-in details. Farm roles and membership are managed separately inside each farm."]</p>
 </details>
 <section class="panel sf-account-links" aria-labelledby="account-links-heading">
-    <h2 id="account-links-heading">Where to go next</h2>
+    <h2 id="account-links-heading">@T["Where to go next"]</h2>
     <div class="sf-account-link-grid">
-        <a asp-controller="Farms" asp-action="Index"><strong>My farms</strong><span>Open your farms or request access →</span></a>
-        <a asp-controller="Notifications" asp-action="Index"><strong>Notifications</strong><span>Read farm reminders and advisories →</span></a>
-        <a asp-controller="Home" asp-action="Help"><strong>Help</strong><span>Get help with farm access, accounts and saved work →</span></a>
+        <a asp-controller="Farms" asp-action="Index"><strong>@T["My farms"]</strong><span>@T["Open your farms or request access →"]</span></a>
+        <a asp-controller="Notifications" asp-action="Index"><strong>@T["Notifications"]</strong><span>@T["Read farm reminders and advisories →"]</span></a>
+        <a asp-controller="Home" asp-action="Help"><strong>@T["Help"]</strong><span>@T["Get help with farm access, accounts and saved work →"]</span></a>
         @if (User.IsInRole("SuperAdmin"))
         {
             <a asp-area="Admin" asp-controller="Dashboard" asp-action="Index">
-                <strong>Super Admin</strong><span>Open the secure platform workspace →</span></a>
+                <strong>@T["Super Admin"]</strong><span>@T["Open the secure platform workspace →"]</span></a>
         }
-        <a asp-controller="Home" asp-action="Index"><strong>About AniGo</strong><span>Review the farm management tools →</span></a>
+        <a asp-controller="Home" asp-action="Index"><strong>@T["About AniGo"]</strong><span>@T["Review the farm management tools →"]</span></a>
     </div>
 </section>
 
 <section class="panel appearance-setting" aria-labelledby="appearance-heading">
-    <div><h2 id="appearance-heading">Display appearance</h2>
-        <p>Light is the default. Your choice is saved on this browser only, not across every device.</p></div>
-    <button type="button" data-color-mode-toggle aria-pressed="false" aria-label="Use dark appearance"><span data-color-mode-status>Light appearance</span><partial name="_Icon" model='@("sun")' /></button>
+    <div><h2 id="appearance-heading">@T["Display appearance"]</h2>
+        <p>@T["Light is the default. Your choice is saved on this browser only, not across every device."]</p></div>
+    <button type="button" data-color-mode-toggle aria-pressed="false" aria-label="@T["Use dark appearance"]"><span data-color-mode-status>@T["Light appearance"]</span><partial name="_Icon" model='@("sun")' /></button>
 </section>
 
 </div>

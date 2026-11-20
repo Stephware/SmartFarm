@@ -1,6 +1,7 @@
 /* Phase 4 — optional, progressive preview for authorized crop photos.
    Server MIME and size validation remains the source of truth. */
 (() => {
+    const text = english => globalThis.anigoText?.[english] ?? english;
     const types = new Set(["image/jpeg","image/png","image/webp"]);
     const maxBytes = 5 * 1024 * 1024;
     document.querySelectorAll('input[data-field-photo]').forEach(input => {
@@ -26,15 +27,15 @@
             const file = input.files?.[0];
             if (!file) return false;
             if (!types.has(file.type)) {
-                report('Choose a JPEG, PNG or WebP image.');
+                report(text("Choose a JPEG, PNG or WebP image."));
                 return false;
             }
             if (file.size > maxBytes) {
-                report('Photo is larger than 5 MB. Choose a smaller image.');
+                report(text("Photo is larger than 5 MB. Choose a smaller image."));
                 return false;
             }
             if (file.size === 0) {
-                report('This photo is empty. Choose a different image.');
+                report(text("This photo is empty. Choose a different image."));
                 return false;
             }
             activeUrl = URL.createObjectURL(file);

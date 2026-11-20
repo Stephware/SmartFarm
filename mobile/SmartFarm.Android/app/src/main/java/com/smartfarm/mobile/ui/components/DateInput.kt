@@ -1,5 +1,8 @@
 package com.smartfarm.mobile.ui.components
 
+import com.smartfarm.mobile.R
+import com.smartfarm.mobile.localization.uiText
+
 import android.app.DatePickerDialog
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -20,7 +23,6 @@ import androidx.compose.ui.unit.dp
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import java.time.format.FormatStyle
-import com.smartfarm.mobile.R
 import com.smartfarm.mobile.ui.theme.LocalFarmAppearance
 
 /** The entire 48dp row opens the picker, including on small screens or with large text. */
@@ -44,20 +46,20 @@ fun DateInput(value: String, label: String, onValueChange: (String) -> Unit, ena
                 .semantics {
                     contentDescription = "${label}: " +
                         (date?.format(DateTimeFormatter.ofLocalizedDate(FormatStyle.MEDIUM))
-                            ?: "No date selected") + ". Choose date"
+                            ?: uiText(R.string.ui_no_date_selected_a775f9f, "No date selected")) + uiText(R.string.ui_choose_date_da04f9d, ". Choose date")
                 }
         ) {
             FlowRow(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp),
                 verticalArrangement = Arrangement.spacedBy(4.dp)) {
                 Text(date?.format(DateTimeFormatter.ofLocalizedDate(FormatStyle.MEDIUM))
-                    ?: "No date selected",
+                    ?: uiText(R.string.ui_no_date_selected_a775f9f, "No date selected"),
                     style = MaterialTheme.typography.bodyLarge)
-                Text("Choose date", style = MaterialTheme.typography.labelLarge)
+                Text(uiText(R.string.ui_choose_date_343b5a9, "Choose date"), style = MaterialTheme.typography.labelLarge)
             }
         }
         if (value.isNotBlank()) {
             TextButton(onClick = { onValueChange("") }, enabled = enabled,
-                modifier = Modifier.defaultMinSize(minHeight = 48.dp)) { Text("Clear $label") }
+                modifier = Modifier.defaultMinSize(minHeight = 48.dp)) { Text(uiText(R.string.ui_clear_1_s_40157cb, "Clear %1\$s", (label))) }
         }
     }
 }

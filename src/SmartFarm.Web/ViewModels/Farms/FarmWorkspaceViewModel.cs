@@ -7,7 +7,10 @@ public sealed record FarmWorkspaceViewModel(
     IReadOnlyList<FarmMemberDetails> Members, FarmEnrollmentPanel? Enrollment = null);
 
 public sealed record FarmEnrollmentPanel(Guid FarmId, FarmEnrollmentOverview? Overview,
-    bool Dashboard = false, string? Error = null);
+    bool Dashboard = false, string? Error = null)
+{
+    public string TimeZoneId { get; init; } = "Asia/Manila";
+}
 
 public sealed record FarmIndexViewModel(IReadOnlyList<FarmSummary> Farms,
     IReadOnlyList<FarmJoinRequestDetails> JoinRequests, FarmJoinRequestInput Join,
@@ -20,6 +23,7 @@ public sealed record FarmDashboardViewModel(SmartFarm.Core.Contracts.Reports.Far
     public IReadOnlyList<SmartFarm.Core.Contracts.Crops.CropCycleDetails> Cycles { get; init; } = [];
     public IReadOnlyList<SmartFarm.Core.Contracts.Tasks.FarmTaskDetails> Tasks { get; init; } = [];
     public SmartFarm.Core.Contracts.Weather.WeatherOverview? Weather { get; init; }
+    public string TimeZoneId { get; init; } = "Asia/Manila";
     public string FarmRole { get; init; } = "FieldWorker";
     public Guid ActorId { get; init; }
 }

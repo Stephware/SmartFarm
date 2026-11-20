@@ -22,7 +22,7 @@ function assertMobileMark(layout, area) {
   assert.match(region, /anigo-mark\.svg/);
   assert.match(region, /anigo-mark-on-dark\.svg/);
   assert.doesNotMatch(region, /anigo-logo\.svg|anigo-logo-on-dark\.svg/, area + " must not duplicate wordmark");
-  assert.match(layout, /aria-label="AniGo (home|administration)"/, area + " needs an accessible link");
+  assert.match(layout, /aria-label="@T\["AniGo (home|administration)"\]"/, area + " needs an accessible link");
 }
 
 test("Signed-in MVC and Admin mobile bars show the compact mark, not wordmark", () => {
@@ -44,13 +44,13 @@ test("Android workspace app bar selects compact mark for both theme surfaces", (
   assert.match(bar, /R\.drawable\.ani_go_mark_on_dark/);
   assert.match(bar, /R\.drawable\.ani_go_mark\b/);
   assert.doesNotMatch(bar, /R\.drawable\.ani_go_logo/);
-  assert.match(bar, /contentDescription = "AniGo"/);
+  assert.match(bar, /contentDescription = uiText\(R\.string\.\w+, "AniGo"\)/);
   assert.match(bar, /Modifier\.size\(40\.dp\)/);
 });
 
 test("Photo auth uses real official light-on-dark full wordmark only", () => {
   assert.match(authSurface, /R\.drawable\.ani_go_logo_on_dark/);
-  assert.match(authSurface, /contentDescription = "AniGo"/);
+  assert.match(authSurface, /contentDescription = uiText\(R\.string\.\w+, "AniGo"\)/);
   assert.doesNotMatch(authSurface, /AniGoPhotoMark|Canvas\(|drawPath\(|R\.drawable\.ani_go_mark/);
   assert.doesNotMatch(authSurface, /Text\(\s*"AniGo"/);
   assert.match(authSurface, /R\.drawable\.ani6_fields_hero/, "approved natural farm photography remains");

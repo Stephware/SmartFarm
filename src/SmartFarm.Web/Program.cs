@@ -20,7 +20,22 @@ using Microsoft.AspNetCore.Identity;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.AddControllersWithViews(options => options.Filters.AddService<SmartFarm.Web.Filters.ApiUnavailableFilter>());
+builder.Services.AddLocalization(options => options.ResourcesPath = "Resources");
+builder.Services.AddControllersWithViews(options => options.Filters.AddService<SmartFarm.Web.Filters.ApiUnavailableFilter>())
+    .AddViewLocalization().AddDataAnnotationsLocalization(options =>
+        options.DataAnnotationLocalizerProvider = (_, factory) => factory.Create(typeof(SmartFarm.Web.SharedResource)));
+builder.Services.Configure<Microsoft.AspNetCore.Builder.RequestLocalizationOptions>(options => {
+    options.SetDefaultCulture("en").AddSupportedCultures("en", "fil").AddSupportedUICultures("en", "fil");
+    // Explicit browser choice wins; URL parameters must not silently change saved language.
+    options.RequestCultureProviders = [new Microsoft.AspNetCore.Localization.CookieRequestCultureProvider()];
+});
+builder.Services.PostConfigure<Microsoft.AspNetCore.Mvc.MvcOptions>(options => {
+    options.ModelMetadataDetailsProviders.Add(new SmartFarm.Web.Presentation.LocalizedValidationMetadata());
+    options.ModelBindingMessageProvider.SetValueMustBeANumberAccessor(_ => SmartFarm.Web.Presentation.UiMessages.Text("Enter a valid number."));
+    options.ModelBindingMessageProvider.SetAttemptedValueIsInvalidAccessor((_, _) => SmartFarm.Web.Presentation.UiMessages.Text("Check the entered value."));
+    options.ModelBindingMessageProvider.SetNonPropertyAttemptedValueIsInvalidAccessor(_ => SmartFarm.Web.Presentation.UiMessages.Text("Check the entered value."));
+    options.ModelBindingMessageProvider.SetValueMustNotBeNullAccessor(_ => SmartFarm.Web.Presentation.UiMessages.Text("This field is required."));
+});
 builder.Services.AddScoped<SmartFarm.Web.Filters.ApiUnavailableFilter>();
 builder.Services.AddEnrollmentRateLimiting();
 builder.Services.AddAccountRecovery(builder.Configuration);
@@ -90,6 +105,7 @@ if (!app.Environment.IsDevelopment())
 }
 
 app.UseStaticFiles();
+app.UseRequestLocalization();
 app.UseRouting();
 app.UseAuthentication();
 app.UseAuthorization();

@@ -13,7 +13,7 @@ test("Today card scrolls independently without allowing scroll-chaining", () => 
     const dashboard = read("Views/Dashboard/Index.cshtml");
     const styles = read("Views/Shared/_AniGoF2Styles.cshtml");
     assert.match(dashboard, /sf-home-task-list ani-f2-today-scroll/);
-    assert.match(dashboard, /tabindex="0" aria-label="Today's work/);
+    assert.match(dashboard, /tabindex="0" aria-label="@T\["Today's work/);
     assert.match(styles, /overscroll-behavior-y: contain/);
     assert.match(styles, /overflow-y: auto/);
     assert.match(styles, /max-height: min\(390px, 48dvh\)/);
@@ -31,10 +31,10 @@ test("Web calendar selects an individual day and hides until reopened", () => {
     assert.match(tasks, /focusedTaskIndex/);
     assert.match(tasks, /asp-route-taskId="@scheduled.Id"/);
     assert.match(tasks, /ThenBy\(t => t.Id\)/);
-    assert.match(tasks, /Tasks for @selectedDate/);
+    assert.match(tasks, /T\["Tasks for"\] @selectedDate/);
     assert.match(tasks, /Change date/);
     assert.match(tasks, /asp-route-month/);
-    assert.match(tasks, /aria-label="@date\.ToString\("MMMM d"\), @due.Count tasks"/);
+    assert.match(tasks, /aria-label="@T\["\{0\}, \{1\} tasks", date\.ToString\("MMMM d"\), due.Count\]"/);
 });
 
 test("Long web records paginate without losing their filters or original export", () => {
@@ -90,6 +90,6 @@ test("Public landing removes unnecessary section buttons and developer-photo cap
     assert.doesNotMatch(login + register, /Agricultural photography for illustration only/);
     assert.match(landing, /How would you like to get started\?/);
     assert.match(landing, /I manage a farm|I work on a farm/);
-    assert.match(layout, /aria-label="Account actions"/);
+    assert.match(layout, /aria-label="@T\["Account actions"\]"/);
     assert.match(read("Views/Shared/_AniGoF2Styles.cshtml"), /ani-f2-pager/);
 });

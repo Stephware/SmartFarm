@@ -1,20 +1,20 @@
 @{
-    ViewData["Title"] = "Access denied";
+    ViewData["Title"] = T["Access denied"];
 }
 <section class="panel sf-access-denied" aria-labelledby="access-heading">
-    <p class="sf-kicker">ACCESS RESTRICTED</p>
-    <h1 id="access-heading">Access denied</h1>
-    <p>You do not have permission to view this page.</p>
-    <p class="sf-muted">If you need access to a farm, ask its owner to review your membership or join request.</p>
+    <p class="sf-kicker">@T["ACCESS RESTRICTED"]</p>
+    <h1 id="access-heading">@T["Access denied"]</h1>
+    <p>@T["You do not have permission to view this page."]</p>
+    <p class="sf-muted">@T["If you need access to a farm, ask its owner to review your membership or join request."]</p>
     <div class="ani-access-actions">
         @if (User.Identity?.IsAuthenticated == true)
         {
-            <a class="button" asp-controller="Farms" asp-action="Index">Return to my farms</a>
-            <a class="sf-button-outline" asp-controller="Account" asp-action="Profile">My account</a>
+            <a class="button" asp-controller="Farms" asp-action="Index">@T["Return to my farms"]</a>
+            <a class="sf-button-outline" asp-controller="Account" asp-action="Profile">@T["My account"]</a>
         }
         else
         {
-            <a class="button" asp-controller="Account" asp-action="Login">Log in</a>
+            <a class="button" asp-controller="Account" asp-action="Login">@T["Log in"]</a>
         }
     </div>
 </section>

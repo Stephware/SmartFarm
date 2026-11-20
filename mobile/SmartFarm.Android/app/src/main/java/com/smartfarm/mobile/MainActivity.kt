@@ -67,6 +67,9 @@ class MainActivity : ComponentActivity() {
         StatusViewModel.Factory((application as SmartFarmApplication).container.statusRepository)
     }
 
+    override fun attachBaseContext(base: android.content.Context) {
+        super.attachBaseContext(com.smartfarm.mobile.localization.AppLanguage.wrap(base))
+    }
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()

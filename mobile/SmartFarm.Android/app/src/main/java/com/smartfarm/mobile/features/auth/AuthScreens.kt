@@ -1,5 +1,8 @@
 package com.smartfarm.mobile.features.auth
 
+import com.smartfarm.mobile.R
+import com.smartfarm.mobile.localization.uiText
+
 import com.smartfarm.mobile.ui.components.UnsavedChanges
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -70,41 +73,41 @@ fun LoginScreen(
     val ready = looksLikeEmail(email) && password.isNotBlank()
 
     PhotoAuthScaffold(
-        headline = "Good to have you back.",
-        description = "Your fields, crops and team — all in one connected place.",
-        formTitle = "Log in",
-        formSubtitle = "Pick up right where you left off."
+        headline = uiText(R.string.ui_good_to_have_you_back_911caf4, "Good to have you back."),
+        description = uiText(R.string.ui_your_fields_crops_and_team_all_in_one_connected_plac_759a787, "Your fields, crops and team — all in one connected place."),
+        formTitle = uiText(R.string.ui_log_in_c189840, "Log in"),
+        formSubtitle = uiText(R.string.ui_pick_up_right_where_you_left_off_4af7027, "Pick up right where you left off.")
     ) {
         OutlinedTextField(
-            email, { email = it }, label = { Text("Email address") },
+            email, { email = it }, label = { Text(uiText(R.string.ui_email_address_f2488fd, "Email address")) },
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email, imeAction = ImeAction.Next),
             modifier = Modifier.fillMaxWidth(),
             shape = RoundedCornerShape(14.dp),
             isError = email.isNotBlank() && !looksLikeEmail(email), singleLine = true
         )
         if (email.isNotBlank() && !looksLikeEmail(email)) {
-            Text("Enter a valid email address.", color = MaterialTheme.colorScheme.error,
+            Text(uiText(R.string.ui_enter_a_valid_email_address_8a966af, "Enter a valid email address."), color = MaterialTheme.colorScheme.error,
                 style = MaterialTheme.typography.bodySmall)
         }
-        PasswordInput("Password", password, { password = it }, imeAction = ImeAction.Done)
+        PasswordInput(uiText(R.string.ui_password_e7cf3ef, "Password"), password, { password = it }, imeAction = ImeAction.Done)
         Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.End) {
             TextButton(onClick = onForgotPassword, enabled = !state.busy) {
-                Text("Forgot password?")
+                Text(uiText(R.string.ui_forgot_password_30c1d8d, "Forgot password?"))
             }
         }
         Feedback(state)
         PhotoAuthPrimaryButton(
-            label = "Log in",
+            label = uiText(R.string.ui_log_in_c189840, "Log in"),
             onClick = { onSubmit(email.trim(), password) },
             enabled = !state.busy && ready
         )
-        Text("New here?", color = MaterialTheme.colorScheme.onSurfaceVariant,
+        Text(uiText(R.string.ui_new_here_38c1c44, "New here?"), color = MaterialTheme.colorScheme.onSurfaceVariant,
             modifier = Modifier.align(Alignment.CenterHorizontally))
         OutlinedButton(
             onClick = onRegister, enabled = !state.busy,
             modifier = Modifier.fillMaxWidth().defaultMinSize(minHeight = 48.dp),
             shape = RoundedCornerShape(14.dp)
-        ) { Text("Create account") }
+        ) { Text(uiText(R.string.ui_create_account_798ca2c, "Create account")) }
     }
 }
 
@@ -122,52 +125,52 @@ fun RegisterScreen(
     val canCreate = registrationReady(name, email, password)
 
     PhotoAuthScaffold(
-        headline = "Grow with confidence.",
-        description = "Plan crops, organize fieldwork and manage your farm in one place.",
-        formTitle = "Create your account",
-        formSubtitle = "One account can manage a farm or join a team.",
+        headline = uiText(R.string.ui_grow_with_confidence_acd8219, "Grow with confidence."),
+        description = uiText(R.string.ui_plan_crops_organize_fieldwork_and_manage_your_farm_i_6c3d320, "Plan crops, organize fieldwork and manage your farm in one place."),
+        formTitle = uiText(R.string.ui_create_your_account_9e70934, "Create your account"),
+        formSubtitle = uiText(R.string.ui_one_account_can_manage_a_farm_or_join_a_team_3972cf8, "One account can manage a farm or join a team."),
         compactHero = true
     ) {
         OutlinedTextField(
-            name, { name = it }, label = { Text("Full name") },
+            name, { name = it }, label = { Text(uiText(R.string.ui_full_name_f13a64b, "Full name")) },
             modifier = Modifier.fillMaxWidth(), singleLine = true,
             shape = RoundedCornerShape(14.dp),
             keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next),
             isError = name.isNotBlank() && name.trim().length !in 2..120
         )
         OutlinedTextField(
-            email, { email = it }, label = { Text("Email address") },
+            email, { email = it }, label = { Text(uiText(R.string.ui_email_address_f2488fd, "Email address")) },
             modifier = Modifier.fillMaxWidth(), singleLine = true,
             shape = RoundedCornerShape(14.dp),
             isError = email.isNotBlank() && !looksLikeEmail(email),
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email, imeAction = ImeAction.Next)
         )
         if (email.isNotBlank() && !looksLikeEmail(email)) {
-            Text("Enter a valid email address.", color = MaterialTheme.colorScheme.error,
+            Text(uiText(R.string.ui_enter_a_valid_email_address_8a966af, "Enter a valid email address."), color = MaterialTheme.colorScheme.error,
                 style = MaterialTheme.typography.bodySmall)
         }
         PasswordInput(
-            "Password", password, { password = it },
+            uiText(R.string.ui_password_e7cf3ef, "Password"), password, { password = it },
             imeAction = ImeAction.Done,
             error = password.isNotBlank() && !meetsPasswordGuidance(password)
         )
-        Text("Use 10–128 characters with uppercase, lowercase and a number.",
+        Text(uiText(R.string.ui_use_10_128_characters_with_uppercase_lowercase_and_a_47fe104, "Use 10–128 characters with uppercase, lowercase and a number."),
             color = MaterialTheme.colorScheme.onSurfaceVariant,
             style = MaterialTheme.typography.bodySmall)
         Feedback(state)
         PhotoAuthPrimaryButton(
-            label = "Create account",
+            label = uiText(R.string.ui_create_account_798ca2c, "Create account"),
             onClick = { onSubmit(name.trim(), email.trim(), password) },
             enabled = !state.busy && canCreate
         )
-        Text("After registering, sign in to create a farm or request to join one.",
+        Text(uiText(R.string.ui_after_registering_sign_in_to_create_a_farm_or_reques_75ec908, "After registering, sign in to create a farm or request to join one."),
             color = MaterialTheme.colorScheme.onSurfaceVariant,
             style = MaterialTheme.typography.bodySmall)
         OutlinedButton(
             onClick = onLogin, enabled = !state.busy,
             modifier = Modifier.fillMaxWidth().defaultMinSize(minHeight = 48.dp),
             shape = RoundedCornerShape(14.dp)
-        ) { Text("Log in instead") }
+        ) { Text(uiText(R.string.ui_log_in_instead_9b718a8, "Log in instead")) }
     }
 }
 
@@ -178,24 +181,24 @@ fun RegisterScreen(
 @Composable
 fun ForgotPasswordScreen(onLogin: () -> Unit) {
     PhotoAuthScaffold(
-        headline = "Need help signing in?",
-        description = "Keep your farm work within reach.",
-        formTitle = "Forgot your password?",
-        formSubtitle = "Account recovery information",
+        headline = uiText(R.string.ui_need_help_signing_in_d860242, "Need help signing in?"),
+        description = uiText(R.string.ui_keep_your_farm_work_within_reach_947bdf3, "Keep your farm work within reach."),
+        formTitle = uiText(R.string.ui_forgot_your_password_afd25fd, "Forgot your password?"),
+        formSubtitle = uiText(R.string.ui_account_recovery_information_93e20a3, "Account recovery information"),
         compactHero = true
     ) {
         Text(
-            "Email password reset is not available yet.",
+            uiText(R.string.ui_email_password_reset_is_not_available_yet_6b700d6, "Email password reset is not available yet."),
             color = MaterialTheme.colorScheme.onSurface,
             style = MaterialTheme.typography.bodyLarge
         )
         Text(
-            "No reset link can be sent yet. Contact your system administrator for account assistance.",
+            uiText(R.string.ui_no_reset_link_can_be_sent_yet_contact_your_system_ad_2ab4cad, "No reset link can be sent yet. Contact your system administrator for account assistance."),
             color = MaterialTheme.colorScheme.onSurfaceVariant,
             style = MaterialTheme.typography.bodyMedium
         )
         if (com.smartfarm.mobile.ui.components.LocalPageNavigation.current?.onBack == null) {
-            PhotoAuthPrimaryButton("Back to log in", onClick = onLogin)
+            PhotoAuthPrimaryButton(uiText(R.string.ui_back_to_log_in_30a8b4c, "Back to log in"), onClick = onLogin)
         }
     }
 }
@@ -206,8 +209,9 @@ fun AccountScreen(state: AuthUiState, onLogout: () -> Unit, onFarms: () -> Unit,
     pendingSyncCount: Int = 0, onReplayGuide: (() -> Unit)? = null) {
     var confirmingLogout by rememberSaveable { mutableStateOf(false) }
     val name = state.account?.fullName.orEmpty()
-    AuthScaffold("My account", "Your details and personal app settings.") {
-        FarmSectionCard("Signed in as") {
+    AuthScaffold(uiText(R.string.ui_my_account_b53181a, "My account"), uiText(R.string.ui_your_details_and_personal_app_settings_2e54b7f, "Your details and personal app settings.")) {
+        com.smartfarm.mobile.localization.LanguagePicker()
+        FarmSectionCard(uiText(R.string.ui_signed_in_as_abc50e3, "Signed in as")) {
             val initial = name.trim().firstOrNull()?.uppercaseChar()?.toString() ?: "A"
             Row(verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.spacedBy(14.dp)) {
@@ -225,85 +229,85 @@ fun AccountScreen(state: AuthUiState, onLogout: () -> Unit, onFarms: () -> Unit,
                         color = MaterialTheme.colorScheme.onSurfaceVariant)
                 }
             }
-            Text("Farm roles and membership are managed in each farm's Team & access section.",
+            Text(uiText(R.string.ui_farm_roles_and_membership_are_managed_in_each_farm_s_3301c40, "Farm roles and membership are managed in each farm's Team & access section."),
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant)
             Button(onClick = onFarms,
                 modifier = Modifier.fillMaxWidth().defaultMinSize(minHeight = 48.dp)) {
-                Text("My farms")
+                Text(uiText(R.string.ui_my_farms_0517a09, "My farms"))
             }
         }
-        FarmSectionCard("Appearance", subtitle = "Choose a comfortable display for fieldwork.") {
+        FarmSectionCard(uiText(R.string.ui_appearance_3907fa7, "Appearance"), subtitle = uiText(R.string.ui_choose_a_comfortable_display_for_fieldwork_73b2bf0, "Choose a comfortable display for fieldwork.")) {
             val appearance = LocalFarmAppearance.current
             Row(Modifier.fillMaxWidth()
                 .toggleable(value = appearance.dark, role = Role.Switch,
                     onValueChange = appearance.selectDark)
-                .semantics { contentDescription = "Dark theme" }
+                .semantics { contentDescription = uiText(R.string.ui_dark_theme_3f11a5c, "Dark theme") }
                 .padding(vertical = 8.dp),
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.SpaceBetween) {
-                Text("Dark theme", style = MaterialTheme.typography.bodyLarge)
+                Text(uiText(R.string.ui_dark_theme_3f11a5c, "Dark theme"), style = MaterialTheme.typography.bodyLarge)
                 Switch(checked = appearance.dark, onCheckedChange = null)
             }
         }
         if (onReplayGuide != null) {
-            FarmSectionCard("Help & onboarding",
-                subtitle = "Review how to organize farms, crops, fieldwork, and harvests.") {
+            FarmSectionCard(uiText(R.string.ui_help_onboarding_a9e1e52, "Help & onboarding"),
+                subtitle = uiText(R.string.ui_review_how_to_organize_farms_crops_fieldwork_and_har_821be15, "Review how to organize farms, crops, fieldwork, and harvests.")) {
                 OutlinedButton(
                     onClick = onReplayGuide,
                     modifier = Modifier.fillMaxWidth().defaultMinSize(minHeight = 48.dp)
                         .testTag("replay-anigo-guide")
                 ) {
-                    Text("Replay AniGo guide")
+                    Text(uiText(R.string.ui_replay_anigo_guide_db21536, "Replay AniGo guide"))
                 }
             }
         }
         if (pendingSyncCount > 0) {
-            FarmSectionCard("Work saved on this phone",
-                subtitle = "These records have not yet been confirmed by the server.") {
-                Text("$pendingSyncCount saved ${if (pendingSyncCount == 1) "record" else "records"} waiting or needing review.",
+            FarmSectionCard(uiText(R.string.ui_work_saved_on_this_phone_af769c5, "Work saved on this phone"),
+                subtitle = uiText(R.string.ui_these_records_have_not_yet_been_confirmed_by_the_ser_bd2209e, "These records have not yet been confirmed by the server.")) {
+                Text(uiText(R.string.ui_1_s_saved_2_s_waiting_or_needing_review_c26f284, "%1\$s saved %2\$s waiting or needing review.", (pendingSyncCount), (if (pendingSyncCount == 1) "record" else "records")),
                     style = MaterialTheme.typography.titleSmall)
                 Button(onClick = onSync, modifier = Modifier.fillMaxWidth()
                     .defaultMinSize(minHeight = 48.dp)) {
-                    Text("Review offline sync")
+                    Text(uiText(R.string.ui_review_offline_sync_31b3cbe, "Review offline sync"))
                 }
             }
         }
-        FarmSectionCard("Other shortcuts") {
+        FarmSectionCard(uiText(R.string.ui_other_shortcuts_44725ba, "Other shortcuts")) {
             OutlinedButton(onClick = onNotifications,
                 modifier = Modifier.fillMaxWidth().defaultMinSize(minHeight = 48.dp)) {
-                Text("Notifications")
+                Text(uiText(R.string.ui_notifications_7880118, "Notifications"))
             }
             if (pendingSyncCount == 0) {
                 OutlinedButton(onClick = onSync,
                     modifier = Modifier.fillMaxWidth().defaultMinSize(minHeight = 48.dp)) {
-                    Text("Offline sync")
+                    Text(uiText(R.string.ui_offline_sync_843fdb9, "Offline sync"))
                 }
             }
         }
         OutlinedButton(onClick = { confirmingLogout = true }, enabled = !state.busy,
             modifier = Modifier.fillMaxWidth().defaultMinSize(minHeight = 48.dp)
                 .testTag("request-sign-out")) {
-            Text("Sign out")
+            Text(uiText(R.string.ui_sign_out_48f0d3d, "Sign out"))
         }
     }
     if (confirmingLogout) {
         AlertDialog(onDismissRequest = { confirmingLogout = false },
-            title = { Text("Sign out of your account?") },
+            title = { Text(uiText(R.string.ui_sign_out_of_your_account_b9a5c73, "Sign out of your account?")) },
             text = {
                 Text(if (pendingSyncCount > 0)
-                    "$pendingSyncCount unsynced ${if (pendingSyncCount == 1) "record is" else "records are"} saved on this phone for this account. " +
-                        "They will not sync while signed out. Sign back into the same account to resume. Unsaved form changes may be lost."
-                else "Unsaved form changes may be lost. Your server-confirmed farm records will stay available when you sign back in.")
+                    uiText(R.string.ui_1_s_unsynced_2_s_saved_on_this_phone_for_this_accoun_2fe1db1, "%1\$s unsynced %2\$s saved on this phone for this account. ", (pendingSyncCount), (if (pendingSyncCount == 1) "record is" else "records are")) +
+                        uiText(R.string.ui_they_will_not_sync_while_signed_out_sign_back_into_t_b536edf, "They will not sync while signed out. Sign back into the same account to resume. Unsaved form changes may be lost.")
+                else uiText(R.string.ui_unsaved_form_changes_may_be_lost_your_server_confirm_637f7db, "Unsaved form changes may be lost. Your server-confirmed farm records will stay available when you sign back in."))
             },
             confirmButton = {
                 TextButton(onClick = {
                     confirmingLogout = false
                     onLogout()
-                }, modifier = Modifier.testTag("confirm-sign-out")) { Text("Sign out") }
+                }, modifier = Modifier.testTag("confirm-sign-out")) { Text(uiText(R.string.ui_sign_out_48f0d3d, "Sign out")) }
             },
             dismissButton = {
-                TextButton(onClick = { confirmingLogout = false }) { Text("Keep working") }
+                TextButton(onClick = { confirmingLogout = false }) { Text(uiText(R.string.ui_keep_working_5ed03f2, "Keep working")) }
             }
         )
     }
@@ -321,7 +325,7 @@ private fun PasswordInput(label: String, value: String, onChange: (String) -> Un
         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password, imeAction = imeAction),
         trailingIcon = {
             TextButton(onClick = { visible = !visible }) {
-                Text(if (visible) "Hide" else "Show")
+                Text(if (visible) uiText(R.string.ui_hide_ac20a57, "Hide") else uiText(R.string.ui_show_0df6f1c, "Show"))
             }
         }
     )
@@ -331,11 +335,11 @@ private fun PasswordInput(label: String, value: String, onChange: (String) -> Un
 private fun Feedback(state: AuthUiState) {
     if (state.busy) CircularProgressIndicator()
     state.error?.let {
-        Text(it, color = MaterialTheme.colorScheme.error,
+        Text(com.smartfarm.mobile.localization.systemMessage(it), color = MaterialTheme.colorScheme.error,
             modifier = Modifier.semantics { liveRegion = LiveRegionMode.Assertive })
     }
     state.notice?.let {
-        Text(it, color = MaterialTheme.colorScheme.primary,
+        Text(com.smartfarm.mobile.localization.systemMessage(it), color = MaterialTheme.colorScheme.primary,
             modifier = Modifier.semantics { liveRegion = LiveRegionMode.Polite })
     }
 }

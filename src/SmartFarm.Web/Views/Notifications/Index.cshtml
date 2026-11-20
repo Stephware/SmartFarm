@@ -1,6 +1,6 @@
 @model IReadOnlyList<SmartFarm.Core.Contracts.Tasks.NotificationDetails>
 @{
-    ViewData["Title"] = "Notifications";
+    ViewData["Title"] = T["Notifications"];
     var unreadCount = Model.Count(notification => notification.ReadAtUtc is null);
     var unreadOnly = string.Equals(Context.Request.Query["view"].ToString(), "unread", StringComparison.OrdinalIgnoreCase);
     var shown = (unreadOnly ? Model.Where(notification => notification.ReadAtUtc is null) : Model)
@@ -16,42 +16,42 @@
 <section class="panel card sf-notifications-hero ani-p2-hero" aria-labelledby="notifications-heading">
     <div class="sf-page-header page-hero">
         <div>
-            <p><a class="anigo-back-control" asp-controller="Farms" asp-action="Index" title="Back to my farms"><partial name="_Icon" model='@("chevLeft")' /><span class="visually-hidden">Back to my farms</span></a></p>
+            <p><a class="anigo-back-control" asp-controller="Farms" asp-action="Index" title="@T["Back to my farms"]"><partial name="_Icon" model='@("chevLeft")' /><span class="visually-hidden">@T["Back to my farms"]</span></a></p>
 
-            <h1 id="notifications-heading">Notifications</h1>
-            <p class="sf-muted">Recent updates and saved reminders for your farms.</p>
+            <h1 id="notifications-heading">@T["Notifications"]</h1>
+            <p class="sf-muted">@T["Recent updates and saved reminders for your farms."]</p>
         </div>
         <div class="sf-notifications-count">
             <strong>@unreadCount</strong>
-            <span>Recent unread</span>
+            <span>@T["Recent unread"]</span>
         </div>
     </div>
-    <details class="ani-p2-quiet-note"><summary>How notifications work</summary><p>These are saved notices, not live push alerts. Marking one as read does not complete a task or resolve an advisory.</p></details>
+    <details class="ani-p2-quiet-note"><summary>@T["How notifications work"]</summary><p>@T["These are saved notices, not live push alerts. Marking one as read does not complete a task or resolve an advisory."]</p></details>
     @if (TempData["Message"] is string message) { <p class="form-notice" role="status">@message</p> }
 </section>
 <section class="panel card sf-notifications-panel" aria-labelledby="notifications-list-heading">
     <div class="sf-section-line card-head">
-        <h2 id="notifications-list-heading">Recent notifications</h2>
-        <span>@visibleNotifications.Count on this page · @shown.Count matching · @Model.Count recent</span>
+        <h2 id="notifications-list-heading">@T["Recent notifications"]</h2>
+        <span>@T["{0} on this page · {1} matching · {2} recent", visibleNotifications.Count, shown.Count, Model.Count]</span>
     </div>
     @if (Model.Count == 100)
     {
-        <p class="sf-muted">Showing the 100 most recent notices. Older messages are not listed here.</p>
+        <p class="sf-muted">@T["Showing the 100 most recent notices. Older messages are not listed here."]</p>
     }
-    <nav class="ani-inbox-tabs" aria-label="Notification filters">
+    <nav class="ani-inbox-tabs" aria-label="@T["Notification filters"]">
         <a asp-controller="Notifications" asp-action="Index" asp-fragment="notifications-list-heading" class="@(!unreadOnly ? "is-active" : "")"
-           aria-current="@(!unreadOnly ? "page" : null)">All (@Model.Count)</a>
+           aria-current="@(!unreadOnly ? "page" : null)">@T["All ("]@Model.Count)</a>
         <a asp-controller="Notifications" asp-action="Index" asp-route-view="unread" asp-fragment="notifications-list-heading"
            class="@(unreadOnly ? "is-active" : "")"
-           aria-current="@(unreadOnly ? "page" : null)">Unread (@unreadCount)</a>
+           aria-current="@(unreadOnly ? "page" : null)">@T["Unread ("]@unreadCount)</a>
     </nav>
     @if (shown.Count == 0)
     {
         <partial name="_UiEmptyState" model='@(new UiEmptyState(
-            unreadOnly ? "No unread recent notices." : "No notifications yet.",
-            unreadOnly ? "There are no unread notices in the recent list. You can review recent messages."
-                : "Farm updates, task reminders and saved weather notices appear here.",
-            unreadOnly ? "View recent notifications →" : null,
+            unreadOnly ? T["No unread recent notices."] : T["No notifications yet."],
+            unreadOnly ? T["There are no unread notices in the recent list. You can review recent messages."]
+                : T["Farm updates, task reminders and saved weather notices appear here."],
+            unreadOnly ? T["View recent notifications →"].Value : null,
             unreadOnly ? Url.Action("Index", "Notifications") : null))' />
     }
     else
@@ -66,21 +66,21 @@
                         <strong>@notification.Title</strong>
                         @if (notification.ReadAtUtc is null)
                         {
-                            <partial name="_UiStatusChip" model='@(new UiStatusChip("Unread", "sf-status-chip--planned"))' />
+                            <partial name="_UiStatusChip" model='@(new UiStatusChip(T["Unread"], "sf-status-chip--planned"))' />
                         }
                     </div>
                     <p>@notification.Message</p>
-                    <time datetime="@notification.CreatedAtUtc.ToString("yyyy-MM-ddTHH:mm:ssZ")">@notification.CreatedAtUtc.ToString("MMM d, yyyy HH:mm") UTC</time>
+                    <time datetime="@notification.CreatedAtUtc.ToString("yyyy-MM-ddTHH:mm:ssZ")" data-notification-time="@notification.Id" data-unavailable="@T["Time unavailable"]">@T["Loading local time…"]</time>
                     @if (notification.FarmTaskId.HasValue)
                     {
-                        <p class="ani-notification-next">Task reminder · Open your farm's Tasks page to review or complete it.</p>
+                        <p class="ani-notification-next">@T["Task reminder · Open your farm's Tasks page to review or complete it."]</p>
                     }
                     @if (notification.ReadAtUtc is null)
                     {
                         <form asp-action="Read" asp-route-id="@notification.Id" method="post">
                             <input type="hidden" name="returnView" value="@(unreadOnly ? "unread" : "all")" />
                             <input type="hidden" name="returnPage" value="@currentPage" />
-                            <button type="submit" class="sf-notification-read-button">Mark as read</button>
+                            <button type="submit" class="sf-notification-read-button">@T["Mark as read"]</button>
                         </form>
                     }
                 </div>
@@ -89,19 +89,19 @@
         </ul>
         @if (pageCount > 1)
         {
-            <nav class="ani-p4-pager" aria-label="Notification pages">
-                <span>Page @currentPage of @pageCount</span>
+            <nav class="ani-p4-pager" aria-label="@T["Notification pages"]">
+                <span>@T["{0} {1} of {2}", T["Page"], currentPage, pageCount]</span>
                 @if (currentPage > 1)
                 {
                     <a asp-controller="Notifications" asp-action="Index"
                        asp-route-view="@(unreadOnly ? "unread" : null)"
-                       asp-route-page="@(currentPage - 1)" asp-fragment="notifications-list-heading" rel="prev">Previous</a>
+                       asp-route-page="@(currentPage - 1)" asp-fragment="notifications-list-heading" rel="prev">@T["Previous"]</a>
                 }
                 @if (currentPage < pageCount)
                 {
                     <a asp-controller="Notifications" asp-action="Index"
                        asp-route-view="@(unreadOnly ? "unread" : null)"
-                       asp-route-page="@(currentPage + 1)" asp-fragment="notifications-list-heading" rel="next">Next</a>
+                       asp-route-page="@(currentPage + 1)" asp-fragment="notifications-list-heading" rel="next">@T["Next"]</a>
                 }
             </nav>
         }

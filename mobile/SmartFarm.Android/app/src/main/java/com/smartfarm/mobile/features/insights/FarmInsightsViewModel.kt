@@ -1,5 +1,8 @@
 package com.smartfarm.mobile.features.insights
 
+import com.smartfarm.mobile.R
+import com.smartfarm.mobile.localization.uiText
+
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
@@ -42,7 +45,7 @@ class FarmInsightsViewModel(private val repo: FarmInsightsRepository) : ViewMode
                 catch (_: Exception) { null }
                 mutable.value = mutable.value.copy(
                     harvest = harvest,
-                    harvestError = if (harvest == null) "Harvest report unavailable. Connect and retry." else null
+                    harvestError = if (harvest == null) uiText(R.string.ui_harvest_report_unavailable_connect_and_retry_9c05b89, "Harvest report unavailable. Connect and retry.") else null
                 )
             } catch (cancelled: CancellationException) {
                 throw cancelled

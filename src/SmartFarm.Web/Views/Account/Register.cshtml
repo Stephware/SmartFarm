@@ -1,6 +1,6 @@
 @model SmartFarm.Web.ViewModels.Auth.RegisterInput
 @{
-    ViewData["Title"] = "Register";
+    ViewData["Title"] = T["Register"];
     var nextUrl = ViewData["ReturnUrl"] as string;
 }
 <div class="auth-layout ani-entry-auth-layout">
@@ -8,27 +8,27 @@
         <img class="ani-entry-auth-photo" src="~/images/photography/farmers-working.webp"
              alt="" width="900" height="1120" loading="lazy" decoding="async" />
         <div class="ani-entry-auth-visual-content">
-            <span class="ani-entry-auth-kicker">GROW TOGETHER</span>
-            <h2>One good place to start. Everything you need to keep growing.</h2>
-            <p>Build your own farm workspace or request access to a team you're already working with.</p>
+            <span class="ani-entry-auth-kicker">@T["GROW TOGETHER"]</span>
+            <h2>@T["One good place to start. Everything you need to keep growing."]</h2>
+            <p>@T["Build your own farm workspace or request access to a team you're already working with."]</p>
             
         </div>
     </aside>
     <section class="panel auth-card ani-entry-auth-card" aria-labelledby="register-heading">
         <div class="auth-heading">
-            <p class="ani-entry-eyebrow">YOUR FIRST STEP</p>
-            <h1 id="register-heading">Create your account</h1>
-            <p>Set up your account first, then choose to create a farm or request to join one.</p>
-            <ol class="ani-auth-steps ani-entry-registration-steps" aria-label="Getting started">
-                <li aria-current="step"><strong>1. Account</strong><span class="ani-step-now">You're here</span></li>
-                <li><strong>2. Farm</strong><span>Create or request access</span></li>
-                <li><strong>3. Work</strong><span>Get started</span></li>
+            <p class="ani-entry-eyebrow">@T["YOUR FIRST STEP"]</p>
+            <h1 id="register-heading">@T["Create your account"]</h1>
+            <p>@T["Set up your account first, then choose to create a farm or request to join one."]</p>
+            <ol class="ani-auth-steps ani-entry-registration-steps" aria-label="@T["Getting started"]">
+                <li aria-current="step"><strong>@T["1. Account"]</strong><span class="ani-step-now">@T["You're here"]</span></li>
+                <li><strong>@T["2. Farm"]</strong><span>@T["Create or request access"]</span></li>
+                <li><strong>@T["3. Work"]</strong><span>@T["Get started"]</span></li>
             </ol>
         </div>
         <form method="post" asp-action="Register" asp-controller="Account" asp-route-returnUrl="@nextUrl" class="auth-form">
             <div class="form-field">
-                <label asp-for="FullName">Full name</label>
-                <input asp-for="FullName" autocomplete="name" required placeholder="Your full name" />
+                <label asp-for="FullName">@T["Full name"]</label>
+                <input asp-for="FullName" autocomplete="name" required placeholder="@T["Your full name"]" />
                 <span asp-validation-for="FullName" class="error"></span>
             </div>
             <div class="form-field">
@@ -41,23 +41,23 @@
                 <label asp-for="Password"></label>
                 <div class="ani-password-field">
                     <input asp-for="Password" type="password" autocomplete="new-password"
-                           aria-describedby="password-guidance" required minlength="10" placeholder="Password" />
+                           aria-describedby="password-guidance" required minlength="10" placeholder="@T["Password"]" />
                     <button type="button" class="ani-password-toggle" data-password-toggle
-                            aria-controls="Password" aria-pressed="false">Show</button>
+                            aria-controls="Password" aria-pressed="false">@T["Show"]</button>
                 </div>
                 <span asp-validation-for="Password" class="error"></span>
-                <p class="hint" id="password-guidance">Use at least 10 characters, including uppercase, lowercase, and a number.</p>
+                <p class="hint" id="password-guidance">@T["Use at least 10 characters, including uppercase, lowercase, and a number."]</p>
             </div>
-            <button class="auth-submit" type="submit">Create account</button>
+            <button class="auth-submit" type="submit">@T["Create account"]</button>
         </form>
         @if (!string.IsNullOrEmpty(nextUrl))
         {
-            <p class="ani-auth-fineprint" role="status">Your selected next step will be ready after sign-in. Joining a farm still requires the owner's approval.</p>
+            <p class="ani-auth-fineprint" role="status">@T["Your selected next step will be ready after sign-in. Joining a farm still requires the owner's approval."]</p>
         }
         else
         {
-            <p class="ani-auth-fineprint">After registration, sign in and choose <strong>Create farm</strong> or <strong>Join farm</strong>. A farm owner must approve join requests.</p>
+            <p class="ani-auth-fineprint">@T["After registration, sign in and choose"] <strong>@T["Create farm"]</strong> @T["or"] <strong>@T["Join farm"]</strong>@T[". A farm owner must approve join requests."]</p>
         }
-        <p class="auth-switch">Already have an account? <a asp-controller="Account" asp-action="Login" asp-route-returnUrl="@nextUrl">Log in</a>.</p>
+        <p class="auth-switch">@T["Already have an account?"] <a asp-controller="Account" asp-action="Login" asp-route-returnUrl="@nextUrl">@T["Log in"]</a>.</p>
     </section>
 </div>

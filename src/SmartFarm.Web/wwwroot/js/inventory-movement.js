@@ -1,6 +1,7 @@
 // Helps farmers understand which stock movement fields are required.
 // The server remains authoritative for roles, linked crop activity, and balances.
 (() => {
+    const text = english => globalThis.anigoText?.[english] ?? english;
     const form = document.querySelector("[data-inventory-movement-form]");
     if (!form) return;
     const kind = form.querySelector("[data-movement-kind]");
@@ -22,14 +23,14 @@
         reason.required = correction;
         quantity.min = correction ? "" : "0.001";
         hint.textContent = used
-            ? "Enter a positive amount actually used. It is subtracted from stock and must match a recorded crop activity."
+            ? text("Enter a positive amount actually used. It is subtracted from stock and must match a recorded crop activity.")
             : correction
-                ? "Enter a positive or negative correction (not the final stock balance). Add a reason for the change."
-                : "Enter the positive quantity received. It will be added to the current stock balance.";
+                ? text("Enter a positive or negative correction (not the final stock balance). Add a reason for the change.")
+                : text("Enter the positive quantity received. It will be added to the current stock balance.");
         const noRecordedActivity = used && activity.options.length < 2;
         submit.disabled = noRecordedActivity;
         if (noRecordedActivity) {
-            hint.textContent += " Record fieldwork first to link the stock usage.";
+            hint.textContent += text(" Record fieldwork first to link the stock usage.");
         }
     };
     kind.addEventListener("change", update);

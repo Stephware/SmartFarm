@@ -82,7 +82,7 @@ test('server farm links remain unique and contain a harvest-report destination',
     const sections = [...razor.matchAll(/data-nav-section="([^"]+)"/g)].map(match => match[1]);
     assert.equal(sections.length, new Set(sections).size);
     assert.deepEqual(sections, ['dashboard', 'crops', 'inventory', 'reports', 'farm']);
-    for (const label of ['Today', 'Crops &amp; Calendar', 'Supplies', 'Harvests']) assert.ok(razor.includes(label));
+    for (const label of ['Today', 'Crops & Calendar', 'Supplies', 'Harvests']) assert.ok(razor.includes('@T[' + JSON.stringify(label) + ']'));
     assert.ok(!sections.includes('harvests'), 'same report must not appear twice');
     assert.match(razor, /asp-controller="Reports"\s+asp-action="Harvests"/);
 });

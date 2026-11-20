@@ -1,5 +1,6 @@
 (() => {
-  "use strict";
+    "use strict";
+    const text = english => globalThis.anigoText?.[english] ?? english;
 
   for (const root of document.querySelectorAll("[data-farm-location-picker]")) {
     const form = root.closest("form");
@@ -23,7 +24,7 @@
       Math.abs(initialLat) <= 90 && Math.abs(initialLon) <= 180;
 
     if (!window.L) {
-      setStatus("Map could not load. Enter the farm location as text and try again later.");
+      setStatus(text("Map could not load. Enter the farm location as text and try again later."));
       continue;
     }
     const map = L.map(mapEl, { scrollWheelZoom: false }).setView(
@@ -47,7 +48,7 @@
         });
       }
       if (zoom !== null) map.setView([lat, lon], zoom);
-      setStatus("Farm pin saved. Drag it or tap the map to adjust. An address or area name is also required.");
+      setStatus(text("Farm pin saved. Drag it or tap the map to adjust. An address or area name is also required."));
     };
     if (initial) showPoint(initialLat, initialLon, 15);
     map.on("click", e => showPoint(e.latlng.lat, e.latlng.lng, null));
@@ -57,33 +58,33 @@
       latitudeField.value = "";
       longitudeField.value = "";
       if (pin) { map.removeLayer(pin); pin = null; }
-      setStatus("Tap the map to select the exact farm location.");
+      setStatus(text("Tap the map to select the exact farm location."));
     });
     clearButton.addEventListener("click", () => {
       latitudeField.value = "";
       longitudeField.value = "";
       if (pin) { map.removeLayer(pin); pin = null; }
-      setStatus("Pin removed. Weather needs a map pin; the location name can still be saved.");
+      setStatus(text("Pin removed. Weather needs a map pin; the location name can still be saved."));
     });
 
     const search = async () => {
       const query = queryField.value.trim();
       results.replaceChildren();
       if (query.length < 3 || query.length > 120) {
-        setStatus("Type at least 3 characters to search for a place.");
+        setStatus(text("Type at least 3 characters to search for a place."));
         return;
       }
       searchButton.disabled = true;
-      setStatus("Searching locations...");
+      setStatus(text("Searching locations..."));
       try {
         const response = await fetch(root.dataset.searchUrl + "?query=" + encodeURIComponent(query), {
           credentials: "same-origin",
           headers: { "Accept": "application/json" }
         });
-        if (!response.ok) throw new Error("Search unavailable");
+        if (!response.ok) throw new Error(text("Search unavailable"));
         const places = await response.json();
         if (!Array.isArray(places) || places.length === 0) {
-          setStatus("No matching places. Try a nearby barangay or select the farm on the map.");
+          setStatus(text("No matching places. Try a nearby barangay or select the farm on the map."));
           return;
         }
         for (const place of places) {
@@ -97,9 +98,9 @@
           });
           results.append(button);
         }
-        setStatus("Choose a result, then adjust the pin to your actual farm.");
+        setStatus(text("Choose a result, then adjust the pin to your actual farm."));
       } catch {
-        setStatus("Search is unavailable. You can enter the location name and tap the map instead.");
+        setStatus(text("Search is unavailable. You can enter the location name and tap the map instead."));
       } finally {
         searchButton.disabled = false;
       }
@@ -109,17 +110,17 @@
       if (e.key === "Enter") { e.preventDefault(); search(); }
     });
     gpsButton.addEventListener("click", () => {
-      if (!navigator.geolocation) { setStatus("Current location is unavailable on this device."); return; }
-      setStatus("Finding your current location...");
+      if (!navigator.geolocation) { setStatus(text("Current location is unavailable on this device.")); return; }
+      setStatus(text("Finding your current location..."));
       navigator.geolocation.getCurrentPosition(
         location => showPoint(location.coords.latitude, location.coords.longitude),
-        () => setStatus("Could not get your location. Search or tap the map instead."),
+        () => setStatus(text("Could not get your location. Search or tap the map instead.")),
         { enableHighAccuracy: true, timeout: 12000, maximumAge: 0 });
     });
     form.addEventListener("submit", e => {
       if (Boolean(latitudeField.value) !== Boolean(longitudeField.value)) {
         e.preventDefault();
-        setStatus("Choose a complete map location or clear the pin.");
+        setStatus(text("Choose a complete map location or clear the pin."));
       }
     });
     // The optional map is initially collapsed to keep farm setup short.

@@ -1,5 +1,8 @@
 package com.smartfarm.mobile.features.farms
 
+import com.smartfarm.mobile.R
+import com.smartfarm.mobile.localization.uiText
+
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -37,20 +40,20 @@ internal fun FarmSetupGuide(farmId: String, hasPlots: Boolean, cropState: CropUi
     var hidden by remember(key) { mutableStateOf(prefs.getBoolean(key, false)) }
     fun dismiss() { prefs.edit().putBoolean(key, true).apply(); hidden = true }
     if (hidden) {
-        TextButton(onClick = { hidden = false }) { Text("Help from Ani") }
+        TextButton(onClick = { hidden = false }) { Text(uiText(R.string.ui_help_from_ani_0a96868, "Help from Ani")) }
         return
     }
     val title = when (next) {
-        FarmSetupNext.AddPlot -> "Add your first plot"
-        FarmSetupNext.StartCrop -> "Start your planned crop"
-        FarmSetupNext.Record -> "Record your fieldwork"
-        else -> "Plan a crop"
+        FarmSetupNext.AddPlot -> uiText(R.string.ui_add_your_first_plot_5e0c31f, "Add your first plot")
+        FarmSetupNext.StartCrop -> uiText(R.string.ui_start_your_planned_crop_75ee7bb, "Start your planned crop")
+        FarmSetupNext.Record -> uiText(R.string.ui_record_your_fieldwork_626646f, "Record your fieldwork")
+        else -> uiText(R.string.ui_plan_a_crop_b56f05c, "Plan a crop")
     }
     val message = when (next) {
-        FarmSetupNext.AddPlot -> "Give your growing area a name and size before planning a crop."
-        FarmSetupNext.StartCrop -> "When you plant, open the plan and start its growing cycle."
-        FarmSetupNext.Record -> "Record watering, inspections, photos and partial harvests from Record."
-        else -> "Choose what to grow and when to plant in your plot."
+        FarmSetupNext.AddPlot -> uiText(R.string.ui_give_your_growing_area_a_name_and_size_before_planni_8c7495c, "Give your growing area a name and size before planning a crop.")
+        FarmSetupNext.StartCrop -> uiText(R.string.ui_when_you_plant_open_the_plan_and_start_its_growing_c_5390541, "When you plant, open the plan and start its growing cycle.")
+        FarmSetupNext.Record -> uiText(R.string.ui_record_watering_inspections_photos_and_partial_harve_945fa96, "Record watering, inspections, photos and partial harvests from Record.")
+        else -> uiText(R.string.ui_choose_what_to_grow_and_when_to_plant_in_your_plot_3c06171, "Choose what to grow and when to plant in your plot.")
     }
     FarmSectionCard(title) {
         Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
@@ -62,15 +65,15 @@ internal fun FarmSetupGuide(farmId: String, hasPlots: Boolean, cropState: CropUi
             dismiss()
             when (next) { FarmSetupNext.AddPlot -> onPlots(); FarmSetupNext.Record -> onRecord(); else -> onCrops() }
         }, modifier = Modifier.fillMaxWidth().defaultMinSize(minHeight = 48.dp)) { Text(title) }
-        TextButton(onClick = { showSteps = !showSteps }) { Text(if (showSteps) "Hide setup steps" else "See all setup steps") }
+        TextButton(onClick = { showSteps = !showSteps }) { Text(if (showSteps) uiText(R.string.ui_hide_setup_steps_7d0378a, "Hide setup steps") else uiText(R.string.ui_see_all_setup_steps_274c620, "See all setup steps")) }
         if (showSteps) {
-            Text("1. Add a growing plot")
-            Text("2. Plan and start your first crop")
-            Text("3. Record fieldwork from the Record button")
+            Text(uiText(R.string.ui_1_add_a_growing_plot_b7f0dd1, "1. Add a growing plot"))
+            Text(uiText(R.string.ui_2_plan_and_start_your_first_crop_eaddc78, "2. Plan and start your first crop"))
+            Text(uiText(R.string.ui_3_record_fieldwork_from_the_record_button_88d5b2d, "3. Record fieldwork from the Record button"))
         }
         FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-            TextButton(onClick = { dismiss() }) { Text("Not now") }
-            TextButton(onClick = { dismiss() }) { Text("Dismiss this tip") }
+            TextButton(onClick = { dismiss() }) { Text(uiText(R.string.ui_not_now_a0e63d7, "Not now")) }
+            TextButton(onClick = { dismiss() }) { Text(uiText(R.string.ui_dismiss_this_tip_63c99ea, "Dismiss this tip")) }
         }
     }
 }

@@ -1,3 +1,4 @@
+const text = english => globalThis.anigoText?.[english] ?? english;
 // Open native disclosures and dialogs before focusing an error or deep-linked field.
 const revealConcealedTarget = target => {
     const dialog = target.closest?.("dialog");
@@ -37,11 +38,11 @@ for (const button of document.querySelectorAll("[data-copy-target]")) {
         const status = document.getElementById(button.dataset.copyStatus);
         try {
             await navigator.clipboard.writeText(field.value);
-            status.textContent = "Farm code copied.";
+            status.textContent = text("Farm code copied.");
         } catch {
             field.focus();
             field.select();
-            status.textContent = "Select and copy the farm code.";
+            status.textContent = text("Select and copy the farm code.");
         }
     });
 }
@@ -49,6 +50,7 @@ for (const button of document.querySelectorAll("[data-copy-target]")) {
 
 // Appearance is independent from the operating system so the default stays light.
 (() => {
+    const text = english => globalThis.anigoText?.[english] ?? english;
     const toggles = document.querySelectorAll("[data-color-mode-toggle]");
     if (!toggles.length) return;
     const root = document.documentElement;
@@ -56,9 +58,9 @@ for (const button of document.querySelectorAll("[data-copy-target]")) {
         root.dataset.colorMode = mode;
         for (const toggle of toggles) {
             toggle.setAttribute("aria-pressed", String(mode === "dark"));
-            toggle.setAttribute("aria-label", mode === "dark" ? "Use light appearance" : "Use dark appearance");
+            toggle.setAttribute("aria-label", mode === "dark" ? text("Use light appearance") : text("Use dark appearance"));
             const status = document.querySelector("[data-color-mode-status]");
-            if (status) status.textContent = mode === "dark" ? "Dark appearance" : "Light appearance";
+            if (status) status.textContent = mode === "dark" ? text("Dark appearance") : text("Light appearance");
         }
     };
     update(root.dataset.colorMode === "dark" ? "dark" : "light");
@@ -71,6 +73,7 @@ for (const button of document.querySelectorAll("[data-copy-target]")) {
 
 // Native dialogs retain the original POST forms, draft values and inline no-JS fallback.
 (() => {
+    const text = english => globalThis.anigoText?.[english] ?? english;
     const sections = document.querySelectorAll("section[data-form-dialog]");
     for (const section of typeof HTMLDialogElement === "undefined" ? [] : sections) {
         if (!section.querySelector("form")) continue;
@@ -93,7 +96,7 @@ for (const button of document.querySelectorAll("[data-copy-target]")) {
         const close = document.createElement("button");
         close.type = "button";
         close.textContent = "×";
-        close.setAttribute("aria-label", "Close " + (heading?.textContent.trim() || "form"));
+        close.setAttribute("aria-label", text("Close ") + (heading?.textContent.trim() || "form"));
         toolbar.append(close);
         dialog.append(toolbar);
         section.before(dialog);
@@ -104,7 +107,7 @@ for (const button of document.querySelectorAll("[data-copy-target]")) {
             .map(field => [field.name || field.id, field.type === "checkbox" ? field.checked : field.value]));
         let initial = snapshot();
         const isDirty = () => snapshot() !== initial;
-        const askDiscard = () => !isDirty() || window.confirm("Discard the unfinished changes in this form?");
+        const askDiscard = () => !isDirty() || window.confirm(text("Discard the unfinished changes in this form?"));
         const dismiss = () => { if (askDiscard()) dialog.close(); };
         let opener;
         for (const trigger of triggers) {
@@ -147,6 +150,7 @@ for (const button of document.querySelectorAll("[data-copy-target]")) {
 /* Phase 5: progressive form improvements, no changes to server validation.
    Only forms opting in with data-ani-p5-form are enhanced. */
 (() => {
+    const text = english => globalThis.anigoText?.[english] ?? english;
     const forms = Array.from(document.querySelectorAll('form[data-ani-p5-form]'));
     const recover = () => {
         forms.forEach(form => {
@@ -165,7 +169,7 @@ for (const button of document.querySelectorAll("[data-copy-target]")) {
         const checkDates = () => {
             if (!planting || !harvest) return;
             const invalid = Boolean(planting.value && harvest.value && harvest.value < planting.value);
-            harvest.setCustomValidity(invalid ? 'Expected harvest must not be before planting.' : '');
+            harvest.setCustomValidity(invalid ? text("Expected harvest must not be before planting.") : '');
             if (dateError) {
                 dateError.textContent = invalid ? harvest.validationMessage : '';
                 dateError.hidden = !invalid;
@@ -191,7 +195,7 @@ for (const button of document.querySelectorAll("[data-copy-target]")) {
             form.dataset.aniP5Submitting = 'true';
             form.setAttribute('aria-busy', 'true');
             const progress = form.querySelector('[data-ani-form-progress]');
-            if (progress) progress.textContent = 'Saving your changes…';
+            if (progress) progress.textContent = text("Saving your changes…");
             // Do not disable named submitters: their name/value may be required by ASP.NET MVC.
         });
     });

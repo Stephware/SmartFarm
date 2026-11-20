@@ -1,5 +1,8 @@
 package com.smartfarm.mobile.features.syncstatus
 
+import com.smartfarm.mobile.R
+import com.smartfarm.mobile.localization.uiText
+
 import com.smartfarm.mobile.data.local.entity.PendingOperation
 import com.smartfarm.mobile.data.local.entity.PendingPhoto
 
@@ -33,12 +36,12 @@ fun syncQueueSummary(
 }
 
 fun syncRecordType(type: String): String = when (type) {
-    "activity" -> "Field activity"
-    "activity_stock" -> "Field activity with supplies"
-    "observation" -> "Crop inspection"
-    "harvest" -> "Harvest"
-    "inventory" -> "Stock movement"
-    else -> "Saved field record"
+    "activity" -> uiText(R.string.ui_field_activity_a50009c, "Field activity")
+    "activity_stock" -> uiText(R.string.ui_field_activity_with_supplies_e9f634d, "Field activity with supplies")
+    "observation" -> uiText(R.string.ui_crop_inspection_4a519db, "Crop inspection")
+    "harvest" -> uiText(R.string.ui_harvest_c91ab8b, "Harvest")
+    "inventory" -> uiText(R.string.ui_stock_movement_c93f4ce, "Stock movement")
+    else -> uiText(R.string.ui_saved_field_record_f86b9ef, "Saved field record")
 }
 
 fun syncNeedsParent(photo: PendingPhoto): Boolean =

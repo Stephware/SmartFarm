@@ -20,7 +20,7 @@ internal object TaskDisplay {
 
     fun dueLabel(date: String): String =
         runCatching {
-            LocalDate.parse(date).format(DateTimeFormatter.ofPattern("MMM d, yyyy", Locale.ENGLISH))
+            LocalDate.parse(date).format(DateTimeFormatter.ofPattern("MMM d, yyyy", Locale.getDefault()))
         }.getOrDefault(date)
 
     /** Keep tasks with malformed dates discoverable in the management list rather than hiding them. */

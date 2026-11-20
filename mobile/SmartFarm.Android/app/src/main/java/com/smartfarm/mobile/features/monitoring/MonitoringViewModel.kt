@@ -1,5 +1,8 @@
 package com.smartfarm.mobile.features.monitoring
 
+import com.smartfarm.mobile.R
+import com.smartfarm.mobile.localization.uiText
+
 import android.content.ContentResolver
 import android.util.LruCache
 import android.net.Uri
@@ -105,7 +108,7 @@ class MonitoringViewModel(private val repository: MonitoringRepository,
                     if (error is HttpException && error.code() in setOf(401, 403, 404)) throw error
                     if (mutable.value.farmId == farmId && mutable.value.cycleId == cycleId)
                         mutable.value = mutable.value.copy(
-                            supplyError = "Supplies unavailable. You can still log an activity without stock.")
+                            supplyError = uiText(R.string.ui_supplies_unavailable_you_can_still_log_an_activity_w_1967767, "Supplies unavailable. You can still log an activity without stock."))
                 }
             } catch (cancelled: CancellationException) {
                 throw cancelled
@@ -118,7 +121,7 @@ class MonitoringViewModel(private val repository: MonitoringRepository,
                             observations = emptyList(), supplies = emptyList(), preview = null,
                             previewPhotoId = null, offline = false, cachedAtUtcMillis = null, supplyError = null)
                     }
-                    mutable.value = mutable.value.copy(error = "Could not load monitoring history.")
+                    mutable.value = mutable.value.copy(error = uiText(R.string.ui_could_not_load_monitoring_history_a06c06f, "Could not load monitoring history."))
                 }
             } finally {
                 if (mutable.value.farmId == farmId && mutable.value.cycleId == cycleId) {
@@ -148,12 +151,12 @@ class MonitoringViewModel(private val repository: MonitoringRepository,
                 mutable.value = current.copy(saveReceipts = current.saveReceipts +
                     ("${snapshot.farmId}/${snapshot.cycleId}/$form" to id))
                 if (mutable.value.farmId == snapshot.farmId && mutable.value.cycleId == snapshot.cycleId)
-                    mutable.value = mutable.value.copy(notice = "Saved on this device. It will sync when online.")
+                    mutable.value = mutable.value.copy(notice = uiText(R.string.ui_saved_on_this_device_it_will_sync_when_online_894f72b, "Saved on this device. It will sync when online."))
             } catch (cancelled: CancellationException) {
                 throw cancelled
             } catch (_: Exception) {
                 if (mutable.value.farmId == snapshot.farmId && mutable.value.cycleId == snapshot.cycleId)
-                    mutable.value = mutable.value.copy(error = "Save failed. Check the values or device storage.")
+                    mutable.value = mutable.value.copy(error = uiText(R.string.ui_save_failed_check_the_values_or_device_storage_324a685, "Save failed. Check the values or device storage."))
             } finally {
                 if (mutable.value.farmId == snapshot.farmId && mutable.value.cycleId == snapshot.cycleId)
                     mutable.value = mutable.value.copy(busy = false)
@@ -212,14 +215,14 @@ class MonitoringViewModel(private val repository: MonitoringRepository,
                 if (mutable.value.farmId == snapshot.farmId && mutable.value.cycleId == snapshot.cycleId) {
                     refresh(snapshot.farmId, snapshot.cycleId)
                     mutable.value = mutable.value.copy(
-                        notice = "Follow-up saved on the server.")
+                        notice = uiText(R.string.ui_follow_up_saved_on_the_server_b70fa0d, "Follow-up saved on the server."))
                 }
             } catch (cancelled: CancellationException) {
                 throw cancelled
             } catch (_: Exception) {
                 if (mutable.value.farmId == snapshot.farmId && mutable.value.cycleId == snapshot.cycleId)
                     mutable.value = mutable.value.copy(
-                        error = "Follow-up could not be confirmed. Refresh before retrying.")
+                        error = uiText(R.string.ui_follow_up_could_not_be_confirmed_refresh_before_retr_aa7a667, "Follow-up could not be confirmed. Refresh before retrying."))
             } finally {
                 if (mutable.value.farmId == snapshot.farmId && mutable.value.cycleId == snapshot.cycleId)
                     mutable.value = mutable.value.copy(busy = false)
@@ -291,7 +294,7 @@ class MonitoringViewModel(private val repository: MonitoringRepository,
                 if (mutable.value.farmId == snapshot.farmId &&
                     mutable.value.cycleId == snapshot.cycleId &&
                     mutable.value.previewPhotoId == photoId) {
-                    mutable.value = mutable.value.copy(error = "Could not open photo.")
+                    mutable.value = mutable.value.copy(error = uiText(R.string.ui_could_not_open_photo_7082d09, "Could not open photo."))
                 }
             } finally {
                 if (mutable.value.farmId == snapshot.farmId &&

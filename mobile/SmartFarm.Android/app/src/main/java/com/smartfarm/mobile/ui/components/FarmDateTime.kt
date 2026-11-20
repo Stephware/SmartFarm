@@ -1,17 +1,20 @@
 package com.smartfarm.mobile.ui.components
 
 import java.time.Instant
+import java.time.LocalDateTime
 import java.time.ZoneId
+import java.time.ZoneOffset
 import java.time.format.DateTimeFormatter
 import java.util.Locale
 
-/** Display UTC API timestamps in the farm's configured time zone, never the device's guessed zone. */
+/** UTC timestamp fields only; date-only values stay unchanged. */
 fun farmDateTime(utc: String, zoneId: String?): String {
-    val zone = runCatching { ZoneId.of(zoneId?.takeIf { it.isNotBlank() } ?: "UTC") }
-        .getOrDefault(ZoneId.of("UTC"))
+    val zone = runCatching { ZoneId.of(zoneId?.takeIf { it.isNotBlank() } ?: "Asia/Manila") }
+        .getOrDefault(ZoneId.of("Asia/Manila"))
     return runCatching {
-        Instant.parse(utc).atZone(zone).format(
-            DateTimeFormatter.ofPattern("MMM d, yyyy · h:mm a", Locale.ENGLISH)
-        ) + " (${zone.id})"
+        val instant = runCatching { Instant.parse(utc) }.getOrElse {
+            LocalDateTime.parse(utc).toInstant(ZoneOffset.UTC)
+        }
+        instant.atZone(zone).format(DateTimeFormatter.ofPattern("MMM d, yyyy · h:mm a", Locale.getDefault()))
     }.getOrElse { utc }
 }

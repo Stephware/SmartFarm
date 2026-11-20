@@ -1,5 +1,8 @@
 package com.smartfarm.mobile.features.farms
 
+import com.smartfarm.mobile.R
+import com.smartfarm.mobile.localization.uiText
+
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -33,8 +36,8 @@ import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import java.util.Locale
 
-private val taskTypes = listOf("Task", "Planting", "Watering", "Fertilizing",
-    "Inspection", "Harvest", "Other")
+private val taskTypes get() = listOf(uiText(R.string.ui_task_4bc74b2, "Task"), uiText(R.string.ui_planting_7a7418f, "Planting"), uiText(R.string.ui_watering_2ee1114, "Watering"), uiText(R.string.ui_fertilizing_3cc00f9, "Fertilizing"),
+    uiText(R.string.ui_inspection_6e4fa13, "Inspection"), uiText(R.string.ui_harvest_c91ab8b, "Harvest"), uiText(R.string.ui_other_f97e9da, "Other"))
 
 internal fun farmHomeTaskPreview(
     state: TaskUiState?, farmId: String, actorId: String?, isOwner: Boolean, today: LocalDate?
@@ -64,19 +67,19 @@ internal fun FarmHomeOverview(
     val savedAdvisories = localWeather?.advisories?.count { it.status == 0 } ?: 0
     val localForecast = localWeather?.takeIf { it.hasCoordinates }
     val dateText = today?.format(DateTimeFormatter.ofPattern("EEE, MMM d", Locale.getDefault()))
-        ?: "Farm date unavailable"
+        ?: uiText(R.string.ui_farm_date_unavailable_23e602c, "Farm date unavailable")
 
-    FarmSectionHeader("Your work today", "$dateText · ${farm.timeZoneId}")
+    FarmSectionHeader(uiText(R.string.ui_your_work_today_80e250a, "Your work today"), "$dateText · ${farm.timeZoneId}")
 
     FlowRow(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(10.dp),
         verticalArrangement = Arrangement.spacedBy(8.dp)) {
         Button(onClick = onRecord,
             modifier = Modifier.weight(1f).widthIn(min = 160.dp).defaultMinSize(minHeight = 52.dp)) {
-            Text("Record fieldwork")
+            Text(uiText(R.string.ui_record_fieldwork_797a75c, "Record fieldwork"))
         }
         OutlinedButton(onClick = onTasks,
             modifier = Modifier.weight(1f).widthIn(min = 160.dp).defaultMinSize(minHeight = 52.dp)) {
-            Text("My tasks")
+            Text(uiText(R.string.ui_my_tasks_1f7f5b8, "My tasks"))
         }
     }
 
@@ -86,8 +89,8 @@ internal fun FarmHomeOverview(
         border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant)) {
         FlowRow(Modifier.fillMaxWidth().padding(horizontal = 6.dp, vertical = 3.dp),
             horizontalArrangement = Arrangement.spacedBy(2.dp)) {
-            listOf("Water" to "watering", "Inspect" to "inspection",
-                "Harvest" to "harvest").forEach { (label, action) ->
+            listOf(uiText(R.string.ui_water_7ca7dea, "Water") to "watering", uiText(R.string.ui_inspect_e0723a8, "Inspect") to "inspection",
+                uiText(R.string.ui_harvest_c91ab8b, "Harvest") to "harvest").forEach { (label, action) ->
                 TextButton(onClick = { onRecordAction(action) },
                     modifier = Modifier.weight(1f).widthIn(min = 112.dp).defaultMinSize(minHeight = 48.dp)) {
                     Text(label, style = MaterialTheme.typography.labelLarge)
@@ -100,62 +103,62 @@ internal fun FarmHomeOverview(
     val hasAlerts = (work?.overdue?.isNotEmpty() == true) ||
         savedAdvisories > 0 || syncSummary.needsReview > 0
     if (hasAlerts) {
-        FarmSectionCard("Needs attention", subtitle = "Check these before heading into the field.") {
+        FarmSectionCard(uiText(R.string.ui_needs_attention_c1ebc78, "Needs attention"), subtitle = uiText(R.string.ui_check_these_before_heading_into_the_field_9427c7c, "Check these before heading into the field.")) {
             if (work?.overdue?.isNotEmpty() == true) {
                 Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.SpaceBetween) {
-                    Text("${work.overdue.size} overdue ${if (work.overdue.size == 1) "task" else "tasks"}",
+                    Text(uiText(R.string.ui_1_s_overdue_2_s_afe6a50, "%1\$s overdue %2\$s", (work.overdue.size), (if (work.overdue.size == 1) "task" else "tasks")),
                         style = MaterialTheme.typography.titleMedium, modifier = Modifier.weight(1f))
-                    FarmStatusChip("Overdue", FarmStatusTone.Warning)
+                    FarmStatusChip(uiText(R.string.ui_overdue_d660945, "Overdue"), FarmStatusTone.Warning)
                 }
                 OutlinedButton(onClick = onTasks, modifier = Modifier.fillMaxWidth()) {
-                    Text("Review overdue tasks")
+                    Text(uiText(R.string.ui_review_overdue_tasks_200daad, "Review overdue tasks"))
                 }
             }
             if (syncSummary.needsReview > 0) {
-                Text("${syncSummary.needsReview} saved ${if (syncSummary.needsReview == 1) "record needs" else "records need"} review",
+                Text(uiText(R.string.ui_1_s_saved_2_s_review_96f071c, "%1\$s saved %2\$s review", (syncSummary.needsReview), (if (syncSummary.needsReview == 1) "record needs" else "records need")),
                     style = MaterialTheme.typography.titleMedium)
                 OutlinedButton(onClick = onSync, modifier = Modifier.fillMaxWidth()) {
-                    Text("Review sync issues")
+                    Text(uiText(R.string.ui_review_sync_issues_1108ae0, "Review sync issues"))
                 }
             }
             if (savedAdvisories > 0) {
-                Text("$savedAdvisories saved weather ${if (savedAdvisories == 1) "advisory" else "advisories"}",
+                Text(uiText(R.string.ui_1_s_saved_weather_2_s_eadea64, "%1\$s saved weather %2\$s", (savedAdvisories), (if (savedAdvisories == 1) "advisory" else "advisories")),
                     style = MaterialTheme.typography.titleMedium)
-                Text("These may be outdated. Check official current warnings before fieldwork.",
+                Text(uiText(R.string.ui_these_may_be_outdated_check_official_current_warning_8baebe2, "These may be outdated. Check official current warnings before fieldwork."),
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant)
                 OutlinedButton(onClick = onWeather, modifier = Modifier.fillMaxWidth()) {
-                    Text("Review saved advisories")
+                    Text(uiText(R.string.ui_review_saved_advisories_5271105, "Review saved advisories"))
                 }
             }
         }
     }
 
-    FarmSectionCard("Today's tasks",
-        subtitle = "Due work and the next assignments.") {
+    FarmSectionCard(uiText(R.string.ui_today_s_tasks_0ad22a4, "Today's tasks"),
+        subtitle = uiText(R.string.ui_due_work_and_the_next_assignments_cdbe9ad, "Due work and the next assignments.")) {
         when {
             state.offline -> {
-                Text("Tasks need a connection", style = MaterialTheme.typography.titleMedium)
-                Text("Reconnect to load current assignments. Offline field records can still be saved.",
+                Text(uiText(R.string.ui_tasks_need_a_connection_987d9a6, "Tasks need a connection"), style = MaterialTheme.typography.titleMedium)
+                Text(uiText(R.string.ui_reconnect_to_load_current_assignments_offline_field__264b05c, "Reconnect to load current assignments. Offline field records can still be saved."),
                     color = MaterialTheme.colorScheme.onSurfaceVariant)
             }
-            tasks?.farmId != farm.id || tasks.busy -> Text("Loading today's work…")
+            tasks?.farmId != farm.id || tasks.busy -> Text(uiText(R.string.ui_loading_today_s_work_16b20be, "Loading today's work…"))
             tasks.error != null -> {
-                Text("Tasks unavailable. Connect and refresh to see current assignments.",
+                Text(uiText(R.string.ui_tasks_unavailable_connect_and_refresh_to_see_current_85f55e6, "Tasks unavailable. Connect and refresh to see current assignments."),
                     color = MaterialTheme.colorScheme.onSurfaceVariant)
             }
-            work == null -> Text("Farm date or task list unavailable. Ask an owner to check the time zone.")
+            work == null -> Text(uiText(R.string.ui_farm_date_or_task_list_unavailable_ask_an_owner_to_c_2bc1a32, "Farm date or task list unavailable. Ask an owner to check the time zone."))
             work.dueCount == 0 -> {
                 if (work.upcoming.isNotEmpty()) {
                     val next = work.upcoming.first()
-                    Text("Nothing due today", style = MaterialTheme.typography.titleMedium)
-                    Text("Next: ${taskTypes.getOrElse(next.taskType) { "Task" }} · ${next.dueDate}",
+                    Text(uiText(R.string.ui_nothing_due_today_2adbd86, "Nothing due today"), style = MaterialTheme.typography.titleMedium)
+                    Text(uiText(R.string.ui_next_1_s_2_s_87e33bb, "Next: %1\$s · %2\$s", (taskTypes.getOrElse(next.taskType) { uiText(R.string.ui_task_4bc74b2, "Task") }), (next.dueDate)),
                         color = MaterialTheme.colorScheme.onSurfaceVariant)
                 } else {
-                    Text("No tasks due today", style = MaterialTheme.typography.titleMedium)
-                    Text(if (state.plots.isEmpty()) "Set up your growing areas to begin."
-                        else "You're caught up. Open Tasks to see assignments.",
+                    Text(uiText(R.string.ui_no_tasks_due_today_6679b23, "No tasks due today"), style = MaterialTheme.typography.titleMedium)
+                    Text(if (state.plots.isEmpty()) uiText(R.string.ui_set_up_your_growing_areas_to_begin_a65be6a, "Set up your growing areas to begin.")
+                        else uiText(R.string.ui_you_re_caught_up_open_tasks_to_see_assignments_159545a, "You're caught up. Open Tasks to see assignments."),
                         color = MaterialTheme.colorScheme.onSurfaceVariant)
                 }
             }
@@ -167,7 +170,7 @@ internal fun FarmHomeOverview(
                         verticalAlignment = Alignment.Top,
                         horizontalArrangement = Arrangement.spacedBy(10.dp)) {
                         Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(3.dp)) {
-                            Text(taskTypes.getOrElse(task.taskType) { "Field task" },
+                            Text(taskTypes.getOrElse(task.taskType) { uiText(R.string.ui_field_task_b52c32b, "Field task") },
                                 style = MaterialTheme.typography.titleMedium)
                             task.description?.takeIf { it.isNotBlank() }?.let {
                                 Text(it, maxLines = 2,
@@ -179,10 +182,10 @@ internal fun FarmHomeOverview(
                                     style = MaterialTheme.typography.bodySmall,
                                     color = MaterialTheme.colorScheme.onSurfaceVariant)
                             }
-                            Text("Due ${task.dueDate}", style = MaterialTheme.typography.bodySmall,
+                            Text(uiText(R.string.ui_due_1_s_1207d23, "Due %1\$s", (task.dueDate)), style = MaterialTheme.typography.bodySmall,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant)
                         }
-                        FarmStatusChip(if (isLate) "Overdue" else "Today",
+                        FarmStatusChip(if (isLate) uiText(R.string.ui_overdue_d660945, "Overdue") else uiText(R.string.ui_today_2b065c7, "Today"),
                             if (isLate) FarmStatusTone.Warning else FarmStatusTone.Active)
                     }
                     val canRecordTask = task.taskType in 2..5 && currentCycles.any {
@@ -190,11 +193,11 @@ internal fun FarmHomeOverview(
                     }
                     OutlinedButton(onClick = { if (canRecordTask) onTask(task) else onTasks() },
                         modifier = Modifier.fillMaxWidth().defaultMinSize(minHeight = 48.dp)) {
-                        Text(if (canRecordTask) "Record ${taskTypes[task.taskType].lowercase()}" else "View task")
+                        Text(if (canRecordTask) uiText(R.string.ui_record_1_s_0dca5e7, "Record %1\$s", (taskTypes[task.taskType].lowercase())) else uiText(R.string.ui_view_task_01444a2, "View task"))
                     }
                 }
                 if (work.dueCount > 3) {
-                    Text("And ${work.dueCount - 3} more tasks due.",
+                    Text(uiText(R.string.ui_and_1_s_more_tasks_due_485a86a, "And %1\$s more tasks due.", (work.dueCount - 3)),
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant)
                 }
@@ -202,21 +205,21 @@ internal fun FarmHomeOverview(
         }
         TextButton(onClick = onTasks,
             modifier = Modifier.fillMaxWidth().defaultMinSize(minHeight = 48.dp)) {
-            Text("Open tasks")
+            Text(uiText(R.string.ui_open_tasks_87cfa1a, "Open tasks"))
         }
     }
 
     if (syncSummary.pending > 0) {
-        FarmSectionCard("Saved on this phone",
-            subtitle = "Local records are not yet confirmed on the server.") {
-            FarmStatusChip("${syncSummary.pending} waiting to sync",
+        FarmSectionCard(uiText(R.string.ui_saved_on_this_phone_4c03b51, "Saved on this phone"),
+            subtitle = uiText(R.string.ui_local_records_are_not_yet_confirmed_on_the_server_24ad767, "Local records are not yet confirmed on the server.")) {
+            FarmStatusChip(uiText(R.string.ui_1_s_waiting_to_sync_f65c057, "%1\$s waiting to sync", (syncSummary.pending)),
                 if (syncSummary.needsReview > 0) FarmStatusTone.Warning else FarmStatusTone.Planned)
             if (syncSummary.needsReview > 0) {
-                Text("${syncSummary.needsReview} need attention before syncing.",
+                Text(uiText(R.string.ui_1_s_need_attention_before_syncing_f9d5f77, "%1\$s need attention before syncing.", (syncSummary.needsReview)),
                     color = MaterialTheme.colorScheme.error)
             }
             OutlinedButton(onClick = onSync, modifier = Modifier.fillMaxWidth()) {
-                Text("View sync status")
+                Text(uiText(R.string.ui_view_sync_status_dd6be1c, "View sync status"))
             }
         }
     }
@@ -226,23 +229,23 @@ internal fun FarmHomeOverview(
             val forecastDate = runCatching { LocalDate.parse(day.date) }.getOrNull()
             forecastDate != null && (today == null || !forecastDate.isBefore(today))
         }.minByOrNull { it.date }
-        FarmSectionCard("Saved weather", subtitle = "Forecast, not live observations.") {
+        FarmSectionCard(uiText(R.string.ui_saved_weather_85786c4, "Saved weather"), subtitle = uiText(R.string.ui_forecast_not_live_observations_6de5bb1, "Forecast, not live observations.")) {
             if (day == null) {
-                Text("No upcoming saved forecast.",
+                Text(uiText(R.string.ui_no_upcoming_saved_forecast_353ab1d, "No upcoming saved forecast."),
                     color = MaterialTheme.colorScheme.onSurfaceVariant)
             } else {
                 Text("${day.minTemperatureC?.toPlainString() ?: "—"}–" +
                     "${day.maxTemperatureC?.toPlainString() ?: "—"} °C · " +
-                    "${day.maxPrecipitationProbability?.toPlainString() ?: "—"}% rain chance",
+                    uiText(R.string.ui_1_s_rain_chance_89e8e01, "%1\$s%% rain chance", (day.maxPrecipitationProbability?.toPlainString() ?: "—")),
                     style = MaterialTheme.typography.titleMedium)
-                Text("Forecast for ${day.date}", style = MaterialTheme.typography.bodySmall,
+                Text(uiText(R.string.ui_forecast_for_1_s_1f2194b, "Forecast for %1\$s", (day.date)), style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant)
                 if (state.weatherOffline || WeatherFreshness.isStale(localForecast.days)) {
-                    FarmStatusChip("Saved forecast may be outdated", FarmStatusTone.Warning)
+                    FarmStatusChip(uiText(R.string.ui_saved_forecast_may_be_outdated_f92fb64, "Saved forecast may be outdated"), FarmStatusTone.Warning)
                 }
             }
             OutlinedButton(onClick = onWeather, modifier = Modifier.fillMaxWidth()) {
-                Text("View forecast")
+                Text(uiText(R.string.ui_view_forecast_6c87311, "View forecast"))
             }
         }
     }

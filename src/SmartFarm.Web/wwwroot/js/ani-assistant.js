@@ -1,6 +1,7 @@
 /* Presentation preferences contain no credentials or farm records. */
 (() => {
     "use strict";
+    const text = english => globalThis.anigoText?.[english] ?? english;
     const get = (store, key) => { try { return window[store].getItem(key); } catch { return null; } };
     const set = (store, key, value) => { try { window[store].setItem(key, value); } catch { /* storage can be disabled */ } };
     document.querySelectorAll("[data-ani-guide]").forEach(root => {
@@ -36,7 +37,7 @@
                     const r = await fetch(e.target.action, { method: "POST", body: new FormData(e.target), credentials: "same-origin" });
                     if (r.status !== 204 || r.redirected) throw new Error();
                     set("sessionStorage", key, "acknowledged"); root.hidden = true;
-                } catch { root.querySelector("[data-alert-status]").textContent = "Could not acknowledge. Reconnect and try again."; }
+                } catch { root.querySelector("[data-alert-status]").textContent = text("Could not acknowledge. Reconnect and try again."); }
                 finally { button.disabled = false; }
             };
             root.hidden = false;
