@@ -4,7 +4,7 @@
     var section = ViewContext.RouteData.Values["controller"]?.ToString();
 }
 <!DOCTYPE html>
-<html lang="@System.Globalization.CultureInfo.CurrentUICulture.TwoLetterISOLanguageName" data-color-mode="light" data-theme="gold">
+<html lang="@(System.Globalization.CultureInfo.CurrentUICulture.TwoLetterISOLanguageName == "fil" ? "fil" : "en")" data-color-mode="light" data-theme="gold">
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
