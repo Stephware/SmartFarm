@@ -161,7 +161,6 @@ else
 {
     <header class="site-header guest-topbar @(isLanding ? "ani6-topbar" : "")">
         <a class="brand guest-logo anigo-guest-brand" asp-controller="Home" asp-action="Index" aria-label="@T["AniGo home"]"><span class="anigo-logo-pair anigo-guest-logo" aria-hidden="true"><img class="anigo-logo-light" src="~/images/branding/anigo-logo.svg" asp-append-version="true" alt="" width="1120" height="297" /><img class="anigo-logo-dark" src="~/images/branding/anigo-logo-on-dark.svg" asp-append-version="true" alt="" width="1120" height="297" /></span></a>
-        <partial name="_LanguagePicker" />
         <nav class="ani6-account-links" aria-label="@T["Account actions"]">
             <button class="icon-button" type="button" data-color-mode-toggle aria-label="@T["Use dark appearance"]" aria-pressed="false"><partial name="_Icon" model='@("sun")' /></button>
             <a class="ani6-login" asp-controller="Account" asp-action="Login">@T["Log in"]</a>
