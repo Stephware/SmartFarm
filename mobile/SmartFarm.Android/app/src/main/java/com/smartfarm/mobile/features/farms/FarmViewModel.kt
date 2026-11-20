@@ -9,6 +9,7 @@ import androidx.lifecycle.viewModelScope
 import com.smartfarm.mobile.data.remote.dto.*
 import com.smartfarm.mobile.data.repository.FarmRepository
 import com.smartfarm.mobile.data.repository.WeatherRepository
+import com.smartfarm.mobile.data.repository.NetworkErrorMessages
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -33,6 +34,10 @@ data class FarmUiState(
     val weatherOffline: Boolean = false,
     val weatherCachedAtUtcMillis: Long? = null,
     val weatherMessage: String? = null,
+    val weatherGuidance: WeatherGuidanceDto? = null,
+    val guidanceAdvisoryId: String? = null,
+    val guidanceBusy: Boolean = false,
+    val guidanceError: String? = null,
     val joinSaveVersion: Int = 0,
     val plotSaveVersion: Int = 0,
     val plotEditSaveVersion: Int = 0,
@@ -47,6 +52,7 @@ class FarmViewModel(
     val state = mutable.asStateFlow()
     private var loadJob: Job? = null
     private var actionJob: Job? = null
+    private var guidanceJob: Job? = null
 
     private fun perform(block: suspend () -> Unit) {
         if (mutable.value.loading) return
@@ -72,6 +78,7 @@ class FarmViewModel(
     fun clear() {
         loadJob?.cancel()
         actionJob?.cancel()
+        guidanceJob?.cancel()
         mutable.value = FarmUiState()
     }
 
@@ -119,9 +126,44 @@ class FarmViewModel(
         }
     }
 
+    fun requestWeatherGuidance(advisoryId: String, cropCycleId: String? = null) {
+        val state = mutable.value
+        val farmId = state.selected?.id ?: return
+        if (state.offline || state.weatherOffline) {
+            mutable.value = state.copy(guidanceError = uiText(R.string.guidance_online_required,
+                "Connect to the internet to check updated weather guidance."))
+            return
+        }
+        if (state.guidanceBusy) return
+        guidanceJob?.cancel()
+        mutable.value = state.copy(weatherGuidance = null, guidanceAdvisoryId = advisoryId,
+            guidanceBusy = true, guidanceError = null)
+        guidanceJob = viewModelScope.launch {
+            try {
+                val answer = weatherRepo.guidance(farmId, advisoryId, cropCycleId)
+                if (mutable.value.selected?.id == farmId && mutable.value.guidanceAdvisoryId == advisoryId) {
+                    mutable.value = mutable.value.copy(weatherGuidance = answer, guidanceError = null)
+                }
+            } catch (cancelled: CancellationException) {
+                throw cancelled
+            } catch (error: Exception) {
+                if (mutable.value.selected?.id == farmId) {
+                    mutable.value = mutable.value.copy(guidanceError =
+                        NetworkErrorMessages.forRequest(error, uiText(R.string.guidance_request_error,
+                            "Could not load guidance. Review the saved forecast or try again later.")))
+                }
+            } finally {
+                if (mutable.value.selected?.id == farmId) {
+                    mutable.value = mutable.value.copy(guidanceBusy = false)
+                }
+            }
+        }
+    }
+
     fun loadDetail(farmId: String) {
         loadJob?.cancel()
         actionJob?.cancel()
+        guidanceJob?.cancel()
         mutable.value = if (mutable.value.selected?.id == farmId)
             mutable.value.copy(loading = true, error = null, enrollment = null, myRequests = emptyList(),
                 enrollmentMessage = null) else FarmUiState(loading = true,
