@@ -17,12 +17,21 @@ const base = process.env.SMARTFARM_BROWSER_BASE_URL || "http://127.0.0.1:5082";
             page.on("pageerror", e => errors.push(e.message));
             await page.goto(new URL("/Account/Login", base).href);
             assert.equal(await page.locator("html").getAttribute("lang"), "en");
-            await page.locator(".anigo-language summary").click();
-            await page.locator('.anigo-language-picker select[name="language"]').selectOption("fil");
-            await Promise.all([
-                page.waitForURL(/\/Account\/Login/),
-                page.locator(".anigo-language-picker button[type=submit]").click()
-            ]);
+            // Language is now selected in signed-in Account & settings.
+            // Use the real cookie-backed endpoint and a CSRF token from the
+            // login form to verify persistence without a public dropdown.
+            assert.equal(await page.locator(".anigo-language").count(), 0);
+            const csrf = await page.locator('input[name="__RequestVerificationToken"]')
+                .first().inputValue();
+            const selected = await ctx.request.post(new URL("/Language/Select", base).href, {
+                form: {
+                    language: "fil",
+                    returnUrl: "/Account/Login",
+                    __RequestVerificationToken: csrf
+                }
+            });
+            assert.equal(selected.status(), 200);
+            await page.reload();
             assert.equal(await page.locator("html").getAttribute("lang"), "fil");
             assert.notEqual((await page.locator("h1").innerText()).trim(), "Log in");
             for (const path of ["/Account/Login", "/Account/Register",
@@ -38,7 +47,7 @@ const base = process.env.SMARTFARM_BROWSER_BASE_URL || "http://127.0.0.1:5082";
             assert.deepEqual(errors, [], mode + " localized browser runtime errors");
             await ctx.close();
         }
-        console.log("PASS public MVC Filipino locale persists across login/registration/recovery on 320px light/dark");
+        console.log("PASS Filipino locale cookie persists across login/registration/recovery without guest language selector on 320px light/dark");
     } finally {
         await browser.close();
     }

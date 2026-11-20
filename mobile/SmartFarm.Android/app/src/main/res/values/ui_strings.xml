@@ -1111,4 +1111,7 @@
   <string name="guidance_key_fieldwork_review" formatted="false">Review whether weather-sensitive work should be postponed. Any changes remain your decision.</string>
   <string name="guidance_key_stress_inspect" formatted="false">Inspect actual crop conditions and record what you observe. Do not assume damage from the forecast alone.</string>
   <string name="guidance_key_water_check" formatted="false">Check soil moisture before deciding about watering. No precise water amount is prescribed here.</string>
+  <string name="account_preferences_title">App preferences</string>
+  <string name="account_preferences_description">Choose your preferred appearance and language.</string>
+  <string name="language_preference_description">Choose the language used throughout AniGo.</string>
 </resources>
