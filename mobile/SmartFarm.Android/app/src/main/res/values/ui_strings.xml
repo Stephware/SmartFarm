@@ -1082,4 +1082,13 @@
   <string name="ui_selected_date_4e342f5" formatted="false">"selected date"</string>
   <string name="ui_back_to_record_options_0ab4774" formatted="false">"← Back to record options"</string>
   <string name="ui_correct_stock_selected_2bce023" formatted="false">"✓ Correct stock (selected)"</string>
+
+  <string name="recovery_email_label">Email address</string>
+  <string name="recovery_email_hint">Enter your email to request password reset instructions.</string>
+  <string name="recovery_request">Request reset instructions</string>
+  <string name="recovery_requesting">Requesting reset instructions…</string>
+  <string name="recovery_sent_title">Check your email</string>
+  <string name="recovery_sent_note">If an active account exists and email delivery is configured, reset instructions will be sent. We cannot confirm whether an account exists for that address.</string>
+  <string name="recovery_follow_browser">Open the secure email link in your browser to finish resetting your password.</string>
+  <string name="recovery_retry_later">Please try again later.</string>
 </resources>
