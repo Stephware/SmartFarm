@@ -98,7 +98,15 @@ const widths = [320, 375, 768, 1024, 1440];
                     if (width === 375 || width === 1440) {
                         const audit = await new AxeBuilder({ page })
                             .withTags(["wcag2a", "wcag2aa", "wcag21a", "wcag21aa"]).analyze();
-                        const errors = audit.violations.filter(v => ["serious", "critical"].includes(v.impact));
+                        // 'fil' is a valid BCP 47 Filipino language tag, but older axe
+                        // language tables can flag it. Check the actual tag explicitly;
+                        // never ignore a missing or unsupported language or other violations.
+                        const documentLanguage = await page.locator("html").getAttribute("lang");
+                        assert.ok(["en", "fil"].includes(documentLanguage),
+                            name + ": unexpected document language " + JSON.stringify(documentLanguage));
+                        const errors = audit.violations.filter(v =>
+                            ["serious", "critical"].includes(v.impact) &&
+                            !(v.id === "html-lang-valid" && documentLanguage === "fil"));
                         assert.deepEqual(errors.map(v => v.id + ":" + v.nodes.map(n => n.target.join(" ")).join(",")),
                             [], name + "/" + mode + "/" + width + ": accessibility violations");
                     }

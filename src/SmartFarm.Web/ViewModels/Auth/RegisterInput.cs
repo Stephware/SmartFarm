@@ -19,6 +19,6 @@ public sealed class RegisterInput : IValidatableObject
     public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
     {
         if (ConfirmPassword is not null && ConfirmPassword != Password)
-            yield return new ValidationResult("The passwords do not match.", [nameof(ConfirmPassword)]);
+            yield return new ValidationResult(SmartFarm.Web.Presentation.UiMessages.Text("The passwords do not match."), [nameof(ConfirmPassword)]);
     }
 }

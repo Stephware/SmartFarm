@@ -1,5 +1,8 @@
 package com.smartfarm.mobile.navigation
 
+import com.smartfarm.mobile.R
+import com.smartfarm.mobile.localization.uiText
+
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.MaterialTheme
@@ -80,9 +83,9 @@ internal fun FarmWorkspaceBar(
     onNavigate: (String) -> Unit
 ) {
     val tabs = listOf(
-        FarmNavTab("farm/{farmId}", "Today", FarmNavSymbol.Farm),
-        FarmNavTab("record", "Record", FarmNavSymbol.Record),
-        FarmNavTab("myfarm/{farmId}", "My Farm", FarmNavSymbol.Crops)
+        FarmNavTab("farm/{farmId}", uiText(R.string.ui_today_2b065c7, "Today"), FarmNavSymbol.Farm),
+        FarmNavTab("record", uiText(R.string.ui_record_bfdd510, "Record"), FarmNavSymbol.Record),
+        FarmNavTab("myfarm/{farmId}", uiText(R.string.ui_my_farm_b2e9f88, "My Farm"), FarmNavSymbol.Crops)
     )
     val colors = MaterialTheme.colorScheme
     if (expanded) {

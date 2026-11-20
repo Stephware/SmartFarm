@@ -40,8 +40,8 @@ test("Tasks preserve assignment, completion and calendar navigation", () => {
     assert.ok(tasks.includes('name="RowVersion"'));
     assert.ok(tasks.includes('name="returnView"'));
     assert.ok(tasks.includes('task.AssignedToUserId == actorId'));
-    assert.ok(tasks.includes('assigned == actorId ? "You"'));
-    assert.ok(tasks.includes('?? "Farm member"'));
+    assert.ok(tasks.includes('assigned == actorId ? T["You"]'));
+    assert.ok(tasks.includes('?? T["Farm member"]'));
     assert.ok(css.includes(".ani12e-task-calendar .reference-calendar { display: none; }"));
 });
 
@@ -80,7 +80,7 @@ test("Inventory keeps stock history, thresholds and explicit activity linkage", 
     assert.ok(item.includes('data-inventory-movement-form'));
     assert.ok(item.includes('name="CropActivityId"'));
     assert.ok(item.includes('name="RowVersion"'));
-    assert.ok(item.includes('@if (canManage) { <span>+ Supplies arrived</span> }'));
+    assert.ok(item.includes('@if (canManage) { <span>@T["+ Supplies arrived"]</span> }'));
     assert.ok(item.includes('asp-action="Reverse"'));
     assert.ok(itemEdit.includes("ani12e-form-actions"));
     assert.ok(itemEdit.includes('asp-for="Input.RowVersion"'));
@@ -103,7 +103,7 @@ test("Reports retain unit-separated totals, filters and exports", () => {
     assert.ok(report.includes("ani12e-unit-totals"));
     assert.ok(report.includes("ani12e-report-results"));
     assert.ok(report.includes("role=\"status\""));
-    assert.ok(report.includes("Filters &amp; downloads"));
+    assert.ok(report.includes('@T["Filters & downloads"]'));
     assert.ok(report.includes('class="mvp-report-filter-options"'));
     assert.ok(!report.includes('id="report-advanced"'));
     assert.ok(report.includes('asp-action="ExportCsv"'));

@@ -1,5 +1,8 @@
 package com.smartfarm.mobile.ui.components.onboarding
 
+import com.smartfarm.mobile.R
+import com.smartfarm.mobile.localization.uiText
+
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -49,27 +52,27 @@ fun AniGoFieldworkDemo(progress: Float, modifier: Modifier = Modifier, compact: 
         else -> 1
     }
     Box(modifier.semantics {
-        contentDescription = "Sample fieldwork, step $stage of 4; local save pending sync; demonstration only"
+        contentDescription = uiText(R.string.ui_sample_fieldwork_step_1_s_of_4_local_save_pending_sy_bfadacc, "Sample fieldwork, step %1\$s of 4; local save pending sync; demonstration only", (stage))
     }) {
-        ExampleCard("Today's fieldwork", "Sample: North Plot") {
+        ExampleCard(uiText(R.string.ui_today_s_fieldwork_e324ea2, "Today's fieldwork"), uiText(R.string.ui_sample_north_plot_fd4a252, "Sample: North Plot")) {
             if (p >= .10f) {
                 IntroRow(
-                    title = "Watering",
-                    subtext = "Activity recorded",
+                    title = uiText(R.string.ui_watering_2ee1114, "Watering"),
+                    subtext = uiText(R.string.ui_activity_recorded_aa3013c, "Activity recorded"),
                     opacity = reveal(p, .10f), compact = compact
                 )
             }
             if (p >= .36f) {
                 IntroRow(
-                    title = "Leaf inspection",
-                    subtext = "Observation added",
+                    title = uiText(R.string.ui_leaf_inspection_716922b, "Leaf inspection"),
+                    subtext = uiText(R.string.ui_observation_added_3488920, "Observation added"),
                     opacity = reveal(p, .36f), compact = compact
                 )
             }
             if (p >= .59f) {
                 IntroRow(
-                    title = "Photo",
-                    subtext = "Attached to record",
+                    title = uiText(R.string.ui_photo_d84eeba, "Photo"),
+                    subtext = uiText(R.string.ui_attached_to_record_c67770e, "Attached to record"),
                     opacity = reveal(p, .59f), compact = compact
                 )
             }
@@ -82,13 +85,13 @@ fun AniGoFieldworkDemo(progress: Float, modifier: Modifier = Modifier, compact: 
                     verticalArrangement = Arrangement.spacedBy(2.dp)
                 ) {
                     Text(
-                        "Saved on device",
+                        uiText(R.string.ui_saved_on_device_2e2c6ae, "Saved on device"),
                         color = FieldGreen,
                         style = MaterialTheme.typography.labelSmall,
                         fontWeight = FontWeight.Bold
                     )
                     Text(
-                        "Pending sync",
+                        uiText(R.string.ui_pending_sync_e45ceb7, "Pending sync"),
                         color = FieldAmber,
                         style = MaterialTheme.typography.labelSmall,
                         fontWeight = FontWeight.SemiBold
@@ -116,22 +119,22 @@ fun AniGoHarvestDemo(progress: Float, modifier: Modifier = Modifier) {
     val secondRecorded = p >= .58f
     val totalKg = (if (firstRecorded) 50 else 0) + (if (secondRecorded) 35 else 0)
     Box(modifier.semantics {
-        contentDescription = "Sample harvest, step $stage of 4; two separate harvest batches total $totalKg kilograms; demonstration only"
+        contentDescription = uiText(R.string.ui_sample_harvest_step_1_s_of_4_two_separate_harvest_ba_0ca2a5c, "Sample harvest, step %1\$s of 4; two separate harvest batches total %2\$s kilograms; demonstration only", (stage), (totalKg))
     }) {
-        ExampleCard("Harvest records", "Sample: Rice crop") {
+        ExampleCard(uiText(R.string.ui_harvest_records_cfad96b, "Harvest records"), uiText(R.string.ui_sample_rice_crop_9f5293c, "Sample: Rice crop")) {
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(4.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
-                    "$totalKg kg",
+                    uiText(R.string.ui_1_s_kg_a289dfb, "%1\$s kg", (totalKg)),
                     color = FieldGreen,
                     fontWeight = FontWeight.ExtraBold,
                     style = MaterialTheme.typography.titleMedium
                 )
                 Text(
-                    "recorded",
+                    uiText(R.string.ui_recorded_3d96a45, "recorded"),
                     color = FieldMuted,
                     style = MaterialTheme.typography.labelSmall
                 )
@@ -147,22 +150,22 @@ fun AniGoHarvestDemo(progress: Float, modifier: Modifier = Modifier) {
             }
             if (firstRecorded) {
                 IntroRow(
-                    title = "Batch 1 · 50 kg",
-                    subtext = "Partial harvest",
+                    title = uiText(R.string.ui_batch_1_50_kg_3ba3986, "Batch 1 · 50 kg"),
+                    subtext = uiText(R.string.ui_partial_harvest_41db432, "Partial harvest"),
                     opacity = reveal(p, .28f),
                     color = FieldGold
                 )
             }
             if (secondRecorded) {
                 IntroRow(
-                    title = "Batch 2 · 35 kg",
-                    subtext = "Partial harvest",
+                    title = uiText(R.string.ui_batch_2_35_kg_9071662, "Batch 2 · 35 kg"),
+                    subtext = uiText(R.string.ui_partial_harvest_41db432, "Partial harvest"),
                     opacity = reveal(p, .58f)
                 )
             }
             if (p >= .80f) {
                 Text(
-                    "View farm supplies separately",
+                    uiText(R.string.ui_view_farm_supplies_separately_2304a46, "View farm supplies separately"),
                     style = MaterialTheme.typography.labelSmall,
                     color = FieldGreen,
                     fontWeight = FontWeight.SemiBold,

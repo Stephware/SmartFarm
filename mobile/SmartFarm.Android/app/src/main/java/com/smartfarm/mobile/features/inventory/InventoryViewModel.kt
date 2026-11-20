@@ -1,5 +1,8 @@
 package com.smartfarm.mobile.features.inventory
 
+import com.smartfarm.mobile.R
+import com.smartfarm.mobile.localization.uiText
+
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
@@ -20,7 +23,7 @@ internal fun inventoryMovementQuantity(type: Int, text: String): BigDecimal {
     val value = text.toBigDecimalOrNull()
     require(type in 2..4 && value != null && value.signum() != 0 &&
         value.stripTrailingZeros().scale() <= 3 && value.abs() <= BigDecimal("999999999999999.999") &&
-        (type == 4 || value.signum() > 0)) { "Enter a positive quantity with up to 3 decimals; adjustments may be negative." }
+        (type == 4 || value.signum() > 0)) { uiText(R.string.ui_enter_a_positive_quantity_with_up_to_3_decimals_adju_727cc0e, "Enter a positive quantity with up to 3 decimals; adjustments may be negative.") }
     return if (type == 3) value.negate() else value
 }
 
@@ -67,7 +70,7 @@ class InventoryViewModel(private val repo: InventoryRepository,
             } catch (error: Exception) {
                 if (error is HttpException && error.code() in setOf(401, 403, 404)) clearDeniedData()
                 mutable.value = mutable.value.copy(error = NetworkErrorMessages.forRequest(
-                    error, "Could not load inventory."))
+                    error, uiText(R.string.ui_could_not_load_inventory_db84333, "Could not load inventory.")))
             } finally { if (loadJob === coroutineContext[Job]) mutable.value = mutable.value.copy(busy = false) }
         }
     }
@@ -96,7 +99,7 @@ class InventoryViewModel(private val repo: InventoryRepository,
             } catch (error: Exception) {
                 if (error is HttpException && error.code() in setOf(401, 403, 404)) clearDeniedData()
                 mutable.value = mutable.value.copy(error = NetworkErrorMessages.forRequest(
-                    error, "Could not load inventory item."))
+                    error, uiText(R.string.ui_could_not_load_inventory_item_4126093, "Could not load inventory item.")))
             } finally { if (loadJob === coroutineContext[Job]) mutable.value = mutable.value.copy(busy = false) }
         }
     }
@@ -125,7 +128,7 @@ class InventoryViewModel(private val repo: InventoryRepository,
                 throw cancelled
             } catch (_: Exception) {
                 mutable.value = mutable.value.copy(
-                    error = "Stock change failed. Check values and permissions; reload if inventory has changed.")
+                    error = uiText(R.string.ui_stock_change_failed_check_values_and_permissions_rel_38fe084, "Stock change failed. Check values and permissions; reload if inventory has changed."))
             } finally { mutable.value = mutable.value.copy(busy = false) }
         }
     }
@@ -171,13 +174,13 @@ class InventoryViewModel(private val repo: InventoryRepository,
                 mutable.value = mutable.value.copy(saveReceipts = mutable.value.saveReceipts +
                     ("${snapshot.farmId}/${snapshot.itemId}" to id))
                 mutable.value = mutable.value.copy(notice =
-                    "Stock change queued. Do not record it again; check offline sync status.")
+                    uiText(R.string.ui_stock_change_queued_do_not_record_it_again_check_off_6a88d15, "Stock change queued. Do not record it again; check offline sync status."))
             } catch (invalid: IllegalArgumentException) {
                 mutable.value = mutable.value.copy(error = invalid.message)
             } catch (cancelled: CancellationException) {
                 throw cancelled
             } catch (_: Exception) {
-                mutable.value = mutable.value.copy(error = "Could not save the change on this device.")
+                mutable.value = mutable.value.copy(error = uiText(R.string.ui_could_not_save_the_change_on_this_device_f0d3de8, "Could not save the change on this device."))
             } finally {
                 mutable.value = mutable.value.copy(busy = false)
             }

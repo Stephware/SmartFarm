@@ -11,6 +11,7 @@ class FarmSetupGuideTest {
         assertEquals(FarmSetupNext.AddPlot, nextFarmSetupStep(false, true, false))
         assertEquals(FarmSetupNext.Loading, nextFarmSetupStep(true, false, false))
         assertEquals(FarmSetupNext.PlanOrStartCrop, nextFarmSetupStep(true, true, false))
-        assertEquals(FarmSetupNext.Complete, nextFarmSetupStep(true, true, true))
+        assertEquals(FarmSetupNext.Record, nextFarmSetupStep(true, true, true))
+        assertEquals(FarmSetupNext.StartCrop, nextFarmSetupStep(true, true, false, true))
     }
 }

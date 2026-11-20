@@ -10,6 +10,10 @@ which supersedes conflicting baseline UI, admin, CI and schema statements.
 
 **Current MVP:** Web has Today / Crops & Calendar / Supplies / Harvests; Android has Today / Record / My Farm. Stage 5 removes duplicate plot/timeline pages, cash/charts, decorative crop art, public bulletins and ticket creation/replies. Help and protected read-only histories replace those entry points; security/diagnostics remain. Earlier five-tab/nine-link and finance/bulletin UI descriptions below are historical. [MVP scope/status](mvp-simplification.md) and `PRODUCT.md` supersede them.
 
+## Frontend F3 local checkpoint (2026-11-20)
+
+Ani setup guidance and important saved-weather alerts now share the approved raster mascot across Web and Android. Dismissal/replay preferences are presentation only and account/farm scoped; acknowledgment requires actual server confirmation. Existing read/unread and offline records remain intact. [Current local evidence](../../raw/project/2026-11-20-frontend-f3.md) records fixture/browser and emulator limits. F4/F5 remain separate pending checkpoints; no remote delivery occurred.
+
 ## Current visual and interaction system
 
 The current implemented look reconstructs the supplied AniGo reference in Harvest

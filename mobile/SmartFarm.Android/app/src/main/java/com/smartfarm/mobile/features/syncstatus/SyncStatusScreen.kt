@@ -1,5 +1,8 @@
 package com.smartfarm.mobile.features.syncstatus
 
+import com.smartfarm.mobile.R
+import com.smartfarm.mobile.localization.uiText
+
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -91,54 +94,54 @@ fun SyncStatusScreen(
     val global = syncQueueSummary(operations, photos)
     val progress = LocalSyncProgress.current
     val confirmed = progress.confirmedFarms.any { (farm, count) -> count > 0 && (farmId == null || farm == farmId) }
-    fun farmLabel(id: String): String = farmNames[id] ?: "Farm ${id.take(8)}"
+    fun farmLabel(id: String): String = farmNames[id] ?: uiText(R.string.ui_farm_1_s_32a0759, "Farm %1\$s", (id.take(8)))
 
-    RecordPage(title = "Offline sync", onBack = onBack) {
+    RecordPage(title = uiText(R.string.ui_offline_sync_843fdb9, "Offline sync"), onBack = onBack) {
         item(key = "header") {
             Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
 
-                FarmHero("Offline sync", "Records saved on this phone.")
-                FarmSectionCard("Sync queue", subtitle = "Waiting for server confirmation.") {
+                FarmHero(uiText(R.string.ui_offline_sync_843fdb9, "Offline sync"), uiText(R.string.ui_records_saved_on_this_phone_b1f0066, "Records saved on this phone."))
+                FarmSectionCard(uiText(R.string.ui_sync_queue_39c8598, "Sync queue"), subtitle = uiText(R.string.ui_waiting_for_server_confirmation_791ceb0, "Waiting for server confirmation.")) {
                     FlowRow(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp),
                         verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                        FarmStatusChip("Pending: ${summary.waiting}", FarmStatusTone.Planned)
-                        FarmStatusChip("Needs review: ${summary.needsReview}",
+                        FarmStatusChip(uiText(R.string.ui_pending_1_s_9a00006, "Pending: %1\$s", (summary.waiting)), FarmStatusTone.Planned)
+                        FarmStatusChip(uiText(R.string.ui_needs_review_1_s_38d2e3f, "Needs review: %1\$s", (summary.needsReview)),
                             if (summary.needsReview > 0) FarmStatusTone.Warning
                             else FarmStatusTone.Neutral)
                     }
-                    Text("${summary.total} local ${if (summary.total == 1) "record" else "records"} on this view",
+                    Text(uiText(R.string.ui_1_s_local_2_s_on_this_view_2a87990, "%1\$s local %2\$s on this view", (summary.total), (if (summary.total == 1) "record" else "records")),
                         style = MaterialTheme.typography.bodyMedium)
                     if (global.total > summary.total) {
-                        Text("${global.total - summary.total} more saved in other farms.",
+                        Text(uiText(R.string.ui_1_s_more_saved_in_other_farms_d6e246b, "%1\$s more saved in other farms.", (global.total - summary.total)),
                             color = MaterialTheme.colorScheme.onSurfaceVariant,
                             style = MaterialTheme.typography.bodySmall)
                     }
                 }
                 if (confirmed) {
-                    FarmStatusChip("Sent", FarmStatusTone.Active)
-                    Text("Server-confirmed work is available in farm history.",
+                    FarmStatusChip(uiText(R.string.ui_sent_c16bc82, "Sent"), FarmStatusTone.Active)
+                    Text(uiText(R.string.ui_server_confirmed_work_is_available_in_farm_history_864ee72, "Server-confirmed work is available in farm history."),
                         modifier = Modifier.semantics { liveRegion = LiveRegionMode.Polite })
                 }
                 if (progress.signInRequired) {
-                    Text("Sign in again to send your saved work.",
+                    Text(uiText(R.string.ui_sign_in_again_to_send_your_saved_work_cd65708, "Sign in again to send your saved work."),
                         modifier = Modifier.semantics { liveRegion = LiveRegionMode.Polite })
-                    if (onAccount != null) OutlinedButton(onClick = onAccount) { Text("Open account") }
+                    if (onAccount != null) OutlinedButton(onClick = onAccount) { Text(uiText(R.string.ui_open_account_81046a4, "Open account")) }
                 }
                 if (currentFarmId != null) {
                     FlowRow(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp),
                         verticalArrangement = Arrangement.spacedBy(8.dp)) {
                         FilterChip(selected = !allFarms, onClick = { allFarms = false },
                             modifier = Modifier.defaultMinSize(minHeight = 48.dp),
-                            label = { Text("This farm") })
+                            label = { Text(uiText(R.string.ui_this_farm_37bc053, "This farm")) })
                         FilterChip(selected = allFarms, onClick = { allFarms = true },
                             modifier = Modifier.defaultMinSize(minHeight = 48.dp),
-                            label = { Text("All my farms") })
+                            label = { Text(uiText(R.string.ui_all_my_farms_a091ca9, "All my farms")) })
                     }
                 }
                 FlowRow(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(6.dp),
                     verticalArrangement = Arrangement.spacedBy(6.dp)) {
-                    listOf("all" to "All", "review" to "Needs review",
-                        "waiting" to "Waiting").forEach { (key, label) ->
+                    listOf("all" to uiText(R.string.ui_all_a52ace4, "All"), "review" to uiText(R.string.ui_needs_review_07297fa, "Needs review"),
+                        "waiting" to uiText(R.string.ui_waiting_6e293a8, "Waiting")).forEach { (key, label) ->
                         FilterChip(selected = statusFilter == key,
                             onClick = { statusFilter = key },
                             modifier = Modifier.defaultMinSize(minHeight = 48.dp),
@@ -155,33 +158,33 @@ fun SyncStatusScreen(
                 }
                 Button(onClick = onSyncNow,
                     modifier = Modifier.fillMaxWidth().defaultMinSize(minHeight = 48.dp)) {
-                    Text("Sync now")
+                    Text(uiText(R.string.ui_sync_now_885e8f4, "Sync now"))
                 }
                 if (shownOperations.isEmpty() && shownPhotos.isEmpty()) {
                     FarmEmptyState(
-                        if (statusFilter == "review") "No records need review"
-                        else if (statusFilter == "waiting") "No waiting records"
-                        else if (summary.total == 0) "No records waiting on this phone"
-                        else "No matching records",
+                        if (statusFilter == "review") uiText(R.string.ui_no_records_need_review_055313c, "No records need review")
+                        else if (statusFilter == "waiting") uiText(R.string.ui_no_waiting_records_f4cc2f4, "No waiting records")
+                        else if (summary.total == 0) uiText(R.string.ui_no_records_waiting_on_this_phone_f0acb5c, "No records waiting on this phone")
+                        else uiText(R.string.ui_no_matching_records_4f36612, "No matching records"),
                         if (summary.total == 0)
-                            "Previously confirmed work is available in its farm history."
-                        else "Choose another filter or view all farms to find saved records."
+                            uiText(R.string.ui_previously_confirmed_work_is_available_in_its_farm_h_98f5120, "Previously confirmed work is available in its farm history.")
+                        else uiText(R.string.ui_choose_another_filter_or_view_all_farms_to_find_save_910e8ca, "Choose another filter or view all farms to find saved records.")
                     )
                 }
                 if (summary.total > 0) {
-                    Text("Records are confirmed only after server acceptance. Pending work stays on this phone.",
+                    Text(uiText(R.string.ui_records_are_confirmed_only_after_server_acceptance_p_ac07c1c, "Records are confirmed only after server acceptance. Pending work stays on this phone."),
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.onSurfaceVariant)
                 }
                 if (operations.size >= 100 || photos.size >= 100) {
-                    Text("Showing the most recent local entries. Older records are kept on this device.",
+                    Text(uiText(R.string.ui_showing_the_most_recent_local_entries_older_records__2c28ebd, "Showing the most recent local entries. Older records are kept on this device."),
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant)
                 }
             }
         }
         if (shownOperations.isNotEmpty()) item(key = "records-heading") {
-            FarmSectionHeader("Field records", "Needs-review entries appear first.")
+            FarmSectionHeader(uiText(R.string.ui_field_records_3048ebd, "Field records"), uiText(R.string.ui_needs_review_entries_appear_first_cc1b43f, "Needs-review entries appear first."))
         }
         items(shownOperations, key = { "operation-${it.operationId}" }) { operation ->
             val transfer = syncState(operation.status, operation.errorMessage,
@@ -192,7 +195,7 @@ fun SyncStatusScreen(
                 subtitle = "${farmLabel(operation.farmId)} · " +
                     farmDateTime(java.time.Instant.ofEpochMilli(operation.createdAtUtc).toString(),
                         farmTimeZones[operation.farmId] ?: farmTimeZone)) {
-                FarmStatusChip(if (needs) "Needs review" else if (transfer == SyncRecordState.SENDING) "Sending" else "Saved on phone",
+                FarmStatusChip(if (needs) uiText(R.string.ui_needs_review_07297fa, "Needs review") else if (transfer == SyncRecordState.SENDING) uiText(R.string.ui_sending_e595f17, "Sending") else uiText(R.string.ui_saved_on_phone_a8ae994, "Saved on phone"),
                     if (needs) FarmStatusTone.Warning else FarmStatusTone.Planned,
                     modifier = Modifier.semantics { liveRegion = LiveRegionMode.Polite })
                 Text(pendingRecordDescription(operation))
@@ -202,44 +205,44 @@ fun SyncStatusScreen(
                             modifier = Modifier.semantics { liveRegion = LiveRegionMode.Assertive })
                     }
                     Text(if (isStock)
-                        "Stock may have changed. Check its latest balance before retrying."
-                        else "Check the record and message before retrying.",
+                        uiText(R.string.ui_stock_may_have_changed_check_its_latest_balance_befo_0767216, "Stock may have changed. Check its latest balance before retrying.")
+                        else uiText(R.string.ui_check_the_record_and_message_before_retrying_13dd628, "Check the record and message before retrying."),
                         style = MaterialTheme.typography.bodySmall)
                     if (operation.status == "review") {
                         if (isStock) {
                             OutlinedButton(onClick = { onReviewStock(operation.operationId) },
                                 modifier = Modifier.fillMaxWidth().defaultMinSize(minHeight = 48.dp)) {
-                                Text("Check latest stock")
+                                Text(uiText(R.string.ui_check_latest_stock_b629f41, "Check latest stock"))
                             }
                         } else {
                             OutlinedButton(onClick = { onRetry(operation.operationId) },
                                 modifier = Modifier.fillMaxWidth().defaultMinSize(minHeight = 48.dp)) {
-                                Text("Retry this change")
+                                Text(uiText(R.string.ui_retry_this_change_200e584, "Retry this change"))
                             }
                         }
                     }
                     TextButton(onClick = { discard = operation.operationId }) {
-                        Text("Discard and re-enter")
+                        Text(uiText(R.string.ui_discard_and_re_enter_b5661e4, "Discard and re-enter"))
                     }
                 }
             }
         }
         if (shownPhotos.isNotEmpty()) item(key = "photos-heading") {
-            FarmSectionHeader("Crop photos", "Photos upload after their linked inspections.")
+            FarmSectionHeader(uiText(R.string.ui_crop_photos_294ed7b, "Crop photos"), uiText(R.string.ui_photos_upload_after_their_linked_inspections_9f4cf79, "Photos upload after their linked inspections."))
         }
         items(shownPhotos, key = { "photo-${it.photoId}" }) { photo ->
             val transfer = syncState(photo.status, photo.errorMessage,
                 progress.userId == photo.userId && progress.sendingId == photo.photoId)
             val needs = transfer == SyncRecordState.NEEDS_REVIEW
-            FarmSectionCard("Inspection photo",
+            FarmSectionCard(uiText(R.string.ui_inspection_photo_4c31148, "Inspection photo"),
                 subtitle = "${farmLabel(photo.farmId)} · " +
                     farmDateTime(java.time.Instant.ofEpochMilli(photo.savedAtUtcMillis).toString(),
                         farmTimeZones[photo.farmId] ?: farmTimeZone)) {
-                FarmStatusChip(if (needs) "Needs review" else if (transfer == SyncRecordState.SENDING) "Sending" else "Saved on phone",
+                FarmStatusChip(if (needs) uiText(R.string.ui_needs_review_07297fa, "Needs review") else if (transfer == SyncRecordState.SENDING) uiText(R.string.ui_sending_e595f17, "Sending") else uiText(R.string.ui_saved_on_phone_a8ae994, "Saved on phone"),
                     if (needs) FarmStatusTone.Warning else FarmStatusTone.Planned,
                     modifier = Modifier.semantics { liveRegion = LiveRegionMode.Polite })
                 if (photo.observationId == null) {
-                    Text("Waiting for its inspection to be accepted before uploading the photo.",
+                    Text(uiText(R.string.ui_waiting_for_its_inspection_to_be_accepted_before_upl_1f40fdc, "Waiting for its inspection to be accepted before uploading the photo."),
                         style = MaterialTheme.typography.bodySmall)
                 }
                 if (needs) {
@@ -250,14 +253,14 @@ fun SyncStatusScreen(
                     if (canRetryPhoto(photo)) {
                         OutlinedButton(onClick = { onRetryPhoto(photo.photoId) },
                             modifier = Modifier.fillMaxWidth().defaultMinSize(minHeight = 48.dp)) {
-                            Text("Retry photo")
+                            Text(uiText(R.string.ui_retry_photo_22a7a49, "Retry photo"))
                         }
                     } else if (syncNeedsParent(photo)) {
-                        Text("Review the inspection entry above first. Retrying this photo alone cannot finish it.",
+                        Text(uiText(R.string.ui_review_the_inspection_entry_above_first_retrying_thi_3452d13, "Review the inspection entry above first. Retrying this photo alone cannot finish it."),
                             style = MaterialTheme.typography.bodySmall)
                     }
                     TextButton(onClick = { discardPhoto = photo.photoId }) {
-                        Text("Discard local photo")
+                        Text(uiText(R.string.ui_discard_local_photo_7559db3, "Discard local photo"))
                     }
                 }
             }
@@ -267,36 +270,36 @@ fun SyncStatusScreen(
     stockPreview?.let { preview ->
         AlertDialog(
             onDismissRequest = onCancelStock,
-            title = { Text("Confirm stock retry") },
+            title = { Text(uiText(R.string.ui_confirm_stock_retry_b6ec8b0, "Confirm stock retry")) },
             text = {
-                Text("${preview.itemName}\nCurrent stock: ${preview.currentBalance}\n" +
-                    "Queued change: ${preview.change}\n" +
-                    "Stock after change: ${preview.expectedBalance}\n" +
+                Text(uiText(R.string.ui_1_s_ncurrent_stock_2_s_n_16b768e, "%1\$s\nCurrent stock: %2\$s\n", (preview.itemName), (preview.currentBalance)) +
+                    uiText(R.string.ui_queued_change_1_s_n_986c73a, "Queued change: %1\$s\n", (preview.change)) +
+                    uiText(R.string.ui_stock_after_change_1_s_n_ff166e2, "Stock after change: %1\$s\n", (preview.expectedBalance)) +
                     (if (preview.includesFieldActivity)
-                        "The field activity and supply consumption will be saved together. "
+                        uiText(R.string.ui_the_field_activity_and_supply_consumption_will_be_sa_8a76112, "The field activity and supply consumption will be saved together. ")
                     else "") +
-                    "Only retry if this movement still reflects actual farm work.")
+                    uiText(R.string.ui_only_retry_if_this_movement_still_reflects_actual_fa_16cd94e, "Only retry if this movement still reflects actual farm work."))
             },
-            confirmButton = { TextButton(onClick = onApproveStock) { Text("Approve and retry") } },
-            dismissButton = { TextButton(onClick = onCancelStock) { Text("Cancel") } }
+            confirmButton = { TextButton(onClick = onApproveStock) { Text(uiText(R.string.ui_approve_and_retry_eb69ed2, "Approve and retry")) } },
+            dismissButton = { TextButton(onClick = onCancelStock) { Text(uiText(R.string.ui_cancel_19766ed, "Cancel")) } }
         )
     }
     discardPhoto?.let { photoId ->
         AlertDialog(onDismissRequest = { discardPhoto = null },
-            title = { Text("Discard offline photo?") },
-            text = { Text("The photo file will be permanently deleted from this phone. This cannot be undone.") },
+            title = { Text(uiText(R.string.ui_discard_offline_photo_40c0e83, "Discard offline photo?")) },
+            text = { Text(uiText(R.string.ui_the_photo_file_will_be_permanently_deleted_from_this_58b4ffb, "The photo file will be permanently deleted from this phone. This cannot be undone.")) },
             confirmButton = { TextButton(onClick = {
                 onDiscardPhoto(photoId); discardPhoto = null
-            }) { Text("Discard photo") } },
-            dismissButton = { TextButton(onClick = { discardPhoto = null }) { Text("Cancel") } })
+            }) { Text(uiText(R.string.ui_discard_photo_95943ad, "Discard photo")) } },
+            dismissButton = { TextButton(onClick = { discardPhoto = null }) { Text(uiText(R.string.ui_cancel_19766ed, "Cancel")) } })
     }
     discard?.let { operationId ->
         AlertDialog(onDismissRequest = { discard = null },
-            title = { Text("Discard unsynced change?") },
-            text = { Text("This saved local record will be permanently deleted. Linked unsynced photos may also be removed. This cannot be undone.") },
+            title = { Text(uiText(R.string.ui_discard_unsynced_change_56fa99e, "Discard unsynced change?")) },
+            text = { Text(uiText(R.string.ui_this_saved_local_record_will_be_permanently_deleted__72e3313, "This saved local record will be permanently deleted. Linked unsynced photos may also be removed. This cannot be undone.")) },
             confirmButton = { TextButton(onClick = {
                 onDiscard(operationId); discard = null
-            }) { Text("Discard") } },
-            dismissButton = { TextButton(onClick = { discard = null }) { Text("Cancel") } })
+            }) { Text(uiText(R.string.ui_discard_eb1a70e, "Discard")) } },
+            dismissButton = { TextButton(onClick = { discard = null }) { Text(uiText(R.string.ui_cancel_19766ed, "Cancel")) } })
     }
 }

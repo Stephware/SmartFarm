@@ -10,6 +10,7 @@ public sealed record MonitoringWorkspaceViewModel(
     CropCycleDetails Cycle, MonitoringDetails Monitoring,
     IReadOnlyList<FarmTaskDetails> Tasks)
 {
+    public string TimeZoneId { get; init; } = "Asia/Manila";
     public string? Quick { get; init; }
     public string? ErrorForm { get; init; }
     public IReadOnlyList<InventoryItemDetails> Supplies { get; init; } = [];

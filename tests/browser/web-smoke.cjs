@@ -97,18 +97,35 @@ async function checkAccessibility(page, screen, viewport) {
                     await checkAccessibility(page, "login", label);
                 assert.equal(await page.locator('input[name="Email"][type="email"]').count(), 1);
                 assert.equal(await page.locator('input[name="Password"][type="password"]').count(), 1);
-                assert.equal(await page.locator('input[name="__RequestVerificationToken"]').count(), 1);
+                assert.equal(await page.locator('form.auth-form input[name="__RequestVerificationToken"]').count(), 1);
                 const show = page.locator("[data-password-toggle]").first();
                 await show.click();
                 assert.equal(await page.locator('input[name="Password"]').getAttribute("type"), "text");
                 await show.click();
                 assert.equal(await page.locator('input[name="Password"]').getAttribute("type"), "password");
 
+                // Recovery must be a real web form and never reveal account existence.
+                await page.getByRole("link", { name: /forgot your password/i }).click();
+                assert.equal(new URL(page.url()).pathname, "/Account/ForgotPassword");
+                assert.equal(await page.locator('form.auth-form input[name="Email"]').count(), 1);
+                assert.equal(await page.locator('form.auth-form input[name="__RequestVerificationToken"]').count(), 1);
+                assert.equal(await page.getByRole("button", { name: /request reset instructions/i }).count(), 1);
+                const reset = await page.goto(new URL(
+                    "/Account/ResetPassword?email=test%40example.test&token=placeholder", base).href);
+                assert.equal(reset?.status(), 200);
+                assert.match(reset.headers()["cache-control"] || "", /no-store/);
+                assert.equal(reset.headers()["referrer-policy"], "no-referrer");
+                assert.equal(await page.locator('form.auth-form input[name="ConfirmPassword"][type="password"]').count(), 1);
+                assert.equal(await page.locator('form.auth-form input[name="Token"][type="hidden"]').count(), 1);
+                await checkPage(page, "/Account/ResetPassword", "Invalid reset link");
+                await checkPage(page, "/Account/ForgotPassword/Sent", "Check your email");
+                assert.match(await page.locator("main").innerText(), /cannot confirm whether an account exists/);
+
                 await checkPage(page, "/Account/Register", "Create your account");
                 if (label === "phone" || label === "desktop")
                     await checkAccessibility(page, "registration", label);
                 assert.equal(await page.locator('input[name="FullName"]').count(), 1);
-                assert.equal(await page.locator('input[name="__RequestVerificationToken"]').count(), 1);
+                assert.equal(await page.locator('form.auth-form input[name="__RequestVerificationToken"]').count(), 1);
                 await page.screenshot({ path: path.join(screenshots, `register-${label}.png`), fullPage: true });
                 assert.deepEqual(errors, [], `JavaScript errors at ${label}`);
                 results.push(`${label}: landing, login, registration, accessible controls, viewport and JS passed`);

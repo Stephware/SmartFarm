@@ -1,6 +1,6 @@
 @model SmartFarm.Web.ViewModels.Reports.HarvestReportPage
 @{
-    ViewData["Title"] = "Harvests";
+    ViewData["Title"] = T["Harvests"];
     ViewData["FarmName"] = Model.Report.FarmName;
     var report = Model.Report;
     var hasFilters = report.FromDate.HasValue || report.ToDate.HasValue || report.PlotId.HasValue || report.CropTypeId.HasValue;
@@ -13,44 +13,44 @@
 }
 <div class="reference-screen reference-screen-reports ani12e-workspace ani12e-reports mvp-harvests ani-p2-page ani-p2-reports">
 <partial name="_FarmNavigation" model="report.FarmId" />
-<partial name="_UiPageHeader" model='@(new UiPageHeader("Harvests", report.FarmName + " · Dates follow " + report.TimeZoneId + ".", "Choose crop to harvest", Url.Action("Index", "Crops", new { farmId = report.FarmId }) + "#ani-current-heading", Id: "reports-heading"))' />
+<partial name="_UiPageHeader" model='@(new UiPageHeader(T["Harvests"], T["{0} · Dates follow {1}.", report.FarmName, report.TimeZoneId], T["Choose crop to harvest"], Url.Action("Index", "Crops", new { farmId = report.FarmId }) + "#ani-current-heading", Id: "reports-heading"))' />
 <section class="panel mvp-harvest-totals" aria-labelledby="harvest-unit-totals-heading">
-    <h2 id="harvest-unit-totals-heading">Recorded yield by unit</h2>
-    <p role="status">@(hasFilters ? "Filters applied — totals, records and CSV downloads use the selected scope." : "Showing all recorded harvest dates, plots and crops.")</p>
-    <p class="sf-muted">@report.ValidHarvestCount valid harvest records · @report.VoidedHarvestCount voided records</p>
+    <h2 id="harvest-unit-totals-heading">@T["Recorded yield by unit"]</h2>
+    <p role="status">@(hasFilters ? T["Filters applied — totals, records and CSV downloads use the selected scope."] : T["Showing all recorded harvest dates, plots and crops."])</p>
+    <p class="sf-muted">@T["{0} valid harvest records · {1} voided records", report.ValidHarvestCount, report.VoidedHarvestCount]</p>
     @if (report.UnitTotals.Count == 0)
     {
-        <div class="sf-empty-state"><strong>No recorded harvests for this view.</strong>
-            <p>@(hasFilters ? "Clear or change the filters to see other farm records." : "Record a partial harvest on an active crop to begin.")</p>
-            @if (hasFilters) { <a class="sf-button-outline" asp-action="Harvests" asp-route-farmId="@report.FarmId">See all harvests</a> }
+        <div class="sf-empty-state"><strong>@T["No recorded harvests for this view."]</strong>
+            <p>@(hasFilters ? T["Clear or change the filters to see other farm records."] : T["Record a partial harvest on an active crop to begin."])</p>
+            @if (hasFilters) { <a class="sf-button-outline" asp-action="Harvests" asp-route-farmId="@report.FarmId">@T["See all harvests"]</a> }
         </div>
     }
     else
     {
         <div class="stat-grid sf-report-unit-totals ani12e-unit-totals">
         @foreach (var total in report.UnitTotals)
-        { <div class="stat"><span>@total.HarvestCount valid harvests</span><strong>@total.Quantity.ToString("N3") @total.Unit</strong></div> }
+        { <div class="stat"><span>@T["{0} valid harvests", total.HarvestCount]</span><strong>@total.Quantity.ToString("N3") @total.Unit</strong></div> }
         </div>
     }
-    <p class="hint">Quantities in different units stay separate. Voided entries are excluded from every total.</p>
+    <p class="hint">@T["Quantities in different units stay separate. Voided entries are excluded from every total."]</p>
 </section>
-<section class="ani-report-main-content ani12e-report-results" aria-label="Harvest report results">
+<section class="ani-report-main-content ani12e-report-results" aria-label="@T["Harvest report results"]">
 <section class="panel card sf-report-table-panel ani-report-table ani12e-data-panel" aria-labelledby="report-history-heading">
-    <header class="reference-panel-heading"><h2 id="report-history-heading">Recent harvests</h2></header>
-    <p class="hint">Showing @visibleEntries.Count on this page from the latest @reportItems.Count matching records (maximum 100, including voided entries). For the complete history, use Export records CSV.</p>
+    <header class="reference-panel-heading"><h2 id="report-history-heading">@T["Recent harvests"]</h2></header>
+    <p class="hint">@T["{0} {1} on this page from the latest {2} matching records (maximum 100, including voided entries). For the complete history, use Export records CSV.", T["Showing"], visibleEntries.Count, reportItems.Count]</p>
     @if (report.Entries.Count == 0)
     {
-        <div class="sf-empty-state"><strong>No harvest entries to show.</strong>
-            <p>@(hasFilters ? "Adjust the filters or clear them to see other dates and crops." : "New harvests appear after they are saved on an active crop.")</p>
-            @if (hasFilters) { <a asp-action="Harvests" asp-route-farmId="@report.FarmId">Clear harvest filters →</a> }
+        <div class="sf-empty-state"><strong>@T["No harvest entries to show."]</strong>
+            <p>@(hasFilters ? T["Adjust the filters or clear them to see other dates and crops."] : T["New harvests appear after they are saved on an active crop."])</p>
+            @if (hasFilters) { <a asp-action="Harvests" asp-route-farmId="@report.FarmId">@T["Clear harvest filters →"]</a> }
         </div>
     }
     else
     {
-        <div class="table-scroll" tabindex="0" role="region" aria-label="Harvest record history">
+        <div class="table-scroll" tabindex="0" role="region" aria-label="@T["Harvest record history"]">
             <table class="data-table">
-                <caption class="visually-hidden">Harvest record history</caption>
-                <thead><tr><th scope="col">Farm date</th><th scope="col">Crop / plot</th><th scope="col">Quantity</th><th scope="col">Status</th></tr></thead>
+                <caption class="visually-hidden">@T["Harvest record history"]</caption>
+                <thead><tr><th scope="col">@T["Farm date"]</th><th scope="col">@T["Crop / plot"]</th><th scope="col">@T["Quantity"]</th><th scope="col">@T["Status"]</th></tr></thead>
                 <tbody>
                 @foreach (var item in visibleEntries)
                 {
@@ -58,7 +58,7 @@
                         <td>@item.FarmDate.ToString("yyyy-MM-dd")</td>
                         <td>@item.CropTypeName · @item.PlotName</td>
                         <td>@item.Quantity.ToString("N3") @item.Unit</td>
-                        <td>@(item.IsVoided ? "Voided" : "Valid")</td>
+                        <td>@(item.IsVoided ? T["Voided"] : T["Valid"])</td>
                     </tr>
                 }
                 </tbody>
@@ -66,15 +66,15 @@
         </div>
         @if (pageCount > 1)
         {
-            <nav class="ani-p4-pager ani-f2-pager" aria-label="Harvest record pages">
-                <span>Page @currentPage of @pageCount</span>
+            <nav class="ani-p4-pager ani-f2-pager" aria-label="@T["Harvest record pages"]">
+                <span>@T["{0} {1} of {2}", T["Page"], currentPage, pageCount]</span>
                 @if (currentPage > 1)
                 {
                     <a asp-action="Harvests" asp-route-farmId="@report.FarmId"
                        asp-route-from="@(report.FromDate?.ToString("yyyy-MM-dd"))"
                        asp-route-to="@(report.ToDate?.ToString("yyyy-MM-dd"))"
                        asp-route-plotId="@report.PlotId" asp-route-cropTypeId="@report.CropTypeId"
-                       asp-route-page="@(currentPage - 1)" asp-fragment="report-history-heading" rel="prev">Previous</a>
+                       asp-route-page="@(currentPage - 1)" asp-fragment="report-history-heading" rel="prev">@T["Previous"]</a>
                 }
                 @if (currentPage < pageCount)
                 {
@@ -82,78 +82,74 @@
                        asp-route-from="@(report.FromDate?.ToString("yyyy-MM-dd"))"
                        asp-route-to="@(report.ToDate?.ToString("yyyy-MM-dd"))"
                        asp-route-plotId="@report.PlotId" asp-route-cropTypeId="@report.CropTypeId"
-                       asp-route-page="@(currentPage + 1)" asp-fragment="report-history-heading" rel="next">Next</a>
+                       asp-route-page="@(currentPage + 1)" asp-fragment="report-history-heading" rel="next">@T["Next"]</a>
                 }
             </nav>
         }
     }
 </section>
 <details class="ani-p2-report-tools" id="report-filters" open="@(hasFilters ? "open" : null)">
-    <summary><span>Filters &amp; downloads</span><span class="ani-p2-detail-note">@(hasFilters ? "Filters applied" : "Optional")</span></summary>
+    <summary><span>@T["Filters & downloads"]</span><span class="ani-p2-detail-note">@(hasFilters ? T["Filters applied"] : T["Optional"])</span></summary>
 <section class="panel" aria-labelledby="report-filter-heading">
-    <h2 id="report-filter-heading">Filters &amp; downloads</h2>
+    <h2 id="report-filter-heading">@T["Filters & downloads"]</h2>
     <form method="get" asp-action="Harvests" class="report-filters sf-report-filters ani12e-report-filter-form">
         <input type="hidden" name="farmId" value="@report.FarmId" />
-        <div><label for="from">From</label><input id="from" type="date" name="from" min="2000-01-01" max="2100-12-30" value="@(report.FromDate?.ToString("yyyy-MM-dd"))" /></div>
-        <div><label for="to">To</label><input id="to" type="date" name="to" min="2000-01-01" max="2100-12-30" value="@(report.ToDate?.ToString("yyyy-MM-dd"))" /></div>
-        <button type="submit">Apply filters</button>
+        <div><label for="from">@T["From"]</label><input id="from" type="date" name="from" min="2000-01-01" max="2100-12-30" value="@(report.FromDate?.ToString("yyyy-MM-dd"))" /></div>
+        <div><label for="to">@T["To"]</label><input id="to" type="date" name="to" min="2000-01-01" max="2100-12-30" value="@(report.ToDate?.ToString("yyyy-MM-dd"))" /></div>
+        <button type="submit">@T["Apply filters"]</button>
         <details class="mvp-report-filter-options" open="@(report.PlotId.HasValue || report.CropTypeId.HasValue)">
-            <summary>Filter by plot or crop (optional)</summary>
+            <summary>@T["Filter by plot or crop (optional)"]</summary>
             <div class="mvp-filter-fields">
-                <div><label for="plot">Plot</label><select id="plot" name="plotId"><option value="">All plots</option>
+                <div><label for="plot">@T["Plot"]</label><select id="plot" name="plotId"><option value="">@T["All plots"]</option>
                     @foreach (var plot in Model.Plots) { <option value="@plot.Id" selected="@(report.PlotId == plot.Id)">@plot.Name</option> }
                 </select></div>
-                <div><label for="crop">Crop type</label><select id="crop" name="cropTypeId"><option value="">All crops</option>
+                <div><label for="crop">@T["Crop type"]</label><select id="crop" name="cropTypeId"><option value="">@T["All crops"]</option>
                     @foreach (var crop in Model.CropTypes) { <option value="@crop.Id" selected="@(report.CropTypeId == crop.Id)">@crop.Name</option> }
                 </select></div>
             </div>
         </details>
     </form>
     <div class="action-links sf-report-actions ani12e-export-actions">
-        <a class="sf-button-outline" asp-action="Harvests" asp-route-farmId="@report.FarmId">Clear filters</a>
+        <a class="sf-button-outline" asp-action="Harvests" asp-route-farmId="@report.FarmId">@T["Clear filters"]</a>
         <a class="button" asp-action="ExportCsv" asp-route-farmId="@report.FarmId"
            asp-route-from="@(report.FromDate?.ToString("yyyy-MM-dd"))" asp-route-to="@(report.ToDate?.ToString("yyyy-MM-dd"))"
-           asp-route-plotId="@report.PlotId" asp-route-cropTypeId="@report.CropTypeId">
-            Export records CSV
-        </a>
+           asp-route-plotId="@report.PlotId" asp-route-cropTypeId="@report.CropTypeId">@T["Export records CSV"] </a>
         <a class="sf-button-outline" asp-action="ExportCycleCsv" asp-route-farmId="@report.FarmId"
            asp-route-from="@(report.FromDate?.ToString("yyyy-MM-dd"))"
            asp-route-to="@(report.ToDate?.ToString("yyyy-MM-dd"))"
-           asp-route-plotId="@report.PlotId" asp-route-cropTypeId="@report.CropTypeId">
-            Export cycle totals CSV
-        </a>
+           asp-route-plotId="@report.PlotId" asp-route-cropTypeId="@report.CropTypeId">@T["Export cycle totals CSV"] </a>
     </div>
 </section>
 </details>
 <details class="mvp-report-breakdown" id="report-breakdown">
-    <summary>Totals by planting cycle and month</summary>
+    <summary>@T["Totals by planting cycle and month"]</summary>
 <section class="panel card sf-report-table-panel ani-report-table" aria-labelledby="report-by-cycle">
     <div class="sf-section-line card-head">
-        <h2 id="report-by-cycle">Yield by planting cycle</h2>
-        <span>@report.CycleTotals.Count cycle / unit groups</span>
+        <h2 id="report-by-cycle">@T["Yield by planting cycle"]</h2>
+        <span>@T["{0} cycle / unit groups", report.CycleTotals.Count]</span>
     </div>
     @if (report.CycleTotals.Count == 0)
     {
-        <p>No valid harvests are available for cycle comparisons.</p>
+        <p>@T["No valid harvests are available for cycle comparisons."]</p>
     }
     else
     {
-        <div class="table-scroll" tabindex="0" role="region" aria-label="Yield comparison by cycle">
+        <div class="table-scroll" tabindex="0" role="region" aria-label="@T["Yield comparison by cycle"]">
             <table class="data-table">
-                <caption class="visually-hidden">Individual planting cycles and harvest totals by unit</caption>
+                <caption class="visually-hidden">@T["Individual planting cycles and harvest totals by unit"]</caption>
                 <thead><tr>
-                    <th scope="col">Crop / plot</th>
-                    <th scope="col">First harvest</th>
-                    <th scope="col">Last harvest</th>
-                    <th scope="col">Partial harvests</th>
-                    <th scope="col">Recorded quantity</th>
+                    <th scope="col">@T["Crop / plot"]</th>
+                    <th scope="col">@T["First harvest"]</th>
+                    <th scope="col">@T["Last harvest"]</th>
+                    <th scope="col">@T["Partial harvests"]</th>
+                    <th scope="col">@T["Recorded quantity"]</th>
                 </tr></thead>
                 <tbody>
                 @foreach (var cycle in report.CycleTotals)
                 {
                     <tr>
                         <td><strong>@cycle.CropTypeName</strong> · @cycle.PlotName
-                            <small>Cycle @cycle.CycleId.ToString("N")[..6]</small></td>
+                            <small>@T["Cycle"] @cycle.CycleId.ToString("N")[..6]</small></td>
                         <td>@cycle.FirstHarvestDate.ToString("yyyy-MM-dd")</td>
                         <td>@cycle.LastHarvestDate.ToString("yyyy-MM-dd")</td>
                         <td>@cycle.HarvestCount</td>
@@ -167,14 +163,14 @@
 </section>
 
 <section class="panel card sf-report-table-panel ani-report-table" aria-labelledby="monthly-yield-table">
-    <header class="reference-panel-heading"><h2 id="monthly-yield-table">Monthly yield</h2></header>
-    @if (report.MonthlyTotals.Count == 0) { <p>No monthly harvest data.</p> }
+    <header class="reference-panel-heading"><h2 id="monthly-yield-table">@T["Monthly yield"]</h2></header>
+    @if (report.MonthlyTotals.Count == 0) { <p>@T["No monthly harvest data."]</p> }
     else
     {
-        <div class="table-scroll" tabindex="0" role="region" aria-label="Scrollable monthly yield records">
+        <div class="table-scroll" tabindex="0" role="region" aria-label="@T["Scrollable monthly yield records"]">
             <table class="data-table">
-                <caption class="visually-hidden">Monthly yield</caption>
-                <thead><tr><th scope="col">Month</th><th scope="col">Harvests</th><th scope="col">Quantity</th></tr></thead>
+                <caption class="visually-hidden">@T["Monthly yield"]</caption>
+                <thead><tr><th scope="col">@T["Month"]</th><th scope="col">@T["Harvests"]</th><th scope="col">@T["Quantity"]</th></tr></thead>
                 <tbody>
                 @foreach (var item in report.MonthlyTotals)
                 {

@@ -1,5 +1,8 @@
 package com.smartfarm.mobile.features.tasks
 
+import com.smartfarm.mobile.R
+import com.smartfarm.mobile.localization.uiText
+
 import com.smartfarm.mobile.data.remote.api.TaskDto
 import java.time.Instant
 import java.time.LocalDate
@@ -38,10 +41,10 @@ object TaskWorkCenter {
 data class WorkTaskPreset(val type: Int, val label: String, val suggestedDescription: String)
 
 object WorkTaskPresets {
-    val options = listOf(
-        WorkTaskPreset(2, "Watering", "Area or plants watered:\nAmount (optional):"),
-        WorkTaskPreset(4, "Inspection", "What to check:\nFindings to record:"),
-        WorkTaskPreset(3, "Fertilizing", "Product / area:\nApplication details:"),
-        WorkTaskPreset(5, "Harvest", "Expected harvest area:\nPreparation:")
+    val options get() = listOf(
+        WorkTaskPreset(2, uiText(R.string.ui_watering_2ee1114, "Watering"), uiText(R.string.ui_area_or_plants_watered_namount_optional_a3c5809, "Area or plants watered:\nAmount (optional):")),
+        WorkTaskPreset(4, uiText(R.string.ui_inspection_6e4fa13, "Inspection"), uiText(R.string.ui_what_to_check_nfindings_to_record_979a55e, "What to check:\nFindings to record:")),
+        WorkTaskPreset(3, uiText(R.string.ui_fertilizing_3cc00f9, "Fertilizing"), uiText(R.string.ui_product_area_napplication_details_d7bba08, "Product / area:\nApplication details:")),
+        WorkTaskPreset(5, uiText(R.string.ui_harvest_c91ab8b, "Harvest"), uiText(R.string.ui_expected_harvest_area_npreparation_b1c133d, "Expected harvest area:\nPreparation:"))
     )
 }

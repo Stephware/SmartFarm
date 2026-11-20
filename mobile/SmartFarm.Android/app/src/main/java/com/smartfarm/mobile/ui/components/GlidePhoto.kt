@@ -1,5 +1,8 @@
 package com.smartfarm.mobile.ui.components
 
+import com.smartfarm.mobile.R
+import com.smartfarm.mobile.localization.uiText
+
 import android.graphics.drawable.Drawable
 import android.content.Context
 import android.widget.ImageView
@@ -105,7 +108,7 @@ fun GlidePhoto(model: Any?, contentDescription: String, modifier: Modifier = Mod
             PhotoDisplayState.Loading ->
                 CircularProgressIndicator(Modifier.align(Alignment.Center))
             PhotoDisplayState.Error ->
-                Text("Image unavailable", modifier = Modifier.align(Alignment.Center)
+                Text(uiText(R.string.ui_image_unavailable_7817cd0, "Image unavailable"), modifier = Modifier.align(Alignment.Center)
                     .padding(8.dp), style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant)
             PhotoDisplayState.Ready -> Unit

@@ -1,5 +1,8 @@
 package com.smartfarm.mobile.ui.components
 
+import com.smartfarm.mobile.R
+import com.smartfarm.mobile.localization.uiText
+
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -63,9 +66,9 @@ val LocalExitGuard = compositionLocalOf<ExitGuard?> { null }
 @Composable fun DiscardChangesDialog(guard: ExitGuard) {
     if (guard.pending != null) AlertDialog(
         onDismissRequest = guard::keepEditing,
-        title = { Text("Discard unsaved changes?") },
-        text = { Text("Your unfinished input will be lost. Records already saved on this phone will stay safe.") },
-        confirmButton = { TextButton(onClick = guard::discard) { Text("Discard changes") } },
-        dismissButton = { TextButton(onClick = guard::keepEditing) { Text("Keep editing") } }
+        title = { Text(uiText(R.string.ui_discard_unsaved_changes_470e7ee, "Discard unsaved changes?")) },
+        text = { Text(uiText(R.string.ui_your_unfinished_input_will_be_lost_records_already_s_0214fb5, "Your unfinished input will be lost. Records already saved on this phone will stay safe.")) },
+        confirmButton = { TextButton(onClick = guard::discard) { Text(uiText(R.string.ui_discard_changes_f9bfa3d, "Discard changes")) } },
+        dismissButton = { TextButton(onClick = guard::keepEditing) { Text(uiText(R.string.ui_keep_editing_e76fd2a, "Keep editing")) } }
     )
 }

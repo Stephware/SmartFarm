@@ -1,5 +1,8 @@
 package com.smartfarm.mobile.navigation
 
+import com.smartfarm.mobile.R
+import com.smartfarm.mobile.localization.uiText
+
 import com.smartfarm.mobile.data.remote.dto.CropCycleDto
 
 /** One destination for every secondary farm section; no nested horizontal tabs. */
@@ -21,34 +24,34 @@ internal fun navigationParent(route: String?, farmId: String): String? = when {
 }
 
 internal fun navigationTitle(route: String?, section: String? = null, quick: String? = null): String = when {
-    route == "login" -> "Log in"
-    route == "register" -> "Create account"
-    route == "forgot-password" -> "Password help"
-    route == "account" -> "My account"
-    route == "farms" -> "My farms"
-    route == "notifications" -> "Notifications"
-    route == "sync" -> "Offline sync"
-    route == "tasks/{farmId}" -> "Farm tasks"
-    route == "crops/{farmId}" -> "Crops"
-    route == "inventory/{farmId}" -> "Supplies"
-    route == "inventory/{farmId}/{itemId}" -> "Supply details"
-    route == "insights/{farmId}" -> "Harvest summary"
-    route?.startsWith("harvests/") == true -> "Harvests"
+    route == "login" -> uiText(R.string.ui_log_in_c189840, "Log in")
+    route == "register" -> uiText(R.string.ui_create_account_798ca2c, "Create account")
+    route == "forgot-password" -> uiText(R.string.ui_password_help_aea062c, "Password help")
+    route == "account" -> uiText(R.string.ui_my_account_b53181a, "My account")
+    route == "farms" -> uiText(R.string.ui_my_farms_0517a09, "My farms")
+    route == "notifications" -> uiText(R.string.ui_notifications_7880118, "Notifications")
+    route == "sync" -> uiText(R.string.ui_offline_sync_843fdb9, "Offline sync")
+    route == "tasks/{farmId}" -> uiText(R.string.ui_farm_tasks_136a660, "Farm tasks")
+    route == "crops/{farmId}" -> uiText(R.string.ui_crops_0abd7c5, "Crops")
+    route == "inventory/{farmId}" -> uiText(R.string.ui_supplies_6be7560, "Supplies")
+    route == "inventory/{farmId}/{itemId}" -> uiText(R.string.ui_supply_details_734f9d1, "Supply details")
+    route == "insights/{farmId}" -> uiText(R.string.ui_harvest_summary_2a05eb0, "Harvest summary")
+    route?.startsWith("harvests/") == true -> uiText(R.string.ui_harvests_a2b3922, "Harvests")
     route?.startsWith("monitor/") == true -> when (quick) {
-        "watering" -> "Record watering"; "fertilizing" -> "Record fertilizing"
-        "inspection" -> "Record inspection"; "other" -> "Record activity"; else -> "Crop monitoring"
+        "watering" -> uiText(R.string.ui_record_watering_d15d0cc, "Record watering"); "fertilizing" -> uiText(R.string.ui_record_fertilizing_db7f592, "Record fertilizing")
+        "inspection" -> uiText(R.string.ui_record_inspection_9a13794, "Record inspection"); "other" -> uiText(R.string.ui_record_activity_423d9be, "Record activity"); else -> uiText(R.string.ui_crop_monitoring_d14cf4e, "Crop monitoring")
     }
     route == "farm/{farmId}/{section}" -> when (safeFarmSection(section)) {
-        "plots" -> "Farm plots"; "members" -> "Team & access"; "settings" -> "Farm settings"
-        "weather" -> "Farm weather"; else -> "Today"
+        "plots" -> uiText(R.string.ui_farm_plots_bfad5ec, "Farm plots"); "members" -> uiText(R.string.ui_team_access_c3b54bb, "Team & access"); "settings" -> uiText(R.string.ui_farm_settings_df0ed3a, "Farm settings")
+        "weather" -> uiText(R.string.ui_farm_weather_8a3ec1b, "Farm weather"); else -> uiText(R.string.ui_today_2b065c7, "Today")
     }
-    route == "myfarm/{farmId}" -> "My Farm"
-    route == "farm/{farmId}" -> "Today"
+    route == "myfarm/{farmId}" -> uiText(R.string.ui_my_farm_b2e9f88, "My Farm")
+    route == "farm/{farmId}" -> uiText(R.string.ui_today_2b065c7, "Today")
     // Missing-history parents are concrete routes rather than destination templates.
-    route?.startsWith("crops/") == true -> "Crops"
-    route?.startsWith("inventory/") == true -> "Supplies"
-    route?.startsWith("farm/") == true -> "Today"
-    else -> "Welcome"
+    route?.startsWith("crops/") == true -> uiText(R.string.ui_crops_0abd7c5, "Crops")
+    route?.startsWith("inventory/") == true -> uiText(R.string.ui_supplies_6be7560, "Supplies")
+    route?.startsWith("farm/") == true -> uiText(R.string.ui_today_2b065c7, "Today")
+    else -> uiText(R.string.ui_welcome_0e2226b, "Welcome")
 }
 
 /** Only an active cycle can receive a new activity, inspection, or harvest. */

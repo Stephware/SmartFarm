@@ -19,3 +19,6 @@ data class AuthTokens(
 
 data class AccountResponse(val id: String, val fullName: String, val email: String)
 
+
+/** Anonymous request; API returns the same result whether an account exists or not. */
+data class ForgotPasswordRequest(val email: String)

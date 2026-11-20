@@ -1,8 +1,10 @@
 package com.smartfarm.mobile.ui.components
 
+import com.smartfarm.mobile.R
+import com.smartfarm.mobile.localization.uiText
+
 import androidx.compose.foundation.Image
 import androidx.compose.ui.res.painterResource
-import com.smartfarm.mobile.R
 import com.smartfarm.mobile.ui.theme.LocalFarmAppearance
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Canvas
@@ -66,7 +68,13 @@ object FarmSpacing {
     val extraLarge = 32.dp
 }
 
-fun farmRoleLabel(role: String): String = if (role == "FieldWorker") "Field worker" else role
+fun farmRoleLabel(role: String): String = when(role) {
+    "Owner" -> uiText(R.string.ui_owner_4b1b8aa, "Owner")
+    "Manager" -> uiText(R.string.ui_manager_8b2085f, "Manager")
+    "FieldWorker" -> uiText(R.string.ui_field_worker_6195025, "Field worker")
+    else -> role
+}
+
 
 enum class FarmStatusTone { Active, Planned, Warning, Failed, Neutral }
 
@@ -190,7 +198,7 @@ fun FarmErrorState(message: String, onRetry: () -> Unit,
                 colors = androidx.compose.material3.ButtonDefaults.outlinedButtonColors(
                     contentColor = MaterialTheme.colorScheme.onErrorContainer),
                 modifier = Modifier.defaultMinSize(minHeight = 48.dp)) {
-                Text("Try again")
+                Text(uiText(R.string.ui_try_again_d8b8392, "Try again"))
             }
         }
     }
@@ -221,7 +229,7 @@ val LocalFarmHeaderNavigation = compositionLocalOf<FarmHeaderNavigation?> { null
 /** Brand and screen context remain outside the scrolling workspace. */
 @Composable
 fun FarmAppBar(modifier: Modifier = Modifier, title: String? = null,
-    onBack: (() -> Unit)? = null, backLabel: String = "Back") {
+    onBack: (() -> Unit)? = null, backLabel: String = uiText(R.string.ui_back_76900f1, "Back")) {
     val navigation = LocalFarmHeaderNavigation.current
     Surface(modifier.fillMaxWidth(), color = MaterialTheme.colorScheme.surface) {
         Column(Modifier.statusBarsPadding()) {
@@ -239,29 +247,29 @@ fun FarmAppBar(modifier: Modifier = Modifier, title: String? = null,
                         if (LocalFarmAppearance.current.dark) R.drawable.ani_go_mark_on_dark
                         else R.drawable.ani_go_mark
                     ),
-                    contentDescription = "AniGo",
+                    contentDescription = uiText(R.string.ui_anigo_80e6f53, "AniGo"),
                     modifier = Modifier.size(40.dp)
                 )
                 Box(Modifier.weight(1f))
                 if (navigation != null) {
                     androidx.compose.material3.OutlinedButton(onClick = navigation.onFarms,
                         modifier = Modifier.semantics {
-                            contentDescription = "Switch farm: ${navigation.farmName ?: "My farms"}"
+                            contentDescription = uiText(R.string.ui_switch_farm_1_s_ebf669c, "Switch farm: %1\$s", (navigation.farmName ?: "My farms"))
                         }.widthIn(max = if (compactHeader) 76.dp else
                             if (navigation.queuedCount > 0) 100.dp else 160.dp),
                         shape = MaterialTheme.shapes.small,
                         border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant),
                         contentPadding = androidx.compose.foundation.layout.PaddingValues(horizontal = 10.dp)) {
-                        Text(navigation.farmName ?: "My farms", maxLines = 1, overflow = TextOverflow.Ellipsis,
+                        Text(navigation.farmName ?: uiText(R.string.ui_my_farms_0517a09, "My farms"), maxLines = 1, overflow = TextOverflow.Ellipsis,
                             style = MaterialTheme.typography.labelMedium)
                     }
                     if (navigation.queuedCount > 0 && navigation.onSync != null) {
                         androidx.compose.material3.IconButton(onClick = navigation.onSync,
                             modifier = Modifier.semantics {
                                 contentDescription = if (navigation.reviewCount > 0)
-                                    "${navigation.reviewCount} offline records need review; " +
-                                        "${navigation.queuedCount} waiting in total"
-                                else "${navigation.queuedCount} records waiting to sync"
+                                    uiText(R.string.ui_1_s_offline_records_need_review_16ba5b8, "%1\$s offline records need review; ", (navigation.reviewCount)) +
+                                        uiText(R.string.ui_1_s_waiting_in_total_b7cda38, "%1\$s waiting in total", (navigation.queuedCount))
+                                else uiText(R.string.ui_1_s_records_waiting_to_sync_6b1d5d3, "%1\$s records waiting to sync", (navigation.queuedCount))
                             }) {
                             androidx.compose.material3.BadgedBox(
                                 badge = {
@@ -286,12 +294,12 @@ fun FarmAppBar(modifier: Modifier = Modifier, title: String? = null,
                         }
                     }
                     androidx.compose.material3.IconButton(onClick = navigation.onNotifications,
-                        modifier = Modifier.semantics { contentDescription = "Notifications" }) {
+                        modifier = Modifier.semantics { contentDescription = uiText(R.string.ui_notifications_7880118, "Notifications") }) {
                         FarmLineIcon(FarmSymbol.Bell)
                     }
                     navigation.onAccount?.let { openAccount ->
                         androidx.compose.material3.IconButton(onClick = openAccount,
-                            modifier = Modifier.semantics { contentDescription = "My account" }) {
+                            modifier = Modifier.semantics { contentDescription = uiText(R.string.ui_my_account_b53181a, "My account") }) {
                             FarmLineIcon(FarmSymbol.Account)
                         }
                     }

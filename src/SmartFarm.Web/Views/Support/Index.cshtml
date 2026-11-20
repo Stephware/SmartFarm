@@ -1,13 +1,13 @@
 @model SmartFarm.Web.ViewModels.Support.SupportListPage
 @{
-    ViewData["Title"] = "Previous support requests";
+    ViewData["Title"] = T["Previous support requests"];
 }
-<partial name="_UiPageHeader" model='@(new UiPageHeader("Previous support requests", "Read-only history. New requests and replies are retired; use Help for next steps.", BackText: "Back to Help", BackUrl: Url.Action("Help", "Home")))' />
+<partial name="_UiPageHeader" model='@(new UiPageHeader(T["Previous support requests"], T["Read-only history. New requests and replies are retired; use Help for next steps."], BackText: T["Back to Help"], BackUrl: Url.Action("Help", "Home")))' />
 @if (TempData["Message"] is string message) { <p class="form-notice" role="status">@message</p> }
-<section class="panel admin-directory-panel" aria-label="My requests">
+<section class="panel admin-directory-panel" aria-label="@T["My requests"]">
     @if (Model.Tickets.Count == 0)
     {
-        <p class="admin-empty">No previous requests.</p>
+        <p class="admin-empty">@T["No previous requests."]</p>
     }
     else
     {
@@ -17,7 +17,7 @@
                 <a class="admin-record" asp-area="" asp-controller="Support" asp-action="Details" asp-route-id="@ticket.Id">
                     <span class="admin-record-main"><strong>@ticket.Title</strong>
                         <small>@ticket.Category @(ticket.FarmName is null ? "" : $"· {ticket.FarmName}")</small>
-                        <small>Updated @ticket.UpdatedAtUtc.ToString("MMM d, yyyy") UTC</small></span>
+                        <small>@T["{0} {1}", T["Updated"], SmartFarm.Web.Presentation.FarmTimestamp.Display(ticket.UpdatedAtUtc, null)]</small></span>
                     <span class="sf-status-chip @(ticket.Status is "Open" or "InProgress" ? "sf-status-chip--planned" : "sf-status-chip--active")">@ticket.Status</span>
                 </a>
             }

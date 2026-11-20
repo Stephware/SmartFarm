@@ -29,7 +29,7 @@ const shots = process.env.SMARTFARM_PHASE4_SHOTS || path.join(__dirname, "screen
                 selected = `phase4-${area}-${role}-${state}`;
                 await page.setViewportSize({ width, height: 900 });
                 await page.goto(new URL(area === "inventory" ? "/Inventory?fixture" : "/Notifications?fixture", base).href,
-                    { waitUntil: "networkidle" });
+                    { waitUntil: "domcontentloaded" });
                 await page.evaluate(() => document.fonts.ready);
                 assert.equal(await page.locator("html").getAttribute("data-color-mode"), mode);
                 assert.ok(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 2), selected + " overflow");

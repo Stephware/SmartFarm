@@ -102,6 +102,10 @@ jobs:
         env:
           SMARTFARM_BROWSER_BASE_URL: http://127.0.0.1:5082
         run: node tests/browser/web-smoke.cjs
+      - name: Verify Filipino language persistence and recovery layout on small screens
+        env:
+          SMARTFARM_BROWSER_BASE_URL: http://127.0.0.1:5082
+        run: node tests/browser/f5-localized-public-smoke.cjs
       - name: Capture deterministic authenticated MVC pages
         env:
           ANIGO_CAPTURE_AUTH_FIXTURES: "1"

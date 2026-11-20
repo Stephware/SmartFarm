@@ -4,6 +4,7 @@ import com.smartfarm.mobile.data.remote.api.AuthApi
 import com.smartfarm.mobile.data.remote.dto.AccountResponse
 import com.smartfarm.mobile.data.remote.dto.AuthTokens
 import com.smartfarm.mobile.data.remote.dto.LoginRequest
+import com.smartfarm.mobile.data.remote.dto.ForgotPasswordRequest
 import com.smartfarm.mobile.data.remote.dto.RefreshRequest
 import com.smartfarm.mobile.data.remote.dto.RegisterRequest
 import kotlinx.coroutines.sync.Mutex
@@ -36,6 +37,13 @@ class AuthRepository(private val onLogin: () -> Unit = {}, private val api: () -
 
     suspend fun register(name: String, email: String, password: String) {
         val response = api().register(RegisterRequest(name.trim(), email.trim(), password))
+        if (!response.isSuccessful) throw HttpException(response)
+    }
+
+    suspend fun requestPasswordReset(email: String) {
+        // Deliberately unauthenticated: a signed-out user can recover their account.
+        // Never log addresses or infer whether the email belongs to an account.
+        val response = api().requestPasswordReset(ForgotPasswordRequest(email.trim()))
         if (!response.isSuccessful) throw HttpException(response)
     }
 

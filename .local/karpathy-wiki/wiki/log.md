@@ -258,3 +258,8 @@ Three native primary entries and a simpler existing Record sheet; My Farm groups
 - Disposition: Update
 - Raw: raw/project/2026-11-20-backend-delivery-followup.md
 - Updated: Database; Dependencies and development
+
+## [2026-11-20] ingest | Frontend F3 local checkpoint
+- Disposition: Update
+- Raw: raw/project/2026-11-20-frontend-f3.md
+- Updated: Web and Android frontend conventions

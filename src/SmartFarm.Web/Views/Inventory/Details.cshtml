@@ -15,37 +15,37 @@
 <section class="panel card sf-ops-hero sf-stock-hero ani12e-hero" aria-labelledby="stock-heading">
     <div class="sf-page-header page-hero">
         <div>
-            <p><a class="anigo-back-control" asp-action="Index" asp-route-farmId="@Model.Farm.Id" title="Back to supplies"><partial name="_Icon" model='@("chevLeft")' /><span class="visually-hidden">Back to supplies</span></a></p>
+            <p><a class="anigo-back-control" asp-action="Index" asp-route-farmId="@Model.Farm.Id" title="@T["Back to supplies"]"><partial name="_Icon" model='@("chevLeft")' /><span class="visually-hidden">@T["Back to supplies"]</span></a></p>
 
-            <p class="ani-overline">Farm-wide inventory</p>
+            <p class="ani-overline">@T["Farm-wide inventory"]</p>
             <h1 id="stock-heading">@item.Name</h1>
-            <p class="sf-muted">@item.CategoryName · measured in @item.Unit</p>
+            <p class="sf-muted">@T["{0} · measured in {1}", T[item.CategoryName], item.Unit]</p>
             @if (item.ReorderLevel.HasValue)
             {
-                <p class="ani-stock-threshold">Low-stock alert at @item.ReorderLevel.Value.ToString("N3") @item.Unit</p>
+                <p class="ani-stock-threshold">@T["Low-stock alert at"] @item.ReorderLevel.Value.ToString("N3") @item.Unit</p>
             }
         </div>
         <div class="sf-stock-hero-balance ani12e-stock-total">
-            <span>Available stock</span>
+            <span>@T["Available stock"]</span>
             <strong>@item.QuantityOnHand.ToString("N3") <small>@item.Unit</small></strong>
-            @if (item.IsLowStock) { <span class="sf-status-chip sf-status-chip--warning">Low-stock threshold reached</span> }
-            else if (active) { <span class="sf-status-chip sf-status-chip--active">In stock</span> }
+            @if (item.IsLowStock) { <span class="sf-status-chip sf-status-chip--warning">@T["Low-stock threshold reached"]</span> }
+            else if (active) { <span class="sf-status-chip sf-status-chip--active">@T["In stock"]</span> }
         </div>
     </div>
-    @if (!active) { <p class="sf-ops-hint">Archived item — transaction history remains available.</p> }
+    @if (!active) { <p class="sf-ops-hint">@T["Archived item — transaction history remains available."]</p> }
     @if (item.Description is not null) { <p class="sf-muted">@item.Description</p> }
     @if (TempData["Message"] is string message) { <p class="form-notice" role="status">@message</p> }
     @if (TempData["Error"] is string error) { <p class="error form-error" role="alert">@error
-        @if (active) { <a href="#stock-movement">Check stock movement →</a> }
+        @if (active) { <a href="#stock-movement">@T["Check stock movement →"]</a> }
     </p> }
     @if (canManage && active)
     {
-        <a asp-action="Edit" asp-route-farmId="@Model.Farm.Id" asp-route-itemId="@item.Id">Edit item</a>
+        <a asp-action="Edit" asp-route-farmId="@Model.Farm.Id" asp-route-itemId="@item.Id">@T["Edit item"]</a>
         @if (item.QuantityOnHand == 0)
         {
-            <form asp-action="Archive" asp-route-farmId="@Model.Farm.Id" asp-route-itemId="@item.Id" method="post" data-confirm="Archive @item.Name? Its transaction history will be retained.">
+            <form asp-action="Archive" asp-route-farmId="@Model.Farm.Id" asp-route-itemId="@item.Id" method="post" data-confirm="@T["Archive {0}? Its transaction history will be retained.", item.Name]">
                 <input type="hidden" name="rowVersion" value="@item.RowVersion" />
-                <button class="button-danger" type="submit">Archive item</button>
+                <button class="button-danger" type="submit">@T["Archive item"]</button>
             </form>
         }
     }
@@ -54,33 +54,33 @@
 {
     <section class="panel card sf-stock-movement ani-inventory-movement ani12e-form-panel" id="stock-movement" aria-labelledby="stock-movement-heading">
 
-        <header class="reference-panel-heading"><h2 id="stock-movement-heading">Record stock movement</h2></header>
-        <p class="sf-muted">Choose the kind of change. Each saved movement updates the farm balance and keeps a history entry.</p>
+        <header class="reference-panel-heading"><h2 id="stock-movement-heading">@T["Record stock movement"]</h2></header>
+        <p class="sf-muted">@T["Choose the kind of change. Each saved movement updates the farm balance and keeps a history entry."]</p>
         <div class="ani-stock-movement-guide" role="note">
-            @if (canManage) { <span>+ Supplies arrived</span> }
-            <span>− Supplies used</span>
-            @if (canManage) { <span>± Count correction</span> }
+            @if (canManage) { <span>@T["+ Supplies arrived"]</span> }
+            <span>@T["− Supplies used"]</span>
+            @if (canManage) { <span>@T["± Count correction"]</span> }
         </div>
         <form class="sf-ops-form ani-movement-form ani12e-movement-form" data-inventory-movement-form
               asp-action="Post" asp-route-farmId="@Model.Farm.Id" asp-route-itemId="@item.Id" method="post">
             <input type="hidden" name="RowVersion" value="@item.RowVersion" />
-            <label for="kind">What happened?</label>
+            <label for="kind">@T["What happened?"]</label>
             <select id="kind" name="TransactionType" aria-describedby="movement-hint" data-movement-kind>
                 @if (canManage)
                 {
-                    <option value="2">Supplies arrived (add stock)</option>
-                    <option value="4">Correct a stock count (+ or −)</option>
+                    <option value="2">@T["Supplies arrived (add stock)"]</option>
+                    <option value="4">@T["Correct a stock count (+ or −)"]</option>
                 }
-                <option value="3">Supplies used for recorded crop work (subtract)</option>
+                <option value="3">@T["Supplies used for recorded crop work (subtract)"]</option>
             </select>
-            <p id="movement-hint" class="hint" data-movement-hint>For supplies used, enter a positive amount. The system subtracts it after a valid linked crop activity.</p>
-            <label for="quantity">Quantity (@item.Unit)</label>
+            <p id="movement-hint" class="hint" data-movement-hint>@T["For supplies used, enter a positive amount. The system subtracts it after a valid linked crop activity."]</p>
+            <label for="quantity">@T["Quantity ("]@item.Unit)</label>
             <input id="quantity" name="QuantityChange" type="number" step="0.001"
                    inputmode="decimal" required aria-describedby="movement-hint" data-movement-quantity />
             <div class="ani-inventory-activity-field" data-activity-field>
-                <label for="cropActivity">Recorded crop activity (required when supplies were used)</label>
+                <label for="cropActivity">@T["Recorded crop activity (required when supplies were used)"]</label>
             <select id="cropActivity" name="CropActivityId" data-movement-activity>
-                <option value="">Select a saved activity</option>
+                <option value="">@T["Select a saved activity"]</option>
                 @foreach (var activity in Model.ActivityOptions)
                 {
                     <option value="@activity.Id">@activity.Label</option>
@@ -89,32 +89,32 @@
                 @if (!hasActivityOptions)
                 {
                     <p class="ani-inventory-guidance" data-no-activity>
-                        No recorded crop activity is available. To log supply use, first record the corresponding fieldwork.
-                        <a asp-controller="Crops" asp-action="Index" asp-route-farmId="@Model.Farm.Id">Open crop management →</a>
+                        @T["No recorded crop activity is available. To log supply use, first record the corresponding fieldwork."]
+                        <a asp-controller="Crops" asp-action="Index" asp-route-farmId="@Model.Farm.Id">@T["Open crop management →"]</a>
                     </p>
                 }
                 else
                 {
-                    <p class="hint">Choose the completed watering, fertilizing, or other recorded crop activity that used this supply.</p>
+                    <p class="hint">@T["Choose the completed watering, fertilizing, or other recorded crop activity that used this supply."]</p>
                 }
             </div>
             <div class="ani-inventory-reason-field" data-reason-field>
-            <label for="reason">Reason (required for adjustments)</label>
+            <label for="reason">@T["Reason (required for adjustments)"]</label>
             <input id="reason" name="Reason" maxlength="300" data-movement-reason />
             </div>
-            <button type="submit" data-movement-submit>Save stock movement</button>
+            <button type="submit" data-movement-submit>@T["Save stock movement"]</button>
             <p class="ani-stock-guidance">Stock updates only after the server saves the movement. Adjustments can add or subtract; stock cannot become negative.</p>
         </form>
     </section>
 }
 <section class="panel card sf-stock-history ani12e-history-panel" aria-labelledby="transaction-heading">
     <div class="sf-section-line card-head">
-        <h2 id="transaction-heading">Transaction history</h2>
-        <span>@Model.Transactions.Count entry/entries</span>
+        <h2 id="transaction-heading">@T["Transaction history"]</h2>
+        <span>@T["{0} entry/entries", Model.Transactions.Count]</span>
     </div>
     @if (Model.Transactions.Count == 0)
-    { <div class="sf-empty-state"><strong>No stock changes recorded yet.</strong>
-        <p>Receipts, crop usage, adjustments and reversals appear here after saving.</p></div> }
+    { <div class="sf-empty-state"><strong>@T["No stock changes recorded yet."]</strong>
+        <p>@T["Receipts, crop usage, adjustments and reversals appear here after saving."]</p></div> }
     <ul class="farm-list sf-stock-transactions">
         @foreach (var transaction in Model.Transactions)
         {
@@ -123,18 +123,18 @@
                     <strong>@transaction.TransactionType</strong>
                     <strong class="sf-transaction-qty">@transaction.QuantityChange @item.Unit</strong>
                 </div>
-                <time datetime="@transaction.OccurredAtUtc.ToString("yyyy-MM-ddTHH:mm:ssZ")">@transaction.OccurredAtUtc.ToString("MMM d, yyyy HH:mm") UTC</time>
+                <time datetime="@transaction.OccurredAtUtc.ToString("yyyy-MM-ddTHH:mm:ssZ")">@SmartFarm.Web.Presentation.FarmTimestamp.Display(transaction.OccurredAtUtc, Model.Farm.TimeZoneId)</time>
                 @if (transaction.Reason is not null) { <p>@transaction.Reason</p> }
-                @if (transaction.ReversesTransactionId is not null) { <small>Reversal of @transaction.ReversesTransactionId</small> }
+                @if (transaction.ReversesTransactionId is not null) { <small>@T["Reversal of"] @transaction.ReversesTransactionId</small> }
                 @if (canManage && active && transaction.TransactionType != StockTransactionType.Reversal &&
                       !reversedIds.Contains(transaction.Id))
                 {
                     <form class="sf-reverse-form" asp-action="Reverse" asp-route-farmId="@Model.Farm.Id"
-                          asp-route-itemId="@item.Id" asp-route-transactionId="@transaction.Id" method="post" data-confirm="Reverse @transaction.QuantityChange @item.Unit for @item.Name? This will change the stock balance.">
+                          asp-route-itemId="@item.Id" asp-route-transactionId="@transaction.Id" method="post" data-confirm="@T["Reverse {0} {1} for {2}? This will change the stock balance.", transaction.QuantityChange, item.Unit, item.Name]">
                         <input type="hidden" name="RowVersion" value="@item.RowVersion" />
-                        <label for="reversal-@transaction.Id">Reversal reason</label>
+                        <label for="reversal-@transaction.Id">@T["Reversal reason"]</label>
                         <input id="reversal-@transaction.Id" name="Reason" minlength="3" maxlength="300" required />
-                        <button class="button-danger" type="submit">Reverse transaction</button>
+                        <button class="button-danger" type="submit">@T["Reverse transaction"]</button>
                     </form>
                 }
             </li>

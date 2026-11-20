@@ -1,0 +1,169 @@
+{
+  "reviewed": true,
+  "version": "F4-F5-localized-public-entry-2026-11-20",
+  "reviewMethod": "Reviewed the real Chromium public landing/login/registration screenshots from GitHub Actions run 44649912665. Confirmed mobile widths 320/375, light/dark account navigation and reset link, and desktop photo-led layout. All 30 exact PNG byte fingerprints, dimensions and tracked source blobs are locked. Maintenance verification: the shared Razor layout source now maps invariant culture to en and Filipino to fil for a valid document-language attribute; the visible page structure, screenshots, existing 30 screenshot SHA-256 values, sizes and comparison checks are intentionally unchanged. The CI exact-image comparison is still required.",
+  "sourceRunId": 44649912665,
+  "sourceBlobShas": {
+    "wwwroot/css/anigo-tailwind.css": "1e540a7ec8ba12b2885b37847a1ceb70e1da78b6",
+    "Views/Shared/_Layout.cshtml": "548fcde2841907bbb1b31b9f3022cc3500ee1b86",
+    "Views/Home/Index.cshtml": "9ec93387fa63151263d42cdba7cb5f1fe95cbefe",
+    "Views/Account/Login.cshtml": "a626202b7dde517a73cb86b5497c0ccb50197507",
+    "Views/Account/Register.cshtml": "71090cda20c450ad808cc39f79b38ab65b305088",
+    "Views/Shared/_AniGoF2Styles.cshtml": "44bf502515ab49109d969b76c3eeec148ff8b4cd",
+    "Views/Shared/_LanguagePicker.cshtml": "e6380df0ac4b1c35f6eb91199f4ad47fdb2aab81",
+    "Resources/SharedResource.resx": "77ade94c423d6d2c1149a287b14bd2fcb34f9806",
+    "Resources/SharedResource.fil.resx": "8268eb33d5f627e2d49145483176b9a8a0f93443"
+  },
+  "screenshots": {
+    "landing-dark-1024": {
+      "width": 1024,
+      "height": 1058,
+      "sha256": "6232c97cc6be80a48668b5e4729e736261ec8760d7d885eb09778d9cd9ed9818"
+    },
+    "landing-dark-1440": {
+      "width": 1440,
+      "height": 1122,
+      "sha256": "3efb3c034d5787f22d7a465ee72a49025d4bd9d2b209810958cd8d4559918354"
+    },
+    "landing-dark-320": {
+      "width": 320,
+      "height": 1698,
+      "sha256": "bcab30e6d630e8ceaf0485adff18148b33b8954fb32a4ec6b70e302e0e9a67dc"
+    },
+    "landing-dark-375": {
+      "width": 375,
+      "height": 1598,
+      "sha256": "dee58adad0b16b7c25f8cd9065c9ac02f44e00636c929b663baea21a14f783de"
+    },
+    "landing-dark-768": {
+      "width": 768,
+      "height": 1127,
+      "sha256": "7c6fd093ec7519262417fe6701155f2f91444b5de2e35ac30a472e6d1cd84e7f"
+    },
+    "landing-light-1024": {
+      "width": 1024,
+      "height": 1058,
+      "sha256": "3b08a082b42e7f7f371bbf7ca1f9a2655b8c7c16d7501cc36e09e2660b2a885d"
+    },
+    "landing-light-1440": {
+      "width": 1440,
+      "height": 1122,
+      "sha256": "5fd3753425939ad2c60881f81eef4e8834bf3e402df2455aa653bbd0851582fe"
+    },
+    "landing-light-320": {
+      "width": 320,
+      "height": 1698,
+      "sha256": "7d6e05fc74c41901eab14fa5f8bef16e91960f6770ee073d64b7f5ba8a9df722"
+    },
+    "landing-light-375": {
+      "width": 375,
+      "height": 1598,
+      "sha256": "28c5cd876ef53ea53e0e08f093d757195e0440989d18a5388894896b645e9fbf"
+    },
+    "landing-light-768": {
+      "width": 768,
+      "height": 1127,
+      "sha256": "35e0a53a8f3f129e520730067667b128a8b395e687f1b99afaccedb3e6edd418"
+    },
+    "login-dark-1024": {
+      "width": 1024,
+      "height": 996,
+      "sha256": "f81fc37fa50e2c57dc255d5fe4393d53aa7567994ae9b6ca78c4a884b40fd40e"
+    },
+    "login-dark-1440": {
+      "width": 1440,
+      "height": 1057,
+      "sha256": "df4d7c479c895e2c27345591bab9b16377a9dcb3cefac989e4f9022be3e5bbfe"
+    },
+    "login-dark-320": {
+      "width": 320,
+      "height": 1033,
+      "sha256": "5541777eba6bcd848b82ec61c4ec8a164c32cffba4b6892be8d2ad6d4a42f418"
+    },
+    "login-dark-375": {
+      "width": 375,
+      "height": 1033,
+      "sha256": "58f23b237331de13b0145e6a6c200eb588fe1177dcac03a44c006235142db6ea"
+    },
+    "login-dark-768": {
+      "width": 768,
+      "height": 993,
+      "sha256": "d37dbb43ed1ece3679144f79f02bc88c78b0a04712112e0cb1617da3e40540d1"
+    },
+    "login-light-1024": {
+      "width": 1024,
+      "height": 996,
+      "sha256": "633646947b9a93e4d996dd03e01803f481da22edf927d29c417c3bc592ab9469"
+    },
+    "login-light-1440": {
+      "width": 1440,
+      "height": 1057,
+      "sha256": "8cbc51ec5d493d46e673e6b938584382f425fe0799af74231c050b17f6a9fc47"
+    },
+    "login-light-320": {
+      "width": 320,
+      "height": 1033,
+      "sha256": "3218743f18b415914f9500d82516b8da7c18d2787b6883fec46bf44bf3bdb28e"
+    },
+    "login-light-375": {
+      "width": 375,
+      "height": 1033,
+      "sha256": "96d5e5f66061a15f82768915676e7aa6f067f6ab19309e4477886269a9a26394"
+    },
+    "login-light-768": {
+      "width": 768,
+      "height": 993,
+      "sha256": "ed6403a1d5a6be210c1c87e5e7a7fbbd8ecd8bbf0ca14466ba0fe9bcdfcfa9de"
+    },
+    "registration-dark-1024": {
+      "width": 1024,
+      "height": 1103,
+      "sha256": "4a482b918e26aadbb183629b885de974be222b9757a6018e167c68165d8de4ff"
+    },
+    "registration-dark-1440": {
+      "width": 1440,
+      "height": 1143,
+      "sha256": "8ed2d6b6e893457e42d5ea652096906c8ebf2101be7e9f6da54fdbf3611f053a"
+    },
+    "registration-dark-320": {
+      "width": 320,
+      "height": 1253,
+      "sha256": "c4f9a8c68d7404ee0093ddc371bda9be28148f2a87d090c0ec2ea8cb1ba2588b"
+    },
+    "registration-dark-375": {
+      "width": 375,
+      "height": 1202,
+      "sha256": "0f6d165e4232e3f1c561fe0b26bdc0976b1a520f935f90d2036477c58ca0f535"
+    },
+    "registration-dark-768": {
+      "width": 768,
+      "height": 1043,
+      "sha256": "3ec6f2121b92aa85cf8750e94de467421e60d68277fc33a86df7ce952583333b"
+    },
+    "registration-light-1024": {
+      "width": 1024,
+      "height": 1103,
+      "sha256": "94a41f2383e5d8233860644fc9c3b8f809a44ded70b02d1b0a4903a587ef345a"
+    },
+    "registration-light-1440": {
+      "width": 1440,
+      "height": 1143,
+      "sha256": "a74cf72cca7d5132660ea44a668da69c96f247f13aff2b35c6cc1af5892e7fa7"
+    },
+    "registration-light-320": {
+      "width": 320,
+      "height": 1253,
+      "sha256": "bc23d4cfb20cac161094b5c006861a1a289cbc43eb137b71d8d15c748cc97352"
+    },
+    "registration-light-375": {
+      "width": 375,
+      "height": 1202,
+      "sha256": "c41205f6197fbe2999141b8a2cac01799f1e08607a0560aae88229f8c3adc0d1"
+    },
+    "registration-light-768": {
+      "width": 768,
+      "height": 1043,
+      "sha256": "1f25db0526f5ee0a36f28f7029ae9c0480f74544a031089ea2c22d3a76a4c4c3"
+    }
+  }
+}

@@ -1,5 +1,8 @@
 package com.smartfarm.mobile.ui.components.onboarding
 
+import com.smartfarm.mobile.R
+import com.smartfarm.mobile.localization.uiText
+
 import android.provider.Settings
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.core.Animatable
@@ -55,7 +58,6 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import com.smartfarm.mobile.R
 import com.smartfarm.mobile.ui.theme.LocalFarmAppearance
 import kotlin.math.PI
 import kotlin.math.sin
@@ -181,14 +183,14 @@ fun AniGoFarmIntro(
                         painter = painterResource(
                             if (dark) R.drawable.ani_go_logo_on_dark else R.drawable.ani_go_logo
                         ),
-                        contentDescription = "AniGo",
+                        contentDescription = uiText(R.string.ui_anigo_80e6f53, "AniGo"),
                         contentScale = ContentScale.Fit,
                         modifier = Modifier.size(width = 165.dp, height = 48.dp)
                             .graphicsLayer { alpha = logoOpacity }
                     )
                     Spacer(Modifier.height(6.dp))
                     Text(
-                        "A better way to care for your farm.",
+                        uiText(R.string.ui_a_better_way_to_care_for_your_farm_19a81cd, "A better way to care for your farm."),
                         color = ink,
                         textAlign = TextAlign.Center,
                         fontWeight = FontWeight.ExtraBold,
@@ -197,7 +199,7 @@ fun AniGoFarmIntro(
                     )
                     Spacer(Modifier.height(5.dp))
                     Text(
-                        "Come along. I'll show you around.",
+                        uiText(R.string.ui_come_along_i_ll_show_you_around_4826b18, "Come along. I'll show you around."),
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                         textAlign = TextAlign.Center,
                         style = MaterialTheme.typography.bodyMedium,
@@ -205,7 +207,7 @@ fun AniGoFarmIntro(
                     )
                     Spacer(Modifier.height(8.dp))
                     Text(
-                        "Your farm, your crops, your progress",
+                        uiText(R.string.ui_your_farm_your_crops_your_progress_f110a64, "Your farm, your crops, your progress"),
                         color = ink,
                         textAlign = TextAlign.Center,
                         style = MaterialTheme.typography.labelMedium,
@@ -239,14 +241,14 @@ fun AniGoFarmIntro(
                 painter = painterResource(
                     if (dark) R.drawable.ani_go_logo_on_dark else R.drawable.ani_go_logo
                 ),
-                contentDescription = "AniGo",
+                contentDescription = uiText(R.string.ui_anigo_80e6f53, "AniGo"),
                 contentScale = ContentScale.Fit,
                 modifier = Modifier.size(width = 210.dp, height = 64.dp)
                     .graphicsLayer { alpha = logoOpacity }
             )
             Spacer(Modifier.height(14.dp))
             Text(
-                "A better way to care for your farm.",
+                uiText(R.string.ui_a_better_way_to_care_for_your_farm_19a81cd, "A better way to care for your farm."),
                 color = ink,
                 textAlign = TextAlign.Center,
                 fontWeight = FontWeight.ExtraBold,
@@ -255,7 +257,7 @@ fun AniGoFarmIntro(
             )
             Spacer(Modifier.height(8.dp))
             Text(
-                "Come along. I'll show you around.",
+                uiText(R.string.ui_come_along_i_ll_show_you_around_4826b18, "Come along. I'll show you around."),
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 textAlign = TextAlign.Center,
                 style = MaterialTheme.typography.bodyMedium,
@@ -264,7 +266,7 @@ fun AniGoFarmIntro(
             if (stacked) {
                 Spacer(Modifier.height(16.dp))
                 AniGoCarabao(pose, Modifier.size(180.dp), frame, walking = walking)
-                Text("Your farm, your crops, your progress",
+                Text(uiText(R.string.ui_your_farm_your_crops_your_progress_f110a64, "Your farm, your crops, your progress"),
                     color = ink, style = MaterialTheme.typography.bodyMedium,
                     textAlign = TextAlign.Center)
             }
@@ -286,7 +288,7 @@ fun AniGoFarmIntro(
         )
 
         Text(
-            "Your farm, your crops, your progress",
+            uiText(R.string.ui_your_farm_your_crops_your_progress_f110a64, "Your farm, your crops, your progress"),
             style = MaterialTheme.typography.bodyMedium,
             color = ink,
             fontWeight = FontWeight.SemiBold,
@@ -305,7 +307,7 @@ fun AniGoFarmIntro(
             onClick = { latestFinish() },
             modifier = Modifier.align(Alignment.TopEnd).padding(top = 12.dp, end = 16.dp)
         ) {
-            Text("Skip intro", color = ink, fontWeight = FontWeight.SemiBold)
+            Text(uiText(R.string.ui_skip_intro_5ee6bb6, "Skip intro"), color = ink, fontWeight = FontWeight.SemiBold)
         }
     }
 }

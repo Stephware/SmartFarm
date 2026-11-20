@@ -76,7 +76,7 @@ test("Completion keeps create/join intent and mobile control usability", () => {
     assert.ok(landing.includes('asp-route-returnUrl="@(signedIn ? null : Url.Action("Create", "Farms"))"'));
     assert.ok(landing.includes('#join-farm'));
     assert.ok(register.includes('asp-route-returnUrl="@nextUrl"'));
-    assert.ok(register.includes('placeholder="Password"'));
+    assert.ok(register.includes('placeholder="@T["Password"]"'));
     assert.ok(login.includes('asp-route-returnUrl="@ViewData["ReturnUrl"]"'));
     assert.ok(controller.includes('Url.IsLocalUrl(returnUrl)'));
     assert.ok(styles.includes('top: 50%'));

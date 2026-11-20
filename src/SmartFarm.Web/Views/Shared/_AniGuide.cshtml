@@ -1,0 +1,22 @@
+@model SmartFarm.Web.Presentation.AniGuideModel
+@{
+    var (title, message, action, controller, destination, fragment, frame) = Model.Step switch {
+        "plot" => ("Add your first plot", "Your farm is created. Give your growing area a name and size before planning a crop.", "Add first plot", "Farms", "Details", "add-plot", 7),
+        "plan" => ("Plan a crop", "Choose what to grow and when to plant in your plot.", "Plan a crop", "Crops", "Index", "planting-plans-heading", 8),
+        "start" => ("Start your planned crop", "When you plant, open the plan and start its growing cycle.", "View planting plans", "Crops", "Index", "ani-current-heading", 8),
+        _ => ("Record your fieldwork", "Use your active crop to record watering, inspections, photos and partial harvests.", "Open crop records", "Crops", "Index", "ani-current-heading", 9)
+    };
+    var href = controller == "Farms" && ViewContext.RouteData.Values["controller"]?.ToString() == "Farms"
+        ? "#add-plot" : Url.Action(destination, controller, controller == "Farms" ? new { id = (Guid?)Model.FarmId, farmId = (Guid?)null } : new { id = (Guid?)null, farmId = (Guid?)Model.FarmId }) + "#" + fragment;
+}
+<div class="ani-guide-wrap" data-ani-guide data-ani-key="@($"{Model.ActorId:N}:{Model.FarmId:N}:{Model.Step}")">
+    <section class="panel card ani-guide" aria-label="@T["Ani farm help"]" data-ani-content>
+        <span class="ani-sprite" aria-hidden="true" style="background-position:@((frame % 4) * 100 / 3.0)% @((frame / 4) * 50)%"></span>
+        <div class="ani-guide-copy"><h2>@T[title]</h2><p>@T[message]</p>
+            <a class="button" href="@href" data-ani-action>@T[action]</a>
+            <button type="button" data-ani-hide>@T["Not now"]</button>
+            <button type="button" data-ani-dismiss>@T["Dismiss this tip"]</button>
+        </div>
+    </section>
+    <button type="button" data-ani-replay hidden>@T["Help from Ani"]</button>
+</div>

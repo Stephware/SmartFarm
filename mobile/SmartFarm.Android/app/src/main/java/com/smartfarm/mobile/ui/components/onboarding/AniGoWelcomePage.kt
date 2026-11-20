@@ -1,5 +1,8 @@
 package com.smartfarm.mobile.ui.components.onboarding
 
+import com.smartfarm.mobile.R
+import com.smartfarm.mobile.localization.uiText
+
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -78,7 +81,7 @@ internal fun AniGoWelcomePage(
             verticalArrangement = Arrangement.Center
         ) {
             Text(
-                "MEET ANI  ·  YOUR FARM BUDDY",
+                uiText(R.string.ui_meet_ani_your_farm_buddy_f79f2b4, "MEET ANI  ·  YOUR FARM BUDDY"),
                 style = MaterialTheme.typography.labelMedium,
                 color = MaterialTheme.colorScheme.primary,
                 fontWeight = FontWeight.ExtraBold,
@@ -86,7 +89,7 @@ internal fun AniGoWelcomePage(
             )
             Spacer(Modifier.height(8.dp))
             Text(
-                "Welcome to AniGo!",
+                uiText(R.string.ui_welcome_to_anigo_f8d1e80, "Welcome to AniGo!"),
                 style = MaterialTheme.typography.headlineMedium,
                 color = foreground,
                 fontWeight = FontWeight.ExtraBold,
@@ -95,7 +98,7 @@ internal fun AniGoWelcomePage(
             )
             Spacer(Modifier.height(10.dp))
             Text(
-                "Your farm, crops, and harvests—made a little easier.",
+                uiText(R.string.ui_your_farm_crops_and_harvests_made_a_little_easier_2efa5f8, "Your farm, crops, and harvests—made a little easier."),
                 style = MaterialTheme.typography.bodyLarge,
                 color = secondary,
                 textAlign = TextAlign.Center
@@ -128,7 +131,7 @@ internal fun AniGoWelcomePage(
                     shadowElevation = 2.dp
                 ) {
                     Text(
-                        "Hi! I'm Ani, your farm buddy.",
+                        uiText(R.string.ui_hi_i_m_ani_your_farm_buddy_895d6c0, "Hi! I'm Ani, your farm buddy."),
                         color = foreground,
                         style = MaterialTheme.typography.bodyMedium,
                         fontWeight = FontWeight.Medium,
@@ -138,7 +141,7 @@ internal fun AniGoWelcomePage(
             }
             Spacer(Modifier.height(17.dp))
             Text(
-                "I'll show you four simple ways to get started.",
+                uiText(R.string.ui_i_ll_show_you_four_simple_ways_to_get_started_e867872, "I'll show you four simple ways to get started."),
                 color = foreground,
                 textAlign = TextAlign.Center,
                 style = MaterialTheme.typography.bodyMedium

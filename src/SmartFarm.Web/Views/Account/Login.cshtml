@@ -1,23 +1,23 @@
 @model SmartFarm.Web.ViewModels.Auth.LoginInput
 @{
-    ViewData["Title"] = "Log in";
+    ViewData["Title"] = T["Log in"];
 }
 <div class="auth-layout ani-entry-auth-layout">
     <aside class="auth-intro ani-entry-auth-visual">
         <img class="ani-entry-auth-photo" src="~/images/photography/fields-detail.webp"
              alt="" width="1000" height="760" loading="lazy" decoding="async" />
         <div class="ani-entry-auth-visual-content">
-            <span class="ani-entry-auth-kicker">YOUR FARM WORKSPACE</span>
-            <h2>Good farm management starts with a clear view.</h2>
-            <p>Pick up where you left off. Your farms, today's work, and saved crop records are ready when you are.</p>
+            <span class="ani-entry-auth-kicker">@T["YOUR FARM WORKSPACE"]</span>
+            <h2>@T["Good farm management starts with a clear view."]</h2>
+            <p>@T["Pick up where you left off. Your farms, today's work, and saved crop records are ready when you are."]</p>
             
         </div>
     </aside>
     <section class="panel auth-card ani-entry-auth-card" aria-labelledby="login-heading">
         <div class="auth-heading">
-            <p class="ani-entry-eyebrow">WELCOME BACK</p>
-            <h1 id="login-heading">Log in</h1>
-            <p>Enter your account details to open your farms and today's work.</p>
+            <p class="ani-entry-eyebrow">@T["WELCOME BACK"]</p>
+            <h1 id="login-heading">@T["Log in"]</h1>
+            <p>@T["Enter your account details to open your farms and today's work."]</p>
         </div>
         @if (TempData["Message"] is string message) { <p class="form-notice" role="status">@message</p> }
         <form method="post" asp-action="Login" asp-controller="Account"
@@ -31,16 +31,17 @@
             <div class="form-field">
                 <label asp-for="Password"></label>
                 <div class="ani-password-field">
-                    <input asp-for="Password" type="password" autocomplete="current-password" required placeholder="Your password" />
+                    <input asp-for="Password" type="password" autocomplete="current-password" required placeholder="@T["Your password"]" />
                     <button type="button" class="ani-password-toggle" data-password-toggle
-                            aria-controls="Password" aria-pressed="false">Show</button>
+                            aria-controls="Password" aria-pressed="false">@T["Show"]</button>
                 </div>
                 <span asp-validation-for="Password" class="error"></span>
             </div>
-            <label class="check auth-remember"><input asp-for="RememberMe" /> Remember me</label>
-            <button class="auth-submit" type="submit">Log in to my farms</button>
+            <label class="check auth-remember"><input asp-for="RememberMe" /> @T["Remember me"]</label>
+            <button class="auth-submit" type="submit">@T["Log in to my farms"]</button>
         </form>
-        <p class="ani-auth-next-note"><strong>After signing in</strong>, you can open your farms, create one, or enter a farm code to request access.</p>
-        <p class="auth-switch">New here? <a asp-controller="Account" asp-action="Register" asp-route-returnUrl="@ViewData["ReturnUrl"]">Create an account</a>.</p>
+        <p class="auth-switch"><a asp-controller="AccountRecovery" asp-action="ForgotPassword">@T["Forgot your password?"]</a></p>
+        <p class="ani-auth-next-note"><strong>@T["After signing in"]</strong>@T[", you can open your farms, create one, or enter a farm code to request access."]</p>
+        <p class="auth-switch">@T["New here?"] <a asp-controller="Account" asp-action="Register" asp-route-returnUrl="@ViewData["ReturnUrl"]">@T["Create an account"]</a>.</p>
     </section>
 </div>

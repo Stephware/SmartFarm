@@ -1,33 +1,33 @@
 @model SmartFarm.Web.ViewModels.Admin.AdminOverviewPage
 @{
-    ViewData["Title"] = "Platform overview";
+    ViewData["Title"] = T["Platform overview"];
     var workerAvailable = Model.Worker is not null
         && Model.Worker.State is not ("Unavailable" or "Not configured");
 }
 <div class="ani12c-admin-dashboard ani-p2-page ani-p2-admin">
 <header class="page-heading admin-page-heading ani12c-admin-hero">
     <div>
-        <p class="sf-kicker">ANIGO · PLATFORM ADMINISTRATION</p>
-        <h1>Platform overview</h1>
-        <p class="sf-muted">Start with users, farms, support cases, and background-job issues. This is a platform view, not access to individual farm records.</p>
+        <p class="sf-kicker">@T["ANIGO · PLATFORM ADMINISTRATION"]</p>
+        <h1>@T["Platform overview"]</h1>
+        <p class="sf-muted">@T["Start with users, farms, support cases, and background-job issues. This is a platform view, not access to individual farm records."]</p>
     </div>
-    <a class="button admin-button-secondary" asp-area="Admin" asp-controller="Monitoring" asp-action="Index">Open system monitoring</a>
+    <a class="button admin-button-secondary" asp-area="Admin" asp-controller="Monitoring" asp-action="Index">@T["Open system monitoring"]</a>
 </header>
 
-<section class="admin-stats ani12c-admin-kpis" aria-label="Key platform indicators">
+<section class="admin-stats ani12c-admin-kpis" aria-label="@T["Key platform indicators"]">
     <a class="admin-stat panel" asp-area="Admin" asp-controller="Farms" asp-action="Index" asp-route-status="active">
-        <span>Active farms</span><strong>@Model.ActiveFarms</strong><small>@Model.TotalFarms registered in total</small>
+        <span>@T["Active farms"]</span><strong>@Model.ActiveFarms</strong><small>@T["{0} registered in total", Model.TotalFarms]</small>
     </a>
     <a class="admin-stat panel" asp-area="Admin" asp-controller="Users" asp-action="Index" asp-route-status="active">
-        <span>Active users</span><strong>@Model.ActiveUsers</strong><small>@Model.TotalUsers registered in total</small>
+        <span>@T["Active users"]</span><strong>@Model.ActiveUsers</strong><small>@T["{0} registered in total", Model.TotalUsers]</small>
     </a>
     <a class="admin-stat panel @(Model.PendingSupport > 0 ? "ani12c-kpi-warning" : "")"
        asp-area="Admin" asp-controller="Support" asp-action="Index">
-        <span>Unresolved support</span><strong>@Model.PendingSupport</strong><small>Open or in progress</small>
+        <span>@T["Unresolved support"]</span><strong>@Model.PendingSupport</strong><small>@T["Open or in progress"]</small>
     </a>
     <a class="admin-stat panel @((workerAvailable && Model.Worker!.FailedJobsLast7Days > 0) ? "ani12c-kpi-warning" : "")"
        asp-area="Admin" asp-controller="Monitoring" asp-action="Index">
-        <span>Failed jobs · 7 days</span><strong>@(workerAvailable ? Model.Worker!.FailedJobsLast7Days.ToString() : "—")</strong>
+        <span>@T["Failed jobs · 7 days"]</span><strong>@(workerAvailable ? Model.Worker!.FailedJobsLast7Days.ToString() : "—")</strong>
         <small>@(workerAvailable ? "Recorded SmartFarm worker jobs" : "Unavailable — view monitoring")</small>
     </a>
 </section>
@@ -35,53 +35,53 @@
 <div class="ani12c-admin-priorities">
     <section class="panel" aria-labelledby="admin-decisions-heading">
         <div class="admin-section-heading">
-            <div><p class="ani-overline">START HERE</p><h2 id="admin-decisions-heading">Needs your review</h2>
-                <p class="sf-muted">Open the appropriate workspace to investigate. No actions happen from this summary.</p></div>
+            <div><p class="ani-overline">@T["START HERE"]</p><h2 id="admin-decisions-heading">@T["Needs your review"]</h2>
+                <p class="sf-muted">@T["Open the appropriate workspace to investigate. No actions happen from this summary."]</p></div>
         </div>
-        <nav class="ani12c-admin-priority-list" aria-label="Administrative review links">
+        <nav class="ani12c-admin-priority-list" aria-label="@T["Administrative review links"]">
             <a asp-area="Admin" asp-controller="Support" asp-action="Index">
-                <strong>Support history</strong><span>@Model.PendingSupport previously unresolved</span>
+                <strong>@T["Support history"]</strong><span>@T["{0} previously unresolved", Model.PendingSupport]</span>
             </a>
             <a asp-area="Admin" asp-controller="Users" asp-action="Index" asp-route-status="disabled">
-                <strong>Disabled accounts</strong><span>@Model.DisabledUsers accounts</span>
+                <strong>@T["Disabled accounts"]</strong><span>@T["{0} accounts", Model.DisabledUsers]</span>
             </a>
             <a asp-area="Admin" asp-controller="Farms" asp-action="Index" asp-route-status="archived">
-                <strong>Archived farms</strong><span>@Model.ArchivedFarms farms</span>
+                <strong>@T["Archived farms"]</strong><span>@T["{0} farms", Model.ArchivedFarms]</span>
             </a>
             <a asp-area="Admin" asp-controller="Audit" asp-action="Index">
-                <strong>Administrative activity</strong><span>Review audit history</span>
+                <strong>@T["Administrative activity"]</strong><span>@T["Review audit history"]</span>
             </a>
         </nav>
     </section>
     <section class="panel" aria-labelledby="admin-health-heading">
         <div class="admin-section-heading">
-            <div><p class="ani-overline">READ-ONLY STATUS</p><h2 id="admin-health-heading">Service &amp; background work</h2></div>
+            <div><p class="ani-overline">@T["READ-ONLY STATUS"]</p><h2 id="admin-health-heading">@T["Service & background work"]</h2></div>
         </div>
         <dl class="ani12c-admin-health">
-            <div><dt>Admin Web</dt><dd><span class="sf-status-chip sf-status-chip--active">Serving this request</span></dd></div>
-            <div><dt>Worker heartbeat</dt>
+            <div><dt>@T["Admin Web"]</dt><dd><span class="sf-status-chip sf-status-chip--active">@T["Serving this request"]</span></dd></div>
+            <div><dt>@T["Worker heartbeat"]</dt>
                 <dd><span class="sf-status-chip @(Model.Worker?.State == "Active" ? "sf-status-chip--active" : "sf-status-chip--planned")">@(Model.Worker?.State ?? "Unavailable")</span></dd></div>
-            <div><dt>Jobs waiting</dt><dd>@(workerAvailable ? Model.Worker!.WaitingJobs.ToString() : "Not available")</dd></div>
+            <div><dt>@T["Jobs waiting"]</dt><dd>@(workerAvailable ? Model.Worker!.WaitingJobs.ToString() : "Not available")</dd></div>
         </dl>
         <p class="sf-muted">@(Model.Worker?.Detail ?? "Worker diagnostics are unavailable.")</p>
         @if (Model.Worker?.LastHeartbeatUtc is DateTime heartbeat)
         {
-            <p class="sf-muted">Last worker heartbeat: <time datetime="@heartbeat.ToString("yyyy-MM-ddTHH:mm:ssZ")">@heartbeat.ToString("MMM d, yyyy HH:mm") UTC</time></p>
+            <p class="sf-muted">@T["Last worker heartbeat:"]<time datetime="@heartbeat.ToString("yyyy-MM-ddTHH:mm:ssZ")">@T["{0} UTC", heartbeat.ToString("MMM d, yyyy HH:mm")]</time></p>
         }
-        <a class="ani12c-admin-monitor-link" asp-area="Admin" asp-controller="Monitoring" asp-action="Index">Check API, database, worker and sync diagnostics →</a>
-        <p class="sf-muted">Other service health is checked on the monitoring page. A count is not treated as zero when diagnostics are unavailable.</p>
+        <a class="ani12c-admin-monitor-link" asp-area="Admin" asp-controller="Monitoring" asp-action="Index">@T["Check API, database, worker and sync diagnostics →"]</a>
+        <p class="sf-muted">@T["Other service health is checked on the monitoring page. A count is not treated as zero when diagnostics are unavailable."]</p>
     </section>
 </div>
 
 <section class="panel admin-directory-panel ani12c-admin-section" aria-labelledby="recent-farms-heading">
     <div class="admin-section-heading">
-        <div><h2 id="recent-farms-heading">Recently registered farms</h2>
-            <p class="sf-muted">Most recent registrations, not an estimate of today's activity.</p></div>
-        <a class="button admin-button-secondary" asp-area="Admin" asp-controller="Farms" asp-action="Index">View all farms</a>
+        <div><h2 id="recent-farms-heading">@T["Recently registered farms"]</h2>
+            <p class="sf-muted">@T["Most recent registrations, not an estimate of today's activity."]</p></div>
+        <a class="button admin-button-secondary" asp-area="Admin" asp-controller="Farms" asp-action="Index">@T["View all farms"]</a>
     </div>
     @if (Model.RecentFarms.Count == 0)
     {
-        <p class="admin-empty">No farms registered yet.</p>
+        <p class="admin-empty">@T["No farms registered yet."]</p>
     }
     else
     {
@@ -99,16 +99,16 @@
 
 <section class="ani12c-admin-section" aria-labelledby="admin-tools-heading">
     <div class="admin-section-heading">
-        <div><h2 id="admin-tools-heading">Platform tools</h2><p class="sf-muted">Open the complete records and filters when more detail is needed.</p></div>
+        <div><h2 id="admin-tools-heading">@T["Platform tools"]</h2><p class="sf-muted">@T["Open the complete records and filters when more detail is needed."]</p></div>
     </div>
     <div class="admin-shortcuts">
         <a class="panel admin-shortcut" asp-area="Admin" asp-controller="Users" asp-action="Index">
-            <strong>User directory</strong><span>Search accounts and review access.</span>
+            <strong>@T["User directory"]</strong><span>@T["Search accounts and review access."]</span>
         </a>
         <a class="panel admin-shortcut" asp-area="Admin" asp-controller="Announcements" asp-action="Index">
-            <strong>Announcement history</strong><span>Read retained notices and their audit history.</span>
+            <strong>@T["Announcement history"]</strong><span>@T["Read retained notices and their audit history."]</span>
         </a>
     </div>
-    <p class="sf-muted">Platform totals include @Model.ActivePlots active plots. No private farm activity or location coordinates are shown here.</p>
+    <p class="sf-muted">@T["Platform totals include {0} active plots. No private farm activity or location coordinates are shown here.", Model.ActivePlots]</p>
 </section>
 </div>

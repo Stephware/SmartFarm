@@ -23,7 +23,7 @@ test("F2 public landing keeps actions, farm value and optimized photos without r
     assert.match(home, /asp-route-returnUrl=/);
     assert.match(home, /#join-farm/);
     assert.doesNotMatch(home, /Photo credits and sources|Help &amp; contact|See how it works/);
-    assert.match(layout, /aria-label="Account actions"/);
+    assert.match(layout, /aria-label="@T\["Account actions"\]"/);
     const source = read("Styles/anigo-tailwind.css");
     assert.match(source, /anigo-landing-phase6\.css/);
     assert.match(source, /anigo-workspace-phase6\.css/);

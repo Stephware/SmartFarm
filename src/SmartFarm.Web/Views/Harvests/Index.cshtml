@@ -1,7 +1,7 @@
 @using SmartFarm.Web.Presentation
 @model SmartFarm.Web.ViewModels.Harvests.HarvestPage
 @{
-    ViewData["Title"] = "Harvests";
+    ViewData["Title"] = T["Harvests"];
     var cycle = Model.CropCycle;
     var overview = Model.Overview;
 }
@@ -10,45 +10,44 @@
 <section class="panel card sf-ops-hero sf-harvest-hero ani12e-hero" aria-labelledby="harvests-heading">
     <div class="sf-page-header page-hero">
         <div>
-            <p><a class="anigo-back-control" asp-controller="Crops" asp-action="Index" asp-route-farmId="@cycle.FarmId" title="Back to crops"><partial name="_Icon" model='@("chevLeft")' /><span class="visually-hidden">Back to crops</span></a></p>
+            <p><a class="anigo-back-control" asp-controller="Crops" asp-action="Index" asp-route-farmId="@cycle.FarmId" title="@T["Back to crops"]"><partial name="_Icon" model='@("chevLeft")' /><span class="visually-hidden">@T["Back to crops"]</span></a></p>
 
-            <p class="ani-overline">Crop harvests</p>
-            <h1 id="harvests-heading">Harvests · @cycle.CropTypeName</h1>
-            <p class="sf-muted">@cycle.PlotName · <strong>@cycle.Status</strong> crop
-            · Each harvest is recorded separately, without ending the crop cycle.</p>
+            <p class="ani-overline">@T["Crop harvests"]</p>
+            <h1 id="harvests-heading">@T["Harvests ·"] @cycle.CropTypeName</h1>
+            <p class="sf-muted">@cycle.PlotName · <strong>@T[cycle.Status.ToString()]</strong> @T["crop\n            · Each harvest is recorded separately, without ending the crop cycle."]</p>
         </div>
         <div class="ani-harvest-identity ani12e-harvest-actions">
-            @if (overview.CanRecord) { <a class="button" href="#record-harvest">Record harvest</a> }
+            @if (overview.CanRecord) { <a class="button" href="#record-harvest">@T["Record harvest"]</a> }
             <a class="sf-button-outline" asp-controller="Monitoring" asp-action="Index"
-               asp-route-farmId="@cycle.FarmId" asp-route-cycleId="@cycle.Id">Crop fieldwork</a>
-            <a class="sf-button-outline" asp-controller="Reports" asp-action="Harvests" asp-route-farmId="@cycle.FarmId">Farm-wide report</a>
+               asp-route-farmId="@cycle.FarmId" asp-route-cycleId="@cycle.Id">@T["Crop fieldwork"]</a>
+            <a class="sf-button-outline" asp-controller="Reports" asp-action="Harvests" asp-route-farmId="@cycle.FarmId">@T["Farm-wide report"]</a>
         </div>
     </div>
-    <div class="sf-harvest-metrics ani12e-metrics" aria-label="Recorded harvest totals">
+    <div class="sf-harvest-metrics ani12e-metrics" aria-label="@T["Recorded harvest totals"]">
         <div class="sf-harvest-main-number">
-            <span>Confirmed harvest total</span>
+            <span>@T["Confirmed harvest total"]</span>
             <strong>@overview.TotalQuantity.ToString("N3") <small>@overview.Unit</small></strong>
         </div>
         <div>
             <strong>@overview.ValidHarvestCount</strong>
-            <span>Valid harvests</span>
+            <span>@T["Valid harvests"]</span>
         </div>
         <div>
             <strong>@overview.VoidedHarvestCount</strong>
-            <span>Voided</span>
+            <span>@T["Voided"]</span>
         </div>
     </div>
     <p class="sf-ops-hint">Multiple partial harvests are allowed. The total includes valid server records only; voided entries are excluded. Harvests do not automatically complete the crop cycle.</p>
     @if (!ViewData.ModelState.IsValid)
     {
-        @if (overview.CanRecord) { <p class="error" role="alert">Harvest not saved. Your draft is kept.</p><a href="#record-harvest">Review the harvest draft →</a> }
+        @if (overview.CanRecord) { <p class="error" role="alert">@T["Harvest not saved. Your draft is kept."]</p><a href="#record-harvest">@T["Review the harvest draft →"]</a> }
         else { <div asp-validation-summary="All" class="error form-error" role="alert"></div> }
-        @if (!overview.CanRecord && Model.Entry is not null) { <p>Unsubmitted draft: @Model.Entry.Quantity @overview.Unit — @Model.Entry.Notes</p> }
+        @if (!overview.CanRecord && Model.Entry is not null) { <p>@T["Unsubmitted draft:"] @Model.Entry.Quantity @overview.Unit — @Model.Entry.Notes</p> }
     }
     @if (TempData["HarvestError"] is string error)
     {
         <p class="error form-error" role="alert">@error
-            @if (overview.CanRecord) { <a href="#record-harvest">Correct the harvest entry →</a> }
+            @if (overview.CanRecord) { <a href="#record-harvest">@T["Correct the harvest entry →"]</a> }
         </p>
     }
     @if (TempData["HarvestNotice"] is string notice) { <p class="form-notice" role="status">@notice</p> }
@@ -58,70 +57,70 @@
     <section class="panel card sf-harvest-record ani12e-form-panel" id="record-harvest" data-form-dialog aria-labelledby="record-harvest-heading">
 
         <header class="reference-panel-heading">
-            <div><h2 id="record-harvest-heading">Record a partial harvest</h2></div>
+            <div><h2 id="record-harvest-heading">@T["Record a partial harvest"]</h2></div>
         </header>
-        <p class="sf-muted">Enter the actual quantity collected for @cycle.CropTypeName. You may save more than one harvest for the same crop.</p>
-        <p class="ani-harvest-form-notice" role="note">Only confirmed server harvests count in the total. Android offline entries appear as pending until synchronized.</p>
+        <p class="sf-muted">@T["{0} {1}. You may save more than one harvest for the same crop.", T["Enter the actual quantity collected for"], cycle.CropTypeName]</p>
+        <p class="ani-harvest-form-notice" role="note">@T["Only confirmed server harvests count in the total. Android offline entries appear as pending until synchronized."]</p>
         <form class="sf-ops-form" asp-action="Record" asp-route-farmId="@cycle.FarmId" asp-route-cycleId="@cycle.Id" method="post">
             @if (!ViewData.ModelState.IsValid) { <div asp-validation-summary="All" class="error form-error" data-form-error role="alert"></div> }
-            <label for="quantity">Quantity collected <strong>(@overview.Unit)</strong></label>
+            <label for="quantity">@T["Quantity collected"] <strong>(@overview.Unit)</strong></label>
             @Html.TextBox("Quantity", Model.Entry?.Quantity, new { id = "quantity", type = "number", step = "0.001", min = "0.001", max = "999999999999999.999", inputmode = "decimal", required = "required", aria_describedby = "harvest-quantity-hint", aria_invalid = ViewData.ModelState.IsValid ? "false" : "true" })
-            <p class="hint" id="harvest-quantity-hint">Enter a positive value with up to three decimal places. The unit is fixed for this crop cycle. The date is set when the server accepts the entry.</p>
-            <label for="notes">Notes (optional)</label>
+            <p class="hint" id="harvest-quantity-hint">@T["Enter a positive value with up to three decimal places. The unit is fixed for this crop cycle. The date is set when the server accepts the entry."]</p>
+            <label for="notes">@T["Notes (optional)"]</label>
             @Html.TextArea("Notes", Model.Entry?.Notes, new { id = "notes", rows = 3, maxlength = 1000 })
-            <button type="submit">Save partial harvest</button>
-            <p class="hint">After saving, this amount appears in valid harvest history and the confirmed total.</p>
+            <button type="submit">@T["Save partial harvest"]</button>
+            <p class="hint">@T["After saving, this amount appears in valid harvest history and the confirmed total."]</p>
         </form>
     </section>
 }
 else
 {
     <section class="panel card sf-harvest-unavailable" role="note">
-        <p>New harvests can only be recorded while the crop cycle is active.</p>
+        <p>@T["New harvests can only be recorded while the crop cycle is active."]</p>
     </section>
 }
 
 <section class="panel card sf-harvest-history ani12e-history-panel" aria-labelledby="harvest-history-heading">
     <div class="sf-section-line card-head">
-        <h2 id="harvest-history-heading">Saved harvest records</h2>
-        <span>@overview.Entries.Count record(s)</span>
+        <h2 id="harvest-history-heading">@T["Saved harvest records"]</h2>
+        <span>@T["{0} record(s)", overview.Entries.Count]</span>
     </div>
     @if (overview.Entries.Count == 0)
     {
         <div class="sf-empty-state">
-            <strong>No harvests recorded yet.</strong>
-            <p>Partial harvest entries appear here after they're saved. Each record keeps its own quantity and date.</p>
-            @if (overview.CanRecord) { <a href="#record-harvest">Record the first harvest →</a> }
+            <strong>@T["No harvests recorded yet."]</strong>
+            <p>@T["Partial harvest entries appear here after they're saved. Each record keeps its own quantity and date."]</p>
+            @if (overview.CanRecord) { <a href="#record-harvest">@T["Record the first harvest →"]</a> }
         </div>
     }
     else
     {
-        <div class="table-wrap table-scroll ani12e-scroll-table" tabindex="0" role="region" aria-label="Crop harvest history">
+        <div class="table-wrap table-scroll ani12e-scroll-table" tabindex="0" role="region" aria-label="@T["Crop harvest history"]">
         <table class="data-table reference-harvest-table">
-            <caption class="visually-hidden">Partial harvests, including voided records</caption>
-            <thead><tr><th scope="col">Harvested at (UTC)</th><th scope="col">Quantity</th><th scope="col">Notes</th><th scope="col">Status / actions</th></tr></thead>
+            <caption class="visually-hidden">@T["Partial harvests, including voided records"]</caption>
+            <thead><tr><th scope="col">@T["Harvested at"]</th><th scope="col">@T["Quantity"]</th><th scope="col">@T["Notes"]</th><th scope="col">@T["Status / actions"]</th></tr></thead>
             <tbody>
         @foreach (var entry in overview.Entries)
         {
             <tr class="sf-harvest-entry @(entry.IsVoided ? "sf-harvest-voided" : "")">
-                <td><time datetime="@entry.HarvestedAtUtc.ToString("yyyy-MM-ddTHH:mm:ssZ")">@entry.HarvestedAtUtc.ToString("MMM d, yyyy HH:mm")</time></td>
+                <td><time datetime="@entry.HarvestedAtUtc.ToString("yyyy-MM-ddTHH:mm:ssZ")">@SmartFarm.Web.Presentation.FarmTimestamp.Display(entry.HarvestedAtUtc, Model.TimeZoneId)</time></td>
                 <td class="reference-quantity"><strong>@entry.Quantity.ToString("N3")</strong> @entry.Unit</td>
                 <td>@(entry.Notes ?? "—")
-                    @if (entry.IsVoided) { <small class="table-sub">Void reason: @entry.VoidReason</small> }
+                    @if (entry.IsVoided) { <small class="table-sub">@T["Void reason:"] @entry.VoidReason</small> }
                 </td>
                 <td>
-                    <span class="sf-status-chip @(entry.IsVoided ? "sf-status-chip--failed" : "sf-status-chip--active")">@(entry.IsVoided ? "Voided" : "Valid")</span>
+                    <span class="sf-status-chip @(entry.IsVoided ? "sf-status-chip--failed" : "sf-status-chip--active")">@(entry.IsVoided ? T["Voided"] : T["Valid"])</span>
                     @if (!entry.IsVoided && overview.CanVoid)
                     {
                         <details class="sf-edit-disclosure">
-                            <summary>Void entry</summary>
-                            <p class="sf-muted">Voiding keeps the record in history but excludes it from valid totals.</p>
+                            <summary>@T["Void entry"]</summary>
+                            <p class="sf-muted">@T["Voiding keeps the record in history but excludes it from valid totals."]</p>
                             <form asp-action="Void" asp-route-farmId="@cycle.FarmId" asp-route-cycleId="@cycle.Id"
                                   asp-route-harvestId="@entry.Id" method="post"
-                                  data-confirm="Void @entry.Quantity @entry.Unit for @cycle.CropTypeName? The record stays in history and is excluded from totals.">
-                                <label for="void-@entry.Id">Reason for voiding (required)</label>
+                                  data-confirm="@T["Void {0} {1} for {2}? The record stays in history and is excluded from totals.", entry.Quantity, entry.Unit, cycle.CropTypeName]">
+                                <label for="void-@entry.Id">@T["Reason for voiding (required)"]</label>
                                 <input id="void-@entry.Id" name="Reason" minlength="3" maxlength="300" required />
-                                <button class="button-danger" type="submit">Void entry</button>
+                                <button class="button-danger" type="submit">@T["Void entry"]</button>
                             </form>
                         </details>
                     }

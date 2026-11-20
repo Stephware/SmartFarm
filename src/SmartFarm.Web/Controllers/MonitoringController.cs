@@ -73,9 +73,11 @@ public sealed class MonitoringController : Controller
             // An optional manager control must not take all monitoring offline
             // when the separate farm-details service is temporarily unavailable.
             bool canManageIssues = false;
+            string timeZoneId = "Asia/Manila";
             try
             {
                 var farm = await _farms.GetAsync(farmId, Actor, ct);
+                timeZoneId = farm?.TimeZoneId ?? "Asia/Manila";
                 canManageIssues = farm?.Role is "Owner" or "Manager";
             }
             catch (DbException) { /* Read-only monitoring remains available. */ }
@@ -104,6 +106,7 @@ public sealed class MonitoringController : Controller
                 ErrorForm = !ModelState.IsValid ? (observation is not null ? "inspection" : "activity") : null,
                 Quick = quick is "watering" or "fertilizing" or "inspection" or "other" ? quick : null,
                 Supplies = supplies, Supply = supply ?? new(), SupplyError = supplyError,
+                TimeZoneId = timeZoneId,
                 CanManageIssues = canManageIssues,
                 ActorId = Actor,
                 Activity = activity ?? new() { ActivityType = 1 }, Observation = observation ?? new()
@@ -118,7 +121,7 @@ public sealed class MonitoringController : Controller
         [Bind(Prefix = "Supply")] ActivitySupplyInput supply, string? quick = null)
     {
         if (!supply.UseStock && (supply.QuantityUsed is not null || !string.IsNullOrWhiteSpace(supply.Reason)))
-            ModelState.AddModelError("Supply.Selection", "Choose the supply used, or clear the unused supply fields.");
+            ModelState.AddModelError("Supply.Selection", SmartFarm.Web.Presentation.UiMessages.Text("Choose the supply used, or clear the unused supply fields."));
         if (!ModelState.IsValid)
         {
             return await Workspace(farmId, cycleId, ct, activity: input, supply: supply, quick: quick);
@@ -130,7 +133,7 @@ public sealed class MonitoringController : Controller
                 var selection = supply.Selection?.Split(':', 2);
                 if (selection is not { Length: 2 } || !Guid.TryParse(selection[0], out var itemId))
                 {
-                    ModelState.AddModelError("Supply.Selection", "Choose a supply and review its available balance.");
+                    ModelState.AddModelError("Supply.Selection", SmartFarm.Web.Presentation.UiMessages.Text("Choose a supply and review its available balance."));
                     return await Workspace(farmId, cycleId, ct, activity: input, supply: supply, quick: quick);
                 }
                 await _fieldwork.RecordAsync(farmId, cycleId, Actor, new RecordActivityWithStockInput
@@ -138,12 +141,12 @@ public sealed class MonitoringController : Controller
                     Activity = input, InventoryItemId = itemId, RowVersion = selection[1],
                     QuantityUsed = supply.QuantityUsed ?? 0, Reason = supply.Reason
                 }, ct);
-                TempData["Notice"] = "Activity and supply use saved together.";
+                TempData["Notice"] = SmartFarm.Web.Presentation.UiMessages.Text("Activity and supply use saved together.");
             }
             else
             {
                 await _monitoring.RecordActivityAsync(farmId, cycleId, Actor, input, ct);
-                TempData["Notice"] = "Activity saved to this crop's history.";
+                TempData["Notice"] = SmartFarm.Web.Presentation.UiMessages.Text("Activity saved to this crop's history.");
             }
         }
         catch (FarmOperationException error)
@@ -166,7 +169,7 @@ public sealed class MonitoringController : Controller
         try
         {
             await _monitoring.RecordObservationAsync(farmId, cycleId, Actor, input, ct);
-            TempData["Notice"] = "Inspection saved. You can now attach photos to the inspection below.";
+            TempData["Notice"] = SmartFarm.Web.Presentation.UiMessages.Text("Inspection saved. You can now attach photos to the inspection below.");
             TempData["NextStep"] = "photos";
         }
         catch (FarmOperationException error)
@@ -184,7 +187,7 @@ public sealed class MonitoringController : Controller
     {
         if (!ModelState.IsValid)
         {
-            TempData["Error"] = "Choose a valid follow-up status and task.";
+            TempData["Error"] = SmartFarm.Web.Presentation.UiMessages.Text("Choose a valid follow-up status and task.");
             return RedirectToAction(nameof(Index), new { farmId, cycleId });
         }
         try
@@ -208,7 +211,7 @@ public sealed class MonitoringController : Controller
     {
         if (photo is null)
         {
-            TempData["Error"] = "Choose a photo.";
+            TempData["Error"] = SmartFarm.Web.Presentation.UiMessages.Text("Choose a photo.");
             return RedirectToAction(nameof(Index), new { farmId, cycleId });
         }
         try
@@ -216,7 +219,7 @@ public sealed class MonitoringController : Controller
             await using var fileStream = photo.OpenReadStream();
             await _monitoring.AddPhotoAsync(farmId, cycleId, observationId,
                 Actor, fileStream, photo.Length, photo.ContentType, ct);
-            TempData["Notice"] = "Photo attached to this inspection.";
+            TempData["Notice"] = SmartFarm.Web.Presentation.UiMessages.Text("Photo attached to this inspection.");
         }
         catch (FarmOperationException error)
         {

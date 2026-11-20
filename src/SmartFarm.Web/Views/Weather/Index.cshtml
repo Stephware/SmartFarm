@@ -1,7 +1,8 @@
+@using SmartFarm.Core.Contracts.Crops
 @using SmartFarm.Core.Enums
 @model SmartFarm.Core.Contracts.Weather.WeatherOverview
 @{
-    ViewData["Title"] = "Farm weather";
+    ViewData["Title"] = T["Farm weather"];
     // Saved weather updates are normally checked every six hours. Two missed updates warrant a warning.
     var nowUtc = DateTime.UtcNow;
     var lastChecked = Model.Days.Count == 0 ? (DateTime?)null :
@@ -10,6 +11,7 @@
     var stale = lastChecked is { } checkedAt &&
         (checkedAt < nowUtc.AddHours(-12) || checkedAt > nowUtc.AddMinutes(5));
     var activeAdvisories = Model.Advisories.Where(a => a.Status == 0).ToList();
+    var activeCrops = ViewData["ActiveCrops"] as IReadOnlyList<CropCycleDetails> ?? Array.Empty<CropCycleDetails>();
     DateOnly? farmToday = null;
     try
     {
@@ -27,38 +29,38 @@
 <section class="panel card sf-weather-hero ani-weather-hero ani12e-hero" aria-labelledby="weather-heading">
     <div class="sf-page-header page-hero">
         <div>
-            <p><a class="anigo-back-control" asp-controller="Farms" asp-action="Details" asp-route-id="@Model.FarmId" title="Back to farm"><partial name="_Icon" model='@("chevLeft")' /><span class="visually-hidden">Back to farm</span></a></p>
+            <p><a class="anigo-back-control" asp-controller="Farms" asp-action="Details" asp-route-id="@Model.FarmId" title="@T["Back to farm"]"><partial name="_Icon" model='@("chevLeft")' /><span class="visually-hidden">@T["Back to farm"]</span></a></p>
 
-            <p class="ani-overline">Farm conditions</p>
-            <h1 id="weather-heading">Farm weather</h1>
-            <p class="sf-muted">Plan fieldwork with the last saved forecast. Dates follow @Model.TimeZoneId; this is not a live weather feed.</p>
-            <p class="ani12e-weather-safety" role="note"><strong>Saved forecast, not live conditions.</strong> For urgent rain, heat, or storm decisions, check PAGASA or local official advisories.</p>
+            <p class="ani-overline">@T["Farm conditions"]</p>
+            <h1 id="weather-heading">@T["Farm weather"]</h1>
+            <p class="sf-muted">@T["Plan fieldwork with the last saved forecast. Dates follow"] @Model.TimeZoneId. @T["This is not a live weather feed."]</p>
+            <p class="ani12e-weather-safety" role="note"><strong>@T["Saved forecast, not live conditions."]</strong> @T["For urgent rain, heat, or storm decisions, check PAGASA or local official advisories."]</p>
             <p class="ani-weather-freshness ani12e-freshness">
-                <strong>Last checked:</strong> @(lastChecked?.ToString("MMM d, yyyy HH:mm") ?? "Not yet available")@(lastChecked.HasValue ? " UTC" : "")
-                · <span>@(Model.Days.Count == 0 ? "No weather data saved" : stale ? "Saved forecast may be outdated" : "Recently saved forecast")</span>
+                <strong>@T["Last checked:"]</strong> @(lastChecked is { } checkedTime ? SmartFarm.Web.Presentation.FarmTimestamp.Display(checkedTime, Model.TimeZoneId) : T["Not yet available"].Value)
+                · <span>@(Model.Days.Count == 0 ? T["No weather data saved"] : stale ? T["Saved forecast may be outdated"] : T["Recently saved forecast"])</span>
             </p>
-            <nav class="ani-insight-links ani12e-jump-nav" aria-label="Weather page sections">
-                <a href="#saved-forecast">Saved forecast</a>
-                <a href="#weather-alerts-heading">Advisories (@activeAdvisories.Count)</a>
+            <nav class="ani-insight-links ani12e-jump-nav" aria-label="@T["Weather page sections"]">
+                <a href="#saved-forecast">@T["Saved forecast"]</a>
+                <a href="#weather-alerts-heading">@T["Advisories ("]@activeAdvisories.Count)</a>
             </nav>
         </div>
         <span class="sf-status-chip @(stale ? "sf-status-chip--warning" : "sf-status-chip--neutral")">
-            @(Model.Days.Count == 0 ? "No saved forecast" : stale ? "Update overdue" : "Saved forecast")
+            @(Model.Days.Count == 0 ? T["No saved forecast"] : stale ? T["Update overdue"] : T["Saved forecast"])
         </span>
     </div>
     @if (!Model.HasCoordinates)
     {
         <div class="sf-empty-state">
-            <h2>Weather is not enabled for this farm</h2>
-            <p>The farm needs a map pin before local forecasts can be saved. Ask the owner or manager to add an exact location under Edit farm.</p>
-            <a asp-controller="Farms" asp-action="Details" asp-route-id="@Model.FarmId">Go to farm settings →</a>
+            <h2>@T["Weather is not enabled for this farm"]</h2>
+            <p>@T["The farm needs a map pin before local forecasts can be saved. Ask the owner or manager to add an exact location under Edit farm."]</p>
+            <a asp-controller="Farms" asp-action="Details" asp-route-id="@Model.FarmId">@T["Go to farm settings →"]</a>
         </div>
     }
     else if (Model.Days.Count == 0)
     {
         <div class="sf-empty-state">
-            <h2>No recent forecast is available</h2>
-            <p>No saved forecast is ready for this farm. Ask your farm manager to check the map pin and weather service; use official local forecasts for time-sensitive decisions.</p>
+            <h2>@T["No recent forecast is available"]</h2>
+            <p>@T["No saved forecast is ready for this farm. Ask your farm manager to check the map pin and weather service; use official local forecasts for time-sensitive decisions."]</p>
         </div>
     }
     else
@@ -66,24 +68,24 @@
         @if (stale)
         {
             <div class="sf-weather-stale" role="alert">
-                <strong>Weather data may be out of date.</strong>
-                <p>The last saved weather check is over 12 hours old, or its update time is invalid. Conditions and advisories may have changed. Check an official current forecast before deciding on outdoor work.</p>
+                <strong>@T["Weather data may be out of date."]</strong>
+                <p>@T["The last saved weather check is over 12 hours old, or its update time is invalid. Conditions and advisories may have changed. Check an official current forecast before deciding on outdoor work."]</p>
             </div>
         }
         <div class="reference-weather-overview ani12e-weather-overview">
             <div class="reference-weather-now">
                 <span class="reference-weather-icon" aria-hidden="true"><svg viewBox="0 0 48 48" width="62" height="62" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M28 9v21a8 8 0 1 1-8 0V9a4 4 0 0 1 8 0Z"/><path d="M24 18v17m7-19h7m-7 8h5"/></svg></span>
-                <div><strong>@(next?.MaxTemperatureC?.ToString("0.#") ?? "—") °C</strong><span>@(next?.Date.ToString("dddd, MMM d") ?? "No upcoming forecast") · saved daily maximum</span></div>
+                <div><strong>@(next?.MaxTemperatureC?.ToString("0.#") ?? "—") °C</strong><span>@T["{0} · saved daily maximum", next?.Date.ToString("dddd, MMM d") ?? T["No upcoming forecast"].Value]</span></div>
             </div>
-            <div class="weather-pills"><span class="sf-status-chip sf-status-chip--planned">Rain chance @(next?.MaxPrecipitationProbability?.ToString("0.#") ?? "—")%</span><span class="sf-status-chip sf-status-chip--neutral">@activeAdvisories.Count active advisories</span></div>
+            <div class="weather-pills"><span class="sf-status-chip sf-status-chip--planned">@T["Rain chance {0}%", next?.MaxPrecipitationProbability?.ToString("0.#") ?? "—"]</span><span class="sf-status-chip sf-status-chip--neutral">@T["{0} active advisories", activeAdvisories.Count]</span></div>
         </div>
         <section class="card reference-forecast-card ani12e-primary-panel" aria-labelledby="saved-forecast">
         <div class="card-head">
-        <h2 id="saved-forecast">Saved daily forecast</h2>
-        <span class="sf-muted">Saved forecast · @Model.TimeZoneId</span>
+        <h2 id="saved-forecast">@T["Saved daily forecast"]</h2>
+        <span class="sf-muted">@T["Saved forecast ·"] @Model.TimeZoneId</span>
         </div>
         <div class="card-body">
-        <p class="hint">Check times are displayed in UTC. Forecast dates follow your farm's time zone.</p>
+        <p class="hint">@T["Dates and times follow your farm’s time zone."]</p>
         <ul class="sf-weather-grid ani-weather-days forecast ani12e-forecast-grid">
         @foreach (var day in forecast)
         {
@@ -92,20 +94,20 @@
                     <time datetime="@day.Date.ToString("yyyy-MM-dd")">@day.Date.ToString("ddd, MMM d")</time>
                     @if (next is not null && day.Date == next.Date)
                     {
-                        <span class="ani-next-label">Next available</span>
+                        <span class="ani-next-label">@T["Next available"]</span>
                     }
                     <span>@day.Provider</span>
                 </div>
                 <div class="sf-weather-temps">
                     <strong>@(day.MinTemperatureC?.ToString("0.#") ?? "—")–@(day.MaxTemperatureC?.ToString("0.#") ?? "—") °C</strong>
-                    <span>Forecast daily temperature range</span>
+                    <span>@T["Forecast daily temperature range"]</span>
                 </div>
                 <dl class="sf-weather-facts">
-                    <div><dt>Rainfall</dt><dd>@(day.RainfallMm?.ToString("0.#") ?? "—") mm</dd></div>
-                    <div><dt>Rain chance</dt><dd>@(day.MaxPrecipitationProbability?.ToString("0.#") ?? "—")%</dd></div>
-                    <div><dt>Max wind</dt><dd>@(day.MaxWindKph?.ToString("0.#") ?? "—") km/h</dd></div>
+                    <div><dt>@T["Rainfall"]</dt><dd>@T["{0} mm", day.RainfallMm?.ToString("0.#") ?? "—"]</dd></div>
+                    <div><dt>@T["Rain chance"]</dt><dd>@(day.MaxPrecipitationProbability?.ToString("0.#") ?? "—")%</dd></div>
+                    <div><dt>@T["Max wind"]</dt><dd>@T["{0} km/h", day.MaxWindKph?.ToString("0.#") ?? "—"]</dd></div>
                 </dl>
-                <small>Checked @day.RetrievedAtUtc.ToString("MMM d, yyyy HH:mm") UTC</small>
+                <small>@T["Checked"] @SmartFarm.Web.Presentation.FarmTimestamp.Display(day.RetrievedAtUtc, Model.TimeZoneId)</small>
             </li>
         }
         </ul>
@@ -116,18 +118,18 @@
 <section class="panel card sf-weather-advisories ani-weather-advisories ani12e-weather-advisories" aria-labelledby="weather-alerts-heading">
     <div class="sf-section-line card-head">
         <div>
-            <h2 id="weather-alerts-heading">Saved weather advisories</h2>
-            <p class="sf-muted">These are saved farm-system advisories, not real-time emergency alerts.</p>
+            <h2 id="weather-alerts-heading">@T["Saved weather advisories"]</h2>
+            <p class="sf-muted">@T["These are saved farm-system advisories, not real-time emergency alerts."]</p>
         </div>
         <span class="sf-status-chip @(activeAdvisories.Count > 0 ? "sf-status-chip--warning" : "sf-status-chip--neutral")">
-            @activeAdvisories.Count active
+            @T["{0} active advisories", activeAdvisories.Count]
         </span>
     </div>
     @if (activeAdvisories.Count == 0)
     {
         <partial name="_UiEmptyState" model='@(new UiEmptyState(
-            "No active saved advisories.",
-            "This is not an all-clear for outdoor work. Check official local weather warnings before working during heavy rain, wind, or severe conditions."))' />
+            T["No active saved advisories."],
+            T["This is not an all-clear for outdoor work. Check official local weather warnings before working during heavy rain, wind, or severe conditions."]))' />
     }
     else
     {
@@ -136,10 +138,26 @@
         {
             <li>
                 <div class="sf-weather-alert-title">
-                    <strong>@advisory.SeverityName @advisory.TypeName advisory</strong>
+                    <strong>@T["{0} {1} advisory", T[advisory.SeverityName], T[advisory.TypeName]]</strong>
                     <time datetime="@advisory.Date.ToString("yyyy-MM-dd")">@advisory.Date.ToString("MMM d, yyyy")</time>
                 </div>
                 <p>@advisory.Message</p>
+                <form method="get" asp-controller="Weather" asp-action="Guidance" class="ani-weather-advice-form">
+                    <input type="hidden" name="farmId" value="@Model.FarmId" />
+                    <input type="hidden" name="advisoryId" value="@advisory.Id" />
+                    @if (activeCrops.Count > 0)
+                    {
+                        <label for="guidance-crop-@advisory.Id">@T["Crop context (optional)"]</label>
+                        <select id="guidance-crop-@advisory.Id" name="cropCycleId">
+                            <option value="">@T["General farm guidance"]</option>
+                            @foreach (var crop in activeCrops)
+                            {
+                                <option value="@crop.Id">@crop.CropTypeName — @crop.PlotName</option>
+                            }
+                        </select>
+                    }
+                    <button class="sf-button-outline" type="submit">@T["Explain this advisory"]</button>
+                </form>
             </li>
         }
         </ul>

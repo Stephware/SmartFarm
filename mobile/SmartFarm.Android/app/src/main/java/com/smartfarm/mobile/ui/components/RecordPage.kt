@@ -1,5 +1,8 @@
 package com.smartfarm.mobile.ui.components
 
+import com.smartfarm.mobile.R
+import com.smartfarm.mobile.localization.uiText
+
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
@@ -21,7 +24,7 @@ import androidx.compose.ui.unit.dp
 
 @Composable
 fun RecordPage(title: String? = null, onBack: (() -> Unit)? = null,
-    backLabel: String = "Back", content: LazyListScope.() -> Unit) {
+    backLabel: String = uiText(R.string.ui_back_76900f1, "Back"), content: LazyListScope.() -> Unit) {
     androidx.compose.runtime.CompositionLocalProvider(LocalPageNavigation provides
         (LocalPageNavigation.current ?: title?.let { PageNavigation(it, backLabel, onBack) })) {
     Scaffold(topBar = { FarmAppBar(title = title, onBack = onBack, backLabel = backLabel) }) { padding ->

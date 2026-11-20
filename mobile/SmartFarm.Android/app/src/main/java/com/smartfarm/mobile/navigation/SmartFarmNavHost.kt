@@ -1,5 +1,8 @@
 package com.smartfarm.mobile.navigation
 
+import com.smartfarm.mobile.R
+import com.smartfarm.mobile.localization.uiText
+
 import com.smartfarm.mobile.ui.components.ExitGuard
 import com.smartfarm.mobile.ui.components.LocalExitGuard
 import com.smartfarm.mobile.ui.components.rememberExitGuard
@@ -188,8 +191,10 @@ fun SmartFarmNavHost(auth: AuthViewModel, farms: FarmViewModel, crops: CropViewM
     val farmDestination: @Composable (String, String) -> Unit = { farmId, section ->
         val farmState by farms.state.collectAsStateWithLifecycle()
         val homeTasks by tasks.state.collectAsStateWithLifecycle()
+        val aniAlerts by tasks.alerts.collectAsStateWithLifecycle()
         val homeCrops by crops.state.collectAsStateWithLifecycle()
         LaunchedEffect(farmId, confirmationVersion) {
+            tasks.loadAlerts(farmId)
             if (farms.state.value.selected?.id != farmId) farms.loadDetail(farmId)
             if (confirmationVersion > 0 || tasks.state.value.farmId != farmId) tasks.load(farmId)
             if (confirmationVersion > 0 || crops.state.value.farmId != farmId) crops.load(farmId)
@@ -222,8 +227,10 @@ fun SmartFarmNavHost(auth: AuthViewModel, farms: FarmViewModel, crops: CropViewM
             onRetry = { farms.loadDetail(farmId) },
             onRegenerateCode = farms::regenerateJoinCode,
             homeTasks = homeTasks, homeCrops = homeCrops, actorId = state.account?.id,
+            aniAlerts = aniAlerts, onAcknowledgeAlert = tasks::acknowledgeAlert,
             section = section,
             onWeather = { navController.navigate("farm/$farmId/weather") },
+            onWeatherGuidance = farms::requestWeatherGuidance,
             onPlots = { navController.navigate("farm/$farmId/plots") },
             onSync = { navController.openSecondary("sync") },
             onRecord = {
@@ -281,7 +288,7 @@ fun SmartFarmNavHost(auth: AuthViewModel, farms: FarmViewModel, crops: CropViewM
             BackHandler(enabled = route !in setOf("welcome", "onboarding", "onboarding-preview") &&
                 (guard.dirty || previous != null || navigationParent(route, entry.arguments?.getString("farmId").orEmpty()) != null)) { back() }
             CompositionLocalProvider(LocalExitGuard provides guard,
-                LocalPageNavigation provides PageNavigation(title, "Back to $parent", if (root) null else back)) {
+                LocalPageNavigation provides PageNavigation(title, uiText(R.string.ui_back_to_1_s_382c1a8, "Back to %1\$s", (parent)), if (root) null else back)) {
                 content(entry)
                 DiscardChangesDialog(guard)
             }
@@ -343,7 +350,7 @@ fun SmartFarmNavHost(auth: AuthViewModel, farms: FarmViewModel, crops: CropViewM
                     else navController.backOrParent()
                 },
                 completionLabel = anigoReplayExitLabel(state.account != null),
-                skipLabel = "Close guide"
+                skipLabel = uiText(R.string.ui_close_guide_7674c25, "Close guide")
             )
         }
         page("login") {
@@ -355,10 +362,15 @@ fun SmartFarmNavHost(auth: AuthViewModel, farms: FarmViewModel, crops: CropViewM
                     }
                 },
                 onRegister = { exitGuards[currentEntry?.id]?.request { navController.openAuth("register") } },
-                onForgotPassword = { navController.navigate("forgot-password") })
+                onForgotPassword = {
+                    auth.clearRecoveryFeedback()
+                    navController.navigate("forgot-password")
+                })
         }
         page("forgot-password") {
-            ForgotPasswordScreen(onLogin = {
+            ForgotPasswordScreen(state = state,
+                onRequest = auth::requestPasswordReset,
+                onLogin = {
                 if (!navController.popBackStack("login", inclusive = false)) {
                     navController.navigate("login") { launchSingleTop = true }
                 }
@@ -563,6 +575,7 @@ fun SmartFarmNavHost(auth: AuthViewModel, farms: FarmViewModel, crops: CropViewM
                 onDismissPreview = { monitoring.dismissPreview() }, pending = pending,
                 onSync = { navController.openSecondary("sync") },
                 onRetry = { monitoring.load(farmId, cycleId) },
+                farmTimeZone = farmState.selected?.takeIf { it.id == farmId }?.timeZoneId,
                 quick = entry.arguments?.getString("quick").orEmpty(), linkedTask = !taskId.isNullOrBlank(),
                 cropLabel = cropState.takeIf { it.farmId == farmId }?.cycles
                     ?.firstOrNull { it.id == cycleId }?.let { "${it.cropTypeName} · ${it.plotName}" },
@@ -674,7 +687,7 @@ fun SmartFarmNavHost(auth: AuthViewModel, farms: FarmViewModel, crops: CropViewM
         val farmId = requireNotNull(recordForFarm)
         FarmQuickRecordSheet(
             farmId = farmId,
-            farmName = headerFarm.selected?.takeIf { it.id == farmId }?.name ?: "Selected farm",
+            farmName = headerFarm.selected?.takeIf { it.id == farmId }?.name ?: uiText(R.string.ui_selected_farm_3dd2fdd, "Selected farm"),
             cropState = cropState,
             onDismiss = { recordForFarm = null; recordAction = null },
             onSelect = { action, cycleId ->

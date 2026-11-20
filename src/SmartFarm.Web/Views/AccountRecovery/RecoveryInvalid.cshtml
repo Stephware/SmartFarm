@@ -1,0 +1,10 @@
+@{
+    ViewData["Title"] = T["Invalid reset link"];
+}
+<section class="panel auth-card ani-entry-auth-card" aria-labelledby="reset-invalid-heading" role="alert">
+    <div class="auth-heading">
+        <h1 id="reset-invalid-heading">@T["Invalid reset link"]</h1>
+        <p>@T["This link is incomplete, invalid or has expired. Request a new password reset link."]</p>
+    </div>
+    <p class="auth-switch"><a asp-controller="AccountRecovery" asp-action="ForgotPassword">@T["Request another reset link"]</a></p>
+</section>

@@ -1,0 +1,5 @@
+<resources>
+    <string name="app_name">AniGo</string>
+    <string name="welcome">Dito nagsisimula ang iyong bukid.</string>
+    <string name="welcome_description">Kaagapay mo sa pagsasaka.</string>
+</resources>

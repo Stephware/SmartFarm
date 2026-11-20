@@ -1,5 +1,8 @@
 package com.smartfarm.mobile.ui.components
 
+import com.smartfarm.mobile.R
+import com.smartfarm.mobile.localization.uiText
+
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
@@ -18,7 +21,7 @@ val LocalPageNavigation = compositionLocalOf<PageNavigation?> { null }
 
 @Composable
 fun PageNavigationHeader(title: String? = null, onBack: (() -> Unit)? = null,
-    backLabel: String = "Back", modifier: Modifier = Modifier) {
+    backLabel: String = uiText(R.string.ui_back_76900f1, "Back"), modifier: Modifier = Modifier) {
     val page = LocalPageNavigation.current
     val action = if (page != null) page.onBack else onBack
     val heading = page?.title ?: title

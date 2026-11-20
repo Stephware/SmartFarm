@@ -256,7 +256,7 @@ public sealed partial class FarmEnrollmentWebTests
         using var app = App(role);
         using var client = app.CreateClient();
         var html = await client.GetStringAsync($"/Dashboard?farmId={FarmId}");
-        Assert.Contains("Today's priorities", html);
+        Assert.Contains(System.Text.Encodings.Web.HtmlEncoder.Default.Encode("Today's priorities"), html);
         Assert.Contains("Overdue tasks", html);
         Assert.Contains("Due today", html);
         Assert.Contains("Needs attention", html);
@@ -342,7 +342,7 @@ public sealed partial class FarmEnrollmentWebTests
         using var client = app.CreateClient();
         var html = await client.GetStringAsync($"/Dashboard?farmId={FarmId}");
         Assert.Contains("<h1 id=\"dashboard-heading\">Today</h1>", html);
-        Assert.Contains("Today's priorities", html);
+        Assert.Contains(System.Text.Encodings.Web.HtmlEncoder.Default.Encode("Today's priorities"), html);
         Assert.Contains("Needs attention", html);
         Assert.Contains("Record work", html);
         Assert.DoesNotContain("Cash records", html);
@@ -1334,7 +1334,7 @@ public sealed partial class FarmEnrollmentWebTests
         Assert.Contains("aria-labelledby=\"weather-heading\"", html);
         Assert.Contains("Open tasks", html);
         Assert.Contains("Add first plot", html);
-        Assert.Contains("Set the farm's map pin", html);
+        Assert.Contains(System.Text.Encodings.Web.HtmlEncoder.Default.Encode("Set the farm's map pin"), html);
     }
 
     [Fact]
@@ -1950,6 +1950,91 @@ public sealed partial class FarmEnrollmentWebTests
         return new(fields);
     }
 
+    [Fact]
+    public async Task FilipinoInspectionSaveKeepsPhotoNextStepMarkerInvariant()
+    {
+        var cycle = new CropCycleDetails(Guid.NewGuid(), FarmId, Guid.NewGuid(), "North plot",
+            Guid.NewGuid(), "Corn", CropCycleStatus.Active, new(2026,10,1), new(2026,10,1), null, "kg", 3, null, null, "v");
+        var observations = new List<ObservationDetails>();
+        using var app = App(cycles: [cycle], monitoring: new MonitoringDetails(FarmId, cycle.Id, true, [], observations),
+            monitoringWrites: (name, args) => {
+                if (name == "GetAsync") return Task.FromResult(new MonitoringDetails(FarmId, cycle.Id, true, [], observations));
+                Assert.Equal("RecordObservationAsync", name);
+                var input = (RecordObservationInput)args![3]!;
+                var observation = new ObservationDetails(Guid.NewGuid(), input.HealthStatus, input.GrowthStage,
+                    DateTime.UtcNow, DateTime.UtcNow, Actor, input.Notes, []);
+                observations.Add(observation); return Task.FromResult(observation);
+            });
+        using var client = app.CreateClient();
+        client.DefaultRequestHeaders.Add("Cookie", ".AspNetCore.Culture=c%3Dfil%7Cuic%3Dfil");
+        var initial = await client.GetAsync($"/Monitoring?farmId={FarmId}&cycleId={cycle.Id}");
+        var form = await initial.Content.ReadAsStringAsync();
+        Assert.True(initial.IsSuccessStatusCode, form);
+        var response = await client.PostAsync($"/Monitoring/Observation?farmId={FarmId}&cycleId={cycle.Id}",
+            Form(form, ("Observation.HealthStatus","1"), ("Observation.Notes","Today")));
+        var html = WebUtility.HtmlDecode(await response.Content.ReadAsStringAsync());
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        Assert.Single(observations);
+        Assert.Contains("Today", html);
+        var feedback = Regex.Match(html, "<div class=\"form-notice ani-save-feedback\"[\\s\\S]*?</div>").Value;
+        Assert.Contains("href=\"#observation-history\"", feedback);
+    }
+
+    [Fact]
+    public async Task JoinedFarmRequestHistoryUsesItsConfiguredZone()
+    {
+        var utc = new DateTime(2026,11,20,16,5,0);
+        var request = new FarmJoinRequestDetails(Guid.NewGuid(), FarmId, "Eastern Farm", Actor,
+            "Farmer", "farmer@example.invalid", "Approved", utc, utc);
+        using var app = App(farms: [new(FarmId, "Eastern Farm", "Location", "FieldWorker", "America/New_York")],
+            enroll: (name, _) => name == "MyRequestsAsync" ? Task.FromResult<IReadOnlyList<FarmJoinRequestDetails>>([request]) : throw new NotSupportedException(name));
+        using var client = app.CreateClient();
+        var html = WebUtility.HtmlDecode(await client.GetStringAsync("/Farms"));
+        Assert.Contains("Nov 20, 2026 · 11:05 AM", html);
+        Assert.DoesNotContain("Nov 21, 2026 · 12:05 AM", html);
+    }
+
+    [Fact]
+    public async Task FilipinoValidationKeepsInvalidDraftAndLocalizesRequiredFields()
+    {
+        using var app = App();
+        using var client = app.CreateClient();
+        client.DefaultRequestHeaders.Add("Cookie", ".AspNetCore.Culture=c%3Dfil%7Cuic%3Dfil");
+        var form = await client.GetStringAsync("/Farms/Create");
+        var response = await client.PostAsync("/Farms/Create", Form(form, ("Name", "X"), ("LocationText", ""), ("TimeZoneId", "Asia/Manila")));
+        var html = WebUtility.HtmlDecode(await response.Content.ReadAsStringAsync());
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        Assert.Contains("value=\"X\"", html);
+        Assert.Contains("Kailangan ang", html);
+        Assert.DoesNotContain("The LocationText field is required", html);
+    }
+
+    [Theory]
+    [InlineData("today", "Nothing is overdue or due today.")]
+    [InlineData("mine", "No open tasks are assigned to you. Check due work or ask your farm manager about assignments.")]
+    [InlineData("upcoming", "No upcoming work is scheduled.")]
+    public async Task FilipinoKeepsFilterKeysAndFarmNamesAsData(string view, string english)
+    {
+        using var app = App(taskList: [], farmName: "Today");
+        using var client = app.CreateClient();
+        client.DefaultRequestHeaders.Add("Cookie", ".AspNetCore.Culture=c%3Dfil%7Cuic%3Dfil");
+        var html = await client.GetStringAsync($"/Tasks?farmId={FarmId}&view={view}");
+        Assert.Contains("lang=\"fil\"", html);
+        Assert.DoesNotContain(english, System.Net.WebUtility.HtmlDecode(html));
+        Assert.Contains($"view={view}", html);
+        var dashboard = await client.GetStringAsync($"/Dashboard?farmId={FarmId}");
+        Assert.Contains("class=\"mvp-farm-context\">Today</p>", dashboard);
+        if (Environment.GetEnvironmentVariable("ANIGO_CAPTURE_AUTH_FIXTURES") == "1")
+        {
+            var root = new DirectoryInfo(AppContext.BaseDirectory);
+            while (root != null && !File.Exists(Path.Combine(root.FullName, "SmartFarm.slnx"))) root = root.Parent;
+            var folder = Path.Combine(root!.FullName, "tests/browser/authenticated-fixtures");
+            Directory.CreateDirectory(folder);
+            await File.WriteAllTextAsync(Path.Combine(folder, "f4-dashboard-fil.html"), dashboard);
+            await File.WriteAllTextAsync(Path.Combine(folder, "f4-tasks-" + view + "-fil.html"), html);
+        }
+    }
+
     private static WebApplicationFactory<Program> App(string role = "Owner", Func<string, object?[]?, object>? enroll = null, IReadOnlyList<FarmSummary>? farms = null, IReadOnlyList<PlotDetails>? plots = null,
         IReadOnlyList<CropCycleDetails>? cycles = null, IReadOnlyList<FarmTaskDetails>? taskList = null,
         IReadOnlyList<CropTypeDetails>? cropTypes = null,
@@ -1962,14 +2047,15 @@ public sealed partial class FarmEnrollmentWebTests
         Func<string, object?[]?, object>? monitoringWrites = null,
         Func<string, object?[]?, object>? harvestWrites = null,
         FarmDashboard? dashboardReport = null,
-        Func<string, object?[]?, object>? fieldworkWrites = null) =>
+        Func<string, object?[]?, object>? fieldworkWrites = null,
+        string farmName = "Green Farm", string timeZoneId = "Asia/Manila") =>
         new WebApplicationFactory<Program>().WithWebHostBuilder(builder => builder.ConfigureTestServices(services =>
         {
             services.AddSingleton<IAuthenticationService, SignedIn>();
             services.AddScoped(_ => Stub<IFarmManagementService>((name, args) => name switch
             {
                 "ListAsync" => Task.FromResult<IReadOnlyList<FarmSummary>>(farms ?? []),
-                "GetAsync" => Task.FromResult<FarmDetails?>(new(FarmId, "Green Farm", "Location", "Asia/Manila", null, null, role, "version")),
+                "GetAsync" => Task.FromResult<FarmDetails?>(new(FarmId, farmName, "Location", timeZoneId, null, null, role, "version")),
                 "ListPlotsAsync" => Task.FromResult<IReadOnlyList<PlotDetails>>(plots ?? []),
                 "GetPlotAsync" => Task.FromResult<PlotDetails?>(plots?.FirstOrDefault(p => p.Id == (Guid)args![1]!)),
                 "MembersAsync" => Task.FromResult<IReadOnlyList<FarmMemberDetails>>([]),
@@ -1978,7 +2064,7 @@ public sealed partial class FarmEnrollmentWebTests
             services.AddScoped(_ => Stub<IFarmReportService>((name, _) => name switch
             {
                 "DashboardAsync" => Task.FromResult(
-                    dashboardReport ?? new FarmDashboard(FarmId, "Green Farm", new DateOnly(2026,10,27),
+                    dashboardReport ?? new FarmDashboard(FarmId, farmName, new DateOnly(2026,10,27),
                         0,0,0,0,0,0,0,0,[],[])),
                 "HarvestsAsync" => Task.FromResult(harvestReport ?? new HarvestReport(
                     FarmId, "Green Farm", "Asia/Manila",

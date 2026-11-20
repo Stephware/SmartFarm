@@ -1,5 +1,8 @@
 package com.smartfarm.mobile.features.harvests
 
+import com.smartfarm.mobile.R
+import com.smartfarm.mobile.localization.uiText
+
 import com.smartfarm.mobile.ui.components.UnsavedChanges
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -90,20 +93,20 @@ fun HarvestScreen(
         }
     }.sortedByDescending { it.harvestedAtUtc }
 
-    RecordPage(title = "Harvests", onBack = onBack) {
+    RecordPage(title = uiText(R.string.ui_harvests_a2b3922, "Harvests"), onBack = onBack) {
         item(key = "header") {
             Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
 
-                FarmHero(if (canRecord) "Record harvest" else "Harvest records",
-                    "Record what you picked, then review confirmed totals.")
+                FarmHero(if (canRecord) uiText(R.string.ui_record_harvest_f027857, "Record harvest") else uiText(R.string.ui_harvest_records_cfad96b, "Harvest records"),
+                    uiText(R.string.ui_record_what_you_picked_then_review_confirmed_totals_b716f93, "Record what you picked, then review confirmed totals."))
                 if (state.busy) CircularProgressIndicator()
                 state.error?.let {
-                    Text(it, color = MaterialTheme.colorScheme.error,
+                    Text(com.smartfarm.mobile.localization.systemMessage(it), color = MaterialTheme.colorScheme.error,
                         modifier = Modifier.semantics { liveRegion = LiveRegionMode.Assertive })
-                    OutlinedButton(onClick = onRetry, enabled = !state.busy) { Text("Try again") }
+                    OutlinedButton(onClick = onRetry, enabled = !state.busy) { Text(uiText(R.string.ui_try_again_d8b8392, "Try again")) }
                 }
                 state.notice?.let {
-                    Text(it, color = MaterialTheme.colorScheme.primary,
+                    Text(com.smartfarm.mobile.localization.systemMessage(it), color = MaterialTheme.colorScheme.primary,
                         modifier = Modifier.semantics { liveRegion = LiveRegionMode.Polite })
                 }
                 OfflineDataNotice(state.offline, state.cachedAtUtcMillis)
@@ -123,11 +126,11 @@ fun HarvestScreen(
                             FilterChip(selected = selectedView == "record",
                                 onClick = { view = "record" },
                                 modifier = Modifier.weight(1f).defaultMinSize(minHeight = 48.dp),
-                                label = { Text("Record harvest") })
+                                label = { Text(uiText(R.string.ui_record_harvest_f027857, "Record harvest")) })
                             FilterChip(selected = selectedView == "history",
                                 onClick = { view = "history" },
                                 modifier = Modifier.weight(1f).defaultMinSize(minHeight = 48.dp),
-                                label = { Text("History & totals") })
+                                label = { Text(uiText(R.string.ui_history_totals_43e1694, "History & totals")) })
                         }
                     }
 
@@ -135,29 +138,29 @@ fun HarvestScreen(
 
                     PendingRecords(pending, state.farmId, state.cycleId, setOf("harvest"), onSync)
 
-                    FarmSectionCard("Confirmed harvest total",
-                        subtitle = "Only server-confirmed, non-voided harvests are included.") {
+                    FarmSectionCard(uiText(R.string.ui_confirmed_harvest_total_ea509f7, "Confirmed harvest total"),
+                        subtitle = uiText(R.string.ui_only_server_confirmed_non_voided_harvests_are_includ_b4f74d8, "Only server-confirmed, non-voided harvests are included.")) {
                         Text("${overview.totalQuantity.toPlainString()} ${overview.unit}",
                             style = MaterialTheme.typography.headlineMedium)
                         Row(Modifier.fillMaxWidth(),
                             horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-                            FarmStatusChip("${overview.validHarvestCount} valid", FarmStatusTone.Active)
-                            FarmStatusChip("${overview.voidedHarvestCount} voided", FarmStatusTone.Neutral)
+                            FarmStatusChip(uiText(R.string.ui_1_s_valid_5cd02d9, "%1\$s valid", (overview.validHarvestCount)), FarmStatusTone.Active)
+                            FarmStatusChip(uiText(R.string.ui_1_s_voided_9bc95a3, "%1\$s voided", (overview.voidedHarvestCount)), FarmStatusTone.Neutral)
                         }
                         if (selectedView == "record") {
                             OutlinedButton(onClick = { view = "history" },
                                 modifier = Modifier.fillMaxWidth()) {
-                                Text("View harvest history")
+                                Text(uiText(R.string.ui_view_harvest_history_83d95b7, "View harvest history"))
                             }
                         }
                     }
 
                     if (selectedView == "history") {
-                        FarmSectionHeader("Harvest history",
-                            "Valid harvests count toward the total. Voided entries remain for auditing.")
+                        FarmSectionHeader(uiText(R.string.ui_harvest_history_e5ce3cf, "Harvest history"),
+                            uiText(R.string.ui_valid_harvests_count_toward_the_total_voided_entries_7d368fa, "Valid harvests count toward the total. Voided entries remain for auditing."))
                         Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(6.dp)) {
-                            listOf("all" to "All", "valid" to "Valid",
-                                "voided" to "Voided").forEach { (key, label) ->
+                            listOf("all" to uiText(R.string.ui_all_a52ace4, "All"), "valid" to uiText(R.string.ui_valid_f516220, "Valid"),
+                                "voided" to uiText(R.string.ui_voided_9f9ae2c, "Voided")).forEach { (key, label) ->
                                 FilterChip(selected = historyFilter == key,
                                     onClick = { historyFilter = key },
                                     modifier = Modifier.weight(1f).defaultMinSize(minHeight = 48.dp),
@@ -165,11 +168,11 @@ fun HarvestScreen(
                             }
                         }
                         if (visibleEntries.isEmpty()) {
-                            FarmEmptyState("No harvest records to show",
-                                "Confirmed harvest entries will appear here once synced.")
+                            FarmEmptyState(uiText(R.string.ui_no_harvest_records_to_show_7deb7d7, "No harvest records to show"),
+                                uiText(R.string.ui_confirmed_harvest_entries_will_appear_here_once_sync_1a81da2, "Confirmed harvest entries will appear here once synced."))
                         }
                         if (!canRecord) {
-                            Text("This crop is no longer active. Its confirmed harvest history remains available.",
+                            Text(uiText(R.string.ui_this_crop_is_no_longer_active_its_confirmed_harvest__ebfe06f, "This crop is no longer active. Its confirmed harvest history remains available."),
                                 style = MaterialTheme.typography.bodySmall,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant)
                         }
@@ -181,35 +184,35 @@ fun HarvestScreen(
         // prevents Compose and TalkBack from reliably revealing the Save action.
         if (overview != null && selectedView == "record") {
             item(key = "harvest-form") {
-                        FarmSectionCard("Harvested amount",
-                            subtitle = "Record only what was actually harvested today.") {
+                        FarmSectionCard(uiText(R.string.ui_harvested_amount_fb69d8b, "Harvested amount"),
+                            subtitle = uiText(R.string.ui_record_only_what_was_actually_harvested_today_f132a6d, "Record only what was actually harvested today.")) {
                             OutlinedTextField(quantity, { quantity = it },
                                 enabled = !state.busy,
                                 isError = quantity.isNotBlank() && !validQuantity,
-                                label = { Text("Harvested quantity (${overview.unit})") },
+                                label = { Text(uiText(R.string.ui_harvested_quantity_1_s_1a42401, "Harvested quantity (%1\$s)", (overview.unit))) },
                                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
                                 singleLine = true, modifier = Modifier.fillMaxWidth())
                             if (quantity.isNotBlank() && !validQuantity) {
-                                Text("Use a positive quantity, with at most 3 decimal places.",
+                                Text(uiText(R.string.ui_use_a_positive_quantity_with_at_most_3_decimal_place_d538afc, "Use a positive quantity, with at most 3 decimal places."),
                                     style = MaterialTheme.typography.bodySmall,
                                     color = MaterialTheme.colorScheme.error)
                             }
                             OutlinedTextField(notes, { notes = it }, enabled = !state.busy,
-                                isError = !validNotes, label = { Text("Notes (optional)") },
+                                isError = !validNotes, label = { Text(uiText(R.string.ui_notes_optional_6239b93, "Notes (optional)")) },
                                 minLines = 2, maxLines = 4, modifier = Modifier.fillMaxWidth())
                             if (!validNotes)
-                                Text("Harvest notes must be 1,000 characters or fewer.",
+                                Text(uiText(R.string.ui_harvest_notes_must_be_1_000_characters_or_fewer_07cc656, "Harvest notes must be 1,000 characters or fewer."),
                                     style = MaterialTheme.typography.bodySmall,
                                     color = MaterialTheme.colorScheme.error)
-                            Text("Partial harvest · The crop stays active.",
+                            Text(uiText(R.string.ui_partial_harvest_the_crop_stays_active_fb813eb, "Partial harvest · The crop stays active."),
                                 style = MaterialTheme.typography.bodyMedium,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant)
                             Button(onClick = { onRecord(quantity.trim(), notes) },
                                 enabled = !state.busy && validQuantity && validNotes,
                                 modifier = Modifier.fillMaxWidth().defaultMinSize(minHeight = 48.dp)) {
-                                Text("Save harvested amount")
+                                Text(uiText(R.string.ui_save_harvested_amount_aefb9bd, "Save harvested amount"))
                             }
-                            Text("Saved on this phone first. Totals update after server confirmation.",
+                            Text(uiText(R.string.ui_saved_on_this_phone_first_totals_update_after_server_aa94783, "Saved on this phone first. Totals update after server confirmation."),
                                 style = MaterialTheme.typography.bodyMedium,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant)
                         }
@@ -219,16 +222,16 @@ fun HarvestScreen(
             items(visibleEntries, key = { "harvest-${it.id}" }) { entry ->
                 FarmSectionCard("${entry.quantity.toPlainString()} ${entry.unit}",
                     subtitle = farmDateTime(entry.harvestedAtUtc, farmTimeZone)) {
-                    FarmStatusChip(if (entry.isVoided) "Voided" else "Valid",
+                    FarmStatusChip(if (entry.isVoided) uiText(R.string.ui_voided_9f9ae2c, "Voided") else uiText(R.string.ui_valid_f516220, "Valid"),
                         if (entry.isVoided) FarmStatusTone.Failed else FarmStatusTone.Active)
                     entry.notes?.let { Text(it) }
                     if (entry.isVoided) {
-                        Text("Voided: ${entry.voidReason.orEmpty()}")
+                        Text(uiText(R.string.ui_voided_1_s_de98f56, "Voided: %1\$s", (entry.voidReason.orEmpty())))
                     } else if (overview?.canVoid == true && !state.offline) {
                         TextButton(onClick = {
                             voidReason = ""
                             confirmVoidId = entry.id
-                        }, enabled = !state.busy) { Text("Review voiding this harvest") }
+                        }, enabled = !state.busy) { Text(uiText(R.string.ui_review_voiding_this_harvest_13312e1, "Review voiding this harvest")) }
                     }
                 }
             }
@@ -241,12 +244,12 @@ fun HarvestScreen(
         val dismiss = { exit.request { confirmVoidId = null; voidReason = "" } }
         AlertDialog(
             onDismissRequest = dismiss,
-            title = { Text("Void harvest record?") },
+            title = { Text(uiText(R.string.ui_void_harvest_record_6c7c1d9, "Void harvest record?")) },
             text = {
                 Column {
-                    Text("The original entry stays in history but will be excluded from totals. This requires an online confirmation.")
+                    Text(uiText(R.string.ui_the_original_entry_stays_in_history_but_will_be_excl_4f9491d, "The original entry stays in history but will be excluded from totals. This requires an online confirmation."))
                     OutlinedTextField(voidReason, { voidReason = it }, enabled = !state.busy,
-                        label = { Text("Reason (required)") }, modifier = Modifier.fillMaxWidth())
+                        label = { Text(uiText(R.string.ui_reason_required_d976f5d, "Reason (required)")) }, modifier = Modifier.fillMaxWidth())
                 }
             },
             confirmButton = {
@@ -254,10 +257,10 @@ fun HarvestScreen(
                     onClick = {
                         confirmVoidId = null
                         onVoid(harvestId, voidReason)
-                    }) { Text("Void harvest") }
+                    }) { Text(uiText(R.string.ui_void_harvest_ce44130, "Void harvest")) }
             },
             dismissButton = {
-                TextButton(onClick = dismiss) { Text("Cancel") }
+                TextButton(onClick = dismiss) { Text(uiText(R.string.ui_cancel_19766ed, "Cancel")) }
             }
         )
         com.smartfarm.mobile.ui.components.DiscardChangesDialog(exit)
