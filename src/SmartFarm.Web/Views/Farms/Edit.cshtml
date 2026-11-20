@@ -26,7 +26,7 @@
 <details class="ani-farm-map-options">
     <summary><strong>@T["Exact farm location on the map"]</strong><span>@T["Optional · for local saved forecasts"]</span></summary>
     <p class="ani-inline-help">@T["Only adjust this when needed. The map may ask for location permission if you select Use my current location."]</p>
-<div class="farm-location-picker sf-edit-location-picker" data-farm-location-picker data-search-url="@Url.Action("Search", "FarmLocations")" data-picker-script-url="@Url.Content("~/js/farm-location-picker.js")">
+<div class="farm-location-picker sf-edit-location-picker" data-farm-location-picker data-search-url="@Url.Action("Search", "FarmLocations")" data-reverse-url="@Url.Action("Reverse", "FarmLocations")" data-picker-script-url="@Url.Content("~/js/farm-location-picker.js")">
     <p class="hint">@T["Find your barangay or nearby place, then position the pin on your actual farm. No coordinates to type."]</p>
     <div class="farm-location-search">
         <label>@T["Search a place"] <input type="search" data-farm-search placeholder="@T["Barangay, town, or address"]" autocomplete="off" maxlength="120" /></label>
