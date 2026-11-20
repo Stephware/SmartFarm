@@ -7,14 +7,15 @@ const path = require("node:path");
 const source = fs.readFileSync(path.join(__dirname,
   "../../src/SmartFarm.Web/wwwroot/js/farm-location-picker.js"), "utf8");
 
-function setup() {
+function setup({ reverseFails = false } = {}) {
     const listeners = {};
     const controls = {};
     const mock = name => controls[name] = {
         value: "", textContent: "", disabled: false, children: [], innerHTML: "",
         addEventListener: (evt, listener) => { listeners[name + ":" + evt] = listener; },
         replaceChildren: () => { controls[name].children = []; },
-        append: item => { controls[name].children.push(item); }
+        append: item => { controls[name].children.push(item); },
+        dispatchEvent() {}
     };
     for (const name of ["[data-farm-location-label]", "[data-farm-latitude]",
       "[data-farm-longitude]", "[data-farm-search]", "[data-farm-search-button]",
@@ -31,7 +32,7 @@ function setup() {
     };
     const root = {
         closest: selector => selector === "form" ? form : selector === "details" ? disclosure : null,
-        dataset: { searchUrl: "/farms/locations/search" },
+        dataset: { searchUrl: "/farms/locations/search", reverseUrl: "/farms/locations/reverse" },
         querySelector: name => controls[name]
     };
     let invalidations = 0;
@@ -58,16 +59,21 @@ function setup() {
                 addEventListener: function (event, cb) { this.choose = cb; }
             })
         },
-        window: { L, addEventListener: () => {}, requestAnimationFrame: cb => cb() },
+        window: { L, location: { href: "https://localhost/farms/create" }, addEventListener: () => {}, requestAnimationFrame: cb => cb() },
         L,
-        navigator: {},
+        navigator: { geolocation: { getCurrentPosition: success => { listeners["gps:resolve"] = success; } } },
         fetch: async url => {
             fetches.push(url);
+            if (url.includes("/reverse")) return reverseFails
+                ? { ok: false }
+                : { ok: true, json: async () => ({ name: "Angeles, Pampanga" }) };
             return { ok: true, json: async () => [
                 { name: "A nearby barangay", latitude: 15.123456, longitude: 120.987654 }
             ] };
         },
-        encodeURIComponent
+        encodeURIComponent,
+        URL,
+        Event: class { constructor(type) { this.type = type; } }
     };
     vm.runInNewContext(source, context);
     return { listeners, controls, fetches, disclosure, invalidations: () => invalidations };
@@ -107,4 +113,27 @@ test("optional location map refreshes after its details panel is opened", () => 
     disclosure.open = false;
     listeners["disclosure:toggle"]();
     assert.equal(invalidations(), 1);
+});
+
+test("GPS stages coordinates immediately and automatically fills the location label", async () => {
+    const { listeners, controls, fetches } = setup();
+    listeners["[data-farm-gps]:click"]();
+    assert.equal(controls["[data-farm-gps]"].disabled, true);
+    await listeners["gps:resolve"]({ coords: { latitude: 15.15, longitude: 120.6 } });
+    assert.equal(controls["[data-farm-latitude]"].value, "15.150000");
+    assert.equal(controls["[data-farm-longitude]"].value, "120.600000");
+    assert.equal(controls["[data-farm-location-label]"].value, "Angeles, Pampanga");
+    assert.equal(controls["[data-farm-gps]"].disabled, false);
+    assert.equal(fetches.length, 1);
+    assert.match(fetches[0], /\/reverse\?/);
+});
+
+test("GPS still supplies a usable coordinate label if reverse lookup is unavailable", async () => {
+    const { listeners, controls } = setup({ reverseFails: true });
+    listeners["[data-farm-gps]:click"]();
+    await listeners["gps:resolve"]({ coords: { latitude: 15.15, longitude: 120.6 } });
+    assert.match(controls["[data-farm-location-label]"].value, /15\.15000, 120\.60000/);
+    assert.equal(controls["[data-farm-latitude]"].value, "15.150000");
+    assert.equal(controls["[data-farm-longitude]"].value, "120.600000");
+    assert.equal(controls["[data-farm-gps]"].disabled, false);
 });
