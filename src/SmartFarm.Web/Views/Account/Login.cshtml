@@ -40,6 +40,7 @@
             <label class="check auth-remember"><input asp-for="RememberMe" /> @T["Remember me"]</label>
             <button class="auth-submit" type="submit">@T["Log in to my farms"]</button>
         </form>
+        <p class="auth-switch"><a asp-controller="AccountRecovery" asp-action="ForgotPassword">@T["Forgot your password?"]</a></p>
         <p class="ani-auth-next-note"><strong>@T["After signing in"]</strong>@T[", you can open your farms, create one, or enter a farm code to request access."]</p>
         <p class="auth-switch">@T["New here?"] <a asp-controller="Account" asp-action="Register" asp-route-returnUrl="@ViewData["ReturnUrl"]">@T["Create an account"]</a>.</p>
     </section>
