@@ -6,7 +6,7 @@ set -uo pipefail
 
 bash ./gradlew --no-daemon :app:connectedDebugAndroidTest \
   -PsmartfarmDebugApiUrl=http://127.0.0.1:5081/ \
-  -Pandroid.testInstrumentationRunnerArguments.class=com.smartfarm.mobile.AniGoSpriteAssetTest,com.smartfarm.mobile.AniGoSessionNavigationTest,com.smartfarm.mobile.CarabaoOnboardingPreviewTest,com.smartfarm.mobile.FullAppJourneyTest,com.smartfarm.mobile.PhotoAuthScreensTest,com.smartfarm.mobile.Phase6WelcomeScreenTest,com.smartfarm.mobile.FarmOnboardingScreenTest,com.smartfarm.mobile.WelcomeScreenTest
+  -Pandroid.testInstrumentationRunnerArguments.class=com.smartfarm.mobile.AccountPreferencesTest,com.smartfarm.mobile.AniGoSpriteAssetTest,com.smartfarm.mobile.AniGoSessionNavigationTest,com.smartfarm.mobile.CarabaoOnboardingPreviewTest,com.smartfarm.mobile.FullAppJourneyTest,com.smartfarm.mobile.PhotoAuthScreensTest,com.smartfarm.mobile.Phase6WelcomeScreenTest,com.smartfarm.mobile.FarmOnboardingScreenTest,com.smartfarm.mobile.WelcomeScreenTest
 test_exit=$?
 
 mkdir -p app/build/ui-screenshots
