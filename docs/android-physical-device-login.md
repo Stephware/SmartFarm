@@ -14,7 +14,17 @@ port 1433 to a phone or place database credentials inside the APK.
 
 ## Preferred for a real Android phone connected over USB (local debug)
 
-From the repository root on the development computer:
+From the repository root on the development computer, the quickest path is:
+
+```sh
+dotnet run --project src/SmartFarm.Api --launch-profile http
+# In a separate terminal after connecting/authorizing the phone:
+bash scripts/dev/android-phone-login.sh
+```
+
+The helper checks API reachability, runs `adb reverse`, and installs the debug APK.
+Or perform those steps manually:
+
 
 ```sh
 dotnet run --project src/SmartFarm.Api --launch-profile http
