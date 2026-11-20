@@ -14,6 +14,13 @@ if ! curl --fail --silent --show-error --max-time 5 http://127.0.0.1:5081/api/st
   exit 1
 fi
 
+if ! curl --fail --silent --show-error --max-time 10 http://127.0.0.1:5081/health/database >/dev/null; then
+  echo "SmartFarm.Api is reachable, but its database health check failed." >&2
+  echo "Check ConnectionStrings:SmartFarm and SQL Server in the API terminal." >&2
+  echo "Do not reset or reseed your existing database to fix a connection issue." >&2
+  exit 1
+fi
+
 adb devices
 adb reverse tcp:5081 tcp:5081
 echo "Forwarded Android 127.0.0.1:5081 to this computer's SmartFarm.Api."
