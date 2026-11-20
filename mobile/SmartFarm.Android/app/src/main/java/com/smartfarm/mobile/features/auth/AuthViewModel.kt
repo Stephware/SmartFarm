@@ -77,7 +77,7 @@ class AuthViewModel(private val repository: AuthRepository) : ViewModel() {
                 mutableState.value = mutableState.value.copy(
                     recoveryBusy = false,
                     recoveryError = NetworkErrorMessages.forRequest(
-                        error, uiText(R.string.ui_please_try_again_later_02e8cd8, "Please try again later."))
+                        error, uiText(R.string.recovery_retry_later, "Please try again later."))
                 )
             }
         }
