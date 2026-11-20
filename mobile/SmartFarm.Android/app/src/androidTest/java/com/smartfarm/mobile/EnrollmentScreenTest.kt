@@ -81,7 +81,10 @@ class EnrollmentScreenTest {
         compose.runOnIdle { assertEquals(listOf("req" to true), decisions) }
         compose.onNodeWithText("Approve Sam").assertDoesNotExist()
         compose.onNodeWithText("Reject Lee").performScrollTo().performClick()
-        compose.onNodeWithText("Confirm").performClick()
+        // The approved request's outgoing dialog can briefly retain a disabled
+        // "Confirm" semantics node while the next modal animates in. Only the
+        // new, enabled dialog is actionable; still assert the rejection below.
+        compose.onNode(hasText("Confirm") and isEnabled()).performClick()
         compose.runOnIdle {
             assertEquals(listOf("req" to true, "req2" to false), decisions)
             state.value = state.value.copy(selected = farm("Manager"))
