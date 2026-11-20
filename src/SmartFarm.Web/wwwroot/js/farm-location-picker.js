@@ -34,9 +34,11 @@
       attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap contributors</a>'
     }).addTo(map);
     let pin = null;
+    let selectionRevision = 0;
     const showPoint = (latitude, longitude, zoom = 16) => {
       const lat = Number(latitude), lon = Number(longitude);
       if (!Number.isFinite(lat) || !Number.isFinite(lon) || Math.abs(lat) > 90 || Math.abs(lon) > 180) return;
+      selectionRevision++;
       latitudeField.value = lat.toFixed(6);
       longitudeField.value = lon.toFixed(6);
       if (pin) pin.setLatLng([lat, lon]);
@@ -55,6 +57,7 @@
 
     // A changed description must not silently keep an unrelated previous pin.
     locationField.addEventListener("input", () => {
+      selectionRevision++;
       latitudeField.value = "";
       longitudeField.value = "";
       if (pin) { map.removeLayer(pin); pin = null; }
@@ -111,10 +114,50 @@
     });
     gpsButton.addEventListener("click", () => {
       if (!navigator.geolocation) { setStatus(text("Current location is unavailable on this device.")); return; }
+      gpsButton.disabled = true;
       setStatus(text("Finding your current location..."));
       navigator.geolocation.getCurrentPosition(
-        location => showPoint(location.coords.latitude, location.coords.longitude),
-        () => setStatus(text("Could not get your location. Search or tap the map instead.")),
+        async location => {
+          const lat = Number(location.coords.latitude), lon = Number(location.coords.longitude);
+          if (!Number.isFinite(lat) || !Number.isFinite(lon) || Math.abs(lat) > 90 || Math.abs(lon) > 180) {
+            setStatus(text("Could not get your location. Search or tap the map instead."));
+            gpsButton.disabled = false;
+            return;
+          }
+          // GPS selects both coordinates and a usable nearby-area label immediately.
+          // This is a truthful coordinate fallback, not an invented street address.
+          showPoint(lat, lon);
+          locationField.value = text("Near coordinates:") + " " + lat.toFixed(5) + ", " + lon.toFixed(5);
+          locationField.dispatchEvent(new Event("change", { bubbles: true }));
+          setStatus(text("Location selected. Confirm or adjust the pin."));
+          const revision = selectionRevision;
+          try {
+            if (root.dataset.reverseUrl) {
+              const url = new URL(root.dataset.reverseUrl, window.location.href);
+              url.searchParams.set("latitude", lat.toFixed(6));
+              url.searchParams.set("longitude", lon.toFixed(6));
+              const response = await fetch(url.toString(), {
+                credentials: "same-origin", headers: { "Accept": "application/json" }
+              });
+              if (response.ok) {
+                const nearby = await response.json();
+                if (selectionRevision === revision && typeof nearby?.name === "string" &&
+                    nearby.name.trim().length >= 2) {
+                  locationField.value = nearby.name.trim().slice(0, 250);
+                  locationField.dispatchEvent(new Event("change", { bubbles: true }));
+                }
+              }
+            }
+          } catch {
+            // Preserve selected GPS coordinates and their editable fallback label.
+          } finally {
+            gpsButton.disabled = false;
+          }
+        },
+        () => {
+          gpsButton.disabled = false;
+          setStatus(text("Could not get your location. Search or tap the map instead."));
+        },
         { enableHighAccuracy: true, timeout: 12000, maximumAge: 0 });
     });
     form.addEventListener("submit", e => {
