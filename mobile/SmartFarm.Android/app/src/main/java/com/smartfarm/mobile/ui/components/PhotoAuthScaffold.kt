@@ -158,8 +158,7 @@ fun PhotoAuthScaffold(
                             style = MaterialTheme.typography.bodyMedium
                         )
                         Spacer(Modifier.height(2.dp))
-                        com.smartfarm.mobile.localization.LanguagePicker()
-                content()
+                        content()
                     }
                 }
             }
