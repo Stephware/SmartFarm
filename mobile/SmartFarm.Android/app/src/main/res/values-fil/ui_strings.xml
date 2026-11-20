@@ -1109,4 +1109,7 @@
   <string name="guidance_key_fieldwork_review" formatted="false">Suriin kung dapat ipagpaliban ang gawaing sensitibo sa panahon. Ikaw ang magpapasya sa anumang pagbabago.</string>
   <string name="guidance_key_stress_inspect" formatted="false">Inspeksiyunin ang aktuwal na kalagayan ng pananim at itala ang nakikita. Huwag ipalagay na may pinsala batay sa pagtataya lamang.</string>
   <string name="guidance_key_water_check" formatted="false">Suriin muna ang halumigmig ng lupa bago magpasya tungkol sa pagdidilig. Walang takdang dami ng tubig na inirerekomenda rito.</string>
+  <string name="account_preferences_title">Mga kagustuhan sa app</string>
+  <string name="account_preferences_description">Piliin ang gusto mong hitsura at wika.</string>
+  <string name="language_preference_description">Piliin ang wikang gagamitin sa AniGo.</string>
 </resources>
