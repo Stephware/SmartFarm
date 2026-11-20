@@ -1089,4 +1089,24 @@
   <string name="recovery_sent_note">Kung may aktibong account at nakatakda ang serbisyo ng email, ipapadala ang mga tagubilin. Para sa seguridad, hindi namin makukumpirma kung may account ang email na ito.</string>
   <string name="recovery_follow_browser">Buksan ang ligtas na link sa email sa iyong browser upang makumpleto ang pagpapalit ng password.</string>
   <string name="recovery_retry_later">Subukan muli mamaya.</string>
+  <string name="guidance_online_required" formatted="false">Kumonekta sa internet upang tingnan ang bagong gabay sa panahon.</string>
+  <string name="guidance_request_error" formatted="false">Hindi ma-load ang gabay. Tingnan ang naka-save na forecast o subukan muli mamaya.</string>
+  <string name="guidance_explain" formatted="false">Ipaliwanag ang abisong ito</string>
+  <string name="guidance_choose_crop" formatted="false">Pumili ng kaugnay na pananim (opsyonal)</string>
+  <string name="guidance_general" formatted="false">Pangkalahatang gabay sa bukid</string>
+  <string name="guidance_recommendations" formatted="false">Mga mungkahing susunod na hakbang</string>
+  <string name="guidance_explanations" formatted="false">Ano ang ibig sabihin ng forecast</string>
+  <string name="guidance_source_fallback" formatted="false">Payo batay sa mga panuntunan (hindi magagamit o hindi angkop ang AI).</string>
+  <string name="guidance_source_ai" formatted="false">Payo na tinulungan ng AI mula sa mga nasuring rekomendasyon.</string>
+  <string name="guidance_simulated" formatted="false">Ginayang forecast lamang, hindi totoong babala sa panahon.</string>
+  <string name="guidance_stale" formatted="false">Luma na ang forecast. Tingnan ang pinakabagong opisyal na forecast.</string>
+  <string name="guidance_informational" formatted="false">Payo lamang. Hindi awtomatikong binabago ng AniGo ang mga rekord sa bukid.</string>
+  <string name="guidance_key_rain_roots" formatted="false">Maaaring mag-ipon ng tubig sa lupa ang inaasahang malakas na ulan. Maaaring maapektuhan ang mga ugat; suriin muna ang aktuwal na kalagayan.</string>
+  <string name="guidance_key_wind_damage" formatted="false">Maaaring makasira sa pananim at kagamitan ang inaasahang malakas na hangin. Suriin ang panganib bago lumabas.</string>
+  <string name="guidance_key_heat_stress" formatted="false">Maaaring madagdagan ng inaasahang init ang stress sa pananim. Hindi nito pinatutunayan na may pinsala na sa bukid.</string>
+  <string name="guidance_key_drainage_check" formatted="false">Suriin ang daluyan ng tubig at mga bahaging maaaring bahain kung ligtas itong gawin.</string>
+  <string name="guidance_key_supports_check" formatted="false">Suriin ang suporta ng mga pananim at itali nang ligtas ang maluwag na kagamitan bago lumakas ang hangin.</string>
+  <string name="guidance_key_fieldwork_review" formatted="false">Suriin kung dapat ipagpaliban ang gawaing sensitibo sa panahon. Ikaw ang magpapasya sa anumang pagbabago.</string>
+  <string name="guidance_key_stress_inspect" formatted="false">Inspeksiyunin ang aktuwal na kalagayan ng pananim at itala ang nakikita. Huwag ipalagay na may pinsala batay sa pagtataya lamang.</string>
+  <string name="guidance_key_water_check" formatted="false">Suriin muna ang halumigmig ng lupa bago magpasya tungkol sa pagdidilig. Walang takdang dami ng tubig na inirerekomenda rito.</string>
 </resources>
