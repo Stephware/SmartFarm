@@ -4337,4 +4337,8 @@
   <data name="This is not a live weather feed." xml:space="preserve"><value>This is not a live weather feed.</value></data>
   <data name="Near coordinates:" xml:space="preserve"><value>Near coordinates:</value></data>
   <data name="Location selected. Confirm or adjust the pin." xml:space="preserve"><value>Location selected. Confirm or adjust the pin.</value></data>
+  <data name="Review your account information and app preferences." xml:space="preserve"><value>Review your account information and app preferences.</value></data>
+  <data name="App preferences" xml:space="preserve"><value>App preferences</value></data>
+  <data name="Choose your preferred appearance and language." xml:space="preserve"><value>Choose your preferred appearance and language.</value></data>
+  <data name="Choose the language used throughout AniGo." xml:space="preserve"><value>Choose the language used throughout AniGo.</value></data>
 </root>
