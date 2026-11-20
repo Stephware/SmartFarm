@@ -144,13 +144,36 @@ private fun FarmLocationDialog(
     var message by remember { mutableStateOf(uiText(R.string.ui_tap_the_map_to_place_a_pin_or_search_an_address_42ee28e, "Tap the map to place a pin, or search an address.")) }
     var webView by remember { mutableStateOf<WebView?>(null) }
 
-    fun select(latitude: Double, longitude: Double) {
+    fun select(latitude: Double, longitude: Double, selectedName: String? = null,
+        resolveAddress: Boolean = false) {
         lat = latitude
         lon = longitude
         val a = String.format(Locale.US, "%.6f", latitude)
         val b = String.format(Locale.US, "%.6f", longitude)
+        // Coordinates are usable even if the device geocoder has no address.
+        // Never require a second manual entry after choosing the current position.
+        name = selectedName?.takeIf { it.isNotBlank() }
+            ?: uiText(R.string.gps_near_coordinates, "Near coordinates: %1\$s, %2\$s", a, b)
         webView?.evaluateJavascript("window.selectFarmPin && window.selectFarmPin($a,$b)", null)
-        message = uiText(R.string.ui_pin_selected_confirm_the_farm_s_address_or_nearby_ar_99e5dca, "Pin selected. Confirm the farm's address or nearby area.")
+        message = uiText(R.string.ui_pin_selected_confirm_the_farm_s_address_or_nearby_ar_99e5dca,
+            "Pin selected. Confirm the farm's address or nearby area.")
+        if (resolveAddress && Geocoder.isPresent()) {
+            scope.launch {
+                try {
+                    val address = withContext(Dispatchers.IO) {
+                        Geocoder(context, Locale.getDefault())
+                            .getFromLocation(latitude, longitude, 1).orEmpty()
+                            .firstOrNull()?.getAddressLine(0)?.take(250)
+                    }
+                    if (lat == latitude && lon == longitude && !address.isNullOrBlank())
+                        name = address
+                } catch (cancelled: CancellationException) {
+                    throw cancelled
+                } catch (_: Exception) {
+                    // Keep the exact selected coordinates and honest fallback label.
+                }
+            }
+        }
     }
 
     @SuppressLint("MissingPermission")
@@ -179,13 +202,13 @@ private fun FarmLocationDialog(
             message = uiText(R.string.ui_getting_your_approximate_position_8c33aae, "Getting your approximate position...")
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
                 manager.getCurrentLocation(provider, null, context.mainExecutor) { found ->
-                    if (found != null) select(found.latitude, found.longitude)
+                    if (found != null) select(found.latitude, found.longitude, resolveAddress = true)
                     else message = uiText(R.string.ui_location_unavailable_search_or_tap_the_map_instead_05d7442, "Location unavailable. Search or tap the map instead.")
                 }
             } else {
                 val found = manager.getLastKnownLocation(provider)
                 if (found != null && System.currentTimeMillis() - found.time in 0..300000) {
-                    select(found.latitude, found.longitude)
+                    select(found.latitude, found.longitude, resolveAddress = true)
                 } else {
                     message = uiText(R.string.ui_no_recent_device_location_search_or_tap_the_map_inst_153b918, "No recent device location. Search or tap the map instead.")
                 }
@@ -272,8 +295,7 @@ private fun FarmLocationDialog(
                 }
                 results.take(3).forEach { result ->
                     OutlinedButton(onClick = {
-                        name = result.name
-                        select(result.latitude, result.longitude)
+                        select(result.latitude, result.longitude, selectedName = result.name)
                         results = emptyList()
                     }, modifier = Modifier.fillMaxWidth()) {
                         Text(result.name, maxLines = 2)
