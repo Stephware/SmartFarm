@@ -4,6 +4,10 @@
 > Raw: [Database sources](../../raw/project/2026-10-27-database-source.md); [Feature sources](../../raw/project/2026-10-27-features-source.md); [backend source review](../../raw/project/2026-11-11-backend-current.md); [reports source review](../../raw/project/2026-11-11-reports-current.md); [Current documentation audit](../../raw/project/2026-11-11-documentation-audit.md); [Publication source check](../../raw/project/2026-11-12-documentation-publication.md); [Backend B0–B5 evidence](../../raw/project/2026-11-20-backend-b0-b5.md); [Backend delivery follow-up](../../raw/project/2026-11-20-backend-delivery-followup.md)
 > Updated: 2026-11-20
 
+## Production restore follow-up — 20 November 2026
+
+A fresh read-only comparison now matches the complete current EF model (29 tables/256 columns) against the populated local source. The original 11-difference finding below is historical. The owner-approved restore into a new isolated production SQL instance passed checksum verification, CHECKDB and exact table-count comparison, with no REPLACE or migrations. Separate jobs schema/permissions and private-file evidence are in the [deployment ledger](../../../../docs/deployment/2026-11-20-production-execution.md). Preserve the earlier raw evidence unchanged.
+
 ## Backend demo safety update
 
 The explicit [demo seeder](../../../../tools/SmartFarm.DemoSeeder/Program.cs) compares the full EF model with live catalog metadata and requires a native checksum backup/VERIFYONLY before writes. The populated local Development database has 11 schema differences and was left unchanged: no backup or seed applied. A separate disposable database matched the model; backup, 40 synthetic records, repeat preservation and live role-isolated login were verified. No new migrations or migration-history adoption occurred. Photos require an explicit local source. See the [backend contract](../../../../docs/backend-integration.md) for identifiers and unapplied prerequisites.

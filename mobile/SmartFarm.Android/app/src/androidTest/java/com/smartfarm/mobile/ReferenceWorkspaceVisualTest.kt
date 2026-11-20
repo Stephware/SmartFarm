@@ -98,12 +98,12 @@ class ReferenceWorkspaceVisualTest {
                     composable("account") { AccountScreen(AuthUiState(), {}, {}, {}) }
                 }
             } }
-            compose.onNodeWithContentDescription("Dark theme").performScrollTo().performClick()
+            compose.onNodeWithTag("account-dark-theme").performScrollTo().performClick()
             compose.waitUntil { preferences.getBoolean("dark", false) }
-            compose.onNodeWithContentDescription("Dark theme").assertIsOn()
-            compose.onNodeWithContentDescription("Dark theme").performClick()
+            compose.onNodeWithTag("account-dark-theme").assertIsOn()
+            compose.onNodeWithTag("account-dark-theme").performClick()
             compose.waitUntil { !preferences.getBoolean("dark", true) }
-            compose.onNodeWithContentDescription("Dark theme").assertIsOff()
+            compose.onNodeWithTag("account-dark-theme").assertIsOff()
         } finally {
             preferences.edit().putBoolean("dark", previous).commit()
         }

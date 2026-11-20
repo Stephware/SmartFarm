@@ -7,6 +7,7 @@ import androidx.compose.runtime.SideEffect
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
+import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollTo
@@ -41,12 +42,12 @@ class PhaseSevenAppearanceTest {
             SideEffect { background = current }
             AccountScreen(AuthUiState(), {}, {}, {})
         } }
-        compose.onNodeWithContentDescription("Dark theme").performScrollTo().performClick()
+        compose.onNodeWithTag("account-dark-theme").performScrollTo().performClick()
         compose.runOnIdle {
             assertEquals(DarkColors.background, background)
             assertEquals(true, preferences.getBoolean("dark", false))
         }
-        compose.onNodeWithContentDescription("Dark theme").performScrollTo().performClick()
+        compose.onNodeWithTag("account-dark-theme").performScrollTo().performClick()
         compose.runOnIdle {
             assertEquals(LightColors.background, background)
             assertEquals(false, preferences.getBoolean("dark", true))

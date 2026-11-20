@@ -8,7 +8,8 @@ plugins {
 // The emulator uses SmartFarm.Api; other hosts can be supplied at build time.
 val debugApiUrl = providers.gradleProperty("smartfarmDebugApiUrl").orNull
     ?: "http://10.0.2.2:5081/"
-val releaseApiUrl = providers.gradleProperty("smartfarmReleaseApiUrl").orNull ?: ""
+val releaseApiUrl = providers.gradleProperty("smartfarmReleaseApiUrl").orNull
+    ?: "https://api.anigo.website/"
 
 fun apiUrlLiteral(url: String): String =
     "\"" + url.replace("\\", "\\\\").replace("\"", "\\\"") + "\""
@@ -34,7 +35,7 @@ android {
             buildConfigField("String", "API_BASE_URL", apiUrlLiteral(debugApiUrl))
         }
         getByName("release") {
-            // Set -PsmartfarmReleaseApiUrl=https://your-api/ when building a release.
+            // Override only for a separately authorized HTTPS release environment.
             require(releaseApiUrl.isBlank() || releaseApiUrl.startsWith("https://")) {
                 "Release API URL must use HTTPS."
             }
