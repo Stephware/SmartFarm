@@ -4334,4 +4334,5 @@
   <data name="What the forecast means" xml:space="preserve"><value>What the forecast means</value></data>
   <data name="Suggested next steps" xml:space="preserve"><value>Suggested next steps</value></data>
   <data name="For dangerous weather, follow PAGASA and local official advisories." xml:space="preserve"><value>For dangerous weather, follow PAGASA and local official advisories.</value></data>
+  <data name="This is not a live weather feed." xml:space="preserve"><value>This is not a live weather feed.</value></data>
 </root>
