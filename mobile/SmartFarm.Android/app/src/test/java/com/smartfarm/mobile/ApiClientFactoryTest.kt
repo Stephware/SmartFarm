@@ -26,6 +26,36 @@ class ApiClientFactoryTest {
         }
     }
 
+    @Test fun physicalDebugPhoneUsesAdbReverseAndEmulatorKeepsItsGateway() {
+        assertEquals("http://127.0.0.1:5081/",
+            ApiClientFactory.forDebugDevice("http://10.0.2.2:5081/", false))
+        assertEquals("http://10.0.2.2:5081/",
+            ApiClientFactory.forDebugDevice("http://10.0.2.2:5081/", true))
+        assertEquals("http://192.168.1.25:5081/",
+            ApiClientFactory.forDebugDevice("http://192.168.1.25:5081/", false))
+        assertEquals("https://api.example.test/",
+            ApiClientFactory.forDebugDevice("https://api.example.test/", false))
+    }
+
+    @Test fun explicitlyConfiguredPrivateWifiWorksOnlyInDebug() {
+        for (url in listOf("http://192.168.1.25:5081/",
+            "http://172.20.10.5:5081/", "http://10.5.0.1:5081/",
+            "http://127.0.0.1:5081/")) {
+            assertEquals(url, ApiClientFactory.create(url, allowLocalHttpForDebug = true)
+                .baseUrl().toString())
+            assertThrows(IllegalArgumentException::class.java) {
+                ApiClientFactory.create(url, allowLocalHttpForDebug = false)
+            }
+        }
+        for (url in listOf("http://8.8.8.8:5081/", "http://172.32.0.1:5081/",
+            "http://192.169.1.25:5081/", "http://example.test:5081/",
+            "http://0.0.0.0:5081/", "http://192.168.1.999:5081/")) {
+            assertThrows(IllegalArgumentException::class.java) {
+                ApiClientFactory.create(url, allowLocalHttpForDebug = true)
+            }
+        }
+    }
+
     @Test fun sendsUpdatedSelectedLanguageOnEveryRequest() {
         MockWebServer().use { server ->
             server.enqueue(MockResponse().setBody("{}"))
