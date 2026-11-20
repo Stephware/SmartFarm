@@ -4310,4 +4310,6 @@
   <data name="The reset link is invalid, expired or has already been used. Request a new link." xml:space="preserve">
     <value>Hindi wasto, nag-expire, o nagamit na ang link. Humiling ng bagong link.</value>
   </data>
+  <data name="No saved forecast is ready for this farm. Ask your farm manager to check the map pin and weather service; use official local forecasts for time-sensitive decisions." xml:space="preserve"><value>Wala pang naka-save na forecast para sa bukid na ito. Hilingin sa namamahala ng bukid na tingnan ang lokasyon sa mapa at serbisyo ng panahon; gumamit ng opisyal na lokal na forecast para sa mahahalagang desisyon.</value></data>
+  <data name="No upcoming forecast" xml:space="preserve"><value>Walang paparating na forecast</value></data>
 </root>
