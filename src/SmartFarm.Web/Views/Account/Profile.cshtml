@@ -15,28 +15,6 @@
         </div>
     </div>
 </section>
-<details class="panel sf-account-details ani-p2-account-details"><summary id="account-details-heading">@T["Your account information (read-only)"]</summary>
-    <dl>
-        <div><dt>@T["Name"]</dt><dd>@Model.FullName</dd></div>
-        <div><dt>@T["Email"]</dt><dd>@Model.Email</dd></div>
-    </dl>
-    <p class="hint">@T["This screen does not change your password or sign-in details. Farm roles and membership are managed separately inside each farm."]</p>
-</details>
-<section class="panel sf-account-links" aria-labelledby="account-links-heading">
-    <h2 id="account-links-heading">@T["Where to go next"]</h2>
-    <div class="sf-account-link-grid">
-        <a asp-controller="Farms" asp-action="Index"><strong>@T["My farms"]</strong><span>@T["Open your farms or request access →"]</span></a>
-        <a asp-controller="Notifications" asp-action="Index"><strong>@T["Notifications"]</strong><span>@T["Read farm reminders and advisories →"]</span></a>
-        <a asp-controller="Home" asp-action="Help"><strong>@T["Help"]</strong><span>@T["Get help with farm access, accounts and saved work →"]</span></a>
-        @if (User.IsInRole("SuperAdmin"))
-        {
-            <a asp-area="Admin" asp-controller="Dashboard" asp-action="Index">
-                <strong>@T["Super Admin"]</strong><span>@T["Open the secure platform workspace →"]</span></a>
-        }
-        <a asp-controller="Home" asp-action="Index"><strong>@T["About AniGo"]</strong><span>@T["Review the farm management tools →"]</span></a>
-    </div>
-</section>
-
 <section class="panel appearance-setting ani-account-preferences" aria-labelledby="account-preferences-heading">
     <header class="ani-pref-heading">
         <h2 id="account-preferences-heading">@T["App preferences"]</h2>
@@ -61,5 +39,28 @@
         <partial name="_LanguagePicker" />
     </div>
 </section>
+<details class="panel sf-account-details ani-p2-account-details"><summary id="account-details-heading">@T["Your account information (read-only)"]</summary>
+    <dl>
+        <div><dt>@T["Name"]</dt><dd>@Model.FullName</dd></div>
+        <div><dt>@T["Email"]</dt><dd>@Model.Email</dd></div>
+    </dl>
+    <p class="hint">@T["This screen does not change your password or sign-in details. Farm roles and membership are managed separately inside each farm."]</p>
+</details>
+<section class="panel sf-account-links" aria-labelledby="account-links-heading">
+    <h2 id="account-links-heading">@T["Where to go next"]</h2>
+    <div class="sf-account-link-grid">
+        <a asp-controller="Farms" asp-action="Index"><strong>@T["My farms"]</strong><span>@T["Open your farms or request access →"]</span></a>
+        <a asp-controller="Notifications" asp-action="Index"><strong>@T["Notifications"]</strong><span>@T["Read farm reminders and advisories →"]</span></a>
+        <a asp-controller="Home" asp-action="Help"><strong>@T["Help"]</strong><span>@T["Get help with farm access, accounts and saved work →"]</span></a>
+        @if (User.IsInRole("SuperAdmin"))
+        {
+            <a asp-area="Admin" asp-controller="Dashboard" asp-action="Index">
+                <strong>@T["Super Admin"]</strong><span>@T["Open the secure platform workspace →"]</span></a>
+        }
+        <a asp-controller="Home" asp-action="Index"><strong>@T["About AniGo"]</strong><span>@T["Review the farm management tools →"]</span></a>
+    </div>
+</section>
+
+
 
 </div>
