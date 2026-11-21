@@ -1,5 +1,8 @@
 package com.smartfarm.mobile.ui.components
 
+import com.smartfarm.mobile.R
+import com.smartfarm.mobile.localization.uiText
+
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
@@ -20,13 +23,17 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.dp
 
 @Composable
-fun RecordPage(content: LazyListScope.() -> Unit) {
-    Scaffold { padding ->
+fun RecordPage(title: String? = null, onBack: (() -> Unit)? = null,
+    backLabel: String = uiText(R.string.ui_back_76900f1, "Back"), content: LazyListScope.() -> Unit) {
+    androidx.compose.runtime.CompositionLocalProvider(LocalPageNavigation provides
+        (LocalPageNavigation.current ?: title?.let { PageNavigation(it, backLabel, onBack) })) {
+    Scaffold(topBar = { FarmAppBar(title = title, onBack = onBack, backLabel = backLabel) }) { padding ->
         BoxWithConstraints(Modifier.fillMaxSize().padding(padding).consumeWindowInsets(padding).imePadding(), contentAlignment = Alignment.TopCenter) {
-            val gutter = if (maxWidth < 600.dp) 20.dp else 32.dp
+            val gutter = if (maxWidth < 600.dp) 16.dp else 28.dp
             LazyColumn(Modifier.widthIn(max = 840.dp).fillMaxWidth().testTag("record-list"),
-                contentPadding = PaddingValues(horizontal = gutter, vertical = 20.dp),
+                contentPadding = PaddingValues(horizontal = gutter, vertical = 16.dp),
                 verticalArrangement = Arrangement.spacedBy(12.dp), content = content)
         }
+    }
     }
 }

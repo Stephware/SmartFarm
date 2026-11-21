@@ -15,6 +15,7 @@ public sealed record CropWorkspaceViewModel(
     public Guid? PlanPlotId { get; init; }
     public CropCycleTransitionInput Transition { get; init; } = new();
     public Guid? TransitionCycleId { get; init; }
+    public SmartFarm.Web.ViewModels.Monitoring.CropTimelinePage? SelectedHistory { get; init; }
 }
 
 public sealed record CropPlanEditViewModel(

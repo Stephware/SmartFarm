@@ -1,0 +1,279 @@
+/* AniGo Phase 6 — approved photographic landing-page composition.
+   Scoped to the public landing; all authenticated workflows and auth forms stay intact.
+   Dark palette refinement belongs to Phase 7. */
+body.is-guest.is-landing { background: var(--ui-page); }
+body.is-guest.is-landing .guest-page.page { max-width: none; margin: 0; padding: 0; }
+body.is-guest.is-landing .ani-entry-site { display: block; }
+body.is-guest.is-landing { overflow-x: clip; }
+.ani6-landing { --ani6-max: 1120px; --ani6-pine: #153d2d; --ani6-gold: #e8bc62;
+  color: var(--ui-text); font-family: var(--ui-font); }
+.ani6-landing *, .ani6-landing *::before, .ani6-landing *::after { box-sizing: border-box; }
+.ani6-container { width: min(var(--ani6-max), calc(100% - 48px)); margin-inline: auto; }
+.ani6-landing h1, .ani6-landing h2, .ani6-landing h3 { margin: 0; letter-spacing: -.035em; }
+.ani6-landing p { margin: 0; }
+.ani6-landing .ico { width: 24px; height: 24px; }
+.ani6-landing a:focus-visible, .ani6-topbar a:focus-visible, .ani6-mobile-menu summary:focus-visible {
+  outline: 3px solid var(--ui-focus); outline-offset: 4px; }
+.ani6-landing :is(section,footer)[id] { scroll-margin-top: 88px; }
+
+/* Compact anchored header, with ordinary auth-page header left untouched. */
+body.is-guest.is-landing .guest-topbar.ani6-topbar {
+  display: flex; flex-direction: row; flex-wrap: wrap; align-items: center;
+  min-height: 66px; gap: 24px; padding: 10px max(24px,calc((100vw - 1120px)/2));
+  background: var(--ui-surface); border-bottom: 1px solid var(--ui-border); box-shadow: 0 2px 18px rgb(13 40 23 / 5%);
+  position: relative; z-index: 5;
+}
+.ani6-topbar .guest-logo { flex: 0 0 auto; white-space: nowrap; font-size: 1.45rem; color: var(--ui-text); }
+.ani6-topbar .logo-mark { width: 34px; height: 34px; border-radius: 9px; }
+.ani6-topbar .ani6-top-links { display: flex; flex: 1; align-items: center; justify-content: center; gap: clamp(14px,2.7vw,34px); }
+.ani6-topbar .ani6-top-links a { position: relative; font-size: .875rem; font-weight: 700; color: var(--ui-text);
+  text-decoration: none; min-height: 40px; display: inline-flex; align-items: center; white-space: nowrap; }
+.ani6-topbar .ani6-top-links a:hover { color: var(--ui-primary); }
+.ani6-topbar .ani6-top-links a[aria-current="page"]::after { content: ""; position: absolute; bottom: 3px; left: 0; right: 0; height: 2px; background: #24743e; }
+.ani6-topbar .ani6-account-links { display: flex; align-items: center; gap: 10px; flex: 0 0 auto; width: auto; }
+.ani6-topbar .ani6-login, .ani6-topbar .guest-nav-cta { min-height: 40px; padding: 9px 15px; border-radius: 8px;
+  font-weight: 700; font-size: .84rem; white-space: nowrap; text-decoration: none; }
+.ani6-topbar .ani6-login { border: 1px solid #316a47; color: var(--ui-text); }
+.ani6-topbar .ani6-login:hover { background: var(--ui-surface-subtle); }
+.ani6-topbar .guest-nav-cta { background: var(--ui-action, #16452e); color: #fff; border-color: var(--ui-action, #16452e); }
+.ani6-topbar .guest-nav-cta:hover { background: var(--ui-action-hover, #22613f); color: #fff; }
+.ani6-topbar .icon-button { padding: 8px; width: 40px; height: 40px; }
+.ani6-topbar .ani6-mobile-menu { display: none; }
+
+/* Immersive hero; photograph is descriptive context, not a customer claim. */
+.ani6-hero { isolation: isolate; position: relative; min-height: clamp(360px,32vw,470px); display: flex; align-items: center;
+  background: #254829; color: #fff; overflow: hidden; }
+.ani6-hero::after { content: ""; position: absolute; inset: 0; z-index: -1;
+  background: linear-gradient(90deg,rgba(10,33,25,.88) 0%,rgba(13,39,30,.72) 36%,rgba(11,30,20,.72) 72%,rgba(12,26,20,.12) 100%);
+}
+.ani6-hero .ani6-hero-image { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: center 52%; z-index: -2; }
+.ani6-hero-content { padding-block: 55px 100px; position: relative; z-index: 1; }
+.ani6-kicker { font-weight: 800; font-size: .73rem; color: #175b36; text-transform: uppercase; letter-spacing: .075em; }
+.ani6-kicker-light { color: #f4f4ea; border-left: 3px solid var(--ani6-gold); padding-left: 11px; }
+.ani6-hero h1 { margin: 14px 0 16px; max-width: 740px; font-size: clamp(2.3rem,4.4vw,3.75rem);
+  line-height: 1.08; letter-spacing: -.045em; color: #fff; font-weight: 800; text-wrap: balance; }
+.ani6-hero h1 em { color: #f2cb70; font-style: normal; }
+.ani6-hero .ani6-lede { max-width: 480px; color: #f3f6ef; font-size: clamp(.99rem,1.35vw,1.125rem);
+  line-height: 1.55; text-wrap: pretty; }
+.ani6-hero-actions { display: flex; flex-wrap: wrap; gap: 14px; align-items: center; margin-top: 22px; }
+.ani6-btn { min-height: 46px; display: inline-flex; justify-content: center; align-items: center; gap: 12px;
+  padding: 11px 19px; border-radius: 10px; font-size: .87rem; font-weight: 800; line-height: 1.3; text-align: center;
+  text-decoration: none; transition: background-color .18s ease, transform .18s ease; }
+.ani6-btn:hover { transform: translateY(-1px); }
+.ani6-btn .ico { width: 16px; height: 16px; }
+.ani6-btn-green { color: #fff!important; border: 1px solid var(--ui-action, #227447); background: var(--ui-action, #21834e); }
+.ani6-btn-green:hover { background: var(--ui-action-hover, #1a7542); }
+.ani6-btn-outline { color: #fff!important; background: rgb(10 30 24 / 15%); border: 1px solid rgb(255 255 255 / 90%); }
+.ani6-btn-outline:hover { background: rgb(255 255 255 / 16%); }
+.ani6-play { border-radius: 50%; background: #f7f7ed; color: #19442c; width: 18px; height: 18px;
+  display: grid; place-items: center; font-size: 9px; padding-left: 1px; }
+
+/* Four shortcuts bridge the hero and the workspace overview. */
+.ani6-features { display: grid; grid-template-columns: repeat(4,minmax(0,1fr)); gap: 0; position: relative;
+  z-index: 2; margin-top: -51px; background: var(--ui-surface); border: 1px solid var(--ui-border);
+  border-radius: 15px; box-shadow: 0 16px 40px rgb(22 42 25 / 15%); overflow: hidden; }
+.ani6-feature { display: flex; align-items: center; gap: 14px; min-width: 0; padding: 18px 15px 18px 22px; position: relative; }
+.ani6-feature:not(:last-child)::after { content: ""; position: absolute; top: 18px; bottom: 18px; right: 0;
+  width: 1px; background: var(--ui-border); }
+.ani6-feature-icon, .ani6-step-icon, .ani6-path-icon { display: grid; place-items: center; flex: 0 0 auto;
+  width: 52px; height: 52px; border-radius: 14px; background: #e4eee3; color: #237645; }
+.ani6-feature-icon .ico { width: 29px; height: 29px; }
+.ani6-feature-icon-gold { background: #f5eed7; color: #946f1f; }
+.ani6-feature h2 { font-size: .94rem; color: var(--ui-text); line-height: 1.25; font-weight: 800; margin: 0 0 6px; }
+.ani6-feature p { font-size: .83rem; line-height: 1.45; color: var(--ui-text-secondary); }
+
+/* Compact but breathable: no decorative whitespace-only panels. */
+.ani6-content { padding: 36px 0 20px; }
+.ani6-section-head { margin-bottom: 20px; }
+.ani6-section-head h2 { font-size: clamp(1.7rem,2.7vw,2.35rem); font-weight: 800; line-height: 1.16;
+  margin-top: 5px; margin-bottom: 7px; color: var(--ui-text); }
+.ani6-section-head > p:not(.ani6-kicker) { color: var(--ui-text-secondary); font-size: .96rem; line-height: 1.5; }
+.ani6-steps { list-style: none; display: grid; grid-template-columns: repeat(3,minmax(0,1fr)); gap: clamp(18px,4.5vw,62px);
+  padding: 0; margin: 0; counter-reset: steps; }
+.ani6-step { display: flex; align-items: center; gap: 14px; min-width: 0; position: relative; border-radius: 15px;
+  background: linear-gradient(125deg,#eff4ec,#e5eee3); padding: 20px 18px; min-height: 103px; color: #18382b; }
+.ani6-step:not(:last-child)::after { content: "→"; position: absolute; left: calc(100% + 10px); top: 35%;
+  font-size: 29px; color: #256f48; font-weight: 600; }
+.ani6-step-icon { width: 60px; height: 60px; background: #dce9db; }
+.ani6-step-icon .ico { width: 31px; height: 31px; }
+.ani6-step-copy { min-width: 0; }
+.ani6-step-number { font-size: .69rem; border-radius: 6px; padding: 3px 9px; background: #176035; color: #fff; font-weight: 800; }
+.ani6-step h3 { margin: 5px 0 3px; color: #173b29; font-size: 1.06rem; font-weight: 850; }
+.ani6-step p { color: #41554b; font-size: .88rem; line-height: 1.45; }
+
+.ani6-story { margin-top: 26px; display: grid; grid-template-columns: 1fr 1fr; min-height: 310px;
+  border-radius: 18px; overflow: hidden; background: #163d2c; }
+.ani6-story-photo { position: relative; min-height: 0; overflow: hidden; }
+.ani6-story-photo img { position: absolute; inset: 0; width: 100%; height: 100%; display: block; object-fit: cover; object-position: center 76%; }
+.ani6-story-panel { display: flex; flex-direction: column; justify-content: center; padding: clamp(26px,4vw,52px);
+  color: #f7fbf6; background: linear-gradient(125deg,#1a4b34,#103523); }
+.ani6-story-panel h2 { color: #fff; font-size: clamp(1.5rem,2.3vw,2.12rem); line-height: 1.2; margin: 9px 0; }
+.ani6-story-panel > p:not(.ani6-kicker) { color: #e3eee6; font-size: .88rem; line-height: 1.55; }
+.ani6-benefits { padding: 0; margin: 16px 0 0; list-style: none; display: grid; gap: 8px; }
+.ani6-benefits li { display: flex; align-items: start; gap: 9px; font-size: .84rem; line-height: 1.4; color: #f8faf7; }
+.ani6-benefits .ico { width: 18px; height: 18px; padding: 2px; background: #207443;
+  border: 1px solid #4eaa75; border-radius: 50%; flex: 0 0 18px; }
+
+.ani6-start { margin-top: 28px; }
+.ani6-start .ani6-section-head { margin-bottom: 16px; }
+.ani6-paths { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 18px; }
+.ani6-path { border: 1px solid #3b7850; border-radius: 14px; background: var(--ui-surface);
+  text-decoration: none; padding: 17px 20px; min-width: 0; display: flex; align-items: center; gap: 16px;
+  min-height: 110px; transition: box-shadow .18s ease, transform .18s ease; }
+.ani6-path:hover { box-shadow: 0 8px 24px rgb(16 54 33 / 10%); transform: translateY(-2px); text-decoration: none; }
+.ani6-path-worker { border-color: #a77d2e; }
+.ani6-path-icon { width: 64px; height: 64px; background: #e6efe3; }
+.ani6-path-worker .ani6-path-icon { color: #8f6d1d; background: #faf0d7; }
+.ani6-path-icon .ico { width: 32px; height: 32px; }
+.ani6-path-content { display: grid; gap: 4px; flex: 1; min-width: 0; color: var(--ui-text-secondary); }
+.ani6-path-overline { font-size: .69rem; color: #805b12; font-weight: 800; text-transform: uppercase; }
+.ani6-path-content strong { color: var(--ui-text); font-size: 1.17rem; line-height: 1.25; }
+.ani6-path-content > span:last-child { font-size: .86rem; line-height: 1.45; }
+.ani6-path-arrow { width: 30px; height: 30px; display: grid; place-items: center; border-radius: 7px;
+  color: white; background: #1b6540; flex: 0 0 30px; }
+.ani6-path-worker .ani6-path-arrow { background: #966f18; }
+.ani6-path-arrow .ico { width: 17px; height: 17px; }
+.ani6-cta { margin-top: 22px; isolation: isolate; min-height: 126px; display: flex; align-items: center; gap: 24px;
+  justify-content: space-between; position: relative; overflow: hidden; padding: 26px clamp(24px,5vw,70px);
+  border-radius: 18px; color: #fff; background: #143c24; }
+.ani6-cta::after { content: ""; position: absolute; inset: 0; z-index: -1;
+  background: linear-gradient(90deg,rgba(9,45,23,.87),rgba(12,54,28,.66)); }
+.ani6-cta > img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; z-index: -2; }
+.ani6-cta h2 { color: #fff; font-size: clamp(1.4rem,2.2vw,1.85rem); line-height: 1.25; margin-bottom: 5px; }
+.ani6-cta p { color: #e9f5e7; font-size: .88rem; }
+.ani6-cta .ani6-btn-white { background: #fff; color: #173b2a; border: 1px solid #fff; white-space: nowrap; }
+.ani6-cta .ani6-btn-white:hover { background: #e9f2e9; }
+
+.ani6-footer { background: var(--ui-surface); border-top: 1px solid var(--ui-border); margin-top: 0; }
+.ani6-footer-main { display: flex; align-items: center; justify-content: space-between; gap: 24px; padding-block: 22px 12px; }
+.ani6-footer-brand { display: inline-flex; align-items: center; gap: 9px; font-size: 1.35rem; font-weight: 800;
+  color: var(--ui-text); text-decoration: none; letter-spacing: -.04em; white-space: nowrap; }
+.ani6-footer-mark { width: 28px; height: 28px; border-radius: 7px; background: #195334; display: grid; place-items: center; color: white; }
+.ani6-footer-mark .ico { width: 19px; height: 19px; }
+.ani6-footer nav { display: flex; flex-wrap: wrap; justify-content: center; align-items: center; gap: 10px 23px; }
+.ani6-footer nav a { color: var(--ui-text); font-weight: 650; font-size: .81rem; text-decoration: none; padding: 6px 0; min-height: 38px; display: inline-flex; align-items: center; }
+.ani6-footer nav a:hover { text-decoration: underline; }
+.ani6-footer-main small { color: var(--ui-text-secondary); font-size: .73rem; white-space: nowrap; }
+.ani6-credits { padding-bottom: 15px; color: var(--ui-text-secondary); font-size: .74rem; }
+.ani6-credits summary { width: fit-content; cursor: pointer; padding: 7px 0; min-height: 32px; }
+.ani6-credits p { line-height: 1.6; }
+.ani6-credits a { color: var(--ui-primary); text-underline-offset: 2px; }
+
+/* Dark landing is readable, but Phase 7 owns the new global charcoal tokens. */
+html[data-color-mode="dark"] .ani6-features,
+html[data-color-mode="dark"] .ani6-path { background: var(--ui-surface); }
+html[data-color-mode="dark"] .ani6-step { background: #273c2d; color: #f1f5ed; }
+html[data-color-mode="dark"] .ani6-step h3 { color: #f1f5ed; }
+html[data-color-mode="dark"] .ani6-step p { color: #c5d5c7; }
+html[data-color-mode="dark"] .ani6-step-icon { background: #365841; color: #d1edda; }
+html[data-color-mode="dark"] .ani6-path-overline { color: #f1d58f; }
+html[data-color-mode="dark"] .ani6-section-head .ani6-kicker { color: #a4d7b0; }
+html[data-color-mode="dark"] .ani6-feature-icon { background: #314e38; color: #c5e8ca; }
+html[data-color-mode="dark"] .ani6-feature-icon-gold,
+html[data-color-mode="dark"] .ani6-path-worker .ani6-path-icon { background: #52441f; color: #f4d17c; }
+html[data-color-mode="dark"] .ani6-path-icon { background: #314e38; color: #c5e8ca; }
+html[data-color-mode="dark"] .ani6-topbar .guest-nav-cta { color: #fff; }
+
+/* Tablet and mobile: no clipped actions, overlapped copy, or horizontal scrolling. */
+@media (max-width:1100px) {
+  body.is-guest.is-landing .guest-topbar.ani6-topbar { padding-inline: 24px; }
+  .ani6-topbar .ani6-top-links { gap: 15px; }
+  .ani6-feature { padding: 16px 12px; gap: 10px; }
+  .ani6-feature-icon { width: 43px; height: 43px; }
+  .ani6-feature h2 { font-size: .86rem; }
+  .ani6-feature p { font-size: .76rem; }
+  .ani6-step { padding: 16px 12px; }
+  .ani6-footer-main { flex-wrap: wrap; }
+}
+@media (max-width:850px) {
+  .ani6-hero::after { background: linear-gradient(90deg,rgba(10,33,25,.88),rgba(12,39,29,.72)); }
+  .ani6-topbar .ani6-top-links { display: none; }
+  body.is-guest.is-landing .guest-topbar.ani6-topbar { flex-wrap: wrap; gap: 12px; }
+  .ani6-topbar .ani6-account-links { margin-left: auto; }
+  .ani6-topbar .ani6-mobile-menu { display: block; position: relative; order: 2; }
+  .ani6-mobile-menu summary { display: flex; align-items: center; gap: 5px; cursor: pointer;
+    min-height: 44px; font-weight: 700; font-size: .85rem; }
+  .ani6-mobile-menu summary .ico { width: 15px; height: 15px; }
+  .ani6-mobile-menu:not([open]) > nav { display: none; }
+  .ani6-mobile-menu nav { display: grid; gap: 0; position: absolute; z-index: 10; right: 0; top: 100%; width: 190px;
+    border: 1px solid var(--ui-border); border-radius: 10px; background: var(--ui-surface);
+    box-shadow: 0 12px 28px rgb(0 0 0 / 17%); padding: 9px; }
+  .ani6-mobile-menu nav .ani6-menu-theme { display: flex; align-items: center; justify-content: flex-start; gap: 8px; padding: 10px;
+    width: 100%; min-height: 44px; border: 0; border-radius: 6px; background: transparent;
+    color: var(--ui-text); font-size: .87rem; font-weight: 650; text-align: left; }
+  .ani6-mobile-menu nav .ani6-menu-theme:hover { background: var(--ui-surface-subtle); color: var(--ui-text); }
+  .ani6-mobile-menu nav .ani6-menu-theme .ico { width: 18px; height: 18px; }
+  .ani6-mobile-menu nav a { display: flex; align-items: center; padding: 10px; text-decoration: none;
+    color: var(--ui-text); font-weight: 650; min-height: 44px; }
+  .ani6-features { grid-template-columns: repeat(2,minmax(0,1fr)); margin-top: -40px; }
+  .ani6-feature:nth-child(2)::after { display: none; }
+  .ani6-feature:nth-child(-n+2) { border-bottom: 1px solid var(--ui-border); }
+  .ani6-feature { padding: 16px 20px; }
+  .ani6-steps { gap: 18px; }
+  .ani6-step:not(:last-child)::after { display: none; }
+  .ani6-step { flex-wrap: wrap; align-content: start; }
+  .ani6-story-panel { padding: 26px; }
+  .ani6-paths { gap: 12px; }
+  .ani6-path { padding: 15px 13px; }
+  .ani6-path-icon { width: 50px; height: 50px; }
+  .ani6-path-arrow { display: none; }
+}
+@media (max-width:600px) {
+  .ani6-container { width: min(var(--ani6-max),calc(100% - 30px)); }
+  body.is-guest.is-landing .guest-topbar.ani6-topbar { min-height: 59px; padding: 8px 15px; }
+  .ani6-topbar .guest-logo { font-size: 1.22rem; }
+  .ani6-topbar .logo-mark { width: 30px; height: 30px; }
+  .ani6-topbar .ani6-account-links { gap: 5px; }
+  .ani6-topbar .ani6-login { display: none; }
+  .ani6-topbar .guest-nav-cta { min-height: 40px; padding: 9px 11px; font-size: .76rem; }
+  .ani6-topbar .icon-button { display: none; } /* Theme remains in account settings; landing is lighter on mobile. */
+  .ani6-hero { min-height: 405px; align-items: start; }
+  .ani6-hero::after { background: linear-gradient(90deg,rgba(10,33,25,.93),rgba(12,39,29,.56)),
+    linear-gradient(0deg,rgba(11,34,24,.3),transparent 50%); }
+  .ani6-hero .ani6-hero-image { object-position: 58% center; }
+  .ani6-hero-content { padding-block: 45px 82px; }
+  .ani6-hero h1 { font-size: clamp(2.04rem,8.2vw,2.75rem); max-width: 470px; line-height: 1.13; }
+  .ani6-desktop-break { display: none; }
+  .ani6-hero .ani6-lede { font-size: .98rem; max-width: 36ch; }
+  .ani6-hero-actions { align-items: stretch; gap: 10px; }
+  .ani6-hero-actions .ani6-btn { flex: 1 1 auto; }
+  .ani6-features { margin-top: -28px; gap: 0; }
+  .ani6-feature { padding: 14px 10px; align-items: flex-start; gap: 8px; }
+  .ani6-feature-icon { width: 37px; height: 37px; border-radius: 10px; }
+  .ani6-feature-icon .ico { width: 22px; height: 22px; }
+  .ani6-feature h2 { font-size: .88rem; }
+  .ani6-feature p { font-size: .8rem; }
+  .ani6-content { padding-top: 35px; }
+  .ani6-section-head h2 { font-size: clamp(1.63rem,6vw,2rem); }
+  .ani6-steps { grid-template-columns: minmax(0,1fr); gap: 10px; }
+  .ani6-step { flex-wrap: nowrap; min-height: 85px; padding: 12px 16px; }
+  .ani6-step-icon { width: 52px; height: 52px; }
+  .ani6-story { grid-template-columns: minmax(0,1fr); margin-top: 23px; height: auto; }
+  .ani6-story-photo { height: 205px; min-height: 0; }
+  .ani6-story-photo img { object-position: center 80%; }
+  .ani6-story-panel { padding: 26px 23px; }
+  .ani6-start { margin-top: 30px; }
+  .ani6-paths { grid-template-columns: minmax(0,1fr); gap: 12px; }
+  .ani6-path { min-height: 96px; padding: 13px 15px; }
+  .ani6-path-arrow { display: grid; }
+  .ani6-cta { min-height: 190px; flex-direction: column; align-items: stretch; gap: 14px; padding: 24px; }
+  .ani6-cta .ani6-btn { width: fit-content; max-width: 100%; white-space: normal; }
+  .ani6-footer-main { flex-direction: column; align-items: flex-start; gap: 14px; }
+  .ani6-footer-main small { white-space: normal; }
+  .ani6-footer nav { justify-content: flex-start; gap: 6px 18px; }
+}
+@media (max-width:375px) {
+  .ani6-topbar .ani6-account-links .guest-nav-cta { padding-inline: 8px; font-size: .7rem; }
+  .ani6-topbar .guest-logo { font-size: 1.08rem; gap: 6px; }
+  .ani6-topbar .ani6-mobile-menu summary { font-size: 0; width: 32px; justify-content: center; }
+  .ani6-topbar .ani6-mobile-menu summary .ico { width: 19px; height: 19px; }
+  body.is-guest.is-landing .guest-topbar.ani6-topbar { gap: 6px; }
+  .ani6-hero h1 { font-size: 2.06rem; }
+  .ani6-feature { flex-direction: column; }
+  .ani6-feature p { line-height: 1.45; }
+  .ani6-hero-actions .ani6-btn { width: 100%; }
+  .ani6-path-arrow { display: none; }
+}
+@media (prefers-reduced-motion:reduce) {
+  .ani6-landing *, .ani6-topbar * { transition: none!important; animation: none!important; }
+}

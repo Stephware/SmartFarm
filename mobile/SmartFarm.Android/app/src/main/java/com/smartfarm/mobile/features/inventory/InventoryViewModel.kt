@@ -1,21 +1,29 @@
 package com.smartfarm.mobile.features.inventory
 
+import com.smartfarm.mobile.R
+import com.smartfarm.mobile.localization.uiText
+
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import com.smartfarm.mobile.data.remote.dto.*
 import com.smartfarm.mobile.data.repository.InventoryRepository
+import com.smartfarm.mobile.data.repository.NetworkErrorMessages
+import kotlinx.coroutines.CancellationException
 import com.smartfarm.mobile.data.sync.SyncRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.Job
+import kotlin.coroutines.coroutineContext
+import retrofit2.HttpException
 import java.math.BigDecimal
 
 internal fun inventoryMovementQuantity(type: Int, text: String): BigDecimal {
     val value = text.toBigDecimalOrNull()
     require(type in 2..4 && value != null && value.signum() != 0 &&
         value.stripTrailingZeros().scale() <= 3 && value.abs() <= BigDecimal("999999999999999.999") &&
-        (type == 4 || value.signum() > 0)) { "Enter a positive quantity with up to 3 decimals; adjustments may be negative." }
+        (type == 4 || value.signum() > 0)) { uiText(R.string.ui_enter_a_positive_quantity_with_up_to_3_decimals_adju_727cc0e, "Enter a positive quantity with up to 3 decimals; adjustments may be negative.") }
     return if (type == 3) value.negate() else value
 }
 
@@ -31,7 +39,10 @@ data class InventoryUiState(
     val transactions: List<InventoryTransactionDto> = emptyList(),
     val activities: List<InventoryActivityOptionDto> = emptyList(),
     val offline: Boolean = false,
-    val cachedAtUtcMillis: Long? = null
+    val accessDenied: Boolean = false,
+    val cachedAtUtcMillis: Long? = null,
+    val createSaveVersion: Int = 0,
+    val detailsSaveVersion: Int = 0
 )
 
 class InventoryViewModel(private val repo: InventoryRepository,
@@ -39,27 +50,37 @@ class InventoryViewModel(private val repo: InventoryRepository,
     private val mutable = MutableStateFlow(InventoryUiState())
     val state = mutable.asStateFlow()
 
-    fun clear() { mutable.value = InventoryUiState() }
+    private var loadJob: Job? = null
+
+    fun clear() { loadJob?.cancel(); loadJob = null; mutable.value = InventoryUiState() }
 
     fun load(farmId: String) {
-        mutable.value = InventoryUiState(farmId = farmId, busy = true, saveReceipts = mutable.value.saveReceipts)
-        viewModelScope.launch {
+        loadJob?.cancel()
+        mutable.value = if (mutable.value.farmId == farmId && mutable.value.itemId.isBlank())
+            mutable.value.copy(busy = true, error = null, notice = null, accessDenied = false) else
+            InventoryUiState(farmId = farmId, busy = true, saveReceipts = mutable.value.saveReceipts)
+        loadJob = viewModelScope.launch {
             try {
                 val snapshot = repo.listSnapshot(farmId)
                 mutable.value = mutable.value.copy(workspace = snapshot.value,
                     offline = snapshot.offline,
                     cachedAtUtcMillis = snapshot.savedAtUtcMillis.takeIf { snapshot.offline })
-            } catch (_: Exception) {
-                mutable.value = mutable.value.copy(error = "Could not load inventory.")
-            } finally { mutable.value = mutable.value.copy(busy = false) }
+            } catch (cancelled: CancellationException) {
+                throw cancelled
+            } catch (error: Exception) {
+                if (error is HttpException && error.code() in setOf(401, 403, 404)) clearDeniedData()
+                mutable.value = mutable.value.copy(error = NetworkErrorMessages.forRequest(
+                    error, uiText(R.string.ui_could_not_load_inventory_db84333, "Could not load inventory.")))
+            } finally { if (loadJob === coroutineContext[Job]) mutable.value = mutable.value.copy(busy = false) }
         }
     }
 
     fun loadItem(farmId: String, itemId: String) {
+        loadJob?.cancel()
         mutable.value = if (mutable.value.farmId == farmId && mutable.value.itemId == itemId)
-            mutable.value.copy(busy = true, error = null) else
+            mutable.value.copy(busy = true, error = null, accessDenied = false) else
             InventoryUiState(farmId = farmId, itemId = itemId, busy = true, saveReceipts = mutable.value.saveReceipts)
-        viewModelScope.launch {
+        loadJob = viewModelScope.launch {
             try {
                 val item = repo.itemSnapshot(farmId, itemId)
                 val history = repo.historySnapshot(farmId, itemId)
@@ -73,10 +94,20 @@ class InventoryViewModel(private val repo: InventoryRepository,
                     offline = cached,
                     cachedAtUtcMillis = snapshots.filter { it.offline }
                         .minOfOrNull { it.savedAtUtcMillis })
-            } catch (_: Exception) {
-                mutable.value = mutable.value.copy(error = "Could not load inventory item.")
-            } finally { mutable.value = mutable.value.copy(busy = false) }
+            } catch (cancelled: CancellationException) {
+                throw cancelled
+            } catch (error: Exception) {
+                if (error is HttpException && error.code() in setOf(401, 403, 404)) clearDeniedData()
+                mutable.value = mutable.value.copy(error = NetworkErrorMessages.forRequest(
+                    error, uiText(R.string.ui_could_not_load_inventory_item_4126093, "Could not load inventory item.")))
+            } finally { if (loadJob === coroutineContext[Job]) mutable.value = mutable.value.copy(busy = false) }
         }
+    }
+
+    private fun clearDeniedData() {
+        mutable.value = mutable.value.copy(workspace = InventoryWorkspaceDto(emptyList(), 0),
+            item = null, transactions = emptyList(), activities = emptyList(),
+            offline = false, accessDenied = true, cachedAtUtcMillis = null)
     }
 
     private fun work(after: (() -> Unit)? = null, block: suspend (InventoryUiState) -> Unit) {
@@ -93,20 +124,31 @@ class InventoryViewModel(private val repo: InventoryRepository,
                         transactions = repo.history(snapshot.farmId, snapshot.itemId))
                 }
                 after?.invoke()
+            } catch (cancelled: CancellationException) {
+                throw cancelled
             } catch (_: Exception) {
                 mutable.value = mutable.value.copy(
-                    error = "Stock change failed. Check values and permissions; reload if inventory has changed.")
+                    error = uiText(R.string.ui_stock_change_failed_check_values_and_permissions_rel_38fe084, "Stock change failed. Check values and permissions; reload if inventory has changed."))
             } finally { mutable.value = mutable.value.copy(busy = false) }
         }
     }
 
-    fun create(name: String, category: Int, unit: String, starting: String, reorder: String) = work {
+    fun create(name: String, category: Int, unit: String, starting: String, reorder: String, onSaved: () -> Unit = {}) = work(
+        after = {
+            mutable.value = mutable.value.copy(
+                createSaveVersion = mutable.value.createSaveVersion + 1)
+            onSaved()
+        }) {
         repo.create(it.farmId, InventoryItemInputDto(name.trim(), category, unit.trim(),
             reorderLevel = reorder.takeIf { v -> v.isNotBlank() }?.let(::BigDecimal),
             initialQuantity = BigDecimal(starting)))
     }
 
-    fun update(name: String, category: Int, unit: String, description: String, reorder: String) = work {
+    fun update(name: String, category: Int, unit: String, description: String, reorder: String) = work(
+        after = {
+            mutable.value = mutable.value.copy(
+                detailsSaveVersion = mutable.value.detailsSaveVersion + 1)
+        }) {
         val current = requireNotNull(it.item)
         repo.update(it.farmId, it.itemId, InventoryItemInputDto(name.trim(), category, unit.trim(),
             description.trim().ifBlank { null },
@@ -132,11 +174,13 @@ class InventoryViewModel(private val repo: InventoryRepository,
                 mutable.value = mutable.value.copy(saveReceipts = mutable.value.saveReceipts +
                     ("${snapshot.farmId}/${snapshot.itemId}" to id))
                 mutable.value = mutable.value.copy(notice =
-                    "Stock change queued. Do not record it again; check offline sync status.")
+                    uiText(R.string.ui_stock_change_queued_do_not_record_it_again_check_off_6a88d15, "Stock change queued. Do not record it again; check offline sync status."))
             } catch (invalid: IllegalArgumentException) {
                 mutable.value = mutable.value.copy(error = invalid.message)
+            } catch (cancelled: CancellationException) {
+                throw cancelled
             } catch (_: Exception) {
-                mutable.value = mutable.value.copy(error = "Could not save the change on this device.")
+                mutable.value = mutable.value.copy(error = uiText(R.string.ui_could_not_save_the_change_on_this_device_f0d3de8, "Could not save the change on this device."))
             } finally {
                 mutable.value = mutable.value.copy(busy = false)
             }

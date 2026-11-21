@@ -1,0 +1,25 @@
+@model SmartFarm.Web.ViewModels.Announcements.AnnouncementRow
+@{
+    ViewData["Title"] = T["Announcement details"];
+}
+<a class="admin-back anigo-back-control" asp-area="Admin" asp-controller="Announcements" asp-action="Index" title="@T["Back to announcements"]"><partial name="~/Views/Shared/_Icon.cshtml" model='@("chevLeft")' /><span class="visually-hidden">@T["Back to announcements"]</span></a>
+<div class="page-heading admin-page-heading">
+    <div><h1>@Model.Title</h1>
+        <p class="sf-muted">@T["Created {0} UTC", Model.CreatedAtUtc.ToString("MMM d, yyyy HH:mm")]</p></div>
+    <span class="sf-status-chip @(Model.State == "Published" ? "sf-status-chip--active" : "sf-status-chip--neutral")">@Model.State</span>
+</div>
+@if (TempData["Message"] is string message) { <p class="form-notice" role="status">@message</p> }
+@if (TempData["Error"] is string error) { <p class="error form-error" role="alert">@error</p> }
+<div class="admin-detail-grid">
+    <section class="panel admin-detail-panel">
+        <h2>@T["Announcement preview"]</h2>
+        <p class="admin-support-text">@Model.Body</p>
+        <dl class="admin-detail-list">
+            <div><dt>@T["Publish time"]</dt><dd>@(Model.PublishedAtUtc.HasValue ? Model.PublishedAtUtc.Value.ToString("MMM d, yyyy HH:mm") + " UTC" : "Not published")</dd></div>
+            <div><dt>@T["Expiry"]</dt><dd>@(Model.ExpiresAtUtc.HasValue ? Model.ExpiresAtUtc.Value.ToString("MMM d, yyyy HH:mm") + " UTC" : "Until archived")</dd></div>
+        </dl>
+        <p class="hint">@T["Retained history only. Publishing and editing are retired."]</p>
+    </section>
+</div>
+<a asp-area="Admin" asp-controller="Audit" asp-action="Index" asp-route-targetType="announcement"
+   asp-route-targetId="@Model.Id">@T["View this announcement's audit history"]</a>

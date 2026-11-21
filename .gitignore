@@ -62,6 +62,39 @@ local.properties
 # Local observation images stay outside the public wwwroot tree.
 **/App_Data/observation-photos/
 
-# Keep documentation local.
-/docs/
+# Development documentation is shareable; exclude unrelated artifacts.
+/docs/*
+!/docs/*.md
+!/docs/.gitkeep
+!/docs/superpowers/
 
+# Historical local verification output can contain private runtime data.
+/.local/karpathy-wiki/verification/
+/.local/karpathy-wiki/**/__pycache__/
+
+
+# AniGo Tailwind build dependencies.
+node_modules/
+
+# Task-local visual candidates and Impeccable decision artifacts.
+/tests/browser/screenshots/
+/tests/browser/parity-output/
+/tests/browser/authenticated-fixtures/
+/.impeccable/questions/
+/.impeccable/mocks/
+
+# Deployment execution notes are shareable; runtime secrets stay private.
+**/appsettings.Development.json
+**/appsettings.Local.json
+**/appsettings.Production.json
+!/docs/deployment/
+/.local/deployment/
+/scripts/deploy/runtime/
+/scripts/deploy/data/
+/scripts/deploy/artifacts/
+/scripts/deploy/backup/
+/scripts/deploy/control-backups/
+/scripts/deploy/*.tar.gz
+
+# Sanitized email implementation and preview instructions.
+!/docs/email/

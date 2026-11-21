@@ -5,4 +5,6 @@ namespace SmartFarm.Web.Controllers;
 public sealed class HomeController : Controller
 {
     public IActionResult Index() => View();
+
+    public IActionResult Help() => View();
 }

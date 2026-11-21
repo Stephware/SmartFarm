@@ -64,11 +64,17 @@ public static class DependencyInjection
     public static IServiceCollection AddSmartFarmBusinessServices(this IServiceCollection services)
     {
         services.AddSmartFarmRepositories();
+        services.AddSingleton(TimeProvider.System);
+        services.AddScoped<SmartFarm.Infrastructure.Services.Weather.WeatherFeedService>();
+        services.AddScoped<SmartFarm.Infrastructure.Services.Queries.NotificationAlertService>();
+        services.AddScoped<SmartFarm.Infrastructure.Identity.UserPreferencesService>();
+        services.AddScoped<SmartFarm.Infrastructure.Services.Queries.FarmRecordQueryService>();
         services.AddScoped<IFarmAccessService, FarmAccessService>();
         services.AddScoped<IFarmManagementService, FarmManagementService>();
         services.AddScoped<IFarmEnrollmentService, FarmEnrollmentService>();
         services.AddScoped<ICropManagementService, CropManagementService>();
         services.AddScoped<IMonitoringService, MonitoringService>();
+        services.AddScoped<IFieldworkStockService, FieldworkStockService>();
         services.AddScoped<IInventoryService, InventoryService>();
         services.AddScoped<IHarvestService, HarvestService>();
         services.AddScoped<IFarmReportService, FarmReportService>();

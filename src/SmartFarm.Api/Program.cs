@@ -24,6 +24,17 @@ using SmartFarm.Infrastructure.Services.Tasks;
 
 var builder = WebApplication.CreateBuilder(args);
 
+// Production containers listen on loopback; only the local Caddy proxy is trusted.
+builder.Services.Configure<Microsoft.AspNetCore.Builder.ForwardedHeadersOptions>(options =>
+{
+    options.ForwardedHeaders = Microsoft.AspNetCore.HttpOverrides.ForwardedHeaders.XForwardedFor
+        | Microsoft.AspNetCore.HttpOverrides.ForwardedHeaders.XForwardedProto;
+    options.KnownIPNetworks.Clear();
+    options.KnownProxies.Clear();
+    options.KnownProxies.Add(System.Net.IPAddress.Loopback);
+    options.KnownProxies.Add(System.Net.IPAddress.IPv6Loopback);
+});
+
 // In local Development, Web and API share SmartFarmDB. If only Web's user
 // secrets were configured, reuse just its database connection (no other secrets).
 // An explicit API connection setting always wins. Production is unaffected.
@@ -43,8 +54,18 @@ if (builder.Environment.IsDevelopment() &&
     }
 }
 
-builder.Services.AddControllers();
+builder.Services.AddControllers().AddJsonOptions(options =>
+    options.JsonSerializerOptions.Converters.Add(new SmartFarm.Core.Services.UtcDateTimeConverter()));
+builder.Services.Configure<Microsoft.AspNetCore.Mvc.ApiBehaviorOptions>(options =>
+    options.InvalidModelStateResponseFactory = context => new Microsoft.AspNetCore.Mvc.BadRequestObjectResult(new
+    {
+        code = "validation.invalid",
+        errors = context.ModelState.Where(entry => entry.Value?.Errors.Count > 0)
+            .ToDictionary(entry => entry.Key, entry => entry.Value!.Errors.Select(error => error.ErrorMessage).ToArray())
+    }));
 builder.Services.AddEnrollmentRateLimiting();
+builder.Services.AddAccountRecovery(builder.Configuration);
+SmartFarm.Infrastructure.Integrations.Gemini.GeminiRegistration.AddWeatherGuidance(builder.Services, builder.Configuration);
 builder.Services.AddSmartFarmPersistence(builder.Configuration.GetConnectionString("SmartFarm"));
 builder.Services.AddSmartFarmBusinessServices();
 builder.Services.AddSmartFarmWeather(builder.Configuration);
@@ -65,6 +86,8 @@ if (builder.Configuration["DataProtection:KeyRingPath"] is { Length: > 0 } keyRi
 }
 
 var app = builder.Build();
+
+app.UseForwardedHeaders();
 
 if (!app.Environment.IsDevelopment())
 {
@@ -96,6 +119,7 @@ app.Use(async (context, next) =>
         context.Response.StatusCode = StatusCodes.Status503ServiceUnavailable;
         await context.Response.WriteAsJsonAsync(new
         {
+            code = "service.database_unavailable",
             status = "unhealthy",
             message = "SmartFarm database request failed. Check the API terminal and /health/database."
         });
@@ -104,6 +128,23 @@ app.Use(async (context, next) =>
 
 app.UseRouting();
 app.UseAuthentication();
+// Opaque access tokens also validate current Identity stamps after a password reset.
+app.Use(async (context, next) =>
+{
+    if (context.User.Identity?.IsAuthenticated == true &&
+        context.GetEndpoint()?.Metadata.GetMetadata<Microsoft.AspNetCore.Authorization.IAllowAnonymous>() is null)
+    {
+        var signIn = context.RequestServices.GetRequiredService<Microsoft.AspNetCore.Identity.SignInManager<SmartFarmUser>>();
+        var user = await signIn.ValidateSecurityStampAsync(context.User);
+        if (user is null || user.DisabledAtUtc is not null)
+        {
+            context.Response.StatusCode = StatusCodes.Status401Unauthorized;
+            await context.Response.WriteAsJsonAsync(new { code = "session.invalid", message = "Please sign in again." });
+            return;
+        }
+    }
+    await next();
+});
 app.UseAuthorization();
 app.UseRateLimiter();
 

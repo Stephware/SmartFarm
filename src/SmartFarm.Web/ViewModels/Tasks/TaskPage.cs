@@ -8,4 +8,8 @@ public sealed record TaskPage(
     FarmDetails Farm,
     IReadOnlyList<FarmTaskDetails> Tasks,
     IReadOnlyList<FarmMemberDetails> Members,
-    IReadOnlyList<CropCycleDetails> Cycles);
+    IReadOnlyList<CropCycleDetails> Cycles)
+{
+    public DateOnly? FarmToday { get; init; }
+    public string SelectedView { get; init; } = "today";
+}

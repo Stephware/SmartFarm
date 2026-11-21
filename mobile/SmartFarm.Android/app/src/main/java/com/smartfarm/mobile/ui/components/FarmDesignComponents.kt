@@ -1,0 +1,417 @@
+package com.smartfarm.mobile.ui.components
+
+import com.smartfarm.mobile.R
+import com.smartfarm.mobile.localization.uiText
+
+import androidx.compose.foundation.Image
+import androidx.compose.ui.res.painterResource
+import com.smartfarm.mobile.ui.theme.LocalFarmAppearance
+import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.statusBarsPadding
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.StrokeCap
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Path
+import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.foundation.layout.defaultMinSize
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.platform.testTag
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.width
+import androidx.compose.ui.Alignment
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ColumnScope
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.OutlinedButton
+import androidx.compose.ui.semantics.liveRegion
+import androidx.compose.ui.semantics.LiveRegionMode
+import androidx.compose.ui.semantics.progressBarRangeInfo
+import androidx.compose.ui.semantics.clearAndSetSemantics
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.compositionLocalOf
+import androidx.compose.foundation.layout.widthIn
+import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.semantics.heading
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.unit.LayoutDirection
+import androidx.compose.ui.unit.dp
+import com.smartfarm.mobile.ui.theme.AniGoPalette
+
+// Spacing is shared by field forms, dashboards and future farm-management screens.
+object FarmSpacing {
+    val extraSmall = 4.dp
+    val small = 8.dp
+    val compact = 12.dp
+    val medium = 16.dp
+    val comfortable = 20.dp
+    val large = 24.dp
+    val extraLarge = 32.dp
+}
+
+fun farmRoleLabel(role: String): String = when(role) {
+    "Owner" -> uiText(R.string.ui_owner_4b1b8aa, "Owner")
+    "Manager" -> uiText(R.string.ui_manager_8b2085f, "Manager")
+    "FieldWorker" -> uiText(R.string.ui_field_worker_6195025, "Field worker")
+    else -> role
+}
+
+
+enum class FarmStatusTone { Active, Planned, Warning, Failed, Neutral }
+
+@Composable
+fun FarmSectionHeader(title: String, subtitle: String? = null, modifier: Modifier = Modifier) {
+    Column(modifier = modifier, verticalArrangement = Arrangement.spacedBy(FarmSpacing.extraSmall)) {
+        Text(
+            title,
+            style = MaterialTheme.typography.titleLarge,
+            modifier = Modifier.semantics { heading() }
+        )
+        if (!subtitle.isNullOrBlank()) {
+            Text(
+                subtitle,
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+        }
+    }
+}
+
+@Composable
+fun FarmSectionCard(
+    title: String,
+    modifier: Modifier = Modifier,
+    subtitle: String? = null,
+    content: @Composable ColumnScope.() -> Unit
+) {
+    Card(
+        modifier = modifier,
+        shape = MaterialTheme.shapes.large,
+        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+        elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
+    ) {
+        Column(
+            modifier = Modifier.fillMaxWidth().padding(FarmSpacing.medium),
+            verticalArrangement = Arrangement.spacedBy(FarmSpacing.compact)
+        ) {
+            FarmSectionHeader(title, subtitle)
+            content()
+        }
+    }
+}
+
+@Composable
+fun FarmStatusChip(
+    label: String,
+    tone: FarmStatusTone = FarmStatusTone.Neutral,
+    modifier: Modifier = Modifier
+) {
+    val colors = MaterialTheme.colorScheme
+    val (background, foreground) = when (tone) {
+        FarmStatusTone.Active -> colors.primaryContainer to colors.onPrimaryContainer
+        FarmStatusTone.Planned -> colors.secondaryContainer to colors.onSecondaryContainer
+        FarmStatusTone.Warning -> colors.tertiaryContainer to colors.onTertiaryContainer
+        FarmStatusTone.Failed -> colors.errorContainer to colors.onErrorContainer
+        FarmStatusTone.Neutral -> colors.surfaceVariant to colors.onSurfaceVariant
+    }
+    Surface(
+        modifier = modifier,
+        shape = RoundedCornerShape(50),
+        color = background,
+        contentColor = foreground
+    ) {
+        Text(
+            text = label,
+            modifier = Modifier.padding(horizontal = 12.dp, vertical = 7.dp),
+            style = MaterialTheme.typography.labelMedium
+        )
+    }
+}
+
+@Composable
+fun FarmEmptyState(title: String, description: String, modifier: Modifier = Modifier) {
+    Surface(
+        modifier = modifier.fillMaxWidth(),
+        shape = MaterialTheme.shapes.large,
+        color = MaterialTheme.colorScheme.surfaceContainerLow,
+        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant)
+    ) {
+        Column(
+            modifier = Modifier.fillMaxWidth().padding(FarmSpacing.medium),
+            verticalArrangement = Arrangement.spacedBy(FarmSpacing.extraSmall)
+        ) {
+            Text(title, style = MaterialTheme.typography.titleMedium)
+            Text(description, style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant)
+        }
+    }
+}
+
+/** A true in-flight request. Never display empty counts as loaded while this is visible. */
+@Composable
+fun FarmLoadingState(label: String, modifier: Modifier = Modifier) {
+    Row(modifier.fillMaxWidth().padding(vertical = FarmSpacing.small)
+        .semantics(mergeDescendants = true) {
+            liveRegion = LiveRegionMode.Polite
+            progressBarRangeInfo = androidx.compose.ui.semantics.ProgressBarRangeInfo.Indeterminate
+        },
+        horizontalArrangement = Arrangement.spacedBy(FarmSpacing.compact),
+        verticalAlignment = Alignment.CenterVertically) {
+        CircularProgressIndicator(modifier = Modifier.size(20.dp).clearAndSetSemantics {}, strokeWidth = 2.dp)
+        Text(label, style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.onSurfaceVariant)
+    }
+}
+
+/** Error is distinct from an empty farm. Retry is an action, not a dead-end label. */
+@Composable
+fun FarmErrorState(message: String, onRetry: () -> Unit,
+                   modifier: Modifier = Modifier, canRetry: Boolean = true) {
+    Surface(modifier.fillMaxWidth(), shape = MaterialTheme.shapes.medium,
+        color = MaterialTheme.colorScheme.errorContainer) {
+        Column(Modifier.fillMaxWidth().padding(FarmSpacing.medium),
+            verticalArrangement = Arrangement.spacedBy(FarmSpacing.small)) {
+            Text(message, style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onErrorContainer,
+                modifier = Modifier.semantics { liveRegion = LiveRegionMode.Assertive })
+            OutlinedButton(onClick = onRetry, enabled = canRetry,
+                colors = androidx.compose.material3.ButtonDefaults.outlinedButtonColors(
+                    contentColor = MaterialTheme.colorScheme.onErrorContainer),
+                modifier = Modifier.defaultMinSize(minHeight = 48.dp)) {
+                Text(uiText(R.string.ui_try_again_d8b8392, "Try again"))
+            }
+        }
+    }
+}
+
+/** Native page heading uses the reference's open ground and compact hierarchy. */
+@Composable
+fun FarmHero(title: String, subtitle: String, modifier: Modifier = Modifier) {
+    Column(modifier.fillMaxWidth().padding(top = 2.dp, bottom = 6.dp),
+        verticalArrangement = Arrangement.spacedBy(5.dp)) {
+        if (LocalPageNavigation.current?.let { it.onBack != null && it.title == title } != true) {
+            Text(title, style = MaterialTheme.typography.headlineMedium,
+                modifier = Modifier.semantics { heading() })
+        }
+        Text(subtitle, style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.onSurfaceVariant)
+    }
+}
+
+data class FarmHeaderNavigation(
+    val farmName: String?, val onFarms: () -> Unit, val onNotifications: () -> Unit,
+    val queuedCount: Int = 0, val reviewCount: Int = 0,
+    val onSync: (() -> Unit)? = null,
+    val onAccount: (() -> Unit)? = null
+)
+val LocalFarmHeaderNavigation = compositionLocalOf<FarmHeaderNavigation?> { null }
+
+/** Brand and screen context remain outside the scrolling workspace. */
+@Composable
+fun FarmAppBar(modifier: Modifier = Modifier, title: String? = null,
+    onBack: (() -> Unit)? = null, backLabel: String = uiText(R.string.ui_back_76900f1, "Back")) {
+    val navigation = LocalFarmHeaderNavigation.current
+    Surface(modifier.fillMaxWidth(), color = MaterialTheme.colorScheme.surface) {
+        Column(Modifier.statusBarsPadding()) {
+            PageNavigationHeader(title, onBack, backLabel)
+            val compactHeader = LocalConfiguration.current.screenWidthDp < 380
+            Row(Modifier.fillMaxWidth().defaultMinSize(minHeight = 60.dp)
+                .padding(horizontal = if (compactHeader) 10.dp else 16.dp),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(if (compactHeader) 4.dp else 9.dp)) {
+                // Persistent workspace app bars carry the official A mark only.
+                // The backing Material surface (not the overall app theme alone)
+                // selects the matching light/dark mark; page/farm titles stay primary.
+                Image(
+                    painter = painterResource(
+                        if (LocalFarmAppearance.current.dark) R.drawable.ani_go_mark_on_dark
+                        else R.drawable.ani_go_mark
+                    ),
+                    contentDescription = uiText(R.string.ui_anigo_80e6f53, "AniGo"),
+                    modifier = Modifier.size(40.dp)
+                )
+                Box(Modifier.weight(1f))
+                if (navigation != null) {
+                    androidx.compose.material3.OutlinedButton(onClick = navigation.onFarms,
+                        modifier = Modifier.semantics {
+                            contentDescription = uiText(R.string.ui_switch_farm_1_s_ebf669c, "Switch farm: %1\$s", (navigation.farmName ?: "My farms"))
+                        }.widthIn(max = if (compactHeader) 76.dp else
+                            if (navigation.queuedCount > 0) 100.dp else 160.dp),
+                        shape = MaterialTheme.shapes.small,
+                        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant),
+                        contentPadding = androidx.compose.foundation.layout.PaddingValues(horizontal = 10.dp)) {
+                        Text(navigation.farmName ?: uiText(R.string.ui_my_farms_0517a09, "My farms"), maxLines = 1, overflow = TextOverflow.Ellipsis,
+                            style = MaterialTheme.typography.labelMedium)
+                    }
+                    if (navigation.queuedCount > 0 && navigation.onSync != null) {
+                        androidx.compose.material3.IconButton(onClick = navigation.onSync,
+                            modifier = Modifier.semantics {
+                                contentDescription = if (navigation.reviewCount > 0)
+                                    uiText(R.string.ui_1_s_offline_records_need_review_16ba5b8, "%1\$s offline records need review; ", (navigation.reviewCount)) +
+                                        uiText(R.string.ui_1_s_waiting_in_total_b7cda38, "%1\$s waiting in total", (navigation.queuedCount))
+                                else uiText(R.string.ui_1_s_records_waiting_to_sync_6b1d5d3, "%1\$s records waiting to sync", (navigation.queuedCount))
+                            }) {
+                            androidx.compose.material3.BadgedBox(
+                                badge = {
+                                    androidx.compose.material3.Badge(
+                                        containerColor = if (navigation.reviewCount > 0)
+                                            MaterialTheme.colorScheme.errorContainer
+                                        else MaterialTheme.colorScheme.secondaryContainer
+                                    ) {
+                                        Text(if (navigation.queuedCount > 99) "99+"
+                                            else navigation.queuedCount.toString(),
+                                            style = MaterialTheme.typography.labelSmall,
+                                            color = if (navigation.reviewCount > 0)
+                                                MaterialTheme.colorScheme.onErrorContainer
+                                            else MaterialTheme.colorScheme.onSecondaryContainer)
+                                    }
+                                }
+                            ) {
+                                FarmLineIcon(FarmSymbol.Offline, Modifier.size(24.dp),
+                                    if (navigation.reviewCount > 0)
+                                        MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.primary)
+                            }
+                        }
+                    }
+                    androidx.compose.material3.IconButton(onClick = navigation.onNotifications,
+                        modifier = Modifier.semantics { contentDescription = uiText(R.string.ui_notifications_7880118, "Notifications") }) {
+                        FarmLineIcon(FarmSymbol.Bell)
+                    }
+                    navigation.onAccount?.let { openAccount ->
+                        androidx.compose.material3.IconButton(onClick = openAccount,
+                            modifier = Modifier.semantics { contentDescription = uiText(R.string.ui_my_account_b53181a, "My account") }) {
+                            FarmLineIcon(FarmSymbol.Account)
+                        }
+                    }
+                }
+            }
+            androidx.compose.material3.HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
+        }
+    }
+}
+
+enum class FarmSymbol { Crop, Plots, Tasks, Clock, Stock, Weather, Reports, Offline, Bell, ChevronRight, Account }
+
+/** One stroke system for metrics, shortcuts and offline indicators. */
+@Composable
+fun FarmLineIcon(symbol: FarmSymbol, modifier: Modifier = Modifier, tint: Color = MaterialTheme.colorScheme.primary) {
+    Canvas(modifier.size(22.dp)) {
+        val u = size.minDimension / 24f
+        val stroke = 1.7f * u
+        fun line(a: Float, b: Float, c: Float, d: Float) = drawLine(tint,
+            Offset(a*u,b*u), Offset(c*u,d*u), stroke, StrokeCap.Round)
+        fun rect(x: Float, y: Float, w: Float, h: Float) = drawRoundRect(tint,
+            Offset(x*u,y*u), androidx.compose.ui.geometry.Size(w*u,h*u),
+            androidx.compose.ui.geometry.CornerRadius(2*u), style = Stroke(stroke))
+        when (symbol) {
+            FarmSymbol.Crop -> {
+                line(12f,21f,12f,9f)
+                val leaf = Path().apply {
+                    moveTo(12*u,15*u); cubicTo(4*u,16*u,3*u,9*u,4*u,6*u)
+                    cubicTo(10*u,6*u,13*u,10*u,12*u,15*u)
+                    moveTo(12*u,11*u); cubicTo(12*u,4*u,17*u,3*u,21*u,3*u)
+                    cubicTo(21*u,9*u,17*u,12*u,12*u,11*u)
+                }
+                drawPath(leaf,tint,style=Stroke(stroke))
+            }
+            FarmSymbol.Plots -> { rect(3f,3f,7f,7f);rect(14f,3f,7f,7f);rect(3f,14f,7f,7f);rect(14f,14f,7f,7f) }
+            FarmSymbol.Tasks -> { rect(4f,3f,16f,18f);line(8f,12f,11f,15f);line(11f,15f,16f,9f) }
+            FarmSymbol.Clock -> {
+                drawCircle(tint,9*u,Offset(12*u,12*u),style=Stroke(stroke))
+                line(12f,6f,12f,12f);line(12f,12f,16f,14f)
+            }
+            FarmSymbol.Stock -> { rect(3f,7f,18f,14f);line(3f,11f,21f,11f);line(9f,3f,15f,3f);line(9f,3f,9f,7f);line(15f,3f,15f,7f) }
+            FarmSymbol.Weather -> {
+                drawCircle(tint,5*u,Offset(12*u,12*u),style=Stroke(stroke))
+                for (i in 0..7) {
+                    val a = i * Math.PI / 4
+                    line((12+8*kotlin.math.cos(a)).toFloat(),(12+8*kotlin.math.sin(a)).toFloat(),
+                        (12+10*kotlin.math.cos(a)).toFloat(),(12+10*kotlin.math.sin(a)).toFloat())
+                }
+            }
+            FarmSymbol.Reports -> { line(4f,20f,21f,20f);line(7f,16f,7f,10f);line(12f,16f,12f,4f);line(17f,16f,17f,7f) }
+            FarmSymbol.Bell -> {
+                val bell = Path().apply {
+                    moveTo(5*u,17*u); lineTo(19*u,17*u); lineTo(17*u,13*u); lineTo(17*u,9*u)
+                    cubicTo(17*u,2*u,7*u,2*u,7*u,9*u); lineTo(7*u,13*u); close()
+                }
+                drawPath(bell,tint,style=Stroke(stroke)); line(10f,21f,14f,21f)
+            }
+            FarmSymbol.Account -> {
+                drawCircle(tint, 10*u, Offset(12*u,12*u), style = Stroke(stroke))
+                drawCircle(tint, 3*u, Offset(12*u,9*u), style = Stroke(stroke))
+                val shoulders = Path().apply {
+                    moveTo(5*u,19*u)
+                    cubicTo(5*u,14*u,19*u,14*u,19*u,19*u)
+                }
+                drawPath(shoulders, tint, style = Stroke(stroke))
+            }
+            FarmSymbol.ChevronRight -> {
+                val start = if (layoutDirection == LayoutDirection.Rtl) 15f else 9f
+                val tip = 24f - start
+                line(start,6f,tip,12f); line(tip,12f,start,18f)
+            }
+            FarmSymbol.Offline -> { line(3f,3f,21f,21f);line(6f,11f,10f,9f);line(14f,9f,18f,11f);line(9f,15f,12f,14f);drawCircle(tint,1.3f*u,Offset(12*u,19*u)) }
+        }
+    }
+}
+
+@Composable
+fun FarmMetricCard(label: String, value: String, note: String? = null, modifier: Modifier = Modifier,
+    symbol: FarmSymbol = FarmSymbol.Crop) {
+    Surface(modifier = modifier, shape = MaterialTheme.shapes.medium,
+        color = MaterialTheme.colorScheme.surface,
+        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant)) {
+        Row(Modifier.padding(12.dp), verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+            Surface(shape = RoundedCornerShape(10.dp),
+                color = if (symbol == FarmSymbol.Clock || symbol == FarmSymbol.Tasks)
+                    MaterialTheme.colorScheme.secondaryContainer else MaterialTheme.colorScheme.primaryContainer) {
+                FarmLineIcon(symbol, Modifier.padding(9.dp).size(20.dp))
+            }
+            Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(2.dp)) {
+                Text(value, style = MaterialTheme.typography.headlineSmall)
+                Text(label, style = MaterialTheme.typography.labelMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant)
+                if (!note.isNullOrBlank()) Text(note, style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant)
+            }
+        }
+    }
+}
+
+@Composable
+fun FarmQuickAction(label: String, symbol: FarmSymbol, onClick: () -> Unit, modifier: Modifier = Modifier) {
+    androidx.compose.material3.OutlinedButton(onClick = onClick,
+        modifier = modifier.defaultMinSize(minHeight = 56.dp), shape = MaterialTheme.shapes.small,
+        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant),
+        contentPadding = androidx.compose.foundation.layout.PaddingValues(10.dp),
+        colors = androidx.compose.material3.ButtonDefaults.outlinedButtonColors(
+            containerColor = MaterialTheme.colorScheme.surface, contentColor = MaterialTheme.colorScheme.onSurface)) {
+        Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            FarmLineIcon(symbol, Modifier.size(20.dp))
+            Text(label, style = MaterialTheme.typography.labelMedium)
+        }
+    }
+}

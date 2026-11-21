@@ -8,7 +8,8 @@ plugins {
 // The emulator uses SmartFarm.Api; other hosts can be supplied at build time.
 val debugApiUrl = providers.gradleProperty("smartfarmDebugApiUrl").orNull
     ?: "http://10.0.2.2:5081/"
-val releaseApiUrl = providers.gradleProperty("smartfarmReleaseApiUrl").orNull ?: ""
+val releaseApiUrl = providers.gradleProperty("smartfarmReleaseApiUrl").orNull
+    ?: "https://api.anigo.website/"
 
 fun apiUrlLiteral(url: String): String =
     "\"" + url.replace("\\", "\\\\").replace("\"", "\\\"") + "\""
@@ -34,7 +35,7 @@ android {
             buildConfigField("String", "API_BASE_URL", apiUrlLiteral(debugApiUrl))
         }
         getByName("release") {
-            // Set -PsmartfarmReleaseApiUrl=https://your-api/ when building a release.
+            // Override only for a separately authorized HTTPS release environment.
             require(releaseApiUrl.isBlank() || releaseApiUrl.startsWith("https://")) {
                 "Release API URL must use HTTPS."
             }
@@ -63,6 +64,7 @@ dependencies {
     implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:2.9.4")
     implementation("androidx.lifecycle:lifecycle-runtime-compose:2.9.4")
     implementation("androidx.room:room-runtime:2.8.5")
+    implementation("androidx.room:room-ktx:2.8.5")
     ksp("androidx.room:room-compiler:2.8.5")
     // Glide loads monitoring photos; ExifInterface preserves rotation during optimization.
     implementation("com.github.bumptech.glide:glide:5.0.5")
@@ -76,6 +78,7 @@ dependencies {
     androidTestImplementation("androidx.test.ext:junit:1.3.0")
     androidTestImplementation("androidx.test:runner:1.7.0")
     androidTestImplementation("androidx.test.espresso:espresso-core:3.7.0")
+    androidTestImplementation("androidx.test.uiautomator:uiautomator:2.3.0")
     androidTestImplementation("com.squareup.okhttp3:mockwebserver:4.12.0")
     androidTestImplementation(platform("androidx.compose:compose-bom:2025.10.01"))
     androidTestImplementation("androidx.compose.ui:ui-test-junit4")

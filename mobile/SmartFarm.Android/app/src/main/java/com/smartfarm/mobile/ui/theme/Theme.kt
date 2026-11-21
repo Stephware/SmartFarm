@@ -1,48 +1,143 @@
 package com.smartfarm.mobile.ui.theme
 
-import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.compose.runtime.compositionLocalOf
+import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Shapes
+import androidx.compose.material3.Typography
 import androidx.compose.material3.darkColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.SideEffect
+import androidx.compose.ui.platform.LocalView
+import androidx.core.view.WindowCompat
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+
+// Harvest Gold + Pine visual system. Keep gold on large surfaces or with a dark-ink label.
+internal object AniGoPalette {
+    val pine = Color(0xFF153D2D)
+    val pineMid = Color(0xFF28503C)
+    val harvestGold = Color(0xFFB58A32)
+    val goldInk = Color(0xFF80601D)
+    val goldSoft = Color(0xFFFFF2D8)
+    val cream = Color(0xFFF7F8F4)
+    // Filled action buttons may use this accessible deep-green/white pair.
+    val darkAction = Color(0xFF397A58)
+    val onDarkAction = Color.White
+}
 
 internal val LightColors = lightColorScheme(
-    primary = Color(0xFF1D6B3D), onPrimary = Color.White,
-    primaryContainer = Color(0xFFAFF2BD), onPrimaryContainer = Color(0xFF00210E),
-    secondary = Color(0xFF466952), onSecondary = Color.White,
-    secondaryContainer = Color(0xFFD4E8D8), onSecondaryContainer = Color(0xFF0E2A17),
-    tertiary = Color(0xFF735C00), onTertiary = Color.White,
-    tertiaryContainer = Color(0xFFFFE18A), onTertiaryContainer = Color(0xFF231B00),
-    background = Color(0xFFF3F8F3), onBackground = Color(0xFF163224),
-    surface = Color(0xFFFBFDF8), onSurface = Color(0xFF163224),
-    surfaceVariant = Color(0xFFE0E9DF), onSurfaceVariant = Color(0xFF405244),
-    surfaceTint = Color(0xFF1D6B3D), surfaceDim = Color(0xFFD2DDD3), surfaceBright = Color(0xFFFBFDF8),
-    surfaceContainerLowest = Color.White, surfaceContainerLow = Color(0xFFF4F8F2),
-    surfaceContainer = Color(0xFFEDF3EC), surfaceContainerHigh = Color(0xFFE7EEE5), surfaceContainerHighest = Color(0xFFE1E9DF),
-    outline = Color(0xFF6B7D6E), outlineVariant = Color(0xFFBECABE),
+    primary = AniGoPalette.pineMid, onPrimary = Color.White,
+    primaryContainer = Color(0xFFE5F1E8), onPrimaryContainer = Color(0xFF153D2D),
+    secondary = AniGoPalette.goldInk, onSecondary = Color.White,
+    secondaryContainer = AniGoPalette.goldSoft, onSecondaryContainer = Color(0xFF574016),
+    tertiary = Color(0xFF80601D), onTertiary = Color.White,
+    tertiaryContainer = Color(0xFFFFE8BC), onTertiaryContainer = Color(0xFF574016),
+    background = AniGoPalette.cream, onBackground = Color(0xFF1B3428),
+    surface = Color.White, onSurface = Color(0xFF1B3428),
+    surfaceVariant = Color(0xFFEEF0EA), onSurfaceVariant = Color(0xFF506156),
+    surfaceTint = AniGoPalette.pine, surfaceDim = Color(0xFFE1E7DF),
+    surfaceBright = Color.White,
+    surfaceContainerLowest = Color.White, surfaceContainerLow = Color(0xFFFAFBF8),
+    surfaceContainer = Color(0xFFF3F6F0), surfaceContainerHigh = Color(0xFFEBF0E9),
+    surfaceContainerHighest = Color(0xFFE5ECE3),
+    outline = Color(0xFF728076), outlineVariant = Color(0xFFE4E9E2),
     error = Color(0xFFA10B22), onError = Color.White,
-    errorContainer = Color(0xFFFFDAD6), onErrorContainer = Color(0xFF410002)
+    errorContainer = Color(0xFFFFF0F1), onErrorContainer = Color(0xFF730F1E)
 )
+
 internal val DarkColors = darkColorScheme(
-    primary = Color(0xFF91D5A3), onPrimary = Color(0xFF00391B),
-    primaryContainer = Color(0xFF00522A), onPrimaryContainer = Color(0xFFAFF2BD),
-    secondary = Color(0xFFB5CCB9), onSecondary = Color(0xFF213527),
-    secondaryContainer = Color(0xFF374C3D), onSecondaryContainer = Color(0xFFD1E8D5),
-    tertiary = Color(0xFFE5C349), onTertiary = Color(0xFF3B2F00),
-    tertiaryContainer = Color(0xFF544600), onTertiaryContainer = Color(0xFFFFE18A),
-    background = Color(0xFF101D15), onBackground = Color(0xFFE0EDE0),
-    surface = Color(0xFF101D15), onSurface = Color(0xFFE0EDE0),
-    surfaceVariant = Color(0xFF3E4B41), onSurfaceVariant = Color(0xFFBECEC0),
-    surfaceTint = Color(0xFF91D5A3), surfaceDim = Color(0xFF101D15), surfaceBright = Color(0xFF34463A),
-    surfaceContainerLowest = Color(0xFF0C1810), surfaceContainerLow = Color(0xFF142219),
-    surfaceContainer = Color(0xFF18281E), surfaceContainerHigh = Color(0xFF233329), surfaceContainerHighest = Color(0xFF2D3D32),
-    outline = Color(0xFF8A9B8D), outlineVariant = Color(0xFF3E4B41),
-    error = Color(0xFFFFB3B5), onError = Color(0xFF680016),
-    errorContainer = Color(0xFF8F0025), onErrorContainer = Color(0xFFFFDAD6)
+    // Phase 7: charcoal-first surfaces; readable mint is for text/icons,
+    // while deep pine and harvest gold distinguish navigation and meaning.
+    primary = Color(0xFF8FCFA5), onPrimary = Color(0xFF102518),
+    primaryContainer = Color(0xFF19382C), onPrimaryContainer = Color(0xFFF1F4F0),
+    secondary = Color(0xFFD4AD61), onSecondary = Color(0xFF34260B),
+    secondaryContainer = Color(0xFF3A3220), onSecondaryContainer = Color(0xFFF1D7A7),
+    tertiary = Color(0xFFB6C5BB), onTertiary = Color(0xFF121917),
+    tertiaryContainer = Color(0xFF2C6045), onTertiaryContainer = Color(0xFFF1F4F0),
+    background = Color(0xFF121917), onBackground = Color(0xFFF1F4F0),
+    surface = Color(0xFF202B26), onSurface = Color(0xFFF1F4F0),
+    surfaceVariant = Color(0xFF2A3832), onSurfaceVariant = Color(0xFFB6C5BB),
+    surfaceTint = Color(0xFF8FCFA5), surfaceDim = Color(0xFF121917),
+    surfaceBright = Color(0xFF34453D),
+    surfaceContainerLowest = Color(0xFF121917), surfaceContainerLow = Color(0xFF1C2420),
+    surfaceContainer = Color(0xFF202B26), surfaceContainerHigh = Color(0xFF2A3832),
+    surfaceContainerHighest = Color(0xFF34453D),
+    outline = Color(0xFF82998B), outlineVariant = Color(0xFF405148),
+    error = Color(0xFFFFB4BE), onError = Color(0xFF48191F),
+    errorContainer = Color(0xFF482731), onErrorContainer = Color(0xFFFFDCE0)
 )
+
+// Readable native sans-serif type scale; users can still increase Android font size.
+// Favor 14-16sp for task and crop descriptions; reserve 13sp for short labels.
+internal val FarmTypography = Typography(
+    headlineLarge = TextStyle(fontFamily = FontFamily.SansSerif, fontSize = 28.sp, lineHeight = 36.sp, fontWeight = FontWeight.Bold),
+    headlineMedium = TextStyle(fontFamily = FontFamily.SansSerif, fontSize = 24.sp, lineHeight = 32.sp, fontWeight = FontWeight.Bold),
+    headlineSmall = TextStyle(fontFamily = FontFamily.SansSerif, fontSize = 22.sp, lineHeight = 30.sp, fontWeight = FontWeight.SemiBold),
+    titleLarge = TextStyle(fontFamily = FontFamily.SansSerif, fontSize = 20.sp, lineHeight = 28.sp, fontWeight = FontWeight.SemiBold),
+    titleMedium = TextStyle(fontFamily = FontFamily.SansSerif, fontSize = 16.sp, lineHeight = 24.sp, fontWeight = FontWeight.SemiBold),
+    titleSmall = TextStyle(fontFamily = FontFamily.SansSerif, fontSize = 14.sp, lineHeight = 20.sp, fontWeight = FontWeight.SemiBold),
+    bodyLarge = TextStyle(fontFamily = FontFamily.SansSerif, fontSize = 16.sp, lineHeight = 24.sp),
+    bodyMedium = TextStyle(fontFamily = FontFamily.SansSerif, fontSize = 15.sp, lineHeight = 22.sp),
+    bodySmall = TextStyle(fontFamily = FontFamily.SansSerif, fontSize = 14.sp, lineHeight = 20.sp),
+    labelLarge = TextStyle(fontFamily = FontFamily.SansSerif, fontSize = 15.sp, lineHeight = 22.sp, fontWeight = FontWeight.SemiBold),
+    labelMedium = TextStyle(fontFamily = FontFamily.SansSerif, fontSize = 14.sp, lineHeight = 20.sp, fontWeight = FontWeight.Medium),
+    labelSmall = TextStyle(fontFamily = FontFamily.SansSerif, fontSize = 13.sp, lineHeight = 18.sp, fontWeight = FontWeight.Medium)
+)
+
+internal val FarmShapes = Shapes(
+    extraSmall = RoundedCornerShape(6.dp),
+    small = RoundedCornerShape(10.dp),
+    medium = RoundedCornerShape(14.dp),
+    large = RoundedCornerShape(14.dp),
+    extraLarge = RoundedCornerShape(18.dp)
+)
+
+/** Appearance is the only persisted preference here; authentication stays memory-only. */
+data class FarmAppearance(val dark: Boolean, val selectDark: (Boolean) -> Unit)
+val LocalFarmAppearance = compositionLocalOf { FarmAppearance(false) {} }
+internal val LocalPhotoAuthBars = compositionLocalOf<(Boolean) -> Unit> { {} }
 
 @Composable
 fun SmartFarmTheme(content: @Composable () -> Unit) {
-    MaterialTheme(colorScheme = if (isSystemInDarkTheme()) DarkColors else LightColors, content = content)
+    val context = LocalContext.current
+    val preferences = remember(context) { context.getSharedPreferences("appearance", android.content.Context.MODE_PRIVATE) }
+    val dark = remember { mutableStateOf(preferences.getBoolean("dark", false)) }
+    // Count scopes because outgoing/incoming auth routes overlap during navigation.
+    val photoAuthScreens = remember { mutableIntStateOf(0) }
+    val photoBarScope: (Boolean) -> Unit = remember {
+        { entering -> photoAuthScreens.intValue += if (entering) 1 else -1 }
+    }
+    val lightSystemBars = !dark.value && photoAuthScreens.intValue == 0
+    val view = LocalView.current
+    SideEffect {
+        (context as? android.app.Activity)?.let { activity ->
+            WindowCompat.getInsetsController(activity.window, view).apply {
+                isAppearanceLightStatusBars = lightSystemBars
+                isAppearanceLightNavigationBars = lightSystemBars
+            }
+        }
+    }
+    CompositionLocalProvider(LocalPhotoAuthBars provides photoBarScope,
+        LocalFarmAppearance provides FarmAppearance(dark.value) { selected ->
+        dark.value = selected
+        preferences.edit().putBoolean("dark", selected).apply()
+    }) {
+        MaterialTheme(
+            colorScheme = if (dark.value) DarkColors else LightColors,
+            typography = FarmTypography,
+            shapes = FarmShapes,
+            content = content
+        )
+    }
 }

@@ -12,13 +12,19 @@ public static class EnrollmentRateLimiting
     public const string Registration = "registration";
     public const string Login = "login";
     public const string Enrollment = "enrollment";
+    public const string PasswordRecovery = "password-recovery";
+    public const string PasswordReset = "password-reset";
+    public const string AdminActions = "admin-actions";
 
     public static IServiceCollection AddEnrollmentRateLimiting(this IServiceCollection services) =>
         services.AddRateLimiter(options =>
         {
+            AddPolicy(PasswordRecovery, 5, TimeSpan.FromMinutes(15));
+            AddPolicy(PasswordReset, 10, TimeSpan.FromMinutes(15));
             AddPolicy(Registration, 5, TimeSpan.FromMinutes(10));
             AddPolicy(Login, 20, TimeSpan.FromMinutes(1));
             AddPolicy(Enrollment, 10, TimeSpan.FromMinutes(1), byUser: true);
+            AddPolicy(AdminActions, 6, TimeSpan.FromMinutes(5), byUser: true);
             options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
             options.OnRejected = async (context, ct) =>
             {
@@ -28,6 +34,7 @@ public static class EnrollmentRateLimiting
                         .ToString(CultureInfo.InvariantCulture);
                 await response.WriteAsJsonAsync(new
                 {
+                    code = "limit.exceeded",
                     message = "Too many attempts. Please wait and try again."
                 }, ct);
             };

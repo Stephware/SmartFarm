@@ -1,0 +1,54 @@
+/* AniGo design system — Tailwind v4, no Preflight/reset.
+   anigo-foundation.css owns semantic tokens; prefixed utilities use the same
+   variables in light and dark mode. Legacy imports are migration support. */
+@layer legacy, theme, base, components, utilities;
+@import "../wwwroot/css/site.css" layer(legacy);
+@import "../wwwroot/css/dashboard.css" layer(legacy);
+@import "../wwwroot/css/crop-art.css" layer(legacy);
+@import "../wwwroot/css/fieldwork.css" layer(legacy);
+@import "../wwwroot/css/harvest-inventory.css" layer(legacy);
+@import "../wwwroot/css/insights.css" layer(legacy);
+@import "../wwwroot/css/access-polish.css" layer(legacy);
+@import "../wwwroot/css/farmer-operations.css" layer(legacy);
+@import "../wwwroot/css/reference-ui.css" layer(legacy);
+@import "../wwwroot/css/admin.css" layer(legacy);
+@import "./anigo-foundation.css";
+@import "./anigo-entry.css";
+@import "./anigo-dashboard-12c.css";
+@import "./anigo-farm-12d.css";
+@import "./anigo-operations-12e.css";
+@import "./anigo-admin-12f.css";
+@import "./mvp-workspace.css";
+@import "./anigo-design-foundation.css";
+@import "./anigo-web-phase2.css";
+@import "./anigo-data-states-phase4.css";
+@import "./anigo-forms-phase5.css";
+@import "./anigo-landing-phase6.css";
+@import "./anigo-workspace-phase6.css";
+@import "tailwindcss/theme.css" layer(theme) prefix(tw);
+@import "tailwindcss/utilities.css" layer(utilities) prefix(tw) source(none);
+@source "../Views";
+@source "../Areas/Admin/Views";
+
+@theme inline {
+  --color-ani-pine: var(--pine);
+  --color-ani-pine-deep: var(--pine-deep);
+  --color-ani-gold: var(--gold);
+  --color-ani-gold-soft: var(--gold-soft);
+  --color-ani-bg: var(--bg);
+  --color-ani-surface: var(--card);
+  --color-ani-text: var(--ink);
+  --color-ani-muted: var(--muted);
+  --color-ani-border: var(--stroke);
+  --color-ani-focus: var(--focus);
+  --color-ani-danger: var(--danger);
+  --color-ani-success: var(--success-soft);
+  --radius-ani-card: var(--ui-card-radius);
+  --radius-ani-field: var(--ui-field-radius);
+  --spacing-ani-touch: var(--ui-control-height);
+}
+
+/* Legacy feature rules remain in the lowest cascade layer while focused views
+   are migrated. Foundation/components and prefixed utilities define the system. */
+
+@font-face { font-family: "Manrope"; font-style: normal; font-weight: 200 800; font-display: swap; src: url("../fonts/manrope/Manrope-Variable.ttf") format("truetype"); }

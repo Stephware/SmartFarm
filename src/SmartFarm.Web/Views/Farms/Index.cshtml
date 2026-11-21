@@ -1,73 +1,209 @@
 @model SmartFarm.Web.ViewModels.Farms.FarmIndexViewModel
 @{
-    ViewData["Title"] = "My farms";
+    ViewData["Title"] = T["My farms"];
+    const int pageSize = 8;
+    var totalFarmPages = Math.Max(1, (Model.Farms.Count + pageSize - 1) / pageSize);
+    var requestedFarmPage = int.TryParse(Context.Request.Query["page"].ToString(), out var farmPage) ? farmPage : 1;
+    var currentFarmPage = Math.Clamp(requestedFarmPage, 1, totalFarmPages);
+    var visibleFarms = Model.Farms.Skip((currentFarmPage - 1) * pageSize).Take(pageSize).ToList();
+    var totalRequestPages = Math.Max(1, (Model.JoinRequests.Count + pageSize - 1) / pageSize);
+    var requestedRequestPage = int.TryParse(Context.Request.Query["requestsPage"].ToString(), out var requestPage) ? requestPage : 1;
+    var currentRequestPage = Math.Clamp(requestedRequestPage, 1, totalRequestPages);
+    var visibleRequests = Model.JoinRequests.Skip((currentRequestPage - 1) * pageSize).Take(pageSize).ToList();
 }
-<section class="panel">
-    <h1>My farms</h1>
-    @if (TempData["Message"] is string message) { <p role="status">@message</p> }
-    @if (TempData["Error"] is string error) { <p class="error" role="alert">@error</p> }
-    <div class="action-links">
-        <a class="button" asp-controller="Farms" asp-action="Create">Create farm</a>
-        <a href="#join-farm">Join farm</a>
+<div class="reference-screen reference-screen-farms ani-entry-farms-page ani-p2-page ani-p2-farms">
+<header class="ani-entry-farms-heading">
+    <div>
+        <p class="ani-entry-eyebrow">@T["YOUR WORKSPACE"]</p>
+        <h1>@T["My farms"]</h1>
+        <p class="sf-muted">@T["Open a farm below, create your own, or enter a code to join your team."]</p>
     </div>
+    <div class="ani-entry-farm-heading-actions">
+        <a class="button" href="#create-farm"><partial name="_Icon" model='@("plus")' />@T["Create farm"]</a>
+        <a class="sf-button-outline" href="#join-farm">@T["Join farm"]</a>
+    </div>
+</header>
+
+@if (TempData["Message"] is string message) { <p class="form-notice" role="status">@message</p> }
+@if (TempData["Error"] is string error) { <p class="error form-error" role="alert">@error</p> }
+
+<section class="farm-library" aria-label="@T["Your available farms"]">
     @if (Model.Farms.Count == 0)
     {
-        <p>No farms yet. Request access with a farm code, or create your own farm.</p>
-    }
-    else
-    {
-        <ul class="farm-list">
-        @foreach (var farm in Model.Farms)
-        {
-            <li>
-                <a asp-action="Details" asp-route-id="@farm.Id"><strong>@farm.Name</strong></a>
-                <span>@farm.LocationText · @farm.Role</span>
-                <div class="action-links">
-                    <a asp-controller="Dashboard" asp-action="Index" asp-route-farmId="@farm.Id">Dashboard</a>
-                    <a asp-controller="Reports" asp-action="Harvests" asp-route-farmId="@farm.Id">Harvest reports</a>
+        <div class="ani-onboarding-empty panel ani-entry-empty-farms" aria-labelledby="first-farm-heading">
+            <p class="ani-overline">@T["Welcome to your workspace"]</p>
+            <h2 id="first-farm-heading">@T["No farms yet"]</h2>
+            <p>@T["Choose what you'd like to do first. Your account can belong to more than one farm."]</p>
+            <div class="ani-first-actions ani-entry-first-actions">
+                <div>
+                    <h3>@T["Manage your own farm"]</h3>
+                    <p>@T["Start by giving your farm a name and location. You can add plots and crops next."]</p>
+                    <a class="button" href="#create-farm">@T["Create my first farm"]</a>
                 </div>
-            </li>
-        }
-        </ul>
+                <div>
+                    <h3>@T["Join an existing farm"]</h3>
+                    <p>@T["Ask the owner for a farm code, enter it below, and wait for their approval."]</p>
+                    <a class="sf-button-outline" href="#join-farm">@T["I have a farm code"]</a>
+                </div>
+            </div>
+        </div>
     }
-</section>
-<section class="panel" id="join-farm" aria-labelledby="join-farm-heading">
-    <h2 id="join-farm-heading">Join a farm</h2>
-    <p>Enter the code supplied by the owner. Access begins after the owner approves your request.</p>
-    <form asp-action="RequestJoin" method="post" class="narrow">
-        <label for="FarmCode">Farm code</label>
-        <input id="FarmCode" name="FarmCode" value="@Model.Join.FarmCode" required maxlength="64" autocomplete="off" spellcheck="false" />
-        @Html.ValidationMessage("FarmCode", null, new { @class = "error" })
-        <button type="submit">Request to join</button>
-    </form>
-</section>
-<section class="panel">
-    <h2>Your join requests</h2>
-    @if (Model.RequestError is not null) { <p role="alert">@Model.RequestError</p> }
-    else if (Model.JoinRequests.Count == 0) { <p>No join requests yet.</p> }
     else
     {
-        <ul class="farm-list">
-        @foreach (var request in Model.JoinRequests)
-        {
-            <li>
-                <strong>@request.FarmName</strong> — @request.Status
-                <span>Requested @request.RequestedAtUtc.ToString("MMM d, yyyy HH:mm") UTC</span>
-                @if (request.ReviewedAtUtc is { } reviewed) { <span>Updated @reviewed.ToString("MMM d, yyyy HH:mm") UTC</span> }
-                @if (request.Status == "Pending")
-                {
-                    <span>Waiting for the farm owner to approve.</span>
-                    <form asp-action="CancelJoin" asp-route-farmId="@request.FarmId" asp-route-requestId="@request.Id" method="post"
-                          data-confirm="Cancel your request to join @request.FarmName?">
-                        <button type="submit">Cancel request</button>
-                    </form>
-                }
-                @if (request.Status is "Rejected" or "Canceled")
-                {
-                    <p>To apply again, enter a valid farm code above.</p>
-                }
-            </li>
-        }
+        <h2 class="ani-entry-farm-section-label" id="farm-library-heading">@T["Your farms"]</h2>
+        <ul class="farm-select-grid responsive-two ani-entry-farm-list">
+            @foreach (var farm in visibleFarms)
+            {
+                <li class="farm-select-card card ani-entry-farm-card">
+                    <div class="farm-card-body card-body">
+                        <div class="ani-entry-farm-identity">
+                            <span class="ani-entry-farm-mark" aria-hidden="true"><partial name="_Icon" model='@("sprout")' /></span>
+                            <span class="farm-role-badge">@T[farm.Role]</span>
+                        </div>
+                        <h2><a asp-action="Details" asp-route-id="@farm.Id">@farm.Name</a></h2>
+                        <p class="sf-muted">@farm.LocationText</p>
+                        <div class="farm-card-actions">
+                            <a class="button" asp-controller="Dashboard" asp-action="Index" asp-route-farmId="@farm.Id">@T["Open dashboard"]</a>
+                            <a class="farm-text-link" asp-controller="Reports" asp-action="Harvests" asp-route-farmId="@farm.Id">@T["Harvest reports"]</a>
+                        </div>
+                    </div>
+                </li>
+            }
         </ul>
+        @if (totalFarmPages > 1)
+        {
+            <nav class="ani-p4-pager ani-f2-pager" aria-label="@T["Farm pages"]">
+                <span>@T["{0} {1} of {2} · {3} farms", T["Page"], currentFarmPage, totalFarmPages, Model.Farms.Count]</span>
+                @if (currentFarmPage > 1)
+                {
+                    <a asp-action="Index" asp-route-page="@(currentFarmPage - 1)"
+                       asp-route-requestsPage="@currentRequestPage" asp-fragment="farm-library-heading"
+                       rel="prev">@T["Previous"]</a>
+                }
+                @if (currentFarmPage < totalFarmPages)
+                {
+                    <a asp-action="Index" asp-route-page="@(currentFarmPage + 1)"
+                       asp-route-requestsPage="@currentRequestPage" asp-fragment="farm-library-heading"
+                       rel="next">@T["Next"]</a>
+                }
+            </nav>
+        }
     }
 </section>
+
+<section class="panel card ani-quick-create" id="create-farm" data-form-dialog aria-labelledby="create-farm-heading">
+    <header class="reference-panel-heading">
+        <h2 id="create-farm-heading">@T["Create farm"]</h2>
+        <span class="ani-optional-label">@T["Quick setup"]</span>
+    </header>
+    <p class="sf-muted">@T["Start with the essentials. After creating the farm, you can add plots, plan crops, and invite your team."]</p>
+    <form asp-controller="Farms" asp-action="Create" method="post" class="ani-quick-create-form ani-p5-form" data-ani-p5-form>
+        <label for="quick-farm-name">@T["Farm name"]</label>
+        <input id="quick-farm-name" name="Name" required minlength="2" maxlength="120"
+               autocomplete="organization" placeholder="@T["e.g. Riverside Farm"]" />
+        <label for="quick-farm-location">@T["City, town or farm address"]</label>
+        <input id="quick-farm-location" name="LocationText" required minlength="2" maxlength="250"
+               placeholder="@T["e.g. Barangay San Jose, Angeles City"]" />
+        <input type="hidden" name="TimeZoneId" value="Asia/Manila" />
+        <p class="hint">@T["Uses Philippine time. Add a precise map pin later in Farm settings."]</p>
+        <button class="button" type="submit">@T["Create farm & continue"]</button>
+        <span class="visually-hidden" role="status" aria-live="polite" data-ani-form-progress></span>
+    </form>
+    <p class="ani-modal-alternative"><a asp-controller="Farms" asp-action="Create">@T["Use the detailed setup with map options"]</a></p>
+</section>
+
+<div class="farm-onboarding-grid ani-entry-join-layout @(Model.JoinRequests.Count == 0 && Model.RequestError is null ? "farm-onboarding-grid--single ani-entry-join-layout--single" : "")">
+    <section class="panel card join-farm-panel" id="join-farm" data-form-dialog aria-labelledby="join-farm-heading">
+
+        <header class="reference-panel-heading">
+            <h2 id="join-farm-heading">@T["Join farm"]</h2>
+            <span class="ani-optional-label">@T["For team members"]</span>
+        </header>
+        <p class="sf-muted">@T["Have a farm code? Enter the code supplied by the owner. Access begins after the owner approves your request."]</p>
+        <p class="ani-inline-help">@T["No code yet? Ask your farm owner to share their 12-character code."]</p>
+        @if (!ViewData.ModelState.IsValid)
+        {
+            <p role="alert" class="error" data-form-error>@T["Please review the farm code below."]</p>
+        }
+        <form asp-action="RequestJoin" method="post" class="join-farm-form ani-p5-form" data-ani-p5-form>
+            <label for="FarmCode">@T["Farm code"]</label>
+            <input id="FarmCode" name="FarmCode" value="@Model.Join.FarmCode" required maxlength="64"
+                   autocomplete="off" autocapitalize="characters" spellcheck="false" inputmode="text"
+                   aria-describedby="join-code-help" placeholder="@T["12-character farm code"]" />
+            <p class="hint" id="join-code-help">Submitting a code sends a request; it does not give immediate access.</p>
+            @Html.ValidationMessage("FarmCode", null, new { @class = "error" })
+            <button type="submit">@T["Request to join"]</button>
+            <span class="visually-hidden" role="status" aria-live="polite" data-ani-form-progress></span>
+        </form>
+    </section>
+    @if (Model.RequestError is not null || Model.JoinRequests.Count > 0)
+    {
+    <section class="panel card join-requests-panel" aria-labelledby="requests-heading">
+
+        <header class="reference-panel-heading"><h2 id="requests-heading">@T["Your join requests"]</h2></header>
+        @if (Model.RequestError is not null)
+        {
+            <p role="alert" class="error">@Model.RequestError</p>
+        }
+        else if (Model.JoinRequests.Count == 0)
+        {
+            <div class="requests-empty">
+                <p class="sf-muted">@T["You haven't requested access to any farms yet."]</p>
+            </div>
+        }
+        else
+        {
+            <ul class="join-requests-list">
+                @foreach (var request in visibleRequests)
+                {
+                    var statusClass = request.Status == "Pending" ? "sf-status-chip--planned" :
+                        request.Status == "Approved" ? "sf-status-chip--active" : "sf-status-chip--neutral";
+                    <li>
+                        <div class="request-title-row">
+                            <strong>@request.FarmName</strong>
+                            <partial name="_UiStatusChip" model='@(new UiStatusChip(T[request.Status], statusClass))' />
+                        </div>
+                        <p class="sf-muted request-date">@T["{0} {1}", T["Requested"], SmartFarm.Web.Presentation.FarmTimestamp.Display(request.RequestedAtUtc, Model.Farms.FirstOrDefault(f => f.Id == request.FarmId)?.TimeZoneId)]</p>
+                        @if (request.ReviewedAtUtc is { } reviewed)
+                        {
+                            <p class="sf-muted request-date">@T["{0} {1}", T["Updated"], SmartFarm.Web.Presentation.FarmTimestamp.Display(reviewed, Model.Farms.FirstOrDefault(f => f.Id == request.FarmId)?.TimeZoneId)]</p>
+                        }
+                        @if (request.Status == "Pending")
+                        {
+                            <p class="sf-muted">@T["Waiting for the farm owner's approval."]</p>
+                            <form asp-action="CancelJoin" asp-route-farmId="@request.FarmId" asp-route-requestId="@request.Id"
+                                  method="post" data-confirm="@T["Cancel your request to join {0}?", request.FarmName]">
+                                <button class="button-danger" type="submit">@T["Cancel request"]</button>
+                            </form>
+                        }
+                        @if (request.Status is "Rejected" or "Canceled")
+                        {
+                            <p class="sf-muted">@T["You can apply again with a valid farm code."]</p>
+                        }
+                    </li>
+                }
+            </ul>
+            @if (totalRequestPages > 1)
+            {
+                <nav class="ani-p4-pager ani-f2-pager" aria-label="@T["Join request pages"]">
+                    <span>@T["{0} {1} of {2} · {3} requests", T["Page"], currentRequestPage, totalRequestPages, Model.JoinRequests.Count]</span>
+                    @if (currentRequestPage > 1)
+                    {
+                        <a asp-action="Index" asp-route-page="@currentFarmPage"
+                           asp-route-requestsPage="@(currentRequestPage - 1)" asp-fragment="requests-heading"
+                           rel="prev">@T["Previous"]</a>
+                    }
+                    @if (currentRequestPage < totalRequestPages)
+                    {
+                        <a asp-action="Index" asp-route-page="@currentFarmPage"
+                           asp-route-requestsPage="@(currentRequestPage + 1)" asp-fragment="requests-heading"
+                           rel="next">@T["Next"]</a>
+                    }
+                </nav>
+            }
+        }
+    </section>
+    }
+</div>
+
+</div>

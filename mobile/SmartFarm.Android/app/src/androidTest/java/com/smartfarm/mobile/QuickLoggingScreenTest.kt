@@ -18,14 +18,16 @@ class QuickLoggingScreenTest {
             MonitoringScreen(MonitoringUiState(farmId = "farm", cycleId = "crop", canRecord = true),
                 onBack = {}, onActivity = { type, notes -> saved = type to notes },
                 onObservation = { _, _, _, _ -> }, onUpload = { _, _ -> }, onPreview = {},
+                onThumbnail = { byteArrayOf() }, onDismissPreview = {},
                 quick = "watering")
         } }
-        compose.onNodeWithText("Quick log: Watering").assertExists()
+        compose.onNodeWithText("Activity").assertIsSelected()
+        compose.onNodeWithText("Watering").assertIsDisplayed()
         compose.onNodeWithText("Record inspection / observation").assertDoesNotExist()
-        compose.onNodeWithText("Save activity").performClick()
+        compose.onNodeWithText("Save activity").performScrollTo().performClick()
         compose.runOnIdle { assertEquals(1 to "", saved) }
-        compose.onNodeWithText("Show all logging options").performClick()
-        compose.onNodeWithText("Record inspection / observation").assertExists()
+        compose.onNodeWithText("Inspection").performScrollTo().performClick()
+        compose.onNodeWithText("Save inspection").assertExists()
     }
 
     @Test fun inspectionShortcutShowsOnlyInspectionFirst() {
@@ -33,10 +35,11 @@ class QuickLoggingScreenTest {
             MonitoringScreen(MonitoringUiState(farmId = "farm", cycleId = "crop", canRecord = true),
                 onBack = {}, onActivity = { _, _ -> },
                 onObservation = { _, _, _, _ -> }, onUpload = { _, _ -> }, onPreview = {},
+                onThumbnail = { byteArrayOf() }, onDismissPreview = {},
                 quick = "inspection")
         } }
-        compose.onNodeWithText("Quick log: Inspection").assertExists()
+        compose.onNodeWithText("Inspection").assertIsSelected()
         compose.onNodeWithText("Record farm activity").assertDoesNotExist()
-        compose.onNodeWithText("Save observation").assertExists()
+        compose.onNodeWithText("Save inspection").assertExists()
     }
 }

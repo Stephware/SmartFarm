@@ -14,6 +14,13 @@ public sealed record HarvestCropPlotTotal(
 
 public sealed record HarvestMonthlyTotal(string Month, string Unit, decimal Quantity, int HarvestCount);
 
+// Combine repeated partial harvests for the same crop cycle, never across
+// unrelated units or different planting cycles on the same plot.
+public sealed record HarvestCycleTotal(
+    Guid CycleId, Guid CropTypeId, string CropTypeName, Guid PlotId, string PlotName,
+    string Unit, decimal Quantity, int HarvestCount,
+    DateOnly FirstHarvestDate, DateOnly LastHarvestDate);
+
 public sealed record HarvestReport(
     Guid FarmId, string FarmName, string TimeZoneId,
     DateOnly? FromDate, DateOnly? ToDate, Guid? PlotId, Guid? CropTypeId,
@@ -21,7 +28,11 @@ public sealed record HarvestReport(
     IReadOnlyList<HarvestUnitTotal> UnitTotals,
     IReadOnlyList<HarvestCropPlotTotal> CropPlotTotals,
     IReadOnlyList<HarvestMonthlyTotal> MonthlyTotals,
-    IReadOnlyList<HarvestReportEntry> Entries);
+    IReadOnlyList<HarvestReportEntry> Entries)
+{
+    // Additive field: older clients and manually created reports remain valid.
+    public IReadOnlyList<HarvestCycleTotal> CycleTotals { get; init; } = [];
+}
 
 public sealed record DashboardAttentionItem(
     string Kind, Guid TargetId, string Title, string Detail, DateOnly? DueDate = null);

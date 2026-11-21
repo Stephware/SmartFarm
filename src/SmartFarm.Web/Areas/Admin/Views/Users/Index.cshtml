@@ -1,0 +1,66 @@
+@model SmartFarm.Web.ViewModels.Admin.AdminUserIndexPage
+@{
+    ViewData["Title"] = T["Users"];
+}
+<header class="page-heading admin-page-heading">
+    <div>
+        <p class="sf-kicker">@T["PLATFORM DIRECTORY"]</p>
+        <h1>@T["Users"]</h1>
+        <p class="sf-muted">@T["Find registered accounts and review their status. Platform roles cannot be edited here."]</p>
+    </div>
+</header>
+<section class="panel admin-directory-panel" aria-label="@T["User directory"]">
+    <form class="admin-filters" method="get" asp-area="Admin" asp-controller="Users" asp-action="Index">
+        <div class="admin-filter-search">
+            <label for="admin-user-search">@T["Find a user"]</label>
+            <input id="admin-user-search" name="search" type="search" value="@Model.Search" maxlength="100"
+                   placeholder="@T["Search name or email"]" />
+        </div>
+        <div>
+            <label for="admin-user-status">@T["Account status"]</label>
+            <select id="admin-user-status" name="status">
+                <option value="all" selected="@(Model.Status == "all")">@T["All accounts"]</option>
+                <option value="active" selected="@(Model.Status == "active")">@T["Active"]</option>
+                <option value="disabled" selected="@(Model.Status == "disabled")">@T["Disabled"]</option>
+            </select>
+        </div>
+        <button type="submit">@T["Search"]</button>
+        <a class="admin-reset" asp-area="Admin" asp-controller="Users" asp-action="Index">@T["Clear"]</a>
+    </form>
+    <p class="admin-results-count">@T["{0} {1} found", Model.TotalCount, Model.TotalCount == 1 ? "account" : "accounts"]</p>
+    @if (Model.Users.Count == 0)
+    {
+        <div class="admin-empty"><strong>@T["No matching users"]</strong><p>@T["Try a different name, email or status."]</p></div>
+    }
+    else
+    {
+        <div class="admin-record-list">
+            @foreach (var user in Model.Users)
+            {
+                <a class="admin-record" asp-area="Admin" asp-controller="Users" asp-action="Details" asp-route-id="@user.Id">
+                    <span class="admin-record-main">
+                        <strong>@user.Name</strong><small>@user.Email</small>
+                        <small>@T["{0} owned farms · {1} memberships", user.OwnedFarms, user.ActiveMemberships]</small>
+                    </span>
+                    <span class="admin-record-meta">
+                        @if (user.IsSuperAdmin) { <span class="sf-status-chip sf-status-chip--planned">@T["Super Admin"]</span> }
+                        <span class="sf-status-chip @(user.Disabled ? "sf-status-chip--neutral" : "sf-status-chip--active")">@(user.Disabled ? "Disabled" : "Active")</span>
+                    </span>
+                </a>
+            }
+        </div>
+        <nav class="admin-pagination" aria-label="@T["User pages"]">
+            @if (Model.HasPrevious)
+            {
+                <a asp-area="Admin" asp-controller="Users" asp-action="Index" asp-route-search="@Model.Search"
+                   asp-route-status="@Model.Status" asp-route-page="@(Model.Page - 1)">@T["Previous"]</a>
+            }
+            <span>@T["Page {0} of {1}", Model.Page, (Model.TotalCount + SmartFarm.Web.ViewModels.Admin.AdminUserIndexPage.PageSize - 1) / SmartFarm.Web.ViewModels.Admin.AdminUserIndexPage.PageSize]</span>
+            @if (Model.HasNext)
+            {
+                <a asp-area="Admin" asp-controller="Users" asp-action="Index" asp-route-search="@Model.Search"
+                   asp-route-status="@Model.Status" asp-route-page="@(Model.Page + 1)">@T["Next"]</a>
+            }
+        </nav>
+    }
+</section>

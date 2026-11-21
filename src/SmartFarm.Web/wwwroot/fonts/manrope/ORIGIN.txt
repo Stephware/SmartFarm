@@ -1,0 +1,4 @@
+Manrope variable font — Mikhail Sharanda / Manrope Project Authors
+Source: https://github.com/google/fonts/tree/main/ofl/manrope
+License: SIL Open Font License 1.1 (included OFL.txt); original variable TTF, unmodified.
+Retrieved 2026-11-13. Self-hosted; no runtime font service.

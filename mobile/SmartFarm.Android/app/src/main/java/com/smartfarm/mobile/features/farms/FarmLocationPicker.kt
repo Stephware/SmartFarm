@@ -1,5 +1,8 @@
 package com.smartfarm.mobile.features.farms
 
+import com.smartfarm.mobile.R
+import com.smartfarm.mobile.localization.uiText
+
 import android.Manifest
 import android.content.Context
 import android.content.pm.PackageManager
@@ -20,6 +23,11 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.imePadding
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.safeDrawing
+import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -43,6 +51,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.compose.ui.window.Dialog
+import androidx.compose.ui.window.DialogProperties
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -102,12 +111,12 @@ fun FarmLocationPicker(
 ) {
     var opened by remember { mutableStateOf(false) }
     OutlinedButton(onClick = { opened = true }, enabled = enabled) {
-        Text(if (latitude.isNotBlank() && longitude.isNotBlank()) "Adjust farm pin"
-             else "Find farm on map")
+        Text(if (latitude.isNotBlank() && longitude.isNotBlank()) uiText(R.string.ui_adjust_farm_pin_2515999, "Adjust farm pin")
+             else uiText(R.string.ui_find_farm_on_map_e84ca4f, "Find farm on map"))
     }
     Text(
-        if (latitude.isNotBlank() && longitude.isNotBlank()) "Farm pin selected for weather forecasts."
-        else "Search a place or tap a map pin to enable local weather forecasts.",
+        if (latitude.isNotBlank() && longitude.isNotBlank()) uiText(R.string.ui_farm_pin_selected_for_weather_forecasts_306eac8, "Farm pin selected for weather forecasts.")
+        else uiText(R.string.ui_search_a_place_or_tap_a_map_pin_to_enable_local_weat_8b4e935, "Search a place or tap a map pin to enable local weather forecasts."),
         style = MaterialTheme.typography.bodySmall
     )
     if (opened) {
@@ -138,16 +147,39 @@ private fun FarmLocationDialog(
     var lon by remember { mutableStateOf(initialLon.toDoubleOrNull()) }
     var results by remember { mutableStateOf(emptyList<PlaceResult>()) }
     var searching by remember { mutableStateOf(false) }
-    var message by remember { mutableStateOf("Tap the map to place a pin, or search an address.") }
+    var message by remember { mutableStateOf(uiText(R.string.ui_tap_the_map_to_place_a_pin_or_search_an_address_42ee28e, "Tap the map to place a pin, or search an address.")) }
     var webView by remember { mutableStateOf<WebView?>(null) }
 
-    fun select(latitude: Double, longitude: Double) {
+    fun select(latitude: Double, longitude: Double, selectedName: String? = null,
+        resolveAddress: Boolean = false) {
         lat = latitude
         lon = longitude
         val a = String.format(Locale.US, "%.6f", latitude)
         val b = String.format(Locale.US, "%.6f", longitude)
+        // Coordinates are usable even if the device geocoder has no address.
+        // Never require a second manual entry after choosing the current position.
+        name = selectedName?.takeIf { it.isNotBlank() }
+            ?: uiText(R.string.gps_near_coordinates, "Near coordinates: %1\$s, %2\$s", a, b)
         webView?.evaluateJavascript("window.selectFarmPin && window.selectFarmPin($a,$b)", null)
-        message = "Pin selected. Confirm the farm's address or nearby area."
+        message = uiText(R.string.ui_pin_selected_confirm_the_farm_s_address_or_nearby_ar_99e5dca,
+            "Pin selected. Confirm the farm's address or nearby area.")
+        if (resolveAddress && Geocoder.isPresent()) {
+            scope.launch {
+                try {
+                    val address = withContext(Dispatchers.IO) {
+                        Geocoder(context, Locale.getDefault())
+                            .getFromLocation(latitude, longitude, 1).orEmpty()
+                            .firstOrNull()?.getAddressLine(0)?.take(250)
+                    }
+                    if (lat == latitude && lon == longitude && !address.isNullOrBlank())
+                        name = address
+                } catch (cancelled: CancellationException) {
+                    throw cancelled
+                } catch (_: Exception) {
+                    // Keep the exact selected coordinates and honest fallback label.
+                }
+            }
+        }
     }
 
     @SuppressLint("MissingPermission")
@@ -157,7 +189,7 @@ private fun FarmLocationDialog(
         val coarse = ContextCompat.checkSelfPermission(
             context, Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED
         if (!fine && !coarse) {
-            message = "Location permission is needed. You can still search or tap the map."
+            message = uiText(R.string.ui_location_permission_is_needed_you_can_still_search_o_67fe3be, "Location permission is needed. You can still search or tap the map.")
             return
         }
         try {
@@ -170,27 +202,27 @@ private fun FarmLocationDialog(
                 else -> null
             }
             if (provider == null) {
-                message = "Turn on device location, or select your farm on the map."
+                message = uiText(R.string.ui_turn_on_device_location_or_select_your_farm_on_the_m_9b4f562, "Turn on device location, or select your farm on the map.")
                 return
             }
-            message = "Getting your approximate position..."
+            message = uiText(R.string.ui_getting_your_approximate_position_8c33aae, "Getting your approximate position...")
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
                 manager.getCurrentLocation(provider, null, context.mainExecutor) { found ->
-                    if (found != null) select(found.latitude, found.longitude)
-                    else message = "Location unavailable. Search or tap the map instead."
+                    if (found != null) select(found.latitude, found.longitude, resolveAddress = true)
+                    else message = uiText(R.string.ui_location_unavailable_search_or_tap_the_map_instead_05d7442, "Location unavailable. Search or tap the map instead.")
                 }
             } else {
                 val found = manager.getLastKnownLocation(provider)
                 if (found != null && System.currentTimeMillis() - found.time in 0..300000) {
-                    select(found.latitude, found.longitude)
+                    select(found.latitude, found.longitude, resolveAddress = true)
                 } else {
-                    message = "No recent device location. Search or tap the map instead."
+                    message = uiText(R.string.ui_no_recent_device_location_search_or_tap_the_map_inst_153b918, "No recent device location. Search or tap the map instead.")
                 }
             }
         } catch (_: SecurityException) {
-            message = "Location permission unavailable. Search or tap the map."
+            message = uiText(R.string.ui_location_permission_unavailable_search_or_tap_the_ma_a6b7955, "Location permission unavailable. Search or tap the map.")
         } catch (_: IllegalArgumentException) {
-            message = "Location service unavailable. Search or tap the map."
+            message = uiText(R.string.ui_location_service_unavailable_search_or_tap_the_map_8f86ce0, "Location service unavailable. Search or tap the map.")
         }
     }
 
@@ -198,7 +230,7 @@ private fun FarmLocationDialog(
         ActivityResultContracts.RequestMultiplePermissions()
     ) { grants ->
         if (grants.values.any { it }) useDeviceLocation()
-        else message = "Location access denied. Search or tap the map instead."
+        else message = uiText(R.string.ui_location_access_denied_search_or_tap_the_map_instead_119bd10, "Location access denied. Search or tap the map instead.")
     }
 
     DisposableEffect(Unit) {
@@ -209,14 +241,18 @@ private fun FarmLocationDialog(
         }
     }
 
-    Dialog(onDismissRequest = onDismiss) {
-        Surface(shape = MaterialTheme.shapes.large, modifier = Modifier.widthIn(max = 540.dp)) {
-            Column(Modifier.verticalScroll(rememberScrollState()).padding(14.dp),
-                verticalArrangement = Arrangement.spacedBy(9.dp)) {
-                Text("Choose farm location", style = MaterialTheme.typography.titleLarge)
-                Text("Search a barangay or nearby place, then move the pin to the farm.",
+    Dialog(onDismissRequest = onDismiss,
+        properties = DialogProperties(usePlatformDefaultWidth = false)) {
+        Surface(modifier = Modifier.fillMaxSize()) {
+            Column(Modifier.fillMaxSize().windowInsetsPadding(WindowInsets.safeDrawing).imePadding()) {
+                Column(
+                    Modifier.weight(1f).verticalScroll(rememberScrollState()).padding(16.dp),
+                    verticalArrangement = Arrangement.spacedBy(12.dp)
+                ) {
+                Text(uiText(R.string.ui_choose_farm_location_d248443, "Choose farm location"), style = MaterialTheme.typography.titleLarge)
+                Text(uiText(R.string.ui_search_a_barangay_or_nearby_place_then_move_the_pin__26f2210, "Search a barangay or nearby place, then move the pin to the farm."),
                     style = MaterialTheme.typography.bodySmall)
-                OutlinedTextField(query, { query = it }, label = { Text("Search address or place") },
+                OutlinedTextField(query, { query = it }, label = { Text(uiText(R.string.ui_search_address_or_place_49925f2, "Search address or place")) },
                     modifier = Modifier.fillMaxWidth(), singleLine = true)
                 Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                     Button(onClick = {
@@ -228,15 +264,15 @@ private fun FarmLocationDialog(
                         else locationPermissionLauncher.launch(arrayOf(
                             Manifest.permission.ACCESS_COARSE_LOCATION,
                             Manifest.permission.ACCESS_FINE_LOCATION))
-                    }) { Text("Use my location") }
+                    }) { Text(uiText(R.string.ui_use_my_location_30cbc33, "Use my location")) }
                 }
                 Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                     Button(onClick = {
                         val text = query.trim()
                         if (text.length !in 3..120) {
-                            message = "Enter at least 3 characters."
+                            message = uiText(R.string.ui_enter_at_least_3_characters_57c9e61, "Enter at least 3 characters.")
                         } else if (!Geocoder.isPresent()) {
-                            message = "Address search is unavailable on this device. Tap the map instead."
+                            message = uiText(R.string.ui_address_search_is_unavailable_on_this_device_tap_the_ceaafe6, "Address search is unavailable on this device. Tap the map instead.")
                         } else {
                             searching = true
                             results = emptyList()
@@ -253,24 +289,23 @@ private fun FarmLocationDialog(
                                             }
                                     }
                                     results = found
-                                    message = if (found.isEmpty()) "No results. Tap the map instead."
-                                              else "Choose a place below, then adjust the pin."
+                                    message = if (found.isEmpty()) uiText(R.string.ui_no_results_tap_the_map_instead_a823be3, "No results. Tap the map instead.")
+                                              else uiText(R.string.ui_choose_a_place_below_then_adjust_the_pin_c63c0f1, "Choose a place below, then adjust the pin.")
                                 } catch (cancelled: CancellationException) {
                                     throw cancelled
                                 } catch (_: Exception) {
-                                    message = "Search unavailable. Tap the map instead."
+                                    message = uiText(R.string.ui_search_unavailable_tap_the_map_instead_719611f, "Search unavailable. Tap the map instead.")
                                 } finally {
                                     searching = false
                                 }
                             }
                         }
-                    }, enabled = !searching) { Text("Search") }
+                    }, enabled = !searching) { Text(uiText(R.string.ui_search_49c266b, "Search")) }
                     if (searching) CircularProgressIndicator()
                 }
                 results.take(3).forEach { result ->
                     OutlinedButton(onClick = {
-                        name = result.name
-                        select(result.latitude, result.longitude)
+                        select(result.latitude, result.longitude, selectedName = result.name)
                         results = emptyList()
                     }, modifier = Modifier.fillMaxWidth()) {
                         Text(result.name, maxLines = 2)
@@ -307,23 +342,31 @@ private fun FarmLocationDialog(
                             webView = this
                         }
                     },
-                    modifier = Modifier.fillMaxWidth().height(250.dp)
+                    modifier = Modifier.fillMaxWidth().height(320.dp)
                 )
                 Text(message, style = MaterialTheme.typography.bodySmall)
-                OutlinedTextField(name, { name = it }, label = { Text("Farm address or area") },
+                OutlinedTextField(name, { name = it }, label = { Text(uiText(R.string.ui_farm_address_or_area_a673ac8, "Farm address or area")) },
                     modifier = Modifier.fillMaxWidth(), singleLine = true)
-                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    OutlinedButton(onClick = onDismiss) { Text("Cancel") }
+                Text(uiText(R.string.ui_map_openstreetmap_contributors_device_address_search_43a985a, "Map: © OpenStreetMap contributors. Device address search availability varies."),
+                    style = MaterialTheme.typography.labelSmall)
+                }
+                // The commit/cancel actions remain reachable when the map and search results scroll.
+                Row(
+                    Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 12.dp),
+                    horizontalArrangement = Arrangement.spacedBy(12.dp)
+                ) {
+                    OutlinedButton(onClick = onDismiss, modifier = Modifier.weight(1f)) {
+                        Text(uiText(R.string.ui_cancel_19766ed, "Cancel"))
+                    }
                     Button(onClick = {
                         onConfirm(
                             name.trim(), String.format(Locale.US, "%.6f", requireNotNull(lat)),
                             String.format(Locale.US, "%.6f", requireNotNull(lon)))
-                    }, enabled = name.trim().length in 2..250 && lat != null && lon != null) {
-                        Text("Use this location")
+                    }, modifier = Modifier.weight(1f),
+                       enabled = name.trim().length in 2..250 && lat != null && lon != null) {
+                        Text(uiText(R.string.ui_use_this_location_69d62e1, "Use this location"))
                     }
                 }
-                Text("Map: © OpenStreetMap contributors. Device address search availability varies.",
-                    style = MaterialTheme.typography.labelSmall)
             }
         }
     }

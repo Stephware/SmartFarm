@@ -1,11 +1,15 @@
 package com.smartfarm.mobile.features.auth
 
+import com.smartfarm.mobile.R
+import com.smartfarm.mobile.localization.uiText
+
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import com.smartfarm.mobile.data.remote.dto.AccountResponse
 import com.smartfarm.mobile.data.repository.AuthRepository
-import retrofit2.HttpException
+import com.smartfarm.mobile.data.repository.NetworkErrorMessages
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
@@ -14,7 +18,10 @@ data class AuthUiState(
     val busy: Boolean = false,
     val error: String? = null,
     val notice: String? = null,
-    val account: AccountResponse? = null
+    val account: AccountResponse? = null,
+    val recoveryBusy: Boolean = false,
+    val recoveryRequested: Boolean = false,
+    val recoveryError: String? = null
 )
 
 class AuthViewModel(private val repository: AuthRepository) : ViewModel() {
@@ -29,9 +36,10 @@ class AuthViewModel(private val repository: AuthRepository) : ViewModel() {
                 val user = repository.login(email, password)
                 mutableState.value = AuthUiState(account = user)
                 onSuccess()
+            } catch (cancelled: CancellationException) {
+                throw cancelled
             } catch (error: Exception) {
-                mutableState.value = AuthUiState(error = if ((error as? HttpException)?.code() == 429)
-                    "Too many requests. Please wait and try again." else "Sign in failed. Check your credentials and connection.")
+                mutableState.value = AuthUiState(error = NetworkErrorMessages.forLogin(error))
             }
         }
     }
@@ -42,14 +50,42 @@ class AuthViewModel(private val repository: AuthRepository) : ViewModel() {
         viewModelScope.launch {
             try {
                 repository.register(fullName, email, password)
-                mutableState.value = AuthUiState(notice = "Account created. You can now sign in.")
+                mutableState.value = AuthUiState(notice = uiText(R.string.ui_account_created_you_can_now_sign_in_3631ebf, "Account created. You can now sign in."))
                 onSuccess()
+            } catch (cancelled: CancellationException) {
+                throw cancelled
             } catch (error: Exception) {
-                mutableState.value = AuthUiState(error = if ((error as? HttpException)?.code() == 429)
-                    "Too many requests. Please wait and try again." else
-                    "Registration failed. Check your details and connection.")
+                mutableState.value = AuthUiState(error = NetworkErrorMessages.forRegistration(error))
             }
         }
+    }
+
+    fun requestPasswordReset(email: String) {
+        if (mutableState.value.recoveryBusy || mutableState.value.recoveryRequested) return
+        mutableState.value = mutableState.value.copy(
+            recoveryBusy = true, recoveryError = null, recoveryRequested = false
+        )
+        viewModelScope.launch {
+            try {
+                repository.requestPasswordReset(email)
+                mutableState.value = mutableState.value.copy(
+                    recoveryBusy = false, recoveryRequested = true, recoveryError = null
+                )
+            } catch (cancelled: CancellationException) {
+                throw cancelled
+            } catch (error: Exception) {
+                mutableState.value = mutableState.value.copy(
+                    recoveryBusy = false,
+                    recoveryError = NetworkErrorMessages.forRequest(
+                        error, uiText(R.string.recovery_retry_later, "Please try again later."))
+                )
+            }
+        }
+    }
+
+    fun clearRecoveryFeedback() {
+        mutableState.value = mutableState.value.copy(
+            recoveryBusy = false, recoveryRequested = false, recoveryError = null)
     }
 
     fun logout() {

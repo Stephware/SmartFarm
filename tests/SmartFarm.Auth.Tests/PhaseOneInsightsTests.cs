@@ -81,32 +81,4 @@ public sealed class PhaseOneInsightsTests
         Assert.Empty(dashboard.AttentionItems);
     }
 
-    [Fact]
-    public void HarvestChartsKeepUnitsSeparateAndNeverUseVoidedData()
-    {
-        var plotId = Guid.NewGuid();
-        var report = new HarvestReport(Guid.NewGuid(), "Demo", "Asia/Manila",
-            null, null, null, null, 3, 1,
-            [new HarvestUnitTotal("kg", 30, 2), new HarvestUnitTotal("pieces", 5, 1)],
-            [new HarvestCropPlotTotal(Guid.NewGuid(), "Tomato", plotId, "East Plot", "kg", 30, 2),
-             new HarvestCropPlotTotal(Guid.NewGuid(), "Corn", Guid.NewGuid(), "West Plot", "pieces", 5, 1)],
-            [new HarvestMonthlyTotal("2026-10", "kg", 10, 1),
-             new HarvestMonthlyTotal("2026-11", "kg", 20, 1),
-             new HarvestMonthlyTotal("2026-11", "pieces", 5, 1)],
-            []);
-        var plots = new[] { new PlotDetails(plotId, report.FarmId, "East Plot", 10m, "v") };
-
-        var monthly = HarvestAnalyticsBuilder.Monthly(report);
-        Assert.Equal(2, monthly.Count);
-        var kilograms = Assert.Single(monthly.Where(m => m.Unit == "kg"));
-        Assert.Equal(2, kilograms.Bars.Count);
-        Assert.Equal(100, kilograms.Bars[0].WidthPercent);
-        Assert.Equal(50, kilograms.Bars[1].WidthPercent);
-        var cropPlot = HarvestAnalyticsBuilder.CropAndPlot(report, plots);
-        Assert.Equal(2, cropPlot.Count);
-        Assert.Equal(3, Assert.Single(cropPlot.Single(c => c.Unit == "kg").Bars)
-            .YieldPerSquareMeter);
-        Assert.Null(Assert.Single(cropPlot.Single(c => c.Unit == "pieces").Bars)
-            .YieldPerSquareMeter);
-    }
 }

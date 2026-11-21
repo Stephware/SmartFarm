@@ -10,6 +10,10 @@ namespace SmartFarm.Infrastructure.Persistence;
 public sealed class SmartFarmDbContext(DbContextOptions<SmartFarmDbContext> options)
     : IdentityDbContext<SmartFarmUser, SmartFarmRole, Guid>(options)
 {
+    public DbSet<AdminAuditLog> AdminAuditLogs => Set<AdminAuditLog>();
+    public DbSet<PlatformAnnouncement> PlatformAnnouncements => Set<PlatformAnnouncement>();
+    public DbSet<SupportTicket> SupportTickets => Set<SupportTicket>();
+    public DbSet<SupportTicketMessage> SupportTicketMessages => Set<SupportTicketMessage>();
     public DbSet<Farm> Farms => Set<Farm>();
     public DbSet<FarmFinanceEntry> FarmFinanceEntries => Set<FarmFinanceEntry>();
     public DbSet<FarmJoinRequest> FarmJoinRequests => Set<FarmJoinRequest>();

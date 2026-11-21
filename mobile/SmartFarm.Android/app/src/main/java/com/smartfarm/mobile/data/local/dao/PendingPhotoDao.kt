@@ -12,6 +12,10 @@ interface PendingPhotoDao {
     @Insert(onConflict = OnConflictStrategy.ABORT)
     suspend fun add(photo: PendingPhoto)
 
+    // Include every account before deleting abandoned files from shared private storage.
+    @Query("SELECT photoId FROM pending_photos")
+    suspend fun allPhotoIds(): List<String>
+
     @Query("SELECT * FROM pending_photos WHERE userId = :userId ORDER BY savedAtUtcMillis DESC LIMIT 100")
     fun watch(userId: String): Flow<List<PendingPhoto>>
 

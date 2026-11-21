@@ -1,5 +1,8 @@
 package com.smartfarm.mobile.features.crops
 
+import com.smartfarm.mobile.R
+import com.smartfarm.mobile.localization.uiText
+
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
@@ -11,6 +14,8 @@ import com.smartfarm.mobile.data.remote.dto.CropTypeInputDto
 import com.smartfarm.mobile.data.remote.dto.PlotDto
 import com.smartfarm.mobile.data.repository.CropRepository
 import com.smartfarm.mobile.data.repository.FarmRepository
+import com.smartfarm.mobile.data.repository.NetworkErrorMessages
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
@@ -24,7 +29,10 @@ data class CropUiState(
     val plots: List<PlotDto> = emptyList(),
     val cycles: List<CropCycleDto> = emptyList(),
     val offline: Boolean = false,
-    val cachedAtUtcMillis: Long? = null
+    val cachedAtUtcMillis: Long? = null,
+    val typeSaveVersion: Int = 0,
+    val planSaveVersion: Int = 0,
+    val planEditSaveVersion: Int = 0
 )
 
 class CropViewModel(
@@ -49,13 +57,16 @@ class CropViewModel(
                     plots = plots.value, cycles = cycles.value, offline = cached,
                     cachedAtUtcMillis = listOf(types, plots, cycles)
                         .filter { it.offline }.minOfOrNull { it.savedAtUtcMillis })
-            } catch (_: Exception) {
-                mutable.value = CropUiState(farmId, error = "Could not load crops. Check farm access and connection.")
+            } catch (cancelled: CancellationException) {
+                throw cancelled
+            } catch (error: Exception) {
+                mutable.value = CropUiState(farmId, error = NetworkErrorMessages.forRequest(
+                    error, uiText(R.string.ui_could_not_load_crops_check_farm_access_and_connectio_2f289fd, "Could not load crops. Check farm access and connection.")))
             }
         }
     }
 
-    private fun work(block: suspend (String) -> Unit) {
+    private fun work(after: (() -> Unit)? = null, block: suspend (String) -> Unit) {
         val farmId = mutable.value.farmId
         if (mutable.value.busy || farmId.isBlank()) return
         mutable.value = mutable.value.copy(busy = true, error = null)
@@ -64,23 +75,37 @@ class CropViewModel(
                 block(farmId)
                 mutable.value = mutable.value.copy(
                     types = crops.types(farmId), cycles = crops.cycles(farmId))
-            } catch (_: Exception) {
+                after?.invoke()
+            } catch (cancelled: CancellationException) {
+                throw cancelled
+            } catch (error: Exception) {
                 mutable.value = mutable.value.copy(
-                    error = "Could not save. Check dates, permissions, crop status and connection; reload if the record changed.")
+                    error = NetworkErrorMessages.forMutation(error,
+                        uiText(R.string.ui_could_not_save_check_dates_permissions_crop_status_a_e5ac135, "Could not save. Check dates, permissions, crop status and connection; reload if the record changed.")))
             } finally {
                 mutable.value = mutable.value.copy(busy = false)
             }
         }
     }
 
-    fun createType(name: String, unit: String, growth: String, watering: String) = work { farmId ->
+    fun createType(name: String, unit: String, growth: String, watering: String, onSaved: () -> Unit = {}) = work(
+        after = {
+            mutable.value = mutable.value.copy(typeSaveVersion = mutable.value.typeSaveVersion + 1)
+            onSaved()
+        }
+    ) { farmId ->
         crops.createType(farmId, CropTypeInputDto(name.trim(),
             growth.takeIf { it.isNotBlank() }?.toIntOrNull(),
             watering.takeIf { it.isNotBlank() }?.toIntOrNull(),
             unit.trim()))
     }
 
-    fun plan(plotId: String, typeId: String, date: String, expected: String) = work { farmId ->
+    fun plan(plotId: String, typeId: String, date: String, expected: String, onSaved: () -> Unit = {}) = work(
+        after = {
+            mutable.value = mutable.value.copy(planSaveVersion = mutable.value.planSaveVersion + 1)
+            onSaved()
+        }
+    ) { farmId ->
         val planting = LocalDate.parse(date)
         val harvest = expected.takeIf { it.isNotBlank() }?.let(LocalDate::parse)
         require(harvest == null || !harvest.isBefore(planting))
@@ -88,7 +113,9 @@ class CropViewModel(
             typeId, planting.toString(), harvest?.toString()))
     }
 
-    fun updatePlan(cycle: CropCycleDto, date: String, expected: String) = work { farmId ->
+    fun updatePlan(cycle: CropCycleDto, date: String, expected: String) = work(
+        after = { mutable.value = mutable.value.copy(planEditSaveVersion = mutable.value.planEditSaveVersion + 1) }
+    ) { farmId ->
         val planting = LocalDate.parse(date)
         val harvest = expected.takeIf { it.isNotBlank() }?.let(LocalDate::parse)
         require(harvest == null || !harvest.isBefore(planting))
@@ -97,10 +124,11 @@ class CropViewModel(
             cycle.harvestUnit, cycle.wateringIntervalDays, cycle.rowVersion))
     }
 
-    fun transition(cycle: CropCycleDto, status: Int, planted: String, reason: String) = work { farmId ->
+    fun transition(cycle: CropCycleDto, status: Int, planted: String, reason: String, onSaved: () -> Unit = {}) = work { farmId ->
         val date = if (status == 1) LocalDate.parse(planted).toString() else null
         crops.transition(farmId, cycle.id, CropTransitionDto(
             cycle.rowVersion, status, date, reason.trim().ifBlank { null }))
+        onSaved()
     }
 
     class Factory(private val crops: CropRepository, private val farms: FarmRepository) :

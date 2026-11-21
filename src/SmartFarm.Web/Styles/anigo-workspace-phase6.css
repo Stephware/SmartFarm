@@ -1,0 +1,53 @@
+/* Phase 6: restrained visual rhythm for signed-in AniGo workspaces.
+   Scoped, token-driven and deliberately independent of Phase 7 dark colors. */
+body.is-authenticated .app-page { min-width: 0; }
+body.is-authenticated .app-topbar { border-bottom: 1px solid var(--ui-border); }
+body.is-authenticated .app-topbar .crumb { min-width: 0; }
+body.is-authenticated .app-topbar .crumb strong { overflow-wrap: anywhere; }
+body.is-authenticated .reference-screen :is(.page-hero,.ani12c-dashboard-hero,.ani12d-crop-hero,.ani12e-hero) {
+    min-width: 0;
+}
+body.is-authenticated .reference-screen :is(.panel,.card,.sf-card) {
+    border-color: var(--ui-border);
+}
+body.is-authenticated .reference-screen :is(.card-head,.reference-panel-heading) {
+    align-items: flex-start;
+    gap: 12px;
+}
+body.is-authenticated .reference-screen :is(.sf-muted,.hint,.sf-ops-hint) {
+    max-width: 76ch;
+    line-height: 1.5;
+}
+body.is-authenticated .reference-screen :is(.data-table,.sf-ops-table) {
+    font-variant-numeric: tabular-nums;
+}
+body.is-authenticated .reference-screen :is(.data-table,.sf-ops-table) th {
+    font-weight: 750;
+}
+body.is-authenticated .reference-screen :is(a,button,summary,input,select,textarea):focus-visible {
+    outline: 3px solid var(--ui-focus);
+    outline-offset: 2px;
+}
+body.is-authenticated .reference-screen :is(.sf-create-task-form,.farm-create-form,.sf-crop-form,.sf-ops-form) label {
+    line-height: 1.45;
+    font-weight: 650;
+}
+body.is-authenticated .reference-screen :is(.sf-create-task-form,.farm-create-form,.sf-crop-form,.sf-ops-form) :is(input,select,textarea) {
+    max-width: 100%;
+}
+@media (max-width: 600px) {
+    body.is-authenticated .reference-screen :is(.panel,.card,.sf-card) {
+        padding: 16px;
+        border-radius: 13px;
+    }
+    body.is-authenticated .reference-screen :is(.card-head,.reference-panel-heading) {
+        gap: 9px;
+    }
+    body.is-authenticated .reference-screen :is(.sf-actions,.sf-form-actions,.form-actions) {
+        flex-wrap: wrap;
+        gap: 10px;
+    }
+    body.is-authenticated .reference-screen :is(.sf-actions,.sf-form-actions,.form-actions) > :is(a,button) {
+        min-height: 44px;
+    }
+}

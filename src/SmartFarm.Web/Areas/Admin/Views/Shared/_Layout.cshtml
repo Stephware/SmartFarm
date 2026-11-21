@@ -1,0 +1,114 @@
+@{
+    var account = User.Identity?.Name ?? "Administrator";
+    var initial = account.Length == 0 ? "A" : account[..1].ToUpperInvariant();
+    var section = ViewContext.RouteData.Values["controller"]?.ToString();
+}
+<!DOCTYPE html>
+<html lang="@(System.Globalization.CultureInfo.CurrentUICulture.TwoLetterISOLanguageName == "fil" ? "fil" : "en")" data-color-mode="light" data-theme="gold">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#153D2D" />
+    <link rel="icon" type="image/svg+xml" href="~/images/branding/anigo-mark.svg" asp-append-version="true" />
+    <title>@ViewData["Title"] - AniGo Administration</title>
+    <script src="~/js/color-mode.js" asp-append-version="true"></script>
+    <link rel="preload" href="~/fonts/manrope/Manrope-Variable.ttf" as="font" type="font/ttf" crossorigin />
+    <link rel="stylesheet" href="~/css/anigo-tailwind.css" asp-append-version="true" />
+    <partial name="~/Views/Shared/_AniGoBrandStyles.cshtml" />
+    <partial name="~/Views/Shared/_AniGoNavigationStyles.cshtml" />
+    <partial name="~/Views/Shared/_UiTextCatalog.cshtml" />
+    <script src="~/js/site.js" asp-append-version="true" defer></script>
+    <script src="~/js/interaction-guards.js" asp-append-version="true" defer></script>
+    <script src="~/js/navigation-context.js" asp-append-version="true" defer></script>
+</head>
+<body class="is-authenticated">
+<a class="skip-link" href="#main-content">@T["Skip to content"]</a>
+<div class="app-shell admin-shell ani12f-admin-shell">
+    <aside class="sidebar app-sidebar" aria-label="@T["Platform administration"]">
+        <a class="logo brand sidebar-brand anigo-sidebar-brand" asp-area="Admin" asp-controller="Dashboard" asp-action="Index" aria-label="@T["AniGo administration"]">
+            <img class="anigo-sidebar-logo" src="~/images/branding/anigo-logo-on-dark.svg" asp-append-version="true" alt="" width="1120" height="297" />
+            <small class="anigo-sidebar-caption">@T["Platform administration"]</small>
+        </a>
+        <div class="sidebar-workspace">
+            <p class="side-group-label">@T["Administration"]</p>
+            <nav class="side-group sidebar-links" aria-label="@T["Admin sections"]">
+                <a class="nav-link" asp-area="Admin" asp-controller="Dashboard" asp-action="Index" aria-current="@(section == "Dashboard" ? "page" : null)">
+                    <partial name="~/Views/Shared/_Icon.cshtml" model='@("grid")' /><span>@T["Overview"]</span>
+                </a>
+                <a class="nav-link" asp-area="Admin" asp-controller="Users" asp-action="Index" aria-current="@(section == "Users" ? "page" : null)">
+                    <partial name="~/Views/Shared/_Icon.cshtml" model='@("users")' /><span>@T["Users"]</span>
+                </a>
+                <a class="nav-link" asp-area="Admin" asp-controller="Farms" asp-action="Index" aria-current="@(section == "Farms" ? "page" : null)">
+                    <partial name="~/Views/Shared/_Icon.cshtml" model='@("sprout")' /><span>@T["Farms"]</span>
+                </a>
+                <a class="nav-link" asp-area="Admin" asp-controller="Support" asp-action="Index" aria-current="@(section == "Support" ? "page" : null)">
+                    <partial name="~/Views/Shared/_Icon.cshtml" model='@("bell")' /><span>@T["Support history"]</span>
+                </a>
+                <a class="nav-link" asp-area="Admin" asp-controller="Monitoring" asp-action="Index" aria-current="@(section == "Monitoring" ? "page" : null)">
+                    <partial name="~/Views/Shared/_Icon.cshtml" model='@("chart")' /><span>@T["Monitoring"]</span>
+                </a>
+                <a class="nav-link" asp-area="Admin" asp-controller="Audit" asp-action="Index"
+                   aria-current="@(section == "Audit" ? "page" : null)">
+                    <partial name="~/Views/Shared/_Icon.cshtml" model='@("list")' /><span>@T["Audit history"]</span>
+                </a>
+                <a class="nav-link" asp-area="Admin" asp-controller="Announcements" asp-action="Index" aria-current="@(section == "Announcements" ? "page" : null)">
+                    <partial name="~/Views/Shared/_Icon.cshtml" model='@("bell")' /><span>@T["Announcement history"]</span>
+                </a>
+                <a class="nav-link" asp-area="Admin" asp-controller="Security" asp-action="Setup" aria-current="@(section == "Security" ? "page" : null)">
+                    <partial name="~/Views/Shared/_Icon.cshtml" model='@("settings")' /><span>@T["Security"]</span>
+                </a>
+            </nav>
+            <p class="admin-nav-hint">@T["Service checks and sync history are read-only."]</p>
+        </div>
+        <div class="side-footer sidebar-bottom">
+            <div class="person-row">
+                <span class="avatar" aria-hidden="true">@initial</span>
+                <span><strong>@account</strong><small>@T["Super Admin"]</small></span>
+            </div>
+            <div class="sidebar-footer-actions">
+                <a asp-area="" asp-controller="Farms" asp-action="Index">@T["Farm workspace"]</a>
+                <form asp-area="" asp-controller="Account" asp-action="Logout" method="post">
+                    <button type="submit" class="sidebar-logout">@T["Log out"]</button>
+                </form>
+            </div>
+        </div>
+    </aside>
+    <div class="app-body content-shell">
+        <header class="site-header app-topbar topbar">
+            <div class="crumb"><a asp-area="Admin" asp-controller="Dashboard" asp-action="Index">@T["Admin overview"]</a><span aria-hidden="true">/</span><strong>@(ViewData["Title"] ?? "Administration")</strong></div>
+            <a class="mobile-brand anigo-mobile-brand" asp-area="Admin" asp-controller="Dashboard" asp-action="Index" aria-label="@T["AniGo administration"]"><span class="anigo-logo-pair anigo-mobile-logo" aria-hidden="true"><img class="anigo-logo-light" src="~/images/branding/anigo-mark.svg" asp-append-version="true" alt="" width="380" height="293" /><img class="anigo-logo-dark" src="~/images/branding/anigo-mark-on-dark.svg" asp-append-version="true" alt="" width="380" height="293" /></span></a>
+            <nav class="top-actions app-topbar-actions" aria-label="@T["Administration settings"]">
+                <button class="icon-button color-mode-toggle" type="button" data-color-mode-toggle
+                        aria-label="@T["Use dark appearance"]" aria-pressed="false">
+                    <partial name="~/Views/Shared/_Icon.cshtml" model='@("sun")' />
+                </button>
+                <a class="farm-picker" asp-area="" asp-controller="Farms" asp-action="Index">@T["Back to farms"]</a>
+                <details class="mobile-nav admin-mobile-nav">
+                    <summary aria-label="@T["Admin navigation"]" aria-controls="ani12f-admin-mobile-links">
+                        <partial name="~/Views/Shared/_Icon.cshtml" model='@("more")' /><span>@T["Menu"]</span>
+                    </summary>
+                    <nav id="ani12f-admin-mobile-links" aria-label="@T["Mobile platform administration"]">
+                        <a asp-area="Admin" asp-controller="Dashboard" asp-action="Index" aria-current="@(section == "Dashboard" ? "page" : null)">@T["Admin overview"]</a>
+                        <a asp-area="Admin" asp-controller="Users" asp-action="Index" aria-current="@(section == "Users" ? "page" : null)">@T["Manage users"]</a>
+                        <a asp-area="Admin" asp-controller="Farms" asp-action="Index" aria-current="@(section == "Farms" ? "page" : null)">@T["Manage farms"]</a>
+                        <a asp-area="Admin" asp-controller="Support" asp-action="Index" aria-current="@(section == "Support" ? "page" : null)">@T["Support history"]</a>
+                        <a asp-area="Admin" asp-controller="Monitoring" asp-action="Index" aria-current="@(section == "Monitoring" ? "page" : null)">@T["System monitoring"]</a>
+                        <a asp-area="Admin" asp-controller="Audit" asp-action="Index" aria-current="@(section == "Audit" ? "page" : null)">@T["Audit history"]</a>
+                        <a asp-area="Admin" asp-controller="Announcements" asp-action="Index" aria-current="@(section == "Announcements" ? "page" : null)">@T["Announcement history"]</a>
+                        <a asp-area="Admin" asp-controller="Security" asp-action="Setup" aria-current="@(section == "Security" ? "page" : null)">@T["Authenticator security"]</a>
+                        <a asp-area="" asp-controller="Farms" asp-action="Index">@T["Farm workspace"]</a>
+                        <button type="button" data-color-mode-toggle aria-label="@T["Toggle appearance"]">@T["Change appearance"]</button>
+                        <form asp-area="" asp-controller="Account" asp-action="Logout" method="post">
+                            <button type="submit" class="link-button">@T["Log out"]</button>
+                        </form>
+                    </nav>
+                </details>
+            </nav>
+        </header>
+        <main class="page app-page app-main" id="main-content" tabindex="-1">
+            @RenderBody()
+        </main>
+    </div>
+</div>
+</body>
+</html>

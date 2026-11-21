@@ -17,4 +17,6 @@ public async Task<IReadOnlyList<CropObservation>> ListForCycleAsync(Guid cycleId
             o.Id == observationId && o.CropCycleId == cycleId, ct);
 
     public void Add(CropObservation observation) => db.CropObservations.Add(observation);
+    public void SetOriginalRowVersion(CropObservation observation, byte[] version) =>
+        db.Entry(observation).Property(x => x.RowVersion).OriginalValue = version;
 }

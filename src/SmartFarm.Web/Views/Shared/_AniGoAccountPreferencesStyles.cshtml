@@ -1,0 +1,126 @@
+@* Scoped account preferences controls. Uses the existing AniGo theme variables. *@
+<style>
+.ani-p2-account .ani-account-preferences {
+    display: grid;
+    gap: 0;
+}
+.ani-p2-account .ani-pref-heading {
+    padding-bottom: 18px;
+}
+.ani-p2-account .ani-pref-heading h2 {
+    margin: 0 0 6px;
+    font-size: 1.25rem;
+}
+.ani-p2-account .ani-pref-heading p,
+.ani-p2-account .ani-pref-copy p {
+    margin: 0;
+    color: var(--muted);
+    line-height: 1.5;
+}
+.ani-p2-account .ani-pref-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 18px 24px;
+    border-top: 1px solid var(--divider);
+    padding: 22px 0;
+}
+.ani-p2-account .ani-pref-row:last-child {
+    padding-bottom: 4px;
+}
+.ani-p2-account .ani-pref-copy {
+    flex: 1 1 230px;
+    min-width: 0;
+}
+.ani-p2-account .ani-pref-copy h3 {
+    margin: 0 0 6px;
+    font-size: 1.06rem;
+    color: var(--text);
+}
+.ani-p2-account .ani-pref-appearance-button {
+    min-width: 180px;
+    min-height: 48px;
+    gap: 10px;
+    justify-content: center;
+    border: 1px solid var(--outline);
+    border-radius: 12px;
+    background: var(--surface);
+    color: var(--text);
+}
+.ani-p2-account .ani-pref-appearance-button:hover {
+    background: var(--soft);
+    color: var(--text);
+}
+.ani-p2-account .anigo-account-language-form {
+    flex: 0 1 365px;
+    min-width: min(100%, 300px);
+    margin: 0;
+}
+.ani-p2-account .ani-pref-language-options {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+}
+.ani-p2-account .ani-pref-language-choice {
+    min-width: 0;
+    min-height: 52px;
+    padding: 10px 12px;
+    border: 1px solid var(--outline);
+    border-radius: 12px;
+    background: var(--surface);
+    color: var(--text);
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+}
+.ani-p2-account .ani-pref-language-choice:hover {
+    background: var(--soft);
+    color: var(--text);
+}
+.ani-p2-account .ani-pref-language-choice.is-selected {
+    border: 2px solid var(--primary);
+    background: var(--soft);
+    color: var(--text);
+}
+.ani-p2-account .ani-pref-language-check {
+    visibility: hidden;
+    color: var(--primary);
+    font-weight: 800;
+}
+.ani-p2-account .ani-pref-language-choice.is-selected .ani-pref-language-check {
+    visibility: visible;
+}
+.ani-p2-account .ani-pref-language-choice:focus-visible,
+.ani-p2-account .ani-pref-appearance-button:focus-visible {
+    outline: 3px solid var(--focus);
+    outline-offset: 2px;
+}
+@@media (max-width: 640px) {
+    .ani-p2-account .ani-pref-row {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr);
+        gap: 14px;
+    }
+    .ani-p2-account .ani-pref-appearance-button {
+        justify-self: start;
+    }
+    .ani-p2-account .anigo-account-language-form {
+        width: 100%;
+        max-width: none;
+        min-width: 0;
+    }
+}
+@@media (max-width: 365px) {
+    .ani-p2-account .ani-pref-language-options {
+        grid-template-columns: 1fr;
+    }
+}
+@@media (prefers-reduced-motion: reduce) {
+    .ani-p2-account .ani-pref-language-choice {
+        transition: none;
+    }
+}
+</style>

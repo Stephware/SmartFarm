@@ -38,6 +38,12 @@ public sealed class MonitoringApiController(
             return StatusCode(StatusCodes.Status201Created, observation);
         });
 
+    [HttpPut("observations/{observationId:guid}/follow-up")]
+    public Task<IActionResult> UpdateFollowUp(Guid farmId, Guid cycleId, Guid observationId,
+        [FromBody] UpdateObservationFollowUpInput input, CancellationToken ct) =>
+        Result(async () => Ok(await monitoring.UpdateFollowUpAsync(
+            farmId, cycleId, observationId, ActorId, input, ct)));
+
     [HttpPost("observations/{observationId:guid}/photos")]
     [RequestSizeLimit(6 * 1024 * 1024)]
     [RequestFormLimits(MultipartBodyLengthLimit = 6 * 1024 * 1024)]
@@ -45,7 +51,7 @@ public sealed class MonitoringApiController(
         [FromForm] IFormFile? photo, CancellationToken ct) =>
         Result(async () =>
         {
-            if (photo is null) return BadRequest(new { message = "Select a photo." });
+            if (photo is null) return BadRequest(new { code = "photo.required", message = "Select a photo." });
             await using var input = photo.OpenReadStream();
             var saved = await monitoring.AddPhotoAsync(
                 farmId, cycleId, observationId, ActorId,
@@ -61,7 +67,7 @@ public sealed class MonitoringApiController(
         Guid photoId, [FromForm] IFormFile? photo, CancellationToken ct) =>
         Result(async () =>
         {
-            if (photo is null) return BadRequest(new { message = "Select a photo." });
+            if (photo is null) return BadRequest(new { code = "photo.required", message = "Select a photo." });
             await using var input = photo.OpenReadStream();
             var saved = await monitoring.AddPhotoWithIdAsync(
                 farmId, cycleId, observationId, photoId, ActorId,

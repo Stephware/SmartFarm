@@ -1,0 +1,75 @@
+package com.smartfarm.mobile
+
+import androidx.compose.ui.test.*
+import androidx.compose.ui.test.junit4.createComposeRule
+import com.smartfarm.mobile.data.remote.dto.AccountResponse
+import com.smartfarm.mobile.features.auth.AccountScreen
+import com.smartfarm.mobile.features.auth.AuthUiState
+import com.smartfarm.mobile.features.insights.FarmInsightsScreen
+import com.smartfarm.mobile.features.insights.FarmInsightsUiState
+import com.smartfarm.mobile.navigation.FarmMoreScreen
+import com.smartfarm.mobile.ui.theme.SmartFarmTheme
+import org.junit.Assert.assertEquals
+import org.junit.Rule
+import org.junit.Test
+
+class SecondaryNavigationScreenTest {
+    @get:Rule val compose = createComposeRule()
+
+    @Test fun fieldWorkerMyFarmKeepsRecordsAndSyncWithoutFinanceOrManagerSettings() {
+        var opened: String? = null
+        compose.setContent { SmartFarmTheme {
+            FarmMoreScreen("North farm", "FieldWorker", onOpen = { opened = it },
+                pendingSync = 3, reviewSync = 1)
+        } }
+        compose.onNodeWithText("Farm settings").assertDoesNotExist()
+        compose.onNodeWithText("Harvest summary").performScrollTo().performClick()
+        compose.runOnIdle { assertEquals("insights", opened) }
+        // Lazy rows are composed only after scrolling them into the viewport.
+        compose.onNodeWithTag("record-list").performScrollToNode(hasText("Offline sync"))
+        compose.onNodeWithText("1 need review", substring = true, useUnmergedTree = true)
+            .assertExists()
+        compose.onNodeWithText("Offline sync").performClick()
+        compose.runOnIdle { assertEquals("sync", opened) }
+    }
+
+    @Test fun accountShowsSavedWorkAndConfirmsBeforeSignOut() {
+        var loggedOut = false
+        compose.setContent { SmartFarmTheme {
+            AccountScreen(
+                AuthUiState(account = AccountResponse("user", "Farmer User", "farmer@example.com")),
+                onLogout = { loggedOut = true }, onFarms = {}, onSync = {},
+                pendingSyncCount = 3)
+        } }
+        compose.onNodeWithText("Work saved on this phone").performScrollTo().assertExists()
+        compose.onNodeWithTag("request-sign-out").performScrollTo().performClick()
+        compose.onNodeWithText("Sign out of your account?").assertExists()
+        compose.onNodeWithText("3 unsynced records", substring = true).assertExists()
+        compose.runOnIdle { assertEquals(false, loggedOut) }
+        compose.onNodeWithText("Keep working").performClick()
+        compose.runOnIdle { assertEquals(false, loggedOut) }
+        compose.onNodeWithTag("request-sign-out").performScrollTo().performClick()
+        compose.onNodeWithTag("confirm-sign-out").performClick()
+        compose.runOnIdle { assertEquals(true, loggedOut) }
+    }
+
+    @Test fun reportsKeepHarvestSummaryWithoutCashNavigation() {
+        compose.setContent { SmartFarmTheme {
+            FarmInsightsScreen(FarmInsightsUiState(farmId = "farm", harvest =
+                com.smartfarm.mobile.data.remote.dto.FarmHarvestSummaryDto("farm", "North farm", "Asia/Manila",
+                    null, null, 3, 1, listOf(
+                        com.smartfarm.mobile.data.remote.dto.HarvestUnitSummaryDto("kg", java.math.BigDecimal("2.500"), 2),
+                        com.smartfarm.mobile.data.remote.dto.HarvestUnitSummaryDto("pieces", java.math.BigDecimal("9"), 1)))), "Asia/Manila",
+                onBack = {}, onReload = { _, _ -> })
+        } }
+        compose.onNodeWithText("Harvest summary").assertExists()
+        compose.onNodeWithText("Valid harvests: 3").performScrollTo().assertExists()
+        compose.onNodeWithText("Voided harvests: 1").performScrollTo().assertExists()
+        compose.onNodeWithText("2.500 kg").performScrollTo().assertExists()
+        compose.onNodeWithText("9 pieces").performScrollTo().assertExists()
+        compose.onNodeWithText("Yield by crop and plot").assertDoesNotExist()
+        compose.onNodeWithText("Monthly harvests").assertDoesNotExist()
+        compose.onNodeWithText("Cash").assertDoesNotExist()
+        compose.onNodeWithText("Manual cash records (PHP)").assertDoesNotExist()
+    }
+}

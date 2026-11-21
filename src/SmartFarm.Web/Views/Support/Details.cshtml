@@ -1,0 +1,31 @@
+@model SmartFarm.Web.ViewModels.Support.SupportDetailsPage
+@{
+    ViewData["Title"] = T["Support request"];
+}
+<a class="admin-back anigo-back-control" asp-area="" asp-controller="Support" asp-action="History" title="@T["Back to previous requests"]"><partial name="_Icon" model='@("chevLeft")' /><span class="visually-hidden">@T["Back to previous requests"]</span></a>
+<div class="page-heading admin-page-heading">
+    <div><p class="sf-kicker">@T["{0} SUPPORT", Model.Ticket.Category.ToUpperInvariant()]</p><h1>@Model.Ticket.Title</h1>
+        <p class="sf-muted">@T["{0} {1} {2}", T["Sent"], SmartFarm.Web.Presentation.FarmTimestamp.Display(Model.Ticket.CreatedAtUtc, null), Model.Ticket.FarmName is null ? "" : $"· {Model.Ticket.FarmName}"]</p></div>
+    <span class="sf-status-chip @(Model.Ticket.Status is "Open" or "InProgress" ? "sf-status-chip--planned" : "sf-status-chip--active")">@Model.Ticket.Status</span>
+</div>
+@if (TempData["Message"] is string message) { <p class="form-notice" role="status">@message</p> }
+@if (TempData["Error"] is string error) { <p class="error form-error" role="alert">@error</p> }
+<section class="panel admin-directory-panel">
+    <h2>@T["Original request"]</h2>
+    <p class="admin-support-text">@Model.Description</p>
+</section>
+<section class="panel admin-directory-panel" aria-labelledby="support-updates-heading">
+    <h2 id="support-updates-heading">@T["Updates & replies"]</h2>
+    @if (Model.Messages.Count == 0) { <p class="admin-empty">@T["No saved replies."]</p> }
+    else {
+        <div class="admin-support-thread">
+            @foreach (var reply in Model.Messages) {
+                <article class="admin-support-message">
+                    <div class="admin-support-message-meta"><strong>@reply.AuthorName</strong><time>@SmartFarm.Web.Presentation.FarmTimestamp.Display(reply.CreatedAtUtc, null)</time></div>
+                    <p class="admin-support-text">@reply.Body</p>
+                </article>
+            }
+        </div>
+    }
+</section>
+<p class="hint">@T["This history is read-only."] <a asp-controller="Home" asp-action="Help">@T["Open Help"]</a> @T["for next steps."]</p>

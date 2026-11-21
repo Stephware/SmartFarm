@@ -8,6 +8,13 @@ public static class MonitoringRules
 
     public static bool ValidActivity(byte kind) => Enum.IsDefined((FarmActivityType)kind);
     public static bool ValidHealth(byte health) => Enum.IsDefined((CropHealthStatus)health);
+    public static bool ValidIssue(byte category, byte severity, byte health) =>
+        category <= 5 && severity <= 3 &&
+        (category == 0 ? severity == 0 :
+            severity >= 1 && health is 2 or 3);
+
+    public static bool ValidFollowUp(byte status) => status is 1 or 2;
+
     public static bool CanRecord(byte cropStatus) => cropStatus == (byte)CropCycleStatus.Active;
 
     // Content type alone is untrusted. Accept only recognized file signatures

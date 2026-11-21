@@ -1,64 +1,52 @@
 package com.smartfarm.mobile.ui.components
 
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.widthIn
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.TextButton
-import com.smartfarm.mobile.BuildConfig
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Button
-import androidx.compose.material3.OutlinedButton
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
-import androidx.compose.ui.semantics.semantics
-import androidx.compose.ui.semantics.heading
-import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.dp
 import com.smartfarm.mobile.R
-import com.smartfarm.mobile.ui.theme.SmartFarmTheme
+import com.smartfarm.mobile.localization.uiText
+
+import androidx.compose.foundation.layout.defaultMinSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.tooling.preview.Preview
 import com.smartfarm.mobile.features.status.StatusUiState
+import com.smartfarm.mobile.ui.theme.SmartFarmTheme
 
 @Composable
 fun WelcomeScreen(
     status: StatusUiState = StatusUiState(),
     onCheckBackend: () -> Unit = {},
     onLogin: () -> Unit = {},
-    onRegister: () -> Unit = {}
+    onRegister: () -> Unit = {},
+    onPreviewGuide: (() -> Unit)? = null
 ) {
-    Scaffold { innerPadding ->
-        Box(Modifier.fillMaxSize().padding(innerPadding), contentAlignment = Alignment.Center) {
-        Column(
-            modifier = Modifier.widthIn(max = 560.dp).fillMaxSize().verticalScroll(rememberScrollState()).padding(24.dp),
-            verticalArrangement = Arrangement.spacedBy(12.dp, Alignment.CenterVertically),
-            horizontalAlignment = Alignment.CenterHorizontally,
-        ) {
-            Text(stringResource(R.string.welcome), style = MaterialTheme.typography.headlineMedium, modifier = Modifier.semantics { heading() })
-            Text(stringResource(R.string.welcome_description), style = MaterialTheme.typography.bodyLarge)
-            Button(onClick = onLogin, modifier = Modifier.fillMaxWidth()) { Text("Log in") }
-            OutlinedButton(onClick = onRegister, modifier = Modifier.fillMaxWidth()) { Text("Create account") }
-            if (BuildConfig.DEBUG) {
-                Text(status.message, style = MaterialTheme.typography.bodyMedium)
-                TextButton(onClick = onCheckBackend, enabled = !status.checking) {
-                    Text(if (status.checking) "Checking..." else "Check backend")
-                }
+    PhotoAuthScaffold(
+        headline = uiText(R.string.ui_your_farm_starts_here_affbd4f, "Your farm starts here."),
+        description = uiText(R.string.ui_plan_crops_record_fieldwork_and_track_harvests_in_on_725071b, "Plan crops, record fieldwork and track harvests in one place."),
+        formTitle = uiText(R.string.ui_get_started_61e8d44, "Get started"),
+        formSubtitle = uiText(R.string.ui_manage_your_own_farm_or_join_an_existing_team_with_o_e43acdd, "Manage your own farm or join an existing team with one account.")
+    ) {
+        PhotoAuthPrimaryButton(label = uiText(R.string.ui_log_in_c189840, "Log in"), onClick = onLogin)
+        OutlinedButton(
+            onClick = onRegister,
+            modifier = Modifier.fillMaxWidth().defaultMinSize(minHeight = 48.dp),
+            shape = RoundedCornerShape(14.dp)
+        ) { Text(uiText(R.string.ui_create_account_798ca2c, "Create account")) }
+
+        if (onPreviewGuide != null) {
+            TextButton(onClick = onPreviewGuide, modifier = Modifier.fillMaxWidth()) {
+                Text(uiText(R.string.ui_explore_anigo_with_our_farm_guide_23f29d5, "Explore AniGo with our farm guide"))
             }
         }
-        }
+
+
     }
 }
 
 @Preview(showBackground = true)
 @Composable
 private fun WelcomePreview() { SmartFarmTheme { WelcomeScreen() } }
-
-

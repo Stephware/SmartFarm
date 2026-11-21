@@ -31,6 +31,23 @@ public sealed class RecordObservationInput
 
     [StringLength(1000)]
     public string? Notes { get; set; }
+
+    [Range(0, 5)]
+    public byte IssueCategory { get; set; }
+
+    [Range(0, 3)]
+    public byte IssueSeverity { get; set; }
+}
+
+public sealed class UpdateObservationFollowUpInput
+{
+    [Range(1, 2)]
+    public byte FollowUpStatus { get; set; }
+
+    public Guid? FollowUpTaskId { get; set; }
+
+    [Required]
+    public string RowVersion { get; set; } = string.Empty;
 }
 
 public sealed record ActivityDetails(
@@ -45,9 +62,21 @@ public sealed record ObservationDetails(
     Guid Id, byte HealthStatus, string? GrowthStage,
     DateTime ObservedAtUtc, DateTime RecordedAtUtc,
     Guid RecordedByUserId, string? Notes,
-    IReadOnlyList<PhotoDetails> Photos)
+    IReadOnlyList<PhotoDetails> Photos,
+    byte IssueCategory = 0, byte IssueSeverity = 0,
+    byte FollowUpStatus = 0, Guid? FollowUpTaskId = null,
+    string RowVersion = "")
 {
     public string HealthStatusName => FarmCodeLabels.Health(HealthStatus);
+    public string IssueCategoryName => IssueCategory switch
+    {
+        1 => "Pest", 2 => "Disease", 3 => "Nutrient deficiency",
+        4 => "Environmental stress", 5 => "Other", _ => "None"
+    };
+    public string IssueSeverityName => IssueSeverity switch
+    {
+        1 => "Low", 2 => "Moderate", 3 => "High", _ => "None"
+    };
 }
 
 public sealed record PhotoDetails(

@@ -1,49 +1,197 @@
 @using SmartFarm.Core.Enums
 @model SmartFarm.Web.ViewModels.Inventory.InventoryPage
 @{
-    ViewData["Title"] = "Inventory";
+    ViewData["Title"] = T["Supplies"];
+    ViewData["FarmName"] = Model.Farm.Name;
     var canManage = Model.Farm.Role is "Owner" or "Manager";
-}
-<partial name="_FarmNavigation" model="Model.Farm.Id" />
-<section class="panel">
-    <p><a asp-controller="Farms" asp-action="Details" asp-route-id="@Model.Farm.Id">← @Model.Farm.Name</a></p>
-    <h1>Inventory</h1>
-    <p>Active supplies: @Model.Workspace.Items.Count · Low stock: @Model.Workspace.LowStockCount</p>
-    @if (TempData["Error"] is string error) { <p role="alert" class="error">@error</p> }
-    @if (Model.Workspace.Items.Count == 0) { <p>No inventory items yet.</p> }
-    <ul class="farm-list">
-        @foreach (var item in Model.Workspace.Items)
+    var visibleItems = Model.Workspace.Items
+        .Where(i => Model.SelectedFilter switch
         {
-            <li>
-                <a asp-action="Details" asp-route-farmId="@Model.Farm.Id" asp-route-itemId="@item.Id">
-                    <strong>@item.Name</strong>
-                </a>
-                <span>@item.Category · @item.QuantityOnHand @item.Unit</span>
-                @if (item.IsLowStock) { <strong class="error">Low stock</strong> }
-            </li>
+            "low" => i.IsLowStock,
+            "seeds" => i.Category == InventoryCategory.Seeds,
+            "fertilizers" => i.Category == InventoryCategory.Fertilizers,
+            "pesticides" => i.Category == InventoryCategory.Pesticides,
+            "other" => i.Category == InventoryCategory.Other,
+            _ => true
+        })
+        .Where(i => string.IsNullOrWhiteSpace(Model.Search) ||
+            i.Name.Contains(Model.Search, StringComparison.OrdinalIgnoreCase))
+        .OrderByDescending(i => i.IsLowStock).ThenBy(i => i.Name).ThenBy(i => i.Id)
+        .ToList();
+    const int pageSize = 25;
+    var requestedPage = int.TryParse(Context.Request.Query["page"].ToString(), out var parsedPage) ? parsedPage : 1;
+    var pageCount = Math.Max(1, (visibleItems.Count + pageSize - 1) / pageSize);
+    var currentPage = Math.Clamp(requestedPage, 1, pageCount);
+    var pageItems = visibleItems.Skip((currentPage - 1) * pageSize).Take(pageSize).ToList();
+    var firstVisible = visibleItems.Count == 0 ? 0 : (currentPage - 1) * pageSize + 1;
+    var lastVisible = (currentPage - 1) * pageSize + pageItems.Count;
+}
+<div class="reference-screen reference-screen-inventory ani12e-workspace ani12e-inventory ani-p2-page ani-p2-inventory">
+<partial name="_FarmNavigation" model="Model.Farm.Id" />
+<section class="panel card sf-ops-hero ani12e-hero ani-p2-hero" aria-labelledby="inventory-heading">
+    <div class="sf-page-header page-hero">
+        <div>
+            <p class="mvp-farm-context"><a asp-controller="Farms" asp-action="Details" asp-route-id="@Model.Farm.Id">@T["Farm:"] @Model.Farm.Name</a></p>
+
+            <h1 id="inventory-heading">@T["Supplies"]</h1>
+            <p class="sf-muted">@T["Find a supply, check its balance, and record what came in or was used."]</p>
+        </div>
+        @if (canManage && Model.Workspace.Items.Count > 0) { <a class="button" href="#add-item">@T["Add supply"]</a> }
+    </div>
+    @if (Model.Workspace.LowStockCount > 0)
+    {
+        <a class="ani-inventory-alert" asp-action="Index" asp-route-farmId="@Model.Farm.Id" asp-route-filter="low" asp-fragment="inventory-list-heading">
+            <strong>@T["{0} low-stock supply {1}", Model.Workspace.LowStockCount, Model.Workspace.LowStockCount == 1 ? "item" : "items"]</strong>
+            <span>@T["Review items that need replenishment →"]</span>
+        </a>
+    }
+    @if (TempData["Message"] is string message) { <p role="status" class="form-notice">@message</p> }
+    @if (TempData["Error"] is string error) { <p role="alert" class="error form-error">@error</p> }
+</section>
+<section class="panel card sf-inventory-panel ani12e-primary-panel" aria-labelledby="inventory-list-heading">
+    <div class="sf-section-line card-head">
+        <div><h2 id="inventory-list-heading">@T["Your supplies"]</h2>
+            <p class="sf-muted">@T["Balances are shared across the selected farm, not separate for each plot."]</p></div>
+        @if (Model.Workspace.Items.Count > 0)
+        {
+            <span>@T["{0} · {1} total", visibleItems.Count == 0 ? T["0 matching"] : T["{0}–{1} of {2} matching", firstVisible, lastVisible, visibleItems.Count], Model.Workspace.Items.Count]</span>
         }
-    </ul>
+    </div>
+    @if (Model.Workspace.Items.Count > 0)
+    {
+        <div class="ani-inventory-shortcuts ani12e-filter-tabs" aria-label="@T["Quick supply filters"]">
+            <a class="@(Model.SelectedFilter == "all" ? "is-selected" : "")" asp-action="Index"
+               asp-route-farmId="@Model.Farm.Id" asp-fragment="inventory-list-heading" aria-current="@(Model.SelectedFilter == "all" ? "page" : null)">@T["All supplies ("]@Model.Workspace.Items.Count)</a>
+            <a class="@(Model.SelectedFilter == "low" ? "is-selected" : "")" asp-action="Index"
+               asp-route-farmId="@Model.Farm.Id" asp-route-filter="low" asp-fragment="inventory-list-heading"
+               aria-current="@(Model.SelectedFilter == "low" ? "page" : null)">@T["Needs restocking ("]@Model.Workspace.LowStockCount)</a>
+        </div>
+        <form class="ani-inventory-filter ani12e-search-form" asp-action="Index" asp-route-farmId="@Model.Farm.Id" asp-fragment="inventory-list-heading" method="get">
+            <input type="hidden" name="farmId" value="@Model.Farm.Id" />
+            <div>
+                <label for="inventory-search">@T["Find a supply"]</label>
+                <input id="inventory-search" name="search" value="@Model.Search" type="search"
+                       maxlength="120" placeholder="@T["Search by item name"]" />
+            </div>
+            <div>
+                <label for="inventory-filter">@T["Show supplies"]</label>
+                <select id="inventory-filter" name="filter">
+                    <option value="all" selected="@(Model.SelectedFilter == "all")">@T["All items"]</option>
+                    <option value="low" selected="@(Model.SelectedFilter == "low")">@T["Low stock only"]</option>
+                    <option value="seeds" selected="@(Model.SelectedFilter == "seeds")">@T["Seeds"]</option>
+                    <option value="fertilizers" selected="@(Model.SelectedFilter == "fertilizers")">@T["Fertilizers"]</option>
+                    <option value="pesticides" selected="@(Model.SelectedFilter == "pesticides")">@T["Pesticides"]</option>
+                    <option value="other" selected="@(Model.SelectedFilter == "other")">@T["Other"]</option>
+                </select>
+            </div>
+            <button type="submit">@T["Apply"]</button>
+            <a class="sf-button-outline" asp-action="Index" asp-route-farmId="@Model.Farm.Id" asp-fragment="inventory-list-heading">@T["Clear"]</a>
+        </form>
+    }
+    @if (Model.Workspace.Items.Count == 0)
+    {
+        <div class="sf-empty-state">
+            <strong>@T["No supplies recorded yet."]</strong>
+            <p>@(canManage ? T["Start by adding seeds, fertilizer, or another supply with its current quantity."] : T["Your farm owner or manager can add supplies. Once available, you can record usage linked to field activity."])</p>
+            @if (canManage) { <a href="#add-item">@T["Add your first supply →"]</a> }
+        </div>
+    }
+    else if (visibleItems.Count == 0)
+    {
+        <partial name="_UiEmptyState" model='@(new UiEmptyState(
+            T["No matching supplies."],
+            T["Try a different search or remove the selected filter."],
+            T["Show all supplies →"],
+            Url.Action("Index", "Inventory", new { farmId = Model.Farm.Id })))' />
+    }
+    else
+    {
+        <div class="table-wrap table-scroll ani12e-scroll-table" tabindex="0" role="region" aria-label="@T["Available farm supplies"]">
+        <table class="data-table reference-inventory-table ani12e-inventory-table">
+            <caption class="visually-hidden">@T["Available supplies and current stock balances"]</caption>
+            <thead><tr><th scope="col">@T["Supply"]</th><th scope="col">@T["Category"]</th><th scope="col">@T["Available stock"]</th><th scope="col">@T["Status"]</th><th scope="col">@T["Actions"]</th></tr></thead>
+            <tbody>
+        @foreach (var item in pageItems)
+        {
+            <tr class="sf-inventory-row @(item.IsLowStock ? "sf-stock-low" : "")">
+                <td><a class="table-name" asp-action="Details" asp-route-farmId="@Model.Farm.Id" asp-route-itemId="@item.Id">@item.Name</a>
+                    @if (item.ReorderLevel.HasValue)
+                    { <small class="table-sub">@T["Low-stock threshold:"] @item.ReorderLevel.Value.ToString("N3") @item.Unit</small> }
+                </td>
+                <td>@T[item.CategoryName]</td>
+                <td class="reference-quantity"><strong>@item.QuantityOnHand.ToString("N3")</strong> @item.Unit</td>
+                <td><partial name="_UiStatusChip" model='@(new UiStatusChip(
+                    item.IsLowStock ? T["Low stock"] : T["In stock"],
+                    item.IsLowStock ? "sf-status-chip--warning" : "sf-status-chip--active"))' /></td>
+                <td><a class="sf-button-outline btn small" asp-action="Details" asp-route-farmId="@Model.Farm.Id" asp-route-itemId="@item.Id">@T["Record movement →"]</a></td>
+            </tr>
+        }
+            </tbody>
+        </table>
+        </div>
+        @if (pageCount > 1)
+        {
+            <nav class="ani-p4-pager" aria-label="@T["Supply pages"]">
+                <span>@T["{0} {1} of {2}", T["Page"], currentPage, pageCount]</span>
+                @if (currentPage > 1)
+                {
+                    <a asp-action="Index" asp-route-farmId="@Model.Farm.Id"
+                       asp-route-filter="@Model.SelectedFilter" asp-route-search="@Model.Search"
+                       asp-route-page="@(currentPage - 1)" asp-fragment="inventory-list-heading" rel="prev">@T["Previous"]</a>
+                }
+                @if (currentPage < pageCount)
+                {
+                    <a asp-action="Index" asp-route-farmId="@Model.Farm.Id"
+                       asp-route-filter="@Model.SelectedFilter" asp-route-search="@Model.Search"
+                       asp-route-page="@(currentPage + 1)" asp-fragment="inventory-list-heading" rel="next">@T["Next"]</a>
+                }
+            </nav>
+        }
+    }
 </section>
 @if (canManage)
 {
-    <section class="panel">
-        <h2>Add inventory item</h2>
-        <form asp-action="Create" asp-route-farmId="@Model.Farm.Id" method="post">
-            <label for="name">Item name</label><input name="Name" id="name" minlength="2" maxlength="120" required />
-            <label for="category">Category</label>
-            <select name="Category" id="category">
-                <option value="1">Seeds</option><option value="2">Fertilizers</option>
-                <option value="3">Pesticides</option><option value="4">Other</option>
-            </select>
-            <label for="unit">Unit</label><input name="Unit" id="unit" maxlength="20" required placeholder="kg, L, pcs" />
-            <label for="description">Description (optional)</label>
-            <textarea name="Description" id="description" maxlength="500"></textarea>
-            <label for="initial">Opening quantity</label>
-            <input id="initial" name="InitialQuantity" type="number" step="0.001" min="0" value="0" required />
-            <label for="reorder">Low-stock threshold (optional)</label>
-            <input id="reorder" name="ReorderLevel" type="number" step="0.001" min="0" />
-            <button type="submit">Create item</button>
+    <section class="panel card sf-inventory-create ani12e-create-panel" id="add-item" data-form-dialog aria-labelledby="add-inventory-heading">
+
+        <header class="reference-panel-heading"><h2 id="add-inventory-heading">@T["Add a supply"]</h2></header>
+        <p class="sf-muted">@T["Enter the supply name, measurement unit, and quantity you currently have. Set a low-stock level if you want reminders."]</p>
+        <form asp-action="Create" asp-route-farmId="@Model.Farm.Id" method="post" class="sf-ops-form sf-inventory-form ani12e-fields">
+            <div>
+                <label for="name">@T["Item name"]</label>
+                <input name="Name" id="name" minlength="2" maxlength="120" required />
+            </div>
+            <div>
+                <label for="category">@T["Category"]</label>
+                <select name="Category" id="category">
+                    <option value="1">@T["Seeds"]</option>
+                    <option value="2">@T["Fertilizers"]</option>
+                    <option value="3">@T["Pesticides"]</option>
+                    <option value="4">@T["Other"]</option>
+                </select>
+            </div>
+            <div>
+                <label for="unit">@T["Unit"]</label>
+                <input name="Unit" id="unit" maxlength="20" required placeholder="@T["kg, L, pcs"]" />
+            </div>
+            <div>
+                <label for="initial">@T["Opening quantity"]</label>
+                <input id="initial" name="InitialQuantity" type="number" step="0.001" min="0" value="0" required />
+            </div>
+            <div>
+                <label for="reorder">@T["Alert when stock is at or below (optional)"]</label>
+                <input id="reorder" name="ReorderLevel" type="number" step="0.001" min="0"
+                       aria-describedby="stock-threshold-help" />
+                <p class="hint" id="stock-threshold-help">@T["Uses the same unit as the supply. Leave blank to skip low-stock alerts."]</p>
+            </div>
+            <div class="sf-form-wide">
+                <label for="description">@T["Description (optional)"]</label>
+                <textarea name="Description" id="description" maxlength="500"></textarea>
+            </div>
+            <div class="sf-form-wide">
+                <button type="submit">@T["Save supply"]</button>
+            </div>
         </form>
     </section>
 }
 
+</div>

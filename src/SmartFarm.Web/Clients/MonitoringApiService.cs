@@ -29,6 +29,13 @@ public sealed class MonitoringApiService : IMonitoringService
         _api.WriteAsync<ObservationDetails>(HttpMethod.Post,
             $"{Cycle(farmId, cycleId)}/observations", actor, input, ct);
 
+    public Task<ObservationDetails> UpdateFollowUpAsync(
+        Guid farmId, Guid cycleId, Guid observationId, Guid actor,
+        UpdateObservationFollowUpInput input, CancellationToken ct = default) =>
+        _api.WriteAsync<ObservationDetails>(HttpMethod.Put,
+            $"{Cycle(farmId, cycleId)}/observations/{observationId}/follow-up",
+            actor, input, ct);
+
     public Task<PhotoDetails> AddPhotoAsync(Guid farmId, Guid cycleId, Guid observationId, Guid actor,
         Stream stream, long length, string? claimedContentType, CancellationToken ct = default) =>
         _api.UploadAsync<PhotoDetails>(

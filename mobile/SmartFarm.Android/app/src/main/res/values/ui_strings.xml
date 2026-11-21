@@ -1,0 +1,1117 @@
+<resources>
+  <string name="language">Language</string>
+  <string name="ui_both_save_together_after_sync_e32f89f" formatted="false">" (both save together after sync)"</string>
+  <string name="ui_of_a4282e4" formatted="false">" of "</string>
+  <string name="ui_to_1_s_816c6ea" formatted="false">" to %1$s"</string>
+  <string name="ui_1_s_active_saved_advisories_12f6f3e" formatted="false">"%1$s active saved advisories"</string>
+  <string name="ui_1_s_due_today_575905d" formatted="false">"%1$s due today"</string>
+  <string name="ui_1_s_kg_a289dfb" formatted="false">"%1$s kg"</string>
+  <string name="ui_1_s_local_2_s_on_this_view_2a87990" formatted="false">"%1$s local %2$s on this view"</string>
+  <string name="ui_1_s_more_saved_in_other_farms_d6e246b" formatted="false">"%1$s more saved in other farms."</string>
+  <string name="ui_1_s_need_attention_before_syncing_f9d5f77" formatted="false">"%1$s need attention before syncing."</string>
+  <string name="ui_1_s_need_review_bed55e1" formatted="false">"%1$s need review"</string>
+  <string name="ui_1_s_of_2_s_matching_supplies_3_s_total_87e5504" formatted="false">"%1$s of %2$s matching supplies (%3$s total)"</string>
+  <string name="ui_1_s_offline_records_need_review_16ba5b8" formatted="false">"%1$s offline records need review; "</string>
+  <string name="ui_1_s_overdue_0c9ac3f" formatted="false">"%1$s overdue"</string>
+  <string name="ui_1_s_overdue_2_s_afe6a50" formatted="false">"%1$s overdue %2$s"</string>
+  <string name="ui_1_s_records_waiting_to_sync_6b1d5d3" formatted="false">"%1$s records waiting to sync"</string>
+  <string name="ui_1_s_saved_2_s_review_96f071c" formatted="false">"%1$s saved %2$s review"</string>
+  <string name="ui_1_s_saved_2_s_waiting_or_needing_review_c26f284" formatted="false">"%1$s saved %2$s waiting or needing review."</string>
+  <string name="ui_1_s_saved_weather_2_s_eadea64" formatted="false">"%1$s saved weather %2$s"</string>
+  <string name="ui_1_s_unsynced_2_s_saved_on_this_phone_for_this_accoun_2fe1db1" formatted="false">"%1$s unsynced %2$s saved on this phone for this account. "</string>
+  <string name="ui_1_s_valid_5cd02d9" formatted="false">"%1$s valid"</string>
+  <string name="ui_1_s_valid_harvests_cfa7b47" formatted="false">"%1$s valid harvests"</string>
+  <string name="ui_1_s_voided_9bc95a3" formatted="false">"%1$s voided"</string>
+  <string name="ui_1_s_waiting_7777b48" formatted="false">"%1$s waiting"</string>
+  <string name="ui_1_s_waiting_in_total_b7cda38" formatted="false">"%1$s waiting in total"</string>
+  <string name="ui_1_s_waiting_to_sync_f65c057" formatted="false">"%1$s waiting to sync"</string>
+  <string name="ui_1_s_rain_chance_89e8e01" formatted="false">"%1$s%% rain chance"</string>
+  <string name="ui_1_s_pending_awaiting_owner_approval_a3f7c71" formatted="false">"%1$s: Pending · Awaiting owner approval"</string>
+  <string name="ui_1_s_ncurrent_stock_2_s_n_16b768e" formatted="false">"%1$s\nCurrent stock: %2$s\n"</string>
+  <string name="ui_choose_date_da04f9d" formatted="false">". Choose date"</string>
+  <string name="ui_1_add_a_growing_plot_b7f0dd1" formatted="false">"1. Add a growing plot"</string>
+  <string name="ui_2_plan_and_start_your_first_crop_eaddc78" formatted="false">"2. Plan and start your first crop"</string>
+  <string name="ui_3_record_fieldwork_from_the_record_button_88d5b2d" formatted="false">"3. Record fieldwork from the Record button"</string>
+  <string name="ui_30_days_ffd7280" formatted="false">"30 days"</string>
+  <string name="ui_a_better_way_to_care_for_your_farm_19a81cd" formatted="false">"A better way to care for your farm."</string>
+  <string name="ui_a_map_pin_helps_provide_local_forecasts_add_one_now__6f1239e" formatted="false">"A map pin helps provide local forecasts. Add one now or in Farm settings."</string>
+  <string name="ui_a_reason_of_3_300_characters_is_required_734b66d" formatted="false">"A reason of 3–300 characters is required."</string>
+  <string name="ui_ani_says_7a70206" formatted="false">"ANI SAYS"</string>
+  <string name="ui_ani_s_farm_tour_1_s_2_s_92ecf27" formatted="false">"ANI'S FARM TOUR  ·  %1$s / %2$s"</string>
+  <string name="ui_about_task_updates_2cc3266" formatted="false">"About task updates"</string>
+  <string name="ui_account_saved_work_f6e4c59" formatted="false">"Account &amp; saved work"</string>
+  <string name="ui_account_created_you_can_now_sign_in_3631ebf" formatted="false">"Account created. You can now sign in."</string>
+  <string name="ui_account_recovery_information_93e20a3" formatted="false">"Account recovery information"</string>
+  <string name="ui_acknowledge_f9236d9" formatted="false">"Acknowledge"</string>
+  <string name="ui_active_9234069" formatted="false">"Active"</string>
+  <string name="ui_active_supplies_5d2c7cb" formatted="false">"Active supplies"</string>
+  <string name="ui_activities_4d0076e" formatted="false">"Activities"</string>
+  <string name="ui_activities_inspections_photos_8efa15b" formatted="false">"Activities, inspections &amp; photos"</string>
+  <string name="ui_activity_38da150" formatted="false">"Activity"</string>
+  <string name="ui_activity_history_e468751" formatted="false">"Activity history"</string>
+  <string name="ui_activity_recorded_aa3013c" formatted="false">"Activity recorded"</string>
+  <string name="ui_add_a_crop_type_59049fd" formatted="false">"Add a crop type"</string>
+  <string name="ui_add_a_crop_type_before_you_plan_the_first_planting_ce6c404" formatted="false">"Add a crop type before you plan the first planting."</string>
+  <string name="ui_add_a_crop_type_first_2376310" formatted="false">"Add a crop type first"</string>
+  <string name="ui_add_a_farm_a9cf38d" formatted="false">"Add a farm"</string>
+  <string name="ui_add_a_farm_name_and_nearby_location_you_can_set_up_p_83e1e0f" formatted="false">"Add a farm name and nearby location. You can set up plots and crops afterward."</string>
+  <string name="ui_add_a_plot_first_c8558db" formatted="false">"Add a plot first"</string>
+  <string name="ui_add_another_crop_f293c1f" formatted="false">"Add another crop"</string>
+  <string name="ui_add_crop_type_aa40b99" formatted="false">"Add crop type"</string>
+  <string name="ui_add_fertilizer_or_pesticide_inventory_before_recordi_d2ecc2e" formatted="false">"Add fertilizer or pesticide inventory before recording linked use."</string>
+  <string name="ui_add_growing_plot_962da1b" formatted="false">"Add growing plot"</string>
+  <string name="ui_add_growth_stage_optional_87d60a7" formatted="false">"Add growth stage (optional)"</string>
+  <string name="ui_add_photos_to_crop_observations_to_compare_them_here_612c786" formatted="false">"Add photos to crop observations to compare them here."</string>
+  <string name="ui_add_stock_0afe91c" formatted="false">"Add stock"</string>
+  <string name="ui_add_supply_ea5451d" formatted="false">"Add supply"</string>
+  <string name="ui_add_your_first_plot_5e0c31f" formatted="false">"Add your first plot"</string>
+  <string name="ui_add_your_first_supply_to_track_farm_wide_stock_35bbb3b" formatted="false">"Add your first supply to track farm-wide stock."</string>
+  <string name="ui_added_6b02e0d" formatted="false">"Added"</string>
+  <string name="ui_address_search_is_unavailable_on_this_device_tap_the_ceaafe6" formatted="false">"Address search is unavailable on this device. Tap the map instead."</string>
+  <string name="ui_adjust_farm_pin_2515999" formatted="false">"Adjust farm pin"</string>
+  <string name="ui_advisory_1_s_c1509d9" formatted="false">"Advisory · %1$s"</string>
+  <string name="ui_after_registering_sign_in_to_create_a_farm_or_reques_75ec908" formatted="false">"After registering, sign in to create a farm or request to join one."</string>
+  <string name="ui_after_sync_1_s_2_s_71d63e8" formatted="false">"After sync: %1$s %2$s"</string>
+  <string name="ui_alerts_unavailable_reconnect_and_refresh_df192e6" formatted="false">"Alerts unavailable. Reconnect and refresh."</string>
+  <string name="ui_all_a52ace4" formatted="false">"All"</string>
+  <string name="ui_all_farm_tasks_722654e" formatted="false">"All farm tasks"</string>
+  <string name="ui_all_farms_create_or_join_b68fad3" formatted="false">"All farms · Create or join"</string>
+  <string name="ui_all_my_farms_a091ca9" formatted="false">"All my farms"</string>
+  <string name="ui_all_supplies_a3644ee" formatted="false">"All supplies"</string>
+  <string name="ui_an_owner_or_manager_can_add_the_farm_coordinates_in__bd531e6" formatted="false">"An owner or manager can add the farm coordinates in Settings."</string>
+  <string name="ui_and_1_s_more_tasks_due_485a86a" formatted="false">"And %1$s more tasks due."</string>
+  <string name="ui_anigo_80e6f53" formatted="false">"AniGo"</string>
+  <string name="ui_anigo_carabao_celebrating_b6fac00" formatted="false">"AniGo carabao celebrating"</string>
+  <string name="ui_anigo_carabao_holding_a_harvest_basket_7f2677c" formatted="false">"AniGo carabao holding a harvest basket"</string>
+  <string name="ui_anigo_carabao_mascot_97890bb" formatted="false">"AniGo carabao mascot"</string>
+  <string name="ui_anigo_carabao_planting_a_seedling_9f7906a" formatted="false">"AniGo carabao planting a seedling"</string>
+  <string name="ui_anigo_carabao_pointing_to_farm_records_99ccd0a" formatted="false">"AniGo carabao pointing to farm records"</string>
+  <string name="ui_anigo_carabao_recording_fieldwork_a72e81a" formatted="false">"AniGo carabao recording fieldwork"</string>
+  <string name="ui_anigo_carabao_speaking_cb5e6e5" formatted="false">"AniGo carabao speaking"</string>
+  <string name="ui_anigo_carabao_walking_e756ad0" formatted="false">"AniGo carabao walking"</string>
+  <string name="ui_anigo_carabao_waving_b8f8c1d" formatted="false">"AniGo carabao waving"</string>
+  <string name="ui_anigo_onboarding_step_85f239e" formatted="false">"AniGo onboarding step"</string>
+  <string name="ui_appearance_3907fa7" formatted="false">"Appearance"</string>
+  <string name="ui_apply_fertilizer_7d3967d" formatted="false">"Apply fertilizer"</string>
+  <string name="ui_apply_fertilizer_with_optional_supply_use_867d8c2" formatted="false">"Apply fertilizer with optional supply use"</string>
+  <string name="ui_approve_1_s_5f2fd28" formatted="false">"Approve %1$s"</string>
+  <string name="ui_approve_and_retry_eb69ed2" formatted="false">"Approve and retry"</string>
+  <string name="ui_approved_87b42e4" formatted="false">"Approved"</string>
+  <string name="ui_archive_1_s_its_crop_history_is_retained_2d84147" formatted="false">"Archive %1$s? Its crop history is retained."</string>
+  <string name="ui_archive_1_s_its_history_will_be_retained_and_it_will_3e415c8" formatted="false">"Archive %1$s? Its history will be retained, and it will leave your active farms."</string>
+  <string name="ui_archive_1_s_its_transaction_history_will_be_retained_4ab9320" formatted="false">"Archive %1$s? Its transaction history will be retained."</string>
+  <string name="ui_archive_farm_9310769" formatted="false">"Archive farm"</string>
+  <string name="ui_archive_item_0fd57ce" formatted="false">"Archive item"</string>
+  <string name="ui_archive_this_plot_de727f8" formatted="false">"Archive this plot"</string>
+  <string name="ui_archived_read_only_8f9cf97" formatted="false">"Archived — read only"</string>
+  <string name="ui_area_m_f915ae8" formatted="false">"Area (m²)"</string>
+  <string name="ui_area_or_plants_watered_namount_optional_a3c5809" formatted="false">"Area or plants watered:\nAmount (optional):"</string>
+  <string name="ui_area_watered_amount_or_soil_condition_8f9a042" formatted="false">"Area watered, amount or soil condition"</string>
+  <string name="ui_area_weeded_and_observations_b9faa12" formatted="false">"Area weeded and observations"</string>
+  <string name="ui_ask_an_owner_or_manager_to_add_a_growing_area_1795b5e" formatted="false">"Ask an owner or manager to add a growing area."</string>
+  <string name="ui_ask_the_farm_manager_to_start_a_crop_in_one_of_your__71873bf" formatted="false">"Ask the farm manager to start a crop in one of your plots."</string>
+  <string name="ui_assign_to_289e2f7" formatted="false">"Assign to"</string>
+  <string name="ui_assigned_to_1_s_ade63f5" formatted="false">"Assigned to: %1$s"</string>
+  <string name="ui_assignments_on_95aa08f" formatted="false">"Assignments on "</string>
+  <string name="ui_attach_photo_offline_max_5_mb_182a20e" formatted="false">"Attach photo offline (max 5 MB)"</string>
+  <string name="ui_attached_to_record_c67770e" formatted="false">"Attached to record"</string>
+  <string name="ui_available_crops_and_their_default_harvest_units_7cb716d" formatted="false">"Available crops and their default harvest units."</string>
+  <string name="ui_available_stock_8422b62" formatted="false">"Available stock"</string>
+  <string name="ui_available_stock_and_its_history_43b8194" formatted="false">"Available stock and its history"</string>
+  <string name="ui_awaiting_owner_approval_bb8f392" formatted="false">"Awaiting owner approval"</string>
+  <string name="ui_back_76900f1" formatted="false">"Back"</string>
+  <string name="ui_back_to_1_s_382c1a8" formatted="false">"Back to %1$s"</string>
+  <string name="ui_back_to_my_account_713b34c" formatted="false">"Back to My Account"</string>
+  <string name="ui_back_to_welcome_228136c" formatted="false">"Back to Welcome"</string>
+  <string name="ui_back_to_inventory_0a9d7b3" formatted="false">"Back to inventory"</string>
+  <string name="ui_back_to_log_in_30a8b4c" formatted="false">"Back to log in"</string>
+  <string name="ui_backend_reachable_d515fb8" formatted="false">"Backend reachable"</string>
+  <string name="ui_backend_not_checked_1069b01" formatted="false">"Backend: not checked"</string>
+  <string name="ui_batch_1_50_kg_3ba3986" formatted="false">"Batch 1 · 50 kg"</string>
+  <string name="ui_batch_2_35_kg_9071662" formatted="false">"Batch 2 · 35 kg"</string>
+  <string name="ui_calendar_d5d0a30" formatted="false">"Calendar"</string>
+  <string name="ui_calendar_closed_after_selection_tap_change_date_to_p_60bdb65" formatted="false">"Calendar closed after selection. Tap Change date to pick another day."</string>
+  <string name="ui_cancel_19766ed" formatted="false">"Cancel"</string>
+  <string name="ui_cancel_crop_cycle_394ea29" formatted="false">"Cancel crop cycle"</string>
+  <string name="ui_cancel_request_for_1_s_bf2325a" formatted="false">"Cancel request for %1$s"</string>
+  <string name="ui_cancel_this_request_you_can_apply_again_with_a_valid_efbde5c" formatted="false">"Cancel this request? You can apply again with a valid farm code."</string>
+  <string name="ui_canceled_13ca2ee" formatted="false">"Canceled"</string>
+  <string name="ui_cancelled_d353a99" formatted="false">"Cancelled"</string>
+  <string name="ui_cannot_connect_check_your_api_connection_bd2a605" formatted="false">"Cannot connect. Check your API connection."</string>
+  <string name="ui_cannot_load_the_current_stock_balance_26a2453" formatted="false">"Cannot load the current stock balance."</string>
+  <string name="ui_category_1_s_b5d4d3e" formatted="false">"Category: %1$s"</string>
+  <string name="ui_chance_1_s_945edfe" formatted="false">"Chance: %1$s%%"</string>
+  <string name="ui_change_1_s_from_2_s_to_c619249" formatted="false">"Change %1$s from %2$s to "</string>
+  <string name="ui_change_1_s_s_role_their_available_farm_actions_will__15739a0" formatted="false">"Change %1$s's role? Their available farm actions will change."</string>
+  <string name="ui_change_date_e45ed0a" formatted="false">"Change date"</string>
+  <string name="ui_change_the_search_or_category_to_see_more_supplies_0fc60a9" formatted="false">"Change the search or category to see more supplies."</string>
+  <string name="ui_check_backend_82e9305" formatted="false">"Check backend"</string>
+  <string name="ui_check_crop_condition_and_attach_a_photo_if_available_de73b58" formatted="false">"Check crop condition and attach a photo if available."</string>
+  <string name="ui_check_latest_stock_b629f41" formatted="false">"Check latest stock"</string>
+  <string name="ui_check_official_current_forecasts_before_weather_sens_e7bf9ac" formatted="false">"Check official current forecasts before weather-sensitive fieldwork."</string>
+  <string name="ui_check_official_warnings_for_current_conditions_f4af3f4" formatted="false">"Check official warnings for current conditions."</string>
+  <string name="ui_check_the_record_and_message_before_retrying_13dd628" formatted="false">"Check the record and message before retrying."</string>
+  <string name="ui_check_these_before_heading_into_the_field_9427c7c" formatted="false">"Check these before heading into the field."</string>
+  <string name="ui_check_your_account_details_and_password_requirements_06aaab9" formatted="false">"Check your account details and password requirements."</string>
+  <string name="ui_checking_backend_21b843a" formatted="false">"Checking backend..."</string>
+  <string name="ui_choose_needs_attention_or_critical_health_when_recor_a54bd44" formatted="false">"Choose Needs attention or Critical health when recording a specific issue. "</string>
+  <string name="ui_choose_plan_a_crop_to_schedule_your_first_planting_4d4ec43" formatted="false">"Choose Plan a crop to schedule your first planting."</string>
+  <string name="ui_choose_a_comfortable_display_for_fieldwork_73b2bf0" formatted="false">"Choose a comfortable display for fieldwork."</string>
+  <string name="ui_choose_a_date_to_see_that_day_s_assignments_4314ef2" formatted="false">"Choose a date to see that day's assignments."</string>
+  <string name="ui_choose_a_farm_to_start_work_or_join_a_team_ada797b" formatted="false">"Choose a farm to start work, or join a team."</string>
+  <string name="ui_choose_a_growing_area_before_making_a_planting_plan_85abc6e" formatted="false">"Choose a growing area before making a planting plan."</string>
+  <string name="ui_choose_a_growing_crop_13f542d" formatted="false">"Choose a growing crop"</string>
+  <string name="ui_choose_a_listed_crop_or_no_crop_cycle_before_creatin_811806a" formatted="false">"Choose a listed crop or No crop cycle before creating this task."</string>
+  <string name="ui_choose_a_listed_person_or_unassigned_before_creating_2666691" formatted="false">"Choose a listed person or Unassigned before creating this task."</string>
+  <string name="ui_choose_a_place_below_then_adjust_the_pin_c63c0f1" formatted="false">"Choose a place below, then adjust the pin."</string>
+  <string name="ui_choose_a_plot_to_view_its_crops_edit_one_plot_at_a_t_5630815" formatted="false">"Choose a plot to view its crops. Edit one plot at a time."</string>
+  <string name="ui_choose_a_plot_a_crop_and_the_planting_date_2bed098" formatted="false">"Choose a plot, a crop and the planting date."</string>
+  <string name="ui_choose_a_preset_or_enter_your_own_instructions_6c2779d" formatted="false">"Choose a preset or enter your own instructions."</string>
+  <string name="ui_choose_a_valid_due_date_8c81707" formatted="false">"Choose a valid due date."</string>
+  <string name="ui_choose_an_activity_and_save_the_work_to_this_crop_cy_0d8782d" formatted="false">"Choose an activity and save the work to this crop cycle."</string>
+  <string name="ui_choose_another_day_or_return_to_today_9c6e113" formatted="false">"Choose another day or return to Today."</string>
+  <string name="ui_choose_another_farm_to_work_in_e50f5af" formatted="false">"Choose another farm to work in"</string>
+  <string name="ui_choose_another_filter_or_view_all_farms_to_find_save_910e8ca" formatted="false">"Choose another filter or view all farms to find saved records."</string>
+  <string name="ui_choose_crop_23ef550" formatted="false">"Choose crop"</string>
+  <string name="ui_choose_date_343b5a9" formatted="false">"Choose date"</string>
+  <string name="ui_choose_farm_location_d248443" formatted="false">"Choose farm location"</string>
+  <string name="ui_choose_photo_9c5bb7a" formatted="false">"Choose photo"</string>
+  <string name="ui_choose_plot_dd5f814" formatted="false">"Choose plot"</string>
+  <string name="ui_choose_recorded_activity_552da25" formatted="false">"Choose recorded activity"</string>
+  <string name="ui_choose_supply_775f2f6" formatted="false">"Choose supply"</string>
+  <string name="ui_choose_time_zone_dea36b3" formatted="false">"Choose time zone"</string>
+  <string name="ui_choose_what_happened_to_this_supply_every_saved_chan_e594d82" formatted="false">"Choose what happened to this supply. Every saved change syncs from your phone."</string>
+  <string name="ui_choose_what_to_grow_and_when_to_plant_in_your_plot_3c06171" formatted="false">"Choose what to grow and when to plant in your plot."</string>
+  <string name="ui_choose_what_to_grow_then_follow_each_stage_of_your_p_bc611b3" formatted="false">"Choose what to grow, then follow each stage of your plan."</string>
+  <string name="ui_choose_where_you_want_to_work_dcc8cf0" formatted="false">"Choose where you want to work."</string>
+  <string name="ui_city_town_or_farm_address_8c46752" formatted="false">"City, town or farm address"</string>
+  <string name="ui_clear_1_s_40157cb" formatted="false">"Clear %1$s"</string>
+  <string name="ui_clear_filters_7179ea0" formatted="false">"Clear filters"</string>
+  <string name="ui_close_7d9eb7a" formatted="false">"Close"</string>
+  <string name="ui_close_correction_3e4dbce" formatted="false">"Close correction"</string>
+  <string name="ui_close_crop_controls_883193d" formatted="false">"Close crop controls"</string>
+  <string name="ui_close_crop_details_84955ca" formatted="false">"Close crop details"</string>
+  <string name="ui_close_form_00d7d53" formatted="false">"Close form"</string>
+  <string name="ui_close_guide_7674c25" formatted="false">"Close guide"</string>
+  <string name="ui_close_item_details_ece4fab" formatted="false">"Close item details"</string>
+  <string name="ui_close_new_plot_form_d4bbc97" formatted="false">"Close new plot form"</string>
+  <string name="ui_close_new_supply_form_b8b476a" formatted="false">"Close new supply form"</string>
+  <string name="ui_close_new_task_form_c02fedc" formatted="false">"Close new task form"</string>
+  <string name="ui_close_plan_f67e5af" formatted="false">"Close plan"</string>
+  <string name="ui_close_record_menu_c6597db" formatted="false">"Close record menu"</string>
+  <string name="ui_close_task_editor_989707d" formatted="false">"Close task editor"</string>
+  <string name="ui_closed_c21ead0" formatted="false">"Closed"</string>
+  <string name="ui_come_along_i_ll_show_you_around_4826b18" formatted="false">"Come along. I'll show you around."</string>
+  <string name="ui_complete_crop_cycle_30ebf71" formatted="false">"Complete crop cycle"</string>
+  <string name="ui_complete_task_f9126d2" formatted="false">"Complete task"</string>
+  <string name="ui_complete_this_task_72c6e96" formatted="false">"Complete this task?"</string>
+  <string name="ui_completed_22a970d" formatted="false">"Completed"</string>
+  <string name="ui_completed_failed_and_cancelled_crop_cycles_b127fce" formatted="false">"Completed, failed and cancelled crop cycles."</string>
+  <string name="ui_completing_an_inspection_task_does_not_automatically_9df5018" formatted="false">"Completing an inspection task does not automatically mark a crop issue resolved."</string>
+  <string name="ui_confirm_eebdd24" formatted="false">"Confirm"</string>
+  <string name="ui_confirm_status_change_c1de42e" formatted="false">"Confirm status change"</string>
+  <string name="ui_confirm_stock_retry_b6ec8b0" formatted="false">"Confirm stock retry"</string>
+  <string name="ui_confirmed_farm_balances_pending_changes_excluded_dd66ca3" formatted="false">"Confirmed farm balances; pending changes excluded."</string>
+  <string name="ui_confirmed_harvest_entries_will_appear_here_once_sync_1a81da2" formatted="false">"Confirmed harvest entries will appear here once synced."</string>
+  <string name="ui_confirmed_harvest_total_ea509f7" formatted="false">"Confirmed harvest total"</string>
+  <string name="ui_confirmed_harvests_separated_by_unit_f1db34b" formatted="false">"Confirmed harvests, separated by unit"</string>
+  <string name="ui_confirmed_movements_are_separate_from_records_saved__c661602" formatted="false">"Confirmed movements are separate from records saved on this phone."</string>
+  <string name="ui_confirmed_stock_only_pending_changes_are_not_include_3abeddc" formatted="false">"Confirmed stock only; pending changes are not included."</string>
+  <string name="ui_connection_required_081db50" formatted="false">"Connection required"</string>
+  <string name="ui_continue_to_anigo_b9bec7a" formatted="false">"Continue to AniGo"</string>
+  <string name="ui_copy_farm_code_a710ae6" formatted="false">"Copy farm code"</string>
+  <string name="ui_correct_stock_count_2751037" formatted="false">"Correct stock count"</string>
+  <string name="ui_correct_total_stock_1_s_c81d711" formatted="false">"Correct total stock (%1$s)"</string>
+  <string name="ui_correction_1_s_2_s_3_s_a63ffa8" formatted="false">"Correction: %1$s%2$s %3$s"</string>
+  <string name="ui_could_not_acknowledge_reconnect_and_try_again_a4a9ff7" formatted="false">"Could not acknowledge. Reconnect and try again."</string>
+  <string name="ui_could_not_complete_the_request_check_permissions_cur_f1d9819" formatted="false">"Could not complete the request. Check permissions, current data and connection."</string>
+  <string name="ui_could_not_confirm_the_change_refresh_the_records_bef_890bc91" formatted="false">"Could not confirm the change. Refresh the records before trying again."</string>
+  <string name="ui_could_not_confirm_the_save_refresh_harvest_history_b_c9869e7" formatted="false">"Could not confirm the save. Refresh harvest history before trying again."</string>
+  <string name="ui_could_not_connect_check_your_internet_connection_and_42632e0" formatted="false">"Could not connect. Check your internet connection and try again."</string>
+  <string name="ui_could_not_discard_the_photo_your_local_photo_remains_4216493" formatted="false">"Could not discard the photo. Your local photo remains saved."</string>
+  <string name="ui_could_not_discard_the_record_your_local_copy_remains_ad164e1" formatted="false">"Could not discard the record. Your local copy remains saved."</string>
+  <string name="ui_could_not_load_crops_check_farm_access_and_connectio_2f289fd" formatted="false">"Could not load crops. Check farm access and connection."</string>
+  <string name="ui_could_not_load_farms_check_your_connection_7ec686d" formatted="false">"Could not load farms. Check your connection."</string>
+  <string name="ui_could_not_load_harvest_history_3108609" formatted="false">"Could not load harvest history."</string>
+  <string name="ui_could_not_load_inventory_item_4126093" formatted="false">"Could not load inventory item."</string>
+  <string name="ui_could_not_load_inventory_db84333" formatted="false">"Could not load inventory."</string>
+  <string name="ui_could_not_load_monitoring_history_a06c06f" formatted="false">"Could not load monitoring history."</string>
+  <string name="ui_could_not_load_this_farm_check_permissions_and_conne_5bbbf3a" formatted="false">"Could not load this farm. Check permissions and connection."</string>
+  <string name="ui_could_not_open_photo_7082d09" formatted="false">"Could not open photo."</string>
+  <string name="ui_could_not_save_harvest_on_this_device_e6ac1c1" formatted="false">"Could not save harvest on this device."</string>
+  <string name="ui_could_not_save_the_change_on_this_device_f0d3de8" formatted="false">"Could not save the change on this device."</string>
+  <string name="ui_could_not_save_check_dates_permissions_crop_status_a_e5ac135" formatted="false">"Could not save. Check dates, permissions, crop status and connection; reload if the record changed."</string>
+  <string name="ui_could_not_schedule_sync_all_local_records_remain_sav_714d773" formatted="false">"Could not schedule sync. All local records remain saved."</string>
+  <string name="ui_could_not_schedule_the_photo_retry_your_local_photo__47a43e4" formatted="false">"Could not schedule the photo retry. Your local photo remains saved."</string>
+  <string name="ui_could_not_schedule_the_retry_your_local_record_is_st_1953c50" formatted="false">"Could not schedule the retry. Your local record is still saved."</string>
+  <string name="ui_count_all_stock_on_hand_aab7967" formatted="false">"Count all stock on hand"</string>
+  <string name="ui_create_a_task_above_to_assign_work_to_your_team_d2272be" formatted="false">"Create a task above to assign work to your team."</string>
+  <string name="ui_create_account_798ca2c" formatted="false">"Create account"</string>
+  <string name="ui_create_and_assign_task_f9d3766" formatted="false">"Create and assign task"</string>
+  <string name="ui_create_farm_2e2e93c" formatted="false">"Create farm"</string>
+  <string name="ui_create_stock_item_7c5844d" formatted="false">"Create stock item"</string>
+  <string name="ui_create_supply_9556b9b" formatted="false">"Create supply"</string>
+  <string name="ui_create_task_6f541e1" formatted="false">"Create task"</string>
+  <string name="ui_create_your_account_9e70934" formatted="false">"Create your account"</string>
+  <string name="ui_create_your_farm_or_join_another_farm_with_its_owner_ab77866" formatted="false">"Create your farm, or join another farm with its owner's approval."</string>
+  <string name="ui_critical_427dd29" formatted="false">"Critical"</string>
+  <string name="ui_crop_98caf7c" formatted="false">"Crop"</string>
+  <string name="ui_crop_area_6ce5c1c" formatted="false">"Crop area"</string>
+  <string name="ui_crop_cycle_optional_65752c6" formatted="false">"Crop cycle (optional)"</string>
+  <string name="ui_crop_health_and_inspection_records_fba1d8b" formatted="false">"Crop health and inspection records."</string>
+  <string name="ui_crop_inspection_4a519db" formatted="false">"Crop inspection"</string>
+  <string name="ui_crop_monitoring_d14cf4e" formatted="false">"Crop monitoring"</string>
+  <string name="ui_crop_name_fcdb6d3" formatted="false">"Crop name"</string>
+  <string name="ui_crop_observation_c89f419" formatted="false">"Crop observation"</string>
+  <string name="ui_crop_photo_progress_d4f31bc" formatted="false">"Crop photo progress"</string>
+  <string name="ui_crop_photos_294ed7b" formatted="false">"Crop photos"</string>
+  <string name="ui_crop_records_unavailable_offline_6e01d64" formatted="false">"Crop records unavailable offline"</string>
+  <string name="ui_crop_types_2483e61" formatted="false">"Crop types"</string>
+  <string name="ui_crops_0abd7c5" formatted="false">"Crops"</string>
+  <string name="ui_crops_history_fa46462" formatted="false">"Crops &amp; history"</string>
+  <string name="ui_crops_unavailable_677e7d0" formatted="false">"Crops unavailable"</string>
+  <string name="ui_current_e0d1b68" formatted="false">"Current"</string>
+  <string name="ui_current_plantings_plans_and_saved_crop_records_8b5fa24" formatted="false">"Current plantings, plans and saved crop records"</string>
+  <string name="ui_current_1_s_2_s_cbd952a" formatted="false">"Current: %1$s %2$s"</string>
+  <string name="ui_dark_theme_3f11a5c" formatted="false">"Dark theme"</string>
+  <string name="ui_date_planted_86fb1c1" formatted="false">"Date planted"</string>
+  <string name="ui_deduct_supply_from_farm_inventory_11eec48" formatted="false">"Deduct supply from farm inventory"</string>
+  <string name="ui_describe_what_you_see_no_diagnosis_is_needed_e530cec" formatted="false">"Describe what you see; no diagnosis is needed"</string>
+  <string name="ui_description_526e008" formatted="false">"Description"</string>
+  <string name="ui_descriptions_are_observations_not_confirmed_diagnose_19ea2f7" formatted="false">"Descriptions are observations, not confirmed diagnoses."</string>
+  <string name="ui_details_45989de" formatted="false">"Details"</string>
+  <string name="ui_developer_diagnostics_aab0a0a" formatted="false">"Developer diagnostics"</string>
+  <string name="ui_discard_eb1a70e" formatted="false">"Discard"</string>
+  <string name="ui_discard_and_re_enter_b5661e4" formatted="false">"Discard and re-enter"</string>
+  <string name="ui_discard_changes_f9bfa3d" formatted="false">"Discard changes"</string>
+  <string name="ui_discard_local_photo_7559db3" formatted="false">"Discard local photo"</string>
+  <string name="ui_discard_offline_photo_40c0e83" formatted="false">"Discard offline photo?"</string>
+  <string name="ui_discard_photo_95943ad" formatted="false">"Discard photo"</string>
+  <string name="ui_discard_unsaved_changes_470e7ee" formatted="false">"Discard unsaved changes?"</string>
+  <string name="ui_discard_unsynced_change_56fa99e" formatted="false">"Discard unsynced change?"</string>
+  <string name="ui_disease_7bce5b9" formatted="false">"Disease"</string>
+  <string name="ui_dismiss_this_tip_63c99ea" formatted="false">"Dismiss this tip"</string>
+  <string name="ui_due_1_s_1207d23" formatted="false">"Due %1$s"</string>
+  <string name="ui_due_date_e1cb6d3" formatted="false">"Due date"</string>
+  <string name="ui_due_today_19e8213" formatted="false">"Due today"</string>
+  <string name="ui_due_work_and_the_next_assignments_cdbe9ad" formatted="false">"Due work and the next assignments."</string>
+  <string name="ui_each_approved_request_grants_field_worker_access_0cd14b5" formatted="false">"Each approved request grants Field Worker access."</string>
+  <string name="ui_edit_1_s_261e9c1" formatted="false">"Edit %1$s"</string>
+  <string name="ui_edit_assignment_f54d322" formatted="false">"Edit assignment"</string>
+  <string name="ui_edit_farm_13808ae" formatted="false">"Edit farm"</string>
+  <string name="ui_edit_item_details_eef6677" formatted="false">"Edit item details"</string>
+  <string name="ui_email_address_f2488fd" formatted="false">"Email address"</string>
+  <string name="ui_email_password_reset_is_not_available_yet_6b700d6" formatted="false">"Email password reset is not available yet."</string>
+  <string name="ui_enlarge_photo_b65021b" formatted="false">"Enlarge photo"</string>
+  <string name="ui_enlarged_crop_inspection_photo_2f573c0" formatted="false">"Enlarged crop inspection photo"</string>
+  <string name="ui_enter_a_different_nonnegative_stock_total_up_to_3_de_4e4965e" formatted="false">"Enter a different, nonnegative stock total (up to 3 decimal places)."</string>
+  <string name="ui_enter_a_nonnegative_quantity_with_up_to_3_decimal_pl_7220a25" formatted="false">"Enter a nonnegative quantity with up to 3 decimal places."</string>
+  <string name="ui_enter_a_nonnegative_threshold_with_up_to_3_decimal_p_e46035c" formatted="false">"Enter a nonnegative threshold with up to 3 decimal places."</string>
+  <string name="ui_enter_a_positive_amount_with_at_most_3_decimal_place_7457b47" formatted="false">"Enter a positive amount with at most 3 decimal places."</string>
+  <string name="ui_enter_a_positive_quantity_with_up_to_3_decimals_aa7ee46" formatted="false">"Enter a positive quantity with up to 3 decimals."</string>
+  <string name="ui_enter_a_positive_quantity_with_up_to_3_decimals_adju_727cc0e" formatted="false">"Enter a positive quantity with up to 3 decimals; adjustments may be negative."</string>
+  <string name="ui_enter_a_valid_amount_no_greater_than_the_confirmed_a_99a7ff4" formatted="false">"Enter a valid amount no greater than the confirmed available stock."</string>
+  <string name="ui_enter_a_valid_email_address_8a966af" formatted="false">"Enter a valid email address."</string>
+  <string name="ui_enter_a_valid_planting_date_3698e76" formatted="false">"Enter a valid planting date."</string>
+  <string name="ui_enter_at_least_3_characters_57c9e61" formatted="false">"Enter at least 3 characters."</string>
+  <string name="ui_enter_the_12_character_code_shared_by_the_farm_owner_0eebcff" formatted="false">"Enter the 12-character code shared by the farm owner. They must approve access."</string>
+  <string name="ui_enter_the_actual_planting_date_fc724f4" formatted="false">"Enter the actual planting date."</string>
+  <string name="ui_enter_the_farm_s_current_code_to_apply_again_after_r_191cf10" formatted="false">"Enter the farm's current code to apply again after rejection or cancellation."</string>
+  <string name="ui_enter_this_farm_code_1_s_2ae0bfd" formatted="false">"Enter this farm code: %1$s. "</string>
+  <string name="ui_environment_9e47195" formatted="false">"Environment"</string>
+  <string name="ui_environmental_stress_6b4374d" formatted="false">"Environmental stress"</string>
+  <string name="ui_example_1_5_c9897d6" formatted="false">"Example: 1.5"</string>
+  <string name="ui_existing_members_and_requests_keep_their_access_and__8a49ea7" formatted="false">"Existing members and requests keep their access and status."</string>
+  <string name="ui_existing_requests_and_memberships_stay_unchanged_e196b12" formatted="false">"Existing requests and memberships stay unchanged."</string>
+  <string name="ui_expected_harvest_optional_627cd66" formatted="false">"Expected harvest (optional)"</string>
+  <string name="ui_expected_harvest_area_npreparation_b1c133d" formatted="false">"Expected harvest area:\nPreparation:"</string>
+  <string name="ui_expected_harvest_cannot_be_before_planting_date_dcd5e7d" formatted="false">"Expected harvest cannot be before planting date."</string>
+  <string name="ui_expected_harvest_957e91b" formatted="false">"Expected harvest: "</string>
+  <string name="ui_expected_harvest_1_s_d9f0c2c" formatted="false">"Expected harvest: %1$s"</string>
+  <string name="ui_expected_rainfall_1_s_mm_545cc86" formatted="false">"Expected rainfall: %1$s mm"</string>
+  <string name="ui_explore_anigo_with_our_farm_guide_23f29d5" formatted="false">"Explore AniGo with our farm guide"</string>
+  <string name="ui_failed_031a8f0" formatted="false">"Failed"</string>
+  <string name="ui_farm_3457b16" formatted="false">"Farm"</string>
+  <string name="ui_farm_1_s_32a0759" formatted="false">"Farm %1$s"</string>
+  <string name="ui_farm_access_requests_8a4c1fd" formatted="false">"Farm access requests"</string>
+  <string name="ui_farm_address_or_area_a673ac8" formatted="false">"Farm address or area"</string>
+  <string name="ui_farm_code_fedbe21" formatted="false">"Farm code"</string>
+  <string name="ui_farm_code_copied_d8e7401" formatted="false">"Farm code copied."</string>
+  <string name="ui_farm_date_or_task_list_unavailable_ask_an_owner_to_c_2bc1a32" formatted="false">"Farm date or task list unavailable. Ask an owner to check the time zone."</string>
+  <string name="ui_farm_date_unavailable_23e602c" formatted="false">"Farm date unavailable"</string>
+  <string name="ui_farm_date_1_s_2_s_f60cf8e" formatted="false">"Farm date: %1$s · %2$s"</string>
+  <string name="ui_farm_member_b39565f" formatted="false">"Farm member"</string>
+  <string name="ui_farm_members_2a82ce8" formatted="false">"Farm members"</string>
+  <string name="ui_farm_name_6deef3b" formatted="false">"Farm name"</string>
+  <string name="ui_farm_name_must_be_120_characters_or_fewer_4299bd3" formatted="false">"Farm name must be 120 characters or fewer."</string>
+  <string name="ui_farm_name_must_be_at_least_2_characters_010fc20" formatted="false">"Farm name must be at least 2 characters."</string>
+  <string name="ui_farm_options_are_saved_copies_reconnect_and_refresh__6b97598" formatted="false">"Farm options are saved copies. Reconnect and refresh before assigning work."</string>
+  <string name="ui_farm_options_could_not_be_loaded_refresh_before_crea_739aa63" formatted="false">"Farm options could not be loaded. Refresh before creating or editing tasks."</string>
+  <string name="ui_farm_pin_selected_for_weather_forecasts_306eac8" formatted="false">"Farm pin selected for weather forecasts."</string>
+  <string name="ui_farm_plots_bfad5ec" formatted="false">"Farm plots"</string>
+  <string name="ui_farm_records_2028410" formatted="false">"Farm records"</string>
+  <string name="ui_farm_roles_and_membership_are_managed_in_each_farm_s_3301c40" formatted="false">"Farm roles and membership are managed in each farm's Team &amp; access section."</string>
+  <string name="ui_farm_settings_df0ed3a" formatted="false">"Farm settings"</string>
+  <string name="ui_farm_settings_saved_reopen_this_farm_to_refresh_weat_07fb4c3" formatted="false">"Farm settings saved. Reopen this farm to refresh weather."</string>
+  <string name="ui_farm_settings_unavailable_4f8394a" formatted="false">"Farm settings unavailable"</string>
+  <string name="ui_farm_tasks_136a660" formatted="false">"Farm tasks"</string>
+  <string name="ui_farm_team_8277784" formatted="false">"Farm team"</string>
+  <string name="ui_farm_time_zone_invalid_check_settings_forecast_dates_8d25f03" formatted="false">"Farm time zone invalid — check Settings. Forecast dates are shown as saved."</string>
+  <string name="ui_farm_time_zone_unavailable_ask_an_owner_or_manager_t_4d541ae" formatted="false">"Farm time zone unavailable. Ask an owner or manager to check settings."</string>
+  <string name="ui_farm_time_zone_unavailable_only_unfiltered_reports_c_fe79ab0" formatted="false">"Farm time zone unavailable. Only unfiltered reports can be shown."</string>
+  <string name="ui_farm_weather_8a3ec1b" formatted="false">"Farm weather"</string>
+  <string name="ui_farm_wide_stock_and_supply_history_80ebce8" formatted="false">"Farm-wide stock and supply history."</string>
+  <string name="ui_fertilizer_application_6910078" formatted="false">"Fertilizer application"</string>
+  <string name="ui_fertilizer_used_quantity_and_application_area_58969c1" formatted="false">"Fertilizer used, quantity and application area"</string>
+  <string name="ui_fertilizers_1841450" formatted="false">"Fertilizers"</string>
+  <string name="ui_fertilizing_3cc00f9" formatted="false">"Fertilizing"</string>
+  <string name="ui_fewer_activity_types_fb32cd5" formatted="false">"Fewer activity types"</string>
+  <string name="ui_field_worker_4f4ed6f" formatted="false">"Field Worker"</string>
+  <string name="ui_field_activity_a50009c" formatted="false">"Field activity"</string>
+  <string name="ui_field_activity_supply_used_919108d" formatted="false">"Field activity + supply used: "</string>
+  <string name="ui_field_activity_with_supplies_e9f634d" formatted="false">"Field activity with supplies"</string>
+  <string name="ui_field_records_3048ebd" formatted="false">"Field records"</string>
+  <string name="ui_field_task_b52c32b" formatted="false">"Field task"</string>
+  <string name="ui_field_worker_6195025" formatted="false">"Field worker"</string>
+  <string name="ui_fieldwork_waits_to_send_settings_need_internet_99528b9" formatted="false">"Fieldwork waits to send; settings need internet."</string>
+  <string name="ui_filter_by_supply_category_b001388" formatted="false">"Filter by supply category"</string>
+  <string name="ui_find_a_plot_ddeed61" formatted="false">"Find a plot"</string>
+  <string name="ui_find_a_supply_345cb7c" formatted="false">"Find a supply"</string>
+  <string name="ui_find_farm_on_map_e84ca4f" formatted="false">"Find farm on map"</string>
+  <string name="ui_find_farm_records_and_account_tools_3b25329" formatted="false">"Find farm records and account tools."</string>
+  <string name="ui_follow_up_could_not_be_confirmed_refresh_before_retr_aa7a667" formatted="false">"Follow-up could not be confirmed. Refresh before retrying."</string>
+  <string name="ui_follow_up_saved_on_the_server_b70fa0d" formatted="false">"Follow-up saved on the server."</string>
+  <string name="ui_forecast_and_saved_advisories_54bfca5" formatted="false">"Forecast and saved advisories"</string>
+  <string name="ui_forecast_for_1_s_1f2194b" formatted="false">"Forecast for %1$s"</string>
+  <string name="ui_forecast_summary_ee11094" formatted="false">"Forecast summary"</string>
+  <string name="ui_forecast_unavailable_31f441c" formatted="false">"Forecast unavailable"</string>
+  <string name="ui_forecast_not_live_observations_6de5bb1" formatted="false">"Forecast, not live observations."</string>
+  <string name="ui_forgot_password_30c1d8d" formatted="false">"Forgot password?"</string>
+  <string name="ui_forgot_your_password_afd25fd" formatted="false">"Forgot your password?"</string>
+  <string name="ui_from_field_to_harvest_9622ba0" formatted="false">"From field to harvest"</string>
+  <string name="ui_full_name_f13a64b" formatted="false">"Full name"</string>
+  <string name="ui_general_supply_use_43339ab" formatted="false">"General supply use"</string>
+  <string name="ui_get_started_61e8d44" formatted="false">"Get started"</string>
+  <string name="ui_getting_your_approximate_position_8c33aae" formatted="false">"Getting your approximate position..."</string>
+  <string name="ui_give_1_s_field_worker_access_a5667c4" formatted="false">"Give %1$s Field Worker access?"</string>
+  <string name="ui_give_your_growing_area_a_name_and_size_before_planni_8c7495c" formatted="false">"Give your growing area a name and size before planning a crop."</string>
+  <string name="ui_good_to_have_you_back_911caf4" formatted="false">"Good to have you back."</string>
+  <string name="ui_grow_b97dc52" formatted="false">"Grow"</string>
+  <string name="ui_grow_with_a_plan_84e8d61" formatted="false">"Grow with a plan"</string>
+  <string name="ui_grow_with_confidence_acd8219" formatted="false">"Grow with confidence."</string>
+  <string name="ui_growing_52c8c11" formatted="false">"Growing"</string>
+  <string name="ui_growing_area_9c354c5" formatted="false">"Growing area"</string>
+  <string name="ui_growing_crops_planting_plans_and_history_3fe33f4" formatted="false">"Growing crops, planting plans and history."</string>
+  <string name="ui_growing_now_55183dc" formatted="false">"Growing now"</string>
+  <string name="ui_growing_plots_f39fd7d" formatted="false">"Growing plots"</string>
+  <string name="ui_growth_days_optional_b35c30d" formatted="false">"Growth days (optional)"</string>
+  <string name="ui_growth_stage_906162c" formatted="false">"Growth stage"</string>
+  <string name="ui_harvest_c91ab8b" formatted="false">"Harvest"</string>
+  <string name="ui_harvest_a_little_today_record_each_batch_as_you_go_ada03e0" formatted="false">"Harvest a little today? Record each batch as you go."</string>
+  <string name="ui_harvest_history_e5ce3cf" formatted="false">"Harvest history"</string>
+  <string name="ui_harvest_notes_must_be_1_000_characters_or_fewer_07cc656" formatted="false">"Harvest notes must be 1,000 characters or fewer."</string>
+  <string name="ui_harvest_quantity_4b53f38" formatted="false">"Harvest quantity: "</string>
+  <string name="ui_harvest_records_cfad96b" formatted="false">"Harvest records"</string>
+  <string name="ui_harvest_report_unavailable_4af20de" formatted="false">"Harvest report unavailable"</string>
+  <string name="ui_harvest_report_unavailable_connect_and_retry_9c05b89" formatted="false">"Harvest report unavailable. Connect and retry."</string>
+  <string name="ui_harvest_saved_on_this_device_sync_status_shows_when__abfe438" formatted="false">"Harvest saved on this device. Sync status shows when the server confirms it."</string>
+  <string name="ui_harvest_summary_2a05eb0" formatted="false">"Harvest summary"</string>
+  <string name="ui_harvest_totals_741db9d" formatted="false">"Harvest totals"</string>
+  <string name="ui_harvest_unit_e_g_kg_a7d4100" formatted="false">"Harvest unit (e.g., kg)"</string>
+  <string name="ui_harvest_unit_1_s_18da5b5" formatted="false">"Harvest unit: %1$s"</string>
+  <string name="ui_harvest_voided_audit_history_preserved_93067a3" formatted="false">"Harvest voided; audit history preserved."</string>
+  <string name="ui_harvested_amount_fb69d8b" formatted="false">"Harvested amount"</string>
+  <string name="ui_harvested_quantity_1_s_1a42401" formatted="false">"Harvested quantity (%1$s)"</string>
+  <string name="ui_harvests_a2b3922" formatted="false">"Harvests"</string>
+  <string name="ui_healthy_7f1e323" formatted="false">"Healthy"</string>
+  <string name="ui_help_onboarding_a9e1e52" formatted="false">"Help &amp; onboarding"</string>
+  <string name="ui_help_from_ani_0a96868" formatted="false">"Help from Ani"</string>
+  <string name="ui_hi_i_m_ani_your_farm_buddy_895d6c0" formatted="false">"Hi! I'm Ani, your farm buddy."</string>
+  <string name="ui_hide_ac20a57" formatted="false">"Hide"</string>
+  <string name="ui_hide_daily_forecast_1b2d895" formatted="false">"Hide daily forecast"</string>
+  <string name="ui_hide_developer_diagnostics_fa87423" formatted="false">"Hide developer diagnostics"</string>
+  <string name="ui_hide_growth_stage_5171043" formatted="false">"Hide growth stage"</string>
+  <string name="ui_hide_location_options_0e48128" formatted="false">"Hide location options"</string>
+  <string name="ui_hide_other_activities_c754e1d" formatted="false">"Hide other activities"</string>
+  <string name="ui_hide_setup_steps_7d0378a" formatted="false">"Hide setup steps"</string>
+  <string name="ui_hide_task_help_5cb80a8" formatted="false">"Hide task help"</string>
+  <string name="ui_high_c4ebc6d" formatted="false">"High"</string>
+  <string name="ui_history_0e76960" formatted="false">"History"</string>
+  <string name="ui_history_totals_43e1694" formatted="false">"History &amp; totals"</string>
+  <string name="ui_how_are_the_crops_looking_c1f7006" formatted="false">"How are the crops looking?"</string>
+  <string name="ui_how_serious_is_it_7cbd47c" formatted="false">"How serious is it?"</string>
+  <string name="ui_i_ll_show_you_four_simple_ways_to_get_started_e867872" formatted="false">"I'll show you four simple ways to get started."</string>
+  <string name="ui_if_the_code_was_shared_with_the_wrong_person_replace_c8307e4" formatted="false">"If the code was shared with the wrong person, replace it. "</string>
+  <string name="ui_illustrative_example_no_farm_records_are_created_c3dfaaa" formatted="false">"Illustrative example · no farm records are created"</string>
+  <string name="ui_image_unavailable_7817cd0" formatted="false">"Image unavailable"</string>
+  <string name="ui_in_stock_f66315e" formatted="false">"In stock"</string>
+  <string name="ui_incorrect_email_or_password_6f8e6be" formatted="false">"Incorrect email or password."</string>
+  <string name="ui_inspect_e0723a8" formatted="false">"Inspect"</string>
+  <string name="ui_inspect_crop_a790b90" formatted="false">"Inspect crop"</string>
+  <string name="ui_inspection_6e4fa13" formatted="false">"Inspection"</string>
+  <string name="ui_inspection_notes_optional_aaaec7d" formatted="false">"Inspection notes (optional)"</string>
+  <string name="ui_inspection_photo_4c31148" formatted="false">"Inspection photo"</string>
+  <string name="ui_inspection_photos_in_date_order_tap_one_to_inspect_i_c0622c7" formatted="false">"Inspection photos in date order. Tap one to inspect it."</string>
+  <string name="ui_inspections_20cbe85" formatted="false">"Inspections"</string>
+  <string name="ui_instructions_934652d" formatted="false">"Instructions"</string>
+  <string name="ui_instructions_optional_396f78a" formatted="false">"Instructions (optional)"</string>
+  <string name="ui_instructions_must_be_500_characters_or_fewer_6b0bfb6" formatted="false">"Instructions must be 500 characters or fewer."</string>
+  <string name="ui_inventory_item_5b747f5" formatted="false">"Inventory item"</string>
+  <string name="ui_invite_field_workers_226f055" formatted="false">"Invite field workers"</string>
+  <string name="ui_invite_field_workers_and_approve_requests_before_the_a3cb0f8" formatted="false">"Invite field workers and approve requests before they can enter."</string>
+  <string name="ui_issue_48dc76d" formatted="false">"Issue"</string>
+  <string name="ui_issue_1_s_8676304" formatted="false">"Issue: %1$s"</string>
+  <string name="ui_item_details_e84b48b" formatted="false">"Item details"</string>
+  <string name="ui_join_1_s_in_anigo_055cae9" formatted="false">"Join %1$s in AniGo. "</string>
+  <string name="ui_join_a_farm_0e52b35" formatted="false">"Join a farm"</string>
+  <string name="ui_join_request_status_unavailable_connect_and_refresh__cc6ef45" formatted="false">"Join request status unavailable. Connect and refresh to check owner approval."</string>
+  <string name="ui_join_requests_and_farm_code_are_unavailable_offline_e6bb540" formatted="false">"Join requests and farm code are unavailable offline."</string>
+  <string name="ui_join_requests_and_farm_code_are_unavailable_refresh__2ceaf11" formatted="false">"Join requests and farm code are unavailable. Refresh to try again."</string>
+  <string name="ui_keep_editing_e76fd2a" formatted="false">"Keep editing"</string>
+  <string name="ui_keep_open_333f472" formatted="false">"Keep open"</string>
+  <string name="ui_keep_working_5ed03f2" formatted="false">"Keep working"</string>
+  <string name="ui_keep_your_crop_calendar_and_growing_activities_organ_8beb5f7" formatted="false">"Keep your crop calendar and growing activities organized."</string>
+  <string name="ui_keep_your_farm_work_within_reach_947bdf3" formatted="false">"Keep your farm work within reach."</string>
+  <string name="ui_lesson_1_s_of_2_s_b92bea6" formatted="false">"LESSON %1$s OF %2$s"</string>
+  <string name="ui_last_checked_1_s_7273969" formatted="false">"Last checked: %1$s"</string>
+  <string name="ui_leaf_inspection_716922b" formatted="false">"Leaf inspection"</string>
+  <string name="ui_linked_task_1_s_5296b4c" formatted="false">"Linked task: %1$s"</string>
+  <string name="ui_linked_to_your_selected_task_completion_is_confirmed_498a0cb" formatted="false">"Linked to your selected task. Completion is confirmed only after sending."</string>
+  <string name="ui_loading_confirmed_farm_records_e9461a5" formatted="false">"Loading confirmed farm records"</string>
+  <string name="ui_loading_crop_records_268b8fe" formatted="false">"Loading crop records…"</string>
+  <string name="ui_loading_farm_tasks_bd691ec" formatted="false">"Loading farm tasks…"</string>
+  <string name="ui_loading_farm_tools_e2c4f0d" formatted="false">"Loading farm tools…"</string>
+  <string name="ui_loading_growing_crops_f614806" formatted="false">"Loading growing crops…"</string>
+  <string name="ui_loading_harvest_report_18f3d23" formatted="false">"Loading harvest report…"</string>
+  <string name="ui_loading_notifications_eae12e0" formatted="false">"Loading notifications…"</string>
+  <string name="ui_loading_supplies_8d715c5" formatted="false">"Loading supplies…"</string>
+  <string name="ui_loading_supply_record_f4ada4b" formatted="false">"Loading supply record…"</string>
+  <string name="ui_loading_today_s_work_16b20be" formatted="false">"Loading today's work…"</string>
+  <string name="ui_local_records_are_not_yet_confirmed_on_the_server_24ad767" formatted="false">"Local records are not yet confirmed on the server."</string>
+  <string name="ui_location_access_denied_search_or_tap_the_map_instead_119bd10" formatted="false">"Location access denied. Search or tap the map instead."</string>
+  <string name="ui_location_must_be_250_characters_or_fewer_d7a079c" formatted="false">"Location must be 250 characters or fewer."</string>
+  <string name="ui_location_must_be_at_least_2_characters_35495f7" formatted="false">"Location must be at least 2 characters."</string>
+  <string name="ui_location_permission_is_needed_you_can_still_search_o_67fe3be" formatted="false">"Location permission is needed. You can still search or tap the map."</string>
+  <string name="ui_location_permission_unavailable_search_or_tap_the_ma_a6b7955" formatted="false">"Location permission unavailable. Search or tap the map."</string>
+  <string name="ui_location_pin_time_zone_optional_c5e6d70" formatted="false">"Location pin &amp; time zone (optional)"</string>
+  <string name="ui_location_service_unavailable_search_or_tap_the_map_8f86ce0" formatted="false">"Location service unavailable. Search or tap the map."</string>
+  <string name="ui_location_unavailable_search_or_tap_the_map_instead_05d7442" formatted="false">"Location unavailable. Search or tap the map instead."</string>
+  <string name="ui_location_details_and_time_zone_447bb27" formatted="false">"Location, details and time zone"</string>
+  <string name="ui_log_in_c189840" formatted="false">"Log in"</string>
+  <string name="ui_log_in_instead_9b718a8" formatted="false">"Log in instead"</string>
+  <string name="ui_log_watering_f52ed64" formatted="false">"Log watering"</string>
+  <string name="ui_log_watering_for_an_active_crop_0d8d5d3" formatted="false">"Log watering for an active crop"</string>
+  <string name="ui_log_watering_inspections_photos_and_supported_field__e1714a2" formatted="false">"Log watering, inspections, photos, and supported field activities."</string>
+  <string name="ui_low_f793de2" formatted="false">"Low"</string>
+  <string name="ui_low_stock_5546061" formatted="false">"Low stock"</string>
+  <string name="ui_low_stock_threshold_812f12c" formatted="false">"Low-stock threshold"</string>
+  <string name="ui_low_stock_threshold_optional_542e382" formatted="false">"Low-stock threshold (optional)"</string>
+  <string name="ui_low_stock_threshold_1_s_2_s_d62b119" formatted="false">"Low-stock threshold: %1$s %2$s"</string>
+  <string name="ui_meet_ani_your_farm_buddy_f79f2b4" formatted="false">"MEET ANI  ·  YOUR FARM BUDDY"</string>
+  <string name="ui_meet_your_farm_guide_ffcb5ab" formatted="false">"MEET YOUR FARM GUIDE"</string>
+  <string name="ui_make_a_planting_plan_then_mark_it_as_planted_to_star_b807e31" formatted="false">"Make a planting plan, then mark it as planted to start growing."</string>
+  <string name="ui_manage_a_farm_or_join_a_team_keep_plots_and_records__75b9321" formatted="false">"Manage a farm or join a team. Keep plots and records in one workspace."</string>
+  <string name="ui_manage_assignments_and_due_dates_existing_completed__fdbf9b2" formatted="false">"Manage assignments and due dates. Existing completed records are read-only."</string>
+  <string name="ui_manage_who_can_work_on_this_farm_fe91e60" formatted="false">"Manage who can work on this farm."</string>
+  <string name="ui_manage_your_farm_and_team_416256a" formatted="false">"Manage your farm and team."</string>
+  <string name="ui_manage_your_own_farm_or_join_an_existing_team_with_o_e43acdd" formatted="false">"Manage your own farm or join an existing team with one account."</string>
+  <string name="ui_manager_8b2085f" formatted="false">"Manager"</string>
+  <string name="ui_manager_follow_up_59d062c" formatted="false">"Manager follow-up"</string>
+  <string name="ui_map_openstreetmap_contributors_device_address_search_43a985a" formatted="false">"Map: © OpenStreetMap contributors. Device address search availability varies."</string>
+  <string name="ui_mark_1_s_as_completed_8fcc2b3" formatted="false">"Mark %1$s as completed? "</string>
+  <string name="ui_mark_as_planted_2859939" formatted="false">"Mark as planted"</string>
+  <string name="ui_mark_as_read_50c8b81" formatted="false">"Mark as read"</string>
+  <string name="ui_mark_completed_2b53d89" formatted="false">"Mark completed"</string>
+  <string name="ui_mark_crop_as_failed_c98b746" formatted="false">"Mark crop as failed"</string>
+  <string name="ui_max_wind_1_s_km_h_6324500" formatted="false">"Max wind: %1$s km/h"</string>
+  <string name="ui_members_and_joining_requests_cbcaa2d" formatted="false">"Members and joining requests"</string>
+  <string name="ui_moderate_5c42afc" formatted="false">"Moderate"</string>
+  <string name="ui_more_crop_controls_1b58a1f" formatted="false">"More crop controls"</string>
+  <string name="ui_multiple_partial_harvests_can_be_recorded_for_a_crop_0515c20" formatted="false">"Multiple partial harvests can be recorded for a crop, with units kept separate."</string>
+  <string name="ui_my_farm_b2e9f88" formatted="false">"My Farm"</string>
+  <string name="ui_my_account_b53181a" formatted="false">"My account"</string>
+  <string name="ui_my_farms_0517a09" formatted="false">"My farms"</string>
+  <string name="ui_my_join_requests_72b2d81" formatted="false">"My join requests"</string>
+  <string name="ui_my_task_history_8d15a8f" formatted="false">"My task history"</string>
+  <string name="ui_my_tasks_1f7f5b8" formatted="false">"My tasks"</string>
+  <string name="ui_my_work_b4b9c68" formatted="false">"My work"</string>
+  <string name="ui_name_dcd1d52" formatted="false">"Name"</string>
+  <string name="ui_need_help_signing_in_d860242" formatted="false">"Need help signing in?"</string>
+  <string name="ui_needs_attention_c1ebc78" formatted="false">"Needs attention"</string>
+  <string name="ui_needs_follow_up_7594b78" formatted="false">"Needs follow-up"</string>
+  <string name="ui_needs_review_07297fa" formatted="false">"Needs review"</string>
+  <string name="ui_needs_review_1_s_38d2e3f" formatted="false">"Needs review: %1$s"</string>
+  <string name="ui_needs_review_entries_appear_first_cc1b43f" formatted="false">"Needs-review entries appear first."</string>
+  <string name="ui_new_farm_code_ready_the_previous_code_no_longer_work_b186086" formatted="false">"New farm code ready. The previous code no longer works for new requests."</string>
+  <string name="ui_new_field_records_require_an_active_crop_cycle_exist_a5a7440" formatted="false">"New field records require an active crop cycle. Existing history is still available."</string>
+  <string name="ui_new_growing_plot_7bb7232" formatted="false">"New growing plot"</string>
+  <string name="ui_new_here_38c1c44" formatted="false">"New here?"</string>
+  <string name="ui_new_inspection_records_will_appear_here_f1820d4" formatted="false">"New inspection records will appear here."</string>
+  <string name="ui_new_reminders_and_advisories_appear_here_db106db" formatted="false">"New reminders and advisories appear here."</string>
+  <string name="ui_new_task_3e99227" formatted="false">"New task"</string>
+  <string name="ui_next_available_forecast_d87d75c" formatted="false">"Next available forecast"</string>
+  <string name="ui_next_bcf0489" formatted="false">"Next →"</string>
+  <string name="ui_next_1_s_2_s_87e33bb" formatted="false">"Next: %1$s · %2$s"</string>
+  <string name="ui_no_active_crops_ae6a7bc" formatted="false">"No active crops"</string>
+  <string name="ui_no_active_saved_advisories_0b5b738" formatted="false">"No active saved advisories"</string>
+  <string name="ui_no_activities_recorded_0aab895" formatted="false">"No activities recorded."</string>
+  <string name="ui_no_activities_to_link_e08f1fd" formatted="false">"No activities to link"</string>
+  <string name="ui_no_additional_members_95ad835" formatted="false">"No additional members"</string>
+  <string name="ui_no_assignments_on_this_date_20e0e75" formatted="false">"No assignments on this date"</string>
+  <string name="ui_no_completed_tasks_yet_56bf638" formatted="false">"No completed tasks yet"</string>
+  <string name="ui_no_crop_cycle_ee975e3" formatted="false">"No crop cycle"</string>
+  <string name="ui_no_crop_history_yet_abbb3f0" formatted="false">"No crop history yet"</string>
+  <string name="ui_no_crop_types_yet_c44fb3c" formatted="false">"No crop types yet"</string>
+  <string name="ui_no_crop_yet_cd03bc7" formatted="false">"No crop yet"</string>
+  <string name="ui_no_date_selected_a775f9f" formatted="false">"No date selected"</string>
+  <string name="ui_no_farm_location_pin_d6cab1e" formatted="false">"No farm location pin"</string>
+  <string name="ui_no_farm_tasks_yet_170a951" formatted="false">"No farm tasks yet"</string>
+  <string name="ui_no_farms_yet_4ffc6fd" formatted="false">"No farms yet"</string>
+  <string name="ui_no_forecast_days_ac08085" formatted="false">"No forecast days"</string>
+  <string name="ui_no_forecast_from_today_onward_existing_saved_dates_a_f7e2df4" formatted="false">"No forecast from today onward. Existing saved dates are listed below."</string>
+  <string name="ui_no_growing_crops_in_saved_records_ae47a35" formatted="false">"No growing crops in saved records"</string>
+  <string name="ui_no_growing_plots_yet_48f9e21" formatted="false">"No growing plots yet"</string>
+  <string name="ui_no_harvest_records_to_show_7deb7d7" formatted="false">"No harvest records to show"</string>
+  <string name="ui_no_inspection_photos_yet_1572ddf" formatted="false">"No inspection photos yet."</string>
+  <string name="ui_no_inventory_items_yet_7b827df" formatted="false">"No inventory items yet."</string>
+  <string name="ui_no_linked_inspection_task_5f9b862" formatted="false">"No linked inspection task"</string>
+  <string name="ui_no_linked_task_65d7a19" formatted="false">"No linked task"</string>
+  <string name="ui_no_matching_plots_12c5301" formatted="false">"No matching plots"</string>
+  <string name="ui_no_matching_records_4f36612" formatted="false">"No matching records"</string>
+  <string name="ui_no_matching_supplies_6fd89c6" formatted="false">"No matching supplies"</string>
+  <string name="ui_no_movements_to_show_6eb2cd7" formatted="false">"No movements to show"</string>
+  <string name="ui_no_notifications_yet_ca02c72" formatted="false">"No notifications yet."</string>
+  <string name="ui_no_observations_recorded_3eee6e7" formatted="false">"No observations recorded."</string>
+  <string name="ui_no_past_crops_in_saved_records_5c040b6" formatted="false">"No past crops in saved records"</string>
+  <string name="ui_no_pending_join_requests_5975b1e" formatted="false">"No pending join requests."</string>
+  <string name="ui_no_planting_plans_a06855c" formatted="false">"No planting plans"</string>
+  <string name="ui_no_planting_plans_in_saved_records_303f722" formatted="false">"No planting plans in saved records"</string>
+  <string name="ui_no_recent_device_location_search_or_tap_the_map_inst_153b918" formatted="false">"No recent device location. Search or tap the map instead."</string>
+  <string name="ui_no_recorded_harvests_f91dc50" formatted="false">"No recorded harvests"</string>
+  <string name="ui_no_records_need_review_055313c" formatted="false">"No records need review"</string>
+  <string name="ui_no_records_waiting_on_this_phone_f0acb5c" formatted="false">"No records waiting on this phone"</string>
+  <string name="ui_no_reset_link_can_be_sent_yet_contact_your_system_ad_2ab4cad" formatted="false">"No reset link can be sent yet. Contact your system administrator for account assistance."</string>
+  <string name="ui_no_results_tap_the_map_instead_a823be3" formatted="false">"No results. Tap the map instead."</string>
+  <string name="ui_no_supplies_in_saved_records_02fc6a4" formatted="false">"No supplies in saved records"</string>
+  <string name="ui_no_tasks_due_today_6679b23" formatted="false">"No tasks due today"</string>
+  <string name="ui_no_upcoming_saved_forecast_353ab1d" formatted="false">"No upcoming saved forecast."</string>
+  <string name="ui_no_upcoming_tasks_cdac756" formatted="false">"No upcoming tasks"</string>
+  <string name="ui_no_valid_entries_match_these_dates_ec09818" formatted="false">"No valid entries match these dates."</string>
+  <string name="ui_no_waiting_records_f4cc2f4" formatted="false">"No waiting records"</string>
+  <string name="ui_none_dc937b5" formatted="false">"None"</string>
+  <string name="ui_north_plot_196c923" formatted="false">"North Plot"</string>
+  <string name="ui_not_assessed_025761a" formatted="false">"Not assessed"</string>
+  <string name="ui_not_now_a0e63d7" formatted="false">"Not now"</string>
+  <string name="ui_not_set_4895f73" formatted="false">"Not set"</string>
+  <string name="ui_not_sure_dca5fa4" formatted="false">"Not sure"</string>
+  <string name="ui_note_crop_condition_and_add_a_photo_557460b" formatted="false">"Note crop condition and add a photo"</string>
+  <string name="ui_notes_optional_6239b93" formatted="false">"Notes (optional)"</string>
+  <string name="ui_nothing_due_today_2adbd86" formatted="false">"Nothing due today"</string>
+  <string name="ui_nothing_growing_yet_b390f35" formatted="false">"Nothing growing yet"</string>
+  <string name="ui_notification_marked_as_read_0ad6c4c" formatted="false">"Notification marked as read."</string>
+  <string name="ui_notifications_7880118" formatted="false">"Notifications"</string>
+  <string name="ui_nutrient_b814f65" formatted="false">"Nutrient"</string>
+  <string name="ui_observation_added_3488920" formatted="false">"Observation added"</string>
+  <string name="ui_observation_c24d198" formatted="false">"Observation: "</string>
+  <string name="ui_observations_and_photos_37c7aaf" formatted="false">"Observations and photos"</string>
+  <string name="ui_offline_copy_from_1_s_may_be_out_of_date_81dcbd6" formatted="false">"Offline copy from %1$s. May be out of date. "</string>
+  <string name="ui_offline_copy_reconnect_to_check_new_warnings_b6ffeeb" formatted="false">"Offline copy — reconnect to check new warnings"</string>
+  <string name="ui_offline_sync_843fdb9" formatted="false">"Offline sync"</string>
+  <string name="ui_one_account_can_manage_a_farm_or_join_a_team_3972cf8" formatted="false">"One account can manage a farm or join a team."</string>
+  <string name="ui_only_active_crop_cycles_can_receive_new_records_e721508" formatted="false">"Only active crop cycles can receive new records."</string>
+  <string name="ui_only_owners_and_managers_can_edit_this_farm_3221416" formatted="false">"Only owners and managers can edit this farm."</string>
+  <string name="ui_only_retry_if_this_movement_still_reflects_actual_fa_16cd94e" formatted="false">"Only retry if this movement still reflects actual farm work."</string>
+  <string name="ui_only_server_confirmed_non_voided_harvests_are_includ_b4f74d8" formatted="false">"Only server-confirmed, non-voided harvests are included."</string>
+  <string name="ui_open_ed077f3" formatted="false">"Open"</string>
+  <string name="ui_open_crop_types_to_add_a_crop_before_planning_0174a08" formatted="false">"Open Crop types to add a crop before planning."</string>
+  <string name="ui_open_my_farms_to_view_or_join_a_farm_61f2d32" formatted="false">"Open My farms to view or join a farm."</string>
+  <string name="ui_open_account_81046a4" formatted="false">"Open account"</string>
+  <string name="ui_open_crop_types_7c32f7a" formatted="false">"Open crop types"</string>
+  <string name="ui_open_crops_d8163ec" formatted="false">"Open crops"</string>
+  <string name="ui_open_farm_817e6f7" formatted="false">"Open farm →"</string>
+  <string name="ui_open_harvest_record_5b4bd66" formatted="false">"Open harvest record"</string>
+  <string name="ui_open_plots_71959df" formatted="false">"Open plots"</string>
+  <string name="ui_open_recorded_history_ae259e8" formatted="false">"Open recorded history"</string>
+  <string name="ui_open_sync_status_6ec1bcf" formatted="false">"Open sync status"</string>
+  <string name="ui_open_tasks_87cfa1a" formatted="false">"Open tasks"</string>
+  <string name="ui_opening_quantity_f975b8e" formatted="false">"Opening quantity"</string>
+  <string name="ui_opening_stock_21b2ac4" formatted="false">"Opening stock"</string>
+  <string name="ui_other_f97e9da" formatted="false">"Other"</string>
+  <string name="ui_other_activity_types_6ecb2ac" formatted="false">"Other activity types"</string>
+  <string name="ui_other_fieldwork_f4c7adc" formatted="false">"Other fieldwork"</string>
+  <string name="ui_other_shortcuts_44725ba" formatted="false">"Other shortcuts"</string>
+  <string name="ui_other_task_types_36eac6f" formatted="false">"Other task types"</string>
+  <string name="ui_overdue_d660945" formatted="false">"Overdue"</string>
+  <string name="ui_owner_4b1b8aa" formatted="false">"Owner"</string>
+  <string name="ui_owner_team_members_ea9cf2b" formatted="false">"Owner &amp; team members"</string>
+  <string name="ui_partial_harvest_41db432" formatted="false">"Partial harvest"</string>
+  <string name="ui_partial_harvest_the_crop_stays_active_fb813eb" formatted="false">"Partial harvest · The crop stays active."</string>
+  <string name="ui_password_e7cf3ef" formatted="false">"Password"</string>
+  <string name="ui_password_help_aea062c" formatted="false">"Password help"</string>
+  <string name="ui_past_crops_7256c67" formatted="false">"Past crops"</string>
+  <string name="ui_pending_331551b" formatted="false">"Pending"</string>
+  <string name="ui_pending_approvals_1_s_4aae5f3" formatted="false">"Pending approvals (%1$s)"</string>
+  <string name="ui_pending_sync_e45ceb7" formatted="false">"Pending sync"</string>
+  <string name="ui_pending_1_s_9a00006" formatted="false">"Pending: %1$s"</string>
+  <string name="ui_people_farm_060f125" formatted="false">"People &amp; farm"</string>
+  <string name="ui_people_who_already_have_access_497a4c7" formatted="false">"People who already have access."</string>
+  <string name="ui_period_1_s_06bbcf0" formatted="false">"Period: %1$s"</string>
+  <string name="ui_person_not_in_current_choices_0a345f7" formatted="false">"Person not in current choices"</string>
+  <string name="ui_pest_d908813" formatted="false">"Pest"</string>
+  <string name="ui_pesticide_3e04b39" formatted="false">"Pesticide"</string>
+  <string name="ui_pesticides_3172816" formatted="false">"Pesticides"</string>
+  <string name="ui_philippine_time_asia_manila_is_used_by_default_98e64bf" formatted="false">"Philippine time (Asia/Manila) is used by default."</string>
+  <string name="ui_photo_d84eeba" formatted="false">"Photo"</string>
+  <string name="ui_photo_optional_attach_it_to_this_inspection_in_one_s_769932d" formatted="false">"Photo (optional) — attach it to this inspection in one save."</string>
+  <string name="ui_photo_retry_scheduled_it_is_not_yet_confirmed_by_the_39737fd" formatted="false">"Photo retry scheduled. It is not yet confirmed by the server."</string>
+  <string name="ui_photo_selected_for_offline_upload_52b8bef" formatted="false">"Photo selected for offline upload"</string>
+  <string name="ui_photo_unavailable_check_your_connection_526f482" formatted="false">"Photo unavailable. Check your connection."</string>
+  <string name="ui_photos_5e3147a" formatted="false">"Photos"</string>
+  <string name="ui_photos_upload_after_their_linked_inspections_9f4cf79" formatted="false">"Photos upload after their linked inspections."</string>
+  <string name="ui_pick_up_right_where_you_left_off_4af7027" formatted="false">"Pick up right where you left off."</string>
+  <string name="ui_pin_selected_confirm_the_farm_s_address_or_nearby_ar_99e5dca" formatted="false">"Pin selected. Confirm the farm's address or nearby area."</string>
+  <string name="ui_plan_fa8ed0b" formatted="false">"Plan"</string>
+  <string name="ui_plan_a_crop_b56f05c" formatted="false">"Plan a crop"</string>
+  <string name="ui_plan_crops_organize_fieldwork_and_manage_your_farm_i_6c3d320" formatted="false">"Plan crops, organize fieldwork and manage your farm in one place."</string>
+  <string name="ui_plan_crops_record_fieldwork_and_track_harvests_in_on_725071b" formatted="false">"Plan crops, record fieldwork and track harvests in one place."</string>
+  <string name="ui_plan_crops_set_planting_dates_and_see_what_comes_nex_69a1eba" formatted="false">"Plan crops, set planting dates, and see what comes next."</string>
+  <string name="ui_planned_fb6f7c9" formatted="false">"Planned"</string>
+  <string name="ui_planned_date_37b3b31" formatted="false">"Planned date"</string>
+  <string name="ui_planned_planting_1_s_64bee88" formatted="false">"Planned planting: %1$s"</string>
+  <string name="ui_plant_0bd287f" formatted="false">"Plant"</string>
+  <string name="ui_planted_92b5c62" formatted="false">"Planted"</string>
+  <string name="ui_planted_1_s_b58f675" formatted="false">"Planted: %1$s"</string>
+  <string name="ui_planting_7a7418f" formatted="false">"Planting"</string>
+  <string name="ui_planting_date_b4f103e" formatted="false">"Planting date"</string>
+  <string name="ui_planting_plans_must_be_confirmed_by_the_farm_server_8a24e1e" formatted="false">"Planting plans must be confirmed by the farm server."</string>
+  <string name="ui_please_check_the_entered_details_8e67710" formatted="false">"Please check the entered details."</string>
+  <string name="ui_plot_name_4b4ee9b" formatted="false">"Plot name"</string>
+  <string name="ui_plot_1e7e497" formatted="false">"Plot: "</string>
+  <string name="ui_previous_crop_cycles_will_appear_once_they_are_close_a4b9b24" formatted="false">"Previous crop cycles will appear once they are closed."</string>
+  <string name="ui_previous_fieldwork_records_for_this_crop_cycle_fcc870b" formatted="false">"Previous fieldwork records for this crop cycle."</string>
+  <string name="ui_previously_approved_rejected_or_canceled_requests_8c42c63" formatted="false">"Previously approved, rejected or canceled requests."</string>
+  <string name="ui_previously_confirmed_work_is_available_in_its_farm_h_98f5120" formatted="false">"Previously confirmed work is available in its farm history."</string>
+  <string name="ui_product_area_napplication_details_d7bba08" formatted="false">"Product / area:\nApplication details:"</string>
+  <string name="ui_product_used_quantity_and_treatment_area_1938dbc" formatted="false">"Product used, quantity and treatment area"</string>
+  <string name="ui_profile_appearance_and_sign_out_d8c7ca3" formatted="false">"Profile, appearance and sign out"</string>
+  <string name="ui_quantity_received_1_s_eeb9f3e" formatted="false">"Quantity received (%1$s)"</string>
+  <string name="ui_quantity_used_1_s_7f3de5d" formatted="false">"Quantity used (%1$s)"</string>
+  <string name="ui_queued_change_1_s_n_986c73a" formatted="false">"Queued change: %1$s\n"</string>
+  <string name="ui_rain_chance_1_s_dd62a68" formatted="false">"Rain chance: %1$s%% · "</string>
+  <string name="ui_rain_1_s_mm_0710e31" formatted="false">"Rain: %1$s mm · "</string>
+  <string name="ui_read_9b9a8d0" formatted="false">"Read"</string>
+  <string name="ui_read_only_crop_cycle_58b6ec6" formatted="false">"Read-only crop cycle"</string>
+  <string name="ui_read_only_report_d939820" formatted="false">"Read-only report"</string>
+  <string name="ui_ready_for_planting_2e25e3f" formatted="false">"Ready for planting"</string>
+  <string name="ui_reason_required_for_cancellation_or_failure_3fdb6c8" formatted="false">"Reason (required for cancellation or failure)"</string>
+  <string name="ui_reason_required_d976f5d" formatted="false">"Reason (required)"</string>
+  <string name="ui_reason_for_correction_5dede18" formatted="false">"Reason for correction"</string>
+  <string name="ui_reason_to_reverse_ddaaddd" formatted="false">"Reason to reverse"</string>
+  <string name="ui_reason_1_s_4a4671a" formatted="false">"Reason: %1$s"</string>
+  <string name="ui_reconnect_and_refresh_before_completing_dated_tasks_09ecd34" formatted="false">"Reconnect and refresh before completing dated tasks."</string>
+  <string name="ui_reconnect_and_refresh_to_view_upcoming_tasks_bd6a7e5" formatted="false">"Reconnect and refresh to view upcoming tasks."</string>
+  <string name="ui_reconnect_and_reopen_the_farm_after_the_weather_work_18796c8" formatted="false">"Reconnect and reopen the farm after the weather worker refreshes."</string>
+  <string name="ui_reconnect_and_reopen_your_farm_for_saved_weather_a3c4f51" formatted="false">"Reconnect and reopen your farm for saved weather."</string>
+  <string name="ui_reconnect_or_open_crops_to_refresh_the_farm_s_curren_a3a7c97" formatted="false">"Reconnect or open Crops to refresh the farm's current records."</string>
+  <string name="ui_reconnect_to_check_the_latest_crop_records_3463baa" formatted="false">"Reconnect to check the latest crop records."</string>
+  <string name="ui_reconnect_to_check_the_latest_supply_balances_41ab18b" formatted="false">"Reconnect to check the latest supply balances."</string>
+  <string name="ui_reconnect_to_edit_farm_settings_55db2b1" formatted="false">"Reconnect to edit farm settings."</string>
+  <string name="ui_reconnect_to_load_crop_records_no_crop_status_is_ass_4a70d70" formatted="false">"Reconnect to load crop records. No crop status is assumed."</string>
+  <string name="ui_reconnect_to_load_current_assignments_offline_field__264b05c" formatted="false">"Reconnect to load current assignments. Offline field records can still be saved."</string>
+  <string name="ui_reconnect_to_load_saved_stock_balances_do_not_assume_6003786" formatted="false">"Reconnect to load saved stock balances. Do not assume stock is zero."</string>
+  <string name="ui_reconnect_to_view_confirmed_harvest_data_9f9e4ec" formatted="false">"Reconnect to view confirmed harvest data."</string>
+  <string name="ui_record_bfdd510" formatted="false">"Record"</string>
+  <string name="ui_record_1_s_0dca5e7" formatted="false">"Record %1$s"</string>
+  <string name="ui_record_activity_423d9be" formatted="false">"Record activity"</string>
+  <string name="ui_record_farm_activity_efbf5c0" formatted="false">"Record farm activity"</string>
+  <string name="ui_record_fertilizing_db7f592" formatted="false">"Record fertilizing"</string>
+  <string name="ui_record_fieldwork_797a75c" formatted="false">"Record fieldwork"</string>
+  <string name="ui_record_harvest_f027857" formatted="false">"Record harvest"</string>
+  <string name="ui_record_harvests_review_supplies_and_follow_your_farm_b795ce3" formatted="false">"Record harvests, review supplies, and follow your farm's progress."</string>
+  <string name="ui_record_inspection_9a13794" formatted="false">"Record inspection"</string>
+  <string name="ui_record_inspection_observation_1f96e37" formatted="false">"Record inspection / observation"</string>
+  <string name="ui_record_only_what_was_actually_harvested_today_f132a6d" formatted="false">"Record only what was actually harvested today."</string>
+  <string name="ui_record_the_crop_activity_first_then_return_here_to_u_e4f08b3" formatted="false">"Record the crop activity first, then return here to use supplies."</string>
+  <string name="ui_record_watering_d15d0cc" formatted="false">"Record watering"</string>
+  <string name="ui_record_watering_inspections_photos_and_partial_harve_945fa96" formatted="false">"Record watering, inspections, photos and partial harvests from Record."</string>
+  <string name="ui_record_what_you_picked_then_review_confirmed_totals_b716f93" formatted="false">"Record what you picked, then review confirmed totals."</string>
+  <string name="ui_record_work_as_you_go_12971b6" formatted="false">"Record work as you go"</string>
+  <string name="ui_record_your_fieldwork_626646f" formatted="false">"Record your fieldwork"</string>
+  <string name="ui_recorded_1_s_utc_8372bed" formatted="false">"Recorded %1$s"</string>
+  <string name="ui_records_are_confirmed_only_after_server_acceptance_p_ac07c1c" formatted="false">"Records are confirmed only after server acceptance. Pending work stays on this phone."</string>
+  <string name="ui_records_saved_on_this_phone_b1f0066" formatted="false">"Records saved on this phone."</string>
+  <string name="ui_refresh_0e91610" formatted="false">"Refresh"</string>
+  <string name="ui_refresh_join_requests_a015710" formatted="false">"Refresh join requests"</string>
+  <string name="ui_refresh_reports_2cd6312" formatted="false">"Refresh reports"</string>
+  <string name="ui_regenerate_farm_code_396705c" formatted="false">"Regenerate farm code"</string>
+  <string name="ui_registration_failed_check_your_details_and_connectio_5eb5fd5" formatted="false">"Registration failed. Check your details and connection."</string>
+  <string name="ui_reject_1_s_247e657" formatted="false">"Reject %1$s"</string>
+  <string name="ui_reject_1_s_s_request_e252316" formatted="false">"Reject %1$s's request?"</string>
+  <string name="ui_rejected_aea4a04" formatted="false">"Rejected"</string>
+  <string name="ui_reminders_and_farm_messages_24f2deb" formatted="false">"Reminders and farm messages"</string>
+  <string name="ui_remove_1_s_from_2_s_they_will_lose_farm_access_1dd3f56" formatted="false">"Remove %1$s from %2$s? They will lose farm access."</string>
+  <string name="ui_remove_member_9438e0b" formatted="false">"Remove member"</string>
+  <string name="ui_remove_selected_photo_f6ee0cf" formatted="false">"Remove selected photo"</string>
+  <string name="ui_replace_the_farm_code_the_old_code_will_stop_accepti_6e2f946" formatted="false">"Replace the farm code? The old code will stop accepting new requests. "</string>
+  <string name="ui_replay_anigo_guide_db21536" formatted="false">"Replay AniGo guide"</string>
+  <string name="ui_replay_crop_planning_example_a725ce6" formatted="false">"Replay crop planning example"</string>
+  <string name="ui_replay_example_39bbcd6" formatted="false">"Replay example"</string>
+  <string name="ui_replay_farm_management_example_769f6ea" formatted="false">"Replay farm management example"</string>
+  <string name="ui_replay_fieldwork_example_67a2867" formatted="false">"Replay fieldwork example"</string>
+  <string name="ui_replay_harvest_example_77e3038" formatted="false">"Replay harvest example"</string>
+  <string name="ui_request_access_b06f166" formatted="false">"Request access"</string>
+  <string name="ui_request_canceled_you_can_apply_again_with_the_farm_s_cfaff52" formatted="false">"Request canceled. You can apply again with the farm's current code."</string>
+  <string name="ui_request_history_7edce5d" formatted="false">"Request history"</string>
+  <string name="ui_request_sent_farm_access_awaits_owner_approval_b8538c6" formatted="false">"Request sent. Farm access awaits owner approval."</string>
+  <string name="ui_requested_1_s_utc_fe54f71" formatted="false">"Requested %1$s"</string>
+  <string name="ui_resolved_5be3c2c" formatted="false">"Resolved"</string>
+  <string name="ui_resolved_after_checking_be01a2a" formatted="false">"Resolved after checking"</string>
+  <string name="ui_retry_942087c" formatted="false">"Retry"</string>
+  <string name="ui_retry_photo_22a7a49" formatted="false">"Retry photo"</string>
+  <string name="ui_retry_scheduled_this_record_is_not_confirmed_until_i_cd1f1ac" formatted="false">"Retry scheduled. This record is not confirmed until its sync finishes."</string>
+  <string name="ui_retry_this_change_200e584" formatted="false">"Retry this change"</string>
+  <string name="ui_reversal_7fee49d" formatted="false">"Reversal"</string>
+  <string name="ui_reverse_1_s_2_s_for_3_s_this_changes_the_stock_balan_eead121" formatted="false">"Reverse %1$s %2$s for %3$s? This changes the stock balance."</string>
+  <string name="ui_reverse_this_transaction_36f2dd8" formatted="false">"Reverse this transaction"</string>
+  <string name="ui_review_and_manage_this_farm_31895e3" formatted="false">"Review and manage this farm."</string>
+  <string name="ui_review_balances_and_record_farm_stock_movement_75913eb" formatted="false">"Review balances and record farm stock movement."</string>
+  <string name="ui_review_how_to_organize_farms_crops_fieldwork_and_har_821be15" formatted="false">"Review how to organize farms, crops, fieldwork, and harvests."</string>
+  <string name="ui_review_offline_sync_31b3cbe" formatted="false">"Review offline sync"</string>
+  <string name="ui_review_overdue_tasks_200daad" formatted="false">"Review overdue tasks"</string>
+  <string name="ui_review_reversal_c89e12d" formatted="false">"Review reversal"</string>
+  <string name="ui_review_saved_advisories_5271105" formatted="false">"Review saved advisories"</string>
+  <string name="ui_review_saved_work_2165dad" formatted="false">"Review saved work"</string>
+  <string name="ui_review_sync_issues_1108ae0" formatted="false">"Review sync issues"</string>
+  <string name="ui_review_the_inspection_entry_above_first_retrying_thi_3452d13" formatted="false">"Review the inspection entry above first. Retrying this photo alone cannot finish it."</string>
+  <string name="ui_review_voiding_this_harvest_13312e1" formatted="false">"Review voiding this harvest"</string>
+  <string name="ui_rice_1b9bc7b" formatted="false">"Rice"</string>
+  <string name="ui_rice_planting_29a39f4" formatted="false">"Rice planting"</string>
+  <string name="ui_riverside_farm_3379a8e" formatted="false">"Riverside Farm"</string>
+  <string name="ui_sample_crop_calendar_40575e6" formatted="false">"Sample crop calendar"</string>
+  <string name="ui_sample_crop_plan_step_1_s_of_4_demonstration_only_dbe7713" formatted="false">"Sample crop plan, step %1$s of 4; demonstration only"</string>
+  <string name="ui_sample_farm_setup_step_1_s_of_4_demonstration_only_b075867" formatted="false">"Sample farm setup, step %1$s of 4; demonstration only"</string>
+  <string name="ui_sample_farm_workspace_6dd9a14" formatted="false">"Sample farm workspace"</string>
+  <string name="ui_sample_fieldwork_step_1_s_of_4_local_save_pending_sy_bfadacc" formatted="false">"Sample fieldwork, step %1$s of 4; local save pending sync; demonstration only"</string>
+  <string name="ui_sample_harvest_step_1_s_of_4_two_separate_harvest_ba_0ca2a5c" formatted="false">"Sample harvest, step %1$s of 4; two separate harvest batches total %2$s kilograms; demonstration only"</string>
+  <string name="ui_sample_north_plot_fd4a252" formatted="false">"Sample: North Plot"</string>
+  <string name="ui_sample_rice_crop_9f5293c" formatted="false">"Sample: Rice crop"</string>
+  <string name="ui_save_activity_4dd5cbf" formatted="false">"Save activity"</string>
+  <string name="ui_save_activity_and_supply_use_725919b" formatted="false">"Save activity and supply use"</string>
+  <string name="ui_save_an_actual_harvest_quantity_4b70cd6" formatted="false">"Save an actual harvest quantity"</string>
+  <string name="ui_save_changes_dd0ae7a" formatted="false">"Save changes"</string>
+  <string name="ui_save_corrected_count_95207d2" formatted="false">"Save corrected count"</string>
+  <string name="ui_save_failed_check_the_values_or_device_storage_324a685" formatted="false">"Save failed. Check the values or device storage."</string>
+  <string name="ui_save_farm_ad6e82f" formatted="false">"Save farm"</string>
+  <string name="ui_save_harvested_amount_aefb9bd" formatted="false">"Save harvested amount"</string>
+  <string name="ui_save_inspection_185b594" formatted="false">"Save inspection"</string>
+  <string name="ui_save_issue_follow_up_a80ca33" formatted="false">"Save issue follow-up"</string>
+  <string name="ui_save_item_details_2efd56b" formatted="false">"Save item details"</string>
+  <string name="ui_save_new_plot_9287048" formatted="false">"Save new plot"</string>
+  <string name="ui_save_planting_plan_51733fa" formatted="false">"Save planting plan"</string>
+  <string name="ui_save_plot_changes_ee4ed17" formatted="false">"Save plot changes"</string>
+  <string name="ui_save_received_stock_2ba937c" formatted="false">"Save received stock"</string>
+  <string name="ui_save_supply_use_c8cf5f2" formatted="false">"Save supply use"</string>
+  <string name="ui_saved_advisories_acaab51" formatted="false">"Saved advisories"</string>
+  <string name="ui_saved_farm_forecast_c4fd6d0" formatted="false">"Saved farm forecast"</string>
+  <string name="ui_saved_field_record_f86b9ef" formatted="false">"Saved field record"</string>
+  <string name="ui_saved_fieldwork_will_appear_here_a6dfc23" formatted="false">"Saved fieldwork will appear here."</string>
+  <string name="ui_saved_forecast_may_be_outdated_f92fb64" formatted="false">"Saved forecast may be outdated"</string>
+  <string name="ui_saved_harvests_with_each_unit_counted_separately_5250a53" formatted="false">"Saved harvests, with each unit counted separately."</string>
+  <string name="ui_saved_local_record_721fe6a" formatted="false">"Saved local record"</string>
+  <string name="ui_saved_on_device_2e2c6ae" formatted="false">"Saved on device"</string>
+  <string name="ui_saved_on_phone_a8ae994" formatted="false">"Saved on phone"</string>
+  <string name="ui_saved_on_the_server_but_refreshing_the_list_failed_r_1f344dd" formatted="false">"Saved on the server, but refreshing the list failed. Refresh before doing anything else."</string>
+  <string name="ui_saved_on_this_device_it_will_sync_when_online_894f72b" formatted="false">"Saved on this device. It will sync when online."</string>
+  <string name="ui_saved_on_this_phone_4c03b51" formatted="false">"Saved on this phone"</string>
+  <string name="ui_saved_on_this_phone_first_the_balance_changes_only_a_1d41cdd" formatted="false">"Saved on this phone first. The balance changes only after server confirmation."</string>
+  <string name="ui_saved_on_this_phone_first_totals_update_after_server_aa94783" formatted="false">"Saved on this phone first. Totals update after server confirmation."</string>
+  <string name="ui_saved_on_your_phone_first_sent_when_online_5610d4c" formatted="false">"Saved on your phone first; sent when online."</string>
+  <string name="ui_saved_predictions_not_live_measurements_6f71fa1" formatted="false">"Saved predictions, not live measurements."</string>
+  <string name="ui_saved_weather_85786c4" formatted="false">"Saved weather"</string>
+  <string name="ui_saved_weather_older_than_12_hours_or_invalid_2ddbe71" formatted="false">"Saved weather older than 12 hours or invalid"</string>
+  <string name="ui_search_49c266b" formatted="false">"Search"</string>
+  <string name="ui_search_a_barangay_or_nearby_place_then_move_the_pin__26f2210" formatted="false">"Search a barangay or nearby place, then move the pin to the farm."</string>
+  <string name="ui_search_a_place_or_tap_a_map_pin_to_enable_local_weat_8b4e935" formatted="false">"Search a place or tap a map pin to enable local weather forecasts."</string>
+  <string name="ui_search_address_or_place_49925f2" formatted="false">"Search address or place"</string>
+  <string name="ui_search_by_name_4ae2b33" formatted="false">"Search by name"</string>
+  <string name="ui_search_city_or_region_e1ae2f2" formatted="false">"Search city or region"</string>
+  <string name="ui_search_unavailable_tap_the_map_instead_719611f" formatted="false">"Search unavailable. Tap the map instead."</string>
+  <string name="ui_see_all_setup_steps_274c620" formatted="false">"See all setup steps"</string>
+  <string name="ui_seeds_45a1954" formatted="false">"Seeds"</string>
+  <string name="ui_selected_crop_inspection_photo_dd285f5" formatted="false">"Selected crop inspection photo"</string>
+  <string name="ui_selected_crop_not_listed_6f49299" formatted="false">"Selected crop not listed"</string>
+  <string name="ui_selected_crop_record_activities_and_check_history_55260d4" formatted="false">"Selected crop · Record activities and check history."</string>
+  <string name="ui_selected_farm_3dd2fdd" formatted="false">"Selected farm"</string>
+  <string name="ui_selected_1f153fd" formatted="false">"Selected: "</string>
+  <string name="ui_sending_e595f17" formatted="false">"Sending"</string>
+  <string name="ui_sent_c16bc82" formatted="false">"Sent"</string>
+  <string name="ui_server_confirmed_data_only_unsynced_mobile_harvests__7db9344" formatted="false">"Server-confirmed data only. Unsynced mobile harvests are not included."</string>
+  <string name="ui_server_confirmed_stock_changes_will_appear_here_11d60c2" formatted="false">"Server-confirmed stock changes will appear here."</string>
+  <string name="ui_server_confirmed_work_is_available_in_farm_history_864ee72" formatted="false">"Server-confirmed work is available in farm history."</string>
+  <string name="ui_set_field_worker_63060ff" formatted="false">"Set Field Worker"</string>
+  <string name="ui_set_manager_0f31dd9" formatted="false">"Set Manager"</string>
+  <string name="ui_set_the_opening_balance_and_an_optional_low_stock_th_1f6665a" formatted="false">"Set the opening balance and an optional low-stock threshold."</string>
+  <string name="ui_set_up_your_growing_areas_to_begin_a65be6a" formatted="false">"Set up your growing areas to begin."</string>
+  <string name="ui_severity_1_s_31458b3" formatted="false">"Severity %1$s"</string>
+  <string name="ui_severity_e642a41" formatted="false">"Severity: "</string>
+  <string name="ui_share_anigo_farm_code_d9e355f" formatted="false">"Share AniGo farm code"</string>
+  <string name="ui_share_code_4c79ea5" formatted="false">"Share code"</string>
+  <string name="ui_share_the_code_above_to_invite_workers_requests_requ_64d53fb" formatted="false">"Share the code above to invite workers. Requests require your approval."</string>
+  <string name="ui_share_this_code_joining_still_requires_your_approval_f5e0cb2" formatted="false">"Share this code. Joining still requires your approval."</string>
+  <string name="ui_show_0df6f1c" formatted="false">"Show"</string>
+  <string name="ui_show_20_more_completed_tasks_1_s_remaining_f0541c5" formatted="false">"Show 20 more completed tasks (%1$s remaining)"</string>
+  <string name="ui_show_20_more_crop_records_1_s_remaining_39bd9b5" formatted="false">"Show 20 more crop records (%1$s remaining)"</string>
+  <string name="ui_show_20_more_farm_tasks_1_s_remaining_1f5fba5" formatted="false">"Show 20 more farm tasks (%1$s remaining)"</string>
+  <string name="ui_show_20_more_farms_1_s_remaining_bdf4c83" formatted="false">"Show 20 more farms (%1$s remaining)"</string>
+  <string name="ui_show_20_more_requests_1_s_remaining_22cec12" formatted="false">"Show 20 more requests (%1$s remaining)"</string>
+  <string name="ui_show_20_more_supplies_1_s_remaining_2993829" formatted="false">"Show 20 more supplies (%1$s remaining)"</string>
+  <string name="ui_show_all_history_f31e853" formatted="false">"Show all history"</string>
+  <string name="ui_show_daily_forecast_d2b5d2c" formatted="false">"Show daily forecast"</string>
+  <string name="ui_show_low_stock_supplies_57e45e0" formatted="false">"Show low-stock supplies"</string>
+  <string name="ui_show_recent_930df3d" formatted="false">"Show recent"</string>
+  <string name="ui_show_today_s_tasks_4aec0d9" formatted="false">"Show today's tasks"</string>
+  <string name="ui_showing_the_most_recent_local_entries_older_records__2c28ebd" formatted="false">"Showing the most recent local entries. Older records are kept on this device."</string>
+  <string name="ui_sign_in_again_to_send_your_saved_work_cd65708" formatted="false">"Sign in again to send your saved work."</string>
+  <string name="ui_sign_in_failed_check_your_credentials_and_connection_425ff86" formatted="false">"Sign in failed. Check your credentials and connection."</string>
+  <string name="ui_sign_out_48f0d3d" formatted="false">"Sign out"</string>
+  <string name="ui_sign_out_of_your_account_b9a5c73" formatted="false">"Sign out of your account?"</string>
+  <string name="ui_signed_in_as_abc50e3" formatted="false">"Signed in as"</string>
+  <string name="ui_skip_28d0359" formatted="false">"Skip"</string>
+  <string name="ui_skip_intro_5ee6bb6" formatted="false">"Skip intro"</string>
+  <string name="ui_skipped_12698ce" formatted="false">"Skipped"</string>
+  <string name="ui_some_android_records_can_be_saved_offline_and_synchr_4fdf5bb" formatted="false">"Some Android records can be saved offline and synchronized later. Local save is not server confirmation."</string>
+  <string name="ui_some_records_stay_on_your_phone_until_you_can_sync_t_2554ba0" formatted="false">"Some records stay on your phone until you can sync them."</string>
+  <string name="ui_source_1_s_800bc31" formatted="false">"Source: %1$s"</string>
+  <string name="ui_south_plot_0d12521" formatted="false">"South Plot"</string>
+  <string name="ui_stage_1_s_e50c962" formatted="false">"Stage: %1$s"</string>
+  <string name="ui_start_a_planting_cycle_before_recording_activities_i_d77e9cd" formatted="false">"Start a planting cycle before recording activities, inspections or harvests."</string>
+  <string name="ui_start_growing_1045593" formatted="false">"Start growing"</string>
+  <string name="ui_start_your_own_farm_or_enter_the_code_from_an_owner_41d1807" formatted="false">"Start your own farm or enter the code from an owner."</string>
+  <string name="ui_start_your_own_farm_or_ask_to_join_someone_s_team_cc615ed" formatted="false">"Start your own farm, or ask to join someone's team."</string>
+  <string name="ui_start_your_planned_crop_75ee7bb" formatted="false">"Start your planned crop"</string>
+  <string name="ui_step_474a987" formatted="false">"Step "</string>
+  <string name="ui_stock_after_change_1_s_n_ff166e2" formatted="false">"Stock after change: %1$s\n"</string>
+  <string name="ui_stock_balance_preview_c8db84d" formatted="false">"Stock balance preview"</string>
+  <string name="ui_stock_change_failed_check_values_and_permissions_rel_38fe084" formatted="false">"Stock change failed. Check values and permissions; reload if inventory has changed."</string>
+  <string name="ui_stock_change_queued_do_not_record_it_again_check_off_6a88d15" formatted="false">"Stock change queued. Do not record it again; check offline sync status."</string>
+  <string name="ui_stock_changed_again_review_and_retry_7b546a7" formatted="false">"Stock changed again. Review and retry."</string>
+  <string name="ui_stock_correction_e181919" formatted="false">"Stock correction"</string>
+  <string name="ui_stock_history_e4dedf7" formatted="false">"Stock history"</string>
+  <string name="ui_stock_may_have_changed_check_its_latest_balance_befo_0767216" formatted="false">"Stock may have changed. Check its latest balance before retrying."</string>
+  <string name="ui_stock_movement_c93f4ce" formatted="false">"Stock movement"</string>
+  <string name="ui_stock_overview_1c9d9a6" formatted="false">"Stock overview"</string>
+  <string name="ui_stock_quantity_change_3036cc0" formatted="false">"Stock quantity change: "</string>
+  <string name="ui_stock_received_28ef913" formatted="false">"Stock received"</string>
+  <string name="ui_stock_retry_scheduled_the_balance_remains_unconfirme_1b39009" formatted="false">"Stock retry scheduled. The balance remains unconfirmed until sync finishes."</string>
+  <string name="ui_supplies_6be7560" formatted="false">"Supplies"</string>
+  <string name="ui_supplies_unavailable_you_can_still_log_an_activity_w_1967767" formatted="false">"Supplies unavailable. You can still log an activity without stock."</string>
+  <string name="ui_supplies_used_487844c" formatted="false">"Supplies used"</string>
+  <string name="ui_supply_details_734f9d1" formatted="false">"Supply details"</string>
+  <string name="ui_supply_name_cb91cbf" formatted="false">"Supply name"</string>
+  <string name="ui_supply_records_unavailable_offline_8f2c7c6" formatted="false">"Supply records unavailable offline"</string>
+  <string name="ui_supply_to_consume_8034f68" formatted="false">"Supply to consume"</string>
+  <string name="ui_suspected_disease_37f8b7b" formatted="false">"Suspected disease"</string>
+  <string name="ui_suspected_nutrient_deficiency_e55a8eb" formatted="false">"Suspected nutrient deficiency"</string>
+  <string name="ui_switch_farm_3edb967" formatted="false">"Switch farm"</string>
+  <string name="ui_switch_farm_1_s_ebf669c" formatted="false">"Switch farm: %1$s"</string>
+  <string name="ui_sync_now_885e8f4" formatted="false">"Sync now"</string>
+  <string name="ui_sync_queue_39c8598" formatted="false">"Sync queue"</string>
+  <string name="ui_sync_requested_queued_records_will_upload_when_a_con_8f0fb53" formatted="false">"Sync requested. Queued records will upload when a connection is available."</string>
+  <string name="ui_take_photo_7100ac9" formatted="false">"Take photo"</string>
+  <string name="ui_take_photo_for_observation_165d675" formatted="false">"Take photo for observation"</string>
+  <string name="ui_tap_a_crop_to_record_fieldwork_take_photos_or_view_h_5cdf4e4" formatted="false">"Tap a crop to record fieldwork, take photos, or view harvests."</string>
+  <string name="ui_tap_a_plan_to_review_it_or_mark_the_planting_as_star_1cd8c0c" formatted="false">"Tap a plan to review it or mark the planting as started."</string>
+  <string name="ui_tap_the_map_to_place_a_pin_or_search_an_address_42ee28e" formatted="false">"Tap the map to place a pin, or search an address."</string>
+  <string name="ui_task_4bc74b2" formatted="false">"Task"</string>
+  <string name="ui_task_calendar_6dc0c41" formatted="false">"Task calendar"</string>
+  <string name="ui_task_completed_4d76c48" formatted="false">"Task completed."</string>
+  <string name="ui_task_created_9c02f26" formatted="false">"Task created."</string>
+  <string name="ui_task_due_1_s_c946e4a" formatted="false">"Task due %1$s"</string>
+  <string name="ui_task_reminders_and_farm_advisories_5073455" formatted="false">"Task reminders and farm advisories."</string>
+  <string name="ui_task_updated_204dad8" formatted="false">"Task updated."</string>
+  <string name="ui_task_updates_need_internet_offline_field_logs_are_av_2601137" formatted="false">"Task updates need internet. Offline field logs are available from an active crop."</string>
+  <string name="ui_tasks_need_a_connection_987d9a6" formatted="false">"Tasks need a connection"</string>
+  <string name="ui_tasks_require_a_connection_reconnect_and_refresh_bef_f855ba2" formatted="false">"Tasks require a connection. Reconnect and refresh before acting."</string>
+  <string name="ui_tasks_unavailable_connect_and_refresh_to_see_current_85f55e6" formatted="false">"Tasks unavailable. Connect and refresh to see current assignments."</string>
+  <string name="ui_team_access_c3b54bb" formatted="false">"Team &amp; access"</string>
+  <string name="ui_team_access_and_farm_management_5d4fd7a" formatted="false">"Team access and farm management."</string>
+  <string name="ui_the_field_activity_and_supply_consumption_will_be_sa_8a76112" formatted="false">"The field activity and supply consumption will be saved together. "</string>
+  <string name="ui_the_original_entry_stays_in_history_but_will_be_excl_4f9491d" formatted="false">"The original entry stays in history but will be excluded from totals. This requires an online confirmation."</string>
+  <string name="ui_the_owner_must_approve_your_request_446e4be" formatted="false">"The owner must approve your request."</string>
+  <string name="ui_the_photo_file_will_be_permanently_deleted_from_this_58b4ffb" formatted="false">"The photo file will be permanently deleted from this phone. This cannot be undone."</string>
+  <string name="ui_the_result_could_not_be_confirmed_refresh_the_list_b_3b9e1b8" formatted="false">"The result could not be confirmed. Refresh the list before resubmitting to avoid duplicates."</string>
+  <string name="ui_the_selected_unsynced_photo_was_discarded_from_this__f1f252b" formatted="false">"The selected unsynced photo was discarded from this phone."</string>
+  <string name="ui_the_selected_unsynced_record_was_discarded_from_this_be3bd29" formatted="false">"The selected unsynced record was discarded from this phone."</string>
+  <string name="ui_the_server_confirmed_the_change_but_history_could_no_c2c994e" formatted="false">"The server confirmed the change, but history could not refresh. Reopen to check it."</string>
+  <string name="ui_the_server_is_unavailable_try_again_later_4023e15" formatted="false">"The server is unavailable. Try again later."</string>
+  <string name="ui_there_are_no_additional_team_members_yet_a593a0d" formatted="false">"There are no additional team members yet."</string>
+  <string name="ui_these_may_be_outdated_check_official_current_warning_8baebe2" formatted="false">"These may be outdated. Check official current warnings before fieldwork."</string>
+  <string name="ui_these_records_are_not_server_confirmed_and_are_not_i_d6631c1" formatted="false">"These records are not server-confirmed and are not included in the totals above."</string>
+  <string name="ui_these_records_have_not_yet_been_confirmed_by_the_ser_bd2209e" formatted="false">"These records have not yet been confirmed by the server."</string>
+  <string name="ui_these_tasks_need_attention_first_f8f6a39" formatted="false">"These tasks need attention first."</string>
+  <string name="ui_they_will_not_sync_while_signed_out_sign_back_into_t_b536edf" formatted="false">"They will not sync while signed out. Sign back into the same account to resume. Unsaved form changes may be lost."</string>
+  <string name="ui_this_activity_and_its_stock_deduction_will_be_queued_4839875" formatted="false">"This activity and its stock deduction will be queued as one "</string>
+  <string name="ui_this_crop_is_no_longer_active_its_confirmed_harvest__ebfe06f" formatted="false">"This crop is no longer active. Its confirmed harvest history remains available."</string>
+  <string name="ui_this_does_not_rule_out_current_hazards_a4e8667" formatted="false">"This does not rule out current hazards."</string>
+  <string name="ui_this_email_may_already_be_registered_try_signing_in_14ac209" formatted="false">"This email may already be registered. Try signing in."</string>
+  <string name="ui_this_farm_37bc053" formatted="false">"This farm"</string>
+  <string name="ui_this_record_changed_refresh_before_trying_again_a0eb8f1" formatted="false">"This record changed. Refresh before trying again."</string>
+  <string name="ui_this_record_is_no_longer_available_refresh_the_page_d61608d" formatted="false">"This record is no longer available. Refresh the page."</string>
+  <string name="ui_this_request_changed_refresh_to_load_the_latest_farm_4d5a6cb" formatted="false">"This request changed. Refresh to load the latest farm access details."</string>
+  <string name="ui_this_saved_local_record_will_be_permanently_deleted__72e3313" formatted="false">"This saved local record will be permanently deleted. Linked unsynced photos may also be removed. This cannot be undone."</string>
+  <string name="ui_this_updates_the_server_task_status_it_does_not_crea_3595e3e" formatted="false">"This updates the server task status; it does not create a fieldwork log."</string>
+  <string name="ui_this_year_9859718" formatted="false">"This year"</string>
+  <string name="ui_thumbnail_for_1_s_48274fc" formatted="false">"Thumbnail for %1$s"</string>
+  <string name="ui_time_zone_b9fe146" formatted="false">"Time zone"</string>
+  <string name="ui_today_2b065c7" formatted="false">"Today"</string>
+  <string name="ui_today_1_s_87044f5" formatted="false">"Today · %1$s"</string>
+  <string name="ui_today_s_assigned_fieldwork_de5a7e0" formatted="false">"Today's assigned fieldwork."</string>
+  <string name="ui_today_s_fieldwork_e324ea2" formatted="false">"Today's fieldwork"</string>
+  <string name="ui_today_s_tasks_0ad22a4" formatted="false">"Today's tasks"</string>
+  <string name="ui_today_s_work_and_upcoming_assignments_89aa771" formatted="false">"Today's work and upcoming assignments."</string>
+  <string name="ui_too_many_requests_please_wait_and_try_again_02f43f1" formatted="false">"Too many requests. Please wait and try again."</string>
+  <string name="ui_try_a_different_plot_name_4a4ca09" formatted="false">"Try a different plot name."</string>
+  <string name="ui_try_again_d8b8392" formatted="false">"Try again"</string>
+  <string name="ui_turn_on_device_location_or_select_your_farm_on_the_m_9b4f562" formatted="false">"Turn on device location, or select your farm on the map."</string>
+  <string name="ui_typical_growth_1_s_days_d2317f3" formatted="false">"Typical growth: %1$s days"</string>
+  <string name="ui_unassigned_14d33bd" formatted="false">"Unassigned"</string>
+  <string name="ui_unassigned_owner_receives_reminder_d3a2cbc" formatted="false">"Unassigned (owner receives reminder)"</string>
+  <string name="ui_unavailable_ca18449" formatted="false">"Unavailable"</string>
+  <string name="ui_unexpected_backend_response_1b29f1b" formatted="false">"Unexpected backend response"</string>
+  <string name="ui_unit_4e54596" formatted="false">"Unit"</string>
+  <string name="ui_unit_kg_l_pcs_2a622d3" formatted="false">"Unit (kg, L, pcs)"</string>
+  <string name="ui_unit_must_be_20_characters_or_fewer_3c41938" formatted="false">"Unit must be 20 characters or fewer."</string>
+  <string name="ui_unknown_b764cdc" formatted="false">"Unknown"</string>
+  <string name="ui_unread_1b9f384" formatted="false">"Unread"</string>
+  <string name="ui_unsaved_form_changes_may_be_lost_your_server_confirm_637f7db" formatted="false">"Unsaved form changes may be lost. Your server-confirmed farm records will stay available when you sign back in."</string>
+  <string name="ui_upcoming_5f1a254" formatted="false">"Upcoming"</string>
+  <string name="ui_upcoming_planting_plans_will_appear_here_ecccab1" formatted="false">"Upcoming planting plans will appear here."</string>
+  <string name="ui_upcoming_crop_activities_8b6e583" formatted="false">"Upcoming: crop activities"</string>
+  <string name="ui_update_planting_plan_12c26b1" formatted="false">"Update planting plan"</string>
+  <string name="ui_update_stock_9d8db24" formatted="false">"Update stock"</string>
+  <string name="ui_update_this_farm_s_address_location_pin_and_local_ti_bbf3221" formatted="false">"Update this farm's address, location pin and local time zone."</string>
+  <string name="ui_updated_1_s_utc_20c85cb" formatted="false">"Updated %1$s"</string>
+  <string name="ui_updating_crop_records_1119ae6" formatted="false">"Updating crop records…"</string>
+  <string name="ui_updating_farm_tasks_dcdc3c0" formatted="false">"Updating farm tasks…"</string>
+  <string name="ui_updating_notifications_eb1cf1f" formatted="false">"Updating notifications…"</string>
+  <string name="ui_updating_supplies_28be079" formatted="false">"Updating supplies…"</string>
+  <string name="ui_updating_supply_record_0ab7c7b" formatted="false">"Updating supply record…"</string>
+  <string name="ui_uploaded_1_s_073da49" formatted="false">"Uploaded %1$s"</string>
+  <string name="ui_uploads_automatically_when_a_connection_is_available_30fa19b" formatted="false">"Uploads automatically when a connection is available."</string>
+  <string name="ui_use_10_128_characters_with_uppercase_lowercase_and_a_47fe104" formatted="false">"Use 10–128 characters with uppercase, lowercase and a number."</string>
+  <string name="ui_use_add_growing_plot_to_create_the_first_growing_are_08f088b" formatted="false">"Use Add growing plot to create the first growing area."</string>
+  <string name="ui_use_supplies_3304864" formatted="false">"Use Supplies"</string>
+  <string name="ui_use_a_positive_quantity_with_at_most_3_decimal_place_d538afc" formatted="false">"Use a positive quantity, with at most 3 decimal places."</string>
+  <string name="ui_use_a_supply_name_between_2_and_120_characters_f889670" formatted="false">"Use a supply name between 2 and 120 characters."</string>
+  <string name="ui_use_a_supply_outside_fertilizer_application_423e4c8" formatted="false">"Use a supply outside fertilizer application"</string>
+  <string name="ui_use_my_location_30cbc33" formatted="false">"Use my location"</string>
+  <string name="ui_use_supplies_86b8613" formatted="false">"Use supplies"</string>
+  <string name="ui_use_this_location_69d62e1" formatted="false">"Use this location"</string>
+  <string name="ui_use_this_only_to_fix_a_physical_count_or_recording_m_fad7a50" formatted="false">"Use this only to fix a physical count or recording mistake."</string>
+  <string name="ui_used_ae7d8df" formatted="false">"Used"</string>
+  <string name="ui_using_saved_inventory_balances_the_server_will_check_9adcc61" formatted="false">"Using saved inventory balances. The server will check stock "</string>
+  <string name="ui_valid_f516220" formatted="false">"Valid"</string>
+  <string name="ui_valid_harvests_count_toward_the_total_voided_entries_7d368fa" formatted="false">"Valid harvests count toward the total. Voided entries remain for auditing."</string>
+  <string name="ui_valid_harvests_1_s_3aa788d" formatted="false">"Valid harvests: %1$s"</string>
+  <string name="ui_vegetative_flowering_fruiting_or_observed_stage_8f9cafb" formatted="false">"Vegetative, flowering, fruiting, or observed stage"</string>
+  <string name="ui_view_activities_photos_6ab6228" formatted="false">"View activities &amp; photos"</string>
+  <string name="ui_view_advisory_dc3cb66" formatted="false">"View advisory"</string>
+  <string name="ui_view_and_manage_growing_areas_b58ea2f" formatted="false">"View and manage growing areas"</string>
+  <string name="ui_view_crops_81d03d1" formatted="false">"View crops"</string>
+  <string name="ui_view_farm_plots_becce47" formatted="false">"View farm plots"</string>
+  <string name="ui_view_farm_supplies_separately_2304a46" formatted="false">"View farm supplies separately"</string>
+  <string name="ui_view_forecast_6c87311" formatted="false">"View forecast"</string>
+  <string name="ui_view_harvest_history_83d95b7" formatted="false">"View harvest history"</string>
+  <string name="ui_view_harvest_records_2463a84" formatted="false">"View harvest records"</string>
+  <string name="ui_view_planting_plans_8c0d527" formatted="false">"View planting plans"</string>
+  <string name="ui_view_sync_status_dd6be1c" formatted="false">"View sync status"</string>
+  <string name="ui_view_task_01444a2" formatted="false">"View task"</string>
+  <string name="ui_viewing_saved_offline_data_ce4ed9e" formatted="false">"Viewing saved offline data"</string>
+  <string name="ui_void_harvest_ce44130" formatted="false">"Void harvest"</string>
+  <string name="ui_void_harvest_record_6c7c1d9" formatted="false">"Void harvest record?"</string>
+  <string name="ui_voided_9f9ae2c" formatted="false">"Voided"</string>
+  <string name="ui_voided_harvests_1_s_38e8d81" formatted="false">"Voided harvests: %1$s"</string>
+  <string name="ui_voided_records_are_excluded_units_remain_separate_046178b" formatted="false">"Voided records are excluded. Units remain separate."</string>
+  <string name="ui_voided_1_s_de98f56" formatted="false">"Voided: %1$s"</string>
+  <string name="ui_waiting_6e293a8" formatted="false">"Waiting"</string>
+  <string name="ui_waiting_for_its_inspection_to_be_accepted_before_upl_1f40fdc" formatted="false">"Waiting for its inspection to be accepted before uploading the photo."</string>
+  <string name="ui_waiting_for_server_confirmation_791ceb0" formatted="false">"Waiting for server confirmation."</string>
+  <string name="ui_water_7ca7dea" formatted="false">"Water"</string>
+  <string name="ui_watering_2ee1114" formatted="false">"Watering"</string>
+  <string name="ui_watering_interval_optional_9ab46cb" formatted="false">"Watering interval (optional)"</string>
+  <string name="ui_weather_a0bba63" formatted="false">"Weather"</string>
+  <string name="ui_weather_data_unavailable_da1a726" formatted="false">"Weather data unavailable."</string>
+  <string name="ui_weeding_4fbeba9" formatted="false">"Weeding"</string>
+  <string name="ui_weeding_pesticide_application_or_other_work_49f49bb" formatted="false">"Weeding, pesticide application or other work"</string>
+  <string name="ui_welcome_0e2226b" formatted="false">"Welcome"</string>
+  <string name="ui_welcome_to_anigo_f8d1e80" formatted="false">"Welcome to AniGo!"</string>
+  <string name="ui_what_did_you_do_on_the_farm_fe228aa" formatted="false">"What did you do on the farm?"</string>
+  <string name="ui_what_did_you_notice_optional_4eda447" formatted="false">"What did you notice? (optional)"</string>
+  <string name="ui_what_to_check_nfindings_to_record_979a55e" formatted="false">"What to check:\nFindings to record:"</string>
+  <string name="ui_when_you_plant_open_the_plan_and_start_its_growing_c_5390541" formatted="false">"When you plant, open the plan and start its growing cycle."</string>
+  <string name="ui_which_recorded_crop_activity_used_this_supply_e182676" formatted="false">"Which recorded crop activity used this supply?"</string>
+  <string name="ui_work_performed_affected_area_and_observations_ed0c258" formatted="false">"Work performed, affected area and observations"</string>
+  <string name="ui_work_saved_on_this_phone_af769c5" formatted="false">"Work saved on this phone"</string>
+  <string name="ui_your_farm_organized_284d2d1" formatted="false">"YOUR FARM, ORGANIZED"</string>
+  <string name="ui_you_08b0419" formatted="false">"You"</string>
+  <string name="ui_you_do_not_have_permission_to_do_that_5d6c52b" formatted="false">"You do not have permission to do that."</string>
+  <string name="ui_you_re_caught_up_check_upcoming_or_refresh_for_new_w_8366dbd" formatted="false">"You're caught up. Check Upcoming or refresh for new work."</string>
+  <string name="ui_you_re_caught_up_open_tasks_to_see_assignments_159545a" formatted="false">"You're caught up. Open Tasks to see assignments."</string>
+  <string name="ui_your_closed_assignments_records_cannot_be_edited_her_3c5260d" formatted="false">"Your closed assignments. Records cannot be edited here."</string>
+  <string name="ui_your_completed_skipped_or_cancelled_assignments_will_5bc8d06" formatted="false">"Your completed, skipped or cancelled assignments will appear here."</string>
+  <string name="ui_your_daily_farm_work_in_one_place_fb3e663" formatted="false">"Your daily farm work in one place."</string>
+  <string name="ui_your_details_and_personal_app_settings_2e54b7f" formatted="false">"Your details and personal app settings."</string>
+  <string name="ui_your_farm_starts_here_affbd4f" formatted="false">"Your farm starts here."</string>
+  <string name="ui_your_farm_crops_and_harvests_made_a_little_easier_2efa5f8" formatted="false">"Your farm, crops, and harvests—made a little easier."</string>
+  <string name="ui_your_farm_organized_3075c50" formatted="false">"Your farm, organized"</string>
+  <string name="ui_your_farm_your_crops_your_progress_f110a64" formatted="false">"Your farm, your crops, your progress"</string>
+  <string name="ui_your_farms_3633be5" formatted="false">"Your farms"</string>
+  <string name="ui_your_fields_crops_and_team_all_in_one_connected_plac_759a787" formatted="false">"Your fields, crops and team — all in one connected place."</string>
+  <string name="ui_your_future_assignments_will_appear_here_35bc20a" formatted="false">"Your future assignments will appear here."</string>
+  <string name="ui_your_next_assigned_tasks_a0bc686" formatted="false">"Your next assigned tasks."</string>
+  <string name="ui_your_next_assignment_is_1_s_0d6acc1" formatted="false">"Your next assignment is %1$s."</string>
+  <string name="ui_your_owner_or_manager_can_add_supplies_for_this_farm_1c638a2" formatted="false">"Your owner or manager can add supplies for this farm."</string>
+  <string name="ui_your_session_changed_sign_in_again_a316954" formatted="false">"Your session changed. Sign in again."</string>
+  <string name="ui_your_session_expired_sign_out_and_sign_in_again_8275acc" formatted="false">"Your session expired. Sign out and sign in again."</string>
+  <string name="ui_your_unfinished_input_will_be_lost_records_already_s_0214fb5" formatted="false">"Your unfinished input will be lost. Records already saved on this phone will stay safe."</string>
+  <string name="ui_your_work_today_80e250a" formatted="false">"Your work today"</string>
+  <string name="ui_a_previous_visit_74990fa" formatted="false">"a previous visit"</string>
+  <string name="ui_and_may_require_review_when_syncing_31ae542" formatted="false">"and may require review when syncing."</string>
+  <string name="ui_change_the_balance_is_not_reduced_until_the_server_c_8d13e95" formatted="false">"change. The balance is not reduced until the server confirms it."</string>
+  <string name="ui_recorded_3d96a45" formatted="false">"recorded"</string>
+  <string name="ui_selected_date_4e342f5" formatted="false">"selected date"</string>
+  <string name="ui_back_to_record_options_0ab4774" formatted="false">"← Back to record options"</string>
+  <string name="ui_correct_stock_selected_2bce023" formatted="false">"✓ Correct stock (selected)"</string>
+
+  <string name="recovery_email_label">Email address</string>
+  <string name="recovery_email_hint">Enter your email to request password reset instructions.</string>
+  <string name="recovery_request">Request reset instructions</string>
+  <string name="recovery_requesting">Requesting reset instructions…</string>
+  <string name="recovery_sent_title">Check your email</string>
+  <string name="recovery_sent_note">If an active account exists and email delivery is configured, reset instructions will be sent. We cannot confirm whether an account exists for that address.</string>
+  <string name="recovery_follow_browser">Open the secure email link in your browser to finish resetting your password.</string>
+  <string name="recovery_retry_later">Please try again later.</string>
+  <string name="guidance_online_required" formatted="false">Connect to the internet to check updated weather guidance.</string>
+  <string name="guidance_request_error" formatted="false">Could not load guidance. Review the saved forecast or try again later.</string>
+  <string name="guidance_explain" formatted="false">Explain this advisory</string>
+  <string name="guidance_choose_crop" formatted="false">Choose crop context (optional)</string>
+  <string name="guidance_general" formatted="false">General farm guidance</string>
+  <string name="guidance_recommendations" formatted="false">Suggested next steps</string>
+  <string name="guidance_explanations" formatted="false">What the forecast means</string>
+  <string name="guidance_source_fallback" formatted="false">Rule-based guidance (AI unavailable or not appropriate).</string>
+  <string name="guidance_source_ai" formatted="false">AI-assisted guidance from approved recommendations.</string>
+  <string name="guidance_simulated" formatted="false">Demonstration forecast, not a real weather warning.</string>
+  <string name="guidance_stale" formatted="false">The forecast is old. Check official current forecasts.</string>
+  <string name="guidance_informational" formatted="false">Advice only. AniGo cannot change farm records automatically.</string>
+  <string name="guidance_key_rain_roots" formatted="false">Forecast heavy rain may leave soil waterlogged and affect roots. Check actual field conditions before deciding what to do.</string>
+  <string name="guidance_key_wind_damage" formatted="false">Forecast strong wind may damage crops and equipment. Assess exposure before working outdoors.</string>
+  <string name="guidance_key_heat_stress" formatted="false">Forecast heat may increase crop stress. It does not establish that damage has occurred on this farm.</string>
+  <string name="guidance_key_drainage_check" formatted="false">Check drainage and areas that may collect water when it is safe to do so.</string>
+  <string name="guidance_key_supports_check" formatted="false">Check crop supports and secure loose equipment before stronger winds arrive.</string>
+  <string name="guidance_key_fieldwork_review" formatted="false">Review whether weather-sensitive work should be postponed. Any changes remain your decision.</string>
+  <string name="guidance_key_stress_inspect" formatted="false">Inspect actual crop conditions and record what you observe. Do not assume damage from the forecast alone.</string>
+  <string name="guidance_key_water_check" formatted="false">Check soil moisture before deciding about watering. No precise water amount is prescribed here.</string>
+  <string name="account_preferences_title">App preferences</string>
+  <string name="account_preferences_description">Choose your preferred appearance and language.</string>
+  <string name="language_preference_description">Choose the language used throughout AniGo.</string>
+</resources>

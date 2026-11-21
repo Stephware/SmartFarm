@@ -17,9 +17,9 @@ public abstract class FarmApiControllerBase(UserManager<SmartFarmUser> users) : 
         {
             return problem.Error switch
             {
-                FarmError.NotFound => NotFound(new { message = "Resource not found." }),
-                FarmError.Conflict => Conflict(new { message = problem.Message }),
-                _ => BadRequest(new { message = problem.Message })
+                FarmError.NotFound => NotFound(new { code = "resource.not_found", message = "Resource not found." }),
+                FarmError.Conflict => Conflict(new { code = "record." + problem.Error.ToString().ToLowerInvariant(), message = problem.Message }),
+                _ => BadRequest(new { code = "record." + problem.Error.ToString().ToLowerInvariant(), message = problem.Message })
             };
         }
     }

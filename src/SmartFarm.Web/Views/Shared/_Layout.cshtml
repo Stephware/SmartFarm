@@ -1,38 +1,187 @@
+@{
+    var signedIn = User.Identity?.IsAuthenticated == true;
+    var isLanding = ViewContext.RouteData.Values["controller"]?.ToString() == "Home" && ViewContext.RouteData.Values["action"]?.ToString() == "Index";
+    var currentController = ViewContext.RouteData.Values["controller"]?.ToString();
+    var currentAction = ViewContext.RouteData.Values["action"]?.ToString();
+    var accountName = User.Identity?.Name ?? "Your account";
+    var initial = string.IsNullOrWhiteSpace(accountName) ? "A" : accountName[..1].ToUpperInvariant();
+    var utilityOpen = currentController is "Support" or "Account" || currentAction == "Help"
+        || ViewContext.RouteData.Values["area"]?.ToString() == "Admin";
+}
 <!DOCTYPE html>
-<html lang="en">
+<html lang="@(System.Globalization.CultureInfo.CurrentUICulture.TwoLetterISOLanguageName == "fil" ? "fil" : "en")" data-color-mode="light" data-theme="gold">
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#153D2D" />
+    <link rel="icon" type="image/svg+xml" href="~/images/branding/anigo-mark.svg" asp-append-version="true" />
     <title>@ViewData["Title"] - AniGo</title>
-    <link rel="stylesheet" href="~/css/site.css" />
-    <script src="~/js/site.js" defer></script>
+    <partial name="_UiTextCatalog" />
+    <script src="~/js/color-mode.js" asp-append-version="true"></script>
+    <link rel="preload" href="~/fonts/manrope/Manrope-Variable.ttf" as="font" type="font/ttf" crossorigin />
+    <link rel="stylesheet" href="~/css/anigo-tailwind.css" asp-append-version="true" />
+    <partial name="~/Views/Shared/_AniGoBrandStyles.cshtml" />
+    <partial name="~/Views/Shared/_AniGoNavigationStyles.cshtml" />
+    <partial name="~/Views/Shared/_AniGoFormInteractionStyles.cshtml" />
+    <partial name="~/Views/Shared/_AniGoF2Styles.cshtml" />
+    <partial name="~/Views/Shared/_AniGoAccountPreferencesStyles.cshtml" />
+    <script src="~/js/site.js" asp-append-version="true" defer></script>
+    <script src="~/js/farm-navigation.js" asp-append-version="true" defer></script>
+    <script src="~/js/navigation-context.js" asp-append-version="true" defer></script>
+    <script src="~/js/access-polish.js" asp-append-version="true" defer></script>
+    <script src="~/js/interaction-guards.js" asp-append-version="true" defer></script>
+<partial name="_AniAssistantStyles" />
+<script src="~/js/notification-times.js" asp-append-version="true" defer></script>
+<script src="~/js/ani-assistant.js" asp-append-version="true" defer></script>
 </head>
-<body>
-    <a class="skip-link" href="#main-content">Skip to content</a>
-    <header class="site-header">
-        <a class="brand" href="@Url.Action("Index", "Home")">AniGo</a>
-        <nav aria-label="Main navigation">
-            @if (User.Identity?.IsAuthenticated == true)
-            {
-                <a href="@Url.Action("Index", "Farms")">My farms</a>
-                <a href="@Url.Action("Index", "Notifications")">Notifications</a>
-                <a href="@Url.Action("Profile", "Account")">My account</a>
-                <form method="post" asp-controller="Account" asp-action="Logout" class="inline">
-                    <button type="submit" class="link-button">Log out</button>
-                </form>
-            }
-            else
-            {
-                <a href="@Url.Action("Login", "Account")">Log in</a>
-                <a href="@Url.Action("Register", "Account")">Create account</a>
-            }
+<body class="@(signedIn ? "is-authenticated" : "is-guest") @(isLanding ? "is-landing" : "")">
+<a class="skip-link" href="#main-content">@T["Skip to content"]</a>
+@if (signedIn)
+{
+    <div class="app-shell">
+        <aside class="app-sidebar sidebar" aria-label="@T["Workspace navigation"]">
+            <a class="logo brand sidebar-brand anigo-sidebar-brand" asp-controller="Farms" asp-action="Index" aria-label="@T["AniGo farm management"]">
+                <img class="anigo-sidebar-logo" src="~/images/branding/anigo-logo-on-dark.svg" asp-append-version="true" alt="" width="1120" height="297" />
+                <small class="anigo-sidebar-caption">@T["Farm management"]</small>
+            </a>
+            <div class="sidebar-workspace">
+                <p class="side-group-label">@T["Workspace"]</p>
+                <nav class="side-group sidebar-links" aria-label="@T["Account and farm selection"]">
+                    <a class="nav-link" asp-controller="Farms" asp-action="Index" data-nav-icon="farms"
+                       id="sidebar-my-farms" aria-current="@(currentController == "Farms" && currentAction == "Index" ? "page" : null)">
+                        <partial name="_Icon" model='@("grid")' /><span>@T["My farms"]</span>
+                    </a>
+                </nav>
+                <section class="sidebar-farm-context" id="sidebar-farm-context" aria-label="@T["Selected farm"]" hidden>
+                    <span>@T["Current farm"]</span>
+                    <strong id="sidebar-current-farm">@(ViewData["FarmName"] ?? T["Current farm"])</strong>
+                    <a asp-controller="Farms" asp-action="Index">@T["Change farm"]</a>
+                </section>
+                <div id="sidebar-farm-group" class="sidebar-farm-group" hidden>
+                    <nav id="sidebar-farm-links" class="side-group sidebar-links" aria-label="@T["Current farm sections"]"></nav>
+                </div>
+            </div>
+            <div class="sidebar-utilities">
+                <p class="side-group-label">@T["Updates"]</p>
+                <nav class="side-group sidebar-links" aria-label="@T["Notifications"]">
+                    <a class="nav-link" asp-controller="Notifications" asp-action="Index"
+                       aria-current="@(currentController == "Notifications" ? "page" : null)">
+                        <partial name="_Icon" model='@("bell")' /><span>@T["Notifications"]</span>
+                    </a>
+                </nav>
+                <details class="sidebar-utility-menu" id="sidebar-utility-menu" open="@(utilityOpen ? "open" : null)">
+                    <summary><partial name="_Icon" model='@("settings")' /><span>@T["Help & account"]</span></summary>
+                    <nav id="sidebar-insight-links" class="side-group sidebar-links" aria-label="@T["Help and account"]">
+                        <a class="nav-link" asp-area="" asp-controller="Home" asp-action="Help"
+                           aria-current="@(currentController == "Home" && currentAction == "Help" ? "page" : null)">
+                            <partial name="_Icon" model='@("settings")' /><span>@T["Help"]</span>
+                        </a>
+                        <a class="nav-link" asp-area="" asp-controller="Account" asp-action="Profile"
+                           aria-current="@(currentController == "Account" ? "page" : null)">
+                            <partial name="_Icon" model='@("settings")' /><span>@T["Account & settings"]</span>
+                        </a>
+                        @if (User.IsInRole("SuperAdmin"))
+                        {
+                            <a class="nav-link" asp-area="Admin" asp-controller="Dashboard" asp-action="Index"
+                               aria-label="@T["Super Admin portal"]"><partial name="_Icon" model='@("settings")' /><span>@T["Super Admin"]</span></a>
+                        }
+                    </nav>
+                </details>
+            </div>
+            <div class="side-footer sidebar-bottom">
+                <a class="person-row" asp-controller="Account" asp-action="Profile">
+                    <span class="avatar" aria-hidden="true">@initial</span>
+                    <span><strong>@accountName</strong><small>@T["My account"]</small></span>
+                </a>
+                <div class="sidebar-footer-actions">
+                    <a asp-controller="Farms" asp-action="Index">@T["Switch farm"]</a>
+                    <form method="post" asp-controller="Account" asp-action="Logout" class="logout-form">
+                        <button type="submit" class="sidebar-logout"><partial name="_Icon" model='@("logout")' />@T["Log out"]</button>
+                    </form>
+                </div>
+            </div>
+        </aside>
+        <div class="app-body content-shell">
+            <header class="site-header app-topbar topbar">
+                <nav class="crumb" aria-label="@T["Breadcrumb"]">
+                    @if (currentController == "Farms" && currentAction == "Index")
+                    {
+                        <strong aria-current="page">@T["My farms"]</strong>
+                    }
+                    else
+                    {
+                        <a asp-controller="Farms" asp-action="Index" aria-current="@(currentController == "Farms" && currentAction == "Index" ? "page" : null)">@T["My farms"]</a>
+                        <span aria-hidden="true">/</span>
+                        <span class="breadcrumb-farm" id="breadcrumb-farm" hidden>
+                            <a id="breadcrumb-farm-link" asp-controller="Farms" asp-action="Index">@T["Farm"]</a>
+                            <span aria-hidden="true">/</span>
+                        </span>
+                        <strong aria-current="page">@(ViewData["Title"] ?? T["Overview"])</strong>
+                    }
+                </nav>
+                <a class="mobile-brand mobile-title anigo-mobile-brand" asp-controller="Farms" asp-action="Index" aria-label="@T["AniGo home"]"><span class="anigo-logo-pair anigo-mobile-logo" aria-hidden="true"><img class="anigo-logo-light" src="~/images/branding/anigo-mark.svg" asp-append-version="true" alt="" width="380" height="293" /><img class="anigo-logo-dark" src="~/images/branding/anigo-mark-on-dark.svg" asp-append-version="true" alt="" width="380" height="293" /></span></a>
+                <nav class="top-actions app-topbar-actions" aria-label="@T["Quick account links"]">
+                    <a class="farm-picker" asp-controller="Farms" asp-action="Index"
+                       aria-label="@T["Choose farm. Current: {0}", ViewData["FarmName"] ?? T["My farms"].Value]"
+                       title="@T["Change farm"]">
+                        <partial name="_Icon" model='@("leaf")' />
+                        <span>@(ViewData["FarmName"] ?? T["My farms"])</span><small>@T["Switch"]</small>
+                    </a>
+                    <button class="icon-button color-mode-toggle" type="button" data-color-mode-toggle aria-label="@T["Use dark appearance"]" aria-pressed="false"><partial name="_Icon" model='@("sun")' /></button>
+                    <a class="icon-button" asp-controller="Notifications" asp-action="Index" aria-label="@T["Notifications"]"><partial name="_Icon" model='@("bell")' /></a>
+                    <a class="top-avatar" asp-controller="Account" asp-action="Profile" aria-label="@T["My account"]">@initial</a>
+                </nav>
+                <details class="mobile-nav" id="mobile-workspace-menu">
+                    <summary aria-label="@T["More workspace sections"]"><partial name="_Icon" model='@("more")' /><span>@T["Menu"]</span></summary>
+                    <nav aria-label="@T["Mobile workspace navigation"]">
+                        <div id="mobile-farm-links" class="mobile-farm-links" hidden></div>
+                        <a asp-controller="Farms" asp-action="Index">@T["My farms"]</a>
+                        <a asp-controller="Notifications" asp-action="Index">@T["Notifications"]</a>
+                        <a asp-area="" asp-controller="Home" asp-action="Help">@T["Help"]</a>
+                        <a asp-controller="Account" asp-action="Profile">@T["Account & settings"]</a>
+                        @if (User.IsInRole("SuperAdmin"))
+                        {
+                            <a asp-area="Admin" asp-controller="Dashboard" asp-action="Index">@T["Super Admin"]</a>
+                        }
+                        <form method="post" asp-controller="Account" asp-action="Logout" class="logout-form"><button type="submit" class="link-button">@T["Log out"]</button></form>
+                    </nav>
+                </details>
+            </header>
+            <main class="page app-page app-main" id="main-content" tabindex="-1">
+                <partial name="_ValidationSummary" />
+                @RenderBody()
+            </main>
+        </div>
+        <nav class="mobile-workspace-bar bottom-nav" id="mobile-workspace-bar" aria-label="@T["Farm quick navigation"]" hidden>
+            <div id="mobile-workspace-links" class="mobile-workspace-links"></div>
+            <button type="button" class="mobile-more-button" id="mobile-more-button" aria-label="@T["More farm sections"]" aria-controls="mobile-workspace-menu" aria-expanded="false"><partial name="_Icon" model='@("more")' /><span>@T["More"]</span></button>
         </nav>
+    </div>
+}
+else
+{
+    <header class="site-header guest-topbar @(isLanding ? "ani6-topbar" : "")">
+        <a class="brand guest-logo anigo-guest-brand" asp-controller="Home" asp-action="Index" aria-label="@T["AniGo home"]"><span class="anigo-logo-pair anigo-guest-logo" aria-hidden="true"><img class="anigo-logo-light" src="~/images/branding/anigo-logo.svg" asp-append-version="true" alt="" width="1120" height="297" /><img class="anigo-logo-dark" src="~/images/branding/anigo-logo-on-dark.svg" asp-append-version="true" alt="" width="1120" height="297" /></span></a>
+        <nav class="ani6-account-links" aria-label="@T["Account actions"]">
+            <button class="icon-button" type="button" data-color-mode-toggle aria-label="@T["Use dark appearance"]" aria-pressed="false"><partial name="_Icon" model='@("sun")' /></button>
+            <a class="ani6-login" asp-controller="Account" asp-action="Login">@T["Log in"]</a>
+            <a class="button guest-nav-cta" asp-controller="Account" asp-action="Register">@T["Create account"]</a>
+        </nav>
+        @if (isLanding)
+        {
+            <details class="ani6-mobile-menu">
+                <summary aria-label="@T["Open account menu"]">@T["Menu"] <partial name="_Icon" model='@("down")' /></summary>
+                <nav aria-label="@T["Account and appearance menu"]">
+                    <a asp-controller="Account" asp-action="Login">@T["Log in"]</a>
+                    <button type="button" class="ani6-menu-theme" data-color-mode-toggle
+                            aria-label="@T["Use dark appearance"]" aria-pressed="false">
+                        <partial name="_Icon" model='@("sun")' /> @T["Change appearance"]
+                    </button>
+                </nav>
+            </details>
+        }
     </header>
-    <main class="page" id="main-content" tabindex="-1">
-        <partial name="_ValidationSummary" />
-        @RenderBody()
-    </main>
+    <main class="page guest-page" id="main-content" tabindex="-1"><partial name="_ValidationSummary" />@RenderBody()</main>
+}
 </body>
 </html>
-
-

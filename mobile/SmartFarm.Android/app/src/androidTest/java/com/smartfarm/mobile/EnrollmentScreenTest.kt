@@ -18,7 +18,7 @@ class EnrollmentScreenTest {
     @Test fun registrationOnlyAsksForNameEmailAndPassword() {
         compose.setContent { SmartFarmTheme { RegisterScreen(AuthUiState(), { _, _, _ -> }, {}) } }
         compose.onNodeWithText("Full name").assertExists()
-        compose.onNodeWithText("Email").assertExists()
+        compose.onNodeWithText("Email address").assertExists()
         compose.onNodeWithText("Password").assertExists()
         compose.onNodeWithText("Confirm password").assertDoesNotExist()
         compose.onNodeWithText("Farm code").assertDoesNotExist()
@@ -31,41 +31,64 @@ class EnrollmentScreenTest {
         compose.setContent { SmartFarmTheme { RegisterScreen(AuthUiState(), { name, email, password ->
             submitted = listOf(name, email, password)
         }, {}) } }
-        compose.onNodeWithText("Register").performScrollTo().assertIsNotEnabled()
+        compose.onNodeWithText("Create account").performScrollTo().assertIsNotEnabled()
         compose.onNodeWithText("Full name").performScrollTo().performTextInput("Sam")
-        compose.onNodeWithText("Email").performScrollTo().performTextInput("sam@example.com")
+        compose.onNodeWithText("Email address").performScrollTo().performTextInput("sam@example.com")
         compose.onNodeWithText("Password").performScrollTo().performTextInput("Password2026")
-        compose.onNodeWithText("Register").performScrollTo().performClick()
+        compose.onNodeWithText("Create account").performScrollTo().performClick()
         compose.runOnIdle { assertEquals(listOf("Sam", "sam@example.com", "Password2026"), submitted) }
     }
 
     @Test fun requestStatusDoesNotGrantFarmAccessAndFailedFormRetainsCode() {
         val state = mutableStateOf(FarmUiState(myRequests = listOf(request())))
         var sent = ""
-        compose.setContent { SmartFarmTheme { FarmListScreen(state.value, {}, { _, _, _, _, _ -> },
-            { sent = it; state.value = state.value.copy(error = "Code not recognized") }, {}) } }
+        var requests = 0
+        compose.setContent {
+            SmartFarmTheme { FarmListScreen(state.value, {}, { _, _, _, _, _ -> },
+                { requests++; sent = it; state.value = state.value.copy(error = "Code not recognized") }, {}) }
+        }
         compose.onNodeWithText("North farm: Pending · Awaiting owner approval").assertExists()
         compose.onNodeWithText("Join a farm").performClick()
-        compose.onNodeWithText("Farm code").performTextInput("ABCD12345678")
-        compose.onNodeWithText("Request access").performClick()
-        compose.runOnIdle { assertEquals("ABCD12345678", sent) }
+        compose.onNodeWithText("Farm code").performScrollTo().performTextInput("ABCD12345678")
+        compose.onNodeWithText("Farm code").assertTextContains("ABCD12345678")
+        // The real join-code field provides Done, which releases the keyboard.
+        // Compose clicks should not depend on emulator-specific IME inset timing.
+        compose.onNodeWithText("Farm code").performImeAction()
+        compose.onNodeWithText("Request access")
+            .assertIsEnabled().performClick()
+        compose.runOnIdle { assertEquals("ABCD12345678", sent); assertEquals(1, requests) }
         compose.onNodeWithText("Farm code").assertTextContains("ABCD12345678")
         compose.onNodeWithText("Code not recognized").assertExists()
     }
 
     @Test fun ownerCanApproveOrRejectAndOtherRolesCannotSeeCodesOrApplicants() {
-        val state = mutableStateOf(FarmUiState(selected = farm("Owner"), enrollment =
-            FarmEnrollmentOverviewDto("ABCD12345678", listOf(request()))))
-        var decision: Pair<String, Boolean>? = null
-        compose.setContent { SmartFarmTheme { detail(state.value) { id, approve -> decision = id to approve } } }
+        val sam = request()
+        val lee = request().copy(id = "req2", fullName = "Lee", email = "lee@example.com")
+        val state = mutableStateOf(FarmUiState(selected = farm("Owner"),
+            enrollment = FarmEnrollmentOverviewDto("ABCD12345678", listOf(sam, lee))))
+        val decisions = mutableListOf<Pair<String, Boolean>>()
+        compose.setContent { SmartFarmTheme { detail(state.value) { id, approve ->
+            decisions.add(id to approve)
+            // Model a successful API refresh: the processed applicant is no longer pending.
+            state.value = state.value.copy(enrollment = FarmEnrollmentOverviewDto(
+                "ABCD12345678",
+                state.value.enrollment!!.requests.filterNot { it.id == id }))
+        } } }
         compose.onNodeWithText("ABCD12345678").performScrollTo().assertIsDisplayed()
         compose.onNodeWithText("sam@example.com").performScrollTo().assertIsDisplayed()
         compose.onNodeWithText("Approve Sam").performScrollTo().performClick()
         compose.onNodeWithText("Confirm").performClick()
-        compose.runOnIdle { assertEquals("req" to true, decision) }
-        compose.onNodeWithText("Reject Sam").performScrollTo().performClick()
-        compose.onNodeWithText("Confirm").performClick()
-        compose.runOnIdle { assertEquals("req" to false, decision); state.value = state.value.copy(selected = farm("Manager")) }
+        compose.runOnIdle { assertEquals(listOf("req" to true), decisions) }
+        compose.onNodeWithText("Approve Sam").assertDoesNotExist()
+        compose.onNodeWithText("Reject Lee").performScrollTo().performClick()
+        // The approved request's outgoing dialog can briefly retain a disabled
+        // "Confirm" semantics node while the next modal animates in. Only the
+        // new, enabled dialog is actionable; still assert the rejection below.
+        compose.onNode(hasText("Confirm") and isEnabled()).performClick()
+        compose.runOnIdle {
+            assertEquals(listOf("req" to true, "req2" to false), decisions)
+            state.value = state.value.copy(selected = farm("Manager"))
+        }
         compose.onNodeWithText("ABCD12345678").assertDoesNotExist()
         compose.onNodeWithText("sam@example.com").assertDoesNotExist()
         compose.onNodeWithText("Approve Sam").assertDoesNotExist()
@@ -117,15 +140,15 @@ class EnrollmentScreenTest {
             "ABCD12345678", emptyList(), listOf(request().copy(status = "Rejected"))))
         compose.setContent { SmartFarmTheme {
             FarmDetailScreen(state, {}, { _, _, _, _, _ -> }, {}, { _, _ -> }, { _, _, _ -> }, {}, {}, {},
-                { _, _ -> }, { _, _ -> }, {}, onRegenerateCode = { regenerated = it })
+                { _, _ -> }, { _, _ -> }, {}, onRegenerateCode = { regenerated = it },
+                section = "Members")
         } }
         compose.onNodeWithText("Copy farm code").performScrollTo().performClick()
         compose.onNodeWithText("Farm code copied.").assertExists()
-        compose.runOnIdle {
-            val context = androidx.test.platform.app.InstrumentationRegistry.getInstrumentation().targetContext
-            assertEquals("ABCD12345678", context.getSystemService(android.content.ClipboardManager::class.java)
-                .primaryClip?.getItemAt(0)?.text?.toString())
-        }
+        // On Android 13+ a background/nonfocused instrumentation app may not read
+        // the system clipboard even after a successful copy. The UI feedback is
+        // emitted only after ClipboardManager.setPrimaryClip completes.
+        compose.onNodeWithText("Farm code copied.").assertExists()
         compose.onNodeWithText("Regenerate farm code").performScrollTo().performClick()
         compose.runOnIdle { assertNull(regenerated) }
         compose.onNodeWithText("Confirm").performClick()
@@ -154,7 +177,7 @@ class EnrollmentScreenTest {
     @androidx.compose.runtime.Composable
     private fun detail(state: FarmUiState, decision: (String, Boolean) -> Unit) {
         FarmDetailScreen(state, {}, { _, _, _, _, _ -> }, {}, { _, _ -> }, { _, _, _ -> }, {}, {}, {},
-            decision, { _, _ -> }, {})
+            decision, { _, _ -> }, {}, section = "Members")
     }
 
     private fun farm(role: String) = FarmDto("farm", "North farm", "Location", "Asia/Manila", role = role)

@@ -6,6 +6,7 @@ import com.smartfarm.mobile.data.remote.api.MonitoringApi
 import com.smartfarm.mobile.data.remote.dto.ActivityInputDto
 import com.smartfarm.mobile.data.remote.dto.MonitoringDto
 import com.smartfarm.mobile.data.remote.dto.ObservationInputDto
+import com.smartfarm.mobile.data.remote.dto.ObservationFollowUpInputDto
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.MultipartBody
 import okhttp3.RequestBody.Companion.toRequestBody
@@ -34,6 +35,11 @@ class MonitoringRepository(
         authentication.authorized {
             api().observation(it, farmId, cycleId, ObservationInputDto(health, stage, notes))
         }
+
+    suspend fun followUp(farmId: String, cycleId: String, observationId: String,
+        input: ObservationFollowUpInputDto) = authentication.authorized {
+        api().followUp(it, farmId, cycleId, observationId, input)
+    }.also { cache?.invalidate("farm/$farmId/cycle/$cycleId/monitoring") }
 
     suspend fun upload(farmId: String, cycleId: String, observationId: String,
         bytes: ByteArray, mime: String) =

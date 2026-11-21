@@ -28,3 +28,23 @@ public sealed record FarmFinanceEntryDetails(Guid Id, Guid FarmId, Guid? CropCyc
 
 public sealed record FarmFinanceOverview(Guid FarmId, decimal ExpensesPhp,
     decimal IncomePhp, decimal NetPhp, IReadOnlyList<FarmFinanceEntryDetails> Entries);
+
+ 
+// These figures describe manually entered cash transactions only; they are
+// not accounting profit, crop sale estimates, or imputed inventory costs.
+public sealed record FarmFinanceCategoryTotal(
+    string Kind, string Category, decimal AmountPhp, int EntryCount);
+
+public sealed record FarmFinanceMonthlyTotal(
+    string Month, decimal IncomePhp, decimal ExpensesPhp, decimal NetPhp);
+
+public sealed record FarmFinanceCropTotal(
+    Guid? CycleId, string Label, decimal IncomePhp,
+    decimal ExpensesPhp, decimal NetPhp, int EntryCount);
+
+public sealed record FarmFinanceInsights(
+    Guid FarmId, DateOnly? FromDate, DateOnly? ToDate,
+    decimal IncomePhp, decimal ExpensesPhp, decimal NetPhp, int EntryCount,
+    IReadOnlyList<FarmFinanceCategoryTotal> Categories,
+    IReadOnlyList<FarmFinanceMonthlyTotal> Months,
+    IReadOnlyList<FarmFinanceCropTotal> CropTotals);

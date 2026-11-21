@@ -11,6 +11,7 @@ import com.smartfarm.mobile.features.farms.FarmViewModel
 import com.smartfarm.mobile.features.crops.CropViewModel
 import com.smartfarm.mobile.features.inventory.InventoryViewModel
 import com.smartfarm.mobile.features.harvests.HarvestViewModel
+import com.smartfarm.mobile.features.insights.FarmInsightsViewModel
 import com.smartfarm.mobile.features.monitoring.MonitoringViewModel
 import com.smartfarm.mobile.features.syncstatus.SyncStatusViewModel
 import com.smartfarm.mobile.navigation.SmartFarmNavHost
@@ -18,7 +19,10 @@ import com.smartfarm.mobile.ui.theme.SmartFarmTheme
 
 class MainActivity : ComponentActivity() {
     private val tasks: com.smartfarm.mobile.features.tasks.TaskViewModel by viewModels {
-        com.smartfarm.mobile.features.tasks.TaskViewModel.Factory((application as SmartFarmApplication).container.taskRepository)
+        val container = (application as SmartFarmApplication).container
+        com.smartfarm.mobile.features.tasks.TaskViewModel.Factory(
+            container.taskRepository, container.farmRepository, container.cropRepository
+        )
     }
     private val authentication: AuthViewModel by viewModels {
         AuthViewModel.Factory((application as SmartFarmApplication).container.authRepository)
@@ -35,13 +39,19 @@ class MainActivity : ComponentActivity() {
     }
 
     private val monitoring: MonitoringViewModel by viewModels {
-        MonitoringViewModel.Factory((application as SmartFarmApplication).container.monitoringRepository,
-            (application as SmartFarmApplication).container.syncRepository)
+        val container = (application as SmartFarmApplication).container
+        MonitoringViewModel.Factory(
+            container.monitoringRepository, container.syncRepository, container.inventoryRepository
+        )
     }
 
     private val inventory: InventoryViewModel by viewModels {
         InventoryViewModel.Factory((application as SmartFarmApplication).container.inventoryRepository,
             (application as SmartFarmApplication).container.syncRepository)
+    }
+
+    private val insights: FarmInsightsViewModel by viewModels {
+        FarmInsightsViewModel.Factory((application as SmartFarmApplication).container.insightsRepository)
     }
 
     private val harvests: HarvestViewModel by viewModels {
@@ -57,10 +67,13 @@ class MainActivity : ComponentActivity() {
         StatusViewModel.Factory((application as SmartFarmApplication).container.statusRepository)
     }
 
+    override fun attachBaseContext(base: android.content.Context) {
+        super.attachBaseContext(com.smartfarm.mobile.localization.AppLanguage.wrap(base))
+    }
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
-        setContent { SmartFarmTheme { SmartFarmNavHost(authentication, farms, crops, monitoring, inventory, harvests, status, syncStatus, tasks) } }
+        setContent { SmartFarmTheme { SmartFarmNavHost(authentication, farms, crops, monitoring, inventory, harvests, status, syncStatus, tasks, insights) } }
     }
 }
 

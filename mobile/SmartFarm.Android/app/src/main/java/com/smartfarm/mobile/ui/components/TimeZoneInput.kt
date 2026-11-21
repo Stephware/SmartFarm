@@ -1,5 +1,8 @@
 package com.smartfarm.mobile.ui.components
 
+import com.smartfarm.mobile.R
+import com.smartfarm.mobile.localization.uiText
+
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -24,13 +27,13 @@ fun TimeZoneInput(value: String, onValueChange: (String) -> Unit, enabled: Boole
     var choosing by rememberSaveable { mutableStateOf(false) }
     var search by rememberSaveable { mutableStateOf("") }
     val zones = remember { ZoneId.getAvailableZoneIds().sorted() }
-    OutlinedTextField(value, onValueChange, label = { Text("Time zone") }, enabled = enabled,
+    OutlinedTextField(value, onValueChange, label = { Text(uiText(R.string.ui_time_zone_b9fe146, "Time zone")) }, enabled = enabled,
         singleLine = true, modifier = Modifier.fillMaxWidth())
-    TextButton(onClick = { search = ""; choosing = true }, enabled = enabled) { Text("Choose time zone") }
-    if (choosing) AlertDialog(onDismissRequest = { choosing = false }, title = { Text("Choose time zone") },
+    TextButton(onClick = { search = ""; choosing = true }, enabled = enabled) { Text(uiText(R.string.ui_choose_time_zone_dea36b3, "Choose time zone")) }
+    if (choosing) AlertDialog(onDismissRequest = { choosing = false }, title = { Text(uiText(R.string.ui_choose_time_zone_dea36b3, "Choose time zone")) },
         text = {
             Column {
-                OutlinedTextField(search, { search = it }, label = { Text("Search city or region") }, singleLine = true)
+                OutlinedTextField(search, { search = it }, label = { Text(uiText(R.string.ui_search_city_or_region_e1ae2f2, "Search city or region")) }, singleLine = true)
                 LazyColumn(Modifier.heightIn(max = 300.dp)) {
                     items(zones.filter { it.contains(search, ignoreCase = true) }, key = { it }) { zone ->
                         TextButton(onClick = { onValueChange(zone); choosing = false }, enabled = enabled) {
@@ -39,5 +42,5 @@ fun TimeZoneInput(value: String, onValueChange: (String) -> Unit, enabled: Boole
                     }
                 }
             }
-        }, confirmButton = { TextButton(onClick = { choosing = false }) { Text("Cancel") } })
+        }, confirmButton = { TextButton(onClick = { choosing = false }) { Text(uiText(R.string.ui_cancel_19766ed, "Cancel")) } })
 }

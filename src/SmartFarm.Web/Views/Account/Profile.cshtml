@@ -1,11 +1,66 @@
 @model SmartFarm.Infrastructure.Identity.SmartFarmUser
 @{
-    ViewData["Title"] = "My account";
+    ViewData["Title"] = T["My account"];
+    var initial = string.IsNullOrWhiteSpace(Model.FullName)
+        ? "A" : Model.FullName.Trim()[0].ToString().ToUpperInvariant();
 }
-<section class="panel">
-    <h1>My account</h1>
-    <p><strong>Name:</strong> @Model.FullName</p>
-    <p><strong>Email:</strong> @Model.Email</p>
-    <p>Farm membership and management will be implemented in the next phase.</p>
+<partial name="_UiPageHeader" model='@(new UiPageHeader(T["My account"], T["Review your account information and app preferences."], Id: "account-heading", BackText: T["Back to my farms"], BackUrl: Url.Action("Index", "Farms")))' />
+<div class="ani-p2-page ani-p2-account">
+<section class="panel sf-account-hero ani-account-hero" aria-labelledby="account-heading">
+    <div class="sf-account-identity">
+        <span class="sf-account-avatar ani-account-avatar" aria-hidden="true">@initial</span>
+        <div>
+            <h2>@Model.FullName</h2>
+            <p>@Model.Email</p>
+        </div>
+    </div>
+</section>
+<section class="panel appearance-setting ani-account-preferences" aria-labelledby="account-preferences-heading">
+    <header class="ani-pref-heading">
+        <h2 id="account-preferences-heading">@T["App preferences"]</h2>
+        <p>@T["Choose your preferred appearance and language."]</p>
+    </header>
+    <div class="ani-pref-row ani-pref-appearance">
+        <div class="ani-pref-copy">
+            <h3 id="appearance-heading">@T["Display appearance"]</h3>
+            <p>@T["Light is the default. Your choice is saved on this browser only, not across every device."]</p>
+        </div>
+        <button type="button" class="ani-pref-appearance-button" data-color-mode-toggle aria-pressed="false"
+                aria-label="@T["Use dark appearance"]">
+            <span data-color-mode-status>@T["Light appearance"]</span>
+            <partial name="_Icon" model='@("sun")' />
+        </button>
+    </div>
+    <div class="ani-pref-row ani-pref-language">
+        <div class="ani-pref-copy">
+            <h3 id="account-language-heading">@T["Language"]</h3>
+            <p>@T["Choose the language used throughout AniGo."]</p>
+        </div>
+        <partial name="_LanguagePicker" />
+    </div>
+</section>
+<details class="panel sf-account-details ani-p2-account-details"><summary id="account-details-heading">@T["Your account information (read-only)"]</summary>
+    <dl>
+        <div><dt>@T["Name"]</dt><dd>@Model.FullName</dd></div>
+        <div><dt>@T["Email"]</dt><dd>@Model.Email</dd></div>
+    </dl>
+    <p class="hint">@T["This screen does not change your password or sign-in details. Farm roles and membership are managed separately inside each farm."]</p>
+</details>
+<section class="panel sf-account-links" aria-labelledby="account-links-heading">
+    <h2 id="account-links-heading">@T["Where to go next"]</h2>
+    <div class="sf-account-link-grid">
+        <a asp-controller="Farms" asp-action="Index"><strong>@T["My farms"]</strong><span>@T["Open your farms or request access →"]</span></a>
+        <a asp-controller="Notifications" asp-action="Index"><strong>@T["Notifications"]</strong><span>@T["Read farm reminders and advisories →"]</span></a>
+        <a asp-controller="Home" asp-action="Help"><strong>@T["Help"]</strong><span>@T["Get help with farm access, accounts and saved work →"]</span></a>
+        @if (User.IsInRole("SuperAdmin"))
+        {
+            <a asp-area="Admin" asp-controller="Dashboard" asp-action="Index">
+                <strong>@T["Super Admin"]</strong><span>@T["Open the secure platform workspace →"]</span></a>
+        }
+        <a asp-controller="Home" asp-action="Index"><strong>@T["About AniGo"]</strong><span>@T["Review the farm management tools →"]</span></a>
+    </div>
 </section>
 
+
+
+</div>

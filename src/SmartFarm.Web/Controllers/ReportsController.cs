@@ -38,6 +38,26 @@ public sealed class ReportsController(
         { return BadRequest(e.Message); }
     }
 
+    // Export the same filter-scoped, per-cycle summaries shown in the report.
+    [HttpGet]
+    public async Task<IActionResult> ExportCycleCsv(Guid farmId, DateOnly? from,
+        DateOnly? to, Guid? plotId, Guid? cropTypeId, CancellationToken ct)
+    {
+        if (!ModelState.IsValid) return BadRequest();
+        try
+        {
+            var report = await reports.HarvestsAsync(farmId, Actor,
+                from, to, plotId, cropTypeId, ct);
+            return File(Encoding.UTF8.GetBytes(HarvestCycleCsv.Build(report)),
+                "text/csv; charset=utf-8",
+                $"smartfarm-cycle-yields-{farmId:N}.csv");
+        }
+        catch (FarmOperationException e) when (e.Error == FarmError.NotFound)
+        { return NotFound(); }
+        catch (FarmOperationException e) when (e.Error == FarmError.InvalidInput)
+        { return BadRequest(e.Message); }
+    }
+
     // Read-only report download; the API checks farm membership before any data is returned.
     [HttpGet]
     public async Task<IActionResult> ExportCsv(Guid farmId, DateOnly? from,

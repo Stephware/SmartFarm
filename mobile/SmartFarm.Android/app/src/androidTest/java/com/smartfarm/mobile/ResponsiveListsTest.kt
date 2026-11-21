@@ -1,9 +1,13 @@
 package com.smartfarm.mobile
 
 import androidx.compose.ui.test.junit4.createComposeRule
+import androidx.compose.ui.test.hasText
+import androidx.compose.ui.test.hasSetTextAction
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.onAllNodesWithTag
+import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performScrollToIndex
+import androidx.compose.ui.test.performScrollToNode
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.DeviceConfigurationOverride
 import androidx.compose.ui.test.FontScale
@@ -42,7 +46,7 @@ class ResponsiveListsTest {
         val farms = (1..200).map { FarmDto("farm-$it", "Farm $it", "Location", "Asia/Manila", null, null, "Owner") }
         compose.setContent { SmartFarmTheme { FarmListScreen(FarmUiState(farms = farms), {}, { _, _, _, _, _ -> }, {}, {}) } }
         compose.onNodeWithText("Add a farm").performClick()
-        compose.onNodeWithText("Name").assertIsDisplayed()
+        compose.onNodeWithText("Farm name").performScrollTo().assertIsDisplayed()
     }
 
     @Test fun inventoryCreationOpensBeforeExistingRecords() {
@@ -50,8 +54,8 @@ class ResponsiveListsTest {
             BigDecimal.TEN, null, false, null, "version") }
         val state = InventoryUiState(farmId = "farm", workspace = InventoryWorkspaceDto(items, 0))
         compose.setContent { SmartFarmTheme { InventoryListScreen(state, true, {}, {}, { _, _, _, _, _ -> }) } }
-        compose.onNodeWithText("Add stock item").performClick()
-        compose.onNodeWithText("Name").assertIsDisplayed()
+        compose.onNodeWithText("Add supply").performScrollTo().performClick()
+        compose.onNode(hasText("Supply name") and hasSetTextAction()).performScrollTo().assertIsDisplayed()
     }
 
     @Test fun longFarmListsComposeOnlyNearbyRecordsAndReachTheEnd() {
@@ -59,7 +63,13 @@ class ResponsiveListsTest {
         compose.setContent { SmartFarmTheme { FarmListScreen(FarmUiState(farms = farms), {}, { _, _, _, _, _ -> }, {}, {}) } }
         assertTrue(compose.onAllNodesWithTag("record-card").fetchSemanticsNodes().size < 30)
         compose.onNodeWithText("Farm 200").assertDoesNotExist()
-        compose.onAllNodesWithTag("record-list")[0].performScrollToIndex(200)
+        repeat(9) {
+            // LazyColumn only composes the pager when it is brought into view.
+            compose.onNodeWithTag("record-list").performScrollToNode(
+                hasText("Show 20 more farms", substring = true))
+            compose.onNodeWithText("Show 20 more farms", substring = true).performClick()
+        }
+        compose.onAllNodesWithTag("record-list")[0].performScrollToNode(hasText("Farm 200"))
         compose.onNodeWithText("Farm 200").assertIsDisplayed()
     }
 
@@ -71,7 +81,7 @@ class ResponsiveListsTest {
                 }
             }
         }
-        compose.onNodeWithText("Register").performScrollTo().assertIsDisplayed()
+        compose.onNodeWithText("Create account").performScrollTo().assertIsDisplayed()
         compose.onNodeWithText("Full name").performScrollTo().assertIsDisplayed()
         savePreview("registration-dark-large-text.png")
     }
@@ -82,7 +92,7 @@ class ResponsiveListsTest {
                 SmartFarmTheme { RegisterScreen(AuthUiState(), { _, _, _ -> }, {}) }
             }
         }
-        compose.onNodeWithText("Register").performScrollTo().assertIsDisplayed()
+        compose.onNodeWithText("Create account").performScrollTo().assertIsDisplayed()
         savePreview("registration-landscape.png")
     }
 

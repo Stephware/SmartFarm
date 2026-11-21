@@ -1,36 +1,89 @@
 @model SmartFarm.Core.Contracts.Farms.FarmInput
 @{
-    ViewData["Title"] = "Create farm";
+    ViewData["Title"] = T["Create farm"];
 }
-<section class="panel narrow">
-    <h1>Create farm</h1>
-    <form asp-action="Create" method="post">
-        <label asp-for="Name"></label><input asp-for="Name" required maxlength="120" /><span asp-validation-for="Name" class="error"></span>
-        <label asp-for="LocationText">Farm location / nearby address</label><input asp-for="LocationText" data-farm-location-label required maxlength="250" placeholder="Barangay, municipality, province" /><span asp-validation-for="LocationText" class="error"></span>
-        <input asp-for="Latitude" data-farm-latitude type="hidden" />
-        <input asp-for="Longitude" data-farm-longitude type="hidden" />
-<div class="farm-location-picker" data-farm-location-picker data-search-url="@Url.Action("Search", "FarmLocations")">
-    <p class="hint">Find your barangay or nearby place, then position the pin on your actual farm. No coordinates to type.</p>
-    <div class="farm-location-search">
-        <label>Search a place <input type="search" data-farm-search placeholder="Barangay, town, or address" autocomplete="off" maxlength="120" /></label>
-        <button type="button" data-farm-search-button>Search</button>
-    </div>
-    <div class="farm-location-results" data-farm-results aria-live="polite"></div>
-    <div class="farm-location-map" data-farm-map role="region" aria-label="Select farm on OpenStreetMap"></div>
-    <div class="farm-location-controls">
-        <button type="button" data-farm-gps>Use my current location</button>
-        <button type="button" data-farm-clear>Remove pin</button>
-    </div>
-    <p class="farm-location-status" data-farm-location-status role="status">Tap the map or search to choose a farm position. Location services require your permission.</p>
-    <small>Map and place search: &copy; <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener noreferrer">OpenStreetMap contributors</a>. Address search runs only when you press Search.</small>
-</div>
-        <label asp-for="TimeZoneId">Time zone</label><input asp-for="TimeZoneId" list="time-zones" required maxlength="64" /><span asp-validation-for="TimeZoneId" class="error"></span>
-        <button type="submit">Create</button> <a asp-action="Index">Cancel</a>
-    </form>
-</section>
+<div class="reference-screen reference-screen-farms ani-entry-farm-form-shell">
+<header class="farm-create-heading">
+    <a class="farm-back-link anigo-back-control" asp-action="Index" title="@T["Back to my farms"]"><partial name="_Icon" model='@("chevLeft")' /><span class="visually-hidden">@T["Back to my farms"]</span></a>
 
+    <p class="ani-entry-eyebrow">@T["START A FARM"]</p>
+    <h1>@T["Create a farm"]</h1>
+    <p class="sf-muted">@T["Start with just a farm name and nearby location. You can add plots, crops, and your team afterward."]</p>
+    <ol class="ani-setup-progress" aria-label="@T["Farm setup progress"]">
+        <li aria-current="step"><span>1</span> @T["Farm details"]</li>
+        <li><span>2</span> @T["Add plots"]</li>
+        <li><span>3</span> @T["Plan crops"]</li>
+    </ol>
+</header>
+<div class="farm-create-layout">
+    <section class="panel card farm-create-panel" aria-labelledby="farm-details-heading">
+        <header class="reference-panel-heading"><h2 id="farm-details-heading">@T["Farm details"]</h2></header>
+        <p class="sf-muted">Start with a name and a nearby location. The time zone is prefilled; a map pin is optional.</p>
+        <form asp-action="Create" method="post" class="farm-create-form ani-p5-form" data-ani-p5-form>
+            <div class="form-field">
+                <label asp-for="Name"></label>
+                <input asp-for="Name" required minlength="2" maxlength="120" autocomplete="organization" placeholder="@T["e.g. Riverside Farm"]" />
+                <span asp-validation-for="Name" class="error"></span>
+            </div>
+            <div class="form-field">
+                <label asp-for="LocationText">@T["Farm location / nearby address"]</label>
+                <input asp-for="LocationText" data-farm-location-label required minlength="2" maxlength="250"
+                       placeholder="@T["e.g. Barangay San Jose, Angeles City"]" aria-describedby="farm-location-help" />
+                <p class="hint" id="farm-location-help">@T["A nearby area is enough to get started. You can add an exact map pin later for weather."]</p>
+                <span asp-validation-for="LocationText" class="error"></span>
+            </div>
+            <input asp-for="Latitude" data-farm-latitude type="hidden" />
+            <input asp-for="Longitude" data-farm-longitude type="hidden" />
+            <details class="ani-farm-advanced" id="farm-advanced-settings">
+                <summary><strong>@T["Choose an exact location on the map"]</strong><span>@T["Optional"]</span></summary>
+                <p class="ani-inline-help">@T["A map pin helps with local weather. You can add one later by editing your farm."]</p>
+            <div class="farm-location-picker" data-farm-location-picker data-search-url="@Url.Action("Search", "FarmLocations")" data-reverse-url="@Url.Action("Reverse", "FarmLocations")" data-picker-script-url="@Url.Content("~/js/farm-location-picker.js")">
+                <h3 class="farm-map-heading">@T["Pin your farm's location"] <span class="sf-muted">@T["(optional)"]</span></h3>
+                <p class="hint">@T["Find your barangay or nearby place, then position the pin on your actual farm. No coordinates to type."]</p>
+                <div class="farm-location-search">
+                    <label>@T["Search a place"] <input type="search" data-farm-search placeholder="@T["Barangay, town, or address"]" autocomplete="off" maxlength="120" /></label>
+                    <button type="button" data-farm-search-button>@T["Search"]</button>
+                </div>
+                <div class="farm-location-results" data-farm-results aria-live="polite"></div>
+                <div class="farm-location-map" data-farm-map role="region" aria-label="@T["Select farm on OpenStreetMap"]"></div>
+                <div class="farm-location-controls">
+                    <button type="button" data-farm-gps>@T["Use my current location"]</button>
+                    <button type="button" data-farm-clear>@T["Remove pin"]</button>
+                </div>
+                <p class="farm-location-status" data-farm-location-status role="status">@T["Tap the map or search to choose a farm position. Location services require your permission."]</p>
+                <small>Map and place search: &copy; <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener noreferrer">@T["OpenStreetMap contributors"]</a>@T[". Address search runs only when you press Search."]</small>
+            </div>
+            </details>
+            <div class="form-field ani-timezone-field">
+                <label asp-for="TimeZoneId">@T["Time zone"]</label>
+                <input asp-for="TimeZoneId" list="time-zones" required maxlength="64" aria-describedby="farm-timezone-help" />
+                <span asp-validation-for="TimeZoneId" class="error"></span>
+                <p class="hint" id="farm-timezone-help">@T["Defaults to Asia/Manila. Used for local crop dates, scheduled tasks, and reports."]</p>
+            </div>
+            <div class="farm-create-actions">
+                <button type="submit">@T["Create farm & continue"]</button>
+                <a class="sf-button-outline" asp-action="Index">@T["Cancel"]</a>
+            </div>
+        </form>
+    </section>
+    <aside class="farm-create-side">
+        <div class="panel card farm-setup-guide">
+
+            <h2>@T["After creating your farm"]</h2>
+            <ol>
+                <li><strong>@T["Add your first plot."]</strong><span>@T["Name the field and enter its area."]</span></li>
+                <li><strong>@T["Plan a crop."]</strong><span>@T["Choose what to plant and when."]</span></li>
+                <li><strong>@T["Invite your team."]</strong><span>@T["Share your farm code and approve requests when you're ready."]</span></li>
+            </ol>
+        </div>
+        <div class="farm-setup-note">
+            <strong>@T["Only you can manage farm membership as the owner."]</strong>
+            <p>@T["New join requests require your approval before the person can access the farm."]</p>
+        </div>
+    </aside>
+</div>
 
 <partial name="_TimeZones" />
-<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
-<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin="" defer></script>
-<script src="~/js/farm-location-picker.js" defer></script>
+<script src="~/js/farm-location-loader.js" asp-append-version="true" defer></script>
+
+</div>

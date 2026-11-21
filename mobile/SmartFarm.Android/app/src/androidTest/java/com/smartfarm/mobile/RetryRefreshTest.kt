@@ -57,6 +57,7 @@ class RetryRefreshTest {
             }
             compose.waitUntil(5000) { !farms.state.value.loading }
             val sync = SyncRepository(auth, db.pendingOperationDao(), db.pendingPhotoDao(), LocalPhotoFiles(context),
+                com.smartfarm.mobile.data.sync.OfflineObservationQueue(db),
                 { retrofit.create(SyncApi::class.java) }, { retrofit.create(MonitoringApi::class.java) },
                 { retrofit.create(InventoryApi::class.java) }, WorkManager.getInstance(context))
             val inventory = InventoryViewModel(InventoryRepository(auth) { retrofit.create(InventoryApi::class.java) }, sync)

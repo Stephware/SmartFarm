@@ -1,0 +1,71 @@
+@model SmartFarm.Web.ViewModels.Admin.AdminSyncPage
+@{
+    ViewData["Title"] = T["Sync history"];
+}
+<a class="admin-back anigo-back-control" asp-area="Admin" asp-controller="Monitoring" asp-action="Index" title="@T["Back to monitoring"]"><partial name="~/Views/Shared/_Icon.cshtml" model='@("chevLeft")' /><span class="visually-hidden">@T["Back to monitoring"]</span></a>
+<div class="page-heading admin-page-heading">
+    <div><p class="sf-kicker">@T["ANDROID DATA SYNC"]</p><h1>@T["Sync history"]</h1>
+        <p class="sf-muted">@T["Search server-recorded operations without exposing crop data or upload payloads."]</p></div>
+</div>
+<section class="panel admin-directory-panel" aria-label="@T["Recorded sync operations"]">
+    <form class="admin-filters" asp-area="Admin" asp-controller="Monitoring" asp-action="Sync" method="get">
+        <div class="admin-filter-search"><label for="sync-farm-search">@T["Farm name"]</label>
+            <input id="sync-farm-search" type="search" name="search" maxlength="100" value="@Model.Search" placeholder="@T["Search farms"]" /></div>
+        <div><label for="sync-status">@T["Outcome"]</label>
+            <select name="status" id="sync-status">
+                <option value="all" selected="@(Model.Status == "all")">@T["All outcomes"]</option>
+                <option value="succeeded" selected="@(Model.Status == "succeeded")">@T["Succeeded"]</option>
+                <option value="failed" selected="@(Model.Status == "failed")">@T["Recorded failures"]</option>
+            </select>
+        </div>
+        <div><label for="sync-type">@T["Operation"]</label>
+            <select name="type" id="sync-type">
+                <option value="all" selected="@(Model.Type == "all")">@T["All types"]</option>
+                @foreach (var type in SmartFarm.Web.ViewModels.Admin.AdminMonitoringRules.Types) {
+                    <option value="@type" selected="@(Model.Type == type)">@type.Replace('_', ' ')</option>
+                }
+            </select>
+        </div>
+        <button type="submit">@T["Filter"]</button>
+        <a class="admin-reset" asp-area="Admin" asp-controller="Monitoring" asp-action="Sync">@T["Clear"]</a>
+    </form>
+    @if (!Model.Available) {
+        <div class="admin-empty" role="status"><strong>@T["Sync history unavailable"]</strong><p>@T["Check the application database connection, then refresh."]</p></div>
+    } else {
+        <p class="admin-results-count">@T["{0} {1} found", Model.Total, Model.Total == 1 ? "operation" : "operations"]</p>
+        @if (Model.Operations.Count == 0) {
+            <div class="admin-empty"><strong>@T["No matching receipts"]</strong><p>@T["Try a different farm name or filter."]</p></div>
+        } else {
+            <div class="admin-record-list">
+                @foreach (var operation in Model.Operations) {
+                    <div class="admin-record admin-static-record">
+                        <span class="admin-record-main"><strong>@operation.FarmName</strong>
+                            <small>@T["{0} · {1} UTC", operation.OperationType.Replace('_', ' '), operation.ReceivedAtUtc.ToString("MMM d, yyyy HH:mm")]</small>
+                            @if (operation.Outcome == "Recorded failure" && !string.IsNullOrWhiteSpace(operation.ErrorCode)) {
+                                <small>@T["Error code: {0}", operation.ErrorCode]</small>
+                            }
+                        </span>
+                        <span class="sf-status-chip @(operation.Outcome == "Succeeded" ? "sf-status-chip--active" : "sf-status-chip--planned")">@operation.Outcome</span>
+                    </div>
+                }
+            </div>
+            <nav class="admin-pagination" aria-label="@T["Sync history pages"]">
+                @if (Model.HasPrevious) {
+                    <a asp-area="Admin" asp-controller="Monitoring" asp-action="Sync"
+                       asp-route-search="@Model.Search" asp-route-status="@Model.Status"
+                       asp-route-type="@Model.Type" asp-route-page="@(Model.Page - 1)">@T["Previous"]</a>
+                }
+                <span>@T["Page {0} of {1}", Model.Page, (Model.Total + SmartFarm.Web.ViewModels.Admin.AdminSyncPage.PageSize - 1) / SmartFarm.Web.ViewModels.Admin.AdminSyncPage.PageSize]</span>
+                @if (Model.HasNext) {
+                    <a asp-area="Admin" asp-controller="Monitoring" asp-action="Sync"
+                       asp-route-search="@Model.Search" asp-route-status="@Model.Status"
+                       asp-route-type="@Model.Type" asp-route-page="@(Model.Page + 1)">@T["Next"]</a>
+                }
+            </nav>
+        }
+    }
+</section>
+<section class="panel admin-directory-panel" aria-labelledby="sync-note-heading">
+    <h2 id="sync-note-heading">@T["What is not included?"]</h2>
+    <p class="sf-muted">@T["Offline changes, photo queues, and review-needed conflicts are stored on the farmer's phone until it can communicate with the server. Successful upload receipts are recorded here, but this view cannot detect every client-side failure. For an affected device, use the Android app's Sync Status screen."]</p>
+</section>

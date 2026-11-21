@@ -43,11 +43,11 @@ class SafeActionsTest {
                     onBack = {}, onSaveFarm = { _, _, _, _, _ -> }, onArchiveFarm = { archives++ },
                     onAddPlot = { _, _ -> }, onSavePlot = { _, _, _ -> }, onArchivePlot = {},
                     onCrops = {}, onInventory = {}, onDecision = { _, _ -> },
-                    onChangeRole = { _, _ -> }, onRemoveMember = {}
+                    onChangeRole = { _, _ -> }, onRemoveMember = {},
+                    section = "Settings"
                 )
             }
         }
-        compose.onNodeWithText("Settings").performScrollTo().performClick()
         compose.onNodeWithText("Archive farm").performScrollTo().performClick()
         compose.runOnIdle { assertEquals(0, archives) }
         compose.onNodeWithText("Cancel").performClick()

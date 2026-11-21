@@ -18,6 +18,11 @@ public sealed class NotificationsController(
     public Task<IActionResult> List(CancellationToken ct) =>
         Result(async () => Ok(await tasks.NotificationsAsync(ActorId, ct)));
 
+    [HttpGet("page")]
+    public Task<IActionResult> Page([FromServices] SmartFarm.Infrastructure.Services.Queries.FarmRecordQueryService records,
+        [FromQuery] SmartFarm.Core.Contracts.Query.PageRequest query, CancellationToken ct) =>
+        Result(async () => Ok(await records.NotificationsAsync(ActorId, query, ct)));
+
     [HttpPut("{notificationId:guid}/read")]
     public Task<IActionResult> Read(Guid notificationId, CancellationToken ct) =>
         Result(async () =>
@@ -25,4 +30,17 @@ public sealed class NotificationsController(
             await tasks.MarkNotificationReadAsync(ActorId, notificationId, ct);
             return NoContent();
         });
+    [HttpGet("alerts")]
+    public Task<IActionResult> Alerts([FromServices] SmartFarm.Infrastructure.Services.Queries.NotificationAlertService alerts,
+        [FromQuery] SmartFarm.Core.Contracts.Query.PageRequest query, CancellationToken ct) =>
+        Result(async () => Ok(await alerts.ListAsync(ActorId, query, ct)));
+
+    [HttpPut("{notificationId:guid}/acknowledge")]
+    public Task<IActionResult> Acknowledge(Guid notificationId,
+        [FromServices] SmartFarm.Infrastructure.Services.Queries.NotificationAlertService alerts, CancellationToken ct) => Result(async () =>
+    {
+        await alerts.AcknowledgeAsync(ActorId, notificationId, ct);
+        return NoContent();
+    });
+
 }

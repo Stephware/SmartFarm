@@ -201,11 +201,22 @@ def default_expression(sql, column_type):
     if re.fullmatch(r"N?'(?:''|[^'])*'", text):
         return text
     text = text.lower()
-    cast = re.fullmatch(r'cast\s*\(\s*(-?\d+(?:\.\d+)?)\s+as\s+(bit|decimal\(\d+,\s*\d+\))\s*\)', text)
+    convert = re.fullmatch(r'convert\(\s*\[?(bit|tinyint|smallint|int|bigint)\]?\s*,\s*(.+)\)', text)
+    if convert:
+        require(convert[1] == column_type, 'Default CONVERT target must match column type')
+        literal = default_expression(convert[2], column_type)
+        require(re.fullmatch(r'-?\d+', literal), 'Integer CONVERT default must be a literal')
+        return default_expression(f'cast({literal} as {column_type})', column_type)
+    cast = re.fullmatch(r'cast\s*\(\s*(-?\d+(?:\.\d+)?)\s+as\s+(bit|tinyint|smallint|int|bigint|decimal\(\d+,\s*\d+\))\s*\)', text)
     if cast:
         target = re.sub(r'\s', '', cast[2])
         require(target == column_type, 'Default CAST target must match column type')
         require(target != 'bit' or cast[1] in ('0', '1'), 'Unsupported bit conversion')
+        bounds = {'tinyint': (0, 255), 'smallint': (-32768, 32767),
+                  'int': (-2147483648, 2147483647), 'bigint': (-9223372036854775808, 9223372036854775807)}
+        if target in bounds:
+            require(re.fullmatch(r'-?\d+', cast[1]), 'Integer default must be integral')
+            require(bounds[target][0] <= int(cast[1]) <= bounds[target][1], 'Integer default out of range')
         return cast[1]
     require(re.fullmatch(r'-?\d+(?:\.\d+)?|sysutcdatetime\(\)|newid\(\)', text),
             'Unsupported default expression: ' + text)

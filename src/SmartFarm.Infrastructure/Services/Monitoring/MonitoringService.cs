@@ -41,7 +41,9 @@ public sealed class MonitoringService(
 
     private static ObservationDetails Map(CropObservation o, IReadOnlyList<PhotoDetails> photos) =>
         new(o.Id, o.HealthStatus, o.GrowthStage, o.ObservedAtUtc, o.RecordedAtUtc,
-            o.RecordedByUserId, o.Notes, photos);
+            o.RecordedByUserId, o.Notes, photos,
+            o.IssueCategory, o.IssueSeverity, o.FollowUpStatus,
+            o.FollowUpTaskId, Convert.ToBase64String(o.RowVersion));
 
     private async Task<CropCycle> RequireCycle(Guid farmId, Guid cycleId, Guid actor,
         bool recording, CancellationToken ct)
@@ -155,18 +157,60 @@ public sealed class MonitoringService(
     {
         await RequireCycle(farmId, cycleId, actor, true, ct);
         if (!MonitoringRules.ValidHealth(input.HealthStatus) ||
+            !MonitoringRules.ValidIssue(input.IssueCategory, input.IssueSeverity, input.HealthStatus) ||
             input.GrowthStage?.Trim().Length > 40 || input.Notes?.Length > 1000)
-            throw Invalid("Choose valid health, growth stage and notes.");
+            throw Invalid("An issue needs Needs attention/Critical health, a category and severity. Check the notes and growth stage.");
         var observation = new CropObservation
         {
             CropCycleId = cycleId, HealthStatus = input.HealthStatus,
             GrowthStage = string.IsNullOrWhiteSpace(input.GrowthStage) ? null : input.GrowthStage.Trim(),
             ObservedAtUtc = DateTime.UtcNow,
             RecordedByUserId = actor,
-            Notes = string.IsNullOrWhiteSpace(input.Notes) ? null : input.Notes.Trim()
+            Notes = string.IsNullOrWhiteSpace(input.Notes) ? null : input.Notes.Trim(),
+            IssueCategory = input.IssueCategory, IssueSeverity = input.IssueSeverity,
+            FollowUpStatus = input.IssueCategory == 0 ? (byte)0 : (byte)1
         };
         observations.Add(observation);
         await unit.SaveChangesAsync(ct);
+        return Map(observation, []);
+    }
+
+    public async Task<ObservationDetails> UpdateFollowUpAsync(
+        Guid farmId, Guid cycleId, Guid observationId, Guid actor,
+        UpdateObservationFollowUpInput input, CancellationToken ct = default)
+    {
+        if (!await access.CanAsync(farmId, actor, FarmAction.Manage, ct))
+            throw Missing();
+        await RequireCycle(farmId, cycleId, actor, false, ct);
+        if (!MonitoringRules.ValidFollowUp(input.FollowUpStatus) ||
+            input.FollowUpTaskId == Guid.Empty)
+            throw Invalid("Choose a valid follow-up status and task.");
+
+        var observation = await observations.GetByIdAsync(cycleId, observationId, ct)
+            ?? throw Missing();
+        if (observation.IssueCategory == 0)
+            throw Invalid("This observation has no structured issue.");
+        if (input.FollowUpTaskId is { } taskId)
+        {
+            var task = await tasks.FindAsync(farmId, taskId, ct);
+            if (task is null || task.CropCycleId != cycleId ||
+                task.TaskType is not (4 or 6))
+                throw Invalid("Choose an inspection or other task for this crop cycle.");
+        }
+        byte[] version;
+        try { version = Convert.FromBase64String(input.RowVersion ?? ""); }
+        catch (FormatException) { throw Invalid("Reload the observation before updating."); }
+        if (version.Length != 8)
+            throw Invalid("Reload the observation before updating.");
+        observations.SetOriginalRowVersion(observation, version);
+        observation.FollowUpStatus = input.FollowUpStatus;
+        observation.FollowUpTaskId = input.FollowUpTaskId;
+        try { await unit.SaveChangesAsync(ct); }
+        catch (DbUpdateConcurrencyException)
+        {
+            throw new FarmOperationException(FarmError.Conflict,
+                "The issue changed. Refresh and try again.");
+        }
         return Map(observation, []);
     }
 

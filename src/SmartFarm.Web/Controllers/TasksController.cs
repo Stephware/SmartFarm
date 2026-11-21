@@ -22,19 +22,36 @@ public sealed class TasksController(
     private Guid Actor => Guid.TryParse(users.GetUserId(User), out var id) ? id : Guid.Empty;
 
     [HttpGet]
-    public async Task<IActionResult> Index(Guid farmId, CancellationToken ct)
+    public async Task<IActionResult> Index(Guid farmId, CancellationToken ct, string? view = null)
     {
         var farm = await farms.GetAsync(farmId, Actor, ct);
         if (farm is null) return NotFound();
+        DateOnly? today = null;
+        try
+        {
+            var zone = TimeZoneInfo.FindSystemTimeZoneById(farm.TimeZoneId);
+            today = DateOnly.FromDateTime(TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, zone));
+        }
+        catch (TimeZoneNotFoundException) { /* Don't guess the farm's local day. */ }
+        catch (InvalidTimeZoneException) { /* Dates are unavailable until farm zone is fixed. */ }
+        var selected = view is "today" or "mine" or "upcoming" or "completed" or "all" ? view : "today";
         return View(new TaskPage(farm, await tasks.ListAsync(farmId, Actor, ct),
             await farms.MembersAsync(farmId, Actor, ct),
-            await crops.ListCyclesAsync(farmId, Actor, ct)));
+            await crops.ListCyclesAsync(farmId, Actor, ct))
+        {
+            FarmToday = today,
+            SelectedView = selected
+        });
     }
 
     [HttpPost, ValidateAntiForgeryToken]
     public async Task<IActionResult> Create(Guid farmId, FarmTaskInput input, CancellationToken ct)
     {
-        try { await tasks.CreateAsync(farmId, Actor, input, ct); }
+        try
+        {
+            await tasks.CreateAsync(farmId, Actor, input, ct);
+            TempData["Message"] = SmartFarm.Web.Presentation.UiMessages.Text("Task created.");
+        }
         catch (FarmOperationException e)
         {
             if (e.Error == FarmError.NotFound) return NotFound();
@@ -47,7 +64,11 @@ public sealed class TasksController(
     public async Task<IActionResult> Update(Guid farmId, Guid taskId,
         FarmTaskUpdateInput input, CancellationToken ct)
     {
-        try { await tasks.UpdateAsync(farmId, taskId, Actor, input, ct); }
+        try
+        {
+            await tasks.UpdateAsync(farmId, taskId, Actor, input, ct);
+            TempData["Message"] = SmartFarm.Web.Presentation.UiMessages.Text("Task updated.");
+        }
         catch (FarmOperationException e)
         {
             if (e.Error == FarmError.NotFound) return NotFound();
@@ -57,14 +78,28 @@ public sealed class TasksController(
     }
 
     [HttpPost, ValidateAntiForgeryToken]
-    public async Task<IActionResult> Close(Guid farmId, Guid taskId, FarmTaskCloseInput input, CancellationToken ct)
+    public async Task<IActionResult> Close(Guid farmId, Guid taskId, FarmTaskCloseInput input,
+        CancellationToken ct, string? returnView = null)
     {
-        try { await tasks.CloseAsync(farmId, taskId, Actor, input, ct); }
+        try
+        {
+            await tasks.CloseAsync(farmId, taskId, Actor, input, ct);
+            TempData["Message"] = input.Status switch
+            {
+                1 => "Task marked completed.",
+                2 => "Task marked skipped.",
+                3 => "Task cancelled.",
+                _ => "Task status updated."
+            };
+        }
         catch (FarmOperationException e)
         {
             if (e.Error == FarmError.NotFound) return NotFound();
             TempData["Error"] = e.Message;
         }
-        return RedirectToAction(nameof(Index), new { farmId });
+        // Only accept known filters. Never use an untrusted redirect URL.
+        var selected = returnView is "today" or "mine" or "upcoming" or "completed" or "all"
+            ? returnView : "today";
+        return RedirectToAction(nameof(Index), new { farmId, view = selected });
     }
 }

@@ -1,11 +1,15 @@
 package com.smartfarm.mobile.features.farms
 
+import com.smartfarm.mobile.R
+import com.smartfarm.mobile.localization.uiText
+
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import com.smartfarm.mobile.data.remote.dto.*
 import com.smartfarm.mobile.data.repository.FarmRepository
 import com.smartfarm.mobile.data.repository.WeatherRepository
+import com.smartfarm.mobile.data.repository.NetworkErrorMessages
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -27,7 +31,17 @@ data class FarmUiState(
     val offline: Boolean = false,
     val cachedAtUtcMillis: Long? = null,
     val weather: WeatherOverviewDto? = null,
-    val weatherMessage: String? = null
+    val weatherOffline: Boolean = false,
+    val weatherCachedAtUtcMillis: Long? = null,
+    val weatherMessage: String? = null,
+    val weatherGuidance: WeatherGuidanceDto? = null,
+    val guidanceAdvisoryId: String? = null,
+    val guidanceBusy: Boolean = false,
+    val guidanceError: String? = null,
+    val joinSaveVersion: Int = 0,
+    val plotSaveVersion: Int = 0,
+    val plotEditSaveVersion: Int = 0,
+    val savedPlotId: String? = null
 )
 
 class FarmViewModel(
@@ -38,6 +52,7 @@ class FarmViewModel(
     val state = mutable.asStateFlow()
     private var loadJob: Job? = null
     private var actionJob: Job? = null
+    private var guidanceJob: Job? = null
 
     private fun perform(block: suspend () -> Unit) {
         if (mutable.value.loading) return
@@ -47,7 +62,7 @@ class FarmViewModel(
             catch (cancelled: CancellationException) { throw cancelled }
             catch (error: Exception) {
                 mutable.value = mutable.value.copy(error = enrollmentError(error,
-                    "Could not complete the request. Check permissions, current data and connection."))
+                    uiText(R.string.ui_could_not_complete_the_request_check_permissions_cur_f1d9819, "Could not complete the request. Check permissions, current data and connection.")))
             } finally { mutable.value = mutable.value.copy(loading = false) }
         }
     }
@@ -55,14 +70,15 @@ class FarmViewModel(
 
     private fun enrollmentError(error: Exception, fallback: String): String =
         when ((error as? HttpException)?.code()) {
-            429 -> "Too many requests. Please wait and try again."
-            409 -> "This request changed. Refresh to load the latest farm access details."
+            429 -> uiText(R.string.ui_too_many_requests_please_wait_and_try_again_02f43f1, "Too many requests. Please wait and try again.")
+            409 -> uiText(R.string.ui_this_request_changed_refresh_to_load_the_latest_farm_4d5a6cb, "This request changed. Refresh to load the latest farm access details.")
             else -> fallback
         }
 
     fun clear() {
         loadJob?.cancel()
         actionJob?.cancel()
+        guidanceJob?.cancel()
         mutable.value = FarmUiState()
     }
 
@@ -77,7 +93,7 @@ class FarmViewModel(
                 loadMyRequests()
             } catch (cancelled: CancellationException) { throw cancelled }
             catch (_: Exception) {
-                mutable.value = mutable.value.copy(error = "Could not load farms. Check your connection.")
+                mutable.value = mutable.value.copy(error = uiText(R.string.ui_could_not_load_farms_check_your_connection_7ec686d, "Could not load farms. Check your connection."))
             } finally { mutable.value = mutable.value.copy(loading = false) }
         }
     }
@@ -89,7 +105,7 @@ class FarmViewModel(
         } catch (cancelled: CancellationException) { throw cancelled }
         catch (error: Exception) {
             mutable.value = mutable.value.copy(enrollmentMessage = enrollmentError(error,
-                "Join request status unavailable. Connect and refresh to check owner approval."))
+                uiText(R.string.ui_join_request_status_unavailable_connect_and_refresh__cc6ef45, "Join request status unavailable. Connect and refresh to check owner approval.")))
         }
     }
 
@@ -97,7 +113,7 @@ class FarmViewModel(
         mutable.value = mutable.value.copy(enrollment = null, enrollmentMessage = null)
         if (mutable.value.selected?.role != "Owner") return
         if (mutable.value.offline) {
-            mutable.value = mutable.value.copy(enrollmentMessage = "Join requests and farm code are unavailable offline.")
+            mutable.value = mutable.value.copy(enrollmentMessage = uiText(R.string.ui_join_requests_and_farm_code_are_unavailable_offline_e6bb540, "Join requests and farm code are unavailable offline."))
             return
         }
         try {
@@ -106,16 +122,55 @@ class FarmViewModel(
         } catch (cancelled: CancellationException) { throw cancelled }
         catch (error: Exception) {
             mutable.value = mutable.value.copy(enrollmentMessage = enrollmentError(error,
-                "Join requests and farm code are unavailable. Refresh to try again."))
+                uiText(R.string.ui_join_requests_and_farm_code_are_unavailable_refresh__2ceaf11, "Join requests and farm code are unavailable. Refresh to try again.")))
+        }
+    }
+
+    fun requestWeatherGuidance(advisoryId: String, cropCycleId: String? = null) {
+        val state = mutable.value
+        val farmId = state.selected?.id ?: return
+        if (state.offline || state.weatherOffline) {
+            mutable.value = state.copy(guidanceAdvisoryId = advisoryId, weatherGuidance = null,
+                guidanceBusy = false, guidanceError = uiText(R.string.guidance_online_required,
+                "Connect to the internet to check updated weather guidance."))
+            return
+        }
+        if (state.guidanceBusy) return
+        guidanceJob?.cancel()
+        mutable.value = state.copy(weatherGuidance = null, guidanceAdvisoryId = advisoryId,
+            guidanceBusy = true, guidanceError = null)
+        guidanceJob = viewModelScope.launch {
+            try {
+                val answer = weatherRepo.guidance(farmId, advisoryId, cropCycleId)
+                if (mutable.value.selected?.id == farmId && mutable.value.guidanceAdvisoryId == advisoryId) {
+                    mutable.value = mutable.value.copy(weatherGuidance = answer, guidanceError = null)
+                }
+            } catch (cancelled: CancellationException) {
+                throw cancelled
+            } catch (error: Exception) {
+                if (mutable.value.selected?.id == farmId) {
+                    mutable.value = mutable.value.copy(guidanceError =
+                        NetworkErrorMessages.forRequest(error, uiText(R.string.guidance_request_error,
+                            "Could not load guidance. Review the saved forecast or try again later.")))
+                }
+            } finally {
+                if (mutable.value.selected?.id == farmId) {
+                    mutable.value = mutable.value.copy(guidanceBusy = false)
+                }
+            }
         }
     }
 
     fun loadDetail(farmId: String) {
         loadJob?.cancel()
         actionJob?.cancel()
+        guidanceJob?.cancel()
         mutable.value = if (mutable.value.selected?.id == farmId)
             mutable.value.copy(loading = true, error = null, enrollment = null, myRequests = emptyList(),
-                enrollmentMessage = null) else FarmUiState(loading = true)
+                enrollmentMessage = null, weatherGuidance = null,
+                guidanceAdvisoryId = null, guidanceBusy = false, guidanceError = null)
+            else FarmUiState(loading = true,
+                farms = mutable.value.farms)
         loadJob = viewModelScope.launch {
             try {
                 val farm = repo.farmSnapshot(farmId)
@@ -128,7 +183,9 @@ class FarmViewModel(
                 } catch (_: Exception) {
                     null // Weather availability must not prevent opening a farm.
                 }
-                val snapshots = listOfNotNull(farm, plots, members, weatherData)
+                // Cached weather must not disable online farm management.
+                // Only farm, plot and member snapshots control the farm offline state.
+                val snapshots = listOf(farm, plots, members)
                 val cached = snapshots.any { it.offline }
                 mutable.value = mutable.value.copy(
                     selected = farm.value, plots = plots.value, members = members.value,
@@ -136,12 +193,15 @@ class FarmViewModel(
                     cachedAtUtcMillis = snapshots.filter { it.offline }
                         .minOfOrNull { it.savedAtUtcMillis },
                     weather = weatherData?.value,
-                    weatherMessage = if (weatherData == null) "Weather data unavailable." else null)
+                    weatherOffline = weatherData?.offline == true,
+                    weatherCachedAtUtcMillis = weatherData?.takeIf { it.offline }
+                        ?.savedAtUtcMillis,
+                    weatherMessage = if (weatherData == null) uiText(R.string.ui_weather_data_unavailable_da1a726, "Weather data unavailable.") else null)
                 loadEnrollment(farmId)
             } catch (cancelled: CancellationException) { throw cancelled }
             catch (_: Exception) {
                 mutable.value = mutable.value.copy(error =
-                    "Could not load this farm. Check permissions and connection.")
+                    uiText(R.string.ui_could_not_load_this_farm_check_permissions_and_conne_5bbbf3a, "Could not load this farm. Check permissions and connection."))
             } finally {
                 mutable.value = mutable.value.copy(loading = false)
             }
@@ -176,8 +236,9 @@ class FarmViewModel(
             name.trim(), location.trim(), timeZone.trim(), lat, lon,
             requireNotNull(current.rowVersion)))
         mutable.value = mutable.value.copy(
-            selected = updated, weather = null,
-            weatherMessage = "Farm settings saved. Reopen this farm to refresh weather.")
+            selected = updated, weather = null, weatherOffline = false,
+            weatherCachedAtUtcMillis = null,
+            weatherMessage = uiText(R.string.ui_farm_settings_saved_reopen_this_farm_to_refresh_weat_07fb4c3, "Farm settings saved. Reopen this farm to refresh weather."))
         onSuccess()
     }
 
@@ -188,16 +249,19 @@ class FarmViewModel(
         onSuccess()
     }
 
-    fun addPlot(name: String, area: String) = perform {
+    fun addPlot(name: String, area: String, onSaved: () -> Unit = {}) = perform {
         val farmId = requireNotNull(mutable.value.selected).id
         repo.createPlot(farmId, PlotInputDto(name.trim(), BigDecimal(area)))
-        mutable.value = mutable.value.copy(plots = repo.plots(farmId))
+        mutable.value = mutable.value.copy(plots = repo.plots(farmId),
+            plotSaveVersion = mutable.value.plotSaveVersion + 1)
+        onSaved()
     }
 
     fun savePlot(plot: PlotDto, name: String, area: String) = perform {
         val farmId = requireNotNull(mutable.value.selected).id
         repo.updatePlot(farmId, plot.id, PlotInputDto(name.trim(), BigDecimal(area), plot.rowVersion))
-        mutable.value = mutable.value.copy(plots = repo.plots(farmId))
+        mutable.value = mutable.value.copy(plots = repo.plots(farmId),
+            plotEditSaveVersion = mutable.value.plotEditSaveVersion + 1, savedPlotId = plot.id)
     }
 
     fun archivePlot(plot: PlotDto) = perform {
@@ -206,12 +270,15 @@ class FarmViewModel(
         mutable.value = mutable.value.copy(plots = repo.plots(farmId))
     }
 
-    fun requestToJoin(code: String) = perform {
+    fun requestToJoin(code: String, onSaved: () -> Unit = {}) = perform {
         require(code.isNotBlank() && !mutable.value.offline)
         repo.requestToJoin(code)
+        onSaved()
         loadMyRequests()
-        if (mutable.value.enrollmentMessage == null) mutable.value = mutable.value.copy(
-            enrollmentMessage = "Request sent. Farm access awaits owner approval.")
+        mutable.value = mutable.value.copy(
+            enrollmentMessage = mutable.value.enrollmentMessage ?:
+                uiText(R.string.ui_request_sent_farm_access_awaits_owner_approval_b8538c6, "Request sent. Farm access awaits owner approval."),
+            joinSaveVersion = mutable.value.joinSaveVersion + 1)
     }
 
     fun cancelJoinRequest(request: FarmJoinRequestDto) = perform {
@@ -221,7 +288,7 @@ class FarmViewModel(
         repo.cancelJoinRequest(request.farmId, request.id)
         loadMyRequests()
         if (mutable.value.enrollmentMessage == null) mutable.value = mutable.value.copy(
-            enrollmentMessage = "Request canceled. You can apply again with the farm's current code.")
+            enrollmentMessage = uiText(R.string.ui_request_canceled_you_can_apply_again_with_the_farm_s_cfaff52, "Request canceled. You can apply again with the farm's current code."))
     }
 
     fun regenerateJoinCode(currentCode: String) = perform {
@@ -235,7 +302,7 @@ class FarmViewModel(
             throw error
         }
         mutable.value = mutable.value.copy(enrollment = overview.copy(joinCode = updated.joinCode),
-            enrollmentMessage = "New farm code ready. The previous code no longer works for new requests.")
+            enrollmentMessage = uiText(R.string.ui_new_farm_code_ready_the_previous_code_no_longer_work_b186086, "New farm code ready. The previous code no longer works for new requests."))
     }
 
     fun decideJoinRequest(requestId: String, approve: Boolean) = perform {

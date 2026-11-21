@@ -7,14 +7,17 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.AspNetCore.TestHost;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Configuration;
 using SmartFarm.Core.Contracts.Crops;
 using SmartFarm.Core.Contracts.Farms;
 using SmartFarm.Core.Contracts.Monitoring;
+using SmartFarm.Core.Contracts.Harvests;
 using SmartFarm.Core.Contracts.Tasks;
 using SmartFarm.Core.Enums;
 using SmartFarm.Core.Interfaces.Crops;
 using SmartFarm.Core.Interfaces.Farms;
 using SmartFarm.Core.Interfaces.Monitoring;
+using SmartFarm.Core.Interfaces.Harvests;
 using SmartFarm.Core.Interfaces.Tasks;
 using SmartFarm.Core.Interfaces.Inventory;
 using SmartFarm.Core.Contracts.Inventory;
@@ -65,6 +68,27 @@ public sealed class FormRecoveryTests
         Assert.Contains(value, html);
         Assert.Contains("data-error-summary", html);
         Assert.Contains("tabindex=\"-1\"", html);
+    }
+
+    [Theory]
+    [InlineData("/Farms/EditPlot", "Back to plots", "/Farms/Details", "#plots-heading")]
+    [InlineData("/Crops/EditPlan", "Back to crops", "/Crops", "#crop-cycle-")]
+    public async Task EditPagesHaveRealContextualParentLinks(string path, string label, string parent, string fragment)
+    {
+        using var app = CreateApp();
+        using var client = app.CreateClient();
+        var html = await client.GetStringAsync($"{path}?id={FarmId}&farmId={FarmId}&plotId={Cycle.PlotId}&cycleId={CycleId}");
+        var link = Regex.Match(html,
+            "<a[^>]*class=\"[^\"]*ui-back-link[^\"]*\"[^>]*>.*?</a>",
+            RegexOptions.Singleline).Value;
+        Assert.Contains($"<span class=\"visually-hidden\">{label}</span>", link);
+        Assert.Contains("chevLeft", link);
+        Assert.NotEmpty(link);
+        Assert.Contains(parent, link);
+        Assert.Contains(FarmId.ToString(), link);
+        Assert.Contains(fragment, link);
+        Assert.True(html.IndexOf(link, StringComparison.Ordinal) < html.IndexOf("<h1", StringComparison.Ordinal));
+        Assert.DoesNotContain("javascript:", link);
     }
 
     [Fact]
@@ -155,12 +179,15 @@ public sealed class FormRecoveryTests
     }
 
     private static WebApplicationFactory<Program> CreateApp(CropCycleStatus status = CropCycleStatus.Planned, bool unavailable = false) => new WebApplicationFactory<Program>()
-        .WithWebHostBuilder(builder => builder.ConfigureTestServices(services =>
+        .WithWebHostBuilder(builder => builder.ConfigureAppConfiguration((_, config) =>
+            config.AddInMemoryCollection(new Dictionary<string, string?> { ["ConnectionStrings:SmartFarm"] = "" }))
+        .ConfigureTestServices(services =>
         {
             services.AddSingleton<IAuthenticationService, SignedIn>();
             services.AddScoped(_ => Stub<IFarmManagementService>(method => method switch
             {
                 "GetAsync" => unavailable ? throw new OfflineDatabase() : Task.FromResult<FarmDetails?>(Farm),
+                "GetPlotAsync" => Task.FromResult<PlotDetails?>(new(Cycle.PlotId, FarmId, "North plot", 100, "version")),
                 "ListPlotsAsync" => Task.FromResult<IReadOnlyList<PlotDetails>>([new(Cycle.PlotId, FarmId, "North plot", 100, "version")]),
                 _ => throw new NotSupportedException(method)
             }));
@@ -174,8 +201,14 @@ public sealed class FormRecoveryTests
             services.AddScoped(_ => Stub<IMonitoringService>(method => method == "GetAsync"
                 ? Task.FromResult(new MonitoringDetails(FarmId, CycleId, true, [], []))
                 : throw (unavailable ? new OfflineDatabase() : new FarmOperationException(FarmError.InvalidInput, "Check the submitted values."))));
+            services.AddScoped(_ => Stub<IHarvestService>(method => method == "GetAsync"
+                ? Task.FromResult(new HarvestOverview(FarmId, CycleId, "Rice", "North plot", "kg",
+                    (byte)status, false, false, 0m, 0, 0, []))
+                : throw new NotSupportedException(method)));
             services.AddScoped(_ => Stub<IFarmTaskService>(method => method == "ListAsync"
                 ? Task.FromResult<IReadOnlyList<FarmTaskDetails>>([]) : throw new NotSupportedException(method)));
+            services.AddScoped(_ => Stub<IInventoryService>(method => method == "ListAsync"
+                ? Task.FromResult(new InventoryWorkspace([], 0)) : throw new NotSupportedException(method)));
         }));
 
     [Theory]

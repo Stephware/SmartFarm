@@ -26,6 +26,8 @@ import java.util.UUID
 import java.util.concurrent.TimeUnit
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import okhttp3.MediaType.Companion.toMediaType
@@ -39,7 +41,8 @@ data class StockRetryPreview(
     val currentBalance: BigDecimal,
     val change: BigDecimal,
     val expectedBalance: BigDecimal,
-    val currentRowVersion: String
+    val currentRowVersion: String,
+    val includesFieldActivity: Boolean = false
 )
 
 class SyncRepository(
@@ -47,13 +50,37 @@ class SyncRepository(
     private val dao: PendingOperationDao,
     private val photoDao: PendingPhotoDao,
     private val files: LocalPhotoFiles,
+    private val observationQueue: OfflineObservationQueue,
     private val api: () -> SyncApi,
     private val monitoringApi: () -> MonitoringApi,
     private val inventoryApi: () -> InventoryApi,
-    private val work: WorkManager
+    private val work: WorkManager,
+    private val cache: com.smartfarm.mobile.data.local.OfflineReadCache? = null
 ) {
     private val gson = Gson()
     private val uploadMutex = Mutex()
+    private val progressMutable = MutableStateFlow(SyncProgress())
+    val progress = progressMutable.asStateFlow()
+
+    fun resetProgress() { progressMutable.value = SyncProgress(auth.currentUserId) }
+
+    private fun sending(user: String, farm: String, id: String) {
+        if (auth.currentUserId != user) return
+        val current = progressMutable.value.takeIf { it.userId == user } ?: SyncProgress(user)
+        progressMutable.value = current.copy(sendingId = id, sendingFarmId = farm)
+    }
+
+    private fun confirmed(user: String, farm: String) {
+        if (auth.currentUserId != user) return
+        val current = progressMutable.value.takeIf { it.userId == user } ?: SyncProgress(user)
+        progressMutable.value = current.copy(sendingId = null, sendingFarmId = null, signInRequired = false,
+            confirmedFarms = current.confirmedFarms + (farm to ((current.confirmedFarms[farm] ?: 0) + 1)))
+    }
+
+    private fun requireSignIn(user: String) {
+        if (auth.currentUserId == user)
+            progressMutable.value = progressMutable.value.copy(signInRequired = true)
+    }
 
     fun watch(): Flow<List<PendingOperation>> =
         dao.watch(requireNotNull(auth.currentUserId) { "Sign in to view pending changes." })
@@ -63,6 +90,15 @@ class SyncRepository(
 
     suspend fun queueActivity(farmId: String, cycleId: String, input: ActivityInputDto): String =
         queue(SyncWriteRequest(farmId, cycleId, "activity", activity = input))
+
+    suspend fun queueActivityWithStock(
+        farmId: String, cycleId: String, input: ActivityStockInputDto
+    ): String {
+        require(input.activity.activityType in 2..3)
+        require(input.quantityUsed > BigDecimal.ZERO && input.quantityUsed.scale() <= 3)
+        require(input.inventoryItemId.isNotBlank() && input.rowVersion.isNotBlank())
+        return queue(SyncWriteRequest(farmId, cycleId, "activity_stock", activityStock = input))
+    }
 
     suspend fun queueObservation(farmId: String, cycleId: String, input: ObservationInputDto): String =
         queue(SyncWriteRequest(farmId, cycleId, "observation", observation = input))
@@ -122,14 +158,29 @@ class SyncRepository(
     ): String {
         val user = requireNotNull(auth.currentUserId) { "Sign in before saving." }
         val operationId = UUID.randomUUID().toString()
-        val photoId = stagePhoto(farmId, cycleId, null, operationId, uri, resolver)
+        val photoId = UUID.randomUUID().toString()
+
+        // Produce the immutable upload file once. Only publish the matching Room
+        // rows in one transaction, so a process crash cannot leave a stranded photo.
+        val mime = files.copyFrom(resolver, uri, photoId)
         try {
-            queue(SyncWriteRequest(farmId, cycleId, "observation", observation = input), operationId)
+            if (auth.currentUserId != user) throw IllegalStateException("Account changed.")
+            val operation = PendingOperation(
+                operationId = operationId, userId = user, farmId = farmId,
+                operationType = "observation",
+                payloadJson = gson.toJson(SyncWriteRequest(
+                    farmId, cycleId, "observation", observation = input)),
+                createdAtUtc = System.currentTimeMillis())
+            val photo = PendingPhoto(
+                photoId = photoId, userId = user, farmId = farmId, cycleId = cycleId,
+                observationId = null, parentOperationId = operationId,
+                mimeType = mime, savedAtUtcMillis = System.currentTimeMillis())
+            observationQueue.add(operation, photo)
         } catch (error: Exception) {
-            photoDao.remove(user, photoId)
             files.delete(photoId)
             throw error
         }
+        schedule()
         files.deleteTemporaryCameraSource(uri)
         return operationId
     }
@@ -157,7 +208,8 @@ class SyncRepository(
     suspend fun retry(id: String) {
         val user = auth.currentUserId ?: return
         val operation = dao.find(id, user) ?: return
-        if (operation.operationType == "inventory") return // Explicit stock review is required.
+        if (operation.operationType in setOf("inventory", "activity_stock"))
+            return // Explicit stock review is required.
         dao.retryAfterReview(id, user)
         schedule()
     }
@@ -179,47 +231,98 @@ class SyncRepository(
 
     suspend fun discardPhoto(id: String) {
         val user = auth.currentUserId ?: return
+        // A guessed/stale ID must never remove another account's private file.
+        if (photoDao.find(user, id) == null) return
         photoDao.remove(user, id)
         files.delete(id)
     }
 
-    // Never silently rebase. The user must first see and accept the latest stock total.
+    // Never silently rebase. The user must review the latest stock total first.
     suspend fun previewStockRetry(id: String): StockRetryPreview {
         val user = requireNotNull(auth.currentUserId) { "Sign in first." }
         val row = requireNotNull(dao.find(id, user)) { "Operation not found." }
-        require(row.status == "review" && row.operationType == "inventory")
+        require(row.status == "review" &&
+            row.operationType in setOf("inventory", "activity_stock"))
         val input = gson.fromJson(row.payloadJson, SyncWriteRequest::class.java)
-        val movement = requireNotNull(input.movement)
-        val latest = auth.authorized { inventoryApi().item(it, input.farmId, input.targetId) }
-        require(latest.archivedAtUtc == null) { "This inventory item is archived." }
-        val next = latest.quantityOnHand + movement.quantityChange
+        val combined = input.activityStock
+        val itemId = if (row.operationType == "activity_stock") {
+            requireNotNull(combined).inventoryItemId
+        } else input.targetId
+        val change = if (row.operationType == "activity_stock") {
+            requireNotNull(combined).quantityUsed.negate()
+        } else requireNotNull(input.movement).quantityChange
+        val latest = auth.authorized { inventoryApi().item(it, input.farmId, itemId) }
+        require(latest.archivedAtUtc == null) { "This supply is archived." }
+        if (combined != null) {
+            val expectedCategory = if (combined.activity.activityType == 2) 2 else 3
+            require(combined.activity.activityType in 2..3 &&
+                latest.category == expectedCategory) {
+                "The chosen stock item no longer matches this activity."
+            }
+        }
+        val next = latest.quantityOnHand + change
         require(next >= BigDecimal.ZERO && next <= BigDecimal("999999999999999.999")) {
             "Not enough stock, or the quantity is too large."
         }
         return StockRetryPreview(id, latest.name, latest.quantityOnHand,
-            movement.quantityChange, next, latest.rowVersion)
+            change, next, latest.rowVersion,
+            includesFieldActivity = row.operationType == "activity_stock")
     }
 
     suspend fun confirmStockRetry(preview: StockRetryPreview) {
         val user = requireNotNull(auth.currentUserId) { "Sign in first." }
         val row = requireNotNull(dao.find(preview.operationId, user))
-        require(row.operationType == "inventory" && row.status == "review")
+        require(row.status == "review" &&
+            row.operationType in setOf("inventory", "activity_stock"))
         val input = gson.fromJson(row.payloadJson, SyncWriteRequest::class.java)
-        val fresh = auth.authorized { inventoryApi().item(it, input.farmId, input.targetId) }
+        val combined = input.activityStock
+        val itemId = if (row.operationType == "activity_stock") {
+            requireNotNull(combined).inventoryItemId
+        } else input.targetId
+        val fresh = auth.authorized { inventoryApi().item(it, input.farmId, itemId) }
         require(fresh.rowVersion == preview.currentRowVersion && fresh.archivedAtUtc == null) {
             "Stock changed again. Check the latest balance."
         }
-        val movement = requireNotNull(input.movement)
-        val updated = input.copy(movement = movement.copy(rowVersion = fresh.rowVersion))
+        val change = if (row.operationType == "activity_stock") {
+            val details = requireNotNull(combined)
+            val expectedCategory = if (details.activity.activityType == 2) 2 else 3
+            require(details.activity.activityType in 2..3 &&
+                fresh.category == expectedCategory) { "Supply category changed." }
+            details.quantityUsed.negate()
+        } else requireNotNull(input.movement).quantityChange
+        require(fresh.quantityOnHand + change >= BigDecimal.ZERO) {
+            "Not enough stock. Check the latest balance."
+        }
+        val updated = if (row.operationType == "activity_stock") {
+            input.copy(activityStock = requireNotNull(combined).copy(rowVersion = fresh.rowVersion))
+        } else {
+            input.copy(movement = requireNotNull(input.movement).copy(rowVersion = fresh.rowVersion))
+        }
         check(dao.rebaseInventory(row.operationId, user, gson.toJson(updated)) == 1)
         schedule()
     }
 
     // false requests WorkManager's exponential network/server retry.
-    suspend fun uploadPending(): Boolean = uploadMutex.withLock { uploadPendingOnce() }
+    suspend fun uploadPending(): Boolean = uploadMutex.withLock {
+        try { uploadPendingOnce() }
+        finally { progressMutable.value = progressMutable.value.copy(sendingId = null, sendingFarmId = null) }
+    }
+
+    private suspend fun invalidateConfirmed(user: String, farm: String, target: String, type: String) {
+        when (type) {
+            "activity", "observation", "photo", "activity_stock" ->
+                cache?.invalidate(user, "farm/$farm/cycle/$target/monitoring")
+            "harvest" -> cache?.invalidate(user, "farm/$farm/cycle/$target/harvests")
+        }
+        if (type in setOf("inventory", "activity_stock"))
+            cache?.invalidate(user, "farm/$farm/inventory", prefix = true)
+        else if (type == "activity") cache?.invalidate(user, "farm/$farm/inventory/activities")
+    }
 
     private suspend fun uploadPendingOnce(): Boolean {
         val user = auth.currentUserId ?: return true
+        // Reconcile abandoned partial files; every account's queued IDs are protected.
+        files.pruneAbandoned(photoDao.allPhotoIds().toSet())
         while (true) {
             val pending = dao.pending(user)
             if (pending.isEmpty()) break
@@ -232,19 +335,35 @@ class SyncRepository(
                     continue
                 }
                 try {
+                    sending(user, input.farmId, operation.operationId)
                     val response = auth.authorized {
                         api().submit(it, operation.operationId, input)
                     }
+                    // Never discard local data based on an unrelated/malformed reply.
+                    if (!SyncReceiptValidator.operationMatches(
+                            response, operation.operationId, operation.operationType)) {
+                        dao.needsReview(operation.operationId, user,
+                            "Unexpected sync confirmation. Review before retrying.")
+                        continue
+                    }
+                    if (operation.operationType == "activity_stock" &&
+                        !SyncReceiptValidator.activityStockMatches(response, input.activityStock)) {
+                        dao.needsReview(operation.operationId, user,
+                            "Unexpected activity and stock confirmation. Review before retrying.")
+                        continue
+                    }
                     if (operation.operationType == "observation") {
-                        val observationId = response.result.get("id")?.asString
-                        if (observationId.isNullOrBlank()) {
+                        val observationId = SyncReceiptValidator.observationId(response)
+                        if (observationId == null) {
                             dao.needsReview(operation.operationId, user,
-                                "The server did not return an observation ID.")
+                                "The server did not return a valid observation ID.")
                             continue
                         }
                         photoDao.resolveObservation(user, operation.operationId, observationId)
                     }
+                    invalidateConfirmed(user, input.farmId, input.targetId, operation.operationType)
                     dao.remove(operation.operationId, user)
+                    confirmed(user, input.farmId)
                 } catch (cancelled: CancellationException) {
                     throw cancelled
                 } catch (error: HttpException) {
@@ -252,7 +371,7 @@ class SyncRepository(
                         400, 403, 404, 409, 422 ->
                             dao.needsReview(operation.operationId, user,
                                 "Server rejected this change (${error.code()}). Review before retrying.")
-                        401 -> return true
+                        401 -> { requireSignIn(user); return true }
                         else -> return false
                     }
                 } catch (_: IOException) {
@@ -274,14 +393,22 @@ class SyncRepository(
                     continue
                 }
                 try {
+                    sending(user, photo.farmId, photo.photoId)
                     val body = file.asRequestBody(photo.mimeType.toMediaType())
                     val part = MultipartBody.Part.createFormData("photo", "field-photo", body)
-                    auth.authorized { bearer ->
+                    val saved = auth.authorized { bearer ->
                         monitoringApi().uploadWithId(bearer, photo.farmId, photo.cycleId,
                             requireNotNull(photo.observationId), photo.photoId, part)
                     }
+                    if (!SyncReceiptValidator.photoMatches(saved, photo)) {
+                        photoDao.review(user, photo.photoId,
+                            "Unexpected photo confirmation. Review before retrying.")
+                        continue
+                    }
+                    invalidateConfirmed(user, photo.farmId, photo.cycleId, "photo")
                     photoDao.remove(user, photo.photoId)
                     files.delete(photo.photoId)
+                    confirmed(user, photo.farmId)
                 } catch (cancelled: CancellationException) {
                     throw cancelled
                 } catch (error: HttpException) {
@@ -289,7 +416,7 @@ class SyncRepository(
                         400, 403, 404, 409, 422 ->
                             photoDao.review(user, photo.photoId,
                                 "Photo rejected (${error.code()}). Review before retrying.")
-                        401 -> return true
+                        401 -> { requireSignIn(user); return true }
                         else -> return false
                     }
                 } catch (_: IOException) {

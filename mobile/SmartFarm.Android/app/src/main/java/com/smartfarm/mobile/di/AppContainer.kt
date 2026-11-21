@@ -1,6 +1,8 @@
 package com.smartfarm.mobile.di
 
 import android.content.Context
+import android.os.Build
+import java.util.Locale
 import androidx.room.Room
 import androidx.work.WorkManager
 import com.smartfarm.mobile.BuildConfig
@@ -26,6 +28,8 @@ import com.smartfarm.mobile.data.repository.MonitoringRepository
 import com.smartfarm.mobile.data.remote.api.FarmApi
 import com.smartfarm.mobile.data.remote.api.WeatherApi
 import com.smartfarm.mobile.data.repository.WeatherRepository
+import com.smartfarm.mobile.data.remote.api.FarmInsightsApi
+import com.smartfarm.mobile.data.repository.FarmInsightsRepository
 
 class AppContainer(context: Context) {
     val taskRepository by lazy {
@@ -45,11 +49,30 @@ class AppContainer(context: Context) {
 
     val workManager: WorkManager by lazy { WorkManager.getInstance(appContext) }
 
+    private fun runningInEmulator(): Boolean {
+        val fingerprint = Build.FINGERPRINT.lowercase(Locale.ROOT)
+        val hardware = Build.HARDWARE.lowercase(Locale.ROOT)
+        return fingerprint.startsWith("generic") || fingerprint.contains("emulator") ||
+            hardware.contains("ranchu") || hardware.contains("goldfish") ||
+            Build.MODEL.contains("Emulator", ignoreCase = true)
+    }
+
     private val retrofit by lazy {
-        ApiClientFactory.create(BuildConfig.API_BASE_URL, allowLocalHttpForDebug = BuildConfig.DEBUG)
+        val apiUrl = if (BuildConfig.DEBUG) {
+            ApiClientFactory.forDebugDevice(BuildConfig.API_BASE_URL, runningInEmulator())
+        } else BuildConfig.API_BASE_URL
+        ApiClientFactory.create(
+            apiUrl,
+            allowLocalHttpForDebug = BuildConfig.DEBUG,
+            languageProvider = { com.smartfarm.mobile.localization.AppLanguage.current(appContext) }
+        )
     }
     val weatherRepository: WeatherRepository by lazy {
         WeatherRepository(authRepository, offlineCache) { retrofit.create(WeatherApi::class.java) }
+    }
+
+    val insightsRepository: FarmInsightsRepository by lazy {
+        FarmInsightsRepository(authRepository) { retrofit.create(FarmInsightsApi::class.java) }
     }
 
     val farmRepository: FarmRepository by lazy {
@@ -79,13 +102,15 @@ class AppContainer(context: Context) {
     val syncRepository: SyncRepository by lazy {
         SyncRepository(authRepository, database.pendingOperationDao(),
             database.pendingPhotoDao(), LocalPhotoFiles(appContext),
+            com.smartfarm.mobile.data.sync.OfflineObservationQueue(database),
             { retrofit.create(SyncApi::class.java) },
             { retrofit.create(MonitoringApi::class.java) },
-            { retrofit.create(InventoryApi::class.java) }, workManager)
+            { retrofit.create(InventoryApi::class.java) }, workManager, offlineCache)
     }
 
     val authRepository: AuthRepository by lazy {
         AuthRepository(onLogin = {
+            syncRepository.resetProgress()
             syncRepository.enablePeriodicChecks()
             syncRepository.schedule()
         }) { retrofit.create(AuthApi::class.java) }

@@ -33,11 +33,16 @@ public sealed class InventoryController : Controller
     private Guid Actor => Guid.TryParse(_users.GetUserId(User), out var id) ? id : Guid.Empty;
 
     [HttpGet]
-    public async Task<IActionResult> Index(Guid farmId, CancellationToken ct)
+    public async Task<IActionResult> Index(Guid farmId, CancellationToken ct, string? filter = null, string? search = null)
     {
         var farm = await _farms.GetAsync(farmId, Actor, ct);
         if (farm is null) return NotFound();
-        return View(new InventoryPage(farm, await _inventory.ListAsync(farmId, Actor, ct)));
+        return View(new InventoryPage(farm, await _inventory.ListAsync(farmId, Actor, ct))
+        {
+            Search = (search ?? "").Trim()[..Math.Min((search ?? "").Trim().Length, 120)],
+            SelectedFilter = filter is "low" or "seeds" or "fertilizers" or "pesticides" or "other"
+                ? filter : "all"
+        });
     }
 
     [HttpGet]
@@ -57,10 +62,14 @@ public sealed class InventoryController : Controller
     {
         if (!ModelState.IsValid)
         {
-            TempData["Error"] = "Enter a valid inventory item, unit and opening stock.";
+            TempData["Error"] = SmartFarm.Web.Presentation.UiMessages.Text("Enter a valid inventory item, unit and opening stock.");
             return RedirectToAction(nameof(Index), new { farmId });
         }
-        try { await _inventory.CreateAsync(farmId, Actor, input, ct); }
+        try
+        {
+            await _inventory.CreateAsync(farmId, Actor, input, ct);
+            if (TempData is not null) TempData["Message"] = SmartFarm.Web.Presentation.UiMessages.Text("Supply added to the farm inventory.");
+        }
         catch (FarmOperationException e)
         {
             if (e.Error == FarmError.NotFound) return NotFound();
@@ -90,16 +99,32 @@ public sealed class InventoryController : Controller
     {
         if (!ModelState.IsValid)
         {
-            TempData["Error"] = "Check item name, category, unit and reorder level.";
-            return RedirectToAction(nameof(Details), new { farmId, itemId });
+            return await InvalidEdit(farmId, itemId, input, ct);
         }
-        try { await _inventory.UpdateAsync(farmId, itemId, Actor, input, ct); }
+        try
+        {
+            await _inventory.UpdateAsync(farmId, itemId, Actor, input, ct);
+            if (TempData is not null) TempData["Message"] = SmartFarm.Web.Presentation.UiMessages.Text("Supply details updated.");
+        }
         catch (FarmOperationException e)
         {
             if (e.Error == FarmError.NotFound) return NotFound();
-            TempData["Error"] = e.Message;
+            ModelState.AddModelError("", e.Message);
+            return await InvalidEdit(farmId, itemId, input, ct);
         }
         return RedirectToAction(nameof(Details), new { farmId, itemId });
+    }
+
+    private async Task<IActionResult> InvalidEdit(Guid farmId, Guid itemId,
+        InventoryItemInput input, CancellationToken ct)
+    {
+        var result = await Edit(farmId, itemId, ct);
+        if (result is ViewResult view && view.Model is InventoryEditPage model)
+        {
+            view.ViewName = "Edit";
+            view.ViewData.Model = model with { Input = input };
+        }
+        return result;
     }
 
     [HttpPost, ValidateAntiForgeryToken]
@@ -122,12 +147,16 @@ public sealed class InventoryController : Controller
     {
         if (!ModelState.IsValid)
         {
-            TempData["Error"] = "Enter a valid quantity, type and row version.";
+            TempData["Error"] = SmartFarm.Web.Presentation.UiMessages.Text("Enter a valid quantity, type and row version.");
             return RedirectToAction(nameof(Details), new { farmId, itemId });
         }
         if (input.TransactionType == StockTransactionType.Consumption && input.QuantityChange > 0)
             input.QuantityChange = -input.QuantityChange;
-        try { await _inventory.PostAsync(farmId, itemId, Actor, input, ct); }
+        try
+        {
+            await _inventory.PostAsync(farmId, itemId, Actor, input, ct);
+            if (TempData is not null) TempData["Message"] = SmartFarm.Web.Presentation.UiMessages.Text("Stock movement saved. The balance is updated.");
+        }
         catch (FarmOperationException e)
         {
             if (e.Error == FarmError.NotFound) return NotFound();
@@ -142,10 +171,14 @@ public sealed class InventoryController : Controller
     {
         if (!ModelState.IsValid)
         {
-            TempData["Error"] = "Provide a reversal reason and current item version.";
+            TempData["Error"] = SmartFarm.Web.Presentation.UiMessages.Text("Provide a reversal reason and current item version.");
             return RedirectToAction(nameof(Details), new { farmId, itemId });
         }
-        try { await _inventory.ReverseAsync(farmId, itemId, transactionId, Actor, input, ct); }
+        try
+        {
+            await _inventory.ReverseAsync(farmId, itemId, transactionId, Actor, input, ct);
+            if (TempData is not null) TempData["Message"] = SmartFarm.Web.Presentation.UiMessages.Text("Stock transaction reversed. The original entry remains in history.");
+        }
         catch (FarmOperationException e)
         {
             if (e.Error == FarmError.NotFound) return NotFound();

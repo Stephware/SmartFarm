@@ -1,0 +1,63 @@
+@using SmartFarm.Core.Contracts.Weather
+@using SmartFarm.Core.Services.Tasks
+@model WeatherGuidance
+@{
+    ViewData["Title"] = T["Weather guidance"];
+    var farmId = ViewData["FarmId"] is Guid id ? id : Guid.Empty;
+    var language = System.Globalization.CultureInfo.CurrentUICulture.Name.StartsWith("fil", StringComparison.OrdinalIgnoreCase)
+        ? "fil" : "en";
+    var aiAssisted = Model.GenerationSource == "gemini";
+}
+<div class="ani12e-workspace ani12e-weather reference-screen">
+    <section class="panel card" aria-labelledby="guidance-heading">
+        <div class="sf-page-header page-hero">
+            <div>
+                <p><a class="anigo-back-control" asp-controller="Weather" asp-action="Index"
+                      asp-route-farmId="@farmId" title="@T["Back to weather"]">
+                    <partial name="_Icon" model='@("chevLeft")' />
+                    <span class="visually-hidden">@T["Back to weather"]</span>
+                </a></p>
+                <p class="ani-overline">@T["Saved forecast advice"]</p>
+                <h1 id="guidance-heading">@T["Weather guidance"]</h1>
+                <p class="sf-muted">@T["Advice based on a saved farm forecast, not a live warning or field measurement."]</p>
+                <p class="sf-muted">@T["Forecast date"]: @Model.ForecastDate.ToString("MMM d, yyyy")</p>
+                <p class="sf-muted" data-guidance-source="@Model.GenerationSource">
+                    @(aiAssisted ? T["AI-assisted explanation from approved recommendations."] :
+                        T["Rule-based guidance is shown because AI advice is not available or appropriate."])
+                </p>
+            </div>
+        </div>
+        @if (Model.IsStale)
+        {
+            <p class="sf-weather-stale" role="status">@T["This forecast is stale. Check an official current forecast before making weather-sensitive decisions."]</p>
+        }
+        @if (Model.IsSynthetic)
+        {
+            <p class="sf-weather-stale" role="status">@T["These are simulated demonstration records, not real-world weather alerts."]</p>
+        }
+        @if (Model.CropCycleId.HasValue)
+        {
+            <p class="sf-muted">@T["Crop-specific advice uses existing saved farm records and may not reflect current field conditions."]</p>
+        }
+        <p class="hint">@T["This advice is informational only. AniGo does not automatically change crops, tasks, irrigation, or inventory."]</p>
+    </section>
+    <section class="panel card" aria-labelledby="explanation-heading">
+        <h2 id="explanation-heading">@T["What the forecast means"]</h2>
+        <ul>
+            @foreach (var explanation in Model.Explanations)
+            {
+                <li>@GuidanceCatalog.Text(explanation.Key, language)</li>
+            }
+        </ul>
+    </section>
+    <section class="panel card" aria-labelledby="recommendations-heading">
+        <h2 id="recommendations-heading">@T["Suggested next steps"]</h2>
+        <ul>
+            @foreach (var recommendation in Model.Recommendations)
+            {
+                <li>@GuidanceCatalog.Text(recommendation.Key, language)</li>
+            }
+        </ul>
+    </section>
+    <p class="hint">@T["For dangerous weather, follow PAGASA and local official advisories."]</p>
+</div>

@@ -38,6 +38,13 @@ public sealed class WorkerSchedulingTests
             WorkerJobScheduler.WeatherJobId
         }, scheduleCalls.Select(x => (string)x.Args[0]!).ToArray());
         Assert.Equal(3, scheduleCalls.Count);
+        // These cadences must match the app's reminder and forecast freshness.
+        Assert.Equal("0 * * * *", Assert.IsType<string>(scheduleCalls[0].Args[2]));
+        Assert.Equal("0 * * * *", Assert.IsType<string>(scheduleCalls[1].Args[2]));
+        Assert.Equal("0 */6 * * *", Assert.IsType<string>(scheduleCalls[2].Args[2]));
+        Assert.All(scheduleCalls, call =>
+            Assert.Equal(TimeZoneInfo.Utc.Id,
+                Assert.IsType<RecurringJobOptions>(call.Args[3]).TimeZone.Id));
 
         var startupJobs = ((RecordingProxy)queued).Calls
             .Where(x => x.Method == "Create")

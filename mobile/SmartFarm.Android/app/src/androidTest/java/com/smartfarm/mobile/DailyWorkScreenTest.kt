@@ -1,0 +1,102 @@
+package com.smartfarm.mobile
+
+import androidx.compose.ui.test.junit4.createComposeRule
+import androidx.compose.ui.test.onNodeWithText
+import androidx.compose.ui.test.onNodeWithTag
+import androidx.compose.ui.test.hasText
+import androidx.compose.ui.test.hasClickAction
+import androidx.compose.ui.test.performScrollToNode
+import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performScrollTo
+import com.smartfarm.mobile.data.remote.api.TaskCreateInput
+import com.smartfarm.mobile.data.remote.api.TaskDto
+import com.smartfarm.mobile.features.tasks.TaskScreen
+import com.smartfarm.mobile.features.tasks.TaskUiState
+import com.smartfarm.mobile.features.tasks.TaskWorkCenter
+import com.smartfarm.mobile.ui.theme.SmartFarmTheme
+import org.junit.Assert.assertEquals
+import org.junit.Rule
+import org.junit.Test
+
+class DailyWorkScreenTest {
+    @get:Rule val compose = createComposeRule()
+
+    private fun todayTask() = TaskDto("today-1", "farm", null, "worker", 4,
+        TaskWorkCenter.today("Asia/Manila").toString(), 0, "Inspect the rows", "version")
+
+    @Test fun fieldWorkerSeesAssignedWorkButCannotCreateManagerTasks() {
+        compose.setContent {
+            SmartFarmTheme {
+                TaskScreen(
+                    TaskUiState(farmId = "farm", tasks = listOf(todayTask()),
+                        timeZoneId = "Asia/Manila"),
+                    canManage = false, actorId = "worker",
+                    onBack = {}, onRetry = {}, onComplete = {}, onRead = {}
+                )
+            }
+        }
+        compose.onNodeWithText("My tasks").assertExists()
+        compose.onNodeWithText("1 due today").assertExists()
+        compose.onNodeWithText("Create and assign task").assertDoesNotExist()
+    }
+
+    @Test fun calendarShowsRealAssignmentsForTheSelectedFarmDate() {
+        compose.setContent {
+            SmartFarmTheme {
+                TaskScreen(TaskUiState(farmId = "farm", tasks = listOf(todayTask()),
+                    timeZoneId = "Asia/Manila"), false, "worker", {}, {}, {}, {})
+            }
+        }
+        compose.onNodeWithText("Calendar").performScrollTo().performClick()
+        val today = TaskWorkCenter.today("Asia/Manila")
+        compose.onNodeWithTag("record-list").performScrollToNode(hasText("Show today's tasks"))
+        compose.onNodeWithTag("task-calendar-picker").assertExists()
+        compose.onNodeWithText("Show today's tasks").performClick()
+        compose.onNodeWithText("Task calendar").assertDoesNotExist()
+        compose.onNodeWithTag("record-list").performScrollToNode(
+            hasText("Assignments on " + today))
+        compose.onNodeWithText("Assignments on " + today).assertExists()
+        compose.onNodeWithTag("record-list").performScrollToNode(hasText("Inspect the rows"))
+        compose.onNodeWithText("Inspect the rows").assertExists()
+        compose.onNodeWithText("Change date").performScrollTo().performClick()
+        compose.onNodeWithTag("record-list").performScrollToNode(hasText("Show today's tasks"))
+        compose.onNodeWithTag("task-calendar-picker").assertExists()
+    }
+
+    @Test fun managerCanCreateTaskUsingExistingCallback() {
+        var created: TaskCreateInput? = null
+        compose.setContent {
+            SmartFarmTheme {
+                TaskScreen(
+                    TaskUiState(farmId = "farm", timeZoneId = "Asia/Manila",
+                        choicesReady = true),
+                    canManage = true, actorId = "manager",
+                    onBack = {}, onRetry = {}, onComplete = {}, onRead = {},
+                    onCreate = { created = it }
+                )
+            }
+        }
+        compose.onNodeWithText("Create and assign task").performScrollTo().performClick()
+        compose.onNodeWithText("Create task").performScrollTo().performClick()
+        compose.runOnIdle {
+            assertEquals(4, created?.taskType)
+            assertEquals(TaskWorkCenter.today("Asia/Manila").toString(), created?.dueDate)
+            assertEquals(null, created?.assignedToUserId)
+        }
+    }
+
+    @Test fun staleChoicesBlockTaskCreation() {
+        compose.setContent {
+            SmartFarmTheme {
+                TaskScreen(
+                    TaskUiState(farmId = "farm", timeZoneId = "Asia/Manila",
+                        choicesReady = false, choicesError = "Reconnect and refresh."),
+                    canManage = true, actorId = "manager",
+                    onBack = {}, onRetry = {}, onComplete = {}, onRead = {}
+                )
+            }
+        }
+        compose.onNodeWithText("Reconnect and refresh.").assertExists()
+        compose.onNodeWithText("Create task").assertDoesNotExist()
+    }
+}

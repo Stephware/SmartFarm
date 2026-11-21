@@ -6,6 +6,10 @@ import androidx.work.Configuration
 import com.smartfarm.mobile.di.AppContainer
 
 class SmartFarmApplication : Application(), Configuration.Provider {
+    override fun onCreate() {
+        super.onCreate()
+        com.smartfarm.mobile.localization.AppLanguage.initialize(this)
+    }
     val container by lazy { AppContainer(this) }
 
     override val workManagerConfiguration: Configuration

@@ -1,35 +1,102 @@
 @{
-    ViewData["Title"] = "AniGo farm management";
+    ViewData["Title"] = T["Grow smarter. Manage every farm in one place"];
+    var signedIn = User.Identity?.IsAuthenticated == true;
 }
-<section class="panel landing-hero">
-    <p class="hint">Farm planning · Field monitoring · Harvest reporting</p>
-    <h1>Keep your farm organized, from planting to harvest.</h1>
-    <p>Track plots and crops, record field observations, monitor stock, and review
-       harvest results in one place.</p>
-    <div class="action-links">
-    @if (User.Identity?.IsAuthenticated == true)
-    {
-        <a class="button" asp-controller="Farms" asp-action="Index">Open my farms</a>
-        <a asp-controller="Notifications" asp-action="Index">Review reminders</a>
-    }
-    else
-    {
-        <a class="button" asp-controller="Account" asp-action="Login">Log in</a>
-        <a asp-controller="Account" asp-action="Register">Create account</a>
-    }
+<div class="ani-entry-site ani6-landing">
+    <section class="ani6-hero" id="home" aria-labelledby="ani-entry-title">
+        <img class="ani6-hero-image" src="~/images/photography/fields-hero.webp"
+             alt="" width="1440" height="960" fetchpriority="high" decoding="async" />
+        <div class="ani6-container ani6-hero-content">
+            <p class="ani6-kicker ani6-kicker-light">@T["Practical farm management"]</p>
+            <h1 id="ani-entry-title">@T["Grow smarter. Manage"]<br class="ani6-desktop-break" />
+                @T["every farm in"] <em>@T["one place."]</em></h1>
+            <p class="ani6-lede">@T["Plan crops, coordinate fieldwork, track harvests, and keep your farm records organized."]</p>
+            <div class="ani6-hero-actions">
+                <a class="ani6-btn ani6-btn-green" asp-controller="@(signedIn ? "Farms" : "Account")"
+                   asp-action="@(signedIn ? "Index" : "Register")">
+                    @(signedIn ? T["Open my farms"] : T["Get started"])
+                    <partial name="_Icon" model='@("arrow")' />
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <section class="ani6-features ani6-container" id="features" aria-label="@T["What you can do with AniGo"]">
+        <article class="ani6-feature">
+            <span class="ani6-feature-icon" aria-hidden="true"><partial name="_Icon" model='@("sprout")' /></span>
+            <div><h2>@T["Plan crops"]</h2><p>@T["Set planting schedules and crop cycles."]</p></div>
+        </article>
+        <article class="ani6-feature">
+            <span class="ani6-feature-icon" aria-hidden="true"><partial name="_Icon" model='@("checkSquare")' /></span>
+            <div><h2>@T["Record fieldwork"]</h2><p>@T["Log inspections, irrigation, and treatments."]</p></div>
+        </article>
+        <article class="ani6-feature">
+            <span class="ani6-feature-icon ani6-feature-icon-gold" aria-hidden="true"><partial name="_Icon" model='@("basket")' /></span>
+            <div><h2>@T["Track Harvests"]</h2><p>@T["Record harvests and monitor yields."]</p></div>
+        </article>
+        <article class="ani6-feature">
+            <span class="ani6-feature-icon" aria-hidden="true"><partial name="_Icon" model='@("box")' /></span>
+            <div><h2>@T["Manage Supplies"]</h2><p>@T["Keep inventory and usage in check."]</p></div>
+        </article>
+    </section>
+
+    <div class="ani6-content ani6-container">
+        <section class="ani6-start" id="get-started" aria-labelledby="ani6-start-title">
+            <header class="ani6-section-head">
+                <p class="ani6-kicker">@T["Start where you are"]</p>
+                <h2 id="ani6-start-title">@T["How would you like to get started?"]</h2>
+                <p>@T["Start your own farm or join an existing team. You can do both with the same account."]</p>
+            </header>
+            <div class="ani6-paths">
+                <a class="ani6-path ani6-path-owner"
+                   asp-controller="@(signedIn ? "Farms" : "Account")"
+                   asp-action="@(signedIn ? "Create" : "Register")"
+                   asp-route-returnUrl="@(signedIn ? null : Url.Action("Create", "Farms"))">
+                    <span class="ani6-path-icon" aria-hidden="true"><partial name="_Icon" model='@("sprout")' /></span>
+                    <span class="ani6-path-content">
+                        <span class="ani6-path-overline">@T["For farm owners and managers"]</span>
+                        <strong>@T["I manage a farm"]</strong>
+                        <span>@T["Create or oversee farms, teams, crops, and records."]</span>
+                    </span>
+                    <span class="ani6-path-arrow" aria-hidden="true"><partial name="_Icon" model='@("arrow")' /></span>
+                </a>
+                <a class="ani6-path ani6-path-worker"
+                   asp-controller="@(signedIn ? "Farms" : "Account")"
+                   asp-action="@(signedIn ? "Index" : "Register")"
+                   asp-route-returnUrl="@(signedIn ? null : Url.Action("Index", "Farms") + "#join-farm")"
+                   asp-fragment="@(signedIn ? "join-farm" : null)">
+                    <span class="ani6-path-icon" aria-hidden="true"><partial name="_Icon" model='@("users")' /></span>
+                    <span class="ani6-path-content">
+                        <span class="ani6-path-overline">@T["For field workers and team members"]</span>
+                        <strong>@T["I work on a farm"]</strong>
+                        <span>@T["Join with a farm code, wait for the owner to approve access, then record fieldwork."]</span>
+                    </span>
+                    <span class="ani6-path-arrow" aria-hidden="true"><partial name="_Icon" model='@("arrow")' /></span>
+                </a>
+            </div>
+        </section>
+
+        <section class="ani6-cta" aria-labelledby="ani6-cta-title">
+            <img src="~/images/photography/fields-detail.webp" alt=""
+                 width="1440" height="960" loading="lazy" decoding="async" />
+            <div><h2 id="ani6-cta-title">@T["Ready to organize your farm?"]</h2>
+                <p>@T["Create an account and start managing your farm today."]</p></div>
+            <a class="ani6-btn ani6-btn-white" asp-controller="@(signedIn ? "Farms" : "Account")"
+               asp-action="@(signedIn ? "Index" : "Register")">
+                @(signedIn ? T["Open my farms"] : T["Create account"]) <partial name="_Icon" model='@("arrow")' />
+            </a>
+        </section>
     </div>
-</section>
-<section class="feature-grid">
-    <div class="panel">
-        <h2>Plan your crops</h2>
-        <p>Organize your farms and plots, set planting dates, and follow each crop cycle.</p>
-    </div>
-    <div class="panel">
-        <h2>Record fieldwork</h2>
-        <p>Log crop activities, inspections, harvests, and inventory movements.</p>
-    </div>
-    <div class="panel">
-        <h2>Review results</h2>
-        <p>Check tasks and weather advisories, then compare harvests by crop, plot, month, and unit.</p>
-    </div>
-</section>
+
+    <footer class="ani6-footer">
+        <div class="ani6-container ani6-footer-main">
+            <a class="ani6-footer-brand anigo-footer-brand" asp-controller="Home" asp-action="Index" aria-label="@T["AniGo home"]">
+                <span class="anigo-logo-pair anigo-footer-logo" aria-hidden="true">
+                    <img class="anigo-logo-light" src="~/images/branding/anigo-logo.svg" asp-append-version="true" alt="" width="1120" height="297" />
+                    <img class="anigo-logo-dark" src="~/images/branding/anigo-logo-on-dark.svg" asp-append-version="true" alt="" width="1120" height="297" />
+                </span>
+            </a>
+            <small>@T["© {0} AniGo. All rights reserved.", DateTime.UtcNow.Year]</small>
+        </div>
+    </footer>
+</div>

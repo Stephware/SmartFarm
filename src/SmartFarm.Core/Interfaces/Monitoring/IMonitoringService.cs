@@ -9,6 +9,9 @@ public interface IMonitoringService
         RecordActivityInput input, CancellationToken ct = default);
     Task<ObservationDetails> RecordObservationAsync(Guid farmId, Guid cycleId, Guid actor,
         RecordObservationInput input, CancellationToken ct = default);
+    Task<ObservationDetails> UpdateFollowUpAsync(Guid farmId, Guid cycleId,
+        Guid observationId, Guid actor, UpdateObservationFollowUpInput input,
+        CancellationToken ct = default);
     Task<PhotoDetails> AddPhotoAsync(Guid farmId, Guid cycleId, Guid observationId, Guid actor,
         Stream stream, long length, string? claimedContentType, CancellationToken ct = default);
     Task<PhotoDetails> AddPhotoWithIdAsync(Guid farmId, Guid cycleId,

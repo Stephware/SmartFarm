@@ -1,0 +1,193 @@
+/* AniGo Web Phase 7: supplies, weather confidence and communication.
+   All styles are scoped to these farmer-facing screens. */
+.reference-screen-inventory .ani-inventory-shortcuts,
+.reference-screen-notifications .ani-inbox-tabs {
+    display:flex;flex-wrap:wrap;gap:8px;margin:14px 0 18px;
+}
+.reference-screen-inventory .ani-inventory-shortcuts a,
+.reference-screen-notifications .ani-inbox-tabs a {
+    display:inline-flex;align-items:center;justify-content:center;gap:6px;
+    min-height:44px;padding:9px 15px;border:1px solid var(--stroke);
+    border-radius:999px;text-decoration:none;font-size:.86rem;font-weight:750;
+    color:var(--ink);background:var(--soft);
+}
+.reference-screen-inventory .ani-inventory-shortcuts a:hover,
+.reference-screen-notifications .ani-inbox-tabs a:hover {border-color:var(--outline);background:var(--success-soft);}
+.reference-screen-inventory .ani-inventory-shortcuts a.is-selected,
+.reference-screen-notifications .ani-inbox-tabs a.is-active {
+    background:var(--pine);color:var(--on-primary);border-color:var(--pine);
+}
+.reference-screen-inventory .sf-inventory-panel .card-head {
+    align-items:start;flex-wrap:wrap;gap:8px 18px;
+}
+.reference-screen-inventory .sf-inventory-panel .card-head .sf-muted {font-size:.85rem;margin:5px 0 0;line-height:1.5;}
+.reference-screen-inventory .ani-inventory-shortcuts a:focus-visible,
+.reference-screen-inventory .ani-movement-form :is(input,select,button):focus-visible,
+.reference-screen-notifications .ani-inbox-tabs a:focus-visible {
+    outline:3px solid var(--focus);outline-offset:3px;
+}
+.reference-screen-inventory .sf-inventory-create,
+.reference-screen-inventory .ani-inventory-movement {scroll-margin-top:96px;}
+.reference-screen-inventory .ani-inventory-movement {
+    border:1px solid var(--stroke);border-radius:var(--ui-card-radius);
+    padding:clamp(17px,2.4vw,24px);background:var(--card);
+}
+.reference-screen-inventory .ani-inventory-movement > p.sf-muted {
+    max-width:68ch;font-size:.89rem;line-height:1.55;
+}
+.reference-screen-inventory .ani-inventory-movement .ani-stock-movement-guide {
+    display:flex;gap:8px;flex-wrap:wrap;margin:13px 0 18px;
+}
+.reference-screen-inventory .ani-movement-form {display:grid;gap:10px;max-width:660px;}
+.reference-screen-inventory .ani-movement-form label {
+    font-size:.88rem;color:var(--ink);font-weight:750;
+}
+.reference-screen-inventory .ani-movement-form select,
+.reference-screen-inventory .ani-movement-form input {
+    min-height:46px;width:100%;max-width:100%;font-size:1rem;
+}
+.reference-screen-inventory .ani-movement-form :is(.ani-inventory-activity-field,.ani-inventory-reason-field) {
+    display:grid;gap:9px;margin:5px 0;
+}
+.reference-screen-inventory [data-activity-field][hidden],
+.reference-screen-inventory [data-reason-field][hidden] {display:none!important;}
+.reference-screen-inventory .ani-movement-form .hint {font-size:.83rem;line-height:1.55;margin:0;}
+.reference-screen-inventory .ani-inventory-guidance {
+    margin:5px 0;padding:12px 14px;
+    border:1px solid var(--accent);border-radius:10px;
+    background:var(--accent-soft);color:var(--accent-ink);
+    font-size:.85rem;line-height:1.55;
+}
+.reference-screen-inventory .ani-inventory-guidance a {
+    display:inline-block;color:inherit;font-weight:800;text-decoration:underline;
+}
+.reference-screen-inventory .ani-movement-form button[type=submit] {
+    min-height:47px;justify-self:start;font-size:.92rem;font-weight:750;
+}
+.reference-screen-inventory .ani-movement-form .ani-stock-guidance {
+    color:var(--muted);font-size:.83rem;max-width:68ch;line-height:1.55;
+}
+.reference-screen-inventory .sf-stock-hero-balance strong {
+    font-variant-numeric:tabular-nums;
+}
+.reference-screen-inventory .sf-stock-history .sf-empty-state {padding:20px;}
+.reference-screen-weather .ani-weather-hero .ani-weather-freshness {
+    margin:11px 0 0;display:flex;flex-wrap:wrap;align-items:baseline;
+    gap:5px;font-size:.84rem;color:var(--muted);
+}
+.reference-screen-weather .ani-weather-freshness strong {color:var(--ink);}
+.reference-screen-weather .ani-weather-freshness span {font-weight:700;}
+.reference-screen-weather .sf-weather-stale {
+    border:1px solid var(--accent);border-radius:11px;
+    background:var(--accent-soft);color:var(--accent-ink);
+    padding:13px 17px;margin:13px 0 18px;
+}
+.reference-screen-weather .sf-weather-stale strong {color:inherit;}
+.reference-screen-weather .sf-weather-stale p {color:inherit;margin:5px 0 0;line-height:1.6;font-size:.89rem;}
+.reference-screen-weather .reference-weather-overview {margin:17px 0;}
+.reference-screen-weather .ani-weather-days {gap:12px;}
+.reference-screen-weather .ani-weather-advisories .card-head {align-items:start;gap:10px;}
+.reference-screen-weather .ani-weather-advisories .sf-muted {font-size:.85rem;line-height:1.5;margin:5px 0;}
+.reference-screen-notifications .sf-notifications-hero .sf-muted {max-width:72ch;}
+.reference-screen-notifications .sf-notifications-panel .card-head {flex-wrap:wrap;gap:9px;}
+.reference-screen-notifications .sf-notification {
+    border:1px solid var(--stroke);border-radius:12px;
+    padding:clamp(13px,2vw,20px);background:var(--card);
+}
+.reference-screen-notifications .sf-notification.sf-notification-unread {
+    border-left:4px solid var(--accent);background:var(--soft);
+}
+.reference-screen-notifications .sf-notification-body {min-width:0;}
+.reference-screen-notifications .ani-notification-next {
+    padding:8px 11px;border-radius:8px;
+    background:var(--success-soft);color:var(--on-success-soft);
+    font-size:.82rem;font-weight:650;margin:10px 0 0;
+}
+.reference-screen-notifications .sf-notification-read-button {min-height:44px;font-weight:750;}
+.ani-team-enrollment {scroll-margin-top:100px;padding:clamp(17px,2.4vw,25px);}
+.ani-team-enrollment .ani-overline {margin-bottom:5px;}
+.ani-team-enrollment h2 {font-size:clamp(1.2rem,2vw,1.45rem);margin-bottom:7px;}
+.ani-team-enrollment > .sf-muted {font-size:.89rem;max-width:75ch;line-height:1.6;}
+.ani-team-request-summary {
+    display:flex;align-items:center;gap:13px;
+    margin:15px 0;padding:12px 15px;
+    border-radius:11px;border:1px solid var(--stroke);background:var(--soft);
+}
+.ani-team-request-summary strong {
+    font-variant-numeric:tabular-nums;font-size:1.6rem;line-height:1.15;
+    color:var(--ink);
+}
+.ani-team-request-summary span {font-size:.87rem;color:var(--muted);font-weight:700;}
+.ani-team-enrollment .ani-team-pending > h3 {font-size:1.05rem;margin:15px 0 12px;}
+.ani-team-enrollment .ani-team-request-list {
+    display:grid;gap:11px;list-style:none;padding:0;margin:0 0 18px;
+}
+.ani-team-enrollment .ani-team-request-list > li {
+    display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:12px;
+    padding:15px;border:1px solid var(--stroke);border-radius:12px;background:var(--card);
+}
+.ani-team-enrollment .ani-team-request-list > li > div:first-child {
+    display:grid;gap:4px;min-width:0;overflow-wrap:anywhere;
+}
+.ani-team-enrollment .ani-team-request-list time {color:var(--muted);font-size:.79rem;}
+.ani-team-enrollment .ani-team-decision {display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
+.ani-team-enrollment .ani-team-decision form {margin:0;}
+.ani-team-enrollment .ani-team-decision button {min-height:44px;font-size:.85rem;}
+.ani-team-enrollment :is(.ani-team-share,.ani-team-history,.ani-team-sensitive) {
+    margin:14px 0 0;border:1px solid var(--stroke);
+    border-radius:12px;padding:0 14px;min-width:0;background:var(--card);
+}
+.ani-team-enrollment :is(.ani-team-share,.ani-team-history,.ani-team-sensitive) > summary {
+    cursor:pointer;list-style:none;display:flex;flex-wrap:wrap;align-items:center;gap:7px 12px;
+    min-height:47px;padding:11px 0;font-size:.91rem;font-weight:750;color:var(--ink);
+}
+.ani-team-enrollment :is(.ani-team-share,.ani-team-history,.ani-team-sensitive) > summary::-webkit-details-marker {display:none;}
+.ani-team-enrollment :is(.ani-team-share,.ani-team-history,.ani-team-sensitive) > summary:focus-visible {
+    outline:3px solid var(--focus);outline-offset:2px;
+}
+.ani-team-enrollment :is(.ani-team-share,.ani-team-history,.ani-team-sensitive) > summary span {
+    color:var(--muted);font-size:.8rem;font-weight:600;
+}
+.ani-team-enrollment .ani-team-share .sf-enrollment-code {
+    display:flex;align-items:end;flex-wrap:wrap;gap:10px 13px;margin:13px 0;
+}
+.ani-team-enrollment .ani-team-share .sf-enrollment-code label {width:100%;font-size:.84rem;font-weight:700;}
+.ani-team-enrollment .ani-team-share .sf-enrollment-code input {
+    flex:1 1 170px;min-width:0;min-height:46px;
+    font-size:1rem;letter-spacing:.07em;font-weight:750;
+}
+.ani-team-enrollment .ani-team-share .sf-enrollment-code button {min-height:46px;}
+.ani-team-enrollment .ani-team-share .sf-enrollment-code [role=status] {
+    width:100%;font-size:.84rem;margin:0;color:var(--on-success-soft);
+}
+.ani-team-enrollment .ani-team-sensitive {margin:15px 0 18px;background:var(--soft);}
+.ani-team-enrollment .ani-team-sensitive p {color:var(--muted);font-size:.85rem;margin:0 0 12px;}
+.ani-team-enrollment .ani-team-sensitive form {margin:0 0 14px;}
+.ani-team-enrollment .ani-team-history .farm-list {margin:13px 0 17px;}
+.ani-team-enrollment .ani-team-history .farm-list li {display:grid;gap:6px;}
+.ani-team-enrollment .ani-team-history .farm-list li span,
+.ani-team-enrollment .ani-team-history .farm-list li time {font-size:.82rem;color:var(--muted);}
+.ani-team-review-link {
+    display:inline-flex;align-items:center;min-height:40px;font-size:.86rem;
+    font-weight:750;text-decoration:none;
+}
+.ani-support-hint {font-size:.86rem;color:var(--muted);margin:0 0 7px;line-height:1.5;}
+@media(max-width:800px) {
+    .reference-screen-inventory .ani-inventory-metrics {grid-template-columns:repeat(2,minmax(0,1fr));}
+    .reference-screen-weather .ani-weather-hero .page-hero {align-items:start;flex-wrap:wrap;}
+}
+@media(max-width:540px) {
+    .reference-screen-inventory .ani-inventory-shortcuts a,
+    .reference-screen-notifications .ani-inbox-tabs a {flex:1 1 140px;text-align:center;}
+    .reference-screen-inventory .ani-movement-form button[type=submit] {width:100%;justify-self:stretch;}
+    .reference-screen-inventory .sf-inventory-panel .ani-inventory-filter {flex-direction:column;align-items:stretch;}
+    .reference-screen-inventory .sf-inventory-panel .ani-inventory-filter > div {width:100%;flex-basis:auto;}
+    .ani-team-enrollment .ani-team-request-list > li {align-items:stretch;}
+    .ani-team-enrollment .ani-team-decision {width:100%;}
+    .ani-team-enrollment .ani-team-decision form {flex:1 1 135px;}
+    .ani-team-enrollment .ani-team-decision button {width:100%;}
+}
+@media(prefers-reduced-motion:reduce) {
+    .reference-screen-inventory .ani-inventory-shortcuts a,
+    .reference-screen-notifications .ani-inbox-tabs a {transition:none;}
+}

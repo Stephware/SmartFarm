@@ -1,0 +1,55 @@
+@* F1 interaction polish is isolated from the locked generated stylesheet. *@
+<style>
+.ani-entry-farm-heading-actions { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.ani-entry-farm-heading-actions :is(.button,.sf-button-outline) { min-height: 48px; gap: 8px; }
+.ani-entry-farm-heading-actions .ico { width: 18px; height: 18px; }
+.ani-quick-create { max-width: 660px; margin: 24px auto; scroll-margin-top: 92px; }
+.ani-quick-create-form { display: grid; gap: 10px; margin-top: 20px; }
+.ani-quick-create-form :is(label,input) { margin: 0; }
+.ani-quick-create-form label { font-weight: 750; font-size: .92rem; }
+.ani-quick-create-form input:not([type=hidden]) {
+    box-sizing: border-box; width: 100%; min-height: 48px; background: var(--ui-surface, var(--card));
+    color: var(--ui-text, var(--ink)); border: 1px solid var(--ui-border, var(--stroke));
+    padding: 12px 14px; border-radius: 10px; font: inherit;
+}
+.ani-quick-create-form button[type=submit], .ani-farm-entry-dialog .join-farm-form button[type=submit] {
+    width: 100%; min-height: 48px; margin-top: 12px; font-size: .95rem;
+}
+.ani-modal-alternative { margin-top: 16px; font-size: .9rem; }
+.ani-modal-alternative a { color: var(--ui-primary, var(--pine)); font-weight: 700; }
+.reference-form-dialog.ani-farm-entry-dialog { width: min(520px, calc(100vw - 28px)); max-height: min(90dvh, 860px); }
+.reference-form-dialog.ani-farm-entry-dialog > section.panel {
+    padding: 6px clamp(18px, 4vw, 28px) 28px;
+}
+.reference-form-dialog.ani-farm-entry-dialog .dialog-toolbar button {
+    width: 44px; min-height: 44px; border-radius: 11px;
+}
+.ani-farm-entry-dialog .join-farm-form { display: grid; grid-template-columns: minmax(0,1fr); gap: 10px; align-items: stretch; }
+.ani-farm-entry-dialog .join-farm-form :is(input,button,label) { grid-column: 1 / -1; }
+.ani-farm-entry-dialog .join-farm-form input { min-height: 48px; box-sizing: border-box; }
+.ani-farm-entry-dialog .reference-panel-heading { align-items: start; }
+.ani-entry-farms-page .ani-quick-create .reference-panel-heading h2 { font-size: 1.35rem; }
+.ani-entry-farm-heading-actions a:focus-visible,
+.ani-farm-entry-dialog :is(input,button,a):focus-visible,
+.ani-quick-create :is(input,button,a):focus-visible {
+    outline: 3px solid var(--focus); outline-offset: 3px;
+}
+.ani-p5-form[aria-busy=true] button[type=submit] { cursor: progress; }
+.ani-p5-form[aria-busy=true] button[type=submit]::after {
+    content: ""; display: inline-block; width: 14px; height: 14px; margin-inline-start: 10px;
+    border: 2px solid currentColor; border-top-color: transparent; border-radius: 50%;
+    animation: ani-f1-wait .75s linear infinite;
+}
+:where(.reference-screen, .app-page) :is(.button, .sf-button-outline, .sf-button-secondary, button[type=submit]) {
+    transition: background-color 150ms ease, border-color 150ms ease, transform 130ms ease;
+}
+:where(.reference-screen, .app-page) :is(.button, .sf-button-outline, .sf-button-secondary, button[type=submit]):active:not(:disabled) {
+    transform: translateY(1px);
+}
+@@keyframes ani-f1-wait { to { transform: rotate(360deg); } }
+@@media (max-width: 580px) { .ani-entry-farm-heading-actions { width: 100%; } .ani-entry-farm-heading-actions > a { flex: 1 1 140px; justify-content: center; } }
+@@media (prefers-reduced-motion: reduce) {
+    .ani-p5-form[aria-busy=true] button[type=submit]::after { animation: none; }
+    :where(.reference-screen, .app-page) :is(.button, .sf-button-outline, .sf-button-secondary, button[type=submit]) { transition: none; }
+}
+</style>

@@ -1,0 +1,48 @@
+@model SmartFarm.Web.ViewModels.Support.SupportDetailsPage
+@{
+    ViewData["Title"] = T["Support case"];
+}
+<a class="admin-back anigo-back-control" asp-area="Admin" asp-controller="Support" asp-action="Index" title="@T["Back to support history"]"><partial name="~/Views/Shared/_Icon.cshtml" model='@("chevLeft")' /><span class="visually-hidden">@T["Back to support history"]</span></a>
+<div class="page-heading admin-page-heading">
+    <div><h1>@Model.Ticket.Title</h1>
+        <p class="sf-muted">@T["Submitted {0} UTC", Model.Ticket.CreatedAtUtc.ToString("MMM d, yyyy")]</p></div>
+    <span class="sf-status-chip @(Model.Ticket.Status is "Open" or "InProgress" ? "sf-status-chip--planned" : "sf-status-chip--active")">@Model.Ticket.Status</span>
+</div>
+@if (TempData["Message"] is string message) { <p class="form-notice" role="status">@message</p> }
+@if (TempData["Error"] is string error) { <p class="error form-error" role="alert">@error</p> }
+<div class="admin-detail-grid">
+    <section class="panel admin-detail-panel" aria-labelledby="support-summary-heading">
+        <h2 id="support-summary-heading">@T["Request details"]</h2>
+        <dl class="admin-detail-list">
+            <div><dt>@T["Requested by"]</dt><dd><a asp-area="Admin" asp-controller="Users" asp-action="Details" asp-route-id="@Model.Ticket.UserId">@Model.Ticket.UserName</a></dd></div>
+            <div><dt>@T["Contact"]</dt><dd>@Model.Ticket.UserEmail</dd></div>
+            <div><dt>@T["Category"]</dt><dd>@Model.Ticket.Category</dd></div>
+            <div><dt>@T["Priority"]</dt><dd>@Model.Ticket.Priority</dd></div>
+            <div><dt>@T["Related farm"]</dt><dd>@(Model.Ticket.FarmName ?? "Not specified")</dd></div>
+        </dl>
+        <h3>@T["Original description"]</h3>
+        <p class="admin-support-text">@Model.Description</p>
+    </section>
+    <section class="panel admin-detail-panel" aria-labelledby="case-history-heading">
+        <h2 id="case-history-heading">@T["Read-only history"]</h2>
+        <p class="sf-muted">@T["Status, priority and messages are retained as recorded. New conversations and case updates are retired."]</p>
+        <a asp-area="Admin" asp-controller="Audit" asp-action="Index"
+           asp-route-targetType="support-ticket" asp-route-targetId="@Model.Ticket.Id">@T["View this case's audit history"]</a>
+    </section>
+</div>
+<section class="panel admin-directory-panel" aria-labelledby="case-thread-heading">
+    <h2 id="case-thread-heading">@T["Conversation & internal notes"]</h2>
+    @if (Model.Messages.Count == 0) { <p class="admin-empty">@T["No updates yet."]</p> }
+    else {
+        <div class="admin-support-thread">
+            @foreach (var reply in Model.Messages) {
+                <article class="admin-support-message @(reply.IsInternal ? "admin-support-message-internal" : "")">
+                    <div class="admin-support-message-meta"><strong>@reply.AuthorName</strong>
+                        @if (reply.IsInternal) { <span class="sf-status-chip sf-status-chip--neutral">@T["Internal only"]</span> }
+                        <time>@T["{0} UTC", reply.CreatedAtUtc.ToString("MMM d, yyyy HH:mm")]</time></div>
+                    <p class="admin-support-text">@reply.Body</p>
+                </article>
+            }
+        </div>
+    }
+</section>

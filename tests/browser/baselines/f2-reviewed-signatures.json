@@ -1,0 +1,106 @@
+{
+  "reviewed": true,
+  "version": "F2-compact-public-entry-2026-11-20",
+  "reviewMethod": "Visual inspection of 18 screenshot previews generated in GitHub Actions run 44581992241; changed screens are locked to exact PNG SHA-256 and dimensions. Unchanged screens retain the original pixel-diff goldens.",
+  "sourceRunId": 44581992241,
+  "sourceBlobShas": {
+    "wwwroot/css/anigo-tailwind.css": "1e540a7ec8ba12b2885b37847a1ceb70e1da78b6",
+    "Views/Shared/_Layout.cshtml": "999470732795e9753dd8c5ce1ab752c064b4883f",
+    "Views/Home/Index.cshtml": "97381c56b923b64fd7f5bb20ce23e71f8d88428d",
+    "Views/Account/Login.cshtml": "a2bca55eb67421520ec3452a20a6fb71fcdb0f00",
+    "Views/Account/Register.cshtml": "9a6c716e57de92f0fad13be90c81334b1d418b24",
+    "Views/Shared/_AniGoF2Styles.cshtml": "44bf502515ab49109d969b76c3eeec148ff8b4cd"
+  },
+  "screenshots": {
+    "landing-dark-1024": {
+      "width": 1024,
+      "height": 1058,
+      "sha256": "91a6196764f68a684814141ba9e85e58d7be4a4129872bf28187cdc733c9fa1b"
+    },
+    "landing-dark-1440": {
+      "width": 1440,
+      "height": 1122,
+      "sha256": "57921b4610c75b6235fe85a698dc303be712abd540f0bc97cdc23d58f04fb295"
+    },
+    "landing-dark-320": {
+      "width": 320,
+      "height": 1648,
+      "sha256": "5c4fd8a1344e3ff18d01aa0ce4c600128d595a99888e1ee05c74d476791eda9c"
+    },
+    "landing-dark-375": {
+      "width": 375,
+      "height": 1548,
+      "sha256": "455100aeb906dc413cafd674ed8f034a1b20bbdd0ef021a949005b7cfa24b04c"
+    },
+    "landing-dark-768": {
+      "width": 768,
+      "height": 1127,
+      "sha256": "429f09c13c67aa8d63f24f366074e31742a70e6068d2dd70cfd92b69d33d9bc1"
+    },
+    "landing-light-1024": {
+      "width": 1024,
+      "height": 1058,
+      "sha256": "c26738d2696f14729a6aa483629a765873bb7cf03e59245fb63016538e9ece14"
+    },
+    "landing-light-1440": {
+      "width": 1440,
+      "height": 1122,
+      "sha256": "683abe6f7d84273cdf3e10634ebccb521a6466ded905779e7a783ac4e14c8daf"
+    },
+    "landing-light-320": {
+      "width": 320,
+      "height": 1648,
+      "sha256": "91325257d193211062d5290f837876125f5352ffb019cf336f920bb0c9355e41"
+    },
+    "landing-light-375": {
+      "width": 375,
+      "height": 1548,
+      "sha256": "5e69e1cae0ad70e133408f9d20ec3d3c786718d6e08270450e3eef68e1033967"
+    },
+    "landing-light-768": {
+      "width": 768,
+      "height": 1127,
+      "sha256": "408cadc94431f7710ba875ab8a05c6426fef373450756c16fdae18c8303841be"
+    },
+    "login-dark-1024": {
+      "width": 1024,
+      "height": 929,
+      "sha256": "a5c90473cf42a75166958cebad97f3a6b450e54f9f2c2b6032051e639c72658c"
+    },
+    "login-dark-1440": {
+      "width": 1440,
+      "height": 989,
+      "sha256": "8a6a0f79c7876c2832436a028069275bef4f0c1e418d6119e5dcbcb1d685856c"
+    },
+    "login-light-1024": {
+      "width": 1024,
+      "height": 929,
+      "sha256": "8ce90938370589993cbcd1af051decfe143ad4a37080b0690b5c66a2f3c03d92"
+    },
+    "login-light-1440": {
+      "width": 1440,
+      "height": 989,
+      "sha256": "65074bfb84a1dcc51f4ad4a916a2e5c399ca303b5acc0278c7c4274cdf611a3d"
+    },
+    "registration-dark-1024": {
+      "width": 1024,
+      "height": 1103,
+      "sha256": "721b342aea0730053d33a6d5b024a0de4136b066089aa0206cc0caa860933d58"
+    },
+    "registration-dark-1440": {
+      "width": 1440,
+      "height": 1143,
+      "sha256": "ce34149a8630636d020669384ca430a7b980acfa98465cae0ed8a912dd937e25"
+    },
+    "registration-light-1024": {
+      "width": 1024,
+      "height": 1103,
+      "sha256": "afb8d8ea653c53f169b0ab6878d1e58ba525e0e453caa8c0ab5832af55a1f352"
+    },
+    "registration-light-1440": {
+      "width": 1440,
+      "height": 1143,
+      "sha256": "308fa91705c0b8238bdfbc85282c6773ca7f57709baba417a27997200425f7de"
+    }
+  }
+}

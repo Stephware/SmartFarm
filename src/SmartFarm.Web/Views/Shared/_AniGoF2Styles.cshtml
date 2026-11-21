@@ -1,0 +1,75 @@
+<style>
+/* F2: task-list scrolling is independent of the outer dashboard page. */
+.ani12c-farm-dashboard .ani-f2-today-scroll {
+    display: block; max-height: min(390px, 48dvh);
+    overflow-y: auto; overscroll-behavior-y: contain;
+    scrollbar-gutter: stable; scroll-behavior: smooth;
+    padding-inline-end: 8px;
+    border-block: 1px solid var(--ui-border, var(--stroke));
+}
+.ani12c-farm-dashboard .ani-f2-today-scroll li { min-width: 0; }
+.ani-f2-today-scroll:focus-visible {
+    outline: 3px solid var(--focus); outline-offset: 3px;
+}
+.ani-f2-list-note {
+    color: var(--ui-text-secondary, var(--muted));
+    font-size: .85rem; line-height: 1.55; margin: 10px 0;
+}
+.ani-f2-selected-day {
+    display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between;
+    gap: 12px; padding: 13px 16px; margin: 14px 0;
+    border: 1px solid var(--ui-border, var(--stroke)); border-radius: 10px;
+    background: var(--ui-surface-subtle, var(--soft));
+}
+.ani-f2-selected-day strong { font-weight: 750; }
+.ani-f2-selected-day a {
+    display: inline-flex; justify-content: center; align-items: center;
+    min-height: 44px; padding: 9px 14px;
+    border: 1px solid var(--ui-border, var(--stroke)); border-radius: 9px;
+    color: var(--ui-primary, var(--primary)); text-decoration: none; font-weight: 700;
+}
+.ani-f2-selected-day a:hover { background: var(--ui-surface, var(--card)); }
+.ani12e-task-calendar .cal-cell:not(.outside) a {
+    display: flex; align-items: center; justify-content: center;
+    gap: 2px; flex-direction: column; min-height: 44px;
+    text-decoration: none; border-radius: 7px;
+}
+.ani12e-task-calendar .cal-cell:not(.outside) a:hover {
+    background: var(--ui-surface-subtle, var(--soft));
+}
+.ani12e-task-calendar .cal-cell:not(.outside) a:focus-visible,
+.ani-f2-pager a:focus-visible, .ani-f2-selected-day a:focus-visible {
+    outline: 3px solid var(--focus); outline-offset: 3px;
+}
+.ani-f2-pager {
+    display: flex; align-items: center; justify-content: flex-end;
+    gap: 10px; flex-wrap: wrap; margin-top: 16px;
+}
+.ani-f2-pager span { color: var(--ui-text-secondary, var(--muted)); margin-inline-end: auto; }
+.ani-f2-pager a {
+    display: inline-flex; align-items: center; justify-content: center;
+    min-height: 44px; padding: 9px 14px;
+    border-radius: 9px; border: 1px solid var(--ui-border, var(--stroke));
+    color: var(--ui-primary, var(--primary));
+    background: var(--ui-surface, var(--card)); text-decoration: none; font-weight: 700;
+}
+.ani-f2-pager a:hover { background: var(--ui-surface-subtle, var(--soft)); }
+:where(#task-list-heading,#task-calendar-heading,#report-history-heading,#farm-library-heading,#requests-heading,#notifications-list-heading) {
+    scroll-margin-top: 94px;
+}
+/* Account-only mobile menu replaces removed landing section navigation. */
+.ani6-topbar .ani6-mobile-menu { display: none; }
+@@media (max-width: 600px) {
+    .ani6-topbar .ani6-mobile-menu { display: block; }
+    .ani6-topbar .ani6-mobile-menu summary { min-width: 44px; min-height: 44px; }
+    .ani6-topbar .ani6-mobile-menu nav :is(a,button) { min-height: 44px; }
+}
+@@media (max-width: 600px) {
+    .ani12c-farm-dashboard .ani-f2-today-scroll { max-height: min(320px, 45dvh); }
+    .ani-f2-pager { justify-content: flex-start; }
+    .ani-f2-pager span { flex-basis: 100%; }
+}
+@@media (prefers-reduced-motion: reduce) {
+    .ani12c-farm-dashboard .ani-f2-today-scroll { scroll-behavior: auto; }
+}
+</style>
